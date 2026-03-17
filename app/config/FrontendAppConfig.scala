@@ -37,6 +37,9 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val loginContinueUrl: String = configuration.get[String]("urls.loginContinue")
   val signOutUrl: String       = configuration.get[String]("urls.signOut")
 
+  lazy val importingVehiclesIntoTheUKUrl: String = configuration.get[String]("urls.importingVehiclesIntoTheUKUrl")
+  lazy val countriesInTheEUUrl: String           = configuration.get[String]("urls.countriesInTheEUUrl")
+
   private val exitSurveyBaseUrl: String = configuration.get[Service]("microservice.services.feedback-frontend").baseUrl
   val exitSurveyUrl: String             = s"$exitSurveyBaseUrl/feedback/nova-imports-notification-frontend"
 

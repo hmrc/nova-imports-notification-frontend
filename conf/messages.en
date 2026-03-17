@@ -53,3 +53,8 @@ vehicleFromEu.heading = Are you completing a notification for a vehicle brought 
 vehicleFromEu.checkYourAnswersLabel = Vehicle brought into Northern Ireland from an EU country
 vehicleFromEu.error.required = Select yes if the vehicle was brought into Northern Ireland from an EU country
 vehicleFromEu.change.hidden = vehicle brought into Northern Ireland from an EU country
+
+vehicleOutsideEU.title = If you’ve brought a vehicle into Northern Ireland from outside the EU
+vehicleOutsideEU.heading = If you’ve brought a vehicle into Northern Ireland from outside the EU
+vehicleOutsideEU.paragraph.1 = Find out how to notify HMRC about it on <a class="govuk-link" href="{0}">Importing vehicles into the UK</a>.
+vehicleOutsideEU.paragraph.2 = See the list of the <a class="govuk-link" href="{0}">countries in the EU</a>.
