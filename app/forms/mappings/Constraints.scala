@@ -16,7 +16,6 @@
 
 package forms.mappings
 
-import config.CurrencyFormatter
 import java.time.LocalDate
 
 import play.api.data.validation.{Constraint, Invalid, Valid}
@@ -105,23 +104,5 @@ trait Constraints {
         Valid
       case _ =>
         Invalid(errorKey)
-    }
-
-  protected def minimumCurrency(minimum: BigDecimal, errorKey: String)(implicit ev: Ordering[BigDecimal]): Constraint[BigDecimal] =
-    Constraint { input =>
-      if (input >= minimum) {
-        Valid
-      } else {
-        Invalid(errorKey, CurrencyFormatter.currencyFormat(minimum))
-      }
-    }
-
-  protected def maximumCurrency(maximum: BigDecimal, errorKey: String)(implicit ev: Ordering[BigDecimal]): Constraint[BigDecimal] =
-    Constraint { input =>
-      if (input <= maximum) {
-        Valid
-      } else {
-        Invalid(errorKey, CurrencyFormatter.currencyFormat(maximum))
-      }
     }
 }
