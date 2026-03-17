@@ -19,3 +19,9 @@ GET         /account/sign-out                            controllers.auth.AuthCo
 GET         /account/signed-out                          controllers.auth.SignedOutController.onPageLoad()
 
 GET         /unauthorised                                controllers.UnauthorisedController.onPageLoad()
+
+GET         /vehicle-from-eu                             controllers.VehicleFromEuController.onPageLoad(mode: Mode = NormalMode)
+POST        /vehicle-from-eu                             controllers.VehicleFromEuController.onSubmit(mode: Mode = NormalMode)
+
+GET         /change-vehicle-from-eu                      controllers.VehicleFromEuController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-vehicle-from-eu                      controllers.VehicleFromEuController.onSubmit(mode: Mode = CheckMode)

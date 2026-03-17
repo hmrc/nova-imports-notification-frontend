@@ -26,8 +26,15 @@ import models.*
 @Singleton
 class Navigator @Inject() () {
 
-  private val normalRoutes: Page => UserAnswers => Call = { case _ =>
-    _ => routes.IndexController.onPageLoad()
+  private val normalRoutes: Page => UserAnswers => Call = {
+    case VehicleFromEuPage =>
+      userAnswers =>
+        userAnswers.get(VehicleFromEuPage) match {
+          case Some(true)  => routes.IndexController.onPageLoad() // TODO: navigate to IQ2 (BusinessOrPrivateIndividualController)
+          case Some(false) => routes.IndexController.onPageLoad() // TODO: navigate to IQ1.1 (VehicleOutsideEuController)
+          case _           => routes.JourneyRecoveryController.onPageLoad()
+        }
+    case _ => _ => routes.IndexController.onPageLoad()
   }
 
   private val checkRouteMap: Page => UserAnswers => Call = { case _ =>

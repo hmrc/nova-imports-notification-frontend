@@ -14,24 +14,16 @@
  * limitations under the License.
  */
 
-package models.requests
+package forms
 
-import models.UserAnswers
-import play.api.mvc.{Request, WrappedRequest}
-import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments}
+import javax.inject.Inject
+import forms.mappings.Mappings
+import play.api.data.Form
 
-case class OptionalDataRequest[A](
-  request: Request[A],
-  userId: String,
-  affinityGroup: AffinityGroup,
-  enrolments: Enrolments,
-  userAnswers: Option[UserAnswers]
-) extends WrappedRequest[A](request)
+class VehicleFromEuFormProvider @Inject() extends Mappings {
 
-case class DataRequest[A](
-  request: Request[A],
-  userId: String,
-  affinityGroup: AffinityGroup,
-  enrolments: Enrolments,
-  userAnswers: UserAnswers
-) extends WrappedRequest[A](request)
+  def apply(): Form[Boolean] =
+    Form(
+      "value" -> boolean("vehicleFromEu.error.required")
+    )
+}
