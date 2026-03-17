@@ -1,4 +1,4 @@
-# nova-imports-notification-frontend
+# Nova Imports Notification Frontend
 
 ## Service Overview
 
@@ -8,63 +8,57 @@ This service connects to the `nova-imports` backend microservice.
 
 ---
 
-## How to run the service using Service Manager
+## Running the service
+Using Service Manager, **sm2** uses the **NOVA_IMPORTS_ALL** profile to start all services with the latest tagged releases.
 
-Service Manager details TBC below:
-
+```bash
+sm2 --start NOVA_IMPORTS_ALL
 ```
-sm2 -start <SERVICE_NAME_TBC>
-```
-Run ```sm2 -s ``` to check what services are running
-
----
+Run ```sm2 -s``` to check what services are running.
 
 ## Launching the service locally
 
-To start the service locally:
-
-> Note: this service runs on port 'TBC' by default
-
-```
-sbt run -Dapplication.router=testOnlyDoNotUseInAppConf.Routes
-```
-
-## Launching the service locally
-
-Run the **sm2** command below to start all the services required for the nova-imports-notification-frontend.
+Run the **sm2** command below to start all the services required for the NoVA frontend service.
 
 ```bash
-sm2 -start <TBC_SERVICE>
+sm2 --start NOVA_IMPORTS_ALL
 ```
-Run the **sm2** command below to stop nova-imports-notification-frontend.
+Run the **sm2** command below to stop the NoVA frontend service.
 
 ```bash
-sm2 -stop <TBC_SERVICE>
+sm2 --stop NOVA_IMPORTS_NOTIFICATION_FRONTEND
 ```
-Run the **sm2** command below to start nova-imports-notification-frontend service locally.
-> Note: this service runs on port <TBC> by default
+Run the command below to start the NoVA frontend service locally.
+> Note: this service runs on port 9000 by default
 
 ```bash
 sbt run -Dapplication.router=testOnlyDoNotUseInAppConf.Routes
 ```
 
----
+## Testing locally
 
-## Testing
+1. Go to `http://localhost:9949/auth-login-stub/gg-sign-in`
+2. Set the **Redirect URL** to `http://localhost:9000/nova-imports/<page-path>`
+3. Set the **Affinity Group** to `Individual`, `Organisation`, or `Agent`
+4. Click **Submit** — you will be authenticated and redirected to the service
 
-To run the unit tests:
+### Editing session data
 
-```
-sbt test
-```
+Most pages require session data (user answers) to be present. A test-only session editor is available when running with test-only routes:
 
-To run the unit tests with coverage report:
+1. Log in via the auth-login-stub with the **Redirect URL** set to `http://localhost:9000/nova-imports/test-only/session`
+2. Enter session data as JSON (e.g. `{}` for an empty session) and click **Save**
+3. Navigate to the page you want to test — session data will now be available
 
-```
+***
+
+### Running the test suite
+
+```bash
 sbt clean coverage test it/test coverageReport
 ```
+This will also generate a coverage report.
 
----
 
 ## Persistence
 

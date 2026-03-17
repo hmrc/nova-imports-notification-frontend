@@ -14,24 +14,32 @@
  * limitations under the License.
  */
 
-package models.requests
+package forms
 
-import models.UserAnswers
-import play.api.mvc.{Request, WrappedRequest}
-import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments}
+import forms.behaviours.BooleanFieldBehaviours
+import play.api.data.FormError
 
-case class OptionalDataRequest[A](
-  request: Request[A],
-  userId: String,
-  affinityGroup: AffinityGroup,
-  enrolments: Enrolments,
-  userAnswers: Option[UserAnswers]
-) extends WrappedRequest[A](request)
+class VehicleFromEuFormProviderSpec extends BooleanFieldBehaviours {
 
-case class DataRequest[A](
-  request: Request[A],
-  userId: String,
-  affinityGroup: AffinityGroup,
-  enrolments: Enrolments,
-  userAnswers: UserAnswers
-) extends WrappedRequest[A](request)
+  val requiredKey = "vehicleFromEu.error.required"
+  val invalidKey  = "error.boolean"
+
+  val form = new VehicleFromEuFormProvider()()
+
+  ".value" - {
+
+    val fieldName = "value"
+
+    behave like booleanField(
+      form,
+      fieldName,
+      invalidError = FormError(fieldName, invalidKey)
+    )
+
+    behave like mandatoryField(
+      form,
+      fieldName,
+      requiredError = FormError(fieldName, requiredKey)
+    )
+  }
+}

@@ -14,24 +14,13 @@
  * limitations under the License.
  */
 
-package models.requests
+package pages
 
-import models.UserAnswers
-import play.api.mvc.{Request, WrappedRequest}
-import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments}
+import play.api.libs.json.JsPath
 
-case class OptionalDataRequest[A](
-  request: Request[A],
-  userId: String,
-  affinityGroup: AffinityGroup,
-  enrolments: Enrolments,
-  userAnswers: Option[UserAnswers]
-) extends WrappedRequest[A](request)
+case object VehicleFromEuPage extends QuestionPage[Boolean] {
 
-case class DataRequest[A](
-  request: Request[A],
-  userId: String,
-  affinityGroup: AffinityGroup,
-  enrolments: Enrolments,
-  userAnswers: UserAnswers
-) extends WrappedRequest[A](request)
+  override def path: JsPath = JsPath \ toString
+
+  override def toString: String = "vehicleFromEu"
+}

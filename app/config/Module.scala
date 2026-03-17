@@ -17,6 +17,7 @@
 package config
 
 import com.google.inject.AbstractModule
+import com.google.inject.name.Names
 import controllers.actions.*
 
 import java.time.{Clock, ZoneOffset}
@@ -28,8 +29,22 @@ class Module extends AbstractModule {
     bind(classOf[DataRetrievalAction]).to(classOf[DataRetrievalActionImpl]).asEagerSingleton()
     bind(classOf[DataRequiredAction]).to(classOf[DataRequiredActionImpl]).asEagerSingleton()
 
-    // For session based storage instead of cred based, change to SessionIdentifierAction
-    bind(classOf[IdentifierAction]).to(classOf[AuthenticatedIdentifierAction]).asEagerSingleton()
+    // Default binding — standard auth (any Individual/Organisation/Agent)
+    bind(classOf[IdentifierAction]).to(classOf[StandardIdentifierAction]).asEagerSingleton()
+
+    // @Named bindings for controllers that need specific auth levels
+    bind(classOf[IdentifierAction])
+      .annotatedWith(Names.named("standard"))
+      .to(classOf[StandardIdentifierAction])
+      .asEagerSingleton()
+    bind(classOf[IdentifierAction])
+      .annotatedWith(Names.named("vatTrader"))
+      .to(classOf[VatTraderIdentifierAction])
+      .asEagerSingleton()
+    bind(classOf[IdentifierAction])
+      .annotatedWith(Names.named("ogd"))
+      .to(classOf[OgdIdentifierAction])
+      .asEagerSingleton()
 
     bind(classOf[Clock]).toInstance(Clock.systemDefaultZone.withZone(ZoneOffset.UTC))
   }
