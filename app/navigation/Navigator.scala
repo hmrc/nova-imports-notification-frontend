@@ -31,7 +31,7 @@ class Navigator @Inject() () {
       userAnswers =>
         userAnswers.get(VehicleFromEuPage) match {
           case Some(true)  => routes.IndexController.onPageLoad() // TODO: navigate to IQ2 (BusinessOrPrivateIndividualController)
-          case Some(false) => routes.IndexController.onPageLoad() // TODO: navigate to IQ1.1 (VehicleOutsideEuController)
+          case Some(false) => routes.VehicleOutsideEUController.onPageLoad()
           case _           => routes.JourneyRecoveryController.onPageLoad()
         }
     case _ => _ => routes.IndexController.onPageLoad()

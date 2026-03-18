@@ -48,8 +48,21 @@ signedOut.guidance = We did not save your answers.
 unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
 
+######################################################
+# IQ1.0 - Initial Question 1.0: Vehicle brought into NI from EU  #
+######################################################
+
 vehicleFromEu.title = Are you completing a notification for a vehicle brought into Northern Ireland from an EU country?
 vehicleFromEu.heading = Are you completing a notification for a vehicle brought into Northern Ireland from an EU country?
 vehicleFromEu.checkYourAnswersLabel = Vehicle brought into Northern Ireland from an EU country
 vehicleFromEu.error.required = Select yes if the vehicle was brought into Northern Ireland from an EU country
 vehicleFromEu.change.hidden = vehicle brought into Northern Ireland from an EU country
+
+######################################################
+# IQ1.1 - Initial Question 1.1: Vehicle brought into NI from outside EU  #
+######################################################
+
+vehicleOutsideEU.title = If you’ve brought a vehicle into Northern Ireland from outside the EU
+vehicleOutsideEU.heading = If you’ve brought a vehicle into Northern Ireland from outside the EU
+vehicleOutsideEU.paragraph.1 = Find out how to notify HMRC about it on {0}.
+vehicleOutsideEU.paragraph.2 = See the list of the {0}.
