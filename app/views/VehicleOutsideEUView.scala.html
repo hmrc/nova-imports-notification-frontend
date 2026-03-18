@@ -24,8 +24,10 @@
 
     <h1 class="govuk-heading-l">@messages("vehicleOutsideEU.heading")</h1>
 
-    <p class="govuk-body">@Html(messages("vehicleOutsideEU.paragraph.1", importingVehiclesIntoTheUKUrl))</p>
+    <p class="govuk-body">@Html(messages("vehicleOutsideEU.paragraph.1",
+        s"""<a class="govuk-link" href="$importingVehiclesIntoTheUKUrl">Importing vehicles into the UK</a>"""))</p>
 
-    <p class="govuk-body">@Html(messages("vehicleOutsideEU.paragraph.2", countriesInTheEUUrl))</p>
+    <p class="govuk-body">@Html(messages("vehicleOutsideEU.paragraph.2",
+        s"""<a class="govuk-link" href="$countriesInTheEUUrl">countries in the EU</a>"""))</p>
 
 }
