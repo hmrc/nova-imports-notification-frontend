@@ -25,3 +25,9 @@ POST        /vehicle-from-eu                             controllers.VehicleFrom
 
 GET         /change-vehicle-from-eu                      controllers.VehicleFromEuController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-vehicle-from-eu                      controllers.VehicleFromEuController.onSubmit(mode: Mode = CheckMode)
+
+GET         /business-private                            controllers.BusinessPrivateController.onPageLoad(mode: Mode = NormalMode)
+POST        /business-private                            controllers.BusinessPrivateController.onSubmit(mode: Mode = NormalMode)
+
+GET         /change-business-private                     controllers.BusinessPrivateController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-business-private                     controllers.BusinessPrivateController.onSubmit(mode: Mode = CheckMode)

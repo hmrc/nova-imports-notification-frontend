@@ -53,3 +53,13 @@ vehicleFromEu.heading = Are you completing a notification for a vehicle brought 
 vehicleFromEu.checkYourAnswersLabel = Vehicle brought into Northern Ireland from an EU country
 vehicleFromEu.error.required = Select yes if the vehicle was brought into Northern Ireland from an EU country
 vehicleFromEu.change.hidden = vehicle brought into Northern Ireland from an EU country
+
+businessPrivate.title = Are you a business or private individual?
+businessPrivate.heading = Are you a business or private individual?
+businessPrivate.business = Business
+businessPrivate.business.hint = Includes non-VAT registered
+businessPrivate.privateIndividual = Private individual
+businessPrivate.privateIndividual.hint = For example, if you're acting on your own behalf, or for another private individual or a non-VAT registered business
+businessPrivate.checkYourAnswersLabel = Business or private individual
+businessPrivate.error.required = Select whether you are a business or private individual
+businessPrivate.change.hidden = whether you are a business or private individual
