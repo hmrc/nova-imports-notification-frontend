@@ -18,45 +18,33 @@ package controllers
 
 import controllers.actions.*
 import forms.VehicleFromEuFormProvider
-import javax.inject.{Inject, Named}
+import javax.inject.Inject
 import models.Mode
 import navigation.Navigator
 import pages.VehicleFromEuPage
-import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.VehicleFromEuView
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class VehicleFromEuController @Inject() (
-  override val messagesApi: MessagesApi,
+  val controllerComponents: MessagesControllerComponents,
   sessionRepository: SessionRepository,
   navigator: Navigator,
-  @Named("standard") identify: IdentifierAction,
-  getData: DataRetrievalAction,
-  requireData: DataRequiredAction,
+  actions: Actions,
   formProvider: VehicleFromEuFormProvider,
-  val controllerComponents: MessagesControllerComponents,
   view: VehicleFromEuView
 )(implicit ec: ExecutionContext)
-    extends FrontendBaseController
-    with I18nSupport {
+    extends BaseController {
 
   val form = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
-
-    val preparedForm = request.userAnswers.get(VehicleFromEuPage) match {
-      case None        => form
-      case Some(value) => form.fill(value)
-    }
-
-    Ok(view(preparedForm, mode))
+  def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetData() { implicit request =>
+    Ok(view(form.withDefault(request.userAnswers.get(VehicleFromEuPage)), mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
+  def onSubmit(mode: Mode): Action[AnyContent] = actions.authAndGetData().async { implicit request =>
 
     form
       .bindFromRequest()

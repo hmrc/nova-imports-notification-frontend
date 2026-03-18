@@ -16,20 +16,14 @@
 
 package controllers
 
-import com.google.inject.Inject
-import config.FrontendAppConfig
-import controllers.actions.*
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import views.html.VehicleOutsideEUView
+import play.api.i18n.I18nSupport
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import play.api.data.Form
 
-class VehicleOutsideEUController @Inject() (
-  val controllerComponents: MessagesControllerComponents,
-  view: VehicleOutsideEUView,
-  actions: Actions,
-  appConfig: FrontendAppConfig
-) extends BaseController {
+trait BaseController extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = actions.authAndGetData() { implicit request =>
-    Ok(view(appConfig.importingVehiclesIntoTheUKUrl)(appConfig.countriesInTheEUUrl))
+  extension [A](form: Form[A]) {
+    def withDefault(optValue: Option[A]): Form[A] =
+      optValue.map(form.fill).getOrElse(form)
   }
 }
