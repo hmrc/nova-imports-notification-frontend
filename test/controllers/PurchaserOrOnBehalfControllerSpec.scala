@@ -18,12 +18,12 @@ package controllers
 
 import base.SpecBase
 import forms.PurchaserOrOnBehalfFormProvider
-import models.{NormalMode, PurchaserOrOnBehalf, UserAnswers}
+import models.{BusinessOrPrivateIndividual, NormalMode, PurchaserOrOnBehalf, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.PurchaserOrOnBehalfPage
+import pages.{BusinessPrivatePage, PurchaserOrOnBehalfPage}
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -42,11 +42,14 @@ class PurchaserOrOnBehalfControllerSpec extends SpecBase with MockitoSugar {
 
   lazy val purchaserOrOnBehalfRoute = routes.PurchaserOrOnBehalfController.onPageLoad(NormalMode).url
 
+  private val answersWithGuardData: UserAnswers =
+    emptyUserAnswers.set(BusinessPrivatePage, BusinessOrPrivateIndividual.Business).success.value
+
   "PurchaserOrOnBehalfController" - {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder(userAnswers = Some(answersWithGuardData)).build()
 
       running(application) {
         val request = FakeRequest(GET, purchaserOrOnBehalfRoute)
@@ -62,7 +65,7 @@ class PurchaserOrOnBehalfControllerSpec extends SpecBase with MockitoSugar {
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = UserAnswers(userAnswersId).set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser).success.value
+      val userAnswers = answersWithGuardData.set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser).success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -85,7 +88,7 @@ class PurchaserOrOnBehalfControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        applicationBuilder(userAnswers = Some(answersWithGuardData))
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
             bind[SessionRepository].toInstance(mockSessionRepository)
@@ -106,7 +109,7 @@ class PurchaserOrOnBehalfControllerSpec extends SpecBase with MockitoSugar {
 
     "must return a Bad Request and errors when invalid data is submitted" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder(userAnswers = Some(answersWithGuardData)).build()
 
       running(application) {
         val request =
@@ -146,6 +149,20 @@ class PurchaserOrOnBehalfControllerSpec extends SpecBase with MockitoSugar {
         val request =
           FakeRequest(POST, purchaserOrOnBehalfRoute)
             .withFormUrlEncodedBody(("value", PurchaserOrOnBehalf.Purchaser.toString))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Journey Recovery when guard predicate (BusinessPrivatePage) is not answered" in {
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, purchaserOrOnBehalfRoute)
 
         val result = route(application, request).value
 
