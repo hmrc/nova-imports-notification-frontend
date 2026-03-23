@@ -37,8 +37,8 @@ class BusinessPrivateControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute = Call("GET", "/foo")
 
-  val formProvider       = new BusinessPrivateFormProvider()
-  val form               = formProvider()
+  val formProvider = new BusinessPrivateFormProvider()
+  val form         = formProvider()
 
   lazy val businessPrivateRoute = routes.BusinessPrivateController.onPageLoad(NormalMode).url
 

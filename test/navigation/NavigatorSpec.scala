@@ -41,10 +41,10 @@ class NavigatorSpec extends SpecBase {
         navigator.nextPage(VehicleFromEuPage, NormalMode, userAnswers) mustBe routes.BusinessPrivateController.onPageLoad(NormalMode)
       }
 
-      "must go from VehicleFromEuPage to Index when the answer is false" in {
+      "must go from VehicleFromEuPage to VehicleOutsideEUController when the answer is false" in {
 
         val userAnswers = UserAnswers("id").set(VehicleFromEuPage, false).success.value
-        navigator.nextPage(VehicleFromEuPage, NormalMode, userAnswers) mustBe routes.IndexController.onPageLoad()
+        navigator.nextPage(VehicleFromEuPage, NormalMode, userAnswers) mustBe routes.VehicleOutsideEUController.onPageLoad()
       }
 
       "must go from VehicleFromEuPage to Journey Recovery when there is no answer" in {

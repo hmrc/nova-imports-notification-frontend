@@ -20,7 +20,7 @@ sealed trait BusinessType
 
 object BusinessType extends Enumerable.Implicits {
 
-  case object Business          extends WithName("business") with BusinessType
+  case object Business extends WithName("business") with BusinessType
   case object PrivateIndividual extends WithName("private") with BusinessType
 
   val values: Seq[BusinessType] = Seq(Business, PrivateIndividual)
