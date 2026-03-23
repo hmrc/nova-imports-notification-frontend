@@ -67,6 +67,21 @@ vehicleOutsideEU.heading = If you’ve brought a vehicle into Northern Ireland f
 vehicleOutsideEU.paragraph.1 = Find out how to notify HMRC about it on {0}.
 vehicleOutsideEU.paragraph.2 = See the list of the {0}.
 
+# TODO: Add here messages for other screens in this journey that come before IQ3.0
+
+######################################################
+# IQ3.0 - Initial Question 3.0: Purchaser or on behalf of the purchaser  #
+######################################################
+
+purchaserOrOnBehalf.title = Are you notifying as the purchaser, or on behalf of a purchaser?
+purchaserOrOnBehalf.heading = Are you notifying as the purchaser, or on behalf of a purchaser?
+purchaserOrOnBehalf.hint = The purchaser is a private individual or business that brought the vehicle into the UK
+purchaserOrOnBehalf.checkYourAnswersLabel = Purchaser or on behalf of the purchaser
+purchaserOrOnBehalf.error.required = Select if you are notifying as the purchaser or on behalf of a purchaser
+purchaserOrOnBehalf.change.hidden = Purchaser or on behalf of the purchaser
+purchaserOrOnBehalf.radio.purchaser = As the purchaser
+purchaserOrOnBehalf.radio.behalfOfPurchaser = On behalf of a purchaser
+
 businessPrivate.title = Are you a business or private individual?
 businessPrivate.heading = Are you a business or private individual?
 businessPrivate.business = Business
