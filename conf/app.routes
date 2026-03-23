@@ -32,8 +32,8 @@ POST        /purchaser-or-on-behalf                      controllers.PurchaserOr
 GET         /change-purchaser-or-on-behalf               controllers.PurchaserOrOnBehalfController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-purchaser-or-on-behalf               controllers.PurchaserOrOnBehalfController.onSubmit(mode: Mode = CheckMode)
 
-GET         /business-private                            controllers.BusinessPrivateController.onPageLoad(mode: Mode = NormalMode)
-POST        /business-private                            controllers.BusinessPrivateController.onSubmit(mode: Mode = NormalMode)
+GET         /business-or-private-individual              controllers.BusinessPrivateController.onPageLoad(mode: Mode = NormalMode)
+POST        /business-or-private-individual              controllers.BusinessPrivateController.onSubmit(mode: Mode = NormalMode)
 
-GET         /change-business-private                     controllers.BusinessPrivateController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-business-private                     controllers.BusinessPrivateController.onSubmit(mode: Mode = CheckMode)
+GET         /change-business-or-private-individual       controllers.BusinessPrivateController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-business-or-private-individual       controllers.BusinessPrivateController.onSubmit(mode: Mode = CheckMode)
