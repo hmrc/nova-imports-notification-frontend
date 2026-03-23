@@ -14,10 +14,16 @@
  * limitations under the License.
  */
 
-package config
+package controllers
 
-trait CurrencyFormatter {
-  def currencyFormat(amt: BigDecimal): String = f"£$amt%,1.2f".replace(".00", "")
+import play.api.i18n.I18nSupport
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import play.api.data.Form
+
+trait BaseController extends FrontendBaseController with I18nSupport {
+
+  extension [A](form: Form[A]) {
+    def withDefault(optValue: Option[A]): Form[A] =
+      optValue.map(form.fill).getOrElse(form)
+  }
 }
-
-object CurrencyFormatter extends CurrencyFormatter
