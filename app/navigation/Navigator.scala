@@ -42,7 +42,7 @@ class Navigator @Inject() () {
           case _                                             => routes.JourneyRecoveryController.onPageLoad()
         }
     case BusinessPrivatePage =>
-      _ => routes.IndexController.onPageLoad() // TODO: navigate to IQ3 (PurchaserBehalfController)
+      _ => routes.PurchaserOrOnBehalfController.onPageLoad(NormalMode)
     case _ => _ => routes.IndexController.onPageLoad()
   }
 

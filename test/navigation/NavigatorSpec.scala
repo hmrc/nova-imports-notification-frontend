@@ -28,8 +28,6 @@ class NavigatorSpec extends SpecBase {
 
   "Navigator" - {
 
-    // TODO: Update correct routes to these tests once connecting screens are added to Navigator
-
     "in Normal mode" - {
 
       "must go from a page that doesn't exist in the route map to Index" in {
@@ -37,9 +35,9 @@ class NavigatorSpec extends SpecBase {
         navigator.nextPage(UnknownPage, NormalMode, userAnswers) mustBe routes.IndexController.onPageLoad()
       }
 
-      "must go from VehicleFromEuPage to IndexController when Yes is selected" in {
+      "must go from VehicleFromEuPage to BusinessPrivateController when Yes is selected" in {
         val ua = userAnswers.set(VehicleFromEuPage, true).success.value
-        navigator.nextPage(VehicleFromEuPage, NormalMode, ua) mustBe routes.IndexController.onPageLoad()
+        navigator.nextPage(VehicleFromEuPage, NormalMode, ua) mustBe routes.BusinessPrivateController.onPageLoad(NormalMode)
       }
 
       "must go from VehicleFromEuPage to VehicleOutsideEUController when No is selected" in {
@@ -49,6 +47,10 @@ class NavigatorSpec extends SpecBase {
 
       "must go from VehicleFromEuPage to JourneyRecovery when no answer is found" in {
         navigator.nextPage(VehicleFromEuPage, NormalMode, userAnswers) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from BusinessPrivatePage to PurchaserOrOnBehalfController" in {
+        navigator.nextPage(BusinessPrivatePage, NormalMode, userAnswers) mustBe routes.PurchaserOrOnBehalfController.onPageLoad(NormalMode)
       }
 
       "must go from PurchaserOrOnBehalfPage to IndexController when Purchaser is selected" in {
@@ -64,28 +66,6 @@ class NavigatorSpec extends SpecBase {
       "must go from PurchaserOrOnBehalfPage to JourneyRecovery when no answer is found" in {
         navigator.nextPage(PurchaserOrOnBehalfPage, NormalMode, userAnswers) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
-
-      "must go from VehicleFromEuPage to BusinessPrivateController when the answer is true" in {
-
-        val userAnswers = UserAnswers("id").set(VehicleFromEuPage, true).success.value
-        navigator.nextPage(VehicleFromEuPage, NormalMode, userAnswers) mustBe routes.BusinessPrivateController.onPageLoad(NormalMode)
-      }
-
-      "must go from VehicleFromEuPage to VehicleOutsideEUController when the answer is false" in {
-
-        val userAnswers = UserAnswers("id").set(VehicleFromEuPage, false).success.value
-        navigator.nextPage(VehicleFromEuPage, NormalMode, userAnswers) mustBe routes.VehicleOutsideEUController.onPageLoad()
-      }
-
-      "must go from VehicleFromEuPage to Journey Recovery when there is no answer" in {
-
-        navigator.nextPage(VehicleFromEuPage, NormalMode, UserAnswers("id")) mustBe routes.JourneyRecoveryController.onPageLoad()
-      }
-
-      "must go from BusinessPrivatePage to Index" in {
-
-        navigator.nextPage(BusinessPrivatePage, NormalMode, UserAnswers("id")) mustBe routes.IndexController.onPageLoad()
-      }
     }
 
     "in Check mode" - {
@@ -96,14 +76,16 @@ class NavigatorSpec extends SpecBase {
       }
 
       "must go from VehicleFromEuPage to CheckYourAnswers" in {
-
-        val userAnswers = UserAnswers("id").set(VehicleFromEuPage, true).success.value
-        navigator.nextPage(VehicleFromEuPage, CheckMode, userAnswers) mustBe routes.CheckYourAnswersController.onPageLoad()
+        val ua = userAnswers.set(VehicleFromEuPage, true).success.value
+        navigator.nextPage(VehicleFromEuPage, CheckMode, ua) mustBe routes.CheckYourAnswersController.onPageLoad()
       }
 
       "must go from BusinessPrivatePage to CheckYourAnswers" in {
+        navigator.nextPage(BusinessPrivatePage, CheckMode, userAnswers) mustBe routes.CheckYourAnswersController.onPageLoad()
+      }
 
-        navigator.nextPage(BusinessPrivatePage, CheckMode, UserAnswers("id")) mustBe routes.CheckYourAnswersController.onPageLoad()
+      "must go from PurchaserOrOnBehalfPage to CheckYourAnswers" in {
+        navigator.nextPage(PurchaserOrOnBehalfPage, CheckMode, userAnswers) mustBe routes.CheckYourAnswersController.onPageLoad()
       }
     }
   }
