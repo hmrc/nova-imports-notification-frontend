@@ -18,11 +18,10 @@ package controllers
 
 import controllers.actions.*
 import forms.PurchaserOrOnBehalfFormProvider
-
+import models.{BusinessOrPrivateIndividual, Mode, PurchaserOrOnBehalf, UserAnswers}
 import javax.inject.Inject
-import models.{Mode, PurchaserOrOnBehalf}
 import navigation.Navigator
-import pages.PurchaserOrOnBehalfPage
+import pages.{BusinessPrivatePage, PurchaserOrOnBehalfPage}
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -40,13 +39,16 @@ class PurchaserOrOnBehalfController @Inject() (
 )(implicit ec: ExecutionContext)
     extends BaseController {
 
+  private val guardPredicate: UserAnswers => Boolean =
+    _.get(BusinessPrivatePage).isDefined
+
   val form: Form[PurchaserOrOnBehalf] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetData() { implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithGuard(guardPredicate) { implicit request =>
     Ok(view(form.withDefault(request.userAnswers.get(PurchaserOrOnBehalfPage)), mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = actions.authAndGetData().async { implicit request =>
+  def onSubmit(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithGuard(guardPredicate).async { implicit request =>
 
     form
       .bindFromRequest()
