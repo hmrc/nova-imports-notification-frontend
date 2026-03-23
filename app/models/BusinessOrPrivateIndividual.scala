@@ -16,15 +16,15 @@
 
 package models
 
-sealed trait BusinessType
+sealed trait BusinessOrPrivateIndividual
 
-object BusinessType extends Enumerable.Implicits {
+object BusinessOrPrivateIndividual extends Enumerable.Implicits {
 
-  case object Business extends WithName("business") with BusinessType
-  case object PrivateIndividual extends WithName("private") with BusinessType
+  case object Business extends WithName("business") with BusinessOrPrivateIndividual
+  case object PrivateIndividual extends WithName("privateIndividual") with BusinessOrPrivateIndividual
 
-  val values: Seq[BusinessType] = Seq(Business, PrivateIndividual)
+  val values: Seq[BusinessOrPrivateIndividual] = Seq(Business, PrivateIndividual)
 
-  implicit val enumerable: Enumerable[BusinessType] =
+  implicit val enumerable: Enumerable[BusinessOrPrivateIndividual] =
     Enumerable(values.map(v => v.toString -> v)*)
 }

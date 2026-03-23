@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import models.BusinessType
+@import models.BusinessOrPrivateIndividual
 @import viewmodels.LegendSize
 
 @this(
@@ -42,13 +42,13 @@
                 items  = Seq(
                     RadioItem(
                         id      = Some(form("value").id),
-                        value   = Some(BusinessType.Business.toString),
+                        value   = Some(BusinessOrPrivateIndividual.Business.toString),
                         content = Text(messages("businessPrivate.business")),
                         hint    = Some(Hint(content = Text(messages("businessPrivate.business.hint"))))
                     ),
                     RadioItem(
                         id      = Some(s"${form("value").id}-2"),
-                        value   = Some(BusinessType.PrivateIndividual.toString),
+                        value   = Some(BusinessOrPrivateIndividual.PrivateIndividual.toString),
                         content = Text(messages("businessPrivate.privateIndividual")),
                         hint    = Some(Hint(content = Text(messages("businessPrivate.privateIndividual.hint"))))
                     )

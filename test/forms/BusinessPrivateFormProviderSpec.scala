@@ -17,7 +17,7 @@
 package forms
 
 import forms.behaviours.OptionFieldBehaviours
-import models.BusinessType
+import models.BusinessOrPrivateIndividual
 import play.api.data.FormError
 
 class BusinessPrivateFormProviderSpec extends OptionFieldBehaviours {
@@ -31,10 +31,10 @@ class BusinessPrivateFormProviderSpec extends OptionFieldBehaviours {
 
     val fieldName = "value"
 
-    behave like optionsField[BusinessType](
+    behave like optionsField[BusinessOrPrivateIndividual](
       form,
       fieldName,
-      validValues = BusinessType.values,
+      validValues = BusinessOrPrivateIndividual.values,
       invalidError = FormError(fieldName, invalidKey)
     )
 

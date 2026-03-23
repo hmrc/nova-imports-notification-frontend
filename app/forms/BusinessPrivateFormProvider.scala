@@ -18,13 +18,13 @@ package forms
 
 import javax.inject.Inject
 import forms.mappings.Mappings
-import models.BusinessType
+import models.BusinessOrPrivateIndividual
 import play.api.data.Form
 
 class BusinessPrivateFormProvider @Inject() extends Mappings {
 
-  def apply(): Form[BusinessType] =
+  def apply(): Form[BusinessOrPrivateIndividual] =
     Form(
-      "value" -> enumerable[BusinessType]("businessPrivate.error.required")
+      "value" -> enumerable[BusinessOrPrivateIndividual]("businessPrivate.error.required")
     )
 }

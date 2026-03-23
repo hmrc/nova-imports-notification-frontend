@@ -18,7 +18,7 @@ package controllers
 
 import base.SpecBase
 import forms.BusinessPrivateFormProvider
-import models.{BusinessType, NormalMode, UserAnswers}
+import models.{BusinessOrPrivateIndividual, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -62,7 +62,7 @@ class BusinessPrivateControllerSpec extends SpecBase with MockitoSugar {
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = UserAnswers(userAnswersId).set(BusinessPrivatePage, BusinessType.Business).success.value
+      val userAnswers = UserAnswers(userAnswersId).set(BusinessPrivatePage, BusinessOrPrivateIndividual.Business).success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -74,7 +74,7 @@ class BusinessPrivateControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(BusinessType.Business), NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill(BusinessOrPrivateIndividual.Business), NormalMode)(request, messages(application)).toString
       }
     }
 
@@ -95,7 +95,7 @@ class BusinessPrivateControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request =
           FakeRequest(POST, businessPrivateRoute)
-            .withFormUrlEncodedBody(("value", BusinessType.Business.toString))
+            .withFormUrlEncodedBody(("value", BusinessOrPrivateIndividual.Business.toString))
 
         val result = route(application, request).value
 
@@ -121,7 +121,7 @@ class BusinessPrivateControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request =
           FakeRequest(POST, businessPrivateRoute)
-            .withFormUrlEncodedBody(("value", BusinessType.PrivateIndividual.toString))
+            .withFormUrlEncodedBody(("value", BusinessOrPrivateIndividual.PrivateIndividual.toString))
 
         val result = route(application, request).value
 
@@ -191,7 +191,7 @@ class BusinessPrivateControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request =
           FakeRequest(POST, businessPrivateRoute)
-            .withFormUrlEncodedBody(("value", BusinessType.Business.toString))
+            .withFormUrlEncodedBody(("value", BusinessOrPrivateIndividual.Business.toString))
 
         val result = route(application, request).value
 
