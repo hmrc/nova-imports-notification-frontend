@@ -39,7 +39,7 @@ lazy val microservice = (project in file("."))
     ScoverageKeys.coverageHighlighting := true,
     scalacOptions ++= Seq(
       "-feature",
-      "-Wconf:cat=deprecation:ws,cat=feature:ws,cat=optimizer:ws,src=target/.*:s"
+      "-Wconf:cat=deprecation:e,cat=feature:w,src=target/.*:s"
     ),
     scalafmtOnCompile := true,
     libraryDependencies ++= AppDependencies(),

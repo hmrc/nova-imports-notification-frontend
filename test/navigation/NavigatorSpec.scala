@@ -23,25 +23,54 @@ import models.*
 
 class NavigatorSpec extends SpecBase {
 
-  val navigator = new Navigator
+  val navigator                = new Navigator
+  val userAnswers: UserAnswers = UserAnswers("id")
 
   "Navigator" - {
+
+    // TODO: Update correct routes to these tests once connecting screens are added to Navigator
 
     "in Normal mode" - {
 
       "must go from a page that doesn't exist in the route map to Index" in {
-
         case object UnknownPage extends Page
-        navigator.nextPage(UnknownPage, NormalMode, UserAnswers("id")) mustBe routes.IndexController.onPageLoad()
+        navigator.nextPage(UnknownPage, NormalMode, userAnswers) mustBe routes.IndexController.onPageLoad()
+      }
+
+      "must go from VehicleFromEuPage to IndexController when Yes is selected" in {
+        val ua = userAnswers.set(VehicleFromEuPage, true).success.value
+        navigator.nextPage(VehicleFromEuPage, NormalMode, ua) mustBe routes.IndexController.onPageLoad()
+      }
+
+      "must go from VehicleFromEuPage to VehicleOutsideEUController when No is selected" in {
+        val ua = userAnswers.set(VehicleFromEuPage, false).success.value
+        navigator.nextPage(VehicleFromEuPage, NormalMode, ua) mustBe routes.VehicleOutsideEUController.onPageLoad()
+      }
+
+      "must go from VehicleFromEuPage to JourneyRecovery when no answer is found" in {
+        navigator.nextPage(VehicleFromEuPage, NormalMode, userAnswers) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from PurchaserOrOnBehalfPage to IndexController when Purchaser is selected" in {
+        val ua = userAnswers.set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser).success.value
+        navigator.nextPage(PurchaserOrOnBehalfPage, NormalMode, ua) mustBe routes.IndexController.onPageLoad()
+      }
+
+      "must go from PurchaserOrOnBehalfPage to IndexController when OnBehalfOfPurchaser is selected" in {
+        val ua = userAnswers.set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser).success.value
+        navigator.nextPage(PurchaserOrOnBehalfPage, NormalMode, ua) mustBe routes.IndexController.onPageLoad()
+      }
+
+      "must go from PurchaserOrOnBehalfPage to JourneyRecovery when no answer is found" in {
+        navigator.nextPage(PurchaserOrOnBehalfPage, NormalMode, userAnswers) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
     }
 
     "in Check mode" - {
 
       "must go from a page that doesn't exist in the edit route map to CheckYourAnswers" in {
-
         case object UnknownPage extends Page
-        navigator.nextPage(UnknownPage, CheckMode, UserAnswers("id")) mustBe routes.CheckYourAnswersController.onPageLoad()
+        navigator.nextPage(UnknownPage, CheckMode, userAnswers) mustBe routes.CheckYourAnswersController.onPageLoad()
       }
     }
   }
