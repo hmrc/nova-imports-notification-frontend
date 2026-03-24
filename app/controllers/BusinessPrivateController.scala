@@ -18,46 +18,37 @@ package controllers
 
 import controllers.actions.*
 import forms.BusinessPrivateFormProvider
-import javax.inject.{Inject, Named}
-import models.Mode
+import javax.inject.Inject
+import models.{Mode, UserAnswers}
 import navigation.Navigator
-import pages.BusinessPrivatePage
-import play.api.i18n.{I18nSupport, MessagesApi}
+import pages.{BusinessPrivatePage, VehicleFromEuPage}
+import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import views.html.BusinessPrivateView
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class BusinessPrivateController @Inject() (
-  override val messagesApi: MessagesApi,
+  val controllerComponents: MessagesControllerComponents,
   sessionRepository: SessionRepository,
   navigator: Navigator,
-  @Named("standard") identify: IdentifierAction,
-  getData: DataRetrievalAction,
-  requireData: DataRequiredAction,
+  actions: Actions,
   formProvider: BusinessPrivateFormProvider,
-  val controllerComponents: MessagesControllerComponents,
   view: BusinessPrivateView
 )(implicit ec: ExecutionContext)
-    extends FrontendBaseController
-    with I18nSupport {
+    extends BaseController {
 
-  val form = formProvider()
+  val form: Form[models.BusinessOrPrivateIndividual] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData) { implicit request =>
+  private val guardPredicate: UserAnswers => Boolean =
+    _.get(VehicleFromEuPage).contains(true)
 
-    val preparedForm = request.userAnswers.get(BusinessPrivatePage) match {
-      case None        => form
-      case Some(value) => form.fill(value)
-    }
-
-    Ok(view(preparedForm, mode))
+  def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithGuard(guardPredicate) { implicit request =>
+    Ok(view(form.withDefault(request.userAnswers.get(BusinessPrivatePage)), mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData andThen requireData).async { implicit request =>
-
+  def onSubmit(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithGuard(guardPredicate).async { implicit request =>
     form
       .bindFromRequest()
       .fold(

@@ -23,7 +23,7 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.BusinessPrivatePage
+import pages.{BusinessPrivatePage, VehicleFromEuPage}
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -42,11 +42,13 @@ class BusinessPrivateControllerSpec extends SpecBase with MockitoSugar {
 
   lazy val businessPrivateRoute = routes.BusinessPrivateController.onPageLoad(NormalMode).url
 
+  val userAnswersWithVehicleFromEu = emptyUserAnswers.set(VehicleFromEuPage, true).success.value
+
   "BusinessPrivate Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithVehicleFromEu)).build()
 
       running(application) {
         val request = FakeRequest(GET, businessPrivateRoute)
@@ -62,7 +64,7 @@ class BusinessPrivateControllerSpec extends SpecBase with MockitoSugar {
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = UserAnswers(userAnswersId).set(BusinessPrivatePage, BusinessOrPrivateIndividual.Business).success.value
+      val userAnswers = userAnswersWithVehicleFromEu.set(BusinessPrivatePage, BusinessOrPrivateIndividual.Business).success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -85,7 +87,7 @@ class BusinessPrivateControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        applicationBuilder(userAnswers = Some(userAnswersWithVehicleFromEu))
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
             bind[SessionRepository].toInstance(mockSessionRepository)
@@ -111,7 +113,7 @@ class BusinessPrivateControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        applicationBuilder(userAnswers = Some(userAnswersWithVehicleFromEu))
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
             bind[SessionRepository].toInstance(mockSessionRepository)
@@ -132,7 +134,7 @@ class BusinessPrivateControllerSpec extends SpecBase with MockitoSugar {
 
     "must return a Bad Request and errors when invalid data is submitted" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithVehicleFromEu)).build()
 
       running(application) {
         val request =
@@ -152,7 +154,7 @@ class BusinessPrivateControllerSpec extends SpecBase with MockitoSugar {
 
     "must return a Bad Request and errors when no answer is submitted" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithVehicleFromEu)).build()
 
       running(application) {
         val request =
@@ -187,6 +189,68 @@ class BusinessPrivateControllerSpec extends SpecBase with MockitoSugar {
     "must redirect to Journey Recovery for a POST if no existing data is found" in {
 
       val application = applicationBuilder(userAnswers = None).build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, businessPrivateRoute)
+            .withFormUrlEncodedBody(("value", BusinessOrPrivateIndividual.Business.toString))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Journey Recovery for a GET if IQ1 was answered No" in {
+
+      val userAnswers = emptyUserAnswers.set(VehicleFromEuPage, false).success.value
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, businessPrivateRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Journey Recovery for a GET if IQ1 has not been answered" in {
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, businessPrivateRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Journey Recovery for a POST if IQ1 was answered No" in {
+
+      val userAnswers = emptyUserAnswers.set(VehicleFromEuPage, false).success.value
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, businessPrivateRoute)
+            .withFormUrlEncodedBody(("value", BusinessOrPrivateIndividual.Business.toString))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Journey Recovery for a POST if IQ1 has not been answered" in {
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
         val request =
