@@ -30,7 +30,7 @@ class Navigator @Inject() () {
     case VehicleFromEuPage =>
       userAnswers =>
         userAnswers.get(VehicleFromEuPage) match {
-          case Some(true)  => routes.IndexController.onPageLoad() // TODO: navigate to IQ2 (BusinessOrPrivateIndividualController)
+          case Some(true)  => routes.BusinessPrivateController.onPageLoad(NormalMode)
           case Some(false) => routes.VehicleOutsideEUController.onPageLoad()
           case _           => routes.JourneyRecoveryController.onPageLoad()
         }
@@ -41,6 +41,8 @@ class Navigator @Inject() () {
           case Some(PurchaserOrOnBehalf.OnBehalfOfPurchaser) => routes.PurchaserBusinessOrIndividualController.onPageLoad(NormalMode)
           case _                                             => routes.JourneyRecoveryController.onPageLoad()
         }
+    case BusinessPrivatePage =>
+      _ => routes.PurchaserOrOnBehalfController.onPageLoad(NormalMode)
     case PurchaserBusinessOrIndividualPage =>
       _ => routes.IndexController.onPageLoad() // TODO: navigate to SS2 - to be added later
     case _ => _ => routes.IndexController.onPageLoad()

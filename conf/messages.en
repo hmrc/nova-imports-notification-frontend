@@ -67,6 +67,20 @@ vehicleOutsideEU.heading = If you’ve brought a vehicle into Northern Ireland f
 vehicleOutsideEU.paragraph.1 = Find out how to notify HMRC about it on {0}.
 vehicleOutsideEU.paragraph.2 = See the list of the {0}.
 
+######################################################
+# IQ2 - Initial Question 2: Business or private individual  #
+######################################################
+
+businessPrivate.title = Are you a business or private individual?
+businessPrivate.heading = Are you a business or private individual?
+businessPrivate.business = Business
+businessPrivate.business.hint = Includes non-VAT registered
+businessPrivate.privateIndividual = Private individual
+businessPrivate.privateIndividual.hint = For example, if you''re acting on your own behalf, or for another private individual or a non-VAT registered business
+businessPrivate.checkYourAnswersLabel = Business or private individual
+businessPrivate.error.required = Select if you are a business or a private individual
+businessPrivate.change.hidden = whether you are a business or private individual
+
 # TODO: Add here messages for other screens in this journey that come before IQ3.0
 
 ######################################################
