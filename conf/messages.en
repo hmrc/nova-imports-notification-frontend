@@ -82,6 +82,18 @@ purchaserOrOnBehalf.change.hidden = Purchaser or on behalf of the purchaser
 purchaserOrOnBehalf.radio.purchaser = As the purchaser
 purchaserOrOnBehalf.radio.behalfOfPurchaser = On behalf of a purchaser
 
+######################################################
+# IQ3.1 - Initial Question 3.1: Purchaser business or private individual  #
+######################################################
+
+purchaserBusinessOrIndividual.title = Is the purchaser you are notifying on behalf of a business or private individual?
+purchaserBusinessOrIndividual.heading = Is the purchaser you are notifying on behalf of a business or private individual?
+purchaserBusinessOrIndividual.checkYourAnswersLabel = Business or private individual
+purchaserBusinessOrIndividual.error.required = Select if the purchaser is a business or a private individual
+purchaserBusinessOrIndividual.change.hidden = business or private individual
+purchaserBusinessOrIndividual.radio.nonVatRegisteredBusiness = Non-VAT registered business
+purchaserBusinessOrIndividual.radio.nonVatRegisteredPrivateIndividual = Non-VAT registered private individual
+
 businessPrivate.title = Are you a business or private individual?
 businessPrivate.heading = Are you a business or private individual?
 businessPrivate.business = Business

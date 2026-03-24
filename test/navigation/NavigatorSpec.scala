@@ -58,14 +58,15 @@ class NavigatorSpec extends SpecBase {
         navigator.nextPage(PurchaserOrOnBehalfPage, NormalMode, ua) mustBe routes.IndexController.onPageLoad()
       }
 
-      "must go from PurchaserOrOnBehalfPage to IndexController when OnBehalfOfPurchaser is selected" in {
+      "must go from PurchaserOrOnBehalfPage to PurchaserBusinessOrIndividualController when OnBehalfOfPurchaser is selected" in {
         val ua = userAnswers.set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser).success.value
-        navigator.nextPage(PurchaserOrOnBehalfPage, NormalMode, ua) mustBe routes.IndexController.onPageLoad()
+        navigator.nextPage(PurchaserOrOnBehalfPage, NormalMode, ua) mustBe routes.PurchaserBusinessOrIndividualController.onPageLoad(NormalMode)
       }
 
       "must go from PurchaserOrOnBehalfPage to JourneyRecovery when no answer is found" in {
         navigator.nextPage(PurchaserOrOnBehalfPage, NormalMode, userAnswers) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
+
     }
 
     "in Check mode" - {
