@@ -31,3 +31,8 @@ GET         /purchaser-or-on-behalf                      controllers.PurchaserOr
 POST        /purchaser-or-on-behalf                      controllers.PurchaserOrOnBehalfController.onSubmit(mode: Mode = NormalMode)
 GET         /change-purchaser-or-on-behalf               controllers.PurchaserOrOnBehalfController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-purchaser-or-on-behalf               controllers.PurchaserOrOnBehalfController.onSubmit(mode: Mode = CheckMode)
+
+GET         /purchaser-business-or-private-individual                controllers.PurchaserBusinessOrIndividualController.onPageLoad(mode: Mode = NormalMode)
+POST        /purchaser-business-or-private-individual                controllers.PurchaserBusinessOrIndividualController.onSubmit(mode: Mode = NormalMode)
+GET         /change-purchaser-business-or-private-individual         controllers.PurchaserBusinessOrIndividualController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-purchaser-business-or-private-individual         controllers.PurchaserBusinessOrIndividualController.onSubmit(mode: Mode = CheckMode)
