@@ -113,5 +113,105 @@ class ActionsSpec extends SpecBase {
         }
       }
     }
+
+    "authAndGetDataWithGuard" - {
+
+      "must execute the block when user data exists and predicate passes" in {
+        given application: Application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+        running(application) {
+          val actions: Actions = application.injector.instanceOf[Actions]
+          val action           = actions.authAndGetDataWithGuard(_ => true)((_: DataRequest[AnyContent]) => Results.Ok("success"))
+          val result           = action.apply(FakeRequest())
+
+          status(result) mustEqual OK
+          contentAsString(result) mustEqual "success"
+        }
+      }
+
+      "must redirect to Journey Recovery when predicate fails" in {
+        given application: Application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+        running(application) {
+          val actions: Actions = application.injector.instanceOf[Actions]
+          val action           = actions.authAndGetDataWithGuard(_ => false)((_: DataRequest[AnyContent]) => Results.Ok("success"))
+          val result           = action.apply(FakeRequest())
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+        }
+      }
+
+      "must redirect to Journey Recovery when no user data exists" in {
+        given application: Application = applicationBuilder(userAnswers = None).build()
+
+        running(application) {
+          val actions: Actions = application.injector.instanceOf[Actions]
+          val action           = actions.authAndGetDataWithGuard(_ => true)((_: DataRequest[AnyContent]) => Results.Ok("success"))
+          val result           = action.apply(FakeRequest())
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+        }
+      }
+    }
+
+    "vatTraderAuthAndGetDataWithGuard" - {
+
+      "must execute the block when user data exists and predicate passes" in {
+        given application: Application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+        running(application) {
+          val actions: Actions = application.injector.instanceOf[Actions]
+          val action           = actions.vatTraderAuthAndGetDataWithGuard(_ => true)((_: DataRequest[AnyContent]) => Results.Ok("success"))
+          val result           = action.apply(FakeRequest())
+
+          status(result) mustEqual OK
+          contentAsString(result) mustEqual "success"
+        }
+      }
+
+      "must redirect to Journey Recovery when predicate fails" in {
+        given application: Application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+        running(application) {
+          val actions: Actions = application.injector.instanceOf[Actions]
+          val action           = actions.vatTraderAuthAndGetDataWithGuard(_ => false)((_: DataRequest[AnyContent]) => Results.Ok("success"))
+          val result           = action.apply(FakeRequest())
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+        }
+      }
+    }
+
+    "ogdAuthAndGetDataWithGuard" - {
+
+      "must execute the block when user data exists and predicate passes" in {
+        given application: Application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+        running(application) {
+          val actions: Actions = application.injector.instanceOf[Actions]
+          val action           = actions.ogdAuthAndGetDataWithGuard(_ => true)((_: DataRequest[AnyContent]) => Results.Ok("success"))
+          val result           = action.apply(FakeRequest())
+
+          status(result) mustEqual OK
+          contentAsString(result) mustEqual "success"
+        }
+      }
+
+      "must redirect to Journey Recovery when predicate fails" in {
+        given application: Application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+        running(application) {
+          val actions: Actions = application.injector.instanceOf[Actions]
+          val action           = actions.ogdAuthAndGetDataWithGuard(_ => false)((_: DataRequest[AnyContent]) => Results.Ok("success"))
+          val result           = action.apply(FakeRequest())
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+        }
+      }
+    }
   }
 }

@@ -17,6 +17,7 @@
 package controllers.actions
 
 import com.google.inject.Inject
+import models.UserAnswers
 import javax.inject.Named
 import models.requests.DataRequest
 import play.api.mvc.{ActionBuilder, AnyContent, DefaultActionBuilder}
@@ -27,7 +28,8 @@ class Actions @Inject() (
   @Named("vatTrader") identifyVatTrader: IdentifierAction,
   @Named("ogd") identifyOgd: IdentifierAction,
   getData: DataRetrievalAction,
-  requireData: DataRequiredAction
+  requireData: DataRequiredAction,
+  guard: GuardAction
 ) {
   def authAndGetData(): ActionBuilder[DataRequest, AnyContent] =
     actionBuilder
@@ -46,4 +48,25 @@ class Actions @Inject() (
       .andThen(identifyOgd)
       .andThen(getData)
       .andThen(requireData)
+
+  def authAndGetDataWithGuard(predicate: UserAnswers => Boolean): ActionBuilder[DataRequest, AnyContent] =
+    actionBuilder
+      .andThen(identify)
+      .andThen(getData)
+      .andThen(requireData)
+      .andThen(guard(predicate))
+
+  def vatTraderAuthAndGetDataWithGuard(predicate: UserAnswers => Boolean): ActionBuilder[DataRequest, AnyContent] =
+    actionBuilder
+      .andThen(identifyVatTrader)
+      .andThen(getData)
+      .andThen(requireData)
+      .andThen(guard(predicate))
+
+  def ogdAuthAndGetDataWithGuard(predicate: UserAnswers => Boolean): ActionBuilder[DataRequest, AnyContent] =
+    actionBuilder
+      .andThen(identifyOgd)
+      .andThen(getData)
+      .andThen(requireData)
+      .andThen(guard(predicate))
 }
