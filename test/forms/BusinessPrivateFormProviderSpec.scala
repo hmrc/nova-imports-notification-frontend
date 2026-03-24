@@ -34,7 +34,7 @@ class BusinessPrivateFormProviderSpec extends OptionFieldBehaviours {
     behave like optionsField[BusinessOrPrivateIndividual](
       form,
       fieldName,
-      validValues = BusinessOrPrivateIndividual.values,
+      validValues = BusinessOrPrivateIndividual.values.toSeq,
       invalidError = FormError(fieldName, invalidKey)
     )
 
