@@ -74,11 +74,11 @@ vehicleOutsideEU.paragraph.2 = See the list of the {0}.
 businessPrivate.title = Are you a business or private individual?
 businessPrivate.heading = Are you a business or private individual?
 businessPrivate.business = Business
-businessPrivate.business.hint = Includes non-VAT registered
+businessPrivate.business.hint = Includes businesses that are not VAT registered
 businessPrivate.privateIndividual = Private individual
-businessPrivate.privateIndividual.hint = For example, if you''re acting on your own behalf, or for another private individual or a non-VAT registered business
+businessPrivate.privateIndividual.hint = Acting on your own behalf or for another private individual
 businessPrivate.checkYourAnswersLabel = Business or private individual
-businessPrivate.error.required = Select if you are a business or a private individual
+businessPrivate.error.required = Select if you are a business or private individual
 businessPrivate.change.hidden = whether you are a business or private individual
 
 # TODO: Add here messages for other screens in this journey that come before IQ3.0
