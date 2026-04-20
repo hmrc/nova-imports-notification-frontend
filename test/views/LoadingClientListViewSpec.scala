@@ -29,25 +29,25 @@ class LoadingClientListViewSpec extends SpecBase with Matchers {
   "LoadingClientListView" - {
 
     "must render the correct heading" in new Setup {
-      val html: String = view.apply().toString
+      val html: String = view()(request, msgs).toString
 
       html must include(msgs("loadingClientList.heading"))
     }
 
     "must render the correct page title" in new Setup {
-      val html: String = view.apply().toString
+      val html: String = view()(request, msgs).toString
 
       html must include(msgs("loadingClientList.title"))
     }
 
     "must render the paragraph" in new Setup {
-      val html: String = view.apply().toString
+      val html: String = view()(request, msgs).toString
 
       html must include(msgs("loadingClientList.paragraph"))
     }
 
     "must render the warning message" in new Setup {
-      val html: String = view.apply().toString
+      val html: String = view()(request, msgs).toString
 
       html must include(msgs("loadingClientList.warning"))
     }

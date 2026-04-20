@@ -27,7 +27,7 @@ class LoadingClientListController @Inject() (
   actions: Actions
 ) extends BaseController {
 
-  def onPageLoad: Action[AnyContent] = actions.authAndGetData() { implicit request =>
+  def onPageLoad: Action[AnyContent] = actions.ogdAuthAndGetData() { implicit request =>
     Ok(view())
   }
 }
