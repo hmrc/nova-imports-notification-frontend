@@ -17,44 +17,46 @@
 package controllers
 
 import controllers.actions.*
-import forms.VehicleFromEuFormProvider
+import forms.VehicleBusinessUseFormProvider
 import javax.inject.Inject
-import models.{Mode, NovaUserType}
+import models.{Mode, NovaUserType, UserAnswers}
 import navigation.Navigator
-import pages.VehicleFromEuPage
+import pages.{VehicleBusinessUsePage, VehicleFromEuPage}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
-import views.html.VehicleFromEuView
+import views.html.VehicleBusinessUseView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class VehicleFromEuController @Inject() (
+class VehicleBusinessUseController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   sessionRepository: SessionRepository,
   navigator: Navigator,
   actions: Actions,
-  formProvider: VehicleFromEuFormProvider,
-  view: VehicleFromEuView
+  formProvider: VehicleBusinessUseFormProvider,
+  view: VehicleBusinessUseView
 )(implicit ec: ExecutionContext)
     extends BaseController {
 
   val form = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetData() { implicit request =>
-    Ok(view(form.withDefault(request.userAnswers.get(VehicleFromEuPage)), mode))
+  private val guardPredicate: UserAnswers => Boolean =
+    _.get(VehicleFromEuPage).isDefined
+
+  def onPageLoad(mode: Mode): Action[AnyContent] = actions.vatTraderAuthAndGetDataWithGuard(guardPredicate) { implicit request =>
+    Ok(view(form.withDefault(request.userAnswers.get(VehicleBusinessUsePage)), mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = actions.authAndGetData().async { implicit request =>
-
+  def onSubmit(mode: Mode): Action[AnyContent] = actions.vatTraderAuthAndGetDataWithGuard(guardPredicate).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
         value =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(VehicleFromEuPage, value))
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(VehicleBusinessUsePage, value))
             _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(VehicleFromEuPage, mode, updatedAnswers, NovaUserType.from(request.affinityGroup, request.enrolments)))
+          } yield Redirect(navigator.nextPage(VehicleBusinessUsePage, mode, updatedAnswers, NovaUserType.from(request.affinityGroup, request.enrolments)))
       )
   }
 }

@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package navigation
+package forms
 
-import play.api.mvc.Call
-import pages.*
-import models.{Mode, NovaUserType, UserAnswers}
+import javax.inject.Inject
+import forms.mappings.Mappings
+import play.api.data.Form
 
-class FakeNavigator(desiredRoute: Call) extends Navigator {
+class VehicleBusinessUseFormProvider @Inject() extends Mappings {
 
-  override def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers, userType: NovaUserType): Call =
-    desiredRoute
+  def apply(): Form[Boolean] =
+    Form(
+      "value" -> boolean("vehicleBusinessUse.error.required")
+    )
 }

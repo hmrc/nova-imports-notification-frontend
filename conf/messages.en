@@ -81,6 +81,17 @@ businessPrivate.checkYourAnswersLabel = Business or private individual
 businessPrivate.error.required = Select if you are a business or private individual
 businessPrivate.change.hidden = whether you are a business or private individual
 
+######################################################
+# OQ1.0 - Organisation Question 1: Vehicle business use  #
+######################################################
+
+vehicleBusinessUse.title = Have you brought a vehicle into the UK for business use?
+vehicleBusinessUse.heading = Have you brought a vehicle into the UK for business use?
+vehicleBusinessUse.hint = Select 'Yes' only if the vehicle belongs to the business
+vehicleBusinessUse.checkYourAnswersLabel = Vehicle brought into the UK for business use
+vehicleBusinessUse.error.required = Select yes if you brought a vehicle into the UK for business use
+vehicleBusinessUse.change.hidden = vehicle brought into the UK for business use
+
 # TODO: Add here messages for other screens in this journey that come before IQ3.0
 
 ######################################################

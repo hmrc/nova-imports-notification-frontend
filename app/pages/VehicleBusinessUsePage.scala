@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-package navigation
+package pages
 
-import play.api.mvc.Call
-import pages.*
-import models.{Mode, NovaUserType, UserAnswers}
+import play.api.libs.json.JsPath
 
-class FakeNavigator(desiredRoute: Call) extends Navigator {
-
-  override def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers, userType: NovaUserType): Call =
-    desiredRoute
+case object VehicleBusinessUsePage extends QuestionPage[Boolean] {
+  override def path: JsPath = JsPath \ toString
+  override def toString: String = "vehicleBusinessUse"
 }

@@ -39,6 +39,11 @@ POST        /purchaser-business-or-private-individual                controllers
 GET         /change-purchaser-business-or-private-individual         controllers.PurchaserBusinessOrIndividualController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-purchaser-business-or-private-individual         controllers.PurchaserBusinessOrIndividualController.onSubmit(mode: Mode = CheckMode)
 
+GET         /vehicle-business-use                        controllers.VehicleBusinessUseController.onPageLoad(mode: Mode = NormalMode)
+POST        /vehicle-business-use                        controllers.VehicleBusinessUseController.onSubmit(mode: Mode = NormalMode)
+GET         /change-vehicle-business-use                 controllers.VehicleBusinessUseController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-vehicle-business-use                 controllers.VehicleBusinessUseController.onSubmit(mode: Mode = CheckMode)
+
 GET         /business-or-private-individual              controllers.BusinessPrivateController.onPageLoad(mode: Mode = NormalMode)
 POST        /business-or-private-individual              controllers.BusinessPrivateController.onSubmit(mode: Mode = NormalMode)
 
