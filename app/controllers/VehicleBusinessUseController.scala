@@ -56,7 +56,9 @@ class VehicleBusinessUseController @Inject() (
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(VehicleBusinessUsePage, value))
             _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(VehicleBusinessUsePage, mode, updatedAnswers, NovaUserType.from(request.affinityGroup, request.enrolments)))
+          } yield Redirect(
+            navigator.nextPage(VehicleBusinessUsePage, mode, updatedAnswers, NovaUserType.from(request.affinityGroup, request.enrolments))
+          )
       )
   }
 }
