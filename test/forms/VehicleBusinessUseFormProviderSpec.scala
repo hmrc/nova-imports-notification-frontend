@@ -14,14 +14,32 @@
  * limitations under the License.
  */
 
-package navigation
+package forms
 
-import play.api.mvc.Call
-import pages.*
-import models.{Mode, NovaUserType, UserAnswers}
+import forms.behaviours.BooleanFieldBehaviours
+import play.api.data.FormError
 
-class FakeNavigator(desiredRoute: Call) extends Navigator {
+class VehicleBusinessUseFormProviderSpec extends BooleanFieldBehaviours {
 
-  override def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers, userType: NovaUserType): Call =
-    desiredRoute
+  val requiredKey = "vehicleBusinessUse.error.required"
+  val invalidKey  = "error.boolean"
+
+  val form = new VehicleBusinessUseFormProvider()()
+
+  ".value" - {
+
+    val fieldName = "value"
+
+    behave like booleanField(
+      form,
+      fieldName,
+      invalidError = FormError(fieldName, invalidKey)
+    )
+
+    behave like mandatoryField(
+      form,
+      fieldName,
+      requiredError = FormError(fieldName, requiredKey)
+    )
+  }
 }

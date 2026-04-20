@@ -20,7 +20,7 @@ import controllers.actions.*
 import forms.PurchaserBusinessOrIndividualFormProvider
 
 import javax.inject.Inject
-import models.{Mode, PurchaserBusinessOrIndividual, PurchaserOrOnBehalf, UserAnswers}
+import models.{Mode, NovaUserType, PurchaserBusinessOrIndividual, PurchaserOrOnBehalf, UserAnswers}
 import navigation.Navigator
 import pages.{PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage}
 import play.api.data.Form
@@ -59,7 +59,9 @@ class PurchaserBusinessOrIndividualController @Inject() (
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(PurchaserBusinessOrIndividualPage, value))
             _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(PurchaserBusinessOrIndividualPage, mode, updatedAnswers))
+          } yield Redirect(
+            navigator.nextPage(PurchaserBusinessOrIndividualPage, mode, updatedAnswers, NovaUserType.from(request.affinityGroup, request.enrolments))
+          )
       )
   }
 }

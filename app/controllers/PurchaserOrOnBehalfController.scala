@@ -18,7 +18,7 @@ package controllers
 
 import controllers.actions.*
 import forms.PurchaserOrOnBehalfFormProvider
-import models.{BusinessOrPrivateIndividual, Mode, PurchaserOrOnBehalf, UserAnswers}
+import models.{BusinessOrPrivateIndividual, Mode, NovaUserType, PurchaserOrOnBehalf, UserAnswers}
 import javax.inject.Inject
 import navigation.Navigator
 import pages.{BusinessPrivatePage, PurchaserOrOnBehalfPage}
@@ -58,7 +58,9 @@ class PurchaserOrOnBehalfController @Inject() (
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(PurchaserOrOnBehalfPage, value))
             _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(PurchaserOrOnBehalfPage, mode, updatedAnswers))
+          } yield Redirect(
+            navigator.nextPage(PurchaserOrOnBehalfPage, mode, updatedAnswers, NovaUserType.from(request.affinityGroup, request.enrolments))
+          )
       )
   }
 }

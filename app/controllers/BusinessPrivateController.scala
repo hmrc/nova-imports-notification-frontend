@@ -19,7 +19,7 @@ package controllers
 import controllers.actions.*
 import forms.BusinessPrivateFormProvider
 import javax.inject.Inject
-import models.{Mode, UserAnswers}
+import models.{Mode, NovaUserType, UserAnswers}
 import navigation.Navigator
 import pages.{BusinessPrivatePage, VehicleFromEuPage}
 import play.api.data.Form
@@ -57,7 +57,9 @@ class BusinessPrivateController @Inject() (
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(BusinessPrivatePage, value))
             _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(BusinessPrivatePage, mode, updatedAnswers))
+          } yield Redirect(
+            navigator.nextPage(BusinessPrivatePage, mode, updatedAnswers, NovaUserType.from(request.affinityGroup, request.enrolments))
+          )
       )
   }
 }
