@@ -26,14 +26,14 @@ class BeforeYouContinueControllerSpec extends SpecBase {
 
   "BeforeYouContinueController" - {
 
-    "onPageLoad" - {
+    "onPageLoadIndividual" - {
 
       "must return OK and render the correct view" in {
         given application: Application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
         running(application) {
           given request: FakeRequest[AnyContentAsEmpty.type] =
-            FakeRequest(GET, routes.BeforeYouContinueController.onPageLoad().url)
+            FakeRequest(GET, routes.BeforeYouContinueController.onPageLoadIndividual().url)
 
           val result = route(application, request).value
 
@@ -47,7 +47,7 @@ class BeforeYouContinueControllerSpec extends SpecBase {
 
         running(application) {
           given request: FakeRequest[AnyContentAsEmpty.type] =
-            FakeRequest(GET, routes.BeforeYouContinueController.onPageLoad().url)
+            FakeRequest(GET, routes.BeforeYouContinueController.onPageLoadIndividual().url)
 
           val result = route(application, request).value
 
@@ -61,7 +61,7 @@ class BeforeYouContinueControllerSpec extends SpecBase {
 
         running(application) {
           given request: FakeRequest[AnyContentAsEmpty.type] =
-            FakeRequest(GET, routes.BeforeYouContinueController.onPageLoad().url)
+            FakeRequest(GET, routes.BeforeYouContinueController.onPageLoadIndividual().url)
 
           val result = route(application, request).value
 
