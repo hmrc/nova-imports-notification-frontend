@@ -68,7 +68,7 @@ vehicleOutsideEU.paragraph.1 = Find out how to notify HMRC about it on {0}.
 vehicleOutsideEU.paragraph.2 = See the list of the {0}.
 
 ######################################################
-# BY1.0 - Before you continue                         #
+# BY1.0 - Before you continue  - Individual                        #
 ######################################################
 
 beforeYouContinue.title = Before you continue
