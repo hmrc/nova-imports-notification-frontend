@@ -17,7 +17,6 @@
 package controllers
 
 import base.SpecBase
-import models.NormalMode
 import models.UserAnswers
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
@@ -35,7 +34,7 @@ class StartControllerSpec extends SpecBase with MockitoSugar {
 
   "StartController" - {
 
-    "must create UserAnswers and redirect to VehicleFromEu page" in {
+    "must create UserAnswers and redirect to BeforeYouContinue page" in {
 
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
@@ -51,7 +50,7 @@ class StartControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.VehicleFromEuController.onPageLoad(NormalMode).url
+        redirectLocation(result).value mustEqual routes.BeforeYouContinueController.onPageLoad().url
 
         val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(mockSessionRepository).set(captor.capture())

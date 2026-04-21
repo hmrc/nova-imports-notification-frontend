@@ -68,6 +68,27 @@ vehicleOutsideEU.paragraph.1 = Find out how to notify HMRC about it on {0}.
 vehicleOutsideEU.paragraph.2 = See the list of the {0}.
 
 ######################################################
+# BY1.0 - Before you continue                         #
+######################################################
+
+beforeYouContinue.title = Before you continue
+beforeYouContinue.heading = Before you continue
+beforeYouContinue.body.1 = To use this service, you need the following information.
+beforeYouContinue.vehicle.body = For each vehicle, you need:
+beforeYouContinue.vehicle.list.1 = Vehicle Identification Number (VIN)
+beforeYouContinue.vehicle.list.2 = current vehicle registration number
+beforeYouContinue.vehicle.list.3 = import entry number, if applicable (for each import entry)
+beforeYouContinue.vehicle.list.4 = date the vehicle arrived in the UK
+beforeYouContinue.vehicle.list.5 = mileage
+beforeYouContinue.vehicle.list.6 = total price paid
+beforeYouContinue.supplier.body = For each vehicle supplier, you need:
+beforeYouContinue.supplier.list.1 = the name and address
+beforeYouContinue.supplier.list.2 = VAT registration number (if applicable)
+beforeYouContinue.updating.heading = Updating vehicle notifications
+beforeYouContinue.updating.body.1 = To update a notification, you need to create and submit a new one to replace your previous submission.
+beforeYouContinue.updating.body.2 = You need the notification reference. You can find this in the message we sent after you submitted.
+
+######################################################
 # IQ2 - Initial Question 2: Business or private individual  #
 ######################################################
 
