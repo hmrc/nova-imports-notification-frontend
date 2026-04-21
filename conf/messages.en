@@ -118,3 +118,12 @@ purchaserBusinessOrIndividual.error.required = Select if the purchaser is a busi
 purchaserBusinessOrIndividual.change.hidden = business or private individual
 purchaserBusinessOrIndividual.radio.nonVatRegisteredBusiness = Non-VAT registered business
 purchaserBusinessOrIndividual.radio.nonVatRegisteredPrivateIndividual = Non-VAT registered private individual
+
+######################################################
+# CS1.0 - Client State 1: Retrieving your client list  #
+######################################################
+
+loadingClientList.title = Retrieving your client list
+loadingClientList.heading = Retrieving your client list
+loadingClientList.paragraph = Please wait while we retrieve your authorised clients. This should only take a few moments.
+loadingClientList.warning = Do not refresh this page or use the back button.

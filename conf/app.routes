@@ -29,6 +29,8 @@ POST        /change-vehicle-from-eu                      controllers.VehicleFrom
 
 GET         /vehicle-outside-eu                          controllers.VehicleOutsideEUController.onPageLoad()
 
+GET         /loading-client-list                         controllers.LoadingClientListController.onPageLoad()
+
 GET         /purchaser-or-on-behalf                      controllers.PurchaserOrOnBehalfController.onPageLoad(mode: Mode = NormalMode)
 POST        /purchaser-or-on-behalf                      controllers.PurchaserOrOnBehalfController.onSubmit(mode: Mode = NormalMode)
 GET         /change-purchaser-or-on-behalf               controllers.PurchaserOrOnBehalfController.onPageLoad(mode: Mode = CheckMode)

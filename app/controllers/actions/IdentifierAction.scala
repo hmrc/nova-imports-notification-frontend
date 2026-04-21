@@ -123,6 +123,44 @@ class VatTraderIdentifierAction @Inject() (
     enrolments.getEnrolment(key).exists(_.isActivated)
 }
 
+/** Requires Agent with HMCE-VAT-AGNT enrolment. */
+class VatAgentIdentifierAction @Inject() (
+  override val authConnector: AuthConnector,
+  config: FrontendAppConfig,
+  val parser: BodyParsers.Default
+)(implicit val executionContext: ExecutionContext)
+    extends IdentifierAction
+    with AuthorisedFunctions
+    with Logging {
+
+  override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
+
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+
+    authorised()
+      .retrieve(Retrievals.internalId and Retrievals.affinityGroup and Retrievals.allEnrolments) {
+        case Some(internalId) ~ Some(AffinityGroup.Agent) ~ enrolments if hasActiveEnrolment(enrolments, NovaEnrolments.vatAgent) =>
+          block(IdentifierRequest(request, internalId, AffinityGroup.Organisation, enrolments))
+
+        case Some(_) ~ _ ~ _ =>
+          logger.warn("VAT trader route accessed without required Organisation enrolment")
+          Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
+
+        case _ =>
+          throw new UnauthorizedException("Unable to retrieve internal Id")
+      }
+      .recover {
+        case _: NoActiveSession =>
+          Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
+        case _: AuthorisationException =>
+          Redirect(routes.UnauthorisedController.onPageLoad())
+      }
+  }
+
+  private def hasActiveEnrolment(enrolments: Enrolments, key: String): Boolean =
+    enrolments.getEnrolment(key).exists(_.isActivated)
+}
+
 /** Requires Agent with HMRC-NOVRN-AGNT enrolment (DVLA/DVA OGD users). */
 class OgdIdentifierAction @Inject() (
   override val authConnector: AuthConnector,
