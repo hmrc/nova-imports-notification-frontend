@@ -16,25 +16,18 @@
 
 package controllers
 
-import controllers.actions.IdentifierAction
-import models.UserAnswers
+import com.google.inject.Inject
+import controllers.actions.*
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import repositories.SessionRepository
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import views.html.BeforeYouContinueView
 
-import javax.inject.{Inject, Named}
-import scala.concurrent.ExecutionContext
-
-class StartController @Inject() (
+class BeforeYouContinueController @Inject() (
   val controllerComponents: MessagesControllerComponents,
-  @Named("standard") identify: IdentifierAction,
-  sessionRepository: SessionRepository
-)(implicit ec: ExecutionContext)
-    extends FrontendBaseController {
+  view: BeforeYouContinueView,
+  actions: Actions
+) extends BaseController {
 
-  def start(): Action[AnyContent] = identify.async { implicit request =>
-    sessionRepository.set(UserAnswers(request.userId)).map { _ =>
-      Redirect(routes.BeforeYouContinueController.onPageLoadIndividual())
-    }
+  def onPageLoadIndividual: Action[AnyContent] = actions.authAndGetData() { implicit request =>
+    Ok(view())
   }
 }
