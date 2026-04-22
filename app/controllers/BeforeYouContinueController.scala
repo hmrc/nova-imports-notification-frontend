@@ -14,14 +14,20 @@
  * limitations under the License.
  */
 
-package navigation
+package controllers
 
-import play.api.mvc.Call
-import pages.*
-import models.{Mode, NovaUserType, UserAnswers}
+import com.google.inject.Inject
+import controllers.actions.*
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import views.html.BeforeYouContinueView
 
-class FakeNavigator(desiredRoute: Call) extends Navigator {
+class BeforeYouContinueController @Inject() (
+  val controllerComponents: MessagesControllerComponents,
+  view: BeforeYouContinueView,
+  actions: Actions
+) extends BaseController {
 
-  override def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers, userType: NovaUserType): Call =
-    desiredRoute
+  def onPageLoadIndividual: Action[AnyContent] = actions.authAndGetData() { implicit request =>
+    Ok(view())
+  }
 }

@@ -17,7 +17,7 @@
 package controllers
 
 import controllers.actions.IdentifierAction
-import models.{NormalMode, UserAnswers}
+import models.UserAnswers
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -34,7 +34,7 @@ class StartController @Inject() (
 
   def start(): Action[AnyContent] = identify.async { implicit request =>
     sessionRepository.set(UserAnswers(request.userId)).map { _ =>
-      Redirect(routes.VehicleFromEuController.onPageLoad(NormalMode))
+      Redirect(routes.BeforeYouContinueController.onPageLoadIndividual())
     }
   }
 }
