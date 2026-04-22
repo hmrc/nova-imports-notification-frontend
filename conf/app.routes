@@ -33,7 +33,7 @@ GET         /view-clients/loading                         controllers.LoadingCli
 
 GET         /before-you-continue                         controllers.BeforeYouContinueController.onPageLoadIndividual()
 
-GET         /could-not-retrieve-client-list              controllers.CouldNotRetrieveClientListController.onPageLoad()
+GET         /view-clients/failed                         controllers.CouldNotRetrieveClientListController.onPageLoad()
 
 GET         /purchaser-or-on-behalf                      controllers.PurchaserOrOnBehalfController.onPageLoad(mode: Mode = NormalMode)
 POST        /purchaser-or-on-behalf                      controllers.PurchaserOrOnBehalfController.onSubmit(mode: Mode = NormalMode)
