@@ -29,7 +29,7 @@ POST        /change-vehicle-from-eu                      controllers.VehicleFrom
 
 GET         /vehicle-outside-eu                          controllers.VehicleOutsideEUController.onPageLoad()
 
-GET         /loading-client-list                         controllers.LoadingClientListController.onPageLoad()
+GET         /view-clients/loading                         controllers.LoadingClientListController.onPageLoad()
 
 GET         /before-you-continue                         controllers.BeforeYouContinueController.onPageLoadIndividual()
 
