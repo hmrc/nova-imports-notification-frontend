@@ -44,6 +44,7 @@ trait SpecBase extends AnyFreeSpec with Matchers with TryValues with OptionValue
         bind[IdentifierAction].to[FakeIdentifierAction],
         bind[IdentifierAction].qualifiedWith(Names.named("standard")).to[FakeIdentifierAction],
         bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("vatAgent")).to[FakeIdentifierAction],
         bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
       )
