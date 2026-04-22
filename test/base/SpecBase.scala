@@ -37,14 +37,21 @@ trait SpecBase extends AnyFreeSpec with Matchers with TryValues with OptionValue
 
   def messages(app: Application): Messages = app.injector.instanceOf[MessagesApi].preferred(FakeRequest())
 
-  protected def applicationBuilder(userAnswers: Option[UserAnswers] = None): GuiceApplicationBuilder =
+  protected def applicationBuilder(
+    userAnswers: Option[UserAnswers] = None,
+    standardBinding: Class[? <: IdentifierAction] = classOf[FakeIdentifierAction],
+    privateIndividualBinding: Class[? <: IdentifierAction] = classOf[FakeIdentifierAction],
+    vatTraderBinding: Class[? <: IdentifierAction] = classOf[FakeIdentifierAction],
+    ogdBinding: Class[? <: IdentifierAction] = classOf[FakeIdentifierAction]
+  ): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .overrides(
         bind[DataRequiredAction].to[DataRequiredActionImpl],
         bind[IdentifierAction].to[FakeIdentifierAction],
-        bind[IdentifierAction].qualifiedWith(Names.named("standard")).to[FakeIdentifierAction],
-        bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeIdentifierAction],
-        bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("standard")).to(standardBinding),
+        bind[IdentifierAction].qualifiedWith(Names.named("privateIndividual")).to(privateIndividualBinding),
+        bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to(vatTraderBinding),
+        bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to(ogdBinding),
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
       )
 }

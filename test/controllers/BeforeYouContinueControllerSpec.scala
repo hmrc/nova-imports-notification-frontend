@@ -17,6 +17,7 @@
 package controllers
 
 import base.SpecBase
+import controllers.actions.*
 import play.api.Application
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
@@ -67,6 +68,23 @@ class BeforeYouContinueControllerSpec extends SpecBase {
 
           status(result) mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+        }
+      }
+
+      "must redirect to Unauthorised when user is not a private individual" in {
+        given application: Application = applicationBuilder(
+          userAnswers = Some(emptyUserAnswers),
+          privateIndividualBinding = classOf[UnauthorisedIdentifierAction]
+        ).build()
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, routes.BeforeYouContinueController.onPageLoadIndividual().url)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
         }
       }
     }

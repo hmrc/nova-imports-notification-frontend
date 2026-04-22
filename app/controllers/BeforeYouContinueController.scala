@@ -27,7 +27,7 @@ class BeforeYouContinueController @Inject() (
   actions: Actions
 ) extends BaseController {
 
-  def onPageLoadIndividual: Action[AnyContent] = actions.authAndGetData() { implicit request =>
+  def onPageLoadIndividual: Action[AnyContent] = actions.privateIndividualAuthAndGetData() { implicit request =>
     Ok(view())
   }
 }

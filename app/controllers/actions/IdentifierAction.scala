@@ -83,6 +83,53 @@ class StandardIdentifierAction @Inject() (
   }
 }
 
+class PrivateIndividualIdentifierAction @Inject() (
+  override val authConnector: AuthConnector,
+  config: FrontendAppConfig,
+  val parser: BodyParsers.Default
+)(implicit val executionContext: ExecutionContext)
+    extends IdentifierAction
+    with AuthorisedFunctions
+    with Logging {
+
+  override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
+
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+
+    authorised()
+      .retrieve(Retrievals.internalId and Retrievals.affinityGroup and Retrievals.allEnrolments) {
+        case Some(internalId) ~ Some(AffinityGroup.Individual) ~ enrolments =>
+          block(IdentifierRequest(request, internalId, AffinityGroup.Individual, enrolments))
+
+        case Some(internalId) ~ Some(AffinityGroup.Organisation) ~ enrolments
+            if !hasActiveEnrolment(enrolments, NovaEnrolments.vatMtd) &&
+              !hasActiveEnrolment(enrolments, NovaEnrolments.vatDec) =>
+          block(IdentifierRequest(request, internalId, AffinityGroup.Organisation, enrolments))
+
+        // TODO: change this to allow agents with no clients selected once we figure out how to model it
+        case Some(_) ~ Some(AffinityGroup.Agent) ~ _ =>
+          logger.warn("Private individual route accessed by Agent")
+          Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
+
+        case Some(_) ~ _ ~ _ =>
+          logger.warn("Private individual route accessed by VAT-registered organisation")
+          Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
+
+        case _ =>
+          throw new UnauthorizedException("Unable to retrieve internal Id")
+      }
+      .recover {
+        case _: NoActiveSession =>
+          Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
+        case _: AuthorisationException =>
+          Redirect(routes.UnauthorisedController.onPageLoad())
+      }
+  }
+
+  private def hasActiveEnrolment(enrolments: Enrolments, key: String): Boolean =
+    enrolments.getEnrolment(key).exists(_.isActivated)
+}
+
 /** Requires Organisation with HMRC-MTD-VAT or HMCE-VATDEC-ORG enrolment. */
 class VatTraderIdentifierAction @Inject() (
   override val authConnector: AuthConnector,

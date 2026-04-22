@@ -25,6 +25,7 @@ import play.api.mvc.{ActionBuilder, AnyContent, DefaultActionBuilder}
 class Actions @Inject() (
   actionBuilder: DefaultActionBuilder,
   @Named("standard") identify: IdentifierAction,
+  @Named("privateIndividual") identifyPrivateIndividual: IdentifierAction,
   @Named("vatTrader") identifyVatTrader: IdentifierAction,
   @Named("ogd") identifyOgd: IdentifierAction,
   getData: DataRetrievalAction,
@@ -34,6 +35,12 @@ class Actions @Inject() (
   def authAndGetData(): ActionBuilder[DataRequest, AnyContent] =
     actionBuilder
       .andThen(identify)
+      .andThen(getData)
+      .andThen(requireData)
+
+  def privateIndividualAuthAndGetData(): ActionBuilder[DataRequest, AnyContent] =
+    actionBuilder
+      .andThen(identifyPrivateIndividual)
       .andThen(getData)
       .andThen(requireData)
 
