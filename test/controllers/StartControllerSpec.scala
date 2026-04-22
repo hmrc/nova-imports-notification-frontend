@@ -50,7 +50,7 @@ class StartControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.BeforeYouContinueController.onPageLoadIndividual().url
+        redirectLocation(result).value mustEqual routes.BeforeYouContinueController.onPageLoad().url
 
         val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(mockSessionRepository).set(captor.capture())
