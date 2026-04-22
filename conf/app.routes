@@ -31,6 +31,8 @@ GET         /vehicle-outside-eu                          controllers.VehicleOuts
 
 GET         /loading-client-list                         controllers.LoadingClientListController.onPageLoad()
 
+GET         /could-not-retrieve-client-list              controllers.CouldNotRetrieveClientListController.onPageLoad()
+
 GET         /purchaser-or-on-behalf                      controllers.PurchaserOrOnBehalfController.onPageLoad(mode: Mode = NormalMode)
 POST        /purchaser-or-on-behalf                      controllers.PurchaserOrOnBehalfController.onSubmit(mode: Mode = NormalMode)
 GET         /change-purchaser-or-on-behalf               controllers.PurchaserOrOnBehalfController.onPageLoad(mode: Mode = CheckMode)
