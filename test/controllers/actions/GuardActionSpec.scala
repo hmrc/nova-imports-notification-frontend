@@ -17,7 +17,7 @@
 package controllers.actions
 
 import base.SpecBase
-import models.UserAnswers
+import models.{UserAnswers, UserContext}
 import models.requests.DataRequest
 import play.api.libs.json.Json
 import play.api.mvc.{ActionBuilder, AnyContent, Results}
@@ -40,8 +40,10 @@ class GuardActionSpec extends SpecBase {
       override def invokeBlock[A](
         request: play.api.mvc.Request[A],
         block: DataRequest[A] => Future[play.api.mvc.Result]
-      ): Future[play.api.mvc.Result] =
-        block(DataRequest(request, userAnswersId, AffinityGroup.Individual, Enrolments(Set.empty), userAnswers))
+      ): Future[play.api.mvc.Result] = {
+        val userContext = UserContext.from(AffinityGroup.Individual, Enrolments(Set.empty), userAnswers)
+        block(DataRequest(request, userAnswersId, AffinityGroup.Individual, Enrolments(Set.empty), userAnswers, userContext))
+      }
     }
 
   "GuardAction" - {

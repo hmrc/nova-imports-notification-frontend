@@ -18,7 +18,7 @@ package controllers.actions
 
 import com.google.inject.{Inject, Singleton}
 import controllers.routes
-import models.UserAnswers
+import models.{UserAnswers, UserContext}
 import models.requests.DataRequest
 import play.api.mvc.{ActionFilter, Result, Results}
 
@@ -28,12 +28,18 @@ import scala.concurrent.{ExecutionContext, Future}
 class GuardAction @Inject() ()(using ec: ExecutionContext) {
 
   def apply(predicate: UserAnswers => Boolean): ActionFilter[DataRequest] =
+    filterWith(req => predicate(req.userAnswers))
+
+  def forUserContext(predicate: UserContext => Boolean): ActionFilter[DataRequest] =
+    filterWith(req => predicate(req.userContext))
+
+  private def filterWith(test: DataRequest[?] => Boolean): ActionFilter[DataRequest] =
     new ActionFilter[DataRequest] {
       override def executionContext: ExecutionContext = ec
 
       override protected def filter[A](request: DataRequest[A]): Future[Option[Result]] =
         Future.successful {
-          if predicate(request.userAnswers) then None
+          if test(request) then None
           else Some(Results.Redirect(routes.JourneyRecoveryController.onPageLoad()))
         }
     }

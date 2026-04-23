@@ -19,7 +19,8 @@ package controllers
 import base.SpecBase
 import com.google.inject.name.Names
 import controllers.actions.*
-import models.UserAnswers
+import models.{SelectedClient, UserAnswers}
+import pages.SelectedClientPage
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -34,128 +35,95 @@ class BeforeYouContinueControllerSpec extends SpecBase {
 
   private val spreadsheetSection = "Notifying for multiple vehicles"
 
-  private def individualApplication(userAnswers: Option[UserAnswers] = Some(emptyUserAnswers)): Application =
+  private def applicationWith(
+    identifierAction: Class[? <: IdentifierAction],
+    userAnswers: Option[UserAnswers] = Some(emptyUserAnswers)
+  ): Application =
     new GuiceApplicationBuilder()
       .overrides(
         bind[DataRequiredAction].to[DataRequiredActionImpl],
-        bind[IdentifierAction].to[FakeIdentifierAction],
-        bind[IdentifierAction].qualifiedWith(Names.named("standard")).to[FakeIdentifierAction],
+        bind[IdentifierAction].to(identifierAction),
+        bind[IdentifierAction].qualifiedWith(Names.named("standard")).to(identifierAction),
         bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeIdentifierAction],
         bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
       )
       .build()
 
-  private def organisationApplication: Application =
-    new GuiceApplicationBuilder()
-      .overrides(
-        bind[DataRequiredAction].to[DataRequiredActionImpl],
-        bind[IdentifierAction].to[FakeOrganisationIdentifierAction],
-        bind[IdentifierAction].qualifiedWith(Names.named("standard")).to[FakeOrganisationIdentifierAction],
-        bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeIdentifierAction],
-        bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
-        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(Some(emptyUserAnswers)))
-      )
-      .build()
+  private val sampleClient = SelectedClient(vrn = "GB123456789", name = Some("Acme Ltd"))
 
-  private def agentApplication: Application =
-    new GuiceApplicationBuilder()
-      .overrides(
-        bind[DataRequiredAction].to[DataRequiredActionImpl],
-        bind[IdentifierAction].to[FakeAgentIdentifierAction],
-        bind[IdentifierAction].qualifiedWith(Names.named("standard")).to[FakeAgentIdentifierAction],
-        bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeIdentifierAction],
-        bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
-        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(Some(emptyUserAnswers)))
-      )
-      .build()
+  private val userAnswersWithClient =
+    emptyUserAnswers.set(SelectedClientPage, sampleClient).success.value
 
   "BeforeYouContinueController" - {
 
     "onPageLoad" - {
 
-      "for a Private Individual" - {
+      "for a Private Individual renders BY1.0 without the multiple-vehicles section" in {
+        given application: Application = applicationWith(classOf[FakeIdentifierAction])
 
-        "must render the BY1.0 view without the multiple-vehicles section" in {
-          given application: Application = individualApplication()
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, beforeYouContinueRoute)
 
-          running(application) {
-            given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, beforeYouContinueRoute)
+          val result = route(application, request).value
+          val body   = contentAsString(result)
 
-            val result = route(application, request).value
-            val body   = contentAsString(result)
-
-            status(result) mustEqual OK
-            body must include("Before you continue")
-            body must not include spreadsheetSection
-          }
-        }
-
-        "must link Continue to the VehicleFromEu page" in {
-          given application: Application = individualApplication()
-
-          running(application) {
-            given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, beforeYouContinueRoute)
-
-            val result = route(application, request).value
-
-            status(result) mustEqual OK
-            contentAsString(result) must include(continueTarget)
-          }
+          status(result) mustEqual OK
+          body must include("Before you continue")
+          body must include(continueTarget)
+          body must not include spreadsheetSection
         }
       }
 
-      "for an Organisation" - {
+      "for an Organisation renders BY2.0 with the multiple-vehicles section" in {
+        given application: Application = applicationWith(classOf[FakeOrganisationIdentifierAction])
 
-        "must render the BY2.0 view with the multiple-vehicles section" in {
-          given application: Application = organisationApplication
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, beforeYouContinueRoute)
 
-          running(application) {
-            given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, beforeYouContinueRoute)
+          val result = route(application, request).value
+          val body   = contentAsString(result)
 
-            val result = route(application, request).value
-            val body   = contentAsString(result)
-
-            status(result) mustEqual OK
-            body must include("Before you continue")
-            body must include(spreadsheetSection)
-            body must include("Find the spreadsheet (opens in new tab)")
-          }
-        }
-
-        "must link Continue to the VehicleFromEu page" in {
-          given application: Application = organisationApplication
-
-          running(application) {
-            given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, beforeYouContinueRoute)
-
-            val result = route(application, request).value
-
-            status(result) mustEqual OK
-            contentAsString(result) must include(continueTarget)
-          }
+          status(result) mustEqual OK
+          body must include(spreadsheetSection)
+          body must include("Find the spreadsheet (opens in new tab)")
+          body must include(continueTarget)
         }
       }
 
-      "for an Agent" - {
+      "for an Agent with a selected client renders BY2.0" in {
+        given application: Application =
+          applicationWith(classOf[FakeAgentIdentifierAction], userAnswers = Some(userAnswersWithClient))
 
-        "must render the BY2.0 view with the multiple-vehicles section" in {
-          given application: Application = agentApplication
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, beforeYouContinueRoute)
 
-          running(application) {
-            given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, beforeYouContinueRoute)
+          val result = route(application, request).value
+          val body   = contentAsString(result)
 
-            val result = route(application, request).value
-            val body   = contentAsString(result)
+          status(result) mustEqual OK
+          body must include(spreadsheetSection)
+        }
+      }
 
-            status(result) mustEqual OK
-            body must include(spreadsheetSection)
-          }
+      "for an Agent without a selected client renders BY1.0 (treated as individual)" in {
+        given application: Application = applicationWith(classOf[FakeAgentIdentifierAction])
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, beforeYouContinueRoute)
+
+          val result = route(application, request).value
+          val body   = contentAsString(result)
+
+          status(result) mustEqual OK
+          body must include("Before you continue")
+          body must not include spreadsheetSection
         }
       }
 
       "must redirect to Journey Recovery if no existing data is found" in {
-        given application: Application = individualApplication(userAnswers = None)
+        given application: Application =
+          applicationWith(classOf[FakeIdentifierAction], userAnswers = None)
 
         running(application) {
           given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, beforeYouContinueRoute)
