@@ -5,6 +5,10 @@ vehicleBusinessUse.checkYourAnswersLabel = Vehicle brought into the UK for busin
 vehicleBusinessUse.error.required = Select yes if you brought a vehicle into the UK for business use
 vehicleBusinessUse.change.hidden = vehicle brought into the UK for business use
 
+######################################################
+# BY2.0 - Before you continue - Organisation and Agent  #
+######################################################
+
 beforeYouContinueOrg.title = Before you continue
 beforeYouContinueOrg.heading = Before you continue
 beforeYouContinueOrg.body.1 = To use this service, you need the following information.

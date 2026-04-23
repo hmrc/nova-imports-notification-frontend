@@ -16,12 +16,12 @@
 
 package models
 
-import pages.SelectedClientPage
+import pages.AgentSelectedClientPage
 import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments}
 
 final case class UserContext(
   userType: NovaUserType,
-  selectedClient: Option[SelectedClient]
+  selectedClient: Option[AgentSelectedClient]
 ) {
   def isAgent: Boolean              = userType == NovaUserType.Agent
   def isAgentWithClient: Boolean    = isAgent && selectedClient.isDefined
@@ -33,7 +33,7 @@ object UserContext {
   def from(affinityGroup: AffinityGroup, enrolments: Enrolments, userAnswers: UserAnswers): UserContext =
     UserContext(
       userType = NovaUserType.from(affinityGroup, enrolments),
-      selectedClient = userAnswers.get(SelectedClientPage)
+      selectedClient = userAnswers.get(AgentSelectedClientPage)
     )
 
   val agentMustHaveClient: UserContext => Boolean =

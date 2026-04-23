@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package pages
+package models
 
-import models.SelectedClient
-import play.api.libs.json.JsPath
+import play.api.libs.json.{Json, OFormat}
 
-case object SelectedClientPage extends QuestionPage[SelectedClient] {
-  override def path: JsPath     = JsPath \ toString
-  override def toString: String = "selectedClient"
+final case class AgentSelectedClient(vrn: String, name: Option[String] = None)
+
+object AgentSelectedClient {
+  implicit val format: OFormat[AgentSelectedClient] = Json.format[AgentSelectedClient]
 }

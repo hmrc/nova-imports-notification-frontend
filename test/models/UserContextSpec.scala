@@ -17,7 +17,7 @@
 package models
 
 import base.SpecBase
-import pages.SelectedClientPage
+import pages.AgentSelectedClientPage
 import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolment, EnrolmentIdentifier, Enrolments}
 
 class UserContextSpec extends SpecBase {
@@ -28,10 +28,10 @@ class UserContextSpec extends SpecBase {
     Set(Enrolment("HMRC-MTD-VAT", Seq(EnrolmentIdentifier("VRN", "123")), "Activated"))
   )
 
-  private val sampleClient = SelectedClient("GB123456789", Some("Acme Ltd"))
+  private val sampleClient = AgentSelectedClient("GB123456789", Some("Acme Ltd"))
 
-  private def answersWith(client: SelectedClient): UserAnswers =
-    emptyUserAnswers.set(SelectedClientPage, client).success.value
+  private def answersWith(client: AgentSelectedClient): UserAnswers =
+    emptyUserAnswers.set(AgentSelectedClientPage, client).success.value
 
   "UserContext.from" - {
 

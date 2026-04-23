@@ -19,8 +19,8 @@ package controllers
 import base.SpecBase
 import com.google.inject.name.Names
 import controllers.actions.*
-import models.{SelectedClient, UserAnswers}
-import pages.SelectedClientPage
+import models.{AgentSelectedClient, UserAnswers}
+import pages.AgentSelectedClientPage
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -50,10 +50,10 @@ class BeforeYouContinueControllerSpec extends SpecBase {
       )
       .build()
 
-  private val sampleClient = SelectedClient(vrn = "GB123456789", name = Some("Acme Ltd"))
+  private val sampleClient = AgentSelectedClient(vrn = "GB123456789", name = Some("Acme Ltd"))
 
   private val userAnswersWithClient =
-    emptyUserAnswers.set(SelectedClientPage, sampleClient).success.value
+    emptyUserAnswers.set(AgentSelectedClientPage, sampleClient).success.value
 
   "BeforeYouContinueController" - {
 
