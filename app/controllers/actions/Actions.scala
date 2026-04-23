@@ -17,7 +17,7 @@
 package controllers.actions
 
 import com.google.inject.Inject
-import models.UserAnswers
+import models.{UserAnswers, UserContext}
 import javax.inject.Named
 import models.requests.DataRequest
 import play.api.mvc.{ActionBuilder, AnyContent, DefaultActionBuilder}
@@ -50,23 +50,17 @@ class Actions @Inject() (
       .andThen(requireData)
 
   def authAndGetDataWithGuard(predicate: UserAnswers => Boolean): ActionBuilder[DataRequest, AnyContent] =
-    actionBuilder
-      .andThen(identify)
-      .andThen(getData)
-      .andThen(requireData)
-      .andThen(guard(predicate))
+    authAndGetData().andThen(guard(predicate))
 
   def vatTraderAuthAndGetDataWithGuard(predicate: UserAnswers => Boolean): ActionBuilder[DataRequest, AnyContent] =
-    actionBuilder
-      .andThen(identifyVatTrader)
-      .andThen(getData)
-      .andThen(requireData)
-      .andThen(guard(predicate))
+    vatTraderAuthAndGetData().andThen(guard(predicate))
 
   def ogdAuthAndGetDataWithGuard(predicate: UserAnswers => Boolean): ActionBuilder[DataRequest, AnyContent] =
-    actionBuilder
-      .andThen(identifyOgd)
-      .andThen(getData)
-      .andThen(requireData)
-      .andThen(guard(predicate))
+    ogdAuthAndGetData().andThen(guard(predicate))
+
+  def authAndGetDataWithUserContextGuard(predicate: UserContext => Boolean): ActionBuilder[DataRequest, AnyContent] =
+    authAndGetData().andThen(guard.forUserContext(predicate))
+
+  def authAndGetDataRequiringClient(): ActionBuilder[DataRequest, AnyContent] =
+    authAndGetDataWithUserContextGuard(UserContext.agentMustHaveClient)
 }
