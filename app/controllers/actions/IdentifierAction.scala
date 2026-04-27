@@ -123,8 +123,8 @@ class VatTraderIdentifierAction @Inject() (
     enrolments.getEnrolment(key).exists(_.isActivated)
 }
 
-/** Requires Agent with HMCE-VAT-AGNT enrolment. */
-class VatAgentIdentifierAction @Inject() (
+/** Requires Agent affinity group without HMRC-NOVRN-AGNT enrolment (excludes OGD agents) */
+class NovaAgentIdentifierAction @Inject() (
   override val authConnector: AuthConnector,
   config: FrontendAppConfig,
   val parser: BodyParsers.Default
@@ -139,11 +139,11 @@ class VatAgentIdentifierAction @Inject() (
 
     authorised()
       .retrieve(Retrievals.internalId and Retrievals.affinityGroup and Retrievals.allEnrolments) {
-        case Some(internalId) ~ Some(AffinityGroup.Agent) ~ enrolments if hasActiveEnrolment(enrolments, NovaEnrolments.vatAgent) =>
-          block(IdentifierRequest(request, internalId, AffinityGroup.Organisation, enrolments))
+        case Some(internalId) ~ Some(AffinityGroup.Agent) ~ enrolments if !enrolments.getEnrolment(NovaEnrolments.novrnAgent).exists(_.isActivated) =>
+          block(IdentifierRequest(request, internalId, AffinityGroup.Agent, enrolments))
 
         case Some(_) ~ _ ~ _ =>
-          logger.warn("VAT trader route accessed without required Organisation enrolment")
+          logger.warn("Nova agent route accessed by non-Agent or OGD agent user")
           Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
 
         case _ =>
@@ -156,9 +156,6 @@ class VatAgentIdentifierAction @Inject() (
           Redirect(routes.UnauthorisedController.onPageLoad())
       }
   }
-
-  private def hasActiveEnrolment(enrolments: Enrolments, key: String): Boolean =
-    enrolments.getEnrolment(key).exists(_.isActivated)
 }
 
 /** Requires Agent with HMRC-NOVRN-AGNT enrolment (DVLA/DVA OGD users). */

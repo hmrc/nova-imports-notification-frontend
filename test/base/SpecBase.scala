@@ -38,6 +38,14 @@ trait SpecBase extends AnyFreeSpec with Matchers with TryValues with OptionValue
   def messages(app: Application): Messages = app.injector.instanceOf[MessagesApi].preferred(FakeRequest())
 
   protected def applicationBuilder(userAnswers: Option[UserAnswers] = None): GuiceApplicationBuilder =
+    baseApplicationBuilder(userAnswers)
+      .overrides(bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeIdentifierAction])
+
+  protected def applicationBuilderWithAgentAsNovaAgent(userAnswers: Option[UserAnswers] = None): GuiceApplicationBuilder =
+    baseApplicationBuilder(userAnswers)
+      .overrides(bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeAgentIdentifierAction])
+
+  private def baseApplicationBuilder(userAnswers: Option[UserAnswers]): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .overrides(
         bind[DataRequiredAction].to[DataRequiredActionImpl],

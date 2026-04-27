@@ -20,12 +20,13 @@ import com.google.inject.Inject
 import models.{UserAnswers, UserContext}
 import javax.inject.Named
 import models.requests.DataRequest
-import play.api.mvc.{ActionBuilder, AnyContent, DefaultActionBuilder}
+import play.api.mvc.{ActionBuilder, AnyContent, Call, DefaultActionBuilder}
 
 class Actions @Inject() (
   actionBuilder: DefaultActionBuilder,
   @Named("standard") identify: IdentifierAction,
   @Named("vatTrader") identifyVatTrader: IdentifierAction,
+  @Named("novaAgent") identifyNovaAgent: IdentifierAction,
   @Named("ogd") identifyOgd: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
@@ -48,6 +49,26 @@ class Actions @Inject() (
       .andThen(identifyOgd)
       .andThen(getData)
       .andThen(requireData)
+
+  def novaAgentAuthAndGetData(): ActionBuilder[DataRequest, AnyContent] =
+    actionBuilder
+      .andThen(identifyNovaAgent)
+      .andThen(getData)
+      .andThen(requireData)
+
+  def novaAgentAuthAndGetDataRequiringClient(): ActionBuilder[DataRequest, AnyContent] =
+    actionBuilder
+      .andThen(identifyNovaAgent)
+      .andThen(getData)
+      .andThen(requireData)
+      .andThen(guard.forUserContext(UserContext.agentMustHaveClient))
+
+  def novaAgentAuthAndGetDataRequiringClient(onClientMissing: Call): ActionBuilder[DataRequest, AnyContent] =
+    actionBuilder
+      .andThen(identifyNovaAgent)
+      .andThen(getData)
+      .andThen(requireData)
+      .andThen(guard.forUserContext(UserContext.agentMustHaveClient, onClientMissing))
 
   def authAndGetDataWithGuard(predicate: UserAnswers => Boolean): ActionBuilder[DataRequest, AnyContent] =
     authAndGetData().andThen(guard(predicate))
