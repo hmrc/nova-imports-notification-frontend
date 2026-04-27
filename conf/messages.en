@@ -188,3 +188,20 @@ couldNotRetrieveClientList.reason3 = you do not have any authorised clients link
 couldNotRetrieveClientList.helpdesk = If the problem continues, contact the
 couldNotRetrieveClientList.helpdesk.linkText = HMRC Online Services Helpdesk (opens in new tab).
 couldNotRetrieveClientList.returnHome = Return to home
+
+######################################################
+# CS3.0 - Client State 3: You have no authorised clients  #
+######################################################
+
+noAuthorisedClients.title = You have no authorised clients
+noAuthorisedClients.heading = You have no authorised clients
+noAuthorisedClients.body.1 = You do not have any clients authorised to use the NOVA service.
+noAuthorisedClients.body.2 = To submit and manage vehicle notifications for a client, they must authorise you to act on their behalf.
+noAuthorisedClients.whatToDo.heading = What you need to do
+noAuthorisedClients.whatToDo.body = You can either:
+noAuthorisedClients.list.hmrcOnlineAccount = ask your client to authorise you through their {0}
+noAuthorisedClients.list.hmrcOnlineAccount.link = HMRC online account (opens in new tab)
+noAuthorisedClients.list.onlineAgentAuthorisation = complete the {0} process for the client you''re acting on behalf of
+noAuthorisedClients.list.onlineAgentAuthorisation.link = Online Agent Authorisation (opens in new tab)
+noAuthorisedClients.timing = It can take up to 5 working days for new authorisations to appear in your account.
+noAuthorisedClients.returnToHome = Return to home

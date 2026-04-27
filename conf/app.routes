@@ -31,6 +31,8 @@ GET         /vehicle-outside-eu                          controllers.VehicleOuts
 
 GET         /view-clients/loading                         controllers.LoadingClientListController.onPageLoad()
 
+GET         /view-clients/no-authorised-clients           controllers.NoAuthorisedClientsController.onPageLoad()
+
 GET         /before-you-continue                         controllers.BeforeYouContinueController.onPageLoad()
 
 GET         /view-clients/failed                         controllers.CouldNotRetrieveClientListController.onPageLoad()

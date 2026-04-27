@@ -41,6 +41,9 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val countriesInTheEUUrl: String           = configuration.get[String]("urls.countriesInTheEUUrl")
   val onlineServicesHelpdeskUrl: String     = configuration.get[String]("urls.onlineServicesHelpdeskUrl")
 
+  val hmrcOnlineAccountAuthorisationUrl: String = configuration.get[String]("urls.hmrcOnlineAccountAuthorisationUrl")
+  val onlineAgentAuthorisationUrl: String       = configuration.get[String]("urls.onlineAgentAuthorisationUrl")
+
   private val exitSurveyBaseUrl: String = configuration.get[Service]("microservice.services.feedback-frontend").baseUrl
   val exitSurveyUrl: String             = s"$exitSurveyBaseUrl/feedback/nova-imports-notification-frontend"
 
