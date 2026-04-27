@@ -29,63 +29,64 @@ class CouldNotRetrieveClientListViewSpec extends SpecBase with Matchers {
   "CouldNotRetrieveClientListView" - {
 
     "must render the correct heading" in new Setup {
-      val html: String = view()(request, msgs).toString
+      val html: String = view(helpdeskUrl)(request, msgs).toString
 
       html must include(msgs("couldNotRetrieveClientList.heading"))
     }
 
     "must render the correct page title" in new Setup {
-      val html: String = view()(request, msgs).toString
+      val html: String = view(helpdeskUrl)(request, msgs).toString
 
       html must include(msgs("couldNotRetrieveClientList.title"))
     }
 
     "must render the paragraph" in new Setup {
-      val html: String = view()(request, msgs).toString
+      val html: String = view(helpdeskUrl)(request, msgs).toString
 
       html must include(msgs("couldNotRetrieveClientList.paragraph"))
     }
 
     "must render all bullet point reasons" in new Setup {
-      val html: String = view()(request, msgs).toString
+      val html: String = view(helpdeskUrl)(request, msgs).toString
 
       html must include(msgs("couldNotRetrieveClientList.reason1"))
       html must include(msgs("couldNotRetrieveClientList.reason2"))
       html must include(msgs("couldNotRetrieveClientList.reason3"))
     }
 
-    "must render the helpdesk link text" in new Setup {
-      val html: String = view()(request, msgs).toString
+    "must render the full helpdesk sentence with inline link" in new Setup {
+      val html: String = view(helpdeskUrl)(request, msgs).toString
 
+      html must include("If the problem continues, contact the")
       html must include(msgs("couldNotRetrieveClientList.helpdesk.linkText"))
     }
 
     "must render the helpdesk link URL" in new Setup {
-      val html: String = view()(request, msgs).toString
+      val html: String = view(helpdeskUrl)(request, msgs).toString
 
-      html must include(msgs("couldNotRetrieveClientList.helpdesk.link"))
+      html must include(helpdeskUrl)
     }
 
     "must render the helpdesk link with target blank for opening in new tab" in new Setup {
-      val html: String = view()(request, msgs).toString
+      val html: String = view(helpdeskUrl)(request, msgs).toString
 
       html must include("target=\"_blank\"")
     }
 
     "must render the return to home button" in new Setup {
-      val html: String = view()(request, msgs).toString
+      val html: String = view(helpdeskUrl)(request, msgs).toString
 
       html must include(msgs("couldNotRetrieveClientList.returnHome"))
     }
 
     "must render the same content via the render method" in new Setup {
-      val html: String = view.render(request, msgs).toString
+      val html: String = view.render(helpdeskUrl, request, msgs).toString
 
       html must include(msgs("couldNotRetrieveClientList.heading"))
     }
 
     "must render the same content via the f method" in new Setup {
-      val html: String = view.f()(request, msgs).toString
+      val html: String = view.f(helpdeskUrl)(request, msgs).toString
 
       html must include(msgs("couldNotRetrieveClientList.heading"))
     }
@@ -100,6 +101,7 @@ class CouldNotRetrieveClientListViewSpec extends SpecBase with Matchers {
     implicit val request: Request[?] = FakeRequest()
     implicit val msgs: Messages      = messages(app)
 
+    val helpdeskUrl: String                  = "https://www.gov.uk/government/organisations/hm-revenue-customs/contact/online-services-helpdesk"
     val view: CouldNotRetrieveClientListView = app.injector.instanceOf[CouldNotRetrieveClientListView]
   }
 }

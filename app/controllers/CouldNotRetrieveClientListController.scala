@@ -17,6 +17,7 @@
 package controllers
 
 import com.google.inject.Inject
+import config.FrontendAppConfig
 import controllers.actions.*
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import views.html.CouldNotRetrieveClientListView
@@ -24,10 +25,11 @@ import views.html.CouldNotRetrieveClientListView
 class CouldNotRetrieveClientListController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   view: CouldNotRetrieveClientListView,
-  actions: Actions
+  actions: Actions,
+  appConfig: FrontendAppConfig
 ) extends BaseController {
 
   def onPageLoad: Action[AnyContent] = actions.vatAgentAuthAndGetData() { implicit request =>
-    Ok(view())
+    Ok(view(appConfig.onlineServicesHelpdeskUrl))
   }
 }

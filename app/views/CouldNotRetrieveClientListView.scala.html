@@ -18,7 +18,7 @@
     layout: templates.Layout
 )
 
-@()(implicit request: Request[?], messages: Messages)
+@(onlineServicesHelpdeskUrl: String)(implicit request: Request[?], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("couldNotRetrieveClientList.title")), showBackLink = true) {
 
@@ -38,10 +38,7 @@
         </div>
     </div>
 
-    <p class="govuk-body">
-        @messages("couldNotRetrieveClientList.helpdesk.text")
-        <a href="@messages("couldNotRetrieveClientList.helpdesk.link")" class="govuk-link" rel="noreferrer noopener" target="_blank">@messages("couldNotRetrieveClientList.helpdesk.linkText")</a>.
-    </p>
+    <p class="govuk-body">@messages("couldNotRetrieveClientList.helpdesk") <a href="@onlineServicesHelpdeskUrl" class="govuk-link" rel="noreferrer noopener" target="_blank">@messages("couldNotRetrieveClientList.helpdesk.linkText")</a></p>
 
     <form action="@routes.IndexController.onPageLoad()" method="get">
         <button type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button">
