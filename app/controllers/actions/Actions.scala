@@ -69,14 +69,6 @@ class Actions @Inject() (
       .andThen(getData)
       .andThen(requireData)
       .andThen(guard.forUserContext(UserContext.agentMustHaveClient))
-      .andThen(guard(predicate))
-
-  def vatAgentAuthAndGetDataWithGuard(predicate: UserAnswers => Boolean): ActionBuilder[DataRequest, AnyContent] =
-    actionBuilder
-      .andThen(identifyVatAgent)
-      .andThen(getData)
-      .andThen(requireData)
-      .andThen(guard(predicate))
 
   def novaAgentAuthAndGetDataRequiringClient(onClientMissing: Call): ActionBuilder[DataRequest, AnyContent] =
     actionBuilder
@@ -84,6 +76,13 @@ class Actions @Inject() (
       .andThen(getData)
       .andThen(requireData)
       .andThen(guard.forUserContext(UserContext.agentMustHaveClient, onClientMissing))
+
+  def vatAgentAuthAndGetDataWithGuard(predicate: UserAnswers => Boolean): ActionBuilder[DataRequest, AnyContent] =
+    actionBuilder
+      .andThen(identifyVatAgent)
+      .andThen(getData)
+      .andThen(requireData)
+      .andThen(guard(predicate))
 
   def authAndGetDataWithGuard(predicate: UserAnswers => Boolean): ActionBuilder[DataRequest, AnyContent] =
     authAndGetData().andThen(guard(predicate))
