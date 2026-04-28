@@ -2,7 +2,7 @@
 
 ->          /hmrc-frontend                               hmrcfrontend.Routes
 
-GET         /                                            controllers.IndexController.onPageLoad()
+GET         /                                            controllers.LandingPageController.onPageLoad()
 
 GET         /start                                       controllers.StartController.start()
 

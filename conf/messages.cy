@@ -30,3 +30,18 @@ beforeYouContinueOrg.multiple.body.1 = If you’re completing notifications for 
 beforeYouContinueOrg.multiple.body.2 = You can use a vehicle spreadsheet to enter details for up to 100 vehicles, then upload the completed spreadsheet with your notification.
 beforeYouContinueOrg.multiple.link.text = Find the spreadsheet (opens in new tab)
 beforeYouContinueOrg.multiple.body.3 = you need for the type of vehicles you’ve brought into the UK.
+
+######################################################
+# LP1.0 - Landing page for Private individual                  #
+######################################################
+# TODO: Welsh translations to be supplied by content team.
+
+landingPage.private.title = Notification of Vehicle Arrivals (NOVA)
+landingPage.private.heading = Notification of Vehicle Arrivals (NOVA)
+landingPage.private.body = Use the NOVA service to submit and manage notifications for vehicles brought into the UK.
+landingPage.private.create.link = Create notifications
+landingPage.private.create.body = Start a new notification.
+landingPage.private.update.link = Update notifications
+landingPage.private.update.body = Make changes to one you’ve already submitted.
+landingPage.private.saved.heading = View saved notifications
+landingPage.private.saved.body.empty = You have no saved notifications.

@@ -17,20 +17,28 @@
 package controllers
 
 import controllers.actions.IdentifierAction
-import javax.inject.Inject
+import models.NovaUserType
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.IndexView
+import views.html.LandingPagePrivateView
 
-class IndexController @Inject() (
+import javax.inject.{Inject, Named}
+
+class LandingPageController @Inject() (
   val controllerComponents: MessagesControllerComponents,
-  identify: IdentifierAction,
-  view: IndexView
+  @Named("standard") identify: IdentifierAction,
+  privateView: LandingPagePrivateView
 ) extends FrontendBaseController
     with I18nSupport {
 
   def onPageLoad(): Action[AnyContent] = identify { implicit request =>
-    Ok(view())
+    NovaUserType.from(request.affinityGroup, request.enrolments) match {
+      case NovaUserType.PrivateIndividual =>
+        Ok(privateView())
+      case _ =>
+        // TODO: route Organisation / Agent users to LP2.0 / LP3.0 / LP3.1 when those stories land.
+        Redirect(routes.UnauthorisedController.onPageLoad())
+    }
   }
 }

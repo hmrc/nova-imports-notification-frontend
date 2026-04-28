@@ -28,7 +28,7 @@ class NoAuthorisedClientsViewSpec extends SpecBase with Matchers {
 
   private val hmrcOnlineUrl   = "https://example.com/hmrc-online"
   private val oaaUrl          = "https://example.com/oaa"
-  private val placeholderHome = controllers.routes.IndexController.onPageLoad().url
+  private val placeholderHome = controllers.routes.LandingPageController.onPageLoad().url
 
   "NoAuthorisedClientsView" - {
 

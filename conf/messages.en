@@ -27,9 +27,19 @@ error.title.prefix = Error:
 error.prefix = Error
 error.summary.title = There is a problem
 
-index.title = nova-imports-notification-frontend
-index.heading = nova-imports-notification-frontend
-index.guidance = Welcome to your new frontend. Please see the README file for a guide to getting started.
+######################################################
+# LP1.0 - Landing page for Private individual                  #
+######################################################
+
+landingPage.private.title = Notification of Vehicle Arrivals (NOVA)
+landingPage.private.heading = Notification of Vehicle Arrivals (NOVA)
+landingPage.private.body = Use the NOVA service to submit and manage notifications for vehicles brought into the UK.
+landingPage.private.create.link = Create notifications
+landingPage.private.create.body = Start a new notification.
+landingPage.private.update.link = Update notifications
+landingPage.private.update.body = Make changes to one you’ve already submitted.
+landingPage.private.saved.heading = View saved notifications
+landingPage.private.saved.body.empty = You have no saved notifications.
 
 checkYourAnswers.title = Check your answers
 checkYourAnswers.heading = Check your answers
