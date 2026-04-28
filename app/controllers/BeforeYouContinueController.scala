@@ -32,7 +32,7 @@ class BeforeYouContinueController @Inject() (
   def onPageLoad: Action[AnyContent] = actions.authAndGetData() { implicit request =>
     val ctx                   = request.userContext
     val showIndividualContent =
-      ctx.userType == NovaUserType.PrivateIndividual || ctx.isAgentWithoutClient
+      ctx.userType == NovaUserType.PrivateIndividual || ctx.userType == NovaUserType.NonVatOrganisation || ctx.isAgentWithoutClient
 
     if showIndividualContent then Ok(individualView()) else Ok(organisationView())
   }
