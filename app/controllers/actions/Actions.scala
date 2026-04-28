@@ -17,15 +17,16 @@
 package controllers.actions
 
 import com.google.inject.Inject
-import models.UserAnswers
+import models.{UserAnswers, UserContext}
 import javax.inject.Named
 import models.requests.DataRequest
-import play.api.mvc.{ActionBuilder, AnyContent, DefaultActionBuilder}
+import play.api.mvc.{ActionBuilder, AnyContent, Call, DefaultActionBuilder}
 
 class Actions @Inject() (
   actionBuilder: DefaultActionBuilder,
   @Named("standard") identify: IdentifierAction,
   @Named("vatTrader") identifyVatTrader: IdentifierAction,
+  @Named("novaAgent") identifyNovaAgent: IdentifierAction,
   @Named("vatAgent") identifyVatAgent: IdentifierAction,
   @Named("ogd") identifyOgd: IdentifierAction,
   getData: DataRetrievalAction,
@@ -56,18 +57,18 @@ class Actions @Inject() (
       .andThen(getData)
       .andThen(requireData)
 
-  def authAndGetDataWithGuard(predicate: UserAnswers => Boolean): ActionBuilder[DataRequest, AnyContent] =
+  def novaAgentAuthAndGetData(): ActionBuilder[DataRequest, AnyContent] =
     actionBuilder
-      .andThen(identify)
+      .andThen(identifyNovaAgent)
       .andThen(getData)
       .andThen(requireData)
-      .andThen(guard(predicate))
 
-  def vatTraderAuthAndGetDataWithGuard(predicate: UserAnswers => Boolean): ActionBuilder[DataRequest, AnyContent] =
+  def novaAgentAuthAndGetDataRequiringClient(): ActionBuilder[DataRequest, AnyContent] =
     actionBuilder
-      .andThen(identifyVatTrader)
+      .andThen(identifyNovaAgent)
       .andThen(getData)
       .andThen(requireData)
+      .andThen(guard.forUserContext(UserContext.agentMustHaveClient))
       .andThen(guard(predicate))
 
   def vatAgentAuthAndGetDataWithGuard(predicate: UserAnswers => Boolean): ActionBuilder[DataRequest, AnyContent] =
@@ -77,10 +78,25 @@ class Actions @Inject() (
       .andThen(requireData)
       .andThen(guard(predicate))
 
-  def ogdAuthAndGetDataWithGuard(predicate: UserAnswers => Boolean): ActionBuilder[DataRequest, AnyContent] =
+  def novaAgentAuthAndGetDataRequiringClient(onClientMissing: Call): ActionBuilder[DataRequest, AnyContent] =
     actionBuilder
-      .andThen(identifyOgd)
+      .andThen(identifyNovaAgent)
       .andThen(getData)
       .andThen(requireData)
-      .andThen(guard(predicate))
+      .andThen(guard.forUserContext(UserContext.agentMustHaveClient, onClientMissing))
+
+  def authAndGetDataWithGuard(predicate: UserAnswers => Boolean): ActionBuilder[DataRequest, AnyContent] =
+    authAndGetData().andThen(guard(predicate))
+
+  def vatTraderAuthAndGetDataWithGuard(predicate: UserAnswers => Boolean): ActionBuilder[DataRequest, AnyContent] =
+    vatTraderAuthAndGetData().andThen(guard(predicate))
+
+  def ogdAuthAndGetDataWithGuard(predicate: UserAnswers => Boolean): ActionBuilder[DataRequest, AnyContent] =
+    ogdAuthAndGetData().andThen(guard(predicate))
+
+  def authAndGetDataWithUserContextGuard(predicate: UserContext => Boolean): ActionBuilder[DataRequest, AnyContent] =
+    authAndGetData().andThen(guard.forUserContext(predicate))
+
+  def authAndGetDataRequiringClient(): ActionBuilder[DataRequest, AnyContent] =
+    authAndGetDataWithUserContextGuard(UserContext.agentMustHaveClient)
 }

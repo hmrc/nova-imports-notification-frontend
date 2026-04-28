@@ -1,0 +1,71 @@
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@this(
+    layout: templates.Layout,
+    govukButton: GovukButton
+)
+
+@()(implicit request: Request[?], messages: Messages)
+
+@layout(pageTitle = titleNoForm(messages("beforeYouContinueOrg.title"))) {
+
+    <h1 class="govuk-heading-l">@messages("beforeYouContinueOrg.heading")</h1>
+
+    <p class="govuk-body">@messages("beforeYouContinueOrg.body.1")</p>
+
+    <p class="govuk-body">@messages("beforeYouContinueOrg.vehicle.body")</p>
+
+    <ul class="govuk-list govuk-list--bullet">
+        <li>@messages("beforeYouContinueOrg.vehicle.list.1")</li>
+        <li>@messages("beforeYouContinueOrg.vehicle.list.2")</li>
+        <li>@messages("beforeYouContinueOrg.vehicle.list.3")</li>
+        <li>@messages("beforeYouContinueOrg.vehicle.list.4")</li>
+        <li>@messages("beforeYouContinueOrg.vehicle.list.5")</li>
+        <li>@messages("beforeYouContinueOrg.vehicle.list.6")</li>
+    </ul>
+
+    <p class="govuk-body">@messages("beforeYouContinueOrg.supplier.body")</p>
+
+    <ul class="govuk-list govuk-list--bullet">
+        <li>@messages("beforeYouContinueOrg.supplier.list.1")</li>
+        <li>@messages("beforeYouContinueOrg.supplier.list.2")</li>
+    </ul>
+
+    <h2 class="govuk-heading-m">@messages("beforeYouContinueOrg.updating.heading")</h2>
+
+    <p class="govuk-body">@messages("beforeYouContinueOrg.updating.body.1")</p>
+
+    <p class="govuk-body">@messages("beforeYouContinueOrg.updating.body.2")</p>
+
+    <h2 class="govuk-heading-m">@messages("beforeYouContinueOrg.multiple.heading")</h2>
+
+    <p class="govuk-body">@messages("beforeYouContinueOrg.multiple.body.1")</p>
+
+    <p class="govuk-body">@messages("beforeYouContinueOrg.multiple.body.2")</p>
+
+    <p class="govuk-body">
+        <a class="govuk-link" href="https://www.gov.uk/guidance/telling-hmrc-youre-importing-multiple-vehicles#spreadsheets-for-different-vehicle-types" target="_blank" rel="noopener noreferrer">@messages("beforeYouContinueOrg.multiple.link.text")</a>
+        @messages("beforeYouContinueOrg.multiple.body.3")
+    </p>
+
+    <p class="govuk-body">
+        @govukButton(
+            ButtonViewModel(messages("site.continue"))
+                .asLink(routes.VehicleFromEuController.onPageLoad(NormalMode).url)
+        )
+    </p>
+}

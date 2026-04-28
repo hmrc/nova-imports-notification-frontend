@@ -14,25 +14,12 @@
  * limitations under the License.
  */
 
-package models.requests
+package pages
 
-import models.{UserAnswers, UserContext}
-import play.api.mvc.{Request, WrappedRequest}
-import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments}
+import models.AgentSelectedClient
+import play.api.libs.json.JsPath
 
-case class OptionalDataRequest[A](
-  request: Request[A],
-  userId: String,
-  affinityGroup: AffinityGroup,
-  enrolments: Enrolments,
-  userAnswers: Option[UserAnswers]
-) extends WrappedRequest[A](request)
-
-case class DataRequest[A](
-  request: Request[A],
-  userId: String,
-  affinityGroup: AffinityGroup,
-  enrolments: Enrolments,
-  userAnswers: UserAnswers,
-  userContext: UserContext
-) extends WrappedRequest[A](request)
+case object AgentSelectedClientPage extends QuestionPage[AgentSelectedClient] {
+  override def path: JsPath     = JsPath \ toString
+  override def toString: String = "agentSelectedClient"
+}

@@ -14,25 +14,12 @@
  * limitations under the License.
  */
 
-package models.requests
+package models
 
-import models.{UserAnswers, UserContext}
-import play.api.mvc.{Request, WrappedRequest}
-import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments}
+import play.api.libs.json.{Json, OFormat}
 
-case class OptionalDataRequest[A](
-  request: Request[A],
-  userId: String,
-  affinityGroup: AffinityGroup,
-  enrolments: Enrolments,
-  userAnswers: Option[UserAnswers]
-) extends WrappedRequest[A](request)
+final case class AgentSelectedClient(vrn: String, name: Option[String] = None)
 
-case class DataRequest[A](
-  request: Request[A],
-  userId: String,
-  affinityGroup: AffinityGroup,
-  enrolments: Enrolments,
-  userAnswers: UserAnswers,
-  userContext: UserContext
-) extends WrappedRequest[A](request)
+object AgentSelectedClient {
+  implicit val format: OFormat[AgentSelectedClient] = Json.format[AgentSelectedClient]
+}

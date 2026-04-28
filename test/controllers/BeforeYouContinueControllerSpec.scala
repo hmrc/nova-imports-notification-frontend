@@ -17,51 +17,116 @@
 package controllers
 
 import base.SpecBase
+import com.google.inject.name.Names
+import controllers.actions.*
+import models.{AgentSelectedClient, UserAnswers}
+import pages.AgentSelectedClientPage
 import play.api.Application
+import play.api.inject.bind
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 
 class BeforeYouContinueControllerSpec extends SpecBase {
 
+  private lazy val beforeYouContinueRoute = routes.BeforeYouContinueController.onPageLoad().url
+  private lazy val continueTarget         = routes.VehicleFromEuController.onPageLoad(models.NormalMode).url
+
+  private val spreadsheetSection = "Notifying for multiple vehicles"
+
+  private def applicationWith(
+    identifierAction: Class[? <: IdentifierAction],
+    userAnswers: Option[UserAnswers] = Some(emptyUserAnswers)
+  ): Application =
+    new GuiceApplicationBuilder()
+      .overrides(
+        bind[DataRequiredAction].to[DataRequiredActionImpl],
+        bind[IdentifierAction].to(identifierAction),
+        bind[IdentifierAction].qualifiedWith(Names.named("standard")).to(identifierAction),
+        bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
+        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
+      )
+      .build()
+
+  private val sampleClient = AgentSelectedClient(vrn = "GB123456789", name = Some("Acme Ltd"))
+
+  private val userAnswersWithClient =
+    emptyUserAnswers.set(AgentSelectedClientPage, sampleClient).success.value
+
   "BeforeYouContinueController" - {
 
-    "onPageLoadIndividual" - {
+    "onPageLoad" - {
 
-      "must return OK and render the correct view" in {
-        given application: Application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      "for a Private Individual renders BY1.0 without the multiple-vehicles section" in {
+        given application: Application = applicationWith(classOf[FakeIdentifierAction])
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] =
-            FakeRequest(GET, routes.BeforeYouContinueController.onPageLoadIndividual().url)
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, beforeYouContinueRoute)
 
           val result = route(application, request).value
+          val body   = contentAsString(result)
 
           status(result) mustEqual OK
-          contentAsString(result) must include("Before you continue")
+          body must include("Before you continue")
+          body must include(continueTarget)
+          body must not include spreadsheetSection
         }
       }
 
-      "must link the Continue button to the VehicleFromEu page" in {
-        given application: Application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      "for an Organisation renders BY2.0 with the multiple-vehicles section" in {
+        given application: Application = applicationWith(classOf[FakeOrganisationIdentifierAction])
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] =
-            FakeRequest(GET, routes.BeforeYouContinueController.onPageLoadIndividual().url)
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, beforeYouContinueRoute)
 
           val result = route(application, request).value
+          val body   = contentAsString(result)
 
           status(result) mustEqual OK
-          contentAsString(result) must include(routes.VehicleFromEuController.onPageLoad(models.NormalMode).url)
+          body must include(spreadsheetSection)
+          body must include("Find the spreadsheet (opens in new tab)")
+          body must include(continueTarget)
+        }
+      }
+
+      "for an Agent with a selected client renders BY2.0" in {
+        given application: Application =
+          applicationWith(classOf[FakeAgentIdentifierAction], userAnswers = Some(userAnswersWithClient))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, beforeYouContinueRoute)
+
+          val result = route(application, request).value
+          val body   = contentAsString(result)
+
+          status(result) mustEqual OK
+          body must include(spreadsheetSection)
+        }
+      }
+
+      "for an Agent without a selected client renders BY1.0 (treated as individual)" in {
+        given application: Application = applicationWith(classOf[FakeAgentIdentifierAction])
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, beforeYouContinueRoute)
+
+          val result = route(application, request).value
+          val body   = contentAsString(result)
+
+          status(result) mustEqual OK
+          body must include("Before you continue")
+          body must not include spreadsheetSection
         }
       }
 
       "must redirect to Journey Recovery if no existing data is found" in {
-        given application: Application = applicationBuilder(userAnswers = None).build()
+        given application: Application =
+          applicationWith(classOf[FakeIdentifierAction], userAnswers = None)
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] =
-            FakeRequest(GET, routes.BeforeYouContinueController.onPageLoadIndividual().url)
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, beforeYouContinueRoute)
 
           val result = route(application, request).value
 

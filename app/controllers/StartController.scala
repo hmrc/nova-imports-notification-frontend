@@ -34,7 +34,7 @@ class StartController @Inject() (
 
   def start(): Action[AnyContent] = identify.async { implicit request =>
     sessionRepository.set(UserAnswers(request.userId)).map { _ =>
-      Redirect(routes.BeforeYouContinueController.onPageLoadIndividual())
+      Redirect(routes.BeforeYouContinueController.onPageLoad())
     }
   }
 }

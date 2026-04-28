@@ -18,16 +18,22 @@ package controllers
 
 import com.google.inject.Inject
 import controllers.actions.*
+import models.NovaUserType
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import views.html.BeforeYouContinueView
+import views.html.{BeforeYouContinueOrganisationView, BeforeYouContinueView}
 
 class BeforeYouContinueController @Inject() (
   val controllerComponents: MessagesControllerComponents,
-  view: BeforeYouContinueView,
+  individualView: BeforeYouContinueView,
+  organisationView: BeforeYouContinueOrganisationView,
   actions: Actions
 ) extends BaseController {
 
-  def onPageLoadIndividual: Action[AnyContent] = actions.authAndGetData() { implicit request =>
-    Ok(view())
+  def onPageLoad: Action[AnyContent] = actions.authAndGetData() { implicit request =>
+    val ctx                   = request.userContext
+    val showIndividualContent =
+      ctx.userType == NovaUserType.PrivateIndividual || ctx.isAgentWithoutClient
+
+    if showIndividualContent then Ok(individualView()) else Ok(organisationView())
   }
 }
