@@ -31,11 +31,14 @@ object NovaUserType {
     affinityGroup match {
       case AffinityGroup.Organisation if hasVatEnrolment(enrolments) => NovaUserType.VatRegisteredOrganisation
       case AffinityGroup.Organisation                                => NovaUserType.NonVatOrganisation
-      case AffinityGroup.Agent                                       => NovaUserType.Agent
-      case _                                                         => NovaUserType.PrivateIndividual
+      case AffinityGroup.Agent if !isSpecialUser(enrolments)         => NovaUserType.Agent
+      case _ if !isSpecialUser(enrolments)                           => NovaUserType.PrivateIndividual
     }
 
   private def hasVatEnrolment(enrolments: Enrolments): Boolean =
     enrolments.getEnrolment("HMRC-MTD-VAT").exists(_.isActivated) ||
       enrolments.getEnrolment("HMCE-VATDEC-ORG").exists(_.isActivated)
+
+  private def isSpecialUser(enrolments: Enrolments): Boolean =
+    enrolments.getEnrolment("HMRC-NOVRN-AGNT").exists(_.isActivated)
 }

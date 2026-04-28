@@ -76,8 +76,8 @@ class BeforeYouContinueControllerSpec extends SpecBase {
         }
       }
 
-      "for an Organisation renders BY2.0 with the multiple-vehicles section" in {
-        given application: Application = applicationWith(classOf[FakeOrganisationIdentifierAction])
+      "for an Organisation with a VAT enrolment renders BY2.0 with the multiple-vehicles section" in {
+        given application: Application = applicationWith(classOf[FakeVatTraderIdentifierAction])
 
         running(application) {
           given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, beforeYouContinueRoute)
@@ -89,6 +89,21 @@ class BeforeYouContinueControllerSpec extends SpecBase {
           body must include(spreadsheetSection)
           body must include("Find the spreadsheet (opens in new tab)")
           body must include(continueTarget)
+        }
+      }
+
+      "for an Organisation without a VAT enrolment renders BY1.0" in {
+        given application: Application = applicationWith(classOf[FakeOrganisationIdentifierAction])
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, beforeYouContinueRoute)
+
+          val result = route(application, request).value
+          val body   = contentAsString(result)
+
+          status(result) mustEqual OK
+          body must include("Before you continue")
+          body must not include spreadsheetSection
         }
       }
 
