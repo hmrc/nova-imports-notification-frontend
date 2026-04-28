@@ -19,17 +19,14 @@ package controllers
 import base.SpecBase
 import com.google.inject.name.Names
 import controllers.actions.*
-import models.requests.IdentifierRequest
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.mvc.*
+import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments}
 
-import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class CouldNotRetrieveClientListControllerSpec extends SpecBase {
 
@@ -110,14 +107,14 @@ class CouldNotRetrieveClientListControllerSpec extends SpecBase {
         }
       }
 
-      "must redirect to unauthorised if the user is not a VAT agent" in {
+      "must redirect to unauthorised if the user is not a nova agent" in {
         given application: Application = new GuiceApplicationBuilder()
           .overrides(
             bind[DataRequiredAction].to[DataRequiredActionImpl],
             bind[IdentifierAction].to[FakeIdentifierAction],
             bind[IdentifierAction].qualifiedWith(Names.named("standard")).to[FakeIdentifierAction],
             bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeIdentifierAction],
-            bind[IdentifierAction].qualifiedWith(Names.named("vatAgent")).to[FakeUnauthorisedVatAgentAction],
+            bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[UnauthorisedIdentifierAction],
             bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
             bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(Some(emptyUserAnswers)))
           )
@@ -135,16 +132,4 @@ class CouldNotRetrieveClientListControllerSpec extends SpecBase {
       }
     }
   }
-}
-
-class FakeUnauthorisedVatAgentAction @Inject() (bodyParsers: PlayBodyParsers) extends IdentifierAction {
-
-  override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] =
-    Future.successful(Results.Redirect(routes.UnauthorisedController.onPageLoad()))
-
-  override def parser: BodyParser[AnyContent] =
-    bodyParsers.default
-
-  override protected def executionContext: ExecutionContext =
-    scala.concurrent.ExecutionContext.Implicits.global
 }

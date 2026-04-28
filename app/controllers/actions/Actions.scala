@@ -27,7 +27,6 @@ class Actions @Inject() (
   @Named("standard") identify: IdentifierAction,
   @Named("vatTrader") identifyVatTrader: IdentifierAction,
   @Named("novaAgent") identifyNovaAgent: IdentifierAction,
-  @Named("vatAgent") identifyVatAgent: IdentifierAction,
   @Named("ogd") identifyOgd: IdentifierAction,
   getData: DataRetrievalAction,
   requireData: DataRequiredAction,
@@ -42,12 +41,6 @@ class Actions @Inject() (
   def vatTraderAuthAndGetData(): ActionBuilder[DataRequest, AnyContent] =
     actionBuilder
       .andThen(identifyVatTrader)
-      .andThen(getData)
-      .andThen(requireData)
-
-  def vatAgentAuthAndGetData(): ActionBuilder[DataRequest, AnyContent] =
-    actionBuilder
-      .andThen(identifyVatAgent)
       .andThen(getData)
       .andThen(requireData)
 
@@ -76,13 +69,6 @@ class Actions @Inject() (
       .andThen(getData)
       .andThen(requireData)
       .andThen(guard.forUserContext(UserContext.agentMustHaveClient, onClientMissing))
-
-  def vatAgentAuthAndGetDataWithGuard(predicate: UserAnswers => Boolean): ActionBuilder[DataRequest, AnyContent] =
-    actionBuilder
-      .andThen(identifyVatAgent)
-      .andThen(getData)
-      .andThen(requireData)
-      .andThen(guard(predicate))
 
   def authAndGetDataWithGuard(predicate: UserAnswers => Boolean): ActionBuilder[DataRequest, AnyContent] =
     authAndGetData().andThen(guard(predicate))

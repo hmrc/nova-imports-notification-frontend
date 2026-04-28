@@ -197,7 +197,6 @@ class VehicleBusinessUseControllerSpec extends SpecBase with MockitoSugar {
           bind[IdentifierAction].to[FakeIdentifierAction],
           bind[IdentifierAction].qualifiedWith(Names.named("standard")).to[FakeIdentifierAction],
           bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[UnauthorisedIdentifierAction],
-          bind[IdentifierAction].qualifiedWith(Names.named("vatAgent")).to[FakeIdentifierAction],
           bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeIdentifierAction],
           bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
           bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(Some(userAnswersWithVehicleFromEu)))
@@ -222,7 +221,6 @@ class VehicleBusinessUseControllerSpec extends SpecBase with MockitoSugar {
           bind[IdentifierAction].to[FakeIdentifierAction],
           bind[IdentifierAction].qualifiedWith(Names.named("standard")).to[FakeIdentifierAction],
           bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[UnauthorisedIdentifierAction],
-          bind[IdentifierAction].qualifiedWith(Names.named("vatAgent")).to[FakeIdentifierAction],
           bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeIdentifierAction],
           bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
           bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(Some(userAnswersWithVehicleFromEu)))

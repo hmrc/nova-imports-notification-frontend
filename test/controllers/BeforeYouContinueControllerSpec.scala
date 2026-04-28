@@ -45,7 +45,6 @@ class BeforeYouContinueControllerSpec extends SpecBase {
         bind[IdentifierAction].to(identifierAction),
         bind[IdentifierAction].qualifiedWith(Names.named("standard")).to(identifierAction),
         bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeIdentifierAction],
-        bind[IdentifierAction].qualifiedWith(Names.named("vatAgent")).to[FakeIdentifierAction],
         bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeIdentifierAction],
         bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
