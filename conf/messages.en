@@ -174,3 +174,17 @@ loadingClientList.title = Retrieving your client list
 loadingClientList.heading = Retrieving your client list
 loadingClientList.paragraph = Please wait while we retrieve your authorised clients. This should only take a few moments.
 loadingClientList.warning = Do not refresh this page or use the back button.
+
+########################################################
+# CS2.0 - Client State 2: Could not retrieve client list #
+########################################################
+
+couldNotRetrieveClientList.title = We could not retrieve your client list
+couldNotRetrieveClientList.heading = We could not retrieve your client list
+couldNotRetrieveClientList.paragraph = This could be because:
+couldNotRetrieveClientList.reason1 = there is a temporary problem with the service
+couldNotRetrieveClientList.reason2 = your authorisations are still being processed
+couldNotRetrieveClientList.reason3 = you do not have any authorised clients linked to your agent code
+couldNotRetrieveClientList.helpdesk = If the problem continues, contact the
+couldNotRetrieveClientList.helpdesk.linkText = HMRC Online Services Helpdesk (opens in new tab).
+couldNotRetrieveClientList.returnHome = Return to home

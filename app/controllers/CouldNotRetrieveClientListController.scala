@@ -17,17 +17,19 @@
 package controllers
 
 import com.google.inject.Inject
+import config.FrontendAppConfig
 import controllers.actions.*
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import views.html.LoadingClientListView
+import views.html.CouldNotRetrieveClientListView
 
-class LoadingClientListController @Inject() (
+class CouldNotRetrieveClientListController @Inject() (
   val controllerComponents: MessagesControllerComponents,
-  view: LoadingClientListView,
-  actions: Actions
+  view: CouldNotRetrieveClientListView,
+  actions: Actions,
+  appConfig: FrontendAppConfig
 ) extends BaseController {
 
   def onPageLoad: Action[AnyContent] = actions.novaAgentAuthAndGetData() { implicit request =>
-    Ok(view())
+    Ok(view(appConfig.onlineServicesHelpdeskUrl))
   }
 }
