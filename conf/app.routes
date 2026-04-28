@@ -50,6 +50,11 @@ POST        /vehicle-business-use                        controllers.VehicleBusi
 GET         /change-vehicle-business-use                 controllers.VehicleBusinessUseController.onPageLoad(mode: Mode = CheckMode)
 POST        /change-vehicle-business-use                 controllers.VehicleBusinessUseController.onSubmit(mode: Mode = CheckMode)
 
+GET         /client-vehicle-business-use                 controllers.AgentVehicleBusinessUseController.onPageLoad(mode: Mode = NormalMode)
+POST        /client-vehicle-business-use                 controllers.AgentVehicleBusinessUseController.onSubmit(mode: Mode = NormalMode)
+GET         /change-client-vehicle-business-use          controllers.AgentVehicleBusinessUseController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-client-vehicle-business-use          controllers.AgentVehicleBusinessUseController.onSubmit(mode: Mode = CheckMode)
+
 GET         /business-or-private-individual              controllers.BusinessPrivateController.onPageLoad(mode: Mode = NormalMode)
 POST        /business-or-private-individual              controllers.BusinessPrivateController.onSubmit(mode: Mode = NormalMode)
 

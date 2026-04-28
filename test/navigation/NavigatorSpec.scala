@@ -79,6 +79,43 @@ class NavigatorSpec extends SpecBase {
         }
       }
 
+      "for an Agent with a selected client" - {
+
+        val sampleClient = AgentSelectedClient(vrn = "GB123456789", name = Some("Acme Ltd"))
+
+        val answersWithClient = userAnswers.set(AgentSelectedClientPage, sampleClient).success.value
+
+        "must go from VehicleFromEuPage to AgentVehicleBusinessUseController when Yes is selected" in {
+          val ua = answersWithClient.set(VehicleFromEuPage, true).success.value
+          navigator.nextPage(VehicleFromEuPage, NormalMode, ua, NovaUserType.Agent) mustBe routes.AgentVehicleBusinessUseController
+            .onPageLoad(NormalMode)
+        }
+
+        "must go from VehicleFromEuPage to AgentVehicleBusinessUseController when No is selected" in {
+          val ua = answersWithClient.set(VehicleFromEuPage, false).success.value
+          navigator.nextPage(VehicleFromEuPage, NormalMode, ua, NovaUserType.Agent) mustBe routes.AgentVehicleBusinessUseController
+            .onPageLoad(NormalMode)
+        }
+
+        "must go from VehicleFromEuPage to JourneyRecovery when no answer is found" in {
+          navigator.nextPage(VehicleFromEuPage, NormalMode, answersWithClient, NovaUserType.Agent) mustBe routes.JourneyRecoveryController
+            .onPageLoad()
+        }
+      }
+
+      "for an Agent without a selected client" - {
+
+        "must go from VehicleFromEuPage to BusinessPrivateController when Yes is selected" in {
+          val ua = userAnswers.set(VehicleFromEuPage, true).success.value
+          navigator.nextPage(VehicleFromEuPage, NormalMode, ua, NovaUserType.Agent) mustBe routes.BusinessPrivateController.onPageLoad(NormalMode)
+        }
+
+        "must go from VehicleFromEuPage to VehicleOutsideEUController when No is selected" in {
+          val ua = userAnswers.set(VehicleFromEuPage, false).success.value
+          navigator.nextPage(VehicleFromEuPage, NormalMode, ua, NovaUserType.Agent) mustBe routes.VehicleOutsideEUController.onPageLoad()
+        }
+      }
+
       "for a NonVatOrganisation" - {
 
         "must go from VehicleFromEuPage to BusinessPrivateController when Yes is selected" in {
@@ -98,6 +135,10 @@ class NavigatorSpec extends SpecBase {
       "must go from VehicleBusinessUsePage to IndexController" in {
         navigator.nextPage(VehicleBusinessUsePage, NormalMode, userAnswers, NovaUserType.VatRegisteredOrganisation) mustBe routes.IndexController
           .onPageLoad()
+      }
+
+      "must go from AgentVehicleBusinessUsePage to IndexController" in {
+        navigator.nextPage(AgentVehicleBusinessUsePage, NormalMode, userAnswers, NovaUserType.Agent) mustBe routes.IndexController.onPageLoad()
       }
 
       "must go from BusinessPrivatePage to PurchaserOrOnBehalfController" in {
@@ -159,6 +200,15 @@ class NavigatorSpec extends SpecBase {
           CheckMode,
           userAnswers,
           NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.CheckYourAnswersController.onPageLoad()
+      }
+
+      "must go from AgentVehicleBusinessUsePage to CheckYourAnswers" in {
+        navigator.nextPage(
+          AgentVehicleBusinessUsePage,
+          CheckMode,
+          userAnswers,
+          NovaUserType.Agent
         ) mustBe routes.CheckYourAnswersController.onPageLoad()
       }
     }
