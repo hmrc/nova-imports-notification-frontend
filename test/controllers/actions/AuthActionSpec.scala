@@ -25,7 +25,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.authorise.Predicate
-import uk.gov.hmrc.auth.core.retrieve.Retrieval
+import uk.gov.hmrc.auth.core.retrieve.{Retrieval, ~}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -178,6 +178,34 @@ class AuthActionSpec extends SpecBase {
         }
       }
     }
+
+    "the user is an OGD agent (HMRC-NOVRN-AGNT activated)" - {
+
+      "must redirect the user to the unauthorised page" in {
+
+        val application = applicationBuilder(userAnswers = None).build()
+
+        running(application) {
+          val bodyParsers = application.injector.instanceOf[BodyParsers.Default]
+          val appConfig   = application.injector.instanceOf[FrontendAppConfig]
+
+          val ogdEnrolment = Enrolment(
+            NovaEnrolments.novrnAgent,
+            Seq(EnrolmentIdentifier(NovaEnrolments.novrnAgentIdentifier, "AE8653")),
+            "Activated"
+          )
+          val retrievalResult =
+            new ~(new ~(Some("internalId"), Some(AffinityGroup.Agent)), Enrolments(Set(ogdEnrolment)))
+
+          val authAction = new StandardIdentifierAction(new FakeSuccessAuthConnector(retrievalResult), appConfig, bodyParsers)
+          val controller = new Harness(authAction)
+          val result     = controller.onPageLoad()(FakeRequest())
+
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe Some(routes.UnauthorisedController.onPageLoad().url)
+        }
+      }
+    }
   }
 }
 
@@ -186,4 +214,11 @@ class FakeFailingAuthConnector @Inject() (exceptionToReturn: Throwable) extends 
 
   override def authorise[A](predicate: Predicate, retrieval: Retrieval[A])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[A] =
     Future.failed(exceptionToReturn)
+}
+
+class FakeSuccessAuthConnector[T](result: T) extends AuthConnector {
+  val serviceUrl: String = ""
+
+  override def authorise[A](predicate: Predicate, retrieval: Retrieval[A])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[A] =
+    Future.successful(result.asInstanceOf[A])
 }
