@@ -43,11 +43,11 @@ object NovaEnrolments {
   val vatAgent: String           = "HMCE-VAT-AGNT"
   val vatAgentIdentifier: String = "AgentRefNo"
 
-  val novrnAgent: String           = "HMRC-NOVRN-AGNT"
-  val novrnAgentIdentifier: String = "VATAgentRefNo"
+  val specialUserAgent: String           = "HMRC-NOVRN-AGNT"
+  val specialUserAgentIdentifier: String = "VATAgentRefNo"
 }
 
-/** Accepts any authenticated Individual, Organisation, or Agent — no enrolment checks. */
+/** Accepts any authenticated Individual, Organisation, or non-OGD Agent. Rejects OGD agents (HMRC-NOVRN-AGNT). */
 class StandardIdentifierAction @Inject() (
   override val authConnector: AuthConnector,
   config: FrontendAppConfig,
@@ -63,6 +63,10 @@ class StandardIdentifierAction @Inject() (
 
     authorised()
       .retrieve(Retrievals.internalId and Retrievals.affinityGroup and Retrievals.allEnrolments) {
+        case Some(_) ~ Some(AffinityGroup.Agent) ~ enrolments if enrolments.getEnrolment(NovaEnrolments.specialUserAgent).exists(_.isActivated) =>
+          logger.warn("Standard route accessed by OGD agent (HMRC-NOVRN-AGNT)")
+          Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
+
         case Some(internalId) ~ Some(affinityGroup) ~ enrolments
             if Set(AffinityGroup.Individual, AffinityGroup.Organisation, AffinityGroup.Agent).contains(affinityGroup) =>
           block(IdentifierRequest(request, internalId, affinityGroup, enrolments))
@@ -139,7 +143,8 @@ class NovaAgentIdentifierAction @Inject() (
 
     authorised()
       .retrieve(Retrievals.internalId and Retrievals.affinityGroup and Retrievals.allEnrolments) {
-        case Some(internalId) ~ Some(AffinityGroup.Agent) ~ enrolments if !enrolments.getEnrolment(NovaEnrolments.novrnAgent).exists(_.isActivated) =>
+        case Some(internalId) ~ Some(AffinityGroup.Agent) ~ enrolments
+            if !enrolments.getEnrolment(NovaEnrolments.specialUserAgent).exists(_.isActivated) =>
           block(IdentifierRequest(request, internalId, AffinityGroup.Agent, enrolments))
 
         case Some(_) ~ _ ~ _ =>
@@ -174,7 +179,8 @@ class OgdIdentifierAction @Inject() (
 
     authorised()
       .retrieve(Retrievals.internalId and Retrievals.affinityGroup and Retrievals.allEnrolments) {
-        case Some(internalId) ~ Some(AffinityGroup.Agent) ~ enrolments if enrolments.getEnrolment(NovaEnrolments.novrnAgent).exists(_.isActivated) =>
+        case Some(internalId) ~ Some(AffinityGroup.Agent) ~ enrolments
+            if enrolments.getEnrolment(NovaEnrolments.specialUserAgent).exists(_.isActivated) =>
           block(IdentifierRequest(request, internalId, AffinityGroup.Agent, enrolments))
 
         case Some(_) ~ _ ~ _ =>

@@ -20,6 +20,7 @@ import base.SpecBase
 import com.google.inject.name.Names
 import controllers.actions.*
 import models.{AgentSelectedClient, UserAnswers}
+import org.scalatestplus.mockito.MockitoSugar
 import pages.AgentSelectedClientPage
 import play.api.Application
 import play.api.inject.bind
@@ -27,8 +28,9 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import repositories.SessionRepository
 
-class BeforeYouContinueControllerSpec extends SpecBase {
+class BeforeYouContinueControllerSpec extends SpecBase with MockitoSugar {
 
   private lazy val beforeYouContinueRoute = routes.BeforeYouContinueController.onPageLoad().url
   private lazy val continueTarget         = routes.VehicleFromEuController.onPageLoad(models.NormalMode).url
@@ -47,7 +49,8 @@ class BeforeYouContinueControllerSpec extends SpecBase {
         bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeIdentifierAction],
         bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeIdentifierAction],
         bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
-        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
+        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers)),
+        bind[SessionRepository].toInstance(mock[SessionRepository])
       )
       .build()
 
