@@ -190,8 +190,8 @@ class AuthActionSpec extends SpecBase {
           val appConfig   = application.injector.instanceOf[FrontendAppConfig]
 
           val ogdEnrolment = Enrolment(
-            NovaEnrolments.novrnAgent,
-            Seq(EnrolmentIdentifier(NovaEnrolments.novrnAgentIdentifier, "AE8653")),
+            NovaEnrolments.specialUserAgent,
+            Seq(EnrolmentIdentifier(NovaEnrolments.specialUserAgentIdentifier, "AE8653")),
             "Activated"
           )
           val retrievalResult =
