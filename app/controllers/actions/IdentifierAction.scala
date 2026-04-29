@@ -44,7 +44,8 @@ object NovaEnrolments {
   val vatAgentIdentifier: String = "AgentRefNo"
 
   val novrnAgent: String           = "HMRC-NOVRN-AGNT"
-  val novrnAgentIdentifier: String = "VATAgentRefNo"
+val SpecialUserAgent: String           = "HMRC-NOVRN-AGNT"
+val SpecialUserAgentIdentifier: String = "VATAgentRefNo"
 }
 
 /** Accepts any authenticated Individual, Organisation, or non-OGD Agent. Rejects OGD agents (HMRC-NOVRN-AGNT). */
