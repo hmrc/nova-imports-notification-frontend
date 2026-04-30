@@ -47,6 +47,12 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   private val exitSurveyBaseUrl: String = configuration.get[Service]("microservice.services.feedback-frontend").baseUrl
   val exitSurveyUrl: String             = s"$exitSurveyBaseUrl/feedback/nova-imports-notification-frontend"
 
+  val novaImportsBackendBaseUrl: String =
+    configuration.get[Service]("microservice.services.nova-imports-backend").baseUrl
+
+  val draftNotificationStubEnabled: Boolean =
+    configuration.get[Boolean]("features.draft-notification-stub")
+
   val languageTranslationEnabled: Boolean =
     configuration.get[Boolean]("features.welsh-translation")
 

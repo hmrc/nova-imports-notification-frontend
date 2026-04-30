@@ -18,11 +18,13 @@ package config
 
 import com.google.inject.AbstractModule
 import com.google.inject.name.Names
+import connectors.{DraftNotificationConnector, DraftNotificationConnectorImpl, DraftNotificationConnectorStub}
 import controllers.actions.*
+import play.api.{Configuration, Environment}
 
 import java.time.{Clock, ZoneOffset}
 
-class Module extends AbstractModule {
+class Module(environment: Environment, configuration: Configuration) extends AbstractModule {
 
   override def configure(): Unit = {
 
@@ -49,6 +51,13 @@ class Module extends AbstractModule {
       .annotatedWith(Names.named("ogd"))
       .to(classOf[OgdIdentifierAction])
       .asEagerSingleton()
+
+    // Flip features.draft-notification-stub to false once nova-imports-backend exposes F3.
+    if (configuration.get[Boolean]("features.draft-notification-stub")) {
+      bind(classOf[DraftNotificationConnector]).to(classOf[DraftNotificationConnectorStub]).asEagerSingleton()
+    } else {
+      bind(classOf[DraftNotificationConnector]).to(classOf[DraftNotificationConnectorImpl]).asEagerSingleton()
+    }
 
     bind(classOf[Clock]).toInstance(Clock.systemDefaultZone.withZone(ZoneOffset.UTC))
   }
