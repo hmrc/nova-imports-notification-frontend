@@ -24,21 +24,19 @@
 
     <h1 class="govuk-heading-l">@messages("couldNotRetrieveClientList.heading")</h1>
 
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
+    <p class="govuk-body">@messages("couldNotRetrieveClientList.paragraph")</p>
 
-            <p class="govuk-body">@messages("couldNotRetrieveClientList.paragraph")</p>
+    <ul class="govuk-list govuk-list--bullet">
+        <li>@messages("couldNotRetrieveClientList.reason1")</li>
+        <li>@messages("couldNotRetrieveClientList.reason2")</li>
+        <li>@messages("couldNotRetrieveClientList.reason3")</li>
+    </ul>
 
-            <ul class="govuk-list govuk-list--bullet">
-                <li>@messages("couldNotRetrieveClientList.reason1")</li>
-                <li>@messages("couldNotRetrieveClientList.reason2")</li>
-                <li>@messages("couldNotRetrieveClientList.reason3")</li>
-            </ul>
-
-        </div>
-    </div>
-
-    <p class="govuk-body">@messages("couldNotRetrieveClientList.helpdesk") <a href="@onlineServicesHelpdeskUrl" class="govuk-link" rel="noreferrer noopener" target="_blank">@messages("couldNotRetrieveClientList.helpdesk.linkText")</a></p>
+    <p class="govuk-body">@messages("couldNotRetrieveClientList.helpdesk")
+        <a href="@onlineServicesHelpdeskUrl" class="govuk-link" rel="noreferrer noopener" target="_blank">
+            @messages("couldNotRetrieveClientList.helpdesk.linkText")
+        </a>
+    </p>
 
     <form action="@routes.IndexController.onPageLoad()" method="get">
         <button type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button">
