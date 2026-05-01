@@ -18,30 +18,37 @@ package controllers.auth
 
 import base.SpecBase
 import config.FrontendAppConfig
+import controllers.actions.{FakeFailingAuthConnector, FakeSuccessAuthConnector}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
-import org.mockito.Mockito.{times, verify, when}
+import org.mockito.Mockito.{never, times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
+import uk.gov.hmrc.auth.core.{AuthConnector, MissingBearerToken}
 
 import java.net.URLEncoder
-
 import scala.concurrent.Future
 
 class AuthControllerSpec extends SpecBase with MockitoSugar {
 
+  private val authedConnector   = new FakeSuccessAuthConnector[Option[String]](Some(userAnswersId))
+  private val unauthedConnector = new FakeFailingAuthConnector(new MissingBearerToken)
+
   "signOut" - {
 
-    "must clear user answers and redirect to sign out, specifying the exit survey as the continue URL" in {
+    "for an authenticated user, must clear user answers and redirect to sign out (exit survey)" in {
 
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.clear(any())) thenReturn Future.successful(true)
 
       val application =
         applicationBuilder(None)
-          .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+          .overrides(
+            bind[SessionRepository].toInstance(mockSessionRepository),
+            bind[AuthConnector].toInstance(authedConnector)
+          )
           .build()
 
       running(application) {
@@ -59,18 +66,49 @@ class AuthControllerSpec extends SpecBase with MockitoSugar {
         verify(mockSessionRepository, times(1)).clear(eqTo(userAnswersId))
       }
     }
+
+    "for an unauthenticated user, must redirect to sign out without clearing user answers" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+
+      val application =
+        applicationBuilder(None)
+          .overrides(
+            bind[SessionRepository].toInstance(mockSessionRepository),
+            bind[AuthConnector].toInstance(unauthedConnector)
+          )
+          .build()
+
+      running(application) {
+
+        val appConfig = application.injector.instanceOf[FrontendAppConfig]
+        val request   = FakeRequest(GET, routes.AuthController.signOut().url)
+
+        val result = route(application, request).value
+
+        val encodedContinueUrl  = URLEncoder.encode(appConfig.exitSurveyUrl, "UTF-8")
+        val expectedRedirectUrl = s"${appConfig.signOutUrl}?continue=$encodedContinueUrl"
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual expectedRedirectUrl
+        verify(mockSessionRepository, never).clear(any())
+      }
+    }
   }
 
   "signOutNoSurvey" - {
 
-    "must clear users answers and redirect to sign out, specifying SignedOut as the continue URL" in {
+    "for an authenticated user, must clear user answers and redirect to sign out (SignedOut)" in {
 
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.clear(any())) thenReturn Future.successful(true)
 
       val application =
         applicationBuilder(None)
-          .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+          .overrides(
+            bind[SessionRepository].toInstance(mockSessionRepository),
+            bind[AuthConnector].toInstance(authedConnector)
+          )
           .build()
 
       running(application) {
@@ -86,6 +124,34 @@ class AuthControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual expectedRedirectUrl
         verify(mockSessionRepository, times(1)).clear(eqTo(userAnswersId))
+      }
+    }
+
+    "for an unauthenticated user, must redirect to sign out without clearing user answers" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+
+      val application =
+        applicationBuilder(None)
+          .overrides(
+            bind[SessionRepository].toInstance(mockSessionRepository),
+            bind[AuthConnector].toInstance(unauthedConnector)
+          )
+          .build()
+
+      running(application) {
+
+        val appConfig = application.injector.instanceOf[FrontendAppConfig]
+        val request   = FakeRequest(GET, routes.AuthController.signOutNoSurvey().url)
+
+        val result = route(application, request).value
+
+        val encodedContinueUrl  = URLEncoder.encode(routes.SignedOutController.onPageLoad().url, "UTF-8")
+        val expectedRedirectUrl = s"${appConfig.signOutUrl}?continue=$encodedContinueUrl"
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual expectedRedirectUrl
+        verify(mockSessionRepository, never).clear(any())
       }
     }
   }
