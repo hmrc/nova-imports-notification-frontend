@@ -35,6 +35,11 @@ class Navigator @Inject() () {
               case Some(_) => routes.VehicleBusinessUseController.onPageLoad(NormalMode)
               case _       => routes.JourneyRecoveryController.onPageLoad()
             }
+          case NovaUserType.Agent if userAnswers.get(AgentSelectedClientPage).isDefined =>
+            userAnswers.get(VehicleFromEuPage) match {
+              case Some(_) => routes.AgentVehicleBusinessUseController.onPageLoad(NormalMode)
+              case _       => routes.JourneyRecoveryController.onPageLoad()
+            }
           case _ =>
             userAnswers.get(VehicleFromEuPage) match {
               case Some(true)  => routes.BusinessPrivateController.onPageLoad(NormalMode)
@@ -44,6 +49,8 @@ class Navigator @Inject() () {
         }
     case VehicleBusinessUsePage =>
       (_, _) => routes.IndexController.onPageLoad() // TODO: navigate to next page - to be added later
+    case AgentVehicleBusinessUsePage =>
+      (_, _) => routes.IndexController.onPageLoad() // TODO: navigate to agent check your answers - to be added later
     case PurchaserOrOnBehalfPage =>
       (userAnswers, _) =>
         userAnswers.get(PurchaserOrOnBehalfPage) match {

@@ -84,4 +84,7 @@ class Actions @Inject() (
 
   def authAndGetDataRequiringClient(): ActionBuilder[DataRequest, AnyContent] =
     authAndGetDataWithUserContextGuard(UserContext.agentMustHaveClient)
+
+  def novaAgentAuthAndGetDataRequiringClientWithGuard(predicate: UserAnswers => Boolean): ActionBuilder[DataRequest, AnyContent] =
+    novaAgentAuthAndGetDataRequiringClient().andThen(guard(predicate))
 }
