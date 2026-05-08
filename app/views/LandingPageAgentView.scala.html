@@ -1,0 +1,65 @@
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@this(
+    layout: templates.Layout
+)
+
+@(traderName: Option[String], hasDraftNotifications: Boolean)(implicit request: Request[?], messages: Messages)
+
+@layout(pageTitle = titleNoForm(messages("landingPage.agent.title"))) {
+
+    @traderName.map { name =>
+        <span class="govuk-caption-m">@name</span>
+    }
+
+    <h1 class="govuk-heading-l">@messages("landingPage.agent.heading")</h1>
+
+    <p class="govuk-body">@messages("landingPage.agent.body")</p>
+
+    <hr class="govuk-section-break govuk-section-break--visible govuk-section-break--m">
+
+    <h2 class="govuk-heading-m">
+        <a class="govuk-link" href="@routes.StartController.start().url">@messages("landingPage.agent.create.link")</a>
+    </h2>
+    <p class="govuk-body">@messages("landingPage.agent.create.body")</p>
+
+    <hr class="govuk-section-break govuk-section-break--visible govuk-section-break--m">
+
+    <h2 class="govuk-heading-m">
+        <a class="govuk-link" href="@routes.StartController.start().url">@messages("landingPage.agent.update.link")</a>
+    </h2>
+    <p class="govuk-body">@messages("landingPage.agent.update.body")</p>
+
+    <hr class="govuk-section-break govuk-section-break--visible govuk-section-break--m">
+
+    <h2 class="govuk-heading-m">@messages("landingPage.agent.saved.heading")</h2>
+    @if(hasDraftNotifications) {
+        @* TODO: link to VS1.0 when that story lands. *@
+        <p class="govuk-body">@messages("landingPage.agent.saved.body.has")</p>
+    } else {
+        <p class="govuk-body">@messages("landingPage.agent.saved.body.empty")</p>
+    }
+
+    <hr class="govuk-section-break govuk-section-break--visible govuk-section-break--m">
+
+    <h2 class="govuk-heading-m">
+        <a class="govuk-link" href="@routes.LoadingClientListController.onPageLoad().url">@messages("landingPage.agent.clients.link")</a>
+    </h2>
+    <p class="govuk-body">@messages("landingPage.agent.clients.body")</p>
+
+    <hr class="govuk-section-break govuk-section-break--visible govuk-section-break--m">
+}

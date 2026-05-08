@@ -25,7 +25,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
-import views.html.LandingPagePrivateView
+import views.html.{LandingPageAgentView, LandingPagePrivateView}
 
 import javax.inject.{Inject, Named}
 import scala.concurrent.{ExecutionContext, Future}
@@ -34,17 +34,18 @@ class LandingPageController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   @Named("standard") identify: IdentifierAction,
   backendConnector: NovaImportsBackendConnector,
-  privateView: LandingPagePrivateView
+  privateView: LandingPagePrivateView,
+  agentView: LandingPageAgentView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport
     with Logging {
 
   def onPageLoad(): Action[AnyContent] = identify.async { implicit request =>
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+
     NovaUserType.from(request.affinityGroup, request.enrolments) match {
       case NovaUserType.PrivateIndividual =>
-        implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-
         backendConnector.getNotificationSummary().map { result =>
           val hasDrafts = result match {
             case Right(summary: NotificationSummary.IndividualOrOrganisation) => summary.hasDraftNotifications
@@ -56,8 +57,22 @@ class LandingPageController @Inject() (
           Ok(privateView(hasDraftNotifications = hasDrafts))
         }
 
+      case NovaUserType.Agent =>
+        backendConnector.getNotificationSummary().map { result =>
+          val (traderName, hasDrafts) = result match {
+            case Right(summary: NotificationSummary.AgentWithoutClient) =>
+              (Some(summary.traderName), summary.hasDraftNotifications)
+            case Right(_) =>
+              (None, false)
+            case Left(error) =>
+              logger.warn(s"failed to fetch notification summary; defaulting hasDraftNotifications=false: $error")
+              (None, false)
+          }
+          Ok(agentView(traderName = traderName, hasDraftNotifications = hasDrafts))
+        }
+
       case _ =>
-        // TODO: route Organisation / Agent users to LP2.0 / LP3.0 / LP3.1 when those stories land.
+        // TODO: route Organisation users to LP2.0 when that story lands.
         Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
     }
   }

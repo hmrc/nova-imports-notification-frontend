@@ -45,6 +45,22 @@ class LandingPageControllerSpec extends SpecBase with MockitoSugar {
   private val summaryWithDrafts =
     NotificationSummary.IndividualOrOrganisation(traderName = "Tester", vrn = "000000000", hasDraftNotifications = true)
 
+  private val agentSummaryWithoutDrafts =
+    NotificationSummary.AgentWithoutClient(
+      traderName = "ABC Consultancy",
+      vrn = "000000000",
+      hasDraftNotifications = false,
+      hasClients = true
+    )
+
+  private val agentSummaryWithDrafts =
+    NotificationSummary.AgentWithoutClient(
+      traderName = "ABC Consultancy",
+      vrn = "000000000",
+      hasDraftNotifications = true,
+      hasClients = true
+    )
+
   private def applicationWith(
     identifierAction: Class[? <: IdentifierAction],
     connector: NovaImportsBackendConnector = stubConnector(emptySummary)
@@ -141,16 +157,60 @@ class LandingPageControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "for an Agent redirects to Unauthorised (LP3.0 / LP3.1 not yet built)" in {
-        given application: Application = applicationWith(classOf[FakeAgentIdentifierAction])
+      "for an Agent with no drafts renders LP3.0 with the empty saved-notification message" in {
+        given application: Application =
+          applicationWith(classOf[FakeAgentIdentifierAction], stubConnector(agentSummaryWithoutDrafts))
 
         running(application) {
           given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, landingPageRoute)
 
           val result = route(application, request).value
+          val body   = contentAsString(result)
 
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+          status(result) mustEqual OK
+          body must include("Notification of Vehicle Arrivals (NOVA)")
+          body must include("ABC Consultancy")
+          body must include("Create a new notification")
+          body must include("Update a submitted notification")
+          body must include("Manage a saved notification")
+          body must include("You do not have a saved notification")
+          body must include("Manage your clients")
+          body must include(startUrl)
+          body must include(routes.LoadingClientListController.onPageLoad().url)
+          body must not include "View, continue or delete a notification"
+        }
+      }
+
+      "for an Agent with drafts renders the has-drafts saved-notification message" in {
+        given application: Application =
+          applicationWith(classOf[FakeAgentIdentifierAction], stubConnector(agentSummaryWithDrafts))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, landingPageRoute)
+
+          val result = route(application, request).value
+          val body   = contentAsString(result)
+
+          status(result) mustEqual OK
+          body must include("View, continue or delete a notification you’ve started but not yet submitted")
+          body must not include "You do not have a saved notification"
+        }
+      }
+
+      "for an Agent when the summary call fails defaults to no drafts and omits the trader caption" in {
+        given application: Application =
+          applicationWith(classOf[FakeAgentIdentifierAction], failingSummaryConnector)
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, landingPageRoute)
+
+          val result = route(application, request).value
+          val body   = contentAsString(result)
+
+          status(result) mustEqual OK
+          body must include("You do not have a saved notification")
+          body must include("Manage your clients")
+          body must not include "ABC Consultancy"
         }
       }
     }
