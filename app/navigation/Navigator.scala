@@ -50,8 +50,8 @@ class Navigator @Inject() () {
     case AboutYourDetailsPage =>
       (userAnswers, _) =>
         userAnswers.get(VehicleBusinessUsePage) match {
-          case Some(true)  => routes.IndexController.onPageLoad() // TODO: navigate to screen AYD1.2 - to be added later
-          case Some(false) => routes.IndexController.onPageLoad() // TODO: navigate to screen AYD1.1 - to be added later
+          case Some(true)  => routes.LandingPageController.onPageLoad() // TODO: navigate to screen AYD1.2 - to be added later
+          case Some(false) => routes.LandingPageController.onPageLoad() // TODO: navigate to screen AYD1.1 - to be added later
           case _           => routes.JourneyRecoveryController.onPageLoad()
         }
     case VehicleBusinessUsePage =>

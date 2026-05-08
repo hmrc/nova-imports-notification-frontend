@@ -81,13 +81,15 @@ class NavigatorSpec extends SpecBase {
         "must go from AboutYourDetailsPage to correct next screen when OQ1.0 was answered yes" in {
           // TODO: update to navigate to AYD1.2 when implemented
           val ua = userAnswers.set(VehicleBusinessUsePage, true).success.value
-          navigator.nextPage(AboutYourDetailsPage, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.IndexController.onPageLoad()
+          navigator.nextPage(AboutYourDetailsPage, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController
+            .onPageLoad()
         }
 
         "must go from AboutYourDetailsPage to correct next screen when OQ1.0 was answered no" in {
           // TODO: update to navigate to AYD1.1 when implemented
           val ua = userAnswers.set(VehicleBusinessUsePage, false).success.value
-          navigator.nextPage(AboutYourDetailsPage, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.IndexController.onPageLoad()
+          navigator.nextPage(AboutYourDetailsPage, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController
+            .onPageLoad()
         }
 
         "must go from AboutYourDetailsPage to JourneyRecovery when OQ1.0 has not been answered" in {
