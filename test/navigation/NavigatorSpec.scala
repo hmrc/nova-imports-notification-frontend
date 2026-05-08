@@ -77,6 +77,28 @@ class NavigatorSpec extends SpecBase {
             NovaUserType.VatRegisteredOrganisation
           ) mustBe routes.JourneyRecoveryController.onPageLoad()
         }
+
+        "must go from AboutYourDetailsPage to correct next screen when OQ1.0 was answered yes" in {
+          // TODO: update to navigate to AYD1.2 when implemented
+          val ua = userAnswers.set(VehicleBusinessUsePage, true).success.value
+          navigator.nextPage(AboutYourDetailsPage, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.IndexController.onPageLoad()
+        }
+
+        "must go from AboutYourDetailsPage to correct next screen when OQ1.0 was answered no" in {
+          // TODO: update to navigate to AYD1.1 when implemented
+          val ua = userAnswers.set(VehicleBusinessUsePage, false).success.value
+          navigator.nextPage(AboutYourDetailsPage, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.IndexController.onPageLoad()
+        }
+
+        "must go from AboutYourDetailsPage to JourneyRecovery when OQ1.0 has not been answered" in {
+          navigator.nextPage(
+            AboutYourDetailsPage,
+            NormalMode,
+            userAnswers,
+            NovaUserType.VatRegisteredOrganisation
+          ) mustBe routes.JourneyRecoveryController
+            .onPageLoad()
+        }
       }
 
       "for an Agent with a selected client" - {
