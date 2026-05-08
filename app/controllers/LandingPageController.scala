@@ -46,14 +46,16 @@ class LandingPageController @Inject() (
         implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
         backendConnector.getNotificationSummary().map { result =>
-          val hasDrafts = result match {
-            case Right(summary: NotificationSummary.IndividualOrOrganisation) => summary.hasDraftNotifications
-            case Right(_)                                                     => false
-            case Left(error)                                                  =>
+          val (traderName, hasDrafts) = result match {
+            case Right(summary: NotificationSummary.IndividualOrOrganisation) =>
+              (Some(summary.traderName), summary.hasDraftNotifications)
+            case Right(_) =>
+              (None, false)
+            case Left(error) =>
               logger.warn(s"failed to fetch notification summary; defaulting hasDraftNotifications=false: $error")
-              false
+              (None, false)
           }
-          Ok(privateView(hasDraftNotifications = hasDrafts))
+          Ok(privateView(traderName = traderName, hasDraftNotifications = hasDrafts))
         }
 
       case _ =>

@@ -39,11 +39,13 @@ class LandingPageControllerSpec extends SpecBase with MockitoSugar {
   private lazy val landingPageRoute = routes.LandingPageController.onPageLoad().url
   private lazy val startUrl         = routes.StartController.start().url
 
+  private val testTrader = "Tester Trader"
+
   private val emptySummary =
-    NotificationSummary.IndividualOrOrganisation(traderName = "Tester", vrn = "000000000", hasDraftNotifications = false)
+    NotificationSummary.IndividualOrOrganisation(traderName = testTrader, vrn = "000000000", hasDraftNotifications = false)
 
   private val summaryWithDrafts =
-    NotificationSummary.IndividualOrOrganisation(traderName = "Tester", vrn = "000000000", hasDraftNotifications = true)
+    NotificationSummary.IndividualOrOrganisation(traderName = testTrader, vrn = "000000000", hasDraftNotifications = true)
 
   private def applicationWith(
     identifierAction: Class[? <: IdentifierAction],
@@ -77,7 +79,7 @@ class LandingPageControllerSpec extends SpecBase with MockitoSugar {
 
     "onPageLoad" - {
 
-      "for a Private Individual with no drafts renders LP1.0 with the empty saved-notification message" in {
+      "for a Private Individual with no drafts renders LP1.0 with the empty saved-notification message and trader name caption" in {
         given application: Application = applicationWith(classOf[FakeIdentifierAction])
 
         running(application) {
@@ -88,6 +90,7 @@ class LandingPageControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual OK
           body must include("Notification of Vehicle Arrivals (NOVA)")
+          body must include("""<span class="govuk-caption-xl">Tester Trader</span>""")
           body must include("Create a new notification")
           body must include("Update a submitted notification")
           body must include("Manage a saved notification")
@@ -97,7 +100,7 @@ class LandingPageControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "for a Private Individual with drafts renders the has-drafts saved-notification message" in {
+      "for a Private Individual with drafts renders the heading as an enabled link and the has-drafts body" in {
         given application: Application =
           applicationWith(classOf[FakeIdentifierAction], stubConnector(summaryWithDrafts))
 
@@ -110,6 +113,7 @@ class LandingPageControllerSpec extends SpecBase with MockitoSugar {
           status(result) mustEqual OK
           body must include("View, continue or delete a notification you’ve started but not yet submitted")
           body must not include "You do not have a saved notification"
+          body must include("""<a class="govuk-link" href="/nova-imports/there-is-a-problem">Manage a saved notification</a>""")
         }
       }
 

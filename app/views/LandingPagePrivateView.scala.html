@@ -18,9 +18,13 @@
     layout: templates.Layout
 )
 
-@(hasDraftNotifications: Boolean)(implicit request: Request[?], messages: Messages)
+@(traderName: Option[String], hasDraftNotifications: Boolean)(implicit request: Request[?], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("landingPage.private.title"))) {
+
+    @traderName.map { name =>
+        <span class="govuk-caption-xl">@name</span>
+    }
 
     <h1 class="govuk-heading-xl">@messages("landingPage.private.heading")</h1>
 
@@ -42,11 +46,14 @@
 
     <hr class="govuk-section-break govuk-section-break--visible govuk-section-break--m">
 
-    <h2 class="govuk-heading-m">@messages("landingPage.private.saved.heading")</h2>
     @if(hasDraftNotifications) {
-        @* TODO: link to VS1.0 when that story lands. *@
+        @* TODO: point href at VS1.0 controller when that story lands. *@
+        <h2 class="govuk-heading-m">
+            <a class="govuk-link" href="@routes.JourneyRecoveryController.onPageLoad().url">@messages("landingPage.private.saved.heading")</a>
+        </h2>
         <p class="govuk-body">@messages("landingPage.private.saved.body.has")</p>
     } else {
+        <h2 class="govuk-heading-m">@messages("landingPage.private.saved.heading")</h2>
         <p class="govuk-body">@messages("landingPage.private.saved.body.empty")</p>
     }
 
