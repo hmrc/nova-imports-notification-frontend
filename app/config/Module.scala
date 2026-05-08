@@ -18,7 +18,7 @@ package config
 
 import com.google.inject.AbstractModule
 import com.google.inject.name.Names
-import connectors.{DraftNotificationConnector, DraftNotificationConnectorImpl, DraftNotificationConnectorStub}
+import connectors.{NovaImportsBackendConnector, NovaImportsBackendConnectorImpl, NovaImportsBackendConnectorStub}
 import controllers.actions.*
 import play.api.{Configuration, Environment}
 
@@ -52,11 +52,11 @@ class Module(environment: Environment, configuration: Configuration) extends Abs
       .to(classOf[OgdIdentifierAction])
       .asEagerSingleton()
 
-    // Flip features.draft-notification-stub to false once nova-imports-backend exposes F3.
-    if (configuration.get[Boolean]("features.draft-notification-stub")) {
-      bind(classOf[DraftNotificationConnector]).to(classOf[DraftNotificationConnectorStub]).asEagerSingleton()
+    // Flip features.nova-imports-backend-stub to false to use the real HTTP impl against nova-imports-backend.
+    if (configuration.get[Boolean]("features.nova-imports-backend-stub")) {
+      bind(classOf[NovaImportsBackendConnector]).to(classOf[NovaImportsBackendConnectorStub]).asEagerSingleton()
     } else {
-      bind(classOf[DraftNotificationConnector]).to(classOf[DraftNotificationConnectorImpl]).asEagerSingleton()
+      bind(classOf[NovaImportsBackendConnector]).to(classOf[NovaImportsBackendConnectorImpl]).asEagerSingleton()
     }
 
     bind(classOf[Clock]).toInstance(Clock.systemDefaultZone.withZone(ZoneOffset.UTC))

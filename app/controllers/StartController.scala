@@ -16,7 +16,7 @@
 
 package controllers
 
-import connectors.DraftNotificationConnector
+import connectors.NovaImportsBackendConnector
 import controllers.actions.IdentifierAction
 import models.UserAnswers
 import pages.DraftIdPage
@@ -33,14 +33,14 @@ class StartController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   @Named("standard") identify: IdentifierAction,
   sessionRepository: SessionRepository,
-  draftConnector: DraftNotificationConnector
+  backendConnector: NovaImportsBackendConnector
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController {
 
   def start(): Action[AnyContent] = identify.async { implicit request =>
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
-    draftConnector.createDraft(clientVrn = None).flatMap {
+    backendConnector.createDraft(clientVrn = None).flatMap {
       case Right(draftId) =>
         Future
           .fromTry(UserAnswers(request.userId).set(DraftIdPage, draftId))

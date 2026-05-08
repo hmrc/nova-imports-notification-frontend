@@ -17,7 +17,7 @@
 package controllers
 
 import base.SpecBase
-import connectors.{CreateDraftError, DraftNotificationConnector}
+import connectors.{CreateDraftError, NovaImportsBackendConnector}
 import models.{DraftId, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
@@ -42,7 +42,7 @@ class StartControllerSpec extends SpecBase with MockitoSugar {
 
         val draftId               = DraftId("DRAFT-42")
         val mockSessionRepository = mock[SessionRepository]
-        val mockConnector         = mock[DraftNotificationConnector]
+        val mockConnector         = mock[NovaImportsBackendConnector]
 
         when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
         when(mockConnector.createDraft(any())(any[HeaderCarrier])) thenReturn Future.successful(Right(draftId))
@@ -51,7 +51,7 @@ class StartControllerSpec extends SpecBase with MockitoSugar {
           applicationBuilder(userAnswers = None)
             .overrides(
               bind[SessionRepository].toInstance(mockSessionRepository),
-              bind[DraftNotificationConnector].toInstance(mockConnector)
+              bind[NovaImportsBackendConnector].toInstance(mockConnector)
             )
             .build()
 
@@ -74,7 +74,7 @@ class StartControllerSpec extends SpecBase with MockitoSugar {
       "must redirect to JourneyRecovery and not write to the session" in {
 
         val mockSessionRepository = mock[SessionRepository]
-        val mockConnector         = mock[DraftNotificationConnector]
+        val mockConnector         = mock[NovaImportsBackendConnector]
 
         when(mockConnector.createDraft(any())(any[HeaderCarrier]))
           .thenReturn(Future.successful(Left(CreateDraftError.UpstreamError(500, "boom"))))
@@ -83,7 +83,7 @@ class StartControllerSpec extends SpecBase with MockitoSugar {
           applicationBuilder(userAnswers = None)
             .overrides(
               bind[SessionRepository].toInstance(mockSessionRepository),
-              bind[DraftNotificationConnector].toInstance(mockConnector)
+              bind[NovaImportsBackendConnector].toInstance(mockConnector)
             )
             .build()
 

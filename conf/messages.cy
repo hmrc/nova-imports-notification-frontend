@@ -45,3 +45,4 @@ landingPage.private.update.link = Update notifications
 landingPage.private.update.body = Make changes to one you’ve already submitted.
 landingPage.private.saved.heading = View saved notifications
 landingPage.private.saved.body.empty = You have no saved notifications.
+landingPage.private.saved.body.has = View, continue or delete saved notifications that have not yet been submitted.

@@ -16,29 +16,49 @@
 
 package controllers
 
+import connectors.NovaImportsBackendConnector
 import controllers.actions.IdentifierAction
-import models.NovaUserType
+import models.{NotificationSummary, NovaUserType}
+import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import views.html.LandingPagePrivateView
 
 import javax.inject.{Inject, Named}
+import scala.concurrent.{ExecutionContext, Future}
 
 class LandingPageController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   @Named("standard") identify: IdentifierAction,
+  backendConnector: NovaImportsBackendConnector,
   privateView: LandingPagePrivateView
-) extends FrontendBaseController
-    with I18nSupport {
+)(implicit ec: ExecutionContext)
+    extends FrontendBaseController
+    with I18nSupport
+    with Logging {
 
-  def onPageLoad(): Action[AnyContent] = identify { implicit request =>
+  def onPageLoad(): Action[AnyContent] = identify.async { implicit request =>
     NovaUserType.from(request.affinityGroup, request.enrolments) match {
       case NovaUserType.PrivateIndividual =>
-        Ok(privateView())
+        implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+
+        backendConnector.getNotificationSummary().map { result =>
+          val hasDrafts = result match {
+            case Right(summary: NotificationSummary.IndividualOrOrganisation) => summary.hasDraftNotifications
+            case Right(_)                                                     => false
+            case Left(error)                                                  =>
+              logger.warn(s"failed to fetch notification summary; defaulting hasDraftNotifications=false: $error")
+              false
+          }
+          Ok(privateView(hasDraftNotifications = hasDrafts))
+        }
+
       case _ =>
         // TODO: route Organisation / Agent users to LP2.0 / LP3.0 / LP3.1 when those stories land.
-        Redirect(routes.UnauthorisedController.onPageLoad())
+        Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
     }
   }
 }

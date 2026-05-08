@@ -18,7 +18,7 @@ package connectors
 
 import com.google.inject.Inject
 import config.FrontendAppConfig
-import models.DraftId
+import models.{DraftId, NotificationSummary}
 import play.api.libs.json.{JsObject, Json}
 import play.api.libs.ws.writeableOf_JsValue
 import uk.gov.hmrc.http.HttpReads.Implicits.*
@@ -33,27 +33,42 @@ object CreateDraftError {
   final case class UpstreamError(status: Int, message: String) extends CreateDraftError
 }
 
-trait DraftNotificationConnector {
-  def createDraft(clientVrn: Option[String])(implicit hc: HeaderCarrier): Future[Either[CreateDraftError, DraftId]]
+sealed trait GetNotificationSummaryError
+object GetNotificationSummaryError {
+  final case class UpstreamError(status: Int, message: String) extends GetNotificationSummaryError
 }
 
-class DraftNotificationConnectorStub @Inject() (implicit ec: ExecutionContext) extends DraftNotificationConnector {
+trait NovaImportsBackendConnector {
+
+  def createDraft(clientVrn: Option[String])(implicit hc: HeaderCarrier): Future[Either[CreateDraftError, DraftId]]
+
+  def getNotificationSummary()(implicit hc: HeaderCarrier): Future[Either[GetNotificationSummaryError, NotificationSummary]]
+}
+
+class NovaImportsBackendConnectorStub @Inject() (implicit ec: ExecutionContext) extends NovaImportsBackendConnector {
 
   override def createDraft(clientVrn: Option[String])(implicit hc: HeaderCarrier): Future[Either[CreateDraftError, DraftId]] =
     Future.successful(Right(DraftId("STUB-12345")))
+
+  override def getNotificationSummary()(implicit hc: HeaderCarrier): Future[Either[GetNotificationSummaryError, NotificationSummary]] =
+    Future.successful(
+      Right(NotificationSummary.IndividualOrOrganisation(traderName = "Stub Trader", vrn = "000000000", hasDraftNotifications = false))
+    )
 }
 
-class DraftNotificationConnectorImpl @Inject() (
+class NovaImportsBackendConnectorImpl @Inject() (
   httpClient: HttpClientV2,
   appConfig: FrontendAppConfig
 )(implicit ec: ExecutionContext)
-    extends DraftNotificationConnector {
+    extends NovaImportsBackendConnector {
 
-  import CreateDraftError.*
+  private def serviceUrl(path: String): String =
+    s"${appConfig.novaImportsBackendBaseUrl}/nova-imports$path"
 
   override def createDraft(clientVrn: Option[String])(implicit hc: HeaderCarrier): Future[Either[CreateDraftError, DraftId]] = {
-    val endpoint = url"${appConfig.novaImportsBackendBaseUrl}/draft-notifications"
-    val request  = httpClient.post(endpoint)
+    import CreateDraftError.*
+
+    val request = httpClient.post(url"${serviceUrl("/draft-notifications")}")
     val withBody = clientVrn match {
       case Some(vrn) => request.withBody(Json.obj("clientVrn" -> vrn): JsObject)
       case None      => request
@@ -70,5 +85,23 @@ class DraftNotificationConnectorImpl @Inject() (
         case s   => Left(UpstreamError(s, response.body))
       }
     }
+  }
+
+  override def getNotificationSummary()(implicit hc: HeaderCarrier): Future[Either[GetNotificationSummaryError, NotificationSummary]] = {
+    import GetNotificationSummaryError.*
+
+    httpClient
+      .get(url"${serviceUrl("/notification-summary")}")
+      .execute[HttpResponse]
+      .map { response =>
+        response.status match {
+          case 200 =>
+            response.json
+              .validate[NotificationSummary]
+              .map(Right(_))
+              .recoverTotal(err => Left(UpstreamError(200, s"Malformed notification summary: $err")))
+          case s   => Left(UpstreamError(s, response.body))
+        }
+      }
   }
 }

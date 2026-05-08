@@ -18,7 +18,7 @@
     layout: templates.Layout
 )
 
-@()(implicit request: Request[?], messages: Messages)
+@(hasDraftNotifications: Boolean)(implicit request: Request[?], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("landingPage.private.title"))) {
 
@@ -43,7 +43,12 @@
     <hr class="govuk-section-break govuk-section-break--visible govuk-section-break--m">
 
     <h2 class="govuk-heading-m">@messages("landingPage.private.saved.heading")</h2>
-    <p class="govuk-body">@messages("landingPage.private.saved.body.empty")</p>
+    @if(hasDraftNotifications) {
+        @* TODO: link to VS1.0 when that story lands. *@
+        <p class="govuk-body">@messages("landingPage.private.saved.body.has")</p>
+    } else {
+        <p class="govuk-body">@messages("landingPage.private.saved.body.empty")</p>
+    }
 
     <hr class="govuk-section-break govuk-section-break--visible govuk-section-break--m">
 }

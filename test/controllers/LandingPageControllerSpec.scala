@@ -18,35 +18,66 @@ package controllers
 
 import base.SpecBase
 import com.google.inject.name.Names
+import connectors.{GetNotificationSummaryError, NovaImportsBackendConnector}
 import controllers.actions.*
+import models.NotificationSummary
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import uk.gov.hmrc.http.HeaderCarrier
 
-class LandingPageControllerSpec extends SpecBase {
+import scala.concurrent.Future
+
+class LandingPageControllerSpec extends SpecBase with MockitoSugar {
 
   private lazy val landingPageRoute = routes.LandingPageController.onPageLoad().url
   private lazy val startUrl         = routes.StartController.start().url
 
-  private def applicationWith(identifierAction: Class[? <: IdentifierAction]): Application =
+  private val emptySummary =
+    NotificationSummary.IndividualOrOrganisation(traderName = "Tester", vrn = "000000000", hasDraftNotifications = false)
+
+  private val summaryWithDrafts =
+    NotificationSummary.IndividualOrOrganisation(traderName = "Tester", vrn = "000000000", hasDraftNotifications = true)
+
+  private def applicationWith(
+    identifierAction: Class[? <: IdentifierAction],
+    connector: NovaImportsBackendConnector = stubConnector(emptySummary)
+  ): Application =
     new GuiceApplicationBuilder()
       .overrides(
         bind[IdentifierAction].to(identifierAction),
         bind[IdentifierAction].qualifiedWith(Names.named("standard")).to(identifierAction),
         bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeIdentifierAction],
         bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
-        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(None))
+        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(None)),
+        bind[NovaImportsBackendConnector].toInstance(connector)
       )
       .build()
+
+  private def stubConnector(summary: NotificationSummary): NovaImportsBackendConnector = {
+    val m = mock[NovaImportsBackendConnector]
+    when(m.getNotificationSummary()(any[HeaderCarrier])) thenReturn Future.successful(Right(summary))
+    m
+  }
+
+  private def failingSummaryConnector: NovaImportsBackendConnector = {
+    val m = mock[NovaImportsBackendConnector]
+    when(m.getNotificationSummary()(any[HeaderCarrier]))
+      .thenReturn(Future.successful(Left(GetNotificationSummaryError.UpstreamError(500, "boom"))))
+    m
+  }
 
   "LandingPageController" - {
 
     "onPageLoad" - {
 
-      "for a Private Individual renders LP1.0 with the three notification sections" in {
+      "for a Private Individual with no drafts renders LP1.0 with the empty saved-notifications message" in {
         given application: Application = applicationWith(classOf[FakeIdentifierAction])
 
         running(application) {
@@ -58,12 +89,42 @@ class LandingPageControllerSpec extends SpecBase {
           status(result) mustEqual OK
           body must include("Notification of Vehicle Arrivals (NOVA)")
           body must include("Create notifications")
-          body must include("Start a new notification.")
           body must include("Update notifications")
-          body must include("Make changes to one you’ve already submitted.")
           body must include("View saved notifications")
           body must include("You have no saved notifications.")
+          body must not include "View, continue or delete saved notifications"
           body must include(startUrl)
+        }
+      }
+
+      "for a Private Individual with drafts renders the has-drafts saved-notifications message" in {
+        given application: Application =
+          applicationWith(classOf[FakeIdentifierAction], stubConnector(summaryWithDrafts))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, landingPageRoute)
+
+          val result = route(application, request).value
+          val body   = contentAsString(result)
+
+          status(result) mustEqual OK
+          body must include("View, continue or delete saved notifications that have not yet been submitted.")
+          body must not include "You have no saved notifications."
+        }
+      }
+
+      "for a Private Individual when the summary call fails defaults to no drafts" in {
+        given application: Application =
+          applicationWith(classOf[FakeIdentifierAction], failingSummaryConnector)
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, landingPageRoute)
+
+          val result = route(application, request).value
+          val body   = contentAsString(result)
+
+          status(result) mustEqual OK
+          body must include("You have no saved notifications.")
         }
       }
 

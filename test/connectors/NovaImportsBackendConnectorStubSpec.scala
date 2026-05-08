@@ -16,6 +16,8 @@
 
 package connectors
 
+import models.NotificationSummary
+import org.scalatest.EitherValues
 import org.scalatest.OptionValues
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.freespec.AnyFreeSpec
@@ -24,20 +26,30 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class DraftNotificationConnectorStubSpec extends AnyFreeSpec with Matchers with ScalaFutures with OptionValues {
+class NovaImportsBackendConnectorStubSpec extends AnyFreeSpec with Matchers with ScalaFutures with OptionValues with EitherValues {
 
   private given hc: HeaderCarrier = HeaderCarrier()
 
-  private val connector = new DraftNotificationConnectorStub()
+  private val connector = new NovaImportsBackendConnectorStub()
 
-  "DraftNotificationConnectorStub" - {
+  "NovaImportsBackendConnectorStub" - {
 
-    "returns a stub draft id for an individual / org / agent-without-client" in {
-      connector.createDraft(clientVrn = None).futureValue.toOption.value.value must startWith("STUB-")
+    "createDraft" - {
+
+      "returns a stub draft id for an individual / org / agent-without-client" in {
+        connector.createDraft(clientVrn = None).futureValue.value.value must startWith("STUB-")
+      }
+
+      "returns a stub draft id for an agent-with-client" in {
+        connector.createDraft(clientVrn = Some("GB123456789")).futureValue.value.value must startWith("STUB-")
+      }
     }
 
-    "returns a stub draft id for an agent-with-client" in {
-      connector.createDraft(clientVrn = Some("GB123456789")).futureValue.toOption.value.value must startWith("STUB-")
+    "getNotificationSummary" - {
+
+      "returns a stubbed individual-or-organisation summary" in {
+        connector.getNotificationSummary().futureValue.value mustBe a[NotificationSummary.IndividualOrOrganisation]
+      }
     }
   }
 }
