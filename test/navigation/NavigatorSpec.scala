@@ -32,7 +32,7 @@ class NavigatorSpec extends SpecBase {
 
       "must go from a page that doesn't exist in the route map to Index" in {
         case object UnknownPage extends Page
-        navigator.nextPage(UnknownPage, NormalMode, userAnswers, NovaUserType.PrivateIndividual) mustBe routes.IndexController.onPageLoad()
+        navigator.nextPage(UnknownPage, NormalMode, userAnswers, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController.onPageLoad()
       }
 
       "for a PrivateIndividual" - {
@@ -133,12 +133,17 @@ class NavigatorSpec extends SpecBase {
       }
 
       "must go from VehicleBusinessUsePage to IndexController" in {
-        navigator.nextPage(VehicleBusinessUsePage, NormalMode, userAnswers, NovaUserType.VatRegisteredOrganisation) mustBe routes.IndexController
+        navigator.nextPage(
+          VehicleBusinessUsePage,
+          NormalMode,
+          userAnswers,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.LandingPageController
           .onPageLoad()
       }
 
       "must go from AgentVehicleBusinessUsePage to IndexController" in {
-        navigator.nextPage(AgentVehicleBusinessUsePage, NormalMode, userAnswers, NovaUserType.Agent) mustBe routes.IndexController.onPageLoad()
+        navigator.nextPage(AgentVehicleBusinessUsePage, NormalMode, userAnswers, NovaUserType.Agent) mustBe routes.LandingPageController.onPageLoad()
       }
 
       "must go from BusinessPrivatePage to PurchaserOrOnBehalfController" in {
@@ -148,7 +153,7 @@ class NavigatorSpec extends SpecBase {
 
       "must go from PurchaserOrOnBehalfPage to IndexController when Purchaser is selected" in {
         val ua = userAnswers.set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser).success.value
-        navigator.nextPage(PurchaserOrOnBehalfPage, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.IndexController.onPageLoad()
+        navigator.nextPage(PurchaserOrOnBehalfPage, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController.onPageLoad()
       }
 
       "must go from PurchaserOrOnBehalfPage to PurchaserBusinessOrIndividualController when OnBehalfOfPurchaser is selected" in {

@@ -16,25 +16,38 @@
 
 package controllers
 
+import connectors.NovaImportsBackendConnector
 import controllers.actions.IdentifierAction
 import models.UserAnswers
+import pages.DraftIdPage
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import javax.inject.{Inject, Named}
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class StartController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   @Named("standard") identify: IdentifierAction,
-  sessionRepository: SessionRepository
+  sessionRepository: SessionRepository,
+  backendConnector: NovaImportsBackendConnector
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController {
 
   def start(): Action[AnyContent] = identify.async { implicit request =>
-    sessionRepository.set(UserAnswers(request.userId)).map { _ =>
-      Redirect(routes.BeforeYouContinueController.onPageLoad())
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+
+    backendConnector.createDraft(clientVrn = None).flatMap {
+      case Right(draftId) =>
+        Future
+          .fromTry(UserAnswers(request.userId).set(DraftIdPage, draftId))
+          .flatMap(sessionRepository.set)
+          .map(_ => Redirect(routes.BeforeYouContinueController.onPageLoad()))
+      case Left(_) =>
+        Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
     }
   }
 }

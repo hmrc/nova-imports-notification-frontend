@@ -18,6 +18,7 @@ package config
 
 import com.google.inject.AbstractModule
 import com.google.inject.name.Names
+import connectors.{NovaImportsBackendConnector, NovaImportsBackendConnectorImpl}
 import controllers.actions.*
 
 import java.time.{Clock, ZoneOffset}
@@ -49,6 +50,8 @@ class Module extends AbstractModule {
       .annotatedWith(Names.named("ogd"))
       .to(classOf[OgdIdentifierAction])
       .asEagerSingleton()
+
+    bind(classOf[NovaImportsBackendConnector]).to(classOf[NovaImportsBackendConnectorImpl]).asEagerSingleton()
 
     bind(classOf[Clock]).toInstance(Clock.systemDefaultZone.withZone(ZoneOffset.UTC))
   }

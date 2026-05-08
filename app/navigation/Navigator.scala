@@ -48,21 +48,21 @@ class Navigator @Inject() () {
             }
         }
     case VehicleBusinessUsePage =>
-      (_, _) => routes.IndexController.onPageLoad() // TODO: navigate to next page - to be added later
+      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to next page - to be added later
     case AgentVehicleBusinessUsePage =>
-      (_, _) => routes.IndexController.onPageLoad() // TODO: navigate to agent check your answers - to be added later
+      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to agent check your answers - to be added later
     case PurchaserOrOnBehalfPage =>
       (userAnswers, _) =>
         userAnswers.get(PurchaserOrOnBehalfPage) match {
-          case Some(PurchaserOrOnBehalf.Purchaser)           => routes.IndexController.onPageLoad() // TODO: navigate to SS1 - to be added later
+          case Some(PurchaserOrOnBehalf.Purchaser)           => routes.LandingPageController.onPageLoad() // TODO: navigate to SS1 - to be added later
           case Some(PurchaserOrOnBehalf.OnBehalfOfPurchaser) => routes.PurchaserBusinessOrIndividualController.onPageLoad(NormalMode)
           case _                                             => routes.JourneyRecoveryController.onPageLoad()
         }
     case BusinessPrivatePage =>
       (_, _) => routes.PurchaserOrOnBehalfController.onPageLoad(NormalMode)
     case PurchaserBusinessOrIndividualPage =>
-      (_, _) => routes.IndexController.onPageLoad() // TODO: navigate to SS2 - to be added later
-    case _ => (_, _) => routes.IndexController.onPageLoad()
+      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to SS2 - to be added later
+    case _ => (_, _) => routes.LandingPageController.onPageLoad()
   }
 
   private val checkRouteMap: Page => (UserAnswers, NovaUserType) => Call = { case _ =>
