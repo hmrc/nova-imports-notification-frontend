@@ -29,7 +29,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 sealed trait CreateDraftError
 object CreateDraftError {
-  case object ClientNotFound                                   extends CreateDraftError
+  case object ClientNotFound extends CreateDraftError
   final case class UpstreamError(status: Int, message: String) extends CreateDraftError
 }
 
@@ -45,17 +45,6 @@ trait NovaImportsBackendConnector {
   def getNotificationSummary()(implicit hc: HeaderCarrier): Future[Either[GetNotificationSummaryError, NotificationSummary]]
 }
 
-class NovaImportsBackendConnectorStub @Inject() (implicit ec: ExecutionContext) extends NovaImportsBackendConnector {
-
-  override def createDraft(clientVrn: Option[String])(implicit hc: HeaderCarrier): Future[Either[CreateDraftError, DraftId]] =
-    Future.successful(Right(DraftId("STUB-12345")))
-
-  override def getNotificationSummary()(implicit hc: HeaderCarrier): Future[Either[GetNotificationSummaryError, NotificationSummary]] =
-    Future.successful(
-      Right(NotificationSummary.IndividualOrOrganisation(traderName = "Stub Trader", vrn = "000000000", hasDraftNotifications = false))
-    )
-}
-
 class NovaImportsBackendConnectorImpl @Inject() (
   httpClient: HttpClientV2,
   appConfig: FrontendAppConfig
@@ -68,7 +57,7 @@ class NovaImportsBackendConnectorImpl @Inject() (
   override def createDraft(clientVrn: Option[String])(implicit hc: HeaderCarrier): Future[Either[CreateDraftError, DraftId]] = {
     import CreateDraftError.*
 
-    val request = httpClient.post(url"${serviceUrl("/draft-notifications")}")
+    val request  = httpClient.post(url"${serviceUrl("/draft-notifications")}")
     val withBody = clientVrn match {
       case Some(vrn) => request.withBody(Json.obj("clientVrn" -> vrn): JsObject)
       case None      => request
@@ -100,7 +89,7 @@ class NovaImportsBackendConnectorImpl @Inject() (
               .validate[NotificationSummary]
               .map(Right(_))
               .recoverTotal(err => Left(UpstreamError(200, s"Malformed notification summary: $err")))
-          case s   => Left(UpstreamError(s, response.body))
+          case s => Left(UpstreamError(s, response.body))
         }
       }
   }

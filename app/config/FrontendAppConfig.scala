@@ -50,9 +50,6 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val novaImportsBackendBaseUrl: String =
     configuration.get[Service]("microservice.services.nova-imports-backend").baseUrl
 
-  val novaImportsBackendStubEnabled: Boolean =
-    configuration.get[Boolean]("features.nova-imports-backend-stub")
-
   val languageTranslationEnabled: Boolean =
     configuration.get[Boolean]("features.welsh-translation")
 

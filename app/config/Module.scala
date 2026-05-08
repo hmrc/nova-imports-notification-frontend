@@ -18,13 +18,12 @@ package config
 
 import com.google.inject.AbstractModule
 import com.google.inject.name.Names
-import connectors.{NovaImportsBackendConnector, NovaImportsBackendConnectorImpl, NovaImportsBackendConnectorStub}
+import connectors.{NovaImportsBackendConnector, NovaImportsBackendConnectorImpl}
 import controllers.actions.*
-import play.api.{Configuration, Environment}
 
 import java.time.{Clock, ZoneOffset}
 
-class Module(environment: Environment, configuration: Configuration) extends AbstractModule {
+class Module extends AbstractModule {
 
   override def configure(): Unit = {
 
@@ -52,12 +51,7 @@ class Module(environment: Environment, configuration: Configuration) extends Abs
       .to(classOf[OgdIdentifierAction])
       .asEagerSingleton()
 
-    // Flip features.nova-imports-backend-stub to false to use the real HTTP impl against nova-imports-backend.
-    if (configuration.get[Boolean]("features.nova-imports-backend-stub")) {
-      bind(classOf[NovaImportsBackendConnector]).to(classOf[NovaImportsBackendConnectorStub]).asEagerSingleton()
-    } else {
-      bind(classOf[NovaImportsBackendConnector]).to(classOf[NovaImportsBackendConnectorImpl]).asEagerSingleton()
-    }
+    bind(classOf[NovaImportsBackendConnector]).to(classOf[NovaImportsBackendConnectorImpl]).asEagerSingleton()
 
     bind(classOf[Clock]).toInstance(Clock.systemDefaultZone.withZone(ZoneOffset.UTC))
   }
