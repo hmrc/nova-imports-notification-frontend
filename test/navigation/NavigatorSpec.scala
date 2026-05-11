@@ -132,7 +132,7 @@ class NavigatorSpec extends SpecBase {
         }
       }
 
-      "must go from VehicleBusinessUsePage to IndexController" in {
+      "must go from VehicleBusinessUsePage to LandingPageController" in {
         navigator.nextPage(
           VehicleBusinessUsePage,
           NormalMode,
@@ -142,7 +142,7 @@ class NavigatorSpec extends SpecBase {
           .onPageLoad()
       }
 
-      "must go from AgentVehicleBusinessUsePage to IndexController" in {
+      "must go from AgentVehicleBusinessUsePage to LandingPageController" in {
         navigator.nextPage(AgentVehicleBusinessUsePage, NormalMode, userAnswers, NovaUserType.Agent) mustBe routes.LandingPageController.onPageLoad()
       }
 
@@ -151,7 +151,7 @@ class NavigatorSpec extends SpecBase {
           .onPageLoad(NormalMode)
       }
 
-      "must go from PurchaserOrOnBehalfPage to IndexController when Purchaser is selected" in {
+      "must go from PurchaserOrOnBehalfPage to LandingPageController when Purchaser is selected" in {
         val ua = userAnswers.set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser).success.value
         navigator.nextPage(PurchaserOrOnBehalfPage, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController.onPageLoad()
       }

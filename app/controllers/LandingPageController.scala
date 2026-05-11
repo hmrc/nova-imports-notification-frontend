@@ -25,7 +25,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
-import views.html.LandingPagePrivateView
+import views.html.{LandingPageOrganisationView, LandingPagePrivateView}
 
 import javax.inject.{Inject, Named}
 import scala.concurrent.{ExecutionContext, Future}
@@ -34,17 +34,18 @@ class LandingPageController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   @Named("standard") identify: IdentifierAction,
   backendConnector: NovaImportsBackendConnector,
-  privateView: LandingPagePrivateView
+  privateView: LandingPagePrivateView,
+  organisationView: LandingPageOrganisationView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport
     with Logging {
 
   def onPageLoad(): Action[AnyContent] = identify.async { implicit request =>
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+
     NovaUserType.from(request.affinityGroup, request.enrolments) match {
       case NovaUserType.PrivateIndividual =>
-        implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-
         backendConnector.getNotificationSummary().map { result =>
           val (traderName, hasDrafts) = result match {
             case Right(summary: NotificationSummary.IndividualOrOrganisation) =>
@@ -56,6 +57,18 @@ class LandingPageController @Inject() (
               (None, false)
           }
           Ok(privateView(traderName = traderName, hasDraftNotifications = hasDrafts))
+        }
+
+      case NovaUserType.VatRegisteredOrganisation =>
+        backendConnector.getNotificationSummary().map {
+          case Right(summary: NotificationSummary.IndividualOrOrganisation) =>
+            Ok(organisationView(summary.traderName, summary.vrn, summary.hasDraftNotifications))
+          case Right(other) =>
+            logger.warn(s"unexpected notification summary shape for VAT-registered Organisation: $other")
+            Redirect(routes.JourneyRecoveryController.onPageLoad())
+          case Left(error) =>
+            logger.warn(s"failed to fetch notification summary for VAT-registered Organisation: $error")
+            Redirect(routes.JourneyRecoveryController.onPageLoad())
         }
 
       case _ =>
