@@ -258,7 +258,7 @@ class LandingPageControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "for an Agent with drafts renders the has-drafts saved-notification message" in {
+      "for an Agent with drafts renders the heading as an enabled link and the has-drafts body" in {
         given application: Application =
           applicationWith(classOf[FakeAgentIdentifierAction], stubConnector(agentSummaryWithDrafts))
 
@@ -271,6 +271,7 @@ class LandingPageControllerSpec extends SpecBase with MockitoSugar {
           status(result) mustEqual OK
           body must include("View, continue or delete a notification you’ve started but not yet submitted")
           body must not include "You do not have a saved notification"
+          body must include("""<a class="govuk-link" href="/nova-imports/there-is-a-problem">Manage a saved notification</a>""")
         }
       }
 
