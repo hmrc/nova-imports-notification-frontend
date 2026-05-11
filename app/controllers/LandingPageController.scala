@@ -25,7 +25,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
-import views.html.{LandingPageAgentView, LandingPagePrivateView}
+import views.html.{LandingPageAgentView, LandingPageOrganisationView, LandingPagePrivateView}
 
 import javax.inject.{Inject, Named}
 import scala.concurrent.{ExecutionContext, Future}
@@ -35,6 +35,7 @@ class LandingPageController @Inject() (
   @Named("standard") identify: IdentifierAction,
   backendConnector: NovaImportsBackendConnector,
   privateView: LandingPagePrivateView,
+  organisationView: LandingPageOrganisationView,
   agentView: LandingPageAgentView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
@@ -57,6 +58,18 @@ class LandingPageController @Inject() (
               (None, false)
           }
           Ok(privateView(traderName = traderName, hasDraftNotifications = hasDrafts))
+        }
+
+      case NovaUserType.VatRegisteredOrganisation =>
+        backendConnector.getNotificationSummary().map {
+          case Right(summary: NotificationSummary.IndividualOrOrganisation) =>
+            Ok(organisationView(summary.traderName, summary.vrn, summary.hasDraftNotifications))
+          case Right(other) =>
+            logger.warn(s"unexpected notification summary shape for VAT-registered Organisation: $other")
+            Redirect(routes.JourneyRecoveryController.onPageLoad())
+          case Left(error) =>
+            logger.warn(s"failed to fetch notification summary for VAT-registered Organisation: $error")
+            Redirect(routes.JourneyRecoveryController.onPageLoad())
         }
 
       case NovaUserType.Agent =>

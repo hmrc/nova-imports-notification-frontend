@@ -46,3 +46,20 @@ landingPage.private.update.body = Make changes to a notification you’ve alread
 landingPage.private.saved.heading = Manage a saved notification
 landingPage.private.saved.body.empty = You do not have a saved notification
 landingPage.private.saved.body.has = View, continue or delete a notification you’ve started but not yet submitted
+
+######################################################
+# LP2.0 - Landing page for Organisations                       #
+######################################################
+# TODO: Welsh translations to be supplied by content team.
+
+landingPage.organisation.title = Notification of Vehicle Arrivals (NOVA)
+landingPage.organisation.heading = Notification of Vehicle Arrivals (NOVA)
+landingPage.organisation.vrn.caption = VAT registration number: GB{0}
+landingPage.organisation.body = Use the NOVA service to submit and manage notifications for vehicles brought into the UK.
+landingPage.organisation.create.link = Create a new notification
+landingPage.organisation.create.body = Start and submit a new notification
+landingPage.organisation.update.link = Update a submitted notification
+landingPage.organisation.update.body = Make changes to a notification you’ve already submitted
+landingPage.organisation.saved.heading = Manage a saved notification
+landingPage.organisation.saved.body.empty = You do not have a saved notification
+landingPage.organisation.saved.body.has = View, continue or delete a notification you’ve started but not yet submitted
