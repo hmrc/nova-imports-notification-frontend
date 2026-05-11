@@ -132,7 +132,80 @@ class LandingPageControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "for an Organisation redirects to Unauthorised (LP2.0 not yet built)" in {
+      "for a VAT-registered Organisation with no drafts renders LP2.0 with trader name, VRN and the empty saved-notification message" in {
+        given application: Application = applicationWith(classOf[FakeVatTraderIdentifierAction])
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, landingPageRoute)
+
+          val result = route(application, request).value
+          val body   = contentAsString(result)
+
+          status(result) mustEqual OK
+          body must include("Notification of Vehicle Arrivals (NOVA)")
+          body must include("Tester")
+          body must include("VAT registration number: GB000000000")
+          body must include("Create a new notification")
+          body must include("Update a submitted notification")
+          body must include("Manage a saved notification")
+          body must include("You do not have a saved notification")
+          body must not include "View, continue or delete a notification"
+          body must include(startUrl)
+        }
+      }
+
+      "for a VAT-registered Organisation with drafts renders the has-drafts saved-notification message" in {
+        given application: Application =
+          applicationWith(classOf[FakeVatTraderIdentifierAction], stubConnector(summaryWithDrafts))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, landingPageRoute)
+
+          val result = route(application, request).value
+          val body   = contentAsString(result)
+
+          status(result) mustEqual OK
+          body must include("View, continue or delete a notification you’ve started but not yet submitted")
+          body must not include "You do not have a saved notification"
+        }
+      }
+
+      "for a VAT-registered Organisation when the summary call fails redirects to JourneyRecovery" in {
+        given application: Application =
+          applicationWith(classOf[FakeVatTraderIdentifierAction], failingSummaryConnector)
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, landingPageRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+        }
+      }
+
+      "for a VAT-registered Organisation when the summary returns an unexpected agent shape redirects to JourneyRecovery" in {
+        val agentSummary = NotificationSummary.AgentWithoutClient(
+          traderName = "Agency LTD",
+          vrn = "0",
+          hasDraftNotifications = false,
+          hasClients = true
+        )
+
+        given application: Application =
+          applicationWith(classOf[FakeVatTraderIdentifierAction], stubConnector(agentSummary))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, landingPageRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+        }
+      }
+
+      "for a non-VAT Organisation redirects to Unauthorised (LP2.1 not yet built)" in {
         given application: Application = applicationWith(classOf[FakeOrganisationIdentifierAction])
 
         running(application) {
