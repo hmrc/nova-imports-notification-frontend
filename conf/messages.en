@@ -76,6 +76,23 @@ unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
 
 ######################################################
+# LP3.0 - Landing page for Agent with no selected client       #
+######################################################
+
+landingPage.agent.title = Notification of Vehicle Arrivals (NOVA)
+landingPage.agent.heading = Notification of Vehicle Arrivals (NOVA)
+landingPage.agent.body = Use the NOVA service to submit and manage notifications for vehicles brought into the UK.
+landingPage.agent.create.link = Create a new notification
+landingPage.agent.create.body = Start and submit a new notification
+landingPage.agent.update.link = Update a submitted notification
+landingPage.agent.update.body = Make changes to a notification you’ve already submitted
+landingPage.agent.saved.heading = Manage a saved notification
+landingPage.agent.saved.body.empty = You do not have a saved notification
+landingPage.agent.saved.body.has = View, continue or delete a notification you’ve started but not yet submitted
+landingPage.agent.clients.link = Manage your clients
+landingPage.agent.clients.body = View, search, remove or select a client to act on their behalf
+
+######################################################
 # IQ1.0 - Initial Question 1.0: Vehicle brought into NI from EU  #
 ######################################################
 

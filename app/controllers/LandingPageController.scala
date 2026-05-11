@@ -25,7 +25,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
-import views.html.{LandingPageOrganisationView, LandingPagePrivateView}
+import views.html.{LandingPageAgentView, LandingPageOrganisationView, LandingPagePrivateView}
 
 import javax.inject.{Inject, Named}
 import scala.concurrent.{ExecutionContext, Future}
@@ -35,7 +35,8 @@ class LandingPageController @Inject() (
   @Named("standard") identify: IdentifierAction,
   backendConnector: NovaImportsBackendConnector,
   privateView: LandingPagePrivateView,
-  organisationView: LandingPageOrganisationView
+  organisationView: LandingPageOrganisationView,
+  agentView: LandingPageAgentView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport
@@ -71,8 +72,22 @@ class LandingPageController @Inject() (
             Redirect(routes.JourneyRecoveryController.onPageLoad())
         }
 
+      case NovaUserType.Agent =>
+        backendConnector.getNotificationSummary().map { result =>
+          val (traderName, hasDrafts) = result match {
+            case Right(summary: NotificationSummary.AgentWithoutClient) =>
+              (Some(summary.traderName), summary.hasDraftNotifications)
+            case Right(_) =>
+              (None, false)
+            case Left(error) =>
+              logger.warn(s"failed to fetch notification summary; defaulting hasDraftNotifications=false: $error")
+              (None, false)
+          }
+          Ok(agentView(traderName = traderName, hasDraftNotifications = hasDrafts))
+        }
+
       case _ =>
-        // TODO: route Organisation / Agent users to LP2.0 / LP3.0 / LP3.1 when those stories land.
+        // TODO: route Organisation users to LP2.0 when that story lands.
         Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
     }
   }
