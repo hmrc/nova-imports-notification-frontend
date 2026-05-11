@@ -161,8 +161,9 @@ class LandingPageControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "for an Agent redirects to Unauthorised (LP3.0 / LP3.1 not yet built)" in {
-        given application: Application = applicationWith(classOf[FakeAgentIdentifierAction])
+      "for an Agent with no drafts renders LP3.0 with the empty saved-notification message" in {
+        given application: Application =
+          applicationWith(classOf[FakeAgentIdentifierAction], stubConnector(agentSummaryWithoutDrafts))
 
         running(application) {
           given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, landingPageRoute)
@@ -207,8 +208,6 @@ class LandingPageControllerSpec extends SpecBase with MockitoSugar {
         running(application) {
           given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, landingPageRoute)
 
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
           val result = route(application, request).value
           val body   = contentAsString(result)
 
