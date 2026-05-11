@@ -178,8 +178,6 @@ agentVehicleBusinessUse.checkYourAnswersLabel = Client vehicle brought into the 
 agentVehicleBusinessUse.error.required = Select yes if your client brought a vehicle into the UK for business use
 agentVehicleBusinessUse.change.hidden = client vehicle brought into the UK for business use
 
-# TODO: Add here messages for other screens in this journey that come before IQ3.0
-
 ######################################################
 # IQ3.0 - Initial Question 3.0: Purchaser or on behalf of the purchaser  #
 ######################################################
@@ -244,3 +242,12 @@ noAuthorisedClients.list.onlineAgentAuthorisation = complete the {0} process for
 noAuthorisedClients.list.onlineAgentAuthorisation.link = Online Agent Authorisation (opens in new tab)
 noAuthorisedClients.timing = It can take up to 5 working days for new authorisations to appear in your account.
 noAuthorisedClients.returnToHome = Return to home
+
+######################################################
+# AYD1.0 - Add Your Details 1: Guidance page         #
+######################################################
+
+aboutYourDetails.title = About your details
+aboutYourDetails.heading = About your details
+aboutYourDetails.paragraph.1 = You need to provide your contact details. HMRC will only use them to contact you about this notification.
+aboutYourDetails.paragraph.2 = The details you provide will not replace your VAT registration contact details.
