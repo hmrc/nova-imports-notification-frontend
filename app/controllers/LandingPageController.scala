@@ -46,7 +46,7 @@ class LandingPageController @Inject() (
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
     NovaUserType.from(request.affinityGroup, request.enrolments) match {
-      case NovaUserType.PrivateIndividual =>
+      case NovaUserType.PrivateIndividual | NovaUserType.NonVatOrganisation =>
         backendConnector.getNotificationSummary().map { result =>
           val (traderName, hasDrafts) = result match {
             case Right(summary: NotificationSummary.IndividualOrOrganisation) =>
@@ -85,10 +85,6 @@ class LandingPageController @Inject() (
           }
           Ok(agentView(traderName = traderName, hasDraftNotifications = hasDrafts))
         }
-
-      case _ =>
-        // TODO: route Organisation users to LP2.0 when that story lands.
-        Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
     }
   }
 }
