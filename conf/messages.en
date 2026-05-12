@@ -31,7 +31,7 @@ error.summary.title = There is a problem
 # LP1.0 - Landing page for Private individual                  #
 ######################################################
 
-landingPage.private.title = Notification of Vehicle Arrivals (NOVA)
+landingPage.private.title = Notification of Vehicle Arrivals
 landingPage.private.heading = Notification of Vehicle Arrivals (NOVA)
 landingPage.private.body = Use the NOVA service to submit and manage notifications for vehicles brought into the UK.
 landingPage.private.create.link = Create a new notification
@@ -46,7 +46,7 @@ landingPage.private.saved.body.has = View, continue or delete a notification you
 # LP2.0 - Landing page for Organisations                       #
 ######################################################
 
-landingPage.organisation.title = Notification of Vehicle Arrivals (NOVA)
+landingPage.organisation.title = Notification of Vehicle Arrivals
 landingPage.organisation.heading = Notification of Vehicle Arrivals (NOVA)
 landingPage.organisation.vrn.caption = VAT registration number: GB{0}
 landingPage.organisation.body = Use the NOVA service to submit and manage notifications for vehicles brought into the UK.
@@ -79,7 +79,7 @@ unauthorised.heading = You can’t access this service with this account
 # LP3.0 - Landing page for Agent with no selected client       #
 ######################################################
 
-landingPage.agent.title = Notification of Vehicle Arrivals (NOVA)
+landingPage.agent.title = Notification of Vehicle Arrivals
 landingPage.agent.heading = Notification of Vehicle Arrivals (NOVA)
 landingPage.agent.body = Use the NOVA service to submit and manage notifications for vehicles brought into the UK.
 landingPage.agent.create.link = Create a new notification

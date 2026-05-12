@@ -2,9 +2,10 @@
 
 ->          /hmrc-frontend                               hmrcfrontend.Routes
 
-GET         /                                            controllers.LandingPageController.onPageLoad()
+GET         /                                            controllers.StartController.start()
 
-GET         /start                                       controllers.StartController.start()
+GET         /notification-of-vehicle-arrivals            controllers.LandingPageController.onPageLoad()
+
 
 GET         /assets/*file                                controllers.Assets.versioned(path="/public", file: Asset)
 
