@@ -22,8 +22,7 @@
 
 @layout(pageTitle = titleNoForm(messages("landingPage.organisation.title"))) {
 
-    <span class="govuk-caption-xl">@traderName</span>
-    <span class="govuk-caption-xl">@messages("landingPage.organisation.vrn.caption", vrn)</span>
+    <span class="govuk-caption-m">@traderName <br> @messages("landingPage.organisation.vrn.caption", vrn)</span>
 
     <h1 class="govuk-heading-l">@messages("landingPage.organisation.heading")</h1>
 
@@ -34,14 +33,14 @@
     <h2 class="govuk-heading-m">
         <a class="govuk-link" href="@routes.StartController.start().url">@messages("landingPage.organisation.create.link")</a>
     </h2>
-    <p class="govuk-body">@messages("landingPage.organisation.create.body")</p>
+    <p class="govuk-body govuk-!-margin-bottom-0">@messages("landingPage.organisation.create.body")</p>
 
     <hr class="govuk-section-break govuk-section-break--visible govuk-section-break--m">
 
     <h2 class="govuk-heading-m">
         <a class="govuk-link" href="@routes.StartController.start().url">@messages("landingPage.organisation.update.link")</a>
     </h2>
-    <p class="govuk-body">@messages("landingPage.organisation.update.body")</p>
+    <p class="govuk-body govuk-!-margin-bottom-0">@messages("landingPage.organisation.update.body")</p>
 
     <hr class="govuk-section-break govuk-section-break--visible govuk-section-break--m">
 
@@ -49,10 +48,10 @@
         <h2 class="govuk-heading-m">
             <a class="govuk-link" href="@routes.JourneyRecoveryController.onPageLoad().url">@messages("landingPage.organisation.saved.heading")</a>
         </h2>
-        <p class="govuk-body">@messages("landingPage.organisation.saved.body.has")</p>
+        <p class="govuk-body govuk-!-margin-bottom-0">@messages("landingPage.organisation.saved.body.has")</p>
     } else {
         <h2 class="govuk-heading-m">@messages("landingPage.organisation.saved.heading")</h2>
-        <p class="govuk-body">@messages("landingPage.organisation.saved.body.empty")</p>
+        <p class="govuk-body govuk-!-margin-bottom-0">@messages("landingPage.organisation.saved.body.empty")</p>
     }
 
     <hr class="govuk-section-break govuk-section-break--visible govuk-section-break--m">
