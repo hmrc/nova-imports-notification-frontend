@@ -20,7 +20,7 @@
 
 @(traderName: String, vrn: String, hasDraftNotifications: Boolean)(implicit request: Request[?], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("landingPage.organisation.title"))) {
+@layout(pageTitle = messages("service.name") + " - " + messages("site.govuk")) {
 
     <span class="govuk-caption-m">@traderName <br> @messages("landingPage.organisation.vrn.caption", vrn)</span>
 
