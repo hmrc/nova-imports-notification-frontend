@@ -33,6 +33,8 @@
 
 @head = {
 
+    <link rel="stylesheet" href='@routes.Assets.versioned("stylesheets/application.css")' media="all" />
+
     @if(timeout) {
         @hmrcTimeoutDialog(TimeoutDialog(
             timeout             = Some(appConfig.timeout),

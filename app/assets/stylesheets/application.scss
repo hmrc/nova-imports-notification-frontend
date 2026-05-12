@@ -9,3 +9,8 @@
 .js-enabled .js-visible {
   display: inline-block !important;
 }
+
+.govuk-heading-m.app-text-secondary,
+.app-text-secondary {
+  color: var(--govuk-secondary-text-colour);
+}

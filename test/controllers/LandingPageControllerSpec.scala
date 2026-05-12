@@ -106,7 +106,7 @@ class LandingPageControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual OK
           body must include("Notification of Vehicle Arrivals (NOVA)")
-          body must include("""<span class="govuk-caption-xl">Tester Trader</span>""")
+          body must include("""<span class="govuk-caption-l">Tester Trader</span>""")
           body must include("Create a new notification")
           body must include("Update a submitted notification")
           body must include("Manage a saved notification")
@@ -221,16 +221,22 @@ class LandingPageControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "for a non-VAT Organisation redirects to Unauthorised (LP2.1 not yet built)" in {
+      "for a non-VAT Organisation renders LP1.0 (same as Private Individual)" in {
         given application: Application = applicationWith(classOf[FakeOrganisationIdentifierAction])
 
         running(application) {
           given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, landingPageRoute)
 
           val result = route(application, request).value
+          val body   = contentAsString(result)
 
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+          status(result) mustEqual OK
+          body must include("Notification of Vehicle Arrivals (NOVA)")
+          body must include("""<span class="govuk-caption-l">Tester Trader</span>""")
+          body must include("Create a new notification")
+          body must include("Update a submitted notification")
+          body must include("Manage a saved notification")
+          body must include("You do not have a saved notification")
         }
       }
 

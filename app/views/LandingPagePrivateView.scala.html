@@ -20,13 +20,13 @@
 
 @(traderName: Option[String], hasDraftNotifications: Boolean)(implicit request: Request[?], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("landingPage.private.title"))) {
+@layout(pageTitle = messages("service.name") + " - " + messages("site.govuk")) {
 
     @traderName.map { name =>
-        <span class="govuk-caption-xl">@name</span>
+        <span class="govuk-caption-l">@name</span>
     }
 
-    <h1 class="govuk-heading-xl">@messages("landingPage.private.heading")</h1>
+    <h1 class="govuk-heading-l">@messages("landingPage.private.heading")</h1>
 
     <p class="govuk-body">@messages("landingPage.private.body")</p>
 
@@ -53,7 +53,7 @@
         </h2>
         <p class="govuk-body">@messages("landingPage.private.saved.body.has")</p>
     } else {
-        <h2 class="govuk-heading-m">@messages("landingPage.private.saved.heading")</h2>
+        <h2 class="govuk-heading-m app-text-secondary">@messages("landingPage.private.saved.heading")</h2>
         <p class="govuk-body">@messages("landingPage.private.saved.body.empty")</p>
     }
 
