@@ -67,7 +67,7 @@ class StartControllerSpec extends SpecBase with MockitoSugar {
 
     "when the F3 call fails" - {
 
-      "must redirect to JourneyRecovery and not write to the session" ignore {
+      "must redirect to JourneyRecovery and not write to the session" in {
 
         val mockSessionRepository = mock[SessionRepository]
         val mockConnector         = mock[NovaImportsBackendConnector]
