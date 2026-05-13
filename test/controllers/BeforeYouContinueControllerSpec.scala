@@ -156,7 +156,7 @@ class BeforeYouContinueControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must redirect to Journey Recovery if no existing data is found" in {
+      "renders the individual view when there is no existing session" in {
         given application: Application =
           applicationWith(classOf[FakeIdentifierAction], userAnswers = None)
 
@@ -164,9 +164,11 @@ class BeforeYouContinueControllerSpec extends SpecBase with MockitoSugar {
           given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, beforeYouContinueRoute)
 
           val result = route(application, request).value
+          val body   = contentAsString(result)
 
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+          status(result) mustEqual OK
+          body must include("Before you continue")
+          body must not include spreadsheetSection
         }
       }
     }
@@ -181,7 +183,7 @@ class BeforeYouContinueControllerSpec extends SpecBase with MockitoSugar {
           val sessionRepo = mock[SessionRepository]
 
           when(connector.createDraft(any())(any[HeaderCarrier])) thenReturn Future.successful(Right(draftId))
-          when(sessionRepo.set(any())) thenReturn Future.successful(true)
+          when(sessionRepo.setPage(any(), any(), any())(any())) thenReturn Future.successful(true)
 
           given application: Application =
             applicationWith(classOf[FakeIdentifierAction], Some(emptyUserAnswers), connector, sessionRepo)
@@ -194,7 +196,7 @@ class BeforeYouContinueControllerSpec extends SpecBase with MockitoSugar {
             status(result) mustEqual SEE_OTHER
             redirectLocation(result).value mustEqual vehicleFromEuTarget
             verify(connector).createDraft(org.mockito.ArgumentMatchers.eq(None))(any[HeaderCarrier])
-            verify(sessionRepo).set(any())
+            verify(sessionRepo).setPage(any(), any(), any())(any())
           }
         }
 
@@ -204,7 +206,7 @@ class BeforeYouContinueControllerSpec extends SpecBase with MockitoSugar {
           val sessionRepo = mock[SessionRepository]
 
           when(connector.createDraft(any())(any[HeaderCarrier])) thenReturn Future.successful(Right(draftId))
-          when(sessionRepo.set(any())) thenReturn Future.successful(true)
+          when(sessionRepo.setPage(any(), any(), any())(any())) thenReturn Future.successful(true)
 
           given application: Application =
             applicationWith(classOf[FakeAgentIdentifierAction], Some(userAnswersWithClient), connector, sessionRepo)
@@ -226,7 +228,7 @@ class BeforeYouContinueControllerSpec extends SpecBase with MockitoSugar {
           val sessionRepo = mock[SessionRepository]
 
           when(connector.createDraft(any())(any[HeaderCarrier])) thenReturn Future.successful(Right(draftId))
-          when(sessionRepo.set(any())) thenReturn Future.successful(true)
+          when(sessionRepo.setPage(any(), any(), any())(any())) thenReturn Future.successful(true)
 
           given application: Application =
             applicationWith(classOf[FakeAgentIdentifierAction], Some(emptyUserAnswers), connector, sessionRepo)
@@ -262,14 +264,21 @@ class BeforeYouContinueControllerSpec extends SpecBase with MockitoSugar {
 
             status(result) mustEqual SEE_OTHER
             redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
-            verify(sessionRepo, org.mockito.Mockito.never()).set(any())
+            verify(sessionRepo, org.mockito.Mockito.never()).setPage(any(), any(), any())(any())
           }
         }
       }
 
-      "must redirect to Journey Recovery if no existing data is found" in {
+      "creates a new session and redirects to VehicleFromEuController when there is no existing session" in {
+        val draftId     = DraftId("DRAFT-NEW")
+        val connector   = mock[NovaImportsBackendConnector]
+        val sessionRepo = mock[SessionRepository]
+
+        when(connector.createDraft(any())(any[HeaderCarrier])) thenReturn Future.successful(Right(draftId))
+        when(sessionRepo.setPage(any(), any(), any())(any())) thenReturn Future.successful(true)
+
         given application: Application =
-          applicationWith(classOf[FakeIdentifierAction], userAnswers = None)
+          applicationWith(classOf[FakeIdentifierAction], userAnswers = None, connector, sessionRepo)
 
         running(application) {
           given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, onSubmitRoute)
@@ -277,7 +286,9 @@ class BeforeYouContinueControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+          redirectLocation(result).value mustEqual vehicleFromEuTarget
+          verify(connector).createDraft(org.mockito.ArgumentMatchers.eq(None))(any[HeaderCarrier])
+          verify(sessionRepo).setPage(any(), any(), any())(any())
         }
       }
     }

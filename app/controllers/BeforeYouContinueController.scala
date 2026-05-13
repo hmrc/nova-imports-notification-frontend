@@ -19,7 +19,7 @@ package controllers
 import com.google.inject.Inject
 import connectors.NovaImportsBackendConnector
 import controllers.actions.*
-import models.{NormalMode, UserAnswers}
+import models.{NormalMode, UserAnswers, UserContext}
 import models.NovaUserType
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -37,23 +37,24 @@ class BeforeYouContinueController @Inject() (
 )(implicit ec: ExecutionContext)
     extends BaseController {
 
-  def onPageLoad: Action[AnyContent] = actions.authAndGetData() { implicit request =>
-    val ctx                   = request.userContext
+  def onPageLoad: Action[AnyContent] = actions.authAndGetOptionalData() { implicit request =>
+    val ctx =
+      UserContext.from(request.affinityGroup, request.enrolments, request.userAnswers.getOrElse(UserAnswers(request.userId)))
     val showIndividualContent =
       ctx.userType == NovaUserType.PrivateIndividual || ctx.userType == NovaUserType.NonVatOrganisation || ctx.isAgentWithoutClient
 
     if showIndividualContent then Ok(individualView()) else Ok(organisationView())
   }
 
-  def onSubmit(): Action[AnyContent] = actions.authAndGetData().async { implicit request =>
-
-    val clientVrn = if (request.userContext.isAgentWithClient) request.userAnswers.get(AgentSelectedClientPage).map(_.vrn) else None
+  def onSubmit(): Action[AnyContent] = actions.authAndGetOptionalData().async { implicit request =>
+    val existingAnswers = request.userAnswers.getOrElse(UserAnswers(request.userId))
+    val ctx             = UserContext.from(request.affinityGroup, request.enrolments, existingAnswers)
+    val clientVrn       = if (ctx.isAgentWithClient) existingAnswers.get(AgentSelectedClientPage).map(_.vrn) else None
 
     backendConnector.createDraft(clientVrn).flatMap {
       case Right(draftId) =>
-        Future
-          .fromTry(UserAnswers(request.userId).set(DraftIdPage, draftId))
-          .flatMap(sessionRepository.set)
+        sessionRepository
+          .setPage(existingAnswers, DraftIdPage, draftId)
           .map(_ => Redirect(routes.VehicleFromEuController.onPageLoad(NormalMode).url))
       case Left(_) =>
         Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
