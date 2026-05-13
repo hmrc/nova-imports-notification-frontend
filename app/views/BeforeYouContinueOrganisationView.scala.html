@@ -65,7 +65,7 @@
     <p class="govuk-body">
         @govukButton(
             ButtonViewModel(messages("site.continue"))
-                .asLink(routes.VehicleFromEuController.onPageLoad(NormalMode).url)
+                .asLink(routes.BeforeYouContinueController.onSubmit().url)
         )
     </p>
 }

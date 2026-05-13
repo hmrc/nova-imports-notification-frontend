@@ -1,67 +1,68 @@
 # microservice specific routes
 
-->          /hmrc-frontend                               hmrcfrontend.Routes
+->          /hmrc-frontend                                          hmrcfrontend.Routes
 
-GET         /                                            controllers.StartController.start()
+GET         /                                                       controllers.StartController.start()
 
-GET         /notification-of-vehicle-arrivals            controllers.LandingPageController.onPageLoad()
+GET         /notification-of-vehicle-arrivals                       controllers.LandingPageController.onPageLoad()
 
 
-GET         /assets/*file                                controllers.Assets.versioned(path="/public", file: Asset)
+GET         /assets/*file                                           controllers.Assets.versioned(path="/public", file: Asset)
 
-GET         /language/:lang                              controllers.LanguageSwitchController.switchToLanguage(lang: String)
+GET         /language/:lang                                         controllers.LanguageSwitchController.switchToLanguage(lang: String)
 
-GET         /refresh-session                             controllers.KeepAliveController.keepAlive()
+GET         /refresh-session                                        controllers.KeepAliveController.keepAlive()
 
-GET         /there-is-a-problem                          controllers.JourneyRecoveryController.onPageLoad(continueUrl: Option[RedirectUrl] ?= None)
+GET         /there-is-a-problem                                     controllers.JourneyRecoveryController.onPageLoad(continueUrl: Option[RedirectUrl] ?= None)
 
-GET         /check-your-answers                          controllers.CheckYourAnswersController.onPageLoad()
+GET         /check-your-answers                                     controllers.CheckYourAnswersController.onPageLoad()
 
-GET         /account/sign-out-survey                     controllers.auth.AuthController.signOut()
-GET         /account/sign-out                            controllers.auth.AuthController.signOutNoSurvey()
-GET         /account/signed-out                          controllers.auth.SignedOutController.onPageLoad()
+GET         /account/sign-out-survey                                controllers.auth.AuthController.signOut()
+GET         /account/sign-out                                       controllers.auth.AuthController.signOutNoSurvey()
+GET         /account/signed-out                                     controllers.auth.SignedOutController.onPageLoad()
 
-GET         /unauthorised                                controllers.UnauthorisedController.onPageLoad()
+GET         /unauthorised                                           controllers.UnauthorisedController.onPageLoad()
 
-GET         /vehicle-from-eu                             controllers.VehicleFromEuController.onPageLoad(mode: Mode = NormalMode)
-POST        /vehicle-from-eu                             controllers.VehicleFromEuController.onSubmit(mode: Mode = NormalMode)
-GET         /change-vehicle-from-eu                      controllers.VehicleFromEuController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-vehicle-from-eu                      controllers.VehicleFromEuController.onSubmit(mode: Mode = CheckMode)
+GET         /vehicle-from-eu                                        controllers.VehicleFromEuController.onPageLoad(mode: Mode = NormalMode)
+POST        /vehicle-from-eu                                        controllers.VehicleFromEuController.onSubmit(mode: Mode = NormalMode)
+GET         /change-vehicle-from-eu                                 controllers.VehicleFromEuController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-vehicle-from-eu                                 controllers.VehicleFromEuController.onSubmit(mode: Mode = CheckMode)
 
-GET         /vehicle-outside-eu                          controllers.VehicleOutsideEUController.onPageLoad()
+GET         /vehicle-outside-eu                                     controllers.VehicleOutsideEUController.onPageLoad()
 
-GET         /view-clients/loading                        controllers.LoadingClientListController.onPageLoad()
+GET         /view-clients/loading                                   controllers.LoadingClientListController.onPageLoad()
 
-GET         /view-clients/no-authorised-clients          controllers.NoAuthorisedClientsController.onPageLoad()
+GET         /view-clients/no-authorised-clients                     controllers.NoAuthorisedClientsController.onPageLoad()
 
-GET         /before-you-continue                         controllers.BeforeYouContinueController.onPageLoad()
+GET         /before-you-continue                                    controllers.BeforeYouContinueController.onPageLoad()
+POST        /before-you-continue                                    controllers.BeforeYouContinueController.onSubmit()
 
-GET         /view-clients/failed                         controllers.CouldNotRetrieveClientListController.onPageLoad()
+GET         /view-clients/failed                                    controllers.CouldNotRetrieveClientListController.onPageLoad()
 
-GET         /purchaser-or-on-behalf                      controllers.PurchaserOrOnBehalfController.onPageLoad(mode: Mode = NormalMode)
-POST        /purchaser-or-on-behalf                      controllers.PurchaserOrOnBehalfController.onSubmit(mode: Mode = NormalMode)
-GET         /change-purchaser-or-on-behalf               controllers.PurchaserOrOnBehalfController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-purchaser-or-on-behalf               controllers.PurchaserOrOnBehalfController.onSubmit(mode: Mode = CheckMode)
+GET         /purchaser-or-on-behalf                                 controllers.PurchaserOrOnBehalfController.onPageLoad(mode: Mode = NormalMode)
+POST        /purchaser-or-on-behalf                                 controllers.PurchaserOrOnBehalfController.onSubmit(mode: Mode = NormalMode)
+GET         /change-purchaser-or-on-behalf                          controllers.PurchaserOrOnBehalfController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-purchaser-or-on-behalf                          controllers.PurchaserOrOnBehalfController.onSubmit(mode: Mode = CheckMode)
 
-GET         /purchaser-business-or-private-individual                controllers.PurchaserBusinessOrIndividualController.onPageLoad(mode: Mode = NormalMode)
-POST        /purchaser-business-or-private-individual                controllers.PurchaserBusinessOrIndividualController.onSubmit(mode: Mode = NormalMode)
-GET         /change-purchaser-business-or-private-individual         controllers.PurchaserBusinessOrIndividualController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-purchaser-business-or-private-individual         controllers.PurchaserBusinessOrIndividualController.onSubmit(mode: Mode = CheckMode)
+GET         /purchaser-business-or-private-individual               controllers.PurchaserBusinessOrIndividualController.onPageLoad(mode: Mode = NormalMode)
+POST        /purchaser-business-or-private-individual               controllers.PurchaserBusinessOrIndividualController.onSubmit(mode: Mode = NormalMode)
+GET         /change-purchaser-business-or-private-individual        controllers.PurchaserBusinessOrIndividualController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-purchaser-business-or-private-individual        controllers.PurchaserBusinessOrIndividualController.onSubmit(mode: Mode = CheckMode)
 
-GET         /vehicle-business-use                        controllers.VehicleBusinessUseController.onPageLoad(mode: Mode = NormalMode)
-POST        /vehicle-business-use                        controllers.VehicleBusinessUseController.onSubmit(mode: Mode = NormalMode)
-GET         /change-vehicle-business-use                 controllers.VehicleBusinessUseController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-vehicle-business-use                 controllers.VehicleBusinessUseController.onSubmit(mode: Mode = CheckMode)
+GET         /vehicle-business-use                                   controllers.VehicleBusinessUseController.onPageLoad(mode: Mode = NormalMode)
+POST        /vehicle-business-use                                   controllers.VehicleBusinessUseController.onSubmit(mode: Mode = NormalMode)
+GET         /change-vehicle-business-use                            controllers.VehicleBusinessUseController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-vehicle-business-use                            controllers.VehicleBusinessUseController.onSubmit(mode: Mode = CheckMode)
 
-GET         /client-vehicle-business-use                 controllers.AgentVehicleBusinessUseController.onPageLoad(mode: Mode = NormalMode)
-POST        /client-vehicle-business-use                 controllers.AgentVehicleBusinessUseController.onSubmit(mode: Mode = NormalMode)
-GET         /change-client-vehicle-business-use          controllers.AgentVehicleBusinessUseController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-client-vehicle-business-use          controllers.AgentVehicleBusinessUseController.onSubmit(mode: Mode = CheckMode)
+GET         /client-vehicle-business-use                            controllers.AgentVehicleBusinessUseController.onPageLoad(mode: Mode = NormalMode)
+POST        /client-vehicle-business-use                            controllers.AgentVehicleBusinessUseController.onSubmit(mode: Mode = NormalMode)
+GET         /change-client-vehicle-business-use                     controllers.AgentVehicleBusinessUseController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-client-vehicle-business-use                     controllers.AgentVehicleBusinessUseController.onSubmit(mode: Mode = CheckMode)
 
-GET         /business-or-private-individual              controllers.BusinessPrivateController.onPageLoad(mode: Mode = NormalMode)
-POST        /business-or-private-individual              controllers.BusinessPrivateController.onSubmit(mode: Mode = NormalMode)
-GET         /change-business-or-private-individual       controllers.BusinessPrivateController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-business-or-private-individual       controllers.BusinessPrivateController.onSubmit(mode: Mode = CheckMode)
+GET         /business-or-private-individual                         controllers.BusinessPrivateController.onPageLoad(mode: Mode = NormalMode)
+POST        /business-or-private-individual                         controllers.BusinessPrivateController.onSubmit(mode: Mode = NormalMode)
+GET         /change-business-or-private-individual                  controllers.BusinessPrivateController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-business-or-private-individual                  controllers.BusinessPrivateController.onSubmit(mode: Mode = CheckMode)
 
-GET         /about-your-details                          controllers.AboutYourDetailsController.onPageLoad()
-POST        /about-your-details                          controllers.AboutYourDetailsController.onSubmit()
+GET         /about-your-details                                     controllers.AboutYourDetailsController.onPageLoad()
+POST        /about-your-details                                     controllers.AboutYourDetailsController.onSubmit()

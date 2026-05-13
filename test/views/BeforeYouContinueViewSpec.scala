@@ -72,7 +72,7 @@ class BeforeYouContinueViewSpec extends SpecBase with Matchers {
     "must render the Continue button as a link to the VehicleFromEu page" in new Setup {
       val html: String = view().toString
       html must include(msgs("site.continue"))
-      html must include(controllers.routes.VehicleFromEuController.onPageLoad(NormalMode).url)
+      html must include(controllers.routes.BeforeYouContinueController.onSubmit().url)
     }
 
     "must render the same content via the render method" in new Setup {
