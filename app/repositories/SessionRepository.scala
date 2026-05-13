@@ -19,6 +19,8 @@ package repositories
 import config.FrontendAppConfig
 import models.UserAnswers
 import org.mongodb.scala.bson.conversions.Bson
+import play.api.libs.json.Writes
+import queries.Settable
 import org.mongodb.scala.model.*
 import play.api.libs.json.Format
 import uk.gov.hmrc.mongo.MongoComponent
@@ -88,6 +90,9 @@ class SessionRepository @Inject() (
       .toFuture()
       .map(_ => true)
   }
+
+  def setPage[A](answers: UserAnswers, page: Settable[A], value: A)(implicit writes: Writes[A]): Future[Boolean] =
+    Future.fromTry(answers.set(page, value)).flatMap(set)
 
   def clear(id: String): Future[Boolean] = {
     collection

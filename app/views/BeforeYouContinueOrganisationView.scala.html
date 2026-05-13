@@ -16,6 +16,7 @@
 
 @this(
     layout: templates.Layout,
+    formHelper: FormWithCSRF,
     govukButton: GovukButton
 )
 
@@ -62,10 +63,9 @@
         @messages("beforeYouContinueOrg.multiple.body.3")
     </p>
 
-    <p class="govuk-body">
+    @formHelper(action = routes.BeforeYouContinueController.onSubmit()) {
         @govukButton(
             ButtonViewModel(messages("site.continue"))
-                .asLink(routes.BeforeYouContinueController.onSubmit().url)
         )
-    </p>
+    }
 }

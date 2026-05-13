@@ -40,14 +40,6 @@ class StartController @Inject() (
   def start(): Action[AnyContent] = identify.async { implicit request =>
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
-    backendConnector.createDraft(clientVrn = None).flatMap {
-      case Right(draftId) =>
-        Future
-          .fromTry(UserAnswers(request.userId).set(DraftIdPage, draftId))
-          .flatMap(sessionRepository.set)
-          .map(_ => Redirect(routes.LandingPageController.onPageLoad()))
-      case Left(_) =>
-        Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
-    }
+    Future successful Redirect(routes.LandingPageController.onPageLoad())
   }
 }

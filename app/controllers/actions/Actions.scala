@@ -19,7 +19,7 @@ package controllers.actions
 import com.google.inject.Inject
 import models.{UserAnswers, UserContext}
 import javax.inject.Named
-import models.requests.DataRequest
+import models.requests.{DataRequest, OptionalDataRequest}
 import play.api.mvc.{ActionBuilder, AnyContent, Call, DefaultActionBuilder}
 
 class Actions @Inject() (
@@ -32,6 +32,11 @@ class Actions @Inject() (
   requireData: DataRequiredAction,
   guard: GuardAction
 ) {
+  def authAndGetOptionalData(): ActionBuilder[OptionalDataRequest, AnyContent] =
+    actionBuilder
+      .andThen(identify)
+      .andThen(getData)
+
   def authAndGetData(): ActionBuilder[DataRequest, AnyContent] =
     actionBuilder
       .andThen(identify)
