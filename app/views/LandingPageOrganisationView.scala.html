@@ -50,9 +50,10 @@
         </h2>
         <p class="govuk-body govuk-!-margin-bottom-0">@messages("landingPage.organisation.saved.body.has")</p>
     } else {
-        <h2 class="govuk-heading-m app-text-secondary">@messages("landingPage.organisation.saved.heading")</h2>
-        <p class="govuk-body govuk-!-margin-bottom-0">@messages("landingPage.organisation.saved.body.empty")</p>
+        <span aria-hidden="true">
+            <h2 class="govuk-heading-m app-text-secondary">@messages("landingPage.organisation.saved.heading")</h2>
+            <p class="govuk-body govuk-!-margin-bottom-0">@messages("landingPage.organisation.saved.body.empty")</p>
+        </span>
+        <hr class="govuk-section-break govuk-section-break--visible govuk-section-break--m">
     }
-
-    <hr class="govuk-section-break govuk-section-break--visible govuk-section-break--m">
 }
