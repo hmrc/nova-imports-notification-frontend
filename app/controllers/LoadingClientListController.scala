@@ -27,7 +27,7 @@ class LoadingClientListController @Inject() (
   actions: Actions
 ) extends BaseController {
 
-  def onPageLoad: Action[AnyContent] = actions.novaAgentAuthAndGetData() { implicit request =>
+  def onPageLoad: Action[AnyContent] = actions.novaAgentAuthAndGetOptionalData() { implicit request =>
     Ok(view())
   }
 }

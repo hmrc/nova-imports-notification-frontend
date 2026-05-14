@@ -69,20 +69,6 @@ class LoadingClientListControllerSpec extends SpecBase {
           contentAsString(result) must include("Please wait while we retrieve your authorised clients.")
         }
       }
-
-      "must redirect to Journey Recovery if no existing data is found" in {
-        given application: Application = applicationBuilder(userAnswers = None).build()
-
-        running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] =
-            FakeRequest(GET, routes.LoadingClientListController.onPageLoad().url)
-
-          val result = route(application, request).value
-
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
-        }
-      }
     }
   }
 }
