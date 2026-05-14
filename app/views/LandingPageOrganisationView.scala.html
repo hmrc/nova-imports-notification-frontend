@@ -20,7 +20,7 @@
 
 @(traderName: String, vrn: String, hasDraftNotifications: Boolean)(implicit request: Request[?], messages: Messages)
 
-@layout(pageTitle = messages("service.name") + " - " + messages("site.govuk")) {
+@layout(pageTitle = messages("landingPage.organisation.title") + " - " + messages("site.govuk")) {
 
     <span class="govuk-caption-m">@traderName <br> @messages("landingPage.organisation.vrn.caption", vrn)</span>
 
@@ -50,7 +50,7 @@
         </h2>
         <p class="govuk-body govuk-!-margin-bottom-0">@messages("landingPage.organisation.saved.body.has")</p>
     } else {
-        <h2 class="govuk-heading-m">@messages("landingPage.organisation.saved.heading")</h2>
+        <h2 class="govuk-heading-m app-text-secondary">@messages("landingPage.organisation.saved.heading")</h2>
         <p class="govuk-body govuk-!-margin-bottom-0">@messages("landingPage.organisation.saved.body.empty")</p>
     }
 
