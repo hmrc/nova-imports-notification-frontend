@@ -20,7 +20,7 @@
 
 @(traderName: Option[String], hasDraftNotifications: Boolean)(implicit request: Request[?], messages: Messages)
 
-@layout(pageTitle = messages("service.name") + " - " + messages("site.govuk")) {
+@layout(pageTitle = messages("landingPage.private.title") + " - " + messages("site.govuk")) {
 
     @traderName.map { name =>
         <span class="govuk-caption-l">@name</span>
