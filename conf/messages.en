@@ -28,6 +28,12 @@ error.prefix = Error
 error.summary.title = There is a problem
 
 ######################################################
+# LPs - Landing page common information                        #
+######################################################
+
+landingPage.content.disabled.body = Until you have a saved notification this feature is disabled
+
+######################################################
 # LP1.0 - Landing page for Private individual                  #
 ######################################################
 
