@@ -16,13 +16,16 @@
 
 package models
 
-enum PurchaserOrOnBehalf {
-  case Purchaser, OnBehalfOfPurchaser
+enum PurchaserOrOnBehalf(val jsonValue: String) {
+  case Purchaser extends PurchaserOrOnBehalf("self")
+  case OnBehalfOfPurchaser extends PurchaserOrOnBehalf("behalfOfPurchaser")
+
+  override def toString: String = jsonValue
 }
 
 object PurchaserOrOnBehalf extends Enumerable.Implicits {
   given Enumerable[PurchaserOrOnBehalf] = Enumerable(
-    "Purchaser"           -> PurchaserOrOnBehalf.Purchaser,
-    "OnBehalfOfPurchaser" -> PurchaserOrOnBehalf.OnBehalfOfPurchaser
+    Purchaser.jsonValue           -> Purchaser,
+    OnBehalfOfPurchaser.jsonValue -> OnBehalfOfPurchaser
   )
 }

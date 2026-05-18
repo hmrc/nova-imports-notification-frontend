@@ -38,11 +38,20 @@ object GetNotificationSummaryError {
   final case class UpstreamError(status: Int, message: String) extends GetNotificationSummaryError
 }
 
+sealed trait UpdateSectionError
+object UpdateSectionError {
+  case object Forbidden extends UpdateSectionError
+  case object NotFound extends UpdateSectionError
+  final case class UpstreamError(status: Int, message: String) extends UpdateSectionError
+}
+
 trait NovaImportsBackendConnector {
 
   def createDraft(clientVrn: Option[String])(implicit hc: HeaderCarrier): Future[Either[CreateDraftError, DraftId]]
 
   def getNotificationSummary()(implicit hc: HeaderCarrier): Future[Either[GetNotificationSummaryError, NotificationSummary]]
+
+  def updateDraftSection(draftId: DraftId, sectionId: String, body: JsObject)(implicit hc: HeaderCarrier): Future[Either[UpdateSectionError, Unit]]
 }
 
 class NovaImportsBackendConnectorImpl @Inject() (
@@ -90,6 +99,25 @@ class NovaImportsBackendConnectorImpl @Inject() (
               .map(Right(_))
               .recoverTotal(err => Left(UpstreamError(200, s"Malformed notification summary: $err")))
           case s => Left(UpstreamError(s, response.body))
+        }
+      }
+  }
+
+  override def updateDraftSection(draftId: DraftId, sectionId: String, body: JsObject)(implicit
+    hc: HeaderCarrier
+  ): Future[Either[UpdateSectionError, Unit]] = {
+    import UpdateSectionError.*
+
+    httpClient
+      .put(url"${serviceUrl(s"/draft-notifications/${draftId.value}/sections/$sectionId")}")
+      .withBody(body)
+      .execute[HttpResponse]
+      .map { response =>
+        response.status match {
+          case 200 => Right(())
+          case 403 => Left(Forbidden)
+          case 404 => Left(NotFound)
+          case s   => Left(UpstreamError(s, response.body))
         }
       }
   }

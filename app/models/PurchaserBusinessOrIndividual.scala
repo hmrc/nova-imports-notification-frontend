@@ -16,13 +16,16 @@
 
 package models
 
-enum PurchaserBusinessOrIndividual {
-  case NonVatRegisteredBusiness, NonVatRegisteredPrivateIndividual
+enum PurchaserBusinessOrIndividual(val jsonValue: String) {
+  case NonVatRegisteredBusiness extends PurchaserBusinessOrIndividual("NON_VAT_REG_BUSINESS")
+  case NonVatRegisteredPrivateIndividual extends PurchaserBusinessOrIndividual("PRIVATE_INDIVIDUAL")
+
+  override def toString: String = jsonValue
 }
 
 object PurchaserBusinessOrIndividual extends Enumerable.Implicits {
   given Enumerable[PurchaserBusinessOrIndividual] = Enumerable(
-    "NonVatRegisteredBusiness"          -> PurchaserBusinessOrIndividual.NonVatRegisteredBusiness,
-    "NonVatRegisteredPrivateIndividual" -> PurchaserBusinessOrIndividual.NonVatRegisteredPrivateIndividual
+    NonVatRegisteredBusiness.jsonValue          -> NonVatRegisteredBusiness,
+    NonVatRegisteredPrivateIndividual.jsonValue -> NonVatRegisteredPrivateIndividual
   )
 }
