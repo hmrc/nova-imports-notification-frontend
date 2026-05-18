@@ -28,7 +28,7 @@ import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import views.html.{LandingPageAgentView, LandingPageOrganisationView, LandingPagePrivateView}
 
 import javax.inject.{Inject, Named}
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 class LandingPageController @Inject() (
   val controllerComponents: MessagesControllerComponents,
