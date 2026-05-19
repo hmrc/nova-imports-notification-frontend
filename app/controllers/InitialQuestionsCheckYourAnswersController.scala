@@ -24,6 +24,7 @@ import models.requests.DataRequest
 import models.{NovaUserType, PurchaserOrOnBehalf, UserAnswers, UserContext}
 import pages.*
 import play.api.libs.json.{JsObject, Json}
+import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
@@ -37,7 +38,8 @@ class InitialQuestionsCheckYourAnswersController @Inject() (
   backendConnector: NovaImportsBackendConnector,
   view: InitialQuestionsCheckYourAnswersView
 )(implicit ec: ExecutionContext)
-    extends BaseController {
+    extends BaseController
+    with Logging {
 
   import InitialQuestionsCheckYourAnswersController.*
 
@@ -55,13 +57,16 @@ class InitialQuestionsCheckYourAnswersController @Inject() (
 
     submissionData match {
       case None =>
+        logger.warn("Failed to submit 'initial-questions' — draftId or section data missing from UserAnswers")
         Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
 
       case Some((draftId, sectionData)) =>
         val sectionJsonBody = Json.toJson(sectionData).as[JsObject]
         backendConnector.updateDraftSection(draftId, "initial-questions", sectionJsonBody).map {
-          case Right(_) => Redirect(routes.LandingPageController.onPageLoad()) // TODO: navigate to next screen - to be added later
-          case Left(_)  => Redirect(routes.JourneyRecoveryController.onPageLoad())
+          case Right(_)    => Redirect(routes.LandingPageController.onPageLoad()) // TODO: navigate to next screen - to be added later
+          case Left(error) =>
+            logger.warn(s"Failed to update 'initial-questions' section for draftId ${draftId.value}: $error")
+            Redirect(routes.JourneyRecoveryController.onPageLoad())
         }
     }
   }
