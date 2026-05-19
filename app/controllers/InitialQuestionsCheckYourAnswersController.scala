@@ -77,7 +77,7 @@ object InitialQuestionsCheckYourAnswersController {
         standardUserAnswersComplete(request.userAnswers)
       case NovaUserType.VatRegisteredOrganisation =>
         vatRegisteredOrgAnswersComplete(request.userAnswers)
-      case NovaUserType.Agent if request.userContext.isAgentWithClient =>
+      case NovaUserType.Agent =>
         agentWithClientAnswersComplete(request.userAnswers)
     }
 

@@ -26,8 +26,6 @@ import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 
-import scala.concurrent.Future
-
 class CouldNotRetrieveClientListControllerSpec extends SpecBase {
 
   "CouldNotRetrieveClientListController" - {

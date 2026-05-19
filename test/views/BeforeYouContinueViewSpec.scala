@@ -17,7 +17,6 @@
 package views
 
 import base.SpecBase
-import models.NormalMode
 import org.scalatest.matchers.must.Matchers
 import play.api.Application
 import play.api.i18n.Messages
