@@ -18,6 +18,7 @@ package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import models.{DraftId, NotificationSummary}
+import play.api.libs.json.Json
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
@@ -187,6 +188,53 @@ class NovaImportsBackendConnectorISpec
         case other                                                         =>
           fail(s"expected UpstreamError(200, ...) but got $other")
       }
+    }
+  }
+
+  "updateDraftSection" - {
+
+    val draftId   = DraftId("abc-123")
+    val sectionId = "initial-questions"
+    val url       = s"/nova-imports/draft-notifications/${draftId.value}/sections/$sectionId"
+    val body      = Json.obj("vehicleFromEuToNi" -> true)
+
+    "returns Right(()) on 200" in {
+      wireMockServer.stubFor(
+        put(urlEqualTo(url))
+          .withRequestBody(equalToJson(body.toString))
+          .willReturn(aResponse().withStatus(200))
+      )
+
+      connector.updateDraftSection(draftId, sectionId, body).futureValue mustEqual Right(())
+    }
+
+    "returns Forbidden on 403" in {
+      wireMockServer.stubFor(
+        put(urlEqualTo(url))
+          .willReturn(aResponse().withStatus(403))
+      )
+
+      connector.updateDraftSection(draftId, sectionId, body).futureValue mustEqual Left(UpdateSectionError.Forbidden)
+    }
+
+    "returns NotFound on 404" in {
+      wireMockServer.stubFor(
+        put(urlEqualTo(url))
+          .willReturn(aResponse().withStatus(404))
+      )
+
+      connector.updateDraftSection(draftId, sectionId, body).futureValue mustEqual Left(UpdateSectionError.NotFound)
+    }
+
+    "returns UpstreamError on a 5xx response" in {
+      wireMockServer.stubFor(
+        put(urlEqualTo(url))
+          .willReturn(aResponse().withStatus(500).withBody("upstream error"))
+      )
+
+      connector.updateDraftSection(draftId, sectionId, body).futureValue mustEqual Left(
+        UpdateSectionError.UpstreamError(500, "upstream error")
+      )
     }
   }
 }

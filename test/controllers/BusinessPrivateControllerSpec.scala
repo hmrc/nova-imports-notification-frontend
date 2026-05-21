@@ -18,7 +18,7 @@ package controllers
 
 import base.SpecBase
 import forms.BusinessPrivateFormProvider
-import models.{BusinessOrPrivateIndividual, NormalMode, UserAnswers}
+import models.{BusinessOrPrivateIndividual, NormalMode}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when

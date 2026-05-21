@@ -82,6 +82,9 @@ class Actions @Inject() (
   def authAndGetDataWithGuard(predicate: UserAnswers => Boolean): ActionBuilder[DataRequest, AnyContent] =
     authAndGetData().andThen(guard(predicate))
 
+  def authAndGetDataWithUserTypeGuard(predicate: DataRequest[?] => Boolean): ActionBuilder[DataRequest, AnyContent] =
+    authAndGetData().andThen(guard.forUserTypeAndAnswers(predicate))
+
   def vatTraderAuthAndGetDataWithGuard(predicate: UserAnswers => Boolean): ActionBuilder[DataRequest, AnyContent] =
     vatTraderAuthAndGetData().andThen(guard(predicate))
 

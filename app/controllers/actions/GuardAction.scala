@@ -30,6 +30,9 @@ class GuardAction @Inject() ()(using ec: ExecutionContext) {
   def apply(predicate: UserAnswers => Boolean): ActionFilter[DataRequest] =
     filterWith(req => predicate(req.userAnswers), Results.Redirect(routes.JourneyRecoveryController.onPageLoad()))
 
+  def forUserTypeAndAnswers(predicate: DataRequest[?] => Boolean): ActionFilter[DataRequest] =
+    filterWith(predicate, Results.Redirect(routes.JourneyRecoveryController.onPageLoad()))
+
   def forUserContext(predicate: UserContext => Boolean): ActionFilter[DataRequest] =
     filterWith(req => predicate(req.userContext), Results.Redirect(routes.JourneyRecoveryController.onPageLoad()))
 

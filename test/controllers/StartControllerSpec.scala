@@ -18,12 +18,10 @@ package controllers
 
 import base.SpecBase
 import connectors.{CreateDraftError, NovaImportsBackendConnector}
-import models.{DraftId, UserAnswers}
-import org.mockito.ArgumentCaptor
+import models.DraftId
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.DraftIdPage
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*

@@ -16,12 +16,20 @@
 
 package pages
 
-import models.PurchaserOrOnBehalf
+import models.{PurchaserOrOnBehalf, UserAnswers}
 import play.api.libs.json.JsPath
+
+import scala.util.Try
 
 case object PurchaserOrOnBehalfPage extends QuestionPage[PurchaserOrOnBehalf] {
 
   override def path: JsPath = JsPath \ toString
 
   override def toString: String = "purchaserOrOnBehalf"
+
+  override def cleanup(value: Option[PurchaserOrOnBehalf], userAnswers: UserAnswers): Try[UserAnswers] =
+    value match {
+      case Some(PurchaserOrOnBehalf.Purchaser) => userAnswers.remove(PurchaserBusinessOrIndividualPage)
+      case _                                   => super.cleanup(value, userAnswers)
+    }
 }
