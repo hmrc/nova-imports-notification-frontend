@@ -94,6 +94,9 @@ class Actions @Inject() (
   def authAndGetDataWithUserContextGuard(predicate: UserContext => Boolean): ActionBuilder[DataRequest, AnyContent] =
     authAndGetData().andThen(guard.forUserContext(predicate))
 
+  def authAndGetDataWithUserContextGuard(predicate: UserContext => Boolean, onFailure: Call): ActionBuilder[DataRequest, AnyContent] =
+    authAndGetData().andThen(guard.forUserContext(predicate, onFailure))
+
   def authAndGetDataRequiringClient(): ActionBuilder[DataRequest, AnyContent] =
     authAndGetDataWithUserContextGuard(UserContext.agentMustHaveClient)
 

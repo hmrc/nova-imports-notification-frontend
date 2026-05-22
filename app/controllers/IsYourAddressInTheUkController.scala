@@ -23,7 +23,7 @@ import models.{Mode, NovaUserType, UserContext}
 import navigation.Navigator
 import pages.IsYourAddressInTheUkPage
 import play.api.data.Form
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import repositories.SessionRepository
 import views.html.IsYourAddressInTheUkView
 
@@ -42,12 +42,13 @@ class IsYourAddressInTheUkController @Inject() (
   val form: Form[Boolean] = formProvider()
 
   private val userContextGuard: UserContext => Boolean = !_.isAgent
+  private val onAgentAccess: Call                      = routes.UnauthorisedController.onPageLoad()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserContextGuard(userContextGuard) { implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserContextGuard(userContextGuard, onAgentAccess) { implicit request =>
     Ok(view(form.withDefault(request.userAnswers.get(IsYourAddressInTheUkPage)), mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserContextGuard(userContextGuard).async { implicit request =>
+  def onSubmit(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserContextGuard(userContextGuard, onAgentAccess).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
