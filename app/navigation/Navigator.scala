@@ -55,20 +55,20 @@ class Navigator @Inject() () {
           case _           => routes.JourneyRecoveryController.onPageLoad()
         }
     case VehicleBusinessUsePage =>
-      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to next page - to be added later
+      (_, _) => routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
     case AgentVehicleBusinessUsePage =>
-      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to agent check your answers - to be added later
+      (_, _) => routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
     case PurchaserOrOnBehalfPage =>
       (userAnswers, _) =>
         userAnswers.get(PurchaserOrOnBehalfPage) match {
-          case Some(PurchaserOrOnBehalf.Purchaser)           => routes.LandingPageController.onPageLoad() // TODO: navigate to SS1 - to be added later
+          case Some(PurchaserOrOnBehalf.Purchaser)           => routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
           case Some(PurchaserOrOnBehalf.OnBehalfOfPurchaser) => routes.PurchaserBusinessOrIndividualController.onPageLoad(NormalMode)
           case _                                             => routes.JourneyRecoveryController.onPageLoad()
         }
     case BusinessPrivatePage =>
       (_, _) => routes.PurchaserOrOnBehalfController.onPageLoad(NormalMode)
     case PurchaserBusinessOrIndividualPage =>
-      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to SS2 - to be added later
+      (_, _) => routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
     case IsYourAddressInTheUkPage =>
       (userAnswers, _) =>
         userAnswers.get(IsYourAddressInTheUkPage) match {
@@ -79,8 +79,18 @@ class Navigator @Inject() () {
     case _ => (_, _) => routes.LandingPageController.onPageLoad()
   }
 
-  private val checkRouteMap: Page => (UserAnswers, NovaUserType) => Call = { case _ =>
-    (_, _) => routes.CheckYourAnswersController.onPageLoad()
+  private val checkRouteMap: Page => (UserAnswers, NovaUserType) => Call = {
+    case VehicleFromEuPage | VehicleBusinessUsePage | AgentVehicleBusinessUsePage | BusinessPrivatePage | PurchaserBusinessOrIndividualPage =>
+      (_, _) => routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
+    case PurchaserOrOnBehalfPage =>
+      (userAnswers, _) =>
+        userAnswers.get(PurchaserOrOnBehalfPage) match {
+          case Some(PurchaserOrOnBehalf.Purchaser)           => routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
+          case Some(PurchaserOrOnBehalf.OnBehalfOfPurchaser) => routes.PurchaserBusinessOrIndividualController.onPageLoad(CheckMode)
+          case _                                             => routes.JourneyRecoveryController.onPageLoad()
+        }
+    case _ =>
+      (_, _) => routes.LandingPageController.onPageLoad()
   }
 
   def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers, userType: NovaUserType): Call = mode match {

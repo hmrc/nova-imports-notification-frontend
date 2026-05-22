@@ -16,30 +16,18 @@
 
 package controllers
 
-import connectors.NovaImportsBackendConnector
 import controllers.actions.IdentifierAction
-import models.UserAnswers
-import pages.DraftIdPage
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import repositories.SessionRepository
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import javax.inject.{Inject, Named}
-import scala.concurrent.{ExecutionContext, Future}
 
 class StartController @Inject() (
   val controllerComponents: MessagesControllerComponents,
-  @Named("standard") identify: IdentifierAction,
-  sessionRepository: SessionRepository,
-  backendConnector: NovaImportsBackendConnector
-)(implicit ec: ExecutionContext)
-    extends FrontendBaseController {
+  @Named("standard") identify: IdentifierAction
+) extends FrontendBaseController {
 
-  def start(): Action[AnyContent] = identify.async { implicit request =>
-    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-
-    Future successful Redirect(routes.LandingPageController.onPageLoad())
+  def start(): Action[AnyContent] = identify { _ =>
+    Redirect(routes.LandingPageController.onPageLoad())
   }
 }

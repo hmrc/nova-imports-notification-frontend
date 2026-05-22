@@ -6,6 +6,7 @@ site.change = Change
 site.no = No
 site.yes = Yes
 site.continue = Continue
+site.saveAndContinue = Save and continue
 site.start = Start now
 site.startAgain = Start again
 site.signIn = Sign in
@@ -27,46 +28,6 @@ error.title.prefix = Error:
 error.prefix = Error
 error.summary.title = There is a problem
 
-######################################################
-# LPs - Landing page common information                        #
-######################################################
-
-landingPage.content.disabled.body = Until you have a saved notification this part of the service is not available
-
-######################################################
-# LP1.0 - Landing page for Private individual                  #
-######################################################
-
-landingPage.private.title = Notification of Vehicle Arrivals (NOVA)
-landingPage.private.heading = Notification of Vehicle Arrivals (NOVA)
-landingPage.private.body = Use the NOVA service to submit and manage notifications for vehicles brought into the UK.
-landingPage.private.create.link = Create a new notification
-landingPage.private.create.body = Start and submit a new notification
-landingPage.private.update.link = Update a submitted notification
-landingPage.private.update.body = Make changes to a notification you’ve already submitted
-landingPage.private.saved.heading = Manage a saved notification
-landingPage.private.saved.body.empty = You do not have a saved notification
-landingPage.private.saved.body.has = View, continue or delete a notification you’ve started but not yet submitted
-
-######################################################
-# LP2.0 - Landing page for Organisations                       #
-######################################################
-
-landingPage.organisation.title = Notification of Vehicle Arrivals (NOVA)
-landingPage.organisation.heading = Notification of Vehicle Arrivals (NOVA)
-landingPage.organisation.vrn.caption = VAT registration number: GB{0}
-landingPage.organisation.body = Use the NOVA service to submit and manage notifications for vehicles brought into the UK.
-landingPage.organisation.create.link = Create a new notification
-landingPage.organisation.create.body = Start and submit a new notification
-landingPage.organisation.update.link = Update a submitted notification
-landingPage.organisation.update.body = Make changes to a notification you’ve already submitted
-landingPage.organisation.saved.heading = Manage a saved notification
-landingPage.organisation.saved.body.empty = You do not have a saved notification
-landingPage.organisation.saved.body.has = View, continue or delete a notification you’ve started but not yet submitted
-
-checkYourAnswers.title = Check your answers
-checkYourAnswers.heading = Check your answers
-
 journeyRecovery.continue.title = Sorry, there is a problem with the service
 journeyRecovery.continue.heading = Sorry, there is a problem with the service
 journeyRecovery.continue.guidance = [Add content to explain how to proceed.]
@@ -82,8 +43,45 @@ unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
 
 ######################################################
-# LP3.0 - Landing page for Agent with no selected client       #
+# LPs - Landing page common information              #
 ######################################################
+
+landingPage.content.disabled.body = Until you have a saved notification this part of the service is not available
+
+######################################################
+# LP1.0 - Landing page for Private individual        #
+######################################################
+
+landingPage.private.title = Notification of Vehicle Arrivals (NOVA)
+landingPage.private.heading = Notification of Vehicle Arrivals (NOVA)
+landingPage.private.body = Use the NOVA service to submit and manage notifications for vehicles brought into the UK.
+landingPage.private.create.link = Create a new notification
+landingPage.private.create.body = Start and submit a new notification
+landingPage.private.update.link = Update a submitted notification
+landingPage.private.update.body = Make changes to a notification you’ve already submitted
+landingPage.private.saved.heading = Manage a saved notification
+landingPage.private.saved.body.empty = You do not have a saved notification
+landingPage.private.saved.body.has = View, continue or delete a notification you’ve started but not yet submitted
+
+######################################################
+# LP2.0 - Landing page for Organisations             #
+######################################################
+
+landingPage.organisation.title = Notification of Vehicle Arrivals (NOVA)
+landingPage.organisation.heading = Notification of Vehicle Arrivals (NOVA)
+landingPage.organisation.vrn.caption = VAT registration number: GB{0}
+landingPage.organisation.body = Use the NOVA service to submit and manage notifications for vehicles brought into the UK.
+landingPage.organisation.create.link = Create a new notification
+landingPage.organisation.create.body = Start and submit a new notification
+landingPage.organisation.update.link = Update a submitted notification
+landingPage.organisation.update.body = Make changes to a notification you’ve already submitted
+landingPage.organisation.saved.heading = Manage a saved notification
+landingPage.organisation.saved.body.empty = You do not have a saved notification
+landingPage.organisation.saved.body.has = View, continue or delete a notification you’ve started but not yet submitted
+
+################################################################
+# LP3.0 - Landing page for Agent with no selected client       #
+################################################################
 
 landingPage.agent.title = Notification of Vehicle Arrivals (NOVA)
 landingPage.agent.heading = Notification of Vehicle Arrivals (NOVA)
@@ -98,28 +96,28 @@ landingPage.agent.saved.body.has = View, continue or delete a notification you�
 landingPage.agent.clients.link = Manage your clients
 landingPage.agent.clients.body = View, search, remove or select a client to act on their behalf
 
-######################################################
+##################################################################
 # IQ1.0 - Initial Question 1.0: Vehicle brought into NI from EU  #
-######################################################
+##################################################################
 
 vehicleFromEu.title = Are you completing a notification for a vehicle brought into Northern Ireland from an EU country?
 vehicleFromEu.heading = Are you completing a notification for a vehicle brought into Northern Ireland from an EU country?
 vehicleFromEu.checkYourAnswersLabel = Vehicle brought into Northern Ireland from an EU country
 vehicleFromEu.error.required = Select yes if the vehicle was brought into Northern Ireland from an EU country
-vehicleFromEu.change.hidden = vehicle brought into Northern Ireland from an EU country
+vehicleFromEu.change.hidden = Are you completing a notification for a vehicle brought into Northern Ireland from an EU country?
 
-######################################################
+##########################################################################
 # IQ1.1 - Initial Question 1.1: Vehicle brought into NI from outside EU  #
-######################################################
+##########################################################################
 
 vehicleOutsideEU.title = If you’ve brought a vehicle into Northern Ireland from outside the EU
 vehicleOutsideEU.heading = If you’ve brought a vehicle into Northern Ireland from outside the EU
 vehicleOutsideEU.paragraph.1 = Find out how to notify HMRC about it on {0}.
 vehicleOutsideEU.paragraph.2 = See the list of the {0}.
 
-######################################################
-# BY1.0 - Before you continue  - Individual                        #
-######################################################
+#########################################################
+# BY1.0 - Before you continue  - Individual             #
+#########################################################
 
 beforeYouContinue.title = Before you continue
 beforeYouContinue.heading = Before you continue
@@ -138,9 +136,9 @@ beforeYouContinue.updating.heading = Updating vehicle notifications
 beforeYouContinue.updating.body.1 = To update a notification, you need to create and submit a new one to replace your previous submission.
 beforeYouContinue.updating.body.2 = You need the notification reference. You can find this in the message we sent after you submitted.
 
-######################################################
+#########################################################
 # BY2.0 - Before you continue - Organisation and Agent  #
-######################################################
+#########################################################
 
 beforeYouContinueOrg.title = Before you continue
 beforeYouContinueOrg.heading = Before you continue
@@ -164,9 +162,9 @@ beforeYouContinueOrg.multiple.body.2 = You can use a vehicle spreadsheet to ente
 beforeYouContinueOrg.multiple.link.text = Find the spreadsheet (opens in new tab)
 beforeYouContinueOrg.multiple.body.3 = you need for the type of vehicles you’ve brought into the UK.
 
-######################################################
-# IQ2 - Initial Question 2: Business or private individual  #
-######################################################
+###############################################################
+# IQ2.0 - Initial Question 2: Business or private individual  #
+###############################################################
 
 businessPrivate.title = Are you a business or private individual?
 businessPrivate.heading = Are you a business or private individual?
@@ -174,69 +172,77 @@ businessPrivate.business = Business
 businessPrivate.business.hint = Includes businesses that are not VAT registered
 businessPrivate.privateIndividual = Private individual
 businessPrivate.privateIndividual.hint = Acting on your own behalf or for another private individual
-businessPrivate.checkYourAnswersLabel = Business or private individual
+businessPrivate.checkYourAnswersLabel = Are you a business or private individual?
 businessPrivate.error.required = Select if you are a business or private individual
-businessPrivate.change.hidden = whether you are a business or private individual
+businessPrivate.change.hidden = Are you a business or private individual?
 
-######################################################
+##########################################################
 # OQ1.0 - Organisation Question 1: Vehicle business use  #
-######################################################
+##########################################################
 
 vehicleBusinessUse.title = Have you brought a vehicle into the UK for business use?
 vehicleBusinessUse.heading = Have you brought a vehicle into the UK for business use?
 vehicleBusinessUse.hint = Select ‘Yes’ only if the vehicle belongs to the business
-vehicleBusinessUse.checkYourAnswersLabel = Vehicle brought into the UK for business use
+vehicleBusinessUse.checkYourAnswersLabel = Have you brought a vehicle into the UK for business use?
 vehicleBusinessUse.error.required = Select yes if you brought a vehicle into the UK for business use
-vehicleBusinessUse.change.hidden = vehicle brought into the UK for business use
+vehicleBusinessUse.change.hidden = Have you brought a vehicle into the UK for business use?
 
-######################################################
+##########################################################
 # AQ1.0 - Agent Question 1: Client vehicle business use  #
-######################################################
+##########################################################
 
 agentVehicleBusinessUse.title = Has your client brought a vehicle into the UK for business use?
 agentVehicleBusinessUse.heading = Has your client brought a vehicle into the UK for business use?
 agentVehicleBusinessUse.hint = Select ‘Yes’ only if the vehicle belongs to the business
-agentVehicleBusinessUse.checkYourAnswersLabel = Client vehicle brought into the UK for business use
+agentVehicleBusinessUse.checkYourAnswersLabel = Has your client brought a vehicle into the UK for business use?
 agentVehicleBusinessUse.error.required = Select yes if your client brought a vehicle into the UK for business use
-agentVehicleBusinessUse.change.hidden = client vehicle brought into the UK for business use
+agentVehicleBusinessUse.change.hidden = Has your client brought a vehicle into the UK for business use?
 
-######################################################
+##########################################################################
 # IQ3.0 - Initial Question 3.0: Purchaser or on behalf of the purchaser  #
-######################################################
+##########################################################################
 
 purchaserOrOnBehalf.title = Are you notifying as the purchaser, or on behalf of a purchaser?
 purchaserOrOnBehalf.heading = Are you notifying as the purchaser, or on behalf of a purchaser?
 purchaserOrOnBehalf.hint = The purchaser is a private individual or business that brought the vehicle into the UK
-purchaserOrOnBehalf.checkYourAnswersLabel = Purchaser or on behalf of the purchaser
+purchaserOrOnBehalf.checkYourAnswersLabel = Are you the purchaser or notifying on behalf of a purchaser?
 purchaserOrOnBehalf.error.required = Select if you are notifying as the purchaser or on behalf of a purchaser
-purchaserOrOnBehalf.change.hidden = Purchaser or on behalf of the purchaser
+purchaserOrOnBehalf.change.hidden = Are you notifying as the purchaser, or on behalf of a purchaser?
 purchaserOrOnBehalf.radio.purchaser = As the purchaser
 purchaserOrOnBehalf.radio.behalfOfPurchaser = On behalf of a purchaser
 
-######################################################
+###########################################################################
 # IQ3.1 - Initial Question 3.1: Purchaser business or private individual  #
-######################################################
+###########################################################################
 
 purchaserBusinessOrIndividual.title = Is the purchaser you are notifying on behalf of a business or private individual?
 purchaserBusinessOrIndividual.heading = Is the purchaser you are notifying on behalf of a business or private individual?
-purchaserBusinessOrIndividual.checkYourAnswersLabel = Business or private individual
+purchaserBusinessOrIndividual.checkYourAnswersLabel = Type of purchaser you are notifying for
 purchaserBusinessOrIndividual.error.required = Select if the purchaser is a business or a private individual
-purchaserBusinessOrIndividual.change.hidden = business or private individual
+purchaserBusinessOrIndividual.change.hidden = Is the purchaser you are notifying on behalf of a business or private individual?
 purchaserBusinessOrIndividual.radio.nonVatRegisteredBusiness = Non-VAT registered business
 purchaserBusinessOrIndividual.radio.nonVatRegisteredPrivateIndividual = Non-VAT registered private individual
 
 ######################################################
-# CS1.0 - Client State 1: Retrieving your client list  #
+# CYA1.0 - Check your answers 1 - Initial questions  #
 ######################################################
+
+initialQuestionsCheckYourAnswers.caption = Initial questions
+initialQuestionsCheckYourAnswers.title = Check your answers - Initial questions
+initialQuestionsCheckYourAnswers.heading = Check your answers
+
+########################################################
+# CS1.0 - Client State 1: Retrieving your client list  #
+########################################################
 
 loadingClientList.title = Retrieving your client list
 loadingClientList.heading = Retrieving your client list
 loadingClientList.paragraph = Please wait while we retrieve your authorised clients. This should only take a few moments.
 loadingClientList.warning = Do not refresh this page or use the back button.
 
-########################################################
+##########################################################
 # CS2.0 - Client State 2: Could not retrieve client list #
-########################################################
+##########################################################
 
 couldNotRetrieveClientList.title = We could not retrieve your client list
 couldNotRetrieveClientList.heading = We could not retrieve your client list
@@ -248,9 +254,9 @@ couldNotRetrieveClientList.helpdesk = If the problem continues, contact the
 couldNotRetrieveClientList.helpdesk.linkText = HMRC Online Services Helpdesk (opens in new tab).
 couldNotRetrieveClientList.returnHome = Return to home
 
-######################################################
+###########################################################
 # CS3.0 - Client State 3: You have no authorised clients  #
-######################################################
+###########################################################
 
 noAuthorisedClients.title = You have no authorised clients
 noAuthorisedClients.heading = You have no authorised clients

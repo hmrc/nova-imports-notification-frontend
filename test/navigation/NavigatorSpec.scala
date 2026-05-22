@@ -156,28 +156,37 @@ class NavigatorSpec extends SpecBase {
         }
       }
 
-      "must go from VehicleBusinessUsePage to LandingPageController" in {
+      "must go from VehicleBusinessUsePage OQ1.0 to InitialQuestionsCheckYourAnswersController" in {
         navigator.nextPage(
           VehicleBusinessUsePage,
           NormalMode,
           userAnswers,
           NovaUserType.VatRegisteredOrganisation
-        ) mustBe routes.LandingPageController
-          .onPageLoad()
+        ) mustBe routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
       }
 
-      "must go from AgentVehicleBusinessUsePage to LandingPageController" in {
-        navigator.nextPage(AgentVehicleBusinessUsePage, NormalMode, userAnswers, NovaUserType.Agent) mustBe routes.LandingPageController.onPageLoad()
+      "must go from AgentVehicleBusinessUsePage AQ1.0 to InitialQuestionsCheckYourAnswersController" in {
+        navigator.nextPage(
+          AgentVehicleBusinessUsePage,
+          NormalMode,
+          userAnswers,
+          NovaUserType.Agent
+        ) mustBe routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
       }
 
-      "must go from BusinessPrivatePage to PurchaserOrOnBehalfController" in {
+      "must go from BusinessPrivatePage IQ2.0 to PurchaserOrOnBehalfController" in {
         navigator.nextPage(BusinessPrivatePage, NormalMode, userAnswers, NovaUserType.PrivateIndividual) mustBe routes.PurchaserOrOnBehalfController
           .onPageLoad(NormalMode)
       }
 
-      "must go from PurchaserOrOnBehalfPage to LandingPageController when Purchaser is selected" in {
+      "must go from PurchaserOrOnBehalfPage IQ3.0 to InitialQuestionsCheckYourAnswersController when Purchaser is selected" in {
         val ua = userAnswers.set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser).success.value
-        navigator.nextPage(PurchaserOrOnBehalfPage, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController.onPageLoad()
+        navigator.nextPage(
+          PurchaserOrOnBehalfPage,
+          NormalMode,
+          ua,
+          NovaUserType.PrivateIndividual
+        ) mustBe routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
       }
 
       "must go from PurchaserOrOnBehalfPage to PurchaserBusinessOrIndividualController when OnBehalfOfPurchaser is selected" in {
@@ -216,46 +225,84 @@ class NavigatorSpec extends SpecBase {
 
     "in Check mode" - {
 
-      "must go from a page that doesn't exist in the edit route map to CheckYourAnswers" in {
+      "must go from a page that doesn't exist in the edit route map to LandingPageController" in {
         case object UnknownPage extends Page
-        navigator.nextPage(UnknownPage, CheckMode, userAnswers, NovaUserType.PrivateIndividual) mustBe routes.CheckYourAnswersController.onPageLoad()
+        navigator.nextPage(UnknownPage, CheckMode, userAnswers, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController.onPageLoad()
       }
 
-      "must go from VehicleFromEuPage to CheckYourAnswers" in {
-        val ua = userAnswers.set(VehicleFromEuPage, true).success.value
-        navigator.nextPage(VehicleFromEuPage, CheckMode, ua, NovaUserType.PrivateIndividual) mustBe routes.CheckYourAnswersController.onPageLoad()
-      }
-
-      "must go from BusinessPrivatePage to CheckYourAnswers" in {
-        navigator.nextPage(BusinessPrivatePage, CheckMode, userAnswers, NovaUserType.PrivateIndividual) mustBe routes.CheckYourAnswersController
+      "must go from VehicleFromEuPage to InitialQuestionsCheckYourAnswersController" in {
+        navigator.nextPage(
+          VehicleFromEuPage,
+          CheckMode,
+          userAnswers,
+          NovaUserType.PrivateIndividual
+        ) mustBe routes.InitialQuestionsCheckYourAnswersController
           .onPageLoad()
       }
 
-      "must go from PurchaserOrOnBehalfPage to CheckYourAnswers" in {
+      "must go from BusinessPrivatePage to InitialQuestionsCheckYourAnswers" in {
+        navigator.nextPage(
+          BusinessPrivatePage,
+          CheckMode,
+          userAnswers,
+          NovaUserType.PrivateIndividual
+        ) mustBe routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
+      }
+
+      "must go from PurchaserOrOnBehalfPage IQ3.0 to InitialQuestionsCheckYourAnswersController when Purchaser is selected" in {
+        val ua = userAnswers.set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser).success.value
+        navigator.nextPage(
+          PurchaserOrOnBehalfPage,
+          CheckMode,
+          ua,
+          NovaUserType.PrivateIndividual
+        ) mustBe routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
+      }
+
+      "must go from PurchaserOrOnBehalfPage IQ3.0 to PurchaserBusinessOrIndividualController IQ3.1 in CheckMode when OnBehalfOfPurchaser is selected" in {
+        val ua = userAnswers.set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser).success.value
+        navigator.nextPage(
+          PurchaserOrOnBehalfPage,
+          CheckMode,
+          ua,
+          NovaUserType.PrivateIndividual
+        ) mustBe routes.PurchaserBusinessOrIndividualController.onPageLoad(CheckMode)
+      }
+
+      "must go from PurchaserOrOnBehalfPage IQ3.0 to JourneyRecovery when no answer is found" in {
         navigator.nextPage(
           PurchaserOrOnBehalfPage,
           CheckMode,
           userAnswers,
           NovaUserType.PrivateIndividual
-        ) mustBe routes.CheckYourAnswersController.onPageLoad()
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
 
-      "must go from VehicleBusinessUsePage to CheckYourAnswers" in {
+      "must go from PurchaserBusinessOrIndividualPage IQ3.1 to InitialQuestionsCheckYourAnswersController" in {
+        navigator.nextPage(
+          PurchaserBusinessOrIndividualPage,
+          CheckMode,
+          userAnswers,
+          NovaUserType.PrivateIndividual
+        ) mustBe routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
+      }
+
+      "must go from VehicleBusinessUsePage to InitialQuestionsCheckYourAnswersController" in {
         navigator.nextPage(
           VehicleBusinessUsePage,
           CheckMode,
           userAnswers,
           NovaUserType.VatRegisteredOrganisation
-        ) mustBe routes.CheckYourAnswersController.onPageLoad()
+        ) mustBe routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
       }
 
-      "must go from AgentVehicleBusinessUsePage to CheckYourAnswers" in {
+      "must go from AgentVehicleBusinessUsePage AQ1.0 to InitialQuestionsCheckYourAnswers" in {
         navigator.nextPage(
           AgentVehicleBusinessUsePage,
           CheckMode,
           userAnswers,
           NovaUserType.Agent
-        ) mustBe routes.CheckYourAnswersController.onPageLoad()
+        ) mustBe routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
       }
 
       "must go from IsYourAddressInTheUkPage to CheckYourAnswers" in {
