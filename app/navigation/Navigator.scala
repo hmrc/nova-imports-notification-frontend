@@ -69,6 +69,13 @@ class Navigator @Inject() () {
       (_, _) => routes.PurchaserOrOnBehalfController.onPageLoad(NormalMode)
     case PurchaserBusinessOrIndividualPage =>
       (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to SS2 - to be added later
+    case IsYourAddressInTheUkPage =>
+      (userAnswers, _) =>
+        userAnswers.get(IsYourAddressInTheUkPage) match {
+          case Some(true)  => routes.LandingPageController.onPageLoad() // TODO: navigate to address-lookup-service - to be added later
+          case Some(false) => routes.LandingPageController.onPageLoad() // TODO: navigate to AYA1.1 - to be added later
+          case _           => routes.JourneyRecoveryController.onPageLoad()
+        }
     case _ => (_, _) => routes.LandingPageController.onPageLoad()
   }
 
