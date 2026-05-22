@@ -67,3 +67,8 @@ POST        /change-business-or-private-individual                  controllers.
 
 GET         /about-your-details                                     controllers.AboutYourDetailsController.onPageLoad()
 POST        /about-your-details                                     controllers.AboutYourDetailsController.onSubmit()
+
+GET         /add-address/is-your-address-in-the-uk                  controllers.IsYourAddressInTheUkController.onPageLoad(mode: Mode = NormalMode)
+POST        /add-address/is-your-address-in-the-uk                  controllers.IsYourAddressInTheUkController.onSubmit(mode: Mode = NormalMode)
+GET         /add-address/change-is-your-address-in-the-uk           controllers.IsYourAddressInTheUkController.onPageLoad(mode: Mode = CheckMode)
+POST        /add-address/change-is-your-address-in-the-uk           controllers.IsYourAddressInTheUkController.onSubmit(mode: Mode = CheckMode)

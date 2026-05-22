@@ -204,6 +204,23 @@ class NavigatorSpec extends SpecBase {
           .onPageLoad()
       }
 
+      "must go from IsYourAddressInTheUkPage to the next screen when Yes is selected" in {
+        // TODO: update to navigate to UK address-lookup-service when implemented
+        val ua = userAnswers.set(IsYourAddressInTheUkPage, true).success.value
+        navigator.nextPage(IsYourAddressInTheUkPage, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from IsYourAddressInTheUkPage to the next screen when No is selected" in {
+        // TODO: update to navigate to AYA1.1 when implemented
+        val ua = userAnswers.set(IsYourAddressInTheUkPage, false).success.value
+        navigator.nextPage(IsYourAddressInTheUkPage, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from IsYourAddressInTheUkPage to JourneyRecovery when no answer is found" in {
+        navigator.nextPage(IsYourAddressInTheUkPage, NormalMode, userAnswers, NovaUserType.PrivateIndividual) mustBe routes.JourneyRecoveryController
+          .onPageLoad()
+      }
+
     }
 
     "in Check mode" - {
@@ -286,6 +303,12 @@ class NavigatorSpec extends SpecBase {
           userAnswers,
           NovaUserType.Agent
         ) mustBe routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
+      }
+
+      "must go from IsYourAddressInTheUkPage to LandingPageController" in {
+        // TODO: route to AYA check your answers when implemented
+        val ua = userAnswers.set(IsYourAddressInTheUkPage, true).success.value
+        navigator.nextPage(IsYourAddressInTheUkPage, CheckMode, ua, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController.onPageLoad()
       }
     }
   }

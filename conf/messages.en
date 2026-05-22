@@ -279,3 +279,14 @@ aboutYourDetails.title = About your details
 aboutYourDetails.heading = About your details
 aboutYourDetails.paragraph.1 = You need to provide your contact details. HMRC will only use them to contact you about this notification.
 aboutYourDetails.paragraph.2 = The details you provide will not replace your VAT registration contact details.
+
+######################################################
+# AYA1.0 - Add Your Address: Is your address in the UK #
+######################################################
+
+isYourAddressInTheUk.title = Is your address in the UK?
+isYourAddressInTheUk.heading = Is your address in the UK?
+isYourAddressInTheUk.caption = Add your address
+isYourAddressInTheUk.checkYourAnswersLabel = Is your address in the UK
+isYourAddressInTheUk.error.required = Select yes if your address is in the UK
+isYourAddressInTheUk.change.hidden = whether your address is in the UK
