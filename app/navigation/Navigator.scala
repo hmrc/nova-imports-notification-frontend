@@ -54,6 +54,8 @@ class Navigator @Inject() () {
           case Some(false) => routes.LandingPageController.onPageLoad() // TODO: navigate to screen AYD1.1 - to be added later
           case _           => routes.JourneyRecoveryController.onPageLoad()
         }
+    case AddYourNamePage =>
+      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to next screen in 'Add Your Details' flow - to be added later
     case PhoneNumberPage =>
       (_, _) => routes.EmailAddressController.onPageLoad(NormalMode)
     case VehicleBusinessUsePage =>
@@ -106,6 +108,8 @@ class Navigator @Inject() () {
           case Some(PurchaserOrOnBehalf.OnBehalfOfPurchaser) => routes.PurchaserBusinessOrIndividualController.onPageLoad(CheckMode)
           case _                                             => routes.JourneyRecoveryController.onPageLoad()
         }
+    case AddYourNamePage =>
+      (_, _) => routes.JourneyRecoveryController.onPageLoad() // TODO: redirect to 'Add Your Details' CYA screen (CYA 2.0) - to be added later
     case EmailAddressPage =>
       (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to CYA2.0
     case _ =>
