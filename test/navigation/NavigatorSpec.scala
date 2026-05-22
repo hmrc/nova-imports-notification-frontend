@@ -305,10 +305,10 @@ class NavigatorSpec extends SpecBase {
         ) mustBe routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
       }
 
-      "must go from IsYourAddressInTheUkPage to CheckYourAnswers" in {
+      "must go from IsYourAddressInTheUkPage to LandingPageController" in {
+        // TODO: route to AYA check your answers when implemented
         val ua = userAnswers.set(IsYourAddressInTheUkPage, true).success.value
-        navigator.nextPage(IsYourAddressInTheUkPage, CheckMode, ua, NovaUserType.PrivateIndividual) mustBe routes.CheckYourAnswersController
-          .onPageLoad()
+        navigator.nextPage(IsYourAddressInTheUkPage, CheckMode, ua, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController.onPageLoad()
       }
     }
   }
