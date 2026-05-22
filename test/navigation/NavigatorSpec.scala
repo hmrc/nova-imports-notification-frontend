@@ -221,6 +221,11 @@ class NavigatorSpec extends SpecBase {
           .onPageLoad()
       }
 
+      "must go from EmailAddressPage AYD1.3 to CYA page" in {
+        navigator.nextPage(EmailAddressPage, NormalMode, userAnswers, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController
+          .onPageLoad() // TODO: redirect to CYA2.0 page when built
+      }
+
     }
 
     "in Check mode" - {
@@ -309,6 +314,11 @@ class NavigatorSpec extends SpecBase {
         // TODO: route to AYA check your answers when implemented
         val ua = userAnswers.set(IsYourAddressInTheUkPage, true).success.value
         navigator.nextPage(IsYourAddressInTheUkPage, CheckMode, ua, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from EmailAddressPage AYD1.3 to CYA page" in {
+        navigator.nextPage(EmailAddressPage, CheckMode, userAnswers, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController
+          .onPageLoad() // TODO: redirect to CYA2.0 page when built
       }
     }
   }

@@ -290,3 +290,15 @@ isYourAddressInTheUk.caption = Add your address
 isYourAddressInTheUk.checkYourAnswersLabel = Is your address in the UK
 isYourAddressInTheUk.error.required = Select yes if your address is in the UK
 isYourAddressInTheUk.change.hidden = whether your address is in the UK
+
+######################################################
+# AYD1.3 - Add your details: email address           #
+######################################################
+
+emailAddress.title = What is your email address?
+emailAddress.heading = What is your email address?
+emailAddress.caption = Add your details
+emailAddress.hint = We’ll use this to send you a confirmation for your notification
+emailAddress.error.required = Enter your email address
+emailAddress.error.length = Your email address must be 70 characters or less
+emailAddress.error.invalid = Enter your email address in the correct format, like name@example.com
