@@ -19,9 +19,10 @@ package controllers
 import javax.inject.Inject
 import controllers.actions.*
 import forms.AddYourNameFormProvider
-import models.{Mode, NovaUserType}
+import models.{BusinessOrPrivateIndividual, Mode, NovaUserType, UserAnswers}
+import models.requests.DataRequest
 import navigation.Navigator
-import pages.AddYourNamePage
+import pages.*
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import views.html.AddYourNameView
@@ -38,17 +39,15 @@ class AddYourNameController @Inject() (
 )(implicit ec: ExecutionContext)
     extends BaseController {
 
+  import AddYourNameController.*
+
   private val form = formProvider()
 
-  // TODO: Replace actions.authAndGetData with a guard predicate once the correct user type
-  //  and preceding answer requirements are confirmed and sorted.
-  //  like actions.authAndGetDataWithGuard(guardPredicate) checking a prior page is answered - need to do.
-
-  def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetData() { implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate) { implicit request =>
     Ok(view(form.withDefault(request.userAnswers.get(AddYourNamePage)), mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = actions.authAndGetData().async { implicit request =>
+  def onSubmit(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
@@ -62,4 +61,28 @@ class AddYourNameController @Inject() (
           )
       )
   }
+}
+
+object AddYourNameController {
+
+  def guardPredicate(request: DataRequest[?]): Boolean =
+    request.userContext.userType match {
+      case NovaUserType.PrivateIndividual | NovaUserType.NonVatOrganisation =>
+        standardUserAnswersComplete(request.userAnswers)
+      case NovaUserType.Agent if request.userContext.isAgentWithoutClient =>
+        standardUserAnswersComplete(request.userAnswers)
+      case NovaUserType.VatRegisteredOrganisation =>
+        vatRegisteredOrgAnswersComplete(request.userAnswers)
+      case NovaUserType.Agent =>
+        agentWithClientAnswersComplete(request.userAnswers)
+    }
+
+  private def standardUserAnswersComplete(answers: UserAnswers): Boolean =
+    answers.get(BusinessPrivatePage).contains(BusinessOrPrivateIndividual.PrivateIndividual)
+
+  private def vatRegisteredOrgAnswersComplete(answers: UserAnswers): Boolean =
+    answers.get(VehicleBusinessUsePage).contains(false)
+
+  private def agentWithClientAnswersComplete(answers: UserAnswers): Boolean =
+    answers.get(AgentVehicleBusinessUsePage).contains(false)
 }
