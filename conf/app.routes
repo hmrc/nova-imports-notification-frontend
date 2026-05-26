@@ -73,7 +73,7 @@ POST        /add-address/is-your-address-in-the-uk                  controllers.
 GET         /add-address/change-is-your-address-in-the-uk           controllers.IsYourAddressInTheUkController.onPageLoad(mode: Mode = CheckMode)
 POST        /add-address/change-is-your-address-in-the-uk           controllers.IsYourAddressInTheUkController.onSubmit(mode: Mode = CheckMode)
 
-GET         /about-your-details/email-address                       controllers.EmailAddressController.onPageLoad(mode: Mode = NormalMode)
-POST        /about-your-details/email-address                       controllers.EmailAddressController.onSubmit(mode: Mode = NormalMode)
-GET         /change-about-your-details/email-address                controllers.EmailAddressController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-about-your-details/email-address                controllers.EmailAddressController.onSubmit(mode: Mode = CheckMode)
+GET         /add-your-details/email-address                         controllers.EmailAddressController.onPageLoad(mode: Mode = NormalMode)
+POST        /add-your-details/email-address                         controllers.EmailAddressController.onSubmit(mode: Mode = NormalMode)
+GET         /change-add-your-details/email-address                  controllers.EmailAddressController.onPageLoad(mode: Mode = CheckMode)
+POST        /change-add-your-details/email-address                  controllers.EmailAddressController.onSubmit(mode: Mode = CheckMode)
