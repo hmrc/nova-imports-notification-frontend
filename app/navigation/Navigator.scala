@@ -80,7 +80,18 @@ class Navigator @Inject() () {
   }
 
   private val checkRouteMap: Page => (UserAnswers, NovaUserType) => Call = {
-    case VehicleFromEuPage | VehicleBusinessUsePage | AgentVehicleBusinessUsePage | BusinessPrivatePage | PurchaserBusinessOrIndividualPage =>
+    case VehicleFromEuPage =>
+      (userAnswers, userType) =>
+        userType match {
+          case NovaUserType.PrivateIndividual | NovaUserType.NonVatOrganisation =>
+            userAnswers.get(VehicleFromEuPage) match {
+              case Some(false) => routes.VehicleOutsideEUController.onPageLoad()
+              case Some(true)  => routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
+              case _           => routes.JourneyRecoveryController.onPageLoad()
+            }
+          case _ => routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
+        }
+    case VehicleBusinessUsePage | AgentVehicleBusinessUsePage | BusinessPrivatePage | PurchaserBusinessOrIndividualPage =>
       (_, _) => routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
     case PurchaserOrOnBehalfPage =>
       (userAnswers, _) =>
