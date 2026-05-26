@@ -230,14 +230,34 @@ class NavigatorSpec extends SpecBase {
         navigator.nextPage(UnknownPage, CheckMode, userAnswers, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController.onPageLoad()
       }
 
-      "must go from VehicleFromEuPage to InitialQuestionsCheckYourAnswersController" in {
+      "must go from VehicleFromEuPage to InitialQuestionsCheckYourAnswersController if agent" in {
         navigator.nextPage(
           VehicleFromEuPage,
           CheckMode,
           userAnswers,
-          NovaUserType.PrivateIndividual
+          NovaUserType.Agent
         ) mustBe routes.InitialQuestionsCheckYourAnswersController
           .onPageLoad()
+      }
+
+      "must go from VehicleFromEuPage to VehicleOutsideEUController when No is selected for PrivateIndividual" in {
+        val ua = userAnswers.set(VehicleFromEuPage, false).success.value
+        navigator.nextPage(
+          VehicleFromEuPage,
+          CheckMode,
+          ua,
+          NovaUserType.PrivateIndividual
+        ) mustBe routes.VehicleOutsideEUController.onPageLoad()
+      }
+
+      "must go from VehicleFromEuPage to VehicleOutsideEUController when No is selected for NonVatOrganisation" in {
+        val ua = userAnswers.set(VehicleFromEuPage, false).success.value
+        navigator.nextPage(
+          VehicleFromEuPage,
+          CheckMode,
+          ua,
+          NovaUserType.NonVatOrganisation
+        ) mustBe routes.VehicleOutsideEUController.onPageLoad()
       }
 
       "must go from BusinessPrivatePage to InitialQuestionsCheckYourAnswers" in {

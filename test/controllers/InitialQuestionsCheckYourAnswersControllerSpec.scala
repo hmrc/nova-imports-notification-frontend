@@ -205,7 +205,7 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
         }
       }
 
-      "must redirect to Journey Recovery for a standard user who has not answered any questions" in {
+      "must redirect to Unauthorised for a standard user who has not answered any questions" in {
         given application: Application = applicationForPageLoad(classOf[FakeIdentifierAction], Some(emptyUserAnswers))
 
         running(application) {
@@ -214,11 +214,11 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
         }
       }
 
-      "must redirect to Journey Recovery for a standard user who has only answered IQ1.0" in {
+      "must redirect to Unauthorised for a standard user who has only answered IQ1.0" in {
         val answersWithIq1Only = emptyUserAnswers
           .set(VehicleFromEuPage, true)
           .success
@@ -232,11 +232,11 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
         }
       }
 
-      "must redirect to Journey Recovery for a standard user who answered OnBehalfOfPurchaser for IQ3.0 without answering IQ3.1" in {
+      "must redirect to Unauthorised for a standard user who answered OnBehalfOfPurchaser for IQ3.0 without answering IQ3.1" in {
         val answersWithMissingIq3_1 = emptyUserAnswers
           .set(VehicleFromEuPage, true)
           .success
@@ -256,11 +256,11 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
         }
       }
 
-      "must redirect to Journey Recovery for a VatRegisteredOrganisation who has not answered OQ1.0" in {
+      "must redirect to Unauthorised for a VatRegisteredOrganisation who has not answered OQ1.0" in {
         val answersWithMissingOq1 = emptyUserAnswers
           .set(VehicleFromEuPage, true)
           .success
@@ -274,11 +274,11 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
         }
       }
 
-      "must redirect to Journey Recovery for an Agent with a selected client who has not answered AQ1.0" in {
+      "must redirect to Unauthorised for an Agent with a selected client who has not answered AQ1.0" in {
         val answersWithMissingAq1 = emptyUserAnswers
           .set(VehicleFromEuPage, true)
           .success
@@ -295,7 +295,7 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
         }
       }
     }
