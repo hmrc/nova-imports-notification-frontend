@@ -96,6 +96,20 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
     .success
     .value
 
+  private val individualUserAnswersEuPageFalse = emptyUserAnswers
+    .set(VehicleFromEuPage, false)
+    .success
+    .value
+    .set(BusinessPrivatePage, BusinessOrPrivateIndividual.Business)
+    .success
+    .value
+    .set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
+    .success
+    .value
+    .set(DraftIdPage, DraftId("DRAFT-001"))
+    .success
+    .value
+
   private def applicationForPageLoad(
     identifierAction: Class[? <: IdentifierAction],
     userAnswers: Option[UserAnswers]
@@ -288,6 +302,19 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
           .value
 
         given application: Application = applicationForPageLoad(classOf[FakeAgentIdentifierAction], Some(answersWithMissingAq1))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, initialQuestionsCyaRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+        }
+      }
+
+      "must redirect to Unauthorised for a standard user when IQ1.0 was answered No" in {
+        given application: Application = applicationForPageLoad(classOf[FakeIdentifierAction], Some(individualUserAnswersEuPageFalse))
 
         running(application) {
           given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, initialQuestionsCyaRoute)

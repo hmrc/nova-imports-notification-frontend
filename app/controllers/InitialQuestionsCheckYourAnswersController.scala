@@ -87,7 +87,7 @@ object InitialQuestionsCheckYourAnswersController {
     }
 
   private def standardUserAnswersComplete(answers: UserAnswers): Boolean =
-    answers.get(VehicleFromEuPage).isDefined &&
+    answers.get(VehicleFromEuPage).contains(true) &&
       answers.get(BusinessPrivatePage).isDefined &&
       answers.get(PurchaserOrOnBehalfPage).exists {
         case PurchaserOrOnBehalf.Purchaser           => true
