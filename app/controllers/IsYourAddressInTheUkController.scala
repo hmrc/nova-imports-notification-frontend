@@ -19,7 +19,8 @@ package controllers
 import controllers.actions.*
 import forms.IsYourAddressInTheUkFormProvider
 import javax.inject.Inject
-import models.{Mode, NovaUserType, UserContext}
+import models.{Mode, NovaUserType}
+import models.requests.DataRequest
 import navigation.Navigator
 import pages.IsYourAddressInTheUkPage
 import play.api.data.Form
@@ -41,13 +42,13 @@ class IsYourAddressInTheUkController @Inject() (
 
   val form: Form[Boolean] = formProvider()
 
-  private val userContextGuard: UserContext => Boolean = !_.isAgent
+  private val dataGuard: DataRequest[?] => Boolean = !_.userContext.isAgent
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserContextGuard(userContextGuard) { implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(dataGuard) { implicit request =>
     Ok(view(form.withDefault(request.userAnswers.get(IsYourAddressInTheUkPage)), mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserContextGuard(userContextGuard).async { implicit request =>
+  def onSubmit(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(dataGuard).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
