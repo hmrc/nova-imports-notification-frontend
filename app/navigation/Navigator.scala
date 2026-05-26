@@ -76,6 +76,8 @@ class Navigator @Inject() () {
           case Some(false) => routes.LandingPageController.onPageLoad() // TODO: navigate to AYA1.1 - to be added later
           case _           => routes.JourneyRecoveryController.onPageLoad()
         }
+    case EmailAddressPage =>
+      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to CYA2.0
     case _ => (_, _) => routes.LandingPageController.onPageLoad()
   }
 
@@ -100,6 +102,8 @@ class Navigator @Inject() () {
           case Some(PurchaserOrOnBehalf.OnBehalfOfPurchaser) => routes.PurchaserBusinessOrIndividualController.onPageLoad(CheckMode)
           case _                                             => routes.JourneyRecoveryController.onPageLoad()
         }
+    case EmailAddressPage =>
+      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to CYA2.0
     case _ =>
       (_, _) => routes.LandingPageController.onPageLoad()
   }
