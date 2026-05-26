@@ -158,7 +158,7 @@ class IsYourAddressInTheUkControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to Journey Recovery for a GET when the user is an Agent (not permitted by data guard)" in {
+    "must redirect to Unauthorised for a GET when the user is an Agent (not permitted by data guard)" in {
 
       val application = new GuiceApplicationBuilder()
         .overrides(
@@ -178,11 +178,11 @@ class IsYourAddressInTheUkControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
       }
     }
 
-    "must redirect to Journey Recovery for a POST when the user is an Agent (not permitted by data guard)" in {
+    "must redirect to Unauthorised for a POST when the user is an Agent (not permitted by data guard)" in {
 
       val application = new GuiceApplicationBuilder()
         .overrides(
@@ -204,7 +204,7 @@ class IsYourAddressInTheUkControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
       }
     }
 
