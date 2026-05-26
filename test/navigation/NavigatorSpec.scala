@@ -78,11 +78,10 @@ class NavigatorSpec extends SpecBase {
           ) mustBe routes.JourneyRecoveryController.onPageLoad()
         }
 
-        "must go from AboutYourDetailsPage to correct next screen when OQ1.0 was answered yes" in {
-          // TODO: update to navigate to AYD1.2 when implemented
+        "must go from AboutYourDetailsPage to PhoneNumberController (AYD1.2) when OQ1.0 was answered yes" in {
           val ua = userAnswers.set(VehicleBusinessUsePage, true).success.value
-          navigator.nextPage(AboutYourDetailsPage, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController
-            .onPageLoad()
+          navigator.nextPage(AboutYourDetailsPage, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.PhoneNumberController
+            .onPageLoad(NormalMode)
         }
 
         "must go from AboutYourDetailsPage to correct next screen when OQ1.0 was answered no" in {
@@ -202,6 +201,12 @@ class NavigatorSpec extends SpecBase {
       "must go from PurchaserOrOnBehalfPage to JourneyRecovery when no answer is found" in {
         navigator.nextPage(PurchaserOrOnBehalfPage, NormalMode, userAnswers, NovaUserType.PrivateIndividual) mustBe routes.JourneyRecoveryController
           .onPageLoad()
+      }
+
+      "must go from PhoneNumberPage to EmailAddressController (AYD1.3)" in {
+        val ua = userAnswers.set(PhoneNumberPage, "01632 960 001").success.value
+        navigator.nextPage(PhoneNumberPage, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.EmailAddressController
+          .onPageLoad(NormalMode)
       }
 
       "must go from IsYourAddressInTheUkPage to the next screen when Yes is selected" in {
@@ -339,6 +344,12 @@ class NavigatorSpec extends SpecBase {
       "must go from EmailAddressPage AYD1.3 to CYA page" in {
         navigator.nextPage(EmailAddressPage, CheckMode, userAnswers, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController
           .onPageLoad() // TODO: redirect to CYA2.0 page when built
+      }
+
+      "must go from PhoneNumberPage to EmailAddressController (AYD1.3)" in {
+        val ua = userAnswers.set(PhoneNumberPage, "01632 960 001").success.value
+        navigator.nextPage(PhoneNumberPage, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.EmailAddressController
+          .onPageLoad(CheckMode)
       }
     }
   }

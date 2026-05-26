@@ -50,10 +50,12 @@ class Navigator @Inject() () {
     case AboutYourDetailsPage =>
       (userAnswers, _) =>
         userAnswers.get(VehicleBusinessUsePage) match {
-          case Some(true)  => routes.LandingPageController.onPageLoad() // TODO: navigate to screen AYD1.2 - to be added later
+          case Some(true)  => routes.PhoneNumberController.onPageLoad(NormalMode)
           case Some(false) => routes.LandingPageController.onPageLoad() // TODO: navigate to screen AYD1.1 - to be added later
           case _           => routes.JourneyRecoveryController.onPageLoad()
         }
+    case PhoneNumberPage =>
+      (_, _) => routes.EmailAddressController.onPageLoad(NormalMode)
     case VehicleBusinessUsePage =>
       (_, _) => routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
     case AgentVehicleBusinessUsePage =>
@@ -95,6 +97,8 @@ class Navigator @Inject() () {
         }
     case VehicleBusinessUsePage | AgentVehicleBusinessUsePage | BusinessPrivatePage | PurchaserBusinessOrIndividualPage =>
       (_, _) => routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
+    case PhoneNumberPage =>
+      (_, _) => routes.EmailAddressController.onPageLoad(CheckMode)
     case PurchaserOrOnBehalfPage =>
       (userAnswers, _) =>
         userAnswers.get(PurchaserOrOnBehalfPage) match {

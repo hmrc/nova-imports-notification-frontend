@@ -68,6 +68,11 @@ POST        /change-business-or-private-individual                  controllers.
 GET         /about-your-details                                     controllers.AboutYourDetailsController.onPageLoad()
 POST        /about-your-details                                     controllers.AboutYourDetailsController.onSubmit()
 
+GET         /add-your-details/phone-number                          controllers.PhoneNumberController.onPageLoad(mode: Mode = NormalMode)
+POST        /add-your-details/phone-number                          controllers.PhoneNumberController.onSubmit(mode: Mode = NormalMode)
+GET         /add-your-details/change-phone-number                   controllers.PhoneNumberController.onPageLoad(mode: Mode = CheckMode)
+POST        /add-your-details/change-phone-number                   controllers.PhoneNumberController.onSubmit(mode: Mode = CheckMode)
+
 GET         /add-address/is-your-address-in-the-uk                  controllers.IsYourAddressInTheUkController.onPageLoad(mode: Mode = NormalMode)
 POST        /add-address/is-your-address-in-the-uk                  controllers.IsYourAddressInTheUkController.onSubmit(mode: Mode = NormalMode)
 GET         /add-address/change-is-your-address-in-the-uk           controllers.IsYourAddressInTheUkController.onPageLoad(mode: Mode = CheckMode)

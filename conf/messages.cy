@@ -63,3 +63,18 @@ landingPage.organisation.update.body = Make changes to a notification you’ve a
 landingPage.organisation.saved.heading = Manage a saved notification
 landingPage.organisation.saved.body.empty = You do not have a saved notification
 landingPage.organisation.saved.body.has = View, continue or delete a notification you’ve started but not yet submitted
+
+######################################################
+# AYD1.2 - Add your details 1.2: Phone number        #
+######################################################
+# TODO: Welsh translations to be supplied by content team.
+
+phoneNumber.title = What is your phone number?
+phoneNumber.heading = What is your phone number?
+phoneNumber.caption = Add your details
+phoneNumber.hint = For international numbers include the country code
+phoneNumber.checkYourAnswersLabel = Phone number
+phoneNumber.error.required = Enter your phone number
+phoneNumber.error.length = Your phone number must be 20 characters or less
+phoneNumber.error.invalid = Enter your phone number, like 01632 960 001, 07700 900 982 or 44 808 157 0192
+phoneNumber.change.hidden = your phone number
