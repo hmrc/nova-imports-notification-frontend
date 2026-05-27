@@ -15,7 +15,7 @@ GET         /refresh-session                                        controllers.
 GET         /there-is-a-problem                                     controllers.JourneyRecoveryController.onPageLoad(continueUrl: Option[RedirectUrl] ?= None)
 
 GET         /check-answers/initial-questions                        controllers.InitialQuestionsCheckYourAnswersController.onPageLoad()
-POST        /check-answers/initial-questions                       controllers.InitialQuestionsCheckYourAnswersController.onSubmit()
+POST        /check-answers/initial-questions                        controllers.InitialQuestionsCheckYourAnswersController.onSubmit()
 
 GET         /account/sign-out-survey                                controllers.auth.AuthController.signOut()
 GET         /account/sign-out                                       controllers.auth.AuthController.signOutNoSurvey()
@@ -23,12 +23,12 @@ GET         /account/signed-out                                     controllers.
 
 GET         /unauthorised                                           controllers.UnauthorisedController.onPageLoad()
 
-GET         /vehicle-from-eu-into-into-northern-ireland                                       controllers.VehicleFromEuController.onPageLoad(mode: Mode = NormalMode)
-POST        /vehicle-from-eu-into-northern-ireland                                       controllers.VehicleFromEuController.onSubmit(mode: Mode = NormalMode)
-GET         /vehicle-from-eu-into-northern-ireland/change                               controllers.VehicleFromEuController.onPageLoad(mode: Mode = CheckMode)
-POST        /vehicle-from-eu-into-northern-ireland/change                                controllers.VehicleFromEuController.onSubmit(mode: Mode = CheckMode)
+GET         /vehicle-from-eu-into-into-northern-ireland             controllers.VehicleFromEuController.onPageLoad(mode: Mode = NormalMode)
+POST        /vehicle-from-eu-into-northern-ireland                  controllers.VehicleFromEuController.onSubmit(mode: Mode = NormalMode)
+GET         /vehicle-from-eu-into-northern-ireland/change           controllers.VehicleFromEuController.onPageLoad(mode: Mode = CheckMode)
+POST        /vehicle-from-eu-into-northern-ireland/change           controllers.VehicleFromEuController.onSubmit(mode: Mode = CheckMode)
 
-GET         /vehicle-from-outside-eu-into-northern-ireland                                    controllers.VehicleOutsideEUController.onPageLoad()
+GET         /vehicle-from-outside-eu-into-northern-ireland          controllers.VehicleOutsideEUController.onPageLoad()
 
 GET         /view-clients/loading                                   controllers.LoadingClientListController.onPageLoad()
 
@@ -67,22 +67,22 @@ POST        /change-business-or-private-individual                  controllers.
 GET         /about-your-details                                     controllers.AboutYourDetailsController.onPageLoad()
 POST        /about-your-details                                     controllers.AboutYourDetailsController.onSubmit()
 
-GET         /name                                  controllers.AddYourNameController.onPageLoad(mode: Mode = NormalMode)
-POST        /name                                  controllers.AddYourNameController.onSubmit(mode: Mode = NormalMode)
-GET         /name/change                           controllers.AddYourNameController.onPageLoad(mode: Mode = CheckMode)
-POST        /name/change                          controllers.AddYourNameController.onSubmit(mode: Mode = CheckMode)
+GET         /name                                                   controllers.AddYourNameController.onPageLoad(mode: Mode = NormalMode)
+POST        /name                                                   controllers.AddYourNameController.onSubmit(mode: Mode = NormalMode)
+GET         /name/change                                            controllers.AddYourNameController.onPageLoad(mode: Mode = CheckMode)
+POST        /name/change                                            controllers.AddYourNameController.onSubmit(mode: Mode = CheckMode)
 
-GET         /phone-number                          controllers.PhoneNumberController.onPageLoad(mode: Mode = NormalMode)
-POST        /phone-number                          controllers.PhoneNumberController.onSubmit(mode: Mode = NormalMode)
-GET         /phone-number/change                   controllers.PhoneNumberController.onPageLoad(mode: Mode = CheckMode)
-POST        /phone-number/change                   controllers.PhoneNumberController.onSubmit(mode: Mode = CheckMode)
+GET         /phone-number                                           controllers.PhoneNumberController.onPageLoad(mode: Mode = NormalMode)
+POST        /phone-number                                           controllers.PhoneNumberController.onSubmit(mode: Mode = NormalMode)
+GET         /phone-number/change                                    controllers.PhoneNumberController.onPageLoad(mode: Mode = CheckMode)
+POST        /phone-number/change                                    controllers.PhoneNumberController.onSubmit(mode: Mode = CheckMode)
 
 GET         /add-address/is-your-address-in-the-uk                  controllers.IsYourAddressInTheUkController.onPageLoad(mode: Mode = NormalMode)
 POST        /add-address/is-your-address-in-the-uk                  controllers.IsYourAddressInTheUkController.onSubmit(mode: Mode = NormalMode)
 GET         /add-address/change-is-your-address-in-the-uk           controllers.IsYourAddressInTheUkController.onPageLoad(mode: Mode = CheckMode)
 POST        /add-address/change-is-your-address-in-the-uk           controllers.IsYourAddressInTheUkController.onSubmit(mode: Mode = CheckMode)
 
-GET         /email-address                         controllers.EmailAddressController.onPageLoad(mode: Mode = NormalMode)
-POST        /email-address                         controllers.EmailAddressController.onSubmit(mode: Mode = NormalMode)
-GET         /email-address/change                  controllers.EmailAddressController.onPageLoad(mode: Mode = CheckMode)
-POST        /email-address/change                 controllers.EmailAddressController.onSubmit(mode: Mode = CheckMode)
+GET         /email-address                                          controllers.EmailAddressController.onPageLoad(mode: Mode = NormalMode)
+POST        /email-address                                          controllers.EmailAddressController.onSubmit(mode: Mode = NormalMode)
+GET         /email-address/change                                   controllers.EmailAddressController.onPageLoad(mode: Mode = CheckMode)
+POST        /email-address/change                                   controllers.EmailAddressController.onSubmit(mode: Mode = CheckMode)
