@@ -206,6 +206,7 @@ agentVehicleBusinessUse.change.hidden = Has your client brought a vehicle into t
 
 purchaserOrOnBehalf.title = Are you notifying as the purchaser, or on behalf of a purchaser?
 purchaserOrOnBehalf.heading = Are you notifying as the purchaser, or on behalf of a purchaser?
+purchaserOrOnBehalf.caption = Initial questions
 purchaserOrOnBehalf.hint = The purchaser is a private individual or business that brought the vehicle into the UK
 purchaserOrOnBehalf.checkYourAnswersLabel = Are you the purchaser or notifying on behalf of a purchaser?
 purchaserOrOnBehalf.error.required = Select if you are notifying as the purchaser or on behalf of a purchaser
