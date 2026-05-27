@@ -196,6 +196,7 @@ vehicleBusinessUse.change.hidden = Have you brought a vehicle into the UK for bu
 
 agentVehicleBusinessUse.title = Has your client brought a vehicle into the UK for business use?
 agentVehicleBusinessUse.heading = Has your client brought a vehicle into the UK for business use?
+agentVehicleBusinessUse.caption = Initial questions
 agentVehicleBusinessUse.hint = Select ‘Yes’ only if the vehicle belongs to the business
 agentVehicleBusinessUse.checkYourAnswersLabel = Has your client brought a vehicle into the UK for business use?
 agentVehicleBusinessUse.error.required = Select yes if your client brought a vehicle into the UK for business use
