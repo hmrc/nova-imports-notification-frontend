@@ -102,6 +102,7 @@ landingPage.agent.clients.body = View, search, remove or select a client to act 
 
 vehicleFromEu.title = Are you completing a notification for a vehicle brought into Northern Ireland from an EU country?
 vehicleFromEu.heading = Are you completing a notification for a vehicle brought into Northern Ireland from an EU country?
+vehicleFromEu.caption = Initial questions
 vehicleFromEu.checkYourAnswersLabel = Vehicle brought into Northern Ireland from an EU country
 vehicleFromEu.error.required = Select yes if the vehicle was brought into Northern Ireland from an EU country
 vehicleFromEu.change.hidden = Are you completing a notification for a vehicle brought into Northern Ireland from an EU country?

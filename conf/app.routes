@@ -23,10 +23,10 @@ GET         /account/signed-out                                     controllers.
 
 GET         /unauthorised                                           controllers.UnauthorisedController.onPageLoad()
 
-GET         /vehicle-from-eu                                        controllers.VehicleFromEuController.onPageLoad(mode: Mode = NormalMode)
-POST        /vehicle-from-eu                                        controllers.VehicleFromEuController.onSubmit(mode: Mode = NormalMode)
-GET         /change-vehicle-from-eu                                 controllers.VehicleFromEuController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-vehicle-from-eu                                 controllers.VehicleFromEuController.onSubmit(mode: Mode = CheckMode)
+GET         /vehicle-from-eu-into-into-northern-ireland                                       controllers.VehicleFromEuController.onPageLoad(mode: Mode = NormalMode)
+POST        /vehicle-from-eu-into-northern-ireland                                       controllers.VehicleFromEuController.onSubmit(mode: Mode = NormalMode)
+GET         /vehicle-from-eu-into-northern-ireland/change                               controllers.VehicleFromEuController.onPageLoad(mode: Mode = CheckMode)
+POST        /vehicle-from-eu-into-northern-ireland/change                                controllers.VehicleFromEuController.onSubmit(mode: Mode = CheckMode)
 
 GET         /vehicle-outside-eu                                     controllers.VehicleOutsideEUController.onPageLoad()
 
