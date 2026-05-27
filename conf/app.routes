@@ -69,13 +69,13 @@ POST        /about-your-details                                     controllers.
 
 GET         /name                                  controllers.AddYourNameController.onPageLoad(mode: Mode = NormalMode)
 POST        /name                                  controllers.AddYourNameController.onSubmit(mode: Mode = NormalMode)
-GET         /change/name                           controllers.AddYourNameController.onPageLoad(mode: Mode = CheckMode)
-POST        /change/name                           controllers.AddYourNameController.onSubmit(mode: Mode = CheckMode)
+GET         /name/change                           controllers.AddYourNameController.onPageLoad(mode: Mode = CheckMode)
+POST        /name/change                          controllers.AddYourNameController.onSubmit(mode: Mode = CheckMode)
 
-GET         /add-your-details/phone-number                          controllers.PhoneNumberController.onPageLoad(mode: Mode = NormalMode)
-POST        /add-your-details/phone-number                          controllers.PhoneNumberController.onSubmit(mode: Mode = NormalMode)
-GET         /add-your-details/change-phone-number                   controllers.PhoneNumberController.onPageLoad(mode: Mode = CheckMode)
-POST        /add-your-details/change-phone-number                   controllers.PhoneNumberController.onSubmit(mode: Mode = CheckMode)
+GET         /phone-number                          controllers.PhoneNumberController.onPageLoad(mode: Mode = NormalMode)
+POST        /phone-number                          controllers.PhoneNumberController.onSubmit(mode: Mode = NormalMode)
+GET         /phone-number/change                   controllers.PhoneNumberController.onPageLoad(mode: Mode = CheckMode)
+POST        /phone-number/change                   controllers.PhoneNumberController.onSubmit(mode: Mode = CheckMode)
 
 GET         /add-address/is-your-address-in-the-uk                  controllers.IsYourAddressInTheUkController.onPageLoad(mode: Mode = NormalMode)
 POST        /add-address/is-your-address-in-the-uk                  controllers.IsYourAddressInTheUkController.onSubmit(mode: Mode = NormalMode)
