@@ -67,10 +67,10 @@ POST        /change-business-or-private-individual                  controllers.
 GET         /about-your-details                                     controllers.AboutYourDetailsController.onPageLoad()
 POST        /about-your-details                                     controllers.AboutYourDetailsController.onSubmit()
 
-GET         /add-your-details/name                                  controllers.AddYourNameController.onPageLoad(mode: Mode = NormalMode)
-POST        /add-your-details/name                                  controllers.AddYourNameController.onSubmit(mode: Mode = NormalMode)
-GET         /change-add-your-details/name                           controllers.AddYourNameController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-add-your-details/name                           controllers.AddYourNameController.onSubmit(mode: Mode = CheckMode)
+GET         /name                                  controllers.AddYourNameController.onPageLoad(mode: Mode = NormalMode)
+POST        /name                                  controllers.AddYourNameController.onSubmit(mode: Mode = NormalMode)
+GET         /change/name                           controllers.AddYourNameController.onPageLoad(mode: Mode = CheckMode)
+POST        /change/name                           controllers.AddYourNameController.onSubmit(mode: Mode = CheckMode)
 
 GET         /add-your-details/phone-number                          controllers.PhoneNumberController.onPageLoad(mode: Mode = NormalMode)
 POST        /add-your-details/phone-number                          controllers.PhoneNumberController.onSubmit(mode: Mode = NormalMode)

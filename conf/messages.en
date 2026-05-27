@@ -285,7 +285,7 @@ aboutYourDetails.paragraph.2 = The details you provide will not replace your VAT
 # AYD1.1 - Add Your Details 1.1: Name                #
 ######################################################
 
-addYourName.title = What is your name? - Add your details
+addYourName.title = What is your name?
 addYourName.caption = Add your details
 addYourName.heading = What is your name?
 addYourName.titleField = Title
