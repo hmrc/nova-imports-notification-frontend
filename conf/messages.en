@@ -169,6 +169,7 @@ beforeYouContinueOrg.multiple.body.3 = you need for the type of vehicles you’v
 
 businessPrivate.title = Are you a business or private individual?
 businessPrivate.heading = Are you a business or private individual?
+businessPrivate.caption = Initial questions
 businessPrivate.business = Business
 businessPrivate.business.hint = Includes businesses that are not VAT registered
 businessPrivate.privateIndividual = Private individual
