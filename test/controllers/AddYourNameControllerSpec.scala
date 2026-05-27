@@ -18,7 +18,7 @@ package controllers
 
 import base.SpecBase
 import forms.AddYourNameFormProvider
-import models.{AddYourName, BusinessOrPrivateIndividual, NormalMode, UserAnswers}
+import models.{AddYourName, BusinessOrPrivateIndividual, DraftId, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
@@ -47,7 +47,13 @@ class AddYourNameControllerSpec extends SpecBase with MockitoSugar {
   val validFirstName = "John"
   val validLastName  = "Doe"
 
-  private val requiredPreviousAnswers = emptyUserAnswers.set(pages.BusinessPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual).success.value
+  private val requiredPreviousAnswers = emptyUserAnswers
+    .set(pages.BusinessPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
+    .success
+    .value
+    .set(pages.DraftIdPage, DraftId("DRAFT-001"))
+    .success
+    .value
 
   "AddYourName Controller" - {
 

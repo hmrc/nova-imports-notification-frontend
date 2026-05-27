@@ -26,6 +26,7 @@ import pages.*
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import views.html.AddYourNameView
+import controllers.utils.IsDraftIdDefined
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -66,16 +67,17 @@ class AddYourNameController @Inject() (
 object AddYourNameController {
 
   def guardPredicate(request: DataRequest[?]): Boolean =
-    request.userContext.userType match {
-      case NovaUserType.PrivateIndividual | NovaUserType.NonVatOrganisation =>
-        standardUserAnswersComplete(request.userAnswers)
-      case NovaUserType.Agent if request.userContext.isAgentWithoutClient =>
-        standardUserAnswersComplete(request.userAnswers)
-      case NovaUserType.VatRegisteredOrganisation =>
-        vatRegisteredOrgAnswersComplete(request.userAnswers)
-      case NovaUserType.Agent =>
-        agentWithClientAnswersComplete(request.userAnswers)
-    }
+    IsDraftIdDefined(request.userAnswers) &&
+      (request.userContext.userType match {
+        case NovaUserType.PrivateIndividual | NovaUserType.NonVatOrganisation =>
+          standardUserAnswersComplete(request.userAnswers)
+        case NovaUserType.Agent if request.userContext.isAgentWithoutClient =>
+          standardUserAnswersComplete(request.userAnswers)
+        case NovaUserType.VatRegisteredOrganisation =>
+          vatRegisteredOrgAnswersComplete(request.userAnswers)
+        case NovaUserType.Agent =>
+          agentWithClientAnswersComplete(request.userAnswers)
+      })
 
   private def standardUserAnswersComplete(answers: UserAnswers): Boolean =
     answers.get(BusinessPrivatePage).contains(BusinessOrPrivateIndividual.PrivateIndividual)
