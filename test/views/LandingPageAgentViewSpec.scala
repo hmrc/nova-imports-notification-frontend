@@ -28,36 +28,42 @@ class LandingPageAgentViewSpec extends SpecBase with Matchers {
 
   private val traderName = "ABC Consultancy"
 
+  private val app: Application             = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+  implicit private val request: Request[?] = FakeRequest()
+  implicit private val msgs: Messages      = messages(app)
+
+  private val view: LandingPageAgentView = app.injector.instanceOf[LandingPageAgentView]
+
   "LandingPageAgentView" - {
 
-    "must render the correct page title and H1 heading" in new Setup {
+    "must render the correct page title and H1 heading" in {
       val html: String = view(Some(traderName), hasDraftNotifications = false).toString
 
       html must include(msgs("landingPage.agent.title"))
       html must include(msgs("landingPage.agent.heading"))
     }
 
-    "must render the trader name caption when supplied" in new Setup {
+    "must render the trader name caption when supplied" in {
       val html: String = view(Some(traderName), hasDraftNotifications = false).toString
 
       html must include("""class="govuk-caption-m"""")
       html must include(traderName)
     }
 
-    "must omit the trader name caption when not supplied" in new Setup {
+    "must omit the trader name caption when not supplied" in {
       val html: String = view(None, hasDraftNotifications = false).toString
 
       html must not include traderName
       html must not include """class="govuk-caption-m""""
     }
 
-    "must render the intro body" in new Setup {
+    "must render the intro body" in {
       val html: String = view(Some(traderName), hasDraftNotifications = false).toString
 
       html must include(msgs("landingPage.agent.body"))
     }
 
-    "must render the Create a new notification link routing to StartController" in new Setup {
+    "must render the Create a new notification link routing to StartController" in {
       val html: String = view(Some(traderName), hasDraftNotifications = false).toString
 
       html must include(msgs("landingPage.agent.create.link"))
@@ -65,7 +71,7 @@ class LandingPageAgentViewSpec extends SpecBase with Matchers {
       html must include(controllers.routes.StartController.start().url)
     }
 
-    "must render the Update a submitted notification link routing to StartController" in new Setup {
+    "must render the Update a submitted notification link routing to StartController" in {
       val html: String = view(Some(traderName), hasDraftNotifications = false).toString
 
       html must include(msgs("landingPage.agent.update.link"))
@@ -73,7 +79,7 @@ class LandingPageAgentViewSpec extends SpecBase with Matchers {
       html must include(controllers.routes.StartController.start().url)
     }
 
-    "must render the empty saved-notification copy when the user has no drafts" in new Setup {
+    "must render the empty saved-notification copy when the user has no drafts" in {
       val html: String = view(Some(traderName), hasDraftNotifications = false).toString
 
       html must include(msgs("landingPage.agent.saved.heading"))
@@ -81,7 +87,7 @@ class LandingPageAgentViewSpec extends SpecBase with Matchers {
       html must not include msgs("landingPage.agent.saved.body.has")
     }
 
-    "must render the has-drafts saved-notification copy when the user has drafts" in new Setup {
+    "must render the has-drafts saved-notification copy when the user has drafts" in {
       val html: String = view(Some(traderName), hasDraftNotifications = true).toString
 
       html must include(msgs("landingPage.agent.saved.heading"))
@@ -89,7 +95,7 @@ class LandingPageAgentViewSpec extends SpecBase with Matchers {
       html must not include msgs("landingPage.agent.saved.body.empty")
     }
 
-    "must render the saved-notification heading as a link to JourneyRecovery (VS1.0 placeholder) when drafts exist" in new Setup {
+    "must render the saved-notification heading as a link to JourneyRecovery (VS1.0 placeholder) when drafts exist" in {
       val html: String = view(Some(traderName), hasDraftNotifications = true).toString
 
       html must include(controllers.routes.JourneyRecoveryController.onPageLoad().url)
@@ -98,13 +104,13 @@ class LandingPageAgentViewSpec extends SpecBase with Matchers {
         )}</a>""")
     }
 
-    "must render the saved-notification heading as plain text (no link) when no drafts" in new Setup {
+    "must render the saved-notification heading as plain text (no link) when no drafts" in {
       val html: String = view(Some(traderName), hasDraftNotifications = false).toString
 
       html must not include controllers.routes.JourneyRecoveryController.onPageLoad().url
     }
 
-    "must render the Manage your clients link routing to LoadingClientListController (CS1.0)" in new Setup {
+    "must render the Manage your clients link routing to LoadingClientListController (CS1.0)" in {
       val html: String = view(Some(traderName), hasDraftNotifications = false).toString
 
       html must include(msgs("landingPage.agent.clients.link"))
@@ -112,28 +118,28 @@ class LandingPageAgentViewSpec extends SpecBase with Matchers {
       html must include(controllers.routes.LoadingClientListController.onPageLoad().url)
     }
 
-    "must render the same content via the render method" in new Setup {
+    "must render the same content via the render method" in {
       val html: String = view.render(Some(traderName), false, request, msgs).toString
 
       html must include(msgs("landingPage.agent.heading"))
     }
 
-    "must render the same content via the f method" in new Setup {
+    "must render the same content via the f method" in {
       val html: String = view.f(Some(traderName), false)(request, msgs).toString
 
       html must include(msgs("landingPage.agent.heading"))
     }
 
-    "must return itself via the ref method" in new Setup {
+    "must return itself via the ref method" in {
       view.ref mustBe view
     }
   }
 
-  trait Setup {
-    val app: Application             = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-    implicit val request: Request[?] = FakeRequest()
-    implicit val msgs: Messages      = messages(app)
-
-    val view: LandingPageAgentView = app.injector.instanceOf[LandingPageAgentView]
-  }
+//  trait Setup {
+//    val app: Application             = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+//    implicit val request: Request[?] = FakeRequest()
+//    implicit val msgs: Messages      = messages(app)
+//
+//    val view: LandingPageAgentView = app.injector.instanceOf[LandingPageAgentView]
+//  }
 }

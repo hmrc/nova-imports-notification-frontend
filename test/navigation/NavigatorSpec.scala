@@ -84,11 +84,16 @@ class NavigatorSpec extends SpecBase {
             .onPageLoad(NormalMode)
         }
 
-        "must go from AboutYourDetailsPage to correct next screen when OQ1.0 was answered no" in {
-          // TODO: update to navigate to AYD1.1 when implemented
+        "must go from AboutYourDetailsPage to correct next screen AddYourNamePage when OQ1.0 was answered no" in {
           val ua = userAnswers.set(VehicleBusinessUsePage, false).success.value
-          navigator.nextPage(AboutYourDetailsPage, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController
-            .onPageLoad()
+          navigator.nextPage(AboutYourDetailsPage, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.AddYourNameController
+            .onPageLoad(NormalMode)
+        }
+
+        "must go from AddYourNamePage to PhoneNumberController (AYD1.2)" in {
+          val ua = userAnswers.set(AddYourNamePage, AddYourName("Mr", "John", "Smith")).success.value
+          navigator.nextPage(AddYourNamePage, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.PhoneNumberController
+            .onPageLoad(NormalMode)
         }
 
         "must go from AboutYourDetailsPage to JourneyRecovery when OQ1.0 has not been answered" in {
@@ -230,7 +235,6 @@ class NavigatorSpec extends SpecBase {
         navigator.nextPage(EmailAddressPage, NormalMode, userAnswers, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController
           .onPageLoad() // TODO: redirect to CYA2.0 page when built
       }
-
     }
 
     "in Check mode" - {

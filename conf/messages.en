@@ -281,6 +281,26 @@ aboutYourDetails.paragraph.1 = You need to provide your contact details. HMRC wi
 aboutYourDetails.paragraph.2 = The details you provide will not replace your VAT registration contact details.
 
 ######################################################
+# AYD1.1 - Add Your Details 1.1: Name                #
+######################################################
+
+addYourName.title = What is your name? - Add your details
+addYourName.caption = Add your details
+addYourName.heading = What is your name?
+addYourName.titleField = Title
+addYourName.titleField.error.format = Enter your title in the correct format
+addYourName.titleField.error.length = Your title must be 20 characters or less
+addYourName.titleField.error.required = Enter your title
+addYourName.firstName = First name
+addYourName.firstName.error.format = Enter your first name in the correct format
+addYourName.firstName.error.length = Your first name must be 100 characters or less
+addYourName.firstName.error.required = Enter your first name
+addYourName.lastName = Last name
+addYourName.lastName.error.format = Enter your last name in the correct format
+addYourName.lastName.error.length = Your last name must be 100 characters or less
+addYourName.lastName.error.required = Enter your last name
+
+######################################################
 # AYA1.0 - Add Your Address: Is your address in the UK #
 ######################################################
 
