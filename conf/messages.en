@@ -220,6 +220,7 @@ purchaserOrOnBehalf.radio.behalfOfPurchaser = On behalf of a purchaser
 
 purchaserBusinessOrIndividual.title = Is the purchaser you are notifying on behalf of a business or private individual?
 purchaserBusinessOrIndividual.heading = Is the purchaser you are notifying on behalf of a business or private individual?
+purchaserBusinessOrIndividual.caption = Initial questions
 purchaserBusinessOrIndividual.checkYourAnswersLabel = Type of purchaser you are notifying for
 purchaserBusinessOrIndividual.error.required = Select if the purchaser is a business or a private individual
 purchaserBusinessOrIndividual.change.hidden = Is the purchaser you are notifying on behalf of a business or private individual?
