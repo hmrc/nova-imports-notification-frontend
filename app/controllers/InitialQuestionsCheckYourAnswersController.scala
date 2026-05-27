@@ -79,7 +79,7 @@ object InitialQuestionsCheckYourAnswersController {
       case NovaUserType.PrivateIndividual | NovaUserType.NonVatOrganisation =>
         standardUserAnswersComplete(request.userAnswers)
       case NovaUserType.Agent if request.userContext.isAgentWithoutClient =>
-        standardUserAnswersComplete(request.userAnswers)
+        agentWithoutClientAnswersComplete(request.userAnswers)
       case NovaUserType.VatRegisteredOrganisation =>
         vatRegisteredOrgAnswersComplete(request.userAnswers)
       case NovaUserType.Agent =>
@@ -97,6 +97,14 @@ object InitialQuestionsCheckYourAnswersController {
   private def vatRegisteredOrgAnswersComplete(answers: UserAnswers): Boolean =
     answers.get(VehicleFromEuPage).isDefined &&
       answers.get(VehicleBusinessUsePage).isDefined
+
+  private def agentWithoutClientAnswersComplete(answers: UserAnswers): Boolean =
+    answers.get(VehicleFromEuPage).isDefined &&
+      answers.get(BusinessPrivatePage).isDefined &&
+      answers.get(PurchaserOrOnBehalfPage).exists {
+        case PurchaserOrOnBehalf.Purchaser           => true
+        case PurchaserOrOnBehalf.OnBehalfOfPurchaser => answers.get(PurchaserBusinessOrIndividualPage).isDefined
+      }
 
   private def agentWithClientAnswersComplete(answers: UserAnswers): Boolean =
     answers.get(VehicleFromEuPage).isDefined &&
