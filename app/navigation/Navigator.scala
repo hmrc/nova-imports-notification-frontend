@@ -109,7 +109,7 @@ class Navigator @Inject() () {
           case _                                             => routes.JourneyRecoveryController.onPageLoad()
         }
     case AddYourNamePage =>
-      (_, _) => routes.LandingPageController.onPageLoad() // TODO: redirect to 'Add Your Details' CYA screen (CYA 2.0) - to be added later
+      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to CYA2.0 - to be added later
     case EmailAddressPage =>
       (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to CYA2.0
     case _ =>

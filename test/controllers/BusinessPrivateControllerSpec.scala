@@ -202,7 +202,7 @@ class BusinessPrivateControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to Journey Recovery for a GET if IQ1 was answered No" in {
+    "must redirect to Unauthorised for a GET when user is a standard user and IQ1 was answered No" in {
 
       val userAnswers = emptyUserAnswers.set(VehicleFromEuPage, false).success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
@@ -213,11 +213,11 @@ class BusinessPrivateControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
       }
     }
 
-    "must redirect to Journey Recovery for a GET if IQ1 has not been answered" in {
+    "must redirect to Unauthorised for a GET when IQ1 has not been answered" in {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
@@ -227,11 +227,11 @@ class BusinessPrivateControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
       }
     }
 
-    "must redirect to Journey Recovery for a POST if IQ1 was answered No" in {
+    "must redirect to Unauthorised for a POST when user is a standard user and IQ1 was answered No" in {
 
       val userAnswers = emptyUserAnswers.set(VehicleFromEuPage, false).success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
@@ -244,11 +244,11 @@ class BusinessPrivateControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
       }
     }
 
-    "must redirect to Journey Recovery for a POST if IQ1 has not been answered" in {
+    "must redirect to Unauthorised for a POST when user is a standard user and IQ1 has not been answered" in {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
@@ -260,7 +260,7 @@ class BusinessPrivateControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
       }
     }
   }

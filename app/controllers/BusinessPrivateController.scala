@@ -18,6 +18,7 @@ package controllers
 
 import controllers.actions.*
 import forms.BusinessPrivateFormProvider
+import models.requests.DataRequest
 import javax.inject.Inject
 import models.{Mode, NovaUserType, UserAnswers}
 import navigation.Navigator
@@ -39,16 +40,15 @@ class BusinessPrivateController @Inject() (
 )(implicit ec: ExecutionContext)
     extends BaseController {
 
+  import BusinessPrivateController.*
+
   val form: Form[models.BusinessOrPrivateIndividual] = formProvider()
 
-  private val guardPredicate: UserAnswers => Boolean =
-    _.get(VehicleFromEuPage).contains(true)
-
-  def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithGuard(guardPredicate) { implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate) { implicit request =>
     Ok(view(form.withDefault(request.userAnswers.get(BusinessPrivatePage)), mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithGuard(guardPredicate).async { implicit request =>
+  def onSubmit(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
@@ -62,4 +62,22 @@ class BusinessPrivateController @Inject() (
           )
       )
   }
+}
+
+object BusinessPrivateController {
+
+  def guardPredicate(request: DataRequest[?]): Boolean =
+    request.userContext.userType match {
+      case NovaUserType.PrivateIndividual | NovaUserType.NonVatOrganisation =>
+        standardUserAnswersComplete(request.userAnswers)
+      case NovaUserType.Agent if request.userContext.isAgentWithoutClient =>
+        agentWithoutClientAnswersComplete(request.userAnswers)
+      case _ => false
+    }
+
+  private def standardUserAnswersComplete(answers: UserAnswers): Boolean =
+    answers.get(VehicleFromEuPage).contains(true)
+
+  private def agentWithoutClientAnswersComplete(answers: UserAnswers): Boolean =
+    answers.get(VehicleFromEuPage).isDefined
 }
