@@ -41,13 +41,13 @@ GET         /view-clients/failed                                    controllers.
 
 GET         /purchaser-or-on-behalf                                 controllers.PurchaserOrOnBehalfController.onPageLoad(mode: Mode = NormalMode)
 POST        /purchaser-or-on-behalf                                 controllers.PurchaserOrOnBehalfController.onSubmit(mode: Mode = NormalMode)
-GET         /change-purchaser-or-on-behalf                          controllers.PurchaserOrOnBehalfController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-purchaser-or-on-behalf                          controllers.PurchaserOrOnBehalfController.onSubmit(mode: Mode = CheckMode)
+GET         /purchaser-or-on-behalf/change                          controllers.PurchaserOrOnBehalfController.onPageLoad(mode: Mode = CheckMode)
+POST        /purchaser-or-on-behalf/change                          controllers.PurchaserOrOnBehalfController.onSubmit(mode: Mode = CheckMode)
 
 GET         /purchaser-business-or-private-individual               controllers.PurchaserBusinessOrIndividualController.onPageLoad(mode: Mode = NormalMode)
 POST        /purchaser-business-or-private-individual               controllers.PurchaserBusinessOrIndividualController.onSubmit(mode: Mode = NormalMode)
-GET         /change-purchaser-business-or-private-individual        controllers.PurchaserBusinessOrIndividualController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-purchaser-business-or-private-individual        controllers.PurchaserBusinessOrIndividualController.onSubmit(mode: Mode = CheckMode)
+GET         /purchaser-business-or-private-individual/change        controllers.PurchaserBusinessOrIndividualController.onPageLoad(mode: Mode = CheckMode)
+POST        /purchaser-business-or-private-individual/change        controllers.PurchaserBusinessOrIndividualController.onSubmit(mode: Mode = CheckMode)
 
 GET         /vehicle-business-use                                   controllers.VehicleBusinessUseController.onPageLoad(mode: Mode = NormalMode)
 POST        /vehicle-business-use                                   controllers.VehicleBusinessUseController.onSubmit(mode: Mode = NormalMode)
@@ -56,13 +56,13 @@ POST        /change-vehicle-business-use                            controllers.
 
 GET         /client-vehicle-business-use                            controllers.AgentVehicleBusinessUseController.onPageLoad(mode: Mode = NormalMode)
 POST        /client-vehicle-business-use                            controllers.AgentVehicleBusinessUseController.onSubmit(mode: Mode = NormalMode)
-GET         /change-client-vehicle-business-use                     controllers.AgentVehicleBusinessUseController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-client-vehicle-business-use                     controllers.AgentVehicleBusinessUseController.onSubmit(mode: Mode = CheckMode)
+GET         /client-vehicle-business-use/change                     controllers.AgentVehicleBusinessUseController.onPageLoad(mode: Mode = CheckMode)
+POST        /client-vehicle-business-use/change                     controllers.AgentVehicleBusinessUseController.onSubmit(mode: Mode = CheckMode)
 
 GET         /business-or-private-individual                         controllers.BusinessPrivateController.onPageLoad(mode: Mode = NormalMode)
 POST        /business-or-private-individual                         controllers.BusinessPrivateController.onSubmit(mode: Mode = NormalMode)
-GET         /change-business-or-private-individual                  controllers.BusinessPrivateController.onPageLoad(mode: Mode = CheckMode)
-POST        /change-business-or-private-individual                  controllers.BusinessPrivateController.onSubmit(mode: Mode = CheckMode)
+GET         /business-or-private-individual/change                  controllers.BusinessPrivateController.onPageLoad(mode: Mode = CheckMode)
+POST        /business-or-private-individual/change                  controllers.BusinessPrivateController.onSubmit(mode: Mode = CheckMode)
 
 GET         /about-your-details                                     controllers.AboutYourDetailsController.onPageLoad()
 POST        /about-your-details                                     controllers.AboutYourDetailsController.onSubmit()
@@ -77,10 +77,10 @@ POST        /phone-number                                           controllers.
 GET         /phone-number/change                                    controllers.PhoneNumberController.onPageLoad(mode: Mode = CheckMode)
 POST        /phone-number/change                                    controllers.PhoneNumberController.onSubmit(mode: Mode = CheckMode)
 
-GET         /add-address/is-your-address-in-the-uk                  controllers.IsYourAddressInTheUkController.onPageLoad(mode: Mode = NormalMode)
-POST        /add-address/is-your-address-in-the-uk                  controllers.IsYourAddressInTheUkController.onSubmit(mode: Mode = NormalMode)
-GET         /add-address/change-is-your-address-in-the-uk           controllers.IsYourAddressInTheUkController.onPageLoad(mode: Mode = CheckMode)
-POST        /add-address/change-is-your-address-in-the-uk           controllers.IsYourAddressInTheUkController.onSubmit(mode: Mode = CheckMode)
+GET         /is-your-address-in-the-uk                              controllers.IsYourAddressInTheUkController.onPageLoad(mode: Mode = NormalMode)
+POST        /is-your-address-in-the-uk                              controllers.IsYourAddressInTheUkController.onSubmit(mode: Mode = NormalMode)
+GET         /is-your-address-in-the-uk/change                       controllers.IsYourAddressInTheUkController.onPageLoad(mode: Mode = CheckMode)
+POST        /is-your-address-in-the-uk/change                       controllers.IsYourAddressInTheUkController.onSubmit(mode: Mode = CheckMode)
 
 GET         /email-address                                          controllers.EmailAddressController.onPageLoad(mode: Mode = NormalMode)
 POST        /email-address                                          controllers.EmailAddressController.onSubmit(mode: Mode = NormalMode)
