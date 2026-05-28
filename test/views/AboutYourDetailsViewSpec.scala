@@ -38,6 +38,12 @@ class AboutYourDetailsViewSpec extends SpecBase with Matchers {
       html must include(msgs("aboutYourDetails.title"))
     }
 
+    "must render the correct page caption" in new Setup {
+      val html: String = view().toString
+      html must include("govuk-caption-l")
+      html must include(msgs("aboutYourDetails.caption"))
+    }
+
     "must render the first paragraph" in new Setup {
       val html: String = view().toString
       html must include(msgs("aboutYourDetails.paragraph.1"))

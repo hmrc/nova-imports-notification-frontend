@@ -45,6 +45,13 @@ class PurchaserBusinessOrIndividualViewSpec extends SpecBase with Matchers {
       html must include(msgs("purchaserBusinessOrIndividual.title"))
     }
 
+    "must render the correct page caption" in new Setup {
+      val html: String = view(form, NormalMode)(request, msgs).toString
+
+      html must include("govuk-caption-l")
+      html must include(msgs("purchaserBusinessOrIndividual.caption"))
+    }
+
     "must render the non-VAT registered business radio option" in new Setup {
       val html: String = view(form, NormalMode)(request, msgs).toString
 

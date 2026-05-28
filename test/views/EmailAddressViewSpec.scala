@@ -42,7 +42,7 @@ class EmailAddressViewSpec extends SpecBase with Matchers {
     "must render the caption" in new Setup {
       val html: String = view(form, NormalMode)(request, msgs).toString
 
-      html must include("govuk-caption-m")
+      html must include("govuk-caption-l")
       html must include(msgs("emailAddress.caption"))
     }
 
