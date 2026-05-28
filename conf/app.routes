@@ -23,7 +23,7 @@ GET         /account/signed-out                                     controllers.
 
 GET         /unauthorised                                           controllers.UnauthorisedController.onPageLoad()
 
-GET         /vehicle-from-eu-into-into-northern-ireland             controllers.VehicleFromEuController.onPageLoad(mode: Mode = NormalMode)
+GET         /vehicle-from-eu-into-northern-ireland                  controllers.VehicleFromEuController.onPageLoad(mode: Mode = NormalMode)
 POST        /vehicle-from-eu-into-northern-ireland                  controllers.VehicleFromEuController.onSubmit(mode: Mode = NormalMode)
 GET         /vehicle-from-eu-into-northern-ireland/change           controllers.VehicleFromEuController.onPageLoad(mode: Mode = CheckMode)
 POST        /vehicle-from-eu-into-northern-ireland/change           controllers.VehicleFromEuController.onSubmit(mode: Mode = CheckMode)
@@ -77,10 +77,10 @@ POST        /phone-number                                           controllers.
 GET         /phone-number/change                                    controllers.PhoneNumberController.onPageLoad(mode: Mode = CheckMode)
 POST        /phone-number/change                                    controllers.PhoneNumberController.onSubmit(mode: Mode = CheckMode)
 
-GET         /is-your-address-in-the-uk                              controllers.IsYourAddressInTheUkController.onPageLoad(mode: Mode = NormalMode)
-POST        /is-your-address-in-the-uk                              controllers.IsYourAddressInTheUkController.onSubmit(mode: Mode = NormalMode)
-GET         /is-your-address-in-the-uk/change                       controllers.IsYourAddressInTheUkController.onPageLoad(mode: Mode = CheckMode)
-POST        /is-your-address-in-the-uk/change                       controllers.IsYourAddressInTheUkController.onSubmit(mode: Mode = CheckMode)
+GET         /is-your-address-in-uk                                  controllers.IsYourAddressInTheUkController.onPageLoad(mode: Mode = NormalMode)
+POST        /is-your-address-in-uk                                  controllers.IsYourAddressInTheUkController.onSubmit(mode: Mode = NormalMode)
+GET         /is-your-address-in-uk/change                           controllers.IsYourAddressInTheUkController.onPageLoad(mode: Mode = CheckMode)
+POST        /is-your-address-in-uk/change                           controllers.IsYourAddressInTheUkController.onSubmit(mode: Mode = CheckMode)
 
 GET         /email-address                                          controllers.EmailAddressController.onPageLoad(mode: Mode = NormalMode)
 POST        /email-address                                          controllers.EmailAddressController.onSubmit(mode: Mode = NormalMode)
