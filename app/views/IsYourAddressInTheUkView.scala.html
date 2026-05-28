@@ -14,6 +14,8 @@
  * limitations under the License.
  *@
 
+@import viewmodels.LegendSize
+
 @this(
     layout: templates.Layout,
     formHelper: FormWithCSRF,
@@ -24,11 +26,6 @@
 
 @(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
 
-@legendHtml = {
-    <span class="govuk-caption-m">@messages("isYourAddressInTheUk.caption")</span>
-    <h1 class="govuk-fieldset__heading">@messages("isYourAddressInTheUk.heading")</h1>
-}
-
 @layout(pageTitle = title(form, messages("isYourAddressInTheUk.title"))) {
 
     @formHelper(action = routes.IsYourAddressInTheUkController.onSubmit(mode), Symbol("autoComplete") -> "off") {
@@ -37,10 +34,12 @@
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
+        <span class="govuk-caption-l">@messages("isYourAddressInTheUk.caption")</span>
+
         @govukRadios(
             RadiosViewModel.yesNo(
                 field  = form("value"),
-                legend = LegendViewModel(HtmlContent(legendHtml)).withCssClass("govuk-fieldset__legend--l")
+                legend = LegendViewModel(messages("isYourAddressInTheUk.heading")).asPageHeading(LegendSize.Large)
             )
         )
 

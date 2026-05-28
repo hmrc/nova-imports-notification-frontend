@@ -102,6 +102,7 @@ landingPage.agent.clients.body = View, search, remove or select a client to act 
 
 vehicleFromEu.title = Are you completing a notification for a vehicle brought into Northern Ireland from an EU country?
 vehicleFromEu.heading = Are you completing a notification for a vehicle brought into Northern Ireland from an EU country?
+vehicleFromEu.caption = Initial questions
 vehicleFromEu.checkYourAnswersLabel = Vehicle brought into Northern Ireland from an EU country
 vehicleFromEu.error.required = Select yes if the vehicle was brought into Northern Ireland from an EU country
 vehicleFromEu.change.hidden = Are you completing a notification for a vehicle brought into Northern Ireland from an EU country?
@@ -168,6 +169,7 @@ beforeYouContinueOrg.multiple.body.3 = you need for the type of vehicles you’v
 
 businessPrivate.title = Are you a business or private individual?
 businessPrivate.heading = Are you a business or private individual?
+businessPrivate.caption = Initial questions
 businessPrivate.business = Business
 businessPrivate.business.hint = Includes businesses that are not VAT registered
 businessPrivate.privateIndividual = Private individual
@@ -182,6 +184,7 @@ businessPrivate.change.hidden = Are you a business or private individual?
 
 vehicleBusinessUse.title = Have you brought a vehicle into the UK for business use?
 vehicleBusinessUse.heading = Have you brought a vehicle into the UK for business use?
+vehicleBusinessUse.caption = Initial questions
 vehicleBusinessUse.hint = Select ‘Yes’ only if the vehicle belongs to the business
 vehicleBusinessUse.checkYourAnswersLabel = Have you brought a vehicle into the UK for business use?
 vehicleBusinessUse.error.required = Select yes if you brought a vehicle into the UK for business use
@@ -193,6 +196,7 @@ vehicleBusinessUse.change.hidden = Have you brought a vehicle into the UK for bu
 
 agentVehicleBusinessUse.title = Has your client brought a vehicle into the UK for business use?
 agentVehicleBusinessUse.heading = Has your client brought a vehicle into the UK for business use?
+agentVehicleBusinessUse.caption = Initial questions
 agentVehicleBusinessUse.hint = Select ‘Yes’ only if the vehicle belongs to the business
 agentVehicleBusinessUse.checkYourAnswersLabel = Has your client brought a vehicle into the UK for business use?
 agentVehicleBusinessUse.error.required = Select yes if your client brought a vehicle into the UK for business use
@@ -204,6 +208,7 @@ agentVehicleBusinessUse.change.hidden = Has your client brought a vehicle into t
 
 purchaserOrOnBehalf.title = Are you notifying as the purchaser, or on behalf of a purchaser?
 purchaserOrOnBehalf.heading = Are you notifying as the purchaser, or on behalf of a purchaser?
+purchaserOrOnBehalf.caption = Initial questions
 purchaserOrOnBehalf.hint = The purchaser is a private individual or business that brought the vehicle into the UK
 purchaserOrOnBehalf.checkYourAnswersLabel = Are you the purchaser or notifying on behalf of a purchaser?
 purchaserOrOnBehalf.error.required = Select if you are notifying as the purchaser or on behalf of a purchaser
@@ -217,6 +222,7 @@ purchaserOrOnBehalf.radio.behalfOfPurchaser = On behalf of a purchaser
 
 purchaserBusinessOrIndividual.title = Is the purchaser you are notifying on behalf of a business or private individual?
 purchaserBusinessOrIndividual.heading = Is the purchaser you are notifying on behalf of a business or private individual?
+purchaserBusinessOrIndividual.caption = Initial questions
 purchaserBusinessOrIndividual.checkYourAnswersLabel = Type of purchaser you are notifying for
 purchaserBusinessOrIndividual.error.required = Select if the purchaser is a business or a private individual
 purchaserBusinessOrIndividual.change.hidden = Is the purchaser you are notifying on behalf of a business or private individual?
@@ -276,6 +282,7 @@ noAuthorisedClients.returnToHome = Return to home
 ######################################################
 
 aboutYourDetails.title = About your details
+aboutYourDetails.caption = Add your details
 aboutYourDetails.heading = About your details
 aboutYourDetails.paragraph.1 = You need to provide your contact details. HMRC will only use them to contact you about this notification.
 aboutYourDetails.paragraph.2 = The details you provide will not replace your VAT registration contact details.
@@ -284,7 +291,7 @@ aboutYourDetails.paragraph.2 = The details you provide will not replace your VAT
 # AYD1.1 - Add Your Details 1.1: Name                #
 ######################################################
 
-addYourName.title = What is your name? - Add your details
+addYourName.title = What is your name?
 addYourName.caption = Add your details
 addYourName.heading = What is your name?
 addYourName.titleField = Title

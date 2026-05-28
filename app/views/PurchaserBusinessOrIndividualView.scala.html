@@ -34,6 +34,8 @@
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
+        <span class="govuk-caption-l">@messages("purchaserBusinessOrIndividual.caption")</span>
+
         @govukRadios(
             RadiosViewModel(
                 form("value"),

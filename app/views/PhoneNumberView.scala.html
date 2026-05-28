@@ -27,11 +27,6 @@
 
 @(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
 
-@labelHtml = {
-    <span class="govuk-caption-m">@messages("phoneNumber.caption")</span>
-    @messages("phoneNumber.heading")
-}
-
 @layout(pageTitle = title(form, messages("phoneNumber.title"))) {
 
     @formHelper(action = routes.PhoneNumberController.onSubmit(mode), Symbol("autoComplete") -> "off") {
@@ -40,10 +35,12 @@
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
+        <span class="govuk-caption-l">@messages("phoneNumber.caption")</span>
+
         @govukInput(
             InputViewModel(
                 field = form("value"),
-                label = LabelViewModel(HtmlContent(labelHtml)).asPageHeading(LabelSize.Large)
+                label = LabelViewModel(messages("phoneNumber.heading")).asPageHeading(LabelSize.Large)
             )
             .withHint(HintViewModel(messages("phoneNumber.hint")))
             .withWidth(Fixed20)

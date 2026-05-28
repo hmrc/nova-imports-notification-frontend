@@ -47,6 +47,7 @@ class InitialQuestionsCheckYourAnswersViewSpec extends SpecBase with Matchers {
       val html: String = view(userContext, answers)(request, msgs).toString
 
       html must include(msgs("initialQuestionsCheckYourAnswers.caption"))
+      html must include("govuk-caption-l")
     }
 
     "must render the same content via the render method" in new Setup {

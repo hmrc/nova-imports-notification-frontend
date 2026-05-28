@@ -35,7 +35,7 @@
         @govukErrorSummary(ErrorSummaryViewModel(form))
     }
 
-    <span class="govuk-caption-m">@messages("addYourName.caption")</span>
+    <span class="govuk-caption-l">@messages("addYourName.caption")</span>
     <h1 class="govuk-heading-l">@messages("addYourName.heading")</h1>
 
     @formHelper(action = routes.AddYourNameController.onSubmit(mode)) {

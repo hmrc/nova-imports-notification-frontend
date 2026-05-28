@@ -49,7 +49,7 @@ class PhoneNumberViewSpec extends SpecBase with Matchers {
       val html: String = view(form, NormalMode)(request, msgs).toString
 
       html must include(msgs("phoneNumber.caption"))
-      html must include("""class="govuk-caption-m"""")
+      html must include("govuk-caption-l")
     }
 
     "must render the hint text" in new Setup {

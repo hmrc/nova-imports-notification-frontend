@@ -48,8 +48,8 @@ class IsYourAddressInTheUkViewSpec extends SpecBase with Matchers {
     "must render the 'Add your address' caption" in new Setup {
       val html: String = view(form, NormalMode)(request, msgs).toString
 
+      html must include("govuk-caption-l")
       html must include(msgs("isYourAddressInTheUk.caption"))
-      html must include("""class="govuk-caption-m"""")
     }
 
     "must render the Yes radio option" in new Setup {

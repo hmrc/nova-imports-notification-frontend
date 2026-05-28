@@ -25,8 +25,8 @@
 
 @layout(pageTitle = titleNoForm(messages("initialQuestionsCheckYourAnswers.title"))) {
 
-    <span class="govuk-caption-m">@messages("initialQuestionsCheckYourAnswers.caption")</span>
-    <h1 class="govuk-heading-xl">@messages("initialQuestionsCheckYourAnswers.heading")</h1>
+    <span class="govuk-caption-l">@messages("initialQuestionsCheckYourAnswers.caption")</span>
+    <h1 class="govuk-heading-l">@messages("initialQuestionsCheckYourAnswers.heading")</h1>
 
     @govukSummaryList(viewmodels.checkAnswers.InitialQuestionsCheckYourAnswersHelper.buildSummaryList(userContext, answers))
 
