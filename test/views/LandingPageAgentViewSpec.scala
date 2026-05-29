@@ -46,7 +46,7 @@ class LandingPageAgentViewSpec extends SpecBase with Matchers {
     "must render the trader name caption when supplied" in {
       val html: String = view(Some(traderName), hasDraftNotifications = false).toString
 
-      html must include("""class="govuk-caption-m"""")
+      html must include("""class="govuk-caption-l"""")
       html must include(traderName)
     }
 
@@ -54,7 +54,7 @@ class LandingPageAgentViewSpec extends SpecBase with Matchers {
       val html: String = view(None, hasDraftNotifications = false).toString
 
       html must not include traderName
-      html must not include """class="govuk-caption-m""""
+      html must not include """class="govuk-caption-l""""
     }
 
     "must render the intro body" in {
