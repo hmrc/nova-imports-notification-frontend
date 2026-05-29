@@ -41,12 +41,14 @@ class LandingPageOrganisationViewSpec extends SpecBase with Matchers {
     "must render the trader name caption" in new Setup {
       val html: String = view(traderName, vrn, hasDraftNotifications = false).toString
       html must include(traderName)
+      html must include("govuk-caption-l")
     }
 
     "must render the VRN caption with GB prefix" in new Setup {
       val html: String = view(traderName, vrn, hasDraftNotifications = false).toString
       html must include(msgs("landingPage.organisation.vrn.caption", vrn))
       html must include(s"GB$vrn")
+      html must include("govuk-caption-l")
     }
 
     "must render the body intro" in new Setup {
