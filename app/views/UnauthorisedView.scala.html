@@ -18,14 +18,26 @@
     layout: templates.Layout
 )
 
-@()(implicit request: Request[_], messages: Messages)
+@(onlineServicesHelpdeskUrl: String)(implicit request: Request[_], messages: Messages)
 
 @layout(
     pageTitle = titleNoForm(messages("unauthorised.title")),
     timeout   = false
 ) {
 
-    <h1 class="govuk-heading-xl">@messages("unauthorised.heading")</h1>
+    <h1 class="govuk-heading-l">@messages("unauthorised.heading")</h1>
 
-    <p class="govuk-body">@messages("unauthorised.guidance")</p>
+    <p class="govuk-body">@messages("unauthorised.paragraph.1")</p>
+
+    <p class="govuk-body">@messages("unauthorised.paragraph.2")
+        <a href="@onlineServicesHelpdeskUrl" class="govuk-link" rel="noreferrer noopener" target="_blank">
+            @messages("unauthorised.link.text")
+        </a>
+    </p>
+
+    <form action="@routes.LandingPageController.onPageLoad()" method="get">
+        <button type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+            @messages("unauthorised.returnHome")
+        </button>
+    </form>
 }
