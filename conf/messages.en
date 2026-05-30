@@ -39,8 +39,15 @@ signedOut.title = For your security, we signed you out
 signedOut.heading = For your security, we signed you out
 signedOut.guidance = We did not save your answers.
 
-unauthorised.title = You can’t access this service with this account
-unauthorised.heading = You can’t access this service with this account
+######################################################
+# ERR1.0 - Error message - Unauthorised Access       #
+######################################################
+
+unauthorised.title = You do not have permission to access this page
+unauthorised.heading = You do not have permission to access this page
+unauthorised.paragraph.1 = You tried to access a part of this service that you are not authorised to use.
+unauthorised.paragraph.2 = If this information is wrong, contact {0}.
+unauthorised.returnHome = Return to home
 
 ######################################################
 # LPs - Landing page common information              #
