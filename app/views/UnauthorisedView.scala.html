@@ -15,15 +15,13 @@
  *@
 
 @this(
-    layout: templates.Layout
+    layout: templates.Layout,
+    govukButton: GovukButton
 )
 
-@(onlineServicesHelpdeskUrl: String)(implicit request: Request[_], messages: Messages)
+@(onlineServicesHelpdeskUrl: String)(implicit request: Request[?], messages: Messages)
 
-@layout(
-    pageTitle = titleNoForm(messages("unauthorised.title")),
-    timeout   = false
-) {
+@layout(pageTitle = titleNoForm(messages("unauthorised.title")), showBackLink = true) {
 
     <h1 class="govuk-heading-l">@messages("unauthorised.heading")</h1>
 
@@ -35,9 +33,11 @@
         </a>
     </p>
 
-    <form action="@routes.LandingPageController.onPageLoad()" method="get">
-        <button type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button">
-            @messages("unauthorised.returnHome")
-        </button>
-    </form>
+    <p class="govuk-body">
+        @govukButton(
+        ButtonViewModel(messages("unauthorised.returnHome"))
+        .asLink(routes.LandingPageController.onPageLoad().url)
+        .asSecondaryButton()
+        )
+    </p>
 }
