@@ -25,7 +25,7 @@ class UnauthorisedControllerSpec extends SpecBase {
 
   "Unauthorised Controller" - {
 
-    "must return OK and the correct view for a GET" in {
+    "must return OK and the correct view" in {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
@@ -34,10 +34,39 @@ class UnauthorisedControllerSpec extends SpecBase {
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[UnauthorisedView]
+        status(result) mustEqual OK
+        contentAsString(result) must include("You do not have permission to access this page")
+      }
+    }
+
+    "must render the page text" in {
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.UnauthorisedController.onPageLoad().url)
+
+        val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view()(request, messages(application)).toString
+        contentAsString(result) must include("You tried to access a part of this service that you are not authorised to use.")
+        contentAsString(result) must include("If this information is wrong, contact")
+        contentAsString(result) must include("https://www.gov.uk/government/organisations/hm-revenue-customs/contact/online-services-helpdesk")
+        contentAsString(result) must include("HMRC technical support (opens in new tab).")
+      }
+    }
+
+    "must render the secondary 'Return to home' button" in {
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.UnauthorisedController.onPageLoad().url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        contentAsString(result) must include("Return to home")
       }
     }
   }
