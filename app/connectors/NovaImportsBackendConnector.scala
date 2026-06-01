@@ -18,7 +18,7 @@ package connectors
 
 import com.google.inject.Inject
 import config.FrontendAppConfig
-import models.{DraftId, NotificationSummary}
+import models.{DraftId, DraftNotification, NotificationSummary}
 import play.api.libs.json.{JsObject, Json}
 import play.api.libs.ws.writeableOf_JsValue
 import uk.gov.hmrc.http.HttpReads.Implicits.*
@@ -45,6 +45,13 @@ object UpdateSectionError {
   final case class UpstreamError(status: Int, message: String) extends UpdateSectionError
 }
 
+sealed trait GetDraftNotificationError
+object GetDraftNotificationError {
+  case object Forbidden extends GetDraftNotificationError
+  case object NotFound extends GetDraftNotificationError
+  final case class UpstreamError(status: Int, message: String) extends GetDraftNotificationError
+}
+
 trait NovaImportsBackendConnector {
 
   def createDraft(clientVrn: Option[String])(implicit hc: HeaderCarrier): Future[Either[CreateDraftError, DraftId]]
@@ -52,6 +59,8 @@ trait NovaImportsBackendConnector {
   def getNotificationSummary()(implicit hc: HeaderCarrier): Future[Either[GetNotificationSummaryError, NotificationSummary]]
 
   def updateDraftSection(draftId: DraftId, sectionId: String, body: JsObject)(implicit hc: HeaderCarrier): Future[Either[UpdateSectionError, Unit]]
+
+  def getDraftNotification(draftId: DraftId)(implicit hc: HeaderCarrier): Future[Either[GetDraftNotificationError, DraftNotification]]
 }
 
 class NovaImportsBackendConnectorImpl @Inject() (
@@ -115,6 +124,28 @@ class NovaImportsBackendConnectorImpl @Inject() (
       .map { response =>
         response.status match {
           case 200 => Right(())
+          case 403 => Left(Forbidden)
+          case 404 => Left(NotFound)
+          case s   => Left(UpstreamError(s, response.body))
+        }
+      }
+  }
+
+  override def getDraftNotification(draftId: DraftId)(implicit
+    hc: HeaderCarrier
+  ): Future[Either[GetDraftNotificationError, DraftNotification]] = {
+    import GetDraftNotificationError.*
+
+    httpClient
+      .get(url"${serviceUrl(s"/draft-notifications/${draftId.value}")}")
+      .execute[HttpResponse]
+      .map { response =>
+        response.status match {
+          case 200 =>
+            response.json
+              .validate[DraftNotification]
+              .map(Right(_))
+              .recoverTotal(err => Left(UpstreamError(200, s"Malformed draft notification: $err")))
           case 403 => Left(Forbidden)
           case 404 => Left(NotFound)
           case s   => Left(UpstreamError(s, response.body))
