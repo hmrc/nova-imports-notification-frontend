@@ -19,8 +19,6 @@ package models
 import play.api.libs.functional.syntax.*
 import play.api.libs.json.*
 
-// `data` carries the persisted section payload used to pre-populate forms when the user
-// returns to a section. Schema differs per section, so it is kept as raw JSON here.
 final case class DraftNotificationSection(status: SectionStatus, data: Option[JsObject])
 
 object DraftNotificationSection {
@@ -39,7 +37,6 @@ object DraftNotificationSection {
 }
 
 // `lastUpdatedDate` is documented in the spec but the backend may omit it for drafts
-// that have never been saved — keep it optional so we don't dead-end on a parse error.
 final case class DraftNotification(
   draftId: String,
   createdDate: String,

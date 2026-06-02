@@ -119,7 +119,7 @@ class DraftNotificationSpec extends AnyFreeSpec with Matchers with OptionValues 
           |""".stripMargin
       )
 
-      val draft = json.validate[DraftNotification].get
+      val draft                 = json.validate[DraftNotification].get
       val addressData: JsObject = draft.sections("notifierAddress").data.value
       (addressData \ "line1").as[String] mustEqual "1 Test Street"
       (addressData \ "postCode").as[String] mustEqual "ZZ01 1ZZ"
