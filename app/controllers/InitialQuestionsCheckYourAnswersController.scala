@@ -63,7 +63,7 @@ class InitialQuestionsCheckYourAnswersController @Inject() (
       case Some((draftId, sectionData)) =>
         val sectionJsonBody = Json.toJson(sectionData).as[JsObject]
         backendConnector.updateDraftSection(draftId, "initial-questions", sectionJsonBody).map {
-          case Right(_)    => Redirect(routes.LandingPageController.onPageLoad()) // TODO: navigate to next screen - to be added later
+          case Right(_)    => Redirect(nextPage(request.userContext))
           case Left(error) =>
             logger.warn(s"Failed to update 'initial-questions' section for draftId ${draftId.value}: $error")
             Redirect(routes.JourneyRecoveryController.onPageLoad())
@@ -73,6 +73,14 @@ class InitialQuestionsCheckYourAnswersController @Inject() (
 }
 
 object InitialQuestionsCheckYourAnswersController {
+
+  // AC6: user type 4/5 lands on NTL3.0 after Save and continue.
+  // TODO: route remaining user types once their downstream task list pages exist.
+  def nextPage(userContext: UserContext): play.api.mvc.Call =
+    userContext.userType match {
+      case NovaUserType.VatRegisteredOrganisation => routes.NotificationTaskListController.onPageLoad()
+      case _                                      => routes.LandingPageController.onPageLoad()
+    }
 
   def guardPredicate(request: DataRequest[?]): Boolean =
     request.userContext.userType match {

@@ -351,3 +351,24 @@ emailAddress.hint = We’ll use this to send you a confirmation for your notific
 emailAddress.error.required = Enter your email address
 emailAddress.error.length = Your email address must be 70 characters or less
 emailAddress.error.invalid = Enter your email address in the correct format, like name@example.com
+
+##########################################################################
+# NTL3.0 - Notification task list for VAT-registered organisation (4/5)  #
+##########################################################################
+
+notificationTaskList.title = Create a vehicle notification
+notificationTaskList.heading = Create a vehicle notification
+notificationTaskList.vrn.caption = VAT registration number: GB{0}
+notificationTaskList.aboutYou.heading = About you
+notificationTaskList.aboutYou.addYourDetails = Add your details
+notificationTaskList.aboutYou.addYourAddress = Add your address
+notificationTaskList.aboutTheVehicles.heading = About the vehicles
+notificationTaskList.aboutTheVehicles.addVehicleDetails = Add vehicle details
+notificationTaskList.declaration.heading = Declaration
+notificationTaskList.declaration.readDeclaration = Read declaration
+notificationTaskList.declaration.hint = You must complete every section before you declare.
+notificationTaskList.status.incomplete = Incomplete
+notificationTaskList.status.completed = Completed
+notificationTaskList.status.cannotStartYet = Cannot start yet
+notificationTaskList.returnToHome = Return to home
+notificationTaskList.deleteNotification = Delete notification

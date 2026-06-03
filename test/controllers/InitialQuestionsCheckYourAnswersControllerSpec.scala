@@ -329,7 +329,7 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
 
     "onSubmit" - {
 
-      "when succeeds must redirect to the next page for a VatRegisteredOrganisation" in {
+      "when succeeds must redirect to NTL3.0 for a VatRegisteredOrganisation" in {
         val connector = mock[NovaImportsBackendConnector]
         when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
           .thenReturn(Future.successful(Right(())))
@@ -342,7 +342,7 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.LandingPageController.onPageLoad().url // TODO: update once next screen is built
+          redirectLocation(result).value mustEqual routes.NotificationTaskListController.onPageLoad().url
         }
       }
 
