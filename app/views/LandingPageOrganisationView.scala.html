@@ -18,11 +18,11 @@
     layout: templates.Layout
 )
 
-@(traderName: String, vrn: String, hasDraftNotifications: Boolean)(implicit request: Request[?], messages: Messages)
+@(traderName: Option[String], vrn: String, hasDraftNotifications: Boolean)(implicit request: Request[?], messages: Messages)
 
 @layout(pageTitle = messages("landingPage.organisation.title") + " - " + messages("site.govuk")) {
 
-    <span class="govuk-caption-l">@traderName <br> @messages("landingPage.organisation.vrn.caption", vrn)</span>
+    <span class="govuk-caption-l">@traderName.map { name => @name <br> } @messages("landingPage.organisation.vrn.caption", vrn)</span>
 
     <h1 class="govuk-heading-l">@messages("landingPage.organisation.heading")</h1>
 

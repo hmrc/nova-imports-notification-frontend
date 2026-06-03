@@ -33,55 +33,61 @@ class LandingPageOrganisationViewSpec extends SpecBase with Matchers {
   "LandingPageOrganisationView" - {
 
     "must render the page title and heading" in new Setup {
-      val html: String = view(traderName, vrn, hasDraftNotifications = false).toString
+      val html: String = view(Some(traderName), vrn, hasDraftNotifications = false).toString
       html must include(msgs("landingPage.organisation.title"))
       html must include(msgs("landingPage.organisation.heading"))
     }
 
     "must render the trader name caption" in new Setup {
-      val html: String = view(traderName, vrn, hasDraftNotifications = false).toString
+      val html: String = view(Some(traderName), vrn, hasDraftNotifications = false).toString
       html must include(traderName)
       html must include("govuk-caption-l")
     }
 
     "must render the VRN caption with GB prefix" in new Setup {
-      val html: String = view(traderName, vrn, hasDraftNotifications = false).toString
+      val html: String = view(Some(traderName), vrn, hasDraftNotifications = false).toString
       html must include(msgs("landingPage.organisation.vrn.caption", vrn))
       html must include(s"GB$vrn")
       html must include("govuk-caption-l")
     }
 
+    "must not render a trader name caption when traderName is None" in new Setup {
+      val html: String = view(None, vrn, hasDraftNotifications = false).toString
+      html must not include traderName
+      html must include(msgs("landingPage.organisation.vrn.caption", vrn))
+    }
+
     "must render the body intro" in new Setup {
-      val html: String = view(traderName, vrn, hasDraftNotifications = false).toString
+      val html: String = view(Some(traderName), vrn, hasDraftNotifications = false).toString
       html must include(msgs("landingPage.organisation.body"))
     }
 
     "must render the create-a-new-notification section linking to /start" in new Setup {
-      val html: String = view(traderName, vrn, hasDraftNotifications = false).toString
+      val html: String = view(Some(traderName), vrn, hasDraftNotifications = false).toString
       html must include(msgs("landingPage.organisation.create.link"))
       html must include(msgs("landingPage.organisation.create.body"))
       html must include(startUrl)
     }
 
     "must render the update-a-submitted-notification section linking to /start" in new Setup {
-      val html: String = view(traderName, vrn, hasDraftNotifications = false).toString
+      val html: String = view(Some(traderName), vrn, hasDraftNotifications = false).toString
       html must include(msgs("landingPage.organisation.update.link"))
       html must include(msgs("landingPage.organisation.update.body"))
     }
 
     "must render the manage-a-saved-notification heading" in new Setup {
-      val html: String = view(traderName, vrn, hasDraftNotifications = false).toString
+      val html: String = view(Some(traderName), vrn, hasDraftNotifications = false).toString
       html must include(msgs("landingPage.organisation.saved.heading"))
     }
 
     "must render the empty saved-notifications message when hasDraftNotifications is false" in new Setup {
-      val html: String = view(traderName, vrn, hasDraftNotifications = false).toString
+      val html: String = view(Some(traderName), vrn, hasDraftNotifications = false).toString
       html must include(msgs("landingPage.organisation.saved.body.empty"))
       html must not include msgs("landingPage.organisation.saved.body.has")
     }
 
     "must render the has-drafts saved-notifications message when hasDraftNotifications is true" in new Setup {
-      val html: String = view(traderName, vrn, hasDraftNotifications = true).toString
+      val html: String = view(Some(traderName), vrn, hasDraftNotifications = true).toString
       html must include(msgs("landingPage.organisation.saved.body.has"))
       html must not include msgs("landingPage.organisation.saved.body.empty")
     }
