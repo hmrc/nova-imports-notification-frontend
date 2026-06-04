@@ -19,14 +19,16 @@ package controllers
 import config.FrontendAppConfig
 import controllers.actions.*
 import forms.AddVehicleDetailsFormProvider
+import models.requests.DataRequest
 
 import javax.inject.Inject
-import models.{AddVehicleDetails, Mode, NovaUserType, UserAnswers}
+import models.{AddVehicleDetails, Mode, NovaUserType}
 import navigation.Navigator
 import pages.{AddVehicleDetailsPage, VehicleFromEuPage}
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
+import uk.gov.hmrc.auth.core.AffinityGroup
 import views.html.AddVehicleDetailsView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -42,16 +44,15 @@ class AddVehicleDetailsController @Inject() (
 )(implicit ec: ExecutionContext)
     extends BaseController {
 
+  import AddVehicleDetailsController.*
+
   val form: Form[AddVehicleDetails] = formProvider()
 
-  private val guardPredicate: UserAnswers => Boolean =
-    _.get(VehicleFromEuPage).contains(true)
-
-  def onPageLoad(mode: Mode): Action[AnyContent] = actions.vatTraderAuthAndGetDataWithGuard(guardPredicate) { implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate) { implicit request =>
     Ok(view(form.withDefault(request.userAnswers.get(AddVehicleDetailsPage)), mode, appConfig.multipleVehiclesSpreadsheetsUrl))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = actions.vatTraderAuthAndGetDataWithGuard(guardPredicate).async { implicit request =>
+  def onSubmit(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
@@ -65,4 +66,17 @@ class AddVehicleDetailsController @Inject() (
           )
       )
   }
+}
+
+object AddVehicleDetailsController {
+
+  // Allow user types 1-6 with IQ1.0 = Yes. User types 7 & 8 (HMRC-NOVRN-AGNT) are
+  // already rejected by StandardIdentifierAction. Reject user type 9 here:
+  // organisation with HMCE-VATDEC-ORG present but not Activated (de-registered).
+  def guardPredicate(request: DataRequest[?]): Boolean =
+    !isDeregisteredOrganisation(request) && request.userAnswers.get(VehicleFromEuPage).contains(true)
+
+  private def isDeregisteredOrganisation(request: DataRequest[?]): Boolean =
+    request.affinityGroup == AffinityGroup.Organisation &&
+      request.enrolments.getEnrolment(NovaEnrolments.vatDec).exists(!_.isActivated)
 }

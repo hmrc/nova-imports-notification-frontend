@@ -21,6 +21,7 @@ import com.google.inject.name.Names
 import config.FrontendAppConfig
 import controllers.actions.*
 import forms.AddVehicleDetailsFormProvider
+import models.requests.IdentifierRequest
 import models.{AddVehicleDetails, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
@@ -29,13 +30,15 @@ import org.scalatestplus.mockito.MockitoSugar
 import pages.{AddVehicleDetailsPage, VehicleFromEuPage}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.mvc.Call
+import play.api.mvc.*
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
+import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolment, EnrolmentIdentifier, Enrolments}
 import views.html.AddVehicleDetailsView
 
-import scala.concurrent.Future
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
 
 class AddVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
 
@@ -50,6 +53,22 @@ class AddVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
 
   private def spreadsheetUrl(app: play.api.Application): String =
     app.injector.instanceOf[FrontendAppConfig].multipleVehiclesSpreadsheetsUrl
+
+  private def applicationFor(
+    standardIdentifier: Class[? <: IdentifierAction],
+    userAnswers: Option[UserAnswers]
+  ): play.api.Application =
+    new GuiceApplicationBuilder()
+      .overrides(
+        bind[DataRequiredAction].to[DataRequiredActionImpl],
+        bind[IdentifierAction].to[FakeIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("standard")).to(standardIdentifier),
+        bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
+        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
+      )
+      .build()
 
   "AddVehicleDetailsController" - {
 
@@ -169,48 +188,9 @@ class AddVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to Journey Recovery for a GET if IQ1 has not been answered" in {
+    "must redirect to Unauthorised for a GET if IQ1 has not been answered" in {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-
-      running(application) {
-        val request = FakeRequest(GET, addVehicleDetailsRoute)
-
-        val result = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
-      }
-    }
-
-    "must redirect to Journey Recovery for a GET if IQ1 was answered No" in {
-
-      val answersIq1No = emptyUserAnswers.set(VehicleFromEuPage, false).success.value
-      val application  = applicationBuilder(userAnswers = Some(answersIq1No)).build()
-
-      running(application) {
-        val request = FakeRequest(GET, addVehicleDetailsRoute)
-
-        val result = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
-      }
-    }
-
-    "must redirect to Unauthorised for a GET when the user is not a VAT-registered organisation" in {
-
-      val application = new GuiceApplicationBuilder()
-        .overrides(
-          bind[DataRequiredAction].to[DataRequiredActionImpl],
-          bind[IdentifierAction].to[FakeIdentifierAction],
-          bind[IdentifierAction].qualifiedWith(Names.named("standard")).to[FakeIdentifierAction],
-          bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[UnauthorisedIdentifierAction],
-          bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeIdentifierAction],
-          bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
-          bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(Some(userAnswersWithIq1Yes)))
-        )
-        .build()
 
       running(application) {
         val request = FakeRequest(GET, addVehicleDetailsRoute)
@@ -222,19 +202,68 @@ class AddVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to Unauthorised for a POST when the user is not a VAT-registered organisation" in {
+    "must redirect to Unauthorised for a GET if IQ1 was answered No" in {
 
-      val application = new GuiceApplicationBuilder()
-        .overrides(
-          bind[DataRequiredAction].to[DataRequiredActionImpl],
-          bind[IdentifierAction].to[FakeIdentifierAction],
-          bind[IdentifierAction].qualifiedWith(Names.named("standard")).to[FakeIdentifierAction],
-          bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[UnauthorisedIdentifierAction],
-          bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeIdentifierAction],
-          bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
-          bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(Some(userAnswersWithIq1Yes)))
-        )
-        .build()
+      val answersIq1No = emptyUserAnswers.set(VehicleFromEuPage, false).success.value
+      val application  = applicationBuilder(userAnswers = Some(answersIq1No)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, addVehicleDetailsRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Unauthorised for a GET when the user is an OGD agent (user type 7 or 8)" in {
+
+      val application = applicationFor(classOf[UnauthorisedIdentifierAction], Some(userAnswersWithIq1Yes))
+
+      running(application) {
+        val request = FakeRequest(GET, addVehicleDetailsRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Unauthorised for a POST when the user is an OGD agent (user type 7 or 8)" in {
+
+      val application = applicationFor(classOf[UnauthorisedIdentifierAction], Some(userAnswersWithIq1Yes))
+
+      running(application) {
+        val request =
+          FakeRequest(POST, addVehicleDetailsRoute)
+            .withFormUrlEncodedBody(("value", AddVehicleDetails.BySupplier.toString))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Unauthorised for a GET when the user is a de-registered organisation (user type 9)" in {
+
+      val application = applicationFor(classOf[FakeDeregisteredOrganisationIdentifierAction], Some(userAnswersWithIq1Yes))
+
+      running(application) {
+        val request = FakeRequest(GET, addVehicleDetailsRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Unauthorised for a POST when the user is a de-registered organisation (user type 9)" in {
+
+      val application = applicationFor(classOf[FakeDeregisteredOrganisationIdentifierAction], Some(userAnswersWithIq1Yes))
 
       running(application) {
         val request =
@@ -248,4 +277,23 @@ class AddVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
       }
     }
   }
+}
+
+class FakeDeregisteredOrganisationIdentifierAction @Inject() (bodyParsers: PlayBodyParsers) extends IdentifierAction {
+
+  override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] =
+    block(
+      IdentifierRequest(
+        request,
+        "id",
+        AffinityGroup.Organisation,
+        Enrolments(Set(Enrolment("HMCE-VATDEC-ORG", Seq(EnrolmentIdentifier("VATRegNo", "700037204")), "NotYetActivated")))
+      )
+    )
+
+  override def parser: BodyParser[AnyContent] =
+    bodyParsers.default
+
+  override protected def executionContext: ExecutionContext =
+    scala.concurrent.ExecutionContext.Implicits.global
 }
