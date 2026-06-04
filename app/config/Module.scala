@@ -18,7 +18,7 @@ package config
 
 import com.google.inject.AbstractModule
 import com.google.inject.name.Names
-import connectors.{NovaImportsBackendConnector, NovaImportsBackendConnectorImpl}
+import connectors.{AddressLookupConnector, AddressLookupConnectorImpl, NovaImportsBackendConnector, NovaImportsBackendConnectorImpl}
 import controllers.actions.*
 
 import java.time.{Clock, ZoneOffset}
@@ -52,6 +52,7 @@ class Module extends AbstractModule {
       .asEagerSingleton()
 
     bind(classOf[NovaImportsBackendConnector]).to(classOf[NovaImportsBackendConnectorImpl]).asEagerSingleton()
+    bind(classOf[AddressLookupConnector]).to(classOf[AddressLookupConnectorImpl]).asEagerSingleton()
 
     bind(classOf[Clock]).toInstance(Clock.systemDefaultZone.withZone(ZoneOffset.UTC))
   }
