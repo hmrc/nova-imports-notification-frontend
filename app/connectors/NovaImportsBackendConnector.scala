@@ -49,7 +49,9 @@ trait NovaImportsBackendConnector {
 
   def createDraft(clientVrn: Option[String])(implicit hc: HeaderCarrier): Future[Either[CreateDraftError, DraftId]]
 
-  def getNotificationSummary(clientVrn: Option[String])(implicit hc: HeaderCarrier): Future[Either[GetNotificationSummaryError, NotificationSummary]]
+  def getNotificationSummary(clientVrn: Option[String] = None)(implicit
+    hc: HeaderCarrier
+  ): Future[Either[GetNotificationSummaryError, NotificationSummary]]
 
   def updateDraftSection(draftId: DraftId, sectionId: String, body: JsObject)(implicit hc: HeaderCarrier): Future[Either[UpdateSectionError, Unit]]
 }
