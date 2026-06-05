@@ -20,10 +20,11 @@ import base.SpecBase
 import com.google.inject.name.Names
 import connectors.{GetNotificationSummaryError, NovaImportsBackendConnector}
 import controllers.actions.*
-import models.NotificationSummary
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import models.{AgentSelectedClient, NotificationSummary, UserAnswers}
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
+import pages.AgentSelectedClientPage
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -42,51 +43,85 @@ class LandingPageControllerSpec extends SpecBase with MockitoSugar {
   private val testTrader = "Tester Trader"
 
   private val emptySummary =
-    NotificationSummary.IndividualOrOrganisation(traderName = testTrader, vrn = "000000000", hasDraftNotifications = false)
+    NotificationSummary.IndividualOrOrganisation(
+      traderName = Some(testTrader),
+      vrn = Some("000000000"),
+      hasDraftNotifications = false,
+      isDeregistered = false
+    )
 
   private val summaryWithDrafts =
-    NotificationSummary.IndividualOrOrganisation(traderName = testTrader, vrn = "000000000", hasDraftNotifications = true)
+    NotificationSummary.IndividualOrOrganisation(
+      traderName = Some(testTrader),
+      vrn = Some("000000000"),
+      hasDraftNotifications = true,
+      isDeregistered = false
+    )
+
+  private val summaryNoName =
+    NotificationSummary.IndividualOrOrganisation(
+      traderName = None,
+      vrn = Some("000000000"),
+      hasDraftNotifications = false,
+      isDeregistered = false
+    )
 
   private val agentSummaryWithoutDrafts =
     NotificationSummary.AgentWithoutClient(
-      traderName = "ABC Consultancy",
-      vrn = "000000000",
-      hasDraftNotifications = false,
-      hasClients = true
+      agentName = Some("ABC Consultancy"),
+      hasDraftNotifications = false
+    )
+
+  private val agentSummaryNoName =
+    NotificationSummary.AgentWithoutClient(
+      agentName = None,
+      hasDraftNotifications = false
     )
 
   private val agentSummaryWithDrafts =
     NotificationSummary.AgentWithoutClient(
-      traderName = "ABC Consultancy",
-      vrn = "000000000",
-      hasDraftNotifications = true,
-      hasClients = true
+      agentName = Some("ABC Consultancy"),
+      hasDraftNotifications = true
     )
+
+  private val agentSummaryWithClient =
+    NotificationSummary.AgentWithClient(
+      agentName = Some("ABC Consultancy"),
+      clientTraderName = Some("Client Co"),
+      clientVrn = "700011916",
+      clientHasDraftNotifications = true,
+      clientIsDeregistered = false
+    )
+
+  private val userAnswersWithClient =
+    emptyUserAnswers.set(AgentSelectedClientPage, AgentSelectedClient(vrn = "700011916", name = Some("Client Co"))).success.value
 
   private def applicationWith(
     identifierAction: Class[? <: IdentifierAction],
-    connector: NovaImportsBackendConnector = stubConnector(emptySummary)
+    connector: NovaImportsBackendConnector = stubConnector(emptySummary),
+    userAnswers: Option[UserAnswers] = None
   ): Application =
     new GuiceApplicationBuilder()
       .overrides(
         bind[IdentifierAction].to(identifierAction),
         bind[IdentifierAction].qualifiedWith(Names.named("standard")).to(identifierAction),
         bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeIdentifierAction],
         bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
-        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(None)),
+        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers)),
         bind[NovaImportsBackendConnector].toInstance(connector)
       )
       .build()
 
   private def stubConnector(summary: NotificationSummary): NovaImportsBackendConnector = {
     val m = mock[NovaImportsBackendConnector]
-    when(m.getNotificationSummary()(any[HeaderCarrier])) thenReturn Future.successful(Right(summary))
+    when(m.getNotificationSummary(any[Option[String]])(using any[HeaderCarrier])) thenReturn Future.successful(Right(summary))
     m
   }
 
   private def failingSummaryConnector: NovaImportsBackendConnector = {
     val m = mock[NovaImportsBackendConnector]
-    when(m.getNotificationSummary()(any[HeaderCarrier]))
+    when(m.getNotificationSummary(any[Option[String]])(using any[HeaderCarrier]))
       .thenReturn(Future.successful(Left(GetNotificationSummaryError.UpstreamError(500, "boom"))))
     m
   }
@@ -148,6 +183,42 @@ class LandingPageControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
+      "for a Private Individual with no trader name renders LP1.0 without a name caption" in {
+        given application: Application =
+          applicationWith(classOf[FakeIdentifierAction], stubConnector(summaryNoName))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, landingPageRoute)
+
+          val result = route(application, request).value
+          val body   = contentAsString(result)
+
+          status(result) mustEqual OK
+          body must include("Notification of Vehicle Arrivals (NOVA)")
+          body must not include "govuk-caption-l"
+          body must not include testTrader
+        }
+      }
+
+      "for a non-VAT Organisation renders LP1.0 the same as a Private Individual" in {
+        given application: Application = applicationWith(classOf[FakeOrganisationIdentifierAction])
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, landingPageRoute)
+
+          val result = route(application, request).value
+          val body   = contentAsString(result)
+
+          status(result) mustEqual OK
+          body must include("Notification of Vehicle Arrivals (NOVA)")
+          body must include("""<span class="govuk-caption-l">Tester Trader</span>""")
+          body must include("Create a new notification")
+          body must include("Update a submitted notification")
+          body must include("Manage a saved notification")
+          body must include("You do not have a saved notification")
+        }
+      }
+
       "for a VAT-registered Organisation with no drafts renders LP2.0 with trader name, VRN and the empty saved-notification message" in {
         given application: Application = applicationWith(classOf[FakeVatTraderIdentifierAction])
 
@@ -201,15 +272,8 @@ class LandingPageControllerSpec extends SpecBase with MockitoSugar {
       }
 
       "for a VAT-registered Organisation when the summary returns an unexpected agent shape redirects to JourneyRecovery" in {
-        val agentSummary = NotificationSummary.AgentWithoutClient(
-          traderName = "Agency LTD",
-          vrn = "0",
-          hasDraftNotifications = false,
-          hasClients = true
-        )
-
         given application: Application =
-          applicationWith(classOf[FakeVatTraderIdentifierAction], stubConnector(agentSummary))
+          applicationWith(classOf[FakeVatTraderIdentifierAction], stubConnector(agentSummaryWithoutDrafts))
 
         running(application) {
           given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, landingPageRoute)
@@ -221,8 +285,9 @@ class LandingPageControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "for a non-VAT Organisation renders LP1.0 (same as Private Individual)" in {
-        given application: Application = applicationWith(classOf[FakeOrganisationIdentifierAction])
+      "for a VAT-registered Organisation with no trader name renders LP2.0 with the VRN caption and no name, without redirecting to JourneyRecovery" in {
+        given application: Application =
+          applicationWith(classOf[FakeVatTraderIdentifierAction], stubConnector(summaryNoName))
 
         running(application) {
           given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, landingPageRoute)
@@ -231,16 +296,13 @@ class LandingPageControllerSpec extends SpecBase with MockitoSugar {
           val body   = contentAsString(result)
 
           status(result) mustEqual OK
-          body must include("Notification of Vehicle Arrivals (NOVA)")
-          body must include("""<span class="govuk-caption-l">Tester Trader</span>""")
-          body must include("Create a new notification")
-          body must include("Update a submitted notification")
-          body must include("Manage a saved notification")
-          body must include("You do not have a saved notification")
+          body must include("VAT registration number: GB000000000")
+          body must not include testTrader
+          redirectLocation(result) mustBe None
         }
       }
 
-      "for an Agent with no drafts renders LP3.0 with the empty saved-notification message" in {
+      "for an Agent with no client renders LP3.0 with the agent name caption and the empty saved-notification message" in {
         given application: Application =
           applicationWith(classOf[FakeAgentIdentifierAction], stubConnector(agentSummaryWithoutDrafts))
 
@@ -264,7 +326,7 @@ class LandingPageControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "for an Agent with drafts renders the heading as an enabled link and the has-drafts body" in {
+      "for an Agent with no client and drafts renders the has-drafts saved-notification body" in {
         given application: Application =
           applicationWith(classOf[FakeAgentIdentifierAction], stubConnector(agentSummaryWithDrafts))
 
@@ -281,7 +343,7 @@ class LandingPageControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "for an Agent when the summary call fails defaults to no drafts and omits the trader caption" in {
+      "for an Agent with no client when the summary call fails defaults to no drafts and omits the agent caption" in {
         given application: Application =
           applicationWith(classOf[FakeAgentIdentifierAction], failingSummaryConnector)
 
@@ -295,6 +357,40 @@ class LandingPageControllerSpec extends SpecBase with MockitoSugar {
           body must include("You do not have a saved notification")
           body must include("Manage your clients")
           body must not include "ABC Consultancy"
+        }
+      }
+
+      "for an Agent with no client and no agent name renders LP3.0 without a name caption" in {
+        given application: Application =
+          applicationWith(classOf[FakeAgentIdentifierAction], stubConnector(agentSummaryNoName))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, landingPageRoute)
+
+          val result = route(application, request).value
+          val body   = contentAsString(result)
+
+          status(result) mustEqual OK
+          body must not include "ABC Consultancy"
+          body must include("Manage your clients")
+        }
+      }
+
+      "for an Agent with a selected client passes the client VRN to the backend and renders the agent landing page" in {
+        val connector = stubConnector(agentSummaryWithClient)
+
+        given application: Application =
+          applicationWith(classOf[FakeAgentIdentifierAction], connector, userAnswers = Some(userAnswersWithClient))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, landingPageRoute)
+
+          val result = route(application, request).value
+          val body   = contentAsString(result)
+
+          status(result) mustEqual OK
+          body must include("ABC Consultancy")
+          verify(connector).getNotificationSummary(eqTo(Some("700011916")))(using any[HeaderCarrier])
         }
       }
     }

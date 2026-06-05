@@ -56,7 +56,9 @@ trait NovaImportsBackendConnector {
 
   def createDraft(clientVrn: Option[String])(implicit hc: HeaderCarrier): Future[Either[CreateDraftError, DraftId]]
 
-  def getNotificationSummary()(implicit hc: HeaderCarrier): Future[Either[GetNotificationSummaryError, NotificationSummary]]
+  def getNotificationSummary(clientVrn: Option[String] = None)(implicit
+    hc: HeaderCarrier
+  ): Future[Either[GetNotificationSummaryError, NotificationSummary]]
 
   def updateDraftSection(draftId: DraftId, sectionId: String, body: JsObject)(implicit hc: HeaderCarrier): Future[Either[UpdateSectionError, Unit]]
 
@@ -77,7 +79,7 @@ class NovaImportsBackendConnectorImpl @Inject() (
 
     val request  = httpClient.post(url"${serviceUrl("/draft-notifications")}")
     val withBody = clientVrn match {
-      case Some(vrn) => request.withBody(Json.obj("clientVrn" -> vrn): JsObject)
+      case Some(vrn) => request.withBody(Json.obj("clientVrn" -> vrn))
       case None      => request
     }
 
@@ -94,11 +96,18 @@ class NovaImportsBackendConnectorImpl @Inject() (
     }
   }
 
-  override def getNotificationSummary()(implicit hc: HeaderCarrier): Future[Either[GetNotificationSummaryError, NotificationSummary]] = {
+  override def getNotificationSummary(
+    clientVrn: Option[String]
+  )(implicit hc: HeaderCarrier): Future[Either[GetNotificationSummaryError, NotificationSummary]] = {
     import GetNotificationSummaryError.*
 
-    httpClient
-      .get(url"${serviceUrl("/notification-summary")}")
+    val request  = httpClient.get(url"${serviceUrl("/notification-summary")}")
+    val withBody = clientVrn match {
+      case Some(vrn) => request.withBody(Json.obj("clientVrn" -> vrn))
+      case None      => request
+    }
+
+    withBody
       .execute[HttpResponse]
       .map { response =>
         response.status match {

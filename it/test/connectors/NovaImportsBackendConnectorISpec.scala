@@ -104,63 +104,102 @@ class NovaImportsBackendConnectorISpec
 
   "getNotificationSummary" - {
 
-    "returns IndividualOrOrganisation when the backend returns the IndividualOrOrganisation shape" in {
+    "returns IndividualOrOrganisation when the backend omits vrn and hasClients" in {
       wireMockServer.stubFor(
         get(urlEqualTo("/nova-imports/notification-summary"))
           .willReturn(
             okJson(
-              """{"traderName":"ABC LTD","vrn":"123456789","hasDraftNotifications":true,"hasClients":null}"""
+              """{"traderName":"ABC LTD","hasDraftNotifications":true,"isDeregistered":false}"""
             )
           )
       )
 
-      connector.getNotificationSummary().futureValue mustEqual Right(
+      connector.getNotificationSummary(None).futureValue mustEqual Right(
         NotificationSummary.IndividualOrOrganisation(
-          traderName = "ABC LTD",
-          vrn = "123456789",
-          hasDraftNotifications = true
+          traderName = Some("ABC LTD"),
+          vrn = None,
+          hasDraftNotifications = true,
+          isDeregistered = false
         )
       )
     }
 
-    "returns AgentWithoutClient when the backend returns the AgentWithoutClient shape" in {
+    "returns IndividualOrOrganisation with vrn when the backend includes an enrolment" in {
       wireMockServer.stubFor(
         get(urlEqualTo("/nova-imports/notification-summary"))
           .willReturn(
             okJson(
-              """{"traderName":"ABC LTD","vrn":"123456789","hasDraftNotifications":false,"hasClients":true}"""
+              """{"traderName":"ABC LTD","vrn":"123456789","hasDraftNotifications":true,"isDeregistered":false}"""
             )
           )
       )
 
-      connector.getNotificationSummary().futureValue mustEqual Right(
+      connector.getNotificationSummary(None).futureValue mustEqual Right(
+        NotificationSummary.IndividualOrOrganisation(
+          traderName = Some("ABC LTD"),
+          vrn = Some("123456789"),
+          hasDraftNotifications = true,
+          isDeregistered = false
+        )
+      )
+    }
+
+    "returns AgentWithoutClient when hasClients is null" in {
+      wireMockServer.stubFor(
+        get(urlEqualTo("/nova-imports/notification-summary"))
+          .willReturn(
+            okJson(
+              """{"agentName":"ABC LTD","hasDraftNotifications":false,"hasClients":null}"""
+            )
+          )
+      )
+
+      connector.getNotificationSummary(None).futureValue mustEqual Right(
         NotificationSummary.AgentWithoutClient(
-          traderName = "ABC LTD",
-          vrn = "123456789",
-          hasDraftNotifications = false,
-          hasClients = true
+          agentName = Some("ABC LTD"),
+          hasDraftNotifications = false
         )
       )
     }
 
-    "returns AgentWithClient when the backend returns the AgentWithClient shape" in {
+    "sends the client VRN body and returns AgentWithClient when an agent has a selected client" in {
       wireMockServer.stubFor(
         get(urlEqualTo("/nova-imports/notification-summary"))
+          .withRequestBody(equalToJson("""{"clientVrn":"700011916"}"""))
           .willReturn(
             okJson(
-              """{"traderName":"ABC LTD","vrn":"0","clientTraderName":"CLIENT LTD","clientVrn":"700011916","clientHasDraftNotifications":true,"hasClients":true}"""
+              """{"agentName":"ABC LTD","clientTraderName":"CLIENT LTD","clientVrn":"700011916","clientHasDraftNotifications":true,"clientIsDeregistered":false,"hasClients":true}"""
             )
           )
       )
 
-      connector.getNotificationSummary().futureValue mustEqual Right(
+      connector.getNotificationSummary(Some("700011916")).futureValue mustEqual Right(
         NotificationSummary.AgentWithClient(
-          traderName = "ABC LTD",
-          vrn = "0",
-          clientTraderName = "CLIENT LTD",
+          agentName = Some("ABC LTD"),
+          clientTraderName = Some("CLIENT LTD"),
           clientVrn = "700011916",
           clientHasDraftNotifications = true,
-          hasClients = true
+          clientIsDeregistered = false
+        )
+      )
+    }
+
+    "sends no body when no client is selected" in {
+      wireMockServer.stubFor(
+        get(urlEqualTo("/nova-imports/notification-summary"))
+          .willReturn(
+            okJson(
+              """{"traderName":"ABC LTD","hasDraftNotifications":false,"isDeregistered":false}"""
+            )
+          )
+      )
+
+      connector.getNotificationSummary(None).futureValue mustEqual Right(
+        NotificationSummary.IndividualOrOrganisation(
+          traderName = Some("ABC LTD"),
+          vrn = None,
+          hasDraftNotifications = false,
+          isDeregistered = false
         )
       )
     }
@@ -171,7 +210,7 @@ class NovaImportsBackendConnectorISpec
           .willReturn(aResponse().withStatus(500).withBody("boom"))
       )
 
-      connector.getNotificationSummary().futureValue mustEqual Left(
+      connector.getNotificationSummary(None).futureValue mustEqual Left(
         GetNotificationSummaryError.UpstreamError(500, "boom")
       )
     }
@@ -182,7 +221,7 @@ class NovaImportsBackendConnectorISpec
           .willReturn(okJson("""{"unexpected":"shape"}"""))
       )
 
-      connector.getNotificationSummary().futureValue match {
+      connector.getNotificationSummary(None).futureValue match {
         case Left(GetNotificationSummaryError.UpstreamError(200, message)) =>
           message must startWith("Malformed notification summary")
         case other                                                         =>
