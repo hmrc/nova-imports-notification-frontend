@@ -18,6 +18,7 @@ package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import models.{DraftId, NotificationSummary}
+import models.responses.CreateDraftResponse
 import play.api.libs.json.Json
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
@@ -53,23 +54,23 @@ class NovaImportsBackendConnectorISpec
 
   "createDraft" - {
 
-    "returns a DraftId on 201 with no body when no client is selected" in {
+    "returns a CreateDraftResponse on 201 when no client is selected" in {
       wireMockServer.stubFor(
         post(urlEqualTo("/nova-imports/draft-notifications"))
-          .willReturn(aResponse().withStatus(201).withBody("""{"draftId":"12345"}"""))
+          .willReturn(aResponse().withStatus(201).withBody("""{"draftId":"12345","versionId":1}"""))
       )
 
-      connector.createDraft(None).futureValue mustEqual Right(DraftId("12345"))
+      connector.createDraft(None).futureValue mustEqual Right(CreateDraftResponse("12345", 1L))
     }
 
-    "sends the {clientVrn} JSON body and returns a DraftId when an agent has a selected client" in {
+    "sends the {clientVrn} JSON body and returns a CreateDraftResponse when an agent has a selected client" in {
       wireMockServer.stubFor(
         post(urlEqualTo("/nova-imports/draft-notifications"))
           .withRequestBody(equalToJson("""{"clientVrn":"700011916"}"""))
-          .willReturn(aResponse().withStatus(201).withBody("""{"draftId":"67890"}"""))
+          .willReturn(aResponse().withStatus(201).withBody("""{"draftId":"67890","versionId":2}"""))
       )
 
-      connector.createDraft(Some("700011916")).futureValue mustEqual Right(DraftId("67890"))
+      connector.createDraft(Some("700011916")).futureValue mustEqual Right(CreateDraftResponse("67890", 2L))
     }
 
     "returns ClientNotFound on 403" in {
@@ -90,15 +91,18 @@ class NovaImportsBackendConnectorISpec
       connector.createDraft(None).futureValue mustEqual Left(CreateDraftError.UpstreamError(503, "upstream down"))
     }
 
-    "returns UpstreamError on 201 when the response body is missing draftId" in {
+    "returns UpstreamError on 201 when the response body cannot be parsed as a CreateDraftResponse" in {
       wireMockServer.stubFor(
         post(urlEqualTo("/nova-imports/draft-notifications"))
           .willReturn(aResponse().withStatus(201).withBody("""{"unexpected":"shape"}"""))
       )
 
-      connector.createDraft(None).futureValue mustEqual Left(
-        CreateDraftError.UpstreamError(201, "Missing draftId in response body")
-      )
+      connector.createDraft(None).futureValue match {
+        case Left(CreateDraftError.UpstreamError(201, message)) =>
+          message must startWith("Malformed create draft response")
+        case other =>
+          fail(s"expected UpstreamError(201, ...) but got $other")
+      }
     }
   }
 
@@ -237,14 +241,14 @@ class NovaImportsBackendConnectorISpec
     val url       = s"/nova-imports/draft-notifications/${draftId.value}/sections/$sectionId"
     val body      = Json.obj("vehicleFromEuToNi" -> true)
 
-    "returns Right(()) on 200" in {
+    "returns the new versionId on 200" in {
       wireMockServer.stubFor(
         put(urlEqualTo(url))
           .withRequestBody(equalToJson(body.toString))
-          .willReturn(aResponse().withStatus(200))
+          .willReturn(aResponse().withStatus(200).withBody("""{"versionId":3}"""))
       )
 
-      connector.updateDraftSection(draftId, sectionId, body).futureValue mustEqual Right(())
+      connector.updateDraftSection(draftId, sectionId, body).futureValue mustEqual Right(3L)
     }
 
     "returns Forbidden on 403" in {

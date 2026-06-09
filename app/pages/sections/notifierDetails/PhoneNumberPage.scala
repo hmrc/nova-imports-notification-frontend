@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package models
+package pages.sections.notifierDetails
 
-import play.api.libs.json.{Json, OFormat}
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-final case class AddYourName(
-  title: String,
-  firstName: String,
-  lastName: String
-)
+case object PhoneNumberPage extends QuestionPage[String] {
 
-object AddYourName {
-  implicit val format: OFormat[AddYourName] = Json.format[AddYourName]
+  override def path: JsPath = JsPath \ "notifier-details" \ toString
+
+  override def toString: String = "phoneNumber"
 }

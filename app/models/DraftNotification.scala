@@ -16,24 +16,12 @@
 
 package models
 
-import play.api.libs.functional.syntax.*
 import play.api.libs.json.*
 
-final case class DraftNotificationSection(status: SectionStatus, data: Option[JsObject])
+final case class DraftNotificationSection(data: Option[JsObject])
 
 object DraftNotificationSection {
-
-  implicit val reads: Reads[DraftNotificationSection] = (
-    (__ \ "status").read[SectionStatus] and
-      (__ \ "data").readNullable[JsObject]
-  )(DraftNotificationSection.apply _)
-
-  implicit val writes: OWrites[DraftNotificationSection] = (
-    (__ \ "status").write[SectionStatus] and
-      (__ \ "data").writeNullable[JsObject]
-  )(s => (s.status, s.data))
-
-  implicit val format: OFormat[DraftNotificationSection] = OFormat(reads, writes)
+  implicit val format: OFormat[DraftNotificationSection] = Json.format[DraftNotificationSection]
 }
 
 // `lastUpdatedDate` is documented in the spec but the backend may omit it for drafts
@@ -42,9 +30,7 @@ final case class DraftNotification(
   createdDate: String,
   lastUpdatedDate: Option[String],
   sections: Map[String, DraftNotificationSection]
-) {
-  def statusOf(sectionId: String): Option[SectionStatus] = sections.get(sectionId).map(_.status)
-}
+)
 
 object DraftNotification {
   implicit val format: OFormat[DraftNotification] = Json.format[DraftNotification]

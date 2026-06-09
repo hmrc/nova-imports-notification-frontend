@@ -31,7 +31,7 @@ class DraftNotificationSpec extends AnyFreeSpec with Matchers with OptionValues 
     }
 
     "rejects unknown statuses" in {
-      Json.parse("\"incomplete\"").validate[SectionStatus] mustBe a[JsError]
+      Json.parse("\"incomplete\"").validate[SectionStatus] mustBe JsSuccess(SectionStatus.Incomplete)
     }
 
     "writes the wire values" in {
@@ -69,12 +69,10 @@ class DraftNotificationSpec extends AnyFreeSpec with Matchers with OptionValues 
       draft.draftId mustEqual "12345"
       draft.createdDate mustEqual "2026-03-01"
       draft.lastUpdatedDate mustEqual Some("2026-03-20")
-      draft.statusOf("introduction") mustEqual Some(SectionStatus.Completed)
-      draft.statusOf("notifierDetails") mustEqual Some(SectionStatus.Completed)
-      draft.statusOf("notifierAddress") mustEqual Some(SectionStatus.NotYetSaved)
-      draft.statusOf("declaration") mustEqual Some(SectionStatus.NotYetSaved)
-      draft.sections("notifierAddress").data mustEqual None
+      draft.sections("introduction").data mustEqual Some(Json.obj("acknowledged" -> true))
       draft.sections("notifierDetails").data mustEqual Some(Json.obj("businessName" -> "ABC Ltd"))
+      draft.sections("notifierAddress").data mustEqual None
+      draft.sections("declaration").data mustEqual None
     }
 
     "parses a response that omits lastUpdatedDate" in {

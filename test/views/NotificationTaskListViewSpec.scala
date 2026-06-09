@@ -18,7 +18,7 @@ package views
 
 import base.SpecBase
 import controllers.routes
-import models.{DraftNotification, DraftNotificationSection, NormalMode, SectionStatus}
+import models.{DraftNotification, NormalMode, SectionStatus}
 import org.scalatest.matchers.must.Matchers
 import play.api.Application
 import play.api.i18n.Messages
@@ -28,14 +28,11 @@ import views.html.NotificationTaskListView
 
 class NotificationTaskListViewSpec extends SpecBase with Matchers {
 
-  private def section(status: SectionStatus): DraftNotificationSection =
-    DraftNotificationSection(status, data = None)
-
-  private val allNotYetSaved: Map[String, DraftNotificationSection] = Map(
-    DraftNotification.SectionId.NotifierDetails -> section(SectionStatus.NotYetSaved),
-    DraftNotification.SectionId.NotifierAddress -> section(SectionStatus.NotYetSaved),
-    DraftNotification.SectionId.Vehicles        -> section(SectionStatus.NotYetSaved),
-    DraftNotification.SectionId.Declaration     -> section(SectionStatus.NotYetSaved)
+  private val allNotYetSaved: Map[String, SectionStatus] = Map(
+    DraftNotification.SectionId.NotifierDetails -> SectionStatus.NotYetSaved,
+    DraftNotification.SectionId.NotifierAddress -> SectionStatus.NotYetSaved,
+    DraftNotification.SectionId.Vehicles        -> SectionStatus.NotYetSaved,
+    DraftNotification.SectionId.Declaration     -> SectionStatus.NotYetSaved
   )
 
   "NotificationTaskListView" - {
@@ -43,8 +40,8 @@ class NotificationTaskListViewSpec extends SpecBase with Matchers {
     "must render the page heading, trader name and VRN caption" in new Setup {
       val html: String = view(traderName, vrn, allNotYetSaved, showAddYourAddress = false).toString
       html must include(msgs("notificationTaskList.heading"))
-      html must include(traderName)
-      html must include(msgs("notificationTaskList.vrn.caption", vrn))
+      html must include(traderName.get)
+      html must include(msgs("notificationTaskList.vrn.caption", vrn.get))
     }
 
     "must render the page title" in new Setup {
@@ -90,7 +87,7 @@ class NotificationTaskListViewSpec extends SpecBase with Matchers {
     }
 
     "must mark sections with status completed as Completed" in new Setup {
-      val sections     = allNotYetSaved + (DraftNotification.SectionId.NotifierDetails -> section(SectionStatus.Completed))
+      val sections     = allNotYetSaved + (DraftNotification.SectionId.NotifierDetails -> SectionStatus.Completed)
       val html: String = view(traderName, vrn, sections, showAddYourAddress = false).toString
       html must include(msgs("notificationTaskList.status.completed"))
     }
@@ -132,8 +129,8 @@ class NotificationTaskListViewSpec extends SpecBase with Matchers {
     implicit val request: Request[?] = FakeRequest()
     implicit val msgs: Messages      = messages(app)
 
-    val traderName: String = "Harbourview Limited"
-    val vrn: String        = "123456789"
+    val traderName = Some("Harbourview Limited")
+    val vrn        = Some("123456789")
 
     val view: NotificationTaskListView = app.injector.instanceOf[NotificationTaskListView]
   }

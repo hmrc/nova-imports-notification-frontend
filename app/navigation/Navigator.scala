@@ -17,11 +17,12 @@
 package navigation
 
 import javax.inject.{Inject, Singleton}
-
 import play.api.mvc.Call
 import controllers.routes
 import pages.*
 import models.*
+import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
+import pages.sections.notifierDetails.{EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 
 @Singleton
 class Navigator @Inject() () {
@@ -54,13 +55,13 @@ class Navigator @Inject() () {
           case Some(false) => routes.AddYourNameController.onPageLoad(NormalMode)
           case _           => routes.JourneyRecoveryController.onPageLoad()
         }
-    case AddYourNamePage =>
+    case NameDetailsPage =>
       (_, _) => routes.PhoneNumberController.onPageLoad(NormalMode)
     case PhoneNumberPage =>
       (_, _) => routes.EmailAddressController.onPageLoad(NormalMode)
     case VehicleBusinessUsePage =>
       (_, _) => routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
-    case AgentVehicleBusinessUsePage =>
+    case AgentClientVehicleBusinessUsePage =>
       (_, _) => routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
     case PurchaserOrOnBehalfPage =>
       (userAnswers, _) =>
@@ -69,7 +70,7 @@ class Navigator @Inject() () {
           case Some(PurchaserOrOnBehalf.OnBehalfOfPurchaser) => routes.PurchaserBusinessOrIndividualController.onPageLoad(NormalMode)
           case _                                             => routes.JourneyRecoveryController.onPageLoad()
         }
-    case BusinessPrivatePage =>
+    case BusinessOrPrivatePage =>
       (_, _) => routes.PurchaserOrOnBehalfController.onPageLoad(NormalMode)
     case PurchaserBusinessOrIndividualPage =>
       (_, _) => routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
@@ -97,7 +98,7 @@ class Navigator @Inject() () {
             }
           case _ => routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
         }
-    case VehicleBusinessUsePage | AgentVehicleBusinessUsePage | BusinessPrivatePage | PurchaserBusinessOrIndividualPage =>
+    case VehicleBusinessUsePage | AgentClientVehicleBusinessUsePage | BusinessOrPrivatePage | PurchaserBusinessOrIndividualPage =>
       (_, _) => routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
     case PhoneNumberPage =>
       (_, _) => routes.EmailAddressController.onPageLoad(CheckMode)
@@ -108,7 +109,7 @@ class Navigator @Inject() () {
           case Some(PurchaserOrOnBehalf.OnBehalfOfPurchaser) => routes.PurchaserBusinessOrIndividualController.onPageLoad(CheckMode)
           case _                                             => routes.JourneyRecoveryController.onPageLoad()
         }
-    case AddYourNamePage =>
+    case NameDetailsPage =>
       (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to CYA2.0 - to be added later
     case EmailAddressPage =>
       (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to CYA2.0

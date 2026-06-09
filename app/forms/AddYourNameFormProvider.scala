@@ -18,7 +18,7 @@ package forms
 
 import javax.inject.Inject
 import forms.mappings.Mappings
-import models.AddYourName
+import models.NameDetails
 import play.api.data.Form
 import play.api.data.Forms.mapping
 
@@ -28,7 +28,7 @@ class AddYourNameFormProvider @Inject() extends Mappings {
   private val firstNameRegex = "^[A-Za-z0-9\\-' ]{1,100}$"
   private val lastNameRegex  = "^[A-Za-z0-9\\-' ]{1,100}$"
 
-  def apply(): Form[AddYourName] = Form(
+  def apply(): Form[NameDetails] = Form(
     mapping(
       "title" -> text("addYourName.titleField.error.required")
         .verifying(
@@ -51,6 +51,6 @@ class AddYourNameFormProvider @Inject() extends Mappings {
             regexp(lastNameRegex, "addYourName.lastName.error.format")
           )
         )
-    )(AddYourName.apply)(name => Some((name.title, name.firstName, name.lastName)))
+    )(NameDetails.apply)(name => Some((name.title, name.firstName, name.lastName)))
   )
 }

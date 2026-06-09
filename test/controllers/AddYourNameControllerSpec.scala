@@ -18,13 +18,14 @@ package controllers
 
 import base.SpecBase
 import forms.AddYourNameFormProvider
-import models.{AddYourName, BusinessOrPrivateIndividual, DraftId, NormalMode, UserAnswers}
+import models.{BusinessOrPrivateIndividual, DraftId, NameDetails, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.AddYourNamePage
+import pages.sections.initialquestions.BusinessOrPrivatePage
+import pages.sections.notifierDetails.NameDetailsPage
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -48,7 +49,7 @@ class AddYourNameControllerSpec extends SpecBase with MockitoSugar {
   val validLastName  = "Doe"
 
   private val requiredPreviousAnswers = emptyUserAnswers
-    .set(pages.BusinessPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
+    .set(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
     .success
     .value
     .set(pages.DraftIdPage, DraftId("DRAFT-001"))
@@ -75,8 +76,8 @@ class AddYourNameControllerSpec extends SpecBase with MockitoSugar {
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val answer      = AddYourName(validTitle, validFirstName, validLastName)
-      val userAnswers = requiredPreviousAnswers.set(AddYourNamePage, answer).success.value
+      val answer      = NameDetails(validTitle, validFirstName, validLastName)
+      val userAnswers = requiredPreviousAnswers.set(NameDetailsPage, answer).success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -151,7 +152,7 @@ class AddYourNameControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual SEE_OTHER
 
         verify(mockSessionRepository).set(captor.capture())
-        captor.getValue.get(AddYourNamePage) mustBe Some(AddYourName(validTitle, validFirstName, validLastName))
+        captor.getValue.get(NameDetailsPage) mustBe Some(NameDetails(validTitle, validFirstName, validLastName))
       }
     }
 

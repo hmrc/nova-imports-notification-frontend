@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package pages
+package pages.sections.introduction
 
-import models.PurchaserBusinessOrIndividual
+import pages.QuestionPage
 import play.api.libs.json.JsPath
 
-case object PurchaserBusinessOrIndividualPage extends QuestionPage[PurchaserBusinessOrIndividual] {
+case object IntroductionAcknowledgePage extends QuestionPage[Boolean] {
 
-  override def path: JsPath = JsPath \ toString
+  override def path: JsPath = JsPath \ "introduction" \ toString
 
-  override def toString: String = "purchaserBusinessOrIndividual"
+  override def toString: String = "acknowledged"
 }

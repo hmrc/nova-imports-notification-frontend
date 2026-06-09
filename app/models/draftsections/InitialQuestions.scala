@@ -21,7 +21,7 @@ import play.api.libs.json.{Format, Json}
 
 final case class InitialQuestions(
   vehicleFromEuToNi: Boolean,
-  vehicleIntoUkForBusinessUse: Option[Boolean],
+  isForBusinessUse: Option[Boolean],
   areYouBusinessOrPrivate: Option[BusinessOrPrivateIndividual],
   notifyingAsPurchaserOrOnBehalf: Option[PurchaserOrOnBehalf],
   isPurchaserBusinessOrPrivateIndividual: Option[PurchaserBusinessOrIndividual],

@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package pages
+package pages.sections.notifierDetails
 
+import pages.QuestionPage
 import play.api.libs.json.JsPath
 
-case object PhoneNumberPage extends QuestionPage[String] {
+case object EmailAddressPage extends QuestionPage[String] {
 
-  override def path: JsPath = JsPath \ toString
+  override def path: JsPath = JsPath \ "notifier-details" \ toString
 
-  override def toString: String = "phoneNumber"
+  override def toString: String = "emailAddress"
 }

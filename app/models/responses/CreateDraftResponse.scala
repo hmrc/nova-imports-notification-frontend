@@ -14,11 +14,24 @@
  * limitations under the License.
  */
 
-package pages
+package models.responses
 
-import play.api.libs.json.JsPath
+import play.api.libs.functional.syntax.*
+import play.api.libs.json.*
 
-case object VehicleBusinessUsePage extends QuestionPage[Boolean] {
-  override def path: JsPath     = JsPath \ toString
-  override def toString: String = "vehicleBusinessUse"
+final case class CreateDraftResponse(draftId: String, versionId: Long)
+
+object CreateDraftResponse {
+
+  implicit val reads: Reads[CreateDraftResponse] = (
+    (__ \ "draftId").read[String] and
+      (__ \ "versionId").read[Long]
+  )(CreateDraftResponse.apply _)
+
+  implicit val writes: OWrites[CreateDraftResponse] = (
+    (__ \ "draftId").write[String] and
+      (__ \ "versionId").write[Long]
+  )(c => (c.draftId, c.versionId))
+
+  implicit val format: OFormat[CreateDraftResponse] = OFormat(reads, writes)
 }

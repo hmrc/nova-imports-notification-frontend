@@ -19,7 +19,7 @@ package viewmodels.checkAnswers
 import base.SpecBase
 import controllers.routes
 import models.{CheckMode, PurchaserOrOnBehalf, UserAnswers}
-import pages.PurchaserOrOnBehalfPage
+import pages.sections.initialquestions.PurchaserOrOnBehalfPage
 import play.api.Application
 import play.api.i18n.Messages
 

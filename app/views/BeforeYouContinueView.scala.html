@@ -16,7 +16,6 @@
 
 @this(
     layout: templates.Layout,
-    formHelper: FormWithCSRF,
     govukButton: GovukButton
 )
 
@@ -52,9 +51,10 @@
 
     <p class="govuk-body">@messages("beforeYouContinue.updating.body.2")</p>
 
-    @formHelper(action = routes.BeforeYouContinueController.onSubmit()) {
-        @govukButton(
-            ButtonViewModel(messages("site.continue"))
-        )
-    }
+    <p class="govuk-body">
+    @govukButton(
+        ButtonViewModel(messages("site.continue"))
+        .asLink(routes.VehicleFromEuController.onPageLoad(NormalMode).url)
+    )
+    </p>
 }
