@@ -21,7 +21,7 @@
     govukButton: GovukButton
 )
 
-@(traderName: String, vrn: String, sections: Map[String, DraftNotificationSection], showAddYourAddress: Boolean)(implicit request: Request[?], messages: Messages)
+@(traderName: Option[String], vrn: Option[String], sections: Map[String, DraftNotificationSection], showAddYourAddress: Boolean)(implicit request: Request[?], messages: Messages)
 
 @statusTag(sectionId: String) = {
     @sections.get(sectionId).map(_.status) match {
@@ -36,7 +36,9 @@
 
 @layout(pageTitle = titleNoForm(messages("notificationTaskList.title"))) {
 
-    <span class="govuk-caption-l">@traderName<br>@messages("notificationTaskList.vrn.caption", vrn)</span>
+    @if(traderName.isDefined || vrn.isDefined) {
+        <span class="govuk-caption-l">@traderName.map { name =>@name}@if(traderName.isDefined && vrn.isDefined){<br>}@vrn.map { v =>@messages("notificationTaskList.vrn.caption", v)}</span>
+    }
 
     <h1 class="govuk-heading-l">@messages("notificationTaskList.heading")</h1>
 
