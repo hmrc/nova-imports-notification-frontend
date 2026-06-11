@@ -26,7 +26,7 @@
 @statusTag(sectionId: String) = {
     @sections.get(sectionId) match {
         case Some(SectionStatus.Completed) => {
-            <strong class="govuk-tag">@messages("notificationTaskList.status.completed")</strong>
+            @messages("notificationTaskList.status.completed")
         }
         case _ => {
             <strong class="govuk-tag govuk-tag--blue">@messages("notificationTaskList.status.incomplete")</strong>

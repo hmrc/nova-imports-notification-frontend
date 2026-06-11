@@ -20,13 +20,13 @@ import com.google.inject.{ImplementedBy, Inject, Singleton}
 import connectors.{GetDraftNotificationError, NovaImportsBackendConnector}
 import models.*
 import models.DraftNotification.SectionId
+import models.draftsections.{InitialQuestions, Introduction, NotifierDetailsIndividual, NotifierDetailsOrganisation}
 import pages.sections.introduction.*
 import pages.sections.initialquestions.*
 import play.api.libs.json.*
 import repositories.SessionRepository
 import uk.gov.hmrc.http.HeaderCarrier
 import services.UserDataService.*
-import cats.syntax.contravariantSemigroupal.*
 import pages.{AgentClientVehicleBusinessUsePage, AgentSelectedClientPage}
 import pages.sections.notifierDetails.{EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 
@@ -77,37 +77,36 @@ object UserDataService {
   def storeIntroductionPages(draft: DraftNotification, answers: UserAnswers, sessionRepository: SessionRepository)(implicit
     ec: ExecutionContext
   ): Future[UserAnswers] =
-    draft.sections.get(SectionId.Introduction).flatMap(_.data) match {
-      case None       => Future.successful(answers)
-      case Some(data) =>
-        val acknowledged               = (data \ "acknowledged").asOpt[Boolean]
-        val amendSubmittedNotification = (data \ "amendSubmittedNotification").asOpt[Boolean]
+    draft.sections
+      .get(SectionId.Introduction)
+      .flatMap(_.data)
+      .flatMap(_.asOpt[Introduction]) match {
+      case None        => Future.successful(answers)
+      case Some(intro) =>
         for {
-          a1 <- acknowledged.fold(Future.successful(answers))(v => sessionRepository.setPage(answers, IntroductionAcknowledgePage, v))
-          a2 <- amendSubmittedNotification.fold(Future.successful(a1))(v => sessionRepository.setPage(a1, AmendSubmittedNotificationPage, v))
+          a1 <- sessionRepository.setPage(answers, IntroductionAcknowledgePage, intro.acknowledged)
+          a2 <- sessionRepository.setPage(a1, AmendSubmittedNotificationPage, intro.amendSubmittedNotification)
         } yield a2
     }
 
   def storeInitialQuestionsPages(draft: DraftNotification, answers: UserAnswers, sessionRepository: SessionRepository)(implicit
     ec: ExecutionContext
   ): Future[UserAnswers] =
-    draft.sections.get(SectionId.InitialQuestions).flatMap(_.data) match {
-      case None       => Future.successful(answers)
-      case Some(data) =>
-        val vehicleFromEu                 = (data \ "vehicleFromEu").asOpt[Boolean]
-        val vehicleBusinessUse            = (data \ "isForBusinessUse").asOpt[Boolean]
-        val areYouBusinessPrivate         = (data \ "areYouBusinessPrivate").asOpt[BusinessOrPrivateIndividual]
-        val purchaserOrOnBehalf           = (data \ "purchaserOrOnBehalf").asOpt[PurchaserOrOnBehalf]
-        val purchaserBusinessPrivate      = (data \ "purchaserBusinessPrivate").asOpt[PurchaserBusinessOrIndividual]
-        val agentClientVehicleBusinessUse = (data \ "agentClientVehicleBusinessUse").asOpt[Boolean]
-
+    draft.sections
+      .get(SectionId.InitialQuestions)
+      .flatMap(_.data)
+      .flatMap(_.asOpt[InitialQuestions]) match {
+      case None     => Future.successful(answers)
+      case Some(iq) =>
         for {
-          a1 <- vehicleFromEu.fold(Future.successful(answers))(v => sessionRepository.setPage(answers, VehicleFromEuPage, v))
-          a2 <- vehicleBusinessUse.fold(Future.successful(a1))(v => sessionRepository.setPage(a1, VehicleBusinessUsePage, v))
-          a3 <- areYouBusinessPrivate.fold(Future.successful(a2))(v => sessionRepository.setPage(a2, BusinessOrPrivatePage, v))
-          a4 <- purchaserOrOnBehalf.fold(Future.successful(a3))(v => sessionRepository.setPage(a3, PurchaserOrOnBehalfPage, v))
-          a5 <- purchaserBusinessPrivate.fold(Future.successful(a4))(v => sessionRepository.setPage(a4, PurchaserBusinessOrIndividualPage, v))
-          a6 <- agentClientVehicleBusinessUse.fold(Future.successful(a5))(v => sessionRepository.setPage(a5, AgentClientVehicleBusinessUsePage, v))
+          a1 <- sessionRepository.setPage(answers, VehicleFromEuPage, iq.vehicleFromEuToNi)
+          a2 <- iq.isForBusinessUse.fold(Future.successful(a1))(v => sessionRepository.setPage(a1, VehicleBusinessUsePage, v))
+          a3 <- iq.areYouBusinessOrPrivate.fold(Future.successful(a2))(v => sessionRepository.setPage(a2, BusinessOrPrivatePage, v))
+          a4 <- iq.notifyingAsPurchaserOrOnBehalf.fold(Future.successful(a3))(v => sessionRepository.setPage(a3, PurchaserOrOnBehalfPage, v))
+          a5 <- iq.isPurchaserBusinessOrPrivateIndividual.fold(Future.successful(a4))(v =>
+                  sessionRepository.setPage(a4, PurchaserBusinessOrIndividualPage, v)
+                )
+          a6 <- iq.agentClientVehicleBusinessUse.fold(Future.successful(a5))(v => sessionRepository.setPage(a5, AgentClientVehicleBusinessUsePage, v))
         } yield a6
     }
 
@@ -117,19 +116,24 @@ object UserDataService {
     draft.sections.get(SectionId.NotifierDetails).flatMap(_.data) match {
       case None       => Future.successful(answers)
       case Some(data) =>
-        val title       = (data \ "title").asOpt[String]
-        val firstName   = (data \ "firstName").asOpt[String]
-        val lastName    = (data \ "lastName").asOpt[String]
-        val email       = (data \ "emailAddress").asOpt[String]
-        val phoneNumber = (data \ "phoneNumber").asOpt[String]
-
-        for {
-          a1 <- (title, firstName, lastName)
-                  .mapN((t, f, l) => sessionRepository.setPage(answers, NameDetailsPage, NameDetails(t, f, l)))
-                  .getOrElse(Future.successful(answers))
-          a2 <- email.fold(Future.successful(a1))(v => sessionRepository.setPage(a1, EmailAddressPage, v))
-          a3 <- phoneNumber.fold(Future.successful(a2))(v => sessionRepository.setPage(a2, PhoneNumberPage, v))
-        } yield a3
+        data.asOpt[NotifierDetailsIndividual] match {
+          case Some(nd) =>
+            for {
+              a1 <- sessionRepository.setPage(answers, NameDetailsPage, NameDetails(nd.title, nd.firstName, nd.lastName))
+              a2 <- sessionRepository.setPage(a1, EmailAddressPage, nd.emailAddress)
+              a3 <- sessionRepository.setPage(a2, PhoneNumberPage, nd.phoneNumber)
+            } yield a3
+          case None =>
+            data.asOpt[NotifierDetailsOrganisation] match {
+              case Some(nd) =>
+                for {
+                  a1 <- sessionRepository.setPage(answers, EmailAddressPage, nd.emailAddress)
+                  a2 <- sessionRepository.setPage(a1, PhoneNumberPage, nd.phoneNumber)
+                } yield a2
+              case None =>
+                Future.successful(answers)
+            }
+        }
     }
 
   def orgWithEnrolments(answers: UserAnswers): Map[String, SectionStatus] = {
