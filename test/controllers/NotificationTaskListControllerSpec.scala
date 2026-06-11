@@ -48,9 +48,10 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
   private val answersPrivateUse  = baseAnswers.set(VehicleBusinessUsePage, false).success.value
 
   private val orgSummary = NotificationSummary.IndividualOrOrganisation(
-    traderName = "Harbourview Limited",
-    vrn = "123456789",
-    hasDraftNotifications = true
+    traderName = Some("Harbourview Limited"),
+    vrn = Some("123456789"),
+    hasDraftNotifications = true,
+    isDeregistered = false
   )
 
   private def section(status: SectionStatus): DraftNotificationSection =
@@ -76,7 +77,7 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
     draft: Either[GetDraftNotificationError, DraftNotification] = Right(incompleteDraft)
   ): NovaImportsBackendConnector = {
     val m = mock[NovaImportsBackendConnector]
-    when(m.getNotificationSummary()(any[HeaderCarrier])) thenReturn Future.successful(summary)
+    when(m.getNotificationSummary(any[Option[String]])(any[HeaderCarrier])) thenReturn Future.successful(summary)
     when(m.getDraftNotification(eqTo(testDraftId))(any[HeaderCarrier])) thenReturn Future.successful(draft)
     m
   }
@@ -277,10 +278,8 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
 
       "must redirect to Journey Recovery when the summary returns an unexpected shape" in {
         val agentSummary = NotificationSummary.AgentWithoutClient(
-          traderName = "ABC Consultancy",
-          vrn = "000000000",
-          hasDraftNotifications = false,
-          hasClients = true
+          agentName = Some("ABC Consultancy"),
+          hasDraftNotifications = false
         )
 
         given application: Application = applicationWith(
