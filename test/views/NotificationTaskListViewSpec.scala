@@ -44,6 +44,12 @@ class NotificationTaskListViewSpec extends SpecBase with Matchers {
       html must include(msgs("notificationTaskList.vrn.caption", vrn.get))
     }
 
+    "must omit the trader caption entirely when name and VRN are both absent" in new Setup {
+      val html: String = view(None, None, allNotYetSaved, showAddYourAddress = false).toString
+      html must not include "govuk-caption-l"
+      html must not include msgs("notificationTaskList.vrn.caption", vrn)
+    }
+
     "must render the page title" in new Setup {
       val html: String = view(traderName, vrn, allNotYetSaved, showAddYourAddress = false).toString
       html must include(msgs("notificationTaskList.title"))
