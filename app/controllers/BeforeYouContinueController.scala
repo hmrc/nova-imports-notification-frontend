@@ -28,6 +28,7 @@ import pages.{AgentSelectedClientPage, DraftIdPage}
 import views.html.{BeforeYouContinueOrganisationView, BeforeYouContinueView}
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.mvc.Result
+import scala.util.{Success, Try}
 
 class BeforeYouContinueController @Inject() (
   val controllerComponents: MessagesControllerComponents,
@@ -59,10 +60,23 @@ class BeforeYouContinueController @Inject() (
   }
 
   def onSubmit(): Action[AnyContent] = actions.authAndGetOptionalData().async { implicit request =>
-    val existingAnswers = request.userAnswers.getOrElse(UserAnswers(request.userId))
-    val ctx             = UserContext.from(request.affinityGroup, request.enrolments, existingAnswers)
-    val clientVrn       = if (ctx.isAgentWithClient) existingAnswers.get(AgentSelectedClientPage).map(_.vrn) else None
+    val existingAnswers                    = request.userAnswers.getOrElse(UserAnswers(request.userId))
+    val ctx                                = UserContext.from(request.affinityGroup, request.enrolments, existingAnswers)
+    val selectedClient                     = if (ctx.isAgentWithClient) existingAnswers.get(AgentSelectedClientPage) else None
+    val freshUserAnswers: Try[UserAnswers] = selectedClient match {
+      case Some(client) => UserAnswers(request.userId).set(AgentSelectedClientPage, client)
+      case None         => Success(UserAnswers(request.userId))
+    }
 
+    backendConnector.createDraft(selectedClient.map(_.vrn)).flatMap {
+      case Right(draftId) =>
+        for {
+          answers <- Future.fromTry(freshUserAnswers)
+          _       <- sessionRepository.setPage(answers, DraftIdPage, draftId)
+        } yield Redirect(routes.VehicleFromEuController.onPageLoad(NormalMode).url)
+      case Left(_) =>
+        Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+    }
     for {
       _ <- sessionRepository.setPage(existingAnswers, IntroductionAcknowledgePage, true)
     } yield Redirect(routes.VehicleFromEuController.onPageLoad(NormalMode).url)

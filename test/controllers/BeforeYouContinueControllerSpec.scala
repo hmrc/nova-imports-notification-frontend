@@ -18,13 +18,14 @@ package controllers
 
 import base.SpecBase
 import com.google.inject.name.Names
-import connectors.NovaImportsBackendConnector
+import connectors.{CreateDraftError, NovaImportsBackendConnector}
 import controllers.actions.*
-import models.{AgentSelectedClient, UserAnswers}
-import org.mockito.ArgumentMatchers.any
+import models.{AgentSelectedClient, DraftId, PurchaserOrOnBehalf, UserAnswers}
+import org.mockito.ArgumentCaptor
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.AgentSelectedClientPage
+import pages.{AgentSelectedClientPage, DraftIdPage, PurchaserOrOnBehalfPage, VehicleFromEuPage}
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -32,6 +33,7 @@ import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 
@@ -82,6 +84,24 @@ class BeforeYouContinueControllerSpec extends SpecBase with MockitoSugar {
         bind[SessionRepository].toInstance(sessionRepo)
       )
       .build()
+  
+  private val staleIndividualAnswers =
+    emptyUserAnswers
+      .set(VehicleFromEuPage, true)
+      .success
+      .value
+      .set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
+      .success
+      .value
+
+  private val staleAgentAnswersWithClient =
+    userAnswersWithClient
+      .set(VehicleFromEuPage, true)
+      .success
+      .value
+      .set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
+      .success
+      .value
 
   "BeforeYouContinueController" - {
 
@@ -183,62 +203,129 @@ class BeforeYouContinueControllerSpec extends SpecBase with MockitoSugar {
 
     "onSubmit" - {
 
-      "must save acknowledgement and redirect to VehicleFromEuController for a non-agent user" in {
-        val sessionRepo = mockSessionRepository
+      "when the backend call succeeds" - {
 
-        given application: Application =
-          applicationWith(classOf[FakeIdentifierAction], Some(emptyUserAnswers), mock[NovaImportsBackendConnector], sessionRepo)
+        "must save the draft id and redirect to VehicleFromEuController for a non-agent user" in {
+          val draftId       = DraftId("DRAFT-001")
+          val connector     = mock[NovaImportsBackendConnector]
+          val sessionRepo   = mock[SessionRepository]
+          val answersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
 
-        running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, onSubmitRoute)
+          when(connector.createDraft(any())(any[HeaderCarrier])) thenReturn Future.successful(Right(draftId))
+          when(sessionRepo.setPage(any(), any(), any())(any())) thenReturn Future.successful(true)
 
-          val result = route(application, request).value
+          given application: Application =
+            applicationWith(classOf[FakeIdentifierAction], Some(staleIndividualAnswers), connector, sessionRepo)
 
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual vehicleFromEuTarget
-          verify(sessionRepo).setPage(any(), any(), any())(any())
+          running(application) {
+            given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, onSubmitRoute)
+
+            val result = route(application, request).value
+
+            status(result) mustEqual SEE_OTHER
+            redirectLocation(result).value mustEqual vehicleFromEuTarget
+            verify(connector).createDraft(eqTo(None))(any[HeaderCarrier])
+            verify(sessionRepo).setPage(answersCaptor.capture(), eqTo(DraftIdPage), eqTo(draftId))(any())
+
+            val capturedAnswers = answersCaptor.getValue
+            capturedAnswers.get(VehicleFromEuPage) mustEqual None
+            capturedAnswers.get(PurchaserOrOnBehalfPage) mustEqual None
+            capturedAnswers.get(AgentSelectedClientPage) mustEqual None
+          }
+        }
+
+        "must pass the client VRN and redirect to VehicleFromEuController for an agent with a selected client" in {
+          val draftId       = DraftId("DRAFT-002")
+          val connector     = mock[NovaImportsBackendConnector]
+          val sessionRepo   = mock[SessionRepository]
+          val answersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
+
+          when(connector.createDraft(any())(any[HeaderCarrier])) thenReturn Future.successful(Right(draftId))
+          when(sessionRepo.setPage(any(), any(), any())(any())) thenReturn Future.successful(true)
+
+          given application: Application =
+            applicationWith(classOf[FakeAgentIdentifierAction], Some(staleAgentAnswersWithClient), connector, sessionRepo)
+
+          running(application) {
+            given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, onSubmitRoute)
+
+            val result = route(application, request).value
+
+            status(result) mustEqual SEE_OTHER
+            redirectLocation(result).value mustEqual vehicleFromEuTarget
+            verify(connector).createDraft(eqTo(Some(sampleClient.vrn)))(any[HeaderCarrier])
+            verify(sessionRepo).setPage(answersCaptor.capture(), eqTo(DraftIdPage), eqTo(draftId))(any())
+
+            val capturedAnswers = answersCaptor.getValue
+            capturedAnswers.get(AgentSelectedClientPage) mustEqual Some(sampleClient)
+            capturedAnswers.get(VehicleFromEuPage) mustEqual None
+            capturedAnswers.get(PurchaserOrOnBehalfPage) mustEqual None
+          }
+        }
+
+        "must pass None and redirect to VehicleFromEuController for an agent without a selected client" in {
+          val draftId       = DraftId("DRAFT-003")
+          val connector     = mock[NovaImportsBackendConnector]
+          val sessionRepo   = mock[SessionRepository]
+          val answersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
+
+          when(connector.createDraft(any())(any[HeaderCarrier])) thenReturn Future.successful(Right(draftId))
+          when(sessionRepo.setPage(any(), any(), any())(any())) thenReturn Future.successful(true)
+
+          given application: Application =
+            applicationWith(classOf[FakeAgentIdentifierAction], Some(staleIndividualAnswers), connector, sessionRepo)
+
+          running(application) {
+            given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, onSubmitRoute)
+
+            val result = route(application, request).value
+
+            status(result) mustEqual SEE_OTHER
+            redirectLocation(result).value mustEqual vehicleFromEuTarget
+            verify(connector).createDraft(eqTo(None))(any[HeaderCarrier])
+            verify(sessionRepo).setPage(answersCaptor.capture(), eqTo(DraftIdPage), eqTo(draftId))(any())
+
+            val capturedAnswers = answersCaptor.getValue
+            capturedAnswers.get(AgentSelectedClientPage) mustEqual None
+            capturedAnswers.get(VehicleFromEuPage) mustEqual None
+          }
         }
       }
 
-      "must save acknowledgement and redirect to VehicleFromEuController for an agent with a selected client" in {
-        val sessionRepo = mockSessionRepository
+      "when the backend call fails" - {
 
-        given application: Application =
-          applicationWith(classOf[FakeAgentIdentifierAction], Some(userAnswersWithClient), mock[NovaImportsBackendConnector], sessionRepo)
+        "must redirect to JourneyRecovery and not write to the session" in {
+          val connector   = mock[NovaImportsBackendConnector]
+          val sessionRepo = mock[SessionRepository]
 
-        running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, onSubmitRoute)
+          when(connector.createDraft(any())(any[HeaderCarrier]))
+            .thenReturn(Future.successful(Left(CreateDraftError.UpstreamError(500, "boom"))))
 
-          val result = route(application, request).value
+          given application: Application =
+            applicationWith(classOf[FakeIdentifierAction], Some(emptyUserAnswers), connector, sessionRepo)
 
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual vehicleFromEuTarget
-          verify(sessionRepo).setPage(any(), any(), any())(any())
-        }
-      }
+          running(application) {
+            given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, onSubmitRoute)
 
-      "must save acknowledgement and redirect to VehicleFromEuController for an agent without a selected client" in {
-        val sessionRepo = mockSessionRepository
+            val result = route(application, request).value
 
-        given application: Application =
-          applicationWith(classOf[FakeAgentIdentifierAction], Some(emptyUserAnswers), mock[NovaImportsBackendConnector], sessionRepo)
-
-        running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, onSubmitRoute)
-
-          val result = route(application, request).value
-
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual vehicleFromEuTarget
-          verify(sessionRepo).setPage(any(), any(), any())(any())
+            status(result) mustEqual SEE_OTHER
+            redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+            verify(sessionRepo, org.mockito.Mockito.never()).setPage(any(), any(), any())(any())
+          }
         }
       }
 
       "creates a new session and redirects to VehicleFromEuController when there is no existing session" in {
-        val sessionRepo = mockSessionRepository
+        val draftId     = DraftId("DRAFT-NEW")
+        val connector   = mock[NovaImportsBackendConnector]
+        val sessionRepo = mock[SessionRepository]
+
+        when(connector.createDraft(any())(any[HeaderCarrier])) thenReturn Future.successful(Right(draftId))
+        when(sessionRepo.setPage(any(), any(), any())(any())) thenReturn Future.successful(true)
 
         given application: Application =
-          applicationWith(classOf[FakeIdentifierAction], None, mock[NovaImportsBackendConnector], sessionRepo)
+          applicationWith(classOf[FakeIdentifierAction], userAnswers = None, connector, sessionRepo)
 
         running(application) {
           given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, onSubmitRoute)
@@ -247,6 +334,7 @@ class BeforeYouContinueControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual vehicleFromEuTarget
+          verify(connector).createDraft(eqTo(None))(any[HeaderCarrier])
           verify(sessionRepo).setPage(any(), any(), any())(any())
         }
       }
