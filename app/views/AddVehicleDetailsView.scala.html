@@ -43,10 +43,12 @@
 
         <p class="govuk-body">@messages("addVehicleDetails.paragraph.2")</p>
 
+        <h2 class="govuk-heading-m">@messages("addVehicleDetails.method.heading")</h2>
+
         @govukRadios(
             RadiosViewModel(
                 field  = form("value"),
-                legend = LegendViewModel(messages("addVehicleDetails.method.heading")).asPageHeading(LegendSize.Medium),
+                legend = LegendViewModel(messages("addVehicleDetails.method.heading")).withCssClass("govuk-visually-hidden"),
                 items  = Seq(
                     RadioItem(
                         id      = Some(form("value").id),
