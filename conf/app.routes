@@ -99,3 +99,6 @@ GET         /vehicles-brought-from-eu                               controllers.
 POST        /vehicles-brought-from-eu                               controllers.AddVehicleDetailsController.onSubmit(mode: Mode = NormalMode)
 GET         /vehicles-brought-from-eu/change                        controllers.AddVehicleDetailsController.onPageLoad(mode: Mode = CheckMode)
 POST        /vehicles-brought-from-eu/change                        controllers.AddVehicleDetailsController.onSubmit(mode: Mode = CheckMode)
+
+GET         /check-answers/your-details                             controllers.YourDetailsCheckYourAnswersController.onPageLoad()
+POST        /check-answers/your-details                             controllers.YourDetailsCheckYourAnswersController.onSubmit()

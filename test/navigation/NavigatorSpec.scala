@@ -216,9 +216,14 @@ class NavigatorSpec extends SpecBase {
           .onPageLoad(NormalMode)
       }
 
-      "must go from EmailAddressPage AYD1.3 to CYA page" in {
-        navigator.nextPage(EmailAddressPage, NormalMode, userAnswers, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController
-          .onPageLoad() // TODO: redirect to CYA2.0 page when built
+      "must go from EmailAddressPage to CYA2.0 - YourDetails check your answers" in {
+        navigator.nextPage(
+          EmailAddressPage,
+          NormalMode,
+          userAnswers,
+          NovaUserType.PrivateIndividual
+        ) mustBe routes.YourDetailsCheckYourAnswersController
+          .onPageLoad()
       }
 
       "must go from AddVehicleDetailsPage AVD1.0 to LandingPage when BySupplier is selected" in {
@@ -355,15 +360,26 @@ class NavigatorSpec extends SpecBase {
         ) mustBe routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
       }
 
-      "must go from EmailAddressPage AYD1.3 to CYA page" in {
-        navigator.nextPage(EmailAddressPage, CheckMode, userAnswers, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController
-          .onPageLoad() // TODO: redirect to CYA2.0 page when built
+      "must go from AddYourNamePage to YourDetailsCheckYourAnswersController in CheckMode" in {
+        val ua = userAnswers.set(AddYourNamePage, AddYourName("Mr", "John", "Smith")).success.value
+        navigator.nextPage(AddYourNamePage, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.YourDetailsCheckYourAnswersController
+          .onPageLoad()
       }
 
-      "must go from PhoneNumberPage to EmailAddressController (AYD1.3)" in {
+      "must go from EmailAddressPage to YourDetailsCheckYourAnswersController" in {
+        navigator.nextPage(
+          EmailAddressPage,
+          CheckMode,
+          userAnswers,
+          NovaUserType.PrivateIndividual
+        ) mustBe routes.YourDetailsCheckYourAnswersController
+          .onPageLoad()
+      }
+
+      "must go from PhoneNumberPage to YourDetailsCheckYourAnswersController in CheckMode" in {
         val ua = userAnswers.set(PhoneNumberPage, "01632 960 001").success.value
-        navigator.nextPage(PhoneNumberPage, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.EmailAddressController
-          .onPageLoad(CheckMode)
+        navigator.nextPage(PhoneNumberPage, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.YourDetailsCheckYourAnswersController
+          .onPageLoad()
       }
     }
   }
