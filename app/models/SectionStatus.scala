@@ -23,6 +23,7 @@ import play.api.libs.json.*
 // to any section that is not `completed`.
 enum SectionStatus {
   case NotYetSaved
+  case Incomplete
   case Completed
 }
 
@@ -30,6 +31,7 @@ object SectionStatus {
 
   private val byWire: Map[String, SectionStatus] = Map(
     "not-yet-saved" -> NotYetSaved,
+    "incomplete"    -> Incomplete,
     "completed"     -> Completed
   )
 

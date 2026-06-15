@@ -14,19 +14,19 @@
  * limitations under the License.
  *@
 
-@import models.{DraftNotification, DraftNotificationSection, NormalMode, SectionStatus}
+@import models.{DraftNotification, NormalMode, SectionStatus}
 
 @this(
     layout: templates.Layout,
     govukButton: GovukButton
 )
 
-@(traderName: Option[String], vrn: Option[String], sections: Map[String, DraftNotificationSection], showAddYourAddress: Boolean)(implicit request: Request[?], messages: Messages)
+@(traderName: Option[String], vrn: Option[String], sections: Map[String, SectionStatus], showAddYourAddress: Boolean)(implicit request: Request[?], messages: Messages)
 
 @statusTag(sectionId: String) = {
-    @sections.get(sectionId).map(_.status) match {
+    @sections.get(sectionId) match {
         case Some(SectionStatus.Completed) => {
-            <strong class="govuk-tag">@messages("notificationTaskList.status.completed")</strong>
+            @messages("notificationTaskList.status.completed")
         }
         case _ => {
             <strong class="govuk-tag govuk-tag--blue">@messages("notificationTaskList.status.incomplete")</strong>
@@ -37,7 +37,16 @@
 @layout(pageTitle = titleNoForm(messages("notificationTaskList.title"))) {
 
     @if(traderName.isDefined || vrn.isDefined) {
-        <span class="govuk-caption-l">@traderName.map { name =>@name}@if(traderName.isDefined && vrn.isDefined){<br>}@vrn.map { v =>@messages("notificationTaskList.vrn.caption", v)}</span>
+        <span class="govuk-caption-l">
+            @traderName.map { name =>
+                @name
+            }
+
+            @vrn.map { number =>
+                <br>
+             @messages("notificationTaskList.vrn.caption", number)
+            }
+        </span>
     }
 
     <h1 class="govuk-heading-l">@messages("notificationTaskList.heading")</h1>

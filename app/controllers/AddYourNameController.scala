@@ -27,6 +27,8 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import views.html.AddYourNameView
 import controllers.utils.IsDraftIdDefined
+import pages.sections.initialquestions.{BusinessOrPrivatePage, VehicleBusinessUsePage}
+import pages.sections.notifierDetails.*
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -45,7 +47,7 @@ class AddYourNameController @Inject() (
   private val form = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate) { implicit request =>
-    Ok(view(form.withDefault(request.userAnswers.get(AddYourNamePage)), mode))
+    Ok(view(form.withDefault(request.userAnswers.get(NameDetailsPage)), mode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate).async { implicit request =>
@@ -55,10 +57,10 @@ class AddYourNameController @Inject() (
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
         addYourName =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(AddYourNamePage, addYourName))
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(NameDetailsPage, addYourName))
             _              <- sessionRepository.set(updatedAnswers)
           } yield Redirect(
-            navigator.nextPage(AddYourNamePage, mode, updatedAnswers, NovaUserType.from(request.affinityGroup, request.enrolments))
+            navigator.nextPage(NameDetailsPage, mode, updatedAnswers, NovaUserType.from(request.affinityGroup, request.enrolments))
           )
       )
   }
@@ -80,11 +82,11 @@ object AddYourNameController {
       })
 
   private def standardUserAnswersComplete(answers: UserAnswers): Boolean =
-    answers.get(BusinessPrivatePage).contains(BusinessOrPrivateIndividual.PrivateIndividual)
+    answers.get(BusinessOrPrivatePage).contains(BusinessOrPrivateIndividual.PrivateIndividual)
 
   private def vatRegisteredOrgAnswersComplete(answers: UserAnswers): Boolean =
     answers.get(VehicleBusinessUsePage).contains(false)
 
   private def agentWithClientAnswersComplete(answers: UserAnswers): Boolean =
-    answers.get(AgentVehicleBusinessUsePage).contains(false)
+    answers.get(AgentClientVehicleBusinessUsePage).contains(false)
 }

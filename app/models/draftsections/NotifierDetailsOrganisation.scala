@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-package pages
+package models.draftsections
 
-import models.BusinessOrPrivateIndividual
-import play.api.libs.json.JsPath
+import play.api.libs.json.{Format, Json}
 
-case object BusinessPrivatePage extends QuestionPage[BusinessOrPrivateIndividual] {
+final case class NotifierDetailsOrganisation(
+  emailAddress: String,
+  phoneNumber: String
+)
 
-  override def path: JsPath = JsPath \ toString
-
-  override def toString: String = "businessOrPrivateIndividual"
+object NotifierDetailsOrganisation {
+  implicit val format: Format[NotifierDetailsOrganisation] = Json.format[NotifierDetailsOrganisation]
 }

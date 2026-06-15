@@ -20,9 +20,11 @@ import com.google.inject.Inject
 import connectors.NovaImportsBackendConnector
 import controllers.actions.Actions
 import models.{NotificationSummary, UserAnswers}
-import pages.{DraftIdPage, VehicleBusinessUsePage}
+import pages.DraftIdPage
+import pages.sections.initialquestions.VehicleBusinessUsePage
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.UserDataService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import views.html.NotificationTaskListView
@@ -33,6 +35,7 @@ class NotificationTaskListController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   actions: Actions,
   backendConnector: NovaImportsBackendConnector,
+  userDataService: UserDataService,
   view: NotificationTaskListView
 )(implicit ec: ExecutionContext)
     extends BaseController
@@ -45,25 +48,25 @@ class NotificationTaskListController @Inject() (
 
     val draftId = request.userAnswers.get(DraftIdPage).get // guard guarantees presence
 
-    val summaryF = backendConnector.getNotificationSummary()
-    val draftF   = backendConnector.getDraftNotification(draftId)
-
     for {
-      summaryResult <- summaryF
-      draftResult   <- draftF
-    } yield (summaryResult, draftResult) match {
+      summaryResult        <- backendConnector.getNotificationSummary()
+      updatedAnswersResult <- userDataService.retrieveAndStoreDraftNotification(draftId, request.userAnswers)
+    } yield (summaryResult, updatedAnswersResult) match {
       case (Left(error), _) =>
         logger.warn(s"Failed to fetch notification summary for VAT-registered Organisation: $error")
         Redirect(routes.JourneyRecoveryController.onPageLoad())
 
       case (_, Left(error)) =>
-        logger.warn(s"Failed to fetch draft notification for ${draftId.value}: $error")
+        logger.warn(s"Failed to retrieve draft notification for draftId ${draftId.value}: $error")
         Redirect(routes.JourneyRecoveryController.onPageLoad())
 
-      case (Right(summary), Right(draft)) =>
+      case (Right(summary), Right(updatedAnswers)) =>
+        val sections = userDataService.determineAndUpdateStatus(updatedAnswers, request.userContext)
+
         summary match {
           case org: NotificationSummary.IndividualOrOrganisation =>
-            Ok(view(org.traderName, org.vrn, draft.sections, showAddYourAddress(request.userAnswers)))
+            Ok(view(org.traderName, org.vrn, sections, showAddYourAddress(updatedAnswers)))
+
           case other =>
             logger.warn(s"Unexpected notification summary shape for VAT-registered Organisation: $other")
             Redirect(routes.JourneyRecoveryController.onPageLoad())

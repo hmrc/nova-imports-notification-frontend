@@ -23,7 +23,7 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{BusinessPrivatePage, VehicleFromEuPage}
+import pages.sections.initialquestions.{BusinessOrPrivatePage, VehicleFromEuPage}
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -64,7 +64,7 @@ class BusinessPrivateControllerSpec extends SpecBase with MockitoSugar {
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = userAnswersWithVehicleFromEu.set(BusinessPrivatePage, BusinessOrPrivateIndividual.Business).success.value
+      val userAnswers = userAnswersWithVehicleFromEu.set(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business).success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 

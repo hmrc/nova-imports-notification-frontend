@@ -19,7 +19,7 @@ package viewmodels.checkAnswers
 import base.SpecBase
 import controllers.routes
 import models.{CheckMode, PurchaserBusinessOrIndividual, UserAnswers}
-import pages.PurchaserBusinessOrIndividualPage
+import pages.sections.initialquestions.PurchaserBusinessOrIndividualPage
 import play.api.Application
 import play.api.i18n.Messages
 

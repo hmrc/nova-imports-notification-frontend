@@ -23,7 +23,7 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{BusinessPrivatePage, PurchaserOrOnBehalfPage}
+import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserOrOnBehalfPage}
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -43,7 +43,7 @@ class PurchaserOrOnBehalfControllerSpec extends SpecBase with MockitoSugar {
   lazy val purchaserOrOnBehalfRoute = routes.PurchaserOrOnBehalfController.onPageLoad(NormalMode).url
 
   private val answersWithGuardData: UserAnswers =
-    emptyUserAnswers.set(BusinessPrivatePage, BusinessOrPrivateIndividual.Business).success.value
+    emptyUserAnswers.set(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business).success.value
 
   "PurchaserOrOnBehalfController" - {
 

@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package pages
+package pages.sections.initialquestions
 
-import models.PurchaserBusinessOrIndividual
+import pages.QuestionPage
 import play.api.libs.json.JsPath
 
-case object PurchaserBusinessOrIndividualPage extends QuestionPage[PurchaserBusinessOrIndividual] {
-
-  override def path: JsPath = JsPath \ toString
-
-  override def toString: String = "purchaserBusinessOrIndividual"
+case object VehicleBusinessUsePage extends QuestionPage[Boolean] {
+  override def path: JsPath     = JsPath \ "initial-question" \ toString
+  override def toString: String = "isForBusinessUse" // revisit
 }

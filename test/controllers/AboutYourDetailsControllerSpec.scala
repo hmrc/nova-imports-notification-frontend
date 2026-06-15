@@ -21,7 +21,7 @@ import com.google.inject.name.Names
 import controllers.actions.*
 import navigation.{FakeNavigator, Navigator}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.VehicleBusinessUsePage
+import pages.sections.initialquestions.VehicleBusinessUsePage
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder

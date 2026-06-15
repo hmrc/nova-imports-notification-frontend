@@ -20,7 +20,8 @@ import com.google.inject.Inject
 import controllers.actions.*
 import models.{NormalMode, NovaUserType, UserAnswers}
 import navigation.Navigator
-import pages.{AboutYourDetailsPage, VehicleBusinessUsePage}
+import pages.AboutYourDetailsPage
+import pages.sections.initialquestions.VehicleBusinessUsePage
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import views.html.AboutYourDetailsView
 

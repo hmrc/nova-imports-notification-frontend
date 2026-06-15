@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-package models
+package pages.sections.initialquestions
 
-import play.api.libs.json.{Json, OFormat}
+import models.BusinessOrPrivateIndividual
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-final case class AddYourName(
-  title: String,
-  firstName: String,
-  lastName: String
-)
+case object BusinessOrPrivatePage extends QuestionPage[BusinessOrPrivateIndividual] {
 
-object AddYourName {
-  implicit val format: OFormat[AddYourName] = Json.format[AddYourName]
+  override def path: JsPath = JsPath \ "initial-question" \ toString
+
+  override def toString: String = "areYouBusinessPrivate"
 }

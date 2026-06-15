@@ -21,7 +21,7 @@ import forms.VehicleFromEuFormProvider
 import javax.inject.Inject
 import models.{Mode, NovaUserType}
 import navigation.Navigator
-import pages.VehicleFromEuPage
+import pages.sections.initialquestions.VehicleFromEuPage
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import views.html.VehicleFromEuView

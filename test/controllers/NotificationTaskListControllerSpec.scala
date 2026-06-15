@@ -21,11 +21,13 @@ import com.google.inject.name.Names
 import connectors.{GetDraftNotificationError, GetNotificationSummaryError, NovaImportsBackendConnector}
 import controllers.actions.*
 import models.NormalMode
-import models.{DraftId, DraftNotification, DraftNotificationSection, NotificationSummary, SectionStatus, UserAnswers}
+import models.{DraftId, DraftNotification, DraftNotificationSection, NotificationSummary, UserAnswers}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{DraftIdPage, VehicleBusinessUsePage}
+import pages.DraftIdPage
+import pages.sections.initialquestions.VehicleBusinessUsePage
+import pages.sections.notifierDetails.PhoneNumberPage
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -38,14 +40,19 @@ import scala.concurrent.Future
 
 class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
 
-  private lazy val notificationTaskListRoute = routes.NotificationTaskListController.onPageLoad().url
+  private lazy val notificationTaskListRoute =
+    routes.NotificationTaskListController.onPageLoad().url
 
   private val testDraftId = DraftId("12345")
 
-  private val baseAnswers = emptyUserAnswers.set(DraftIdPage, testDraftId).success.value
+  private val baseAnswers =
+    emptyUserAnswers.set(DraftIdPage, testDraftId).success.value
 
-  private val answersBusinessUse = baseAnswers.set(VehicleBusinessUsePage, true).success.value
-  private val answersPrivateUse  = baseAnswers.set(VehicleBusinessUsePage, false).success.value
+  private val answersBusinessUse =
+    baseAnswers.set(VehicleBusinessUsePage, true).success.value
+
+  private val answersPrivateUse =
+    baseAnswers.set(VehicleBusinessUsePage, false).success.value
 
   private val orgSummary = NotificationSummary.IndividualOrOrganisation(
     traderName = Some("Harbourview Limited"),
@@ -54,21 +61,21 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
     isDeregistered = false
   )
 
-  private def section(status: SectionStatus): DraftNotificationSection =
-    DraftNotificationSection(status, data = None)
+  private val emptySection: DraftNotificationSection =
+    DraftNotificationSection(None)
 
   private val incompleteDraft = DraftNotification(
     draftId = testDraftId.value,
     createdDate = "2026-03-01",
     lastUpdatedDate = Some("2026-03-20"),
     sections = Map(
-      "introduction"       -> section(SectionStatus.NotYetSaved),
-      "initialQuestions"   -> section(SectionStatus.NotYetSaved),
-      "notifierDetails"    -> section(SectionStatus.NotYetSaved),
-      "notifierAddress"    -> section(SectionStatus.NotYetSaved),
-      "supplierSelfSupply" -> section(SectionStatus.NotYetSaved),
-      "vehicles"           -> section(SectionStatus.NotYetSaved),
-      "declaration"        -> section(SectionStatus.NotYetSaved)
+      "introduction"       -> emptySection,
+      "initialQuestions"   -> emptySection,
+      "notifierDetails"    -> emptySection,
+      "notifierAddress"    -> emptySection,
+      "supplierSelfSupply" -> emptySection,
+      "vehicles"           -> emptySection,
+      "declaration"        -> emptySection
     )
   )
 
@@ -77,8 +84,13 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
     draft: Either[GetDraftNotificationError, DraftNotification] = Right(incompleteDraft)
   ): NovaImportsBackendConnector = {
     val m = mock[NovaImportsBackendConnector]
-    when(m.getNotificationSummary(any[Option[String]])(any[HeaderCarrier])) thenReturn Future.successful(summary)
-    when(m.getDraftNotification(eqTo(testDraftId))(any[HeaderCarrier])) thenReturn Future.successful(draft)
+
+    when(m.getNotificationSummary(any[Option[String]])(any[HeaderCarrier]))
+      .thenReturn(Future.successful(summary))
+
+    when(m.getDraftNotification(any[DraftId])(any[HeaderCarrier]))
+      .thenReturn(Future.successful(draft))
+
     m
   }
 
@@ -109,7 +121,8 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
           applicationWith(classOf[FakeVatTraderIdentifierAction], Some(answersBusinessUse))
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, notificationTaskListRoute)
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
 
           val result = route(application, request).value
           val body   = contentAsString(result)
@@ -135,7 +148,8 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
           applicationWith(classOf[FakeVatTraderIdentifierAction], Some(answersBusinessUse))
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, notificationTaskListRoute)
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
 
           val result = route(application, request).value
           val body   = contentAsString(result)
@@ -150,7 +164,8 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
           applicationWith(classOf[FakeVatTraderIdentifierAction], Some(answersPrivateUse))
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, notificationTaskListRoute)
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
 
           val result = route(application, request).value
           val body   = contentAsString(result)
@@ -166,7 +181,8 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
           applicationWith(classOf[FakeVatTraderIdentifierAction], Some(answersBusinessUse))
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, notificationTaskListRoute)
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
 
           val result = route(application, request).value
           val body   = contentAsString(result)
@@ -178,18 +194,15 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
       }
 
       "must render a Completed tag for any section whose status is completed" in {
-        val partlyCompleteDraft = incompleteDraft.copy(
-          sections = incompleteDraft.sections + ("notifierDetails" -> section(SectionStatus.Completed))
-        )
+        val answersWithPhone =
+          answersBusinessUse.set(PhoneNumberPage, "01234567890").success.value
 
-        given application: Application = applicationWith(
-          classOf[FakeVatTraderIdentifierAction],
-          Some(answersBusinessUse),
-          stubConnector(draft = Right(partlyCompleteDraft))
-        )
+        given application: Application =
+          applicationWith(classOf[FakeVatTraderIdentifierAction], Some(answersWithPhone))
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, notificationTaskListRoute)
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
 
           val result = route(application, request).value
           val body   = contentAsString(result)
@@ -204,7 +217,8 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
           applicationWith(classOf[UnauthorisedIdentifierAction], Some(answersBusinessUse))
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, notificationTaskListRoute)
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
 
           val result = route(application, request).value
 
@@ -218,7 +232,8 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
           applicationWith(classOf[FakeVatTraderIdentifierAction], None)
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, notificationTaskListRoute)
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
 
           val result = route(application, request).value
 
@@ -228,13 +243,15 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
       }
 
       "must redirect to Journey Recovery when OQ1.0 has not been answered" in {
-        val onlyDraftId = emptyUserAnswers.set(DraftIdPage, testDraftId).success.value
+        val onlyDraftId =
+          emptyUserAnswers.set(DraftIdPage, testDraftId).success.value
 
         given application: Application =
           applicationWith(classOf[FakeVatTraderIdentifierAction], Some(onlyDraftId))
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, notificationTaskListRoute)
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
 
           val result = route(application, request).value
 
@@ -244,13 +261,15 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
       }
 
       "must redirect to Journey Recovery when the draft id is missing" in {
-        val onlyBusinessUse = emptyUserAnswers.set(VehicleBusinessUsePage, true).success.value
+        val onlyBusinessUse =
+          emptyUserAnswers.set(VehicleBusinessUsePage, true).success.value
 
         given application: Application =
           applicationWith(classOf[FakeVatTraderIdentifierAction], Some(onlyBusinessUse))
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, notificationTaskListRoute)
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
 
           val result = route(application, request).value
 
@@ -260,14 +279,16 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
       }
 
       "must redirect to Journey Recovery when the summary fetch fails" in {
-        given application: Application = applicationWith(
-          classOf[FakeVatTraderIdentifierAction],
-          Some(answersBusinessUse),
-          stubConnector(summary = Left(GetNotificationSummaryError.UpstreamError(500, "boom")))
-        )
+        given application: Application =
+          applicationWith(
+            classOf[FakeVatTraderIdentifierAction],
+            Some(answersBusinessUse),
+            stubConnector(summary = Left(GetNotificationSummaryError.UpstreamError(500, "boom")))
+          )
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, notificationTaskListRoute)
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
 
           val result = route(application, request).value
 
@@ -282,14 +303,16 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
           hasDraftNotifications = false
         )
 
-        given application: Application = applicationWith(
-          classOf[FakeVatTraderIdentifierAction],
-          Some(answersBusinessUse),
-          stubConnector(summary = Right(agentSummary))
-        )
+        given application: Application =
+          applicationWith(
+            classOf[FakeVatTraderIdentifierAction],
+            Some(answersBusinessUse),
+            stubConnector(summary = Right(agentSummary))
+          )
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, notificationTaskListRoute)
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
 
           val result = route(application, request).value
 
@@ -299,14 +322,16 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
       }
 
       "must redirect to Journey Recovery when the draft fetch returns Forbidden" in {
-        given application: Application = applicationWith(
-          classOf[FakeVatTraderIdentifierAction],
-          Some(answersBusinessUse),
-          stubConnector(draft = Left(GetDraftNotificationError.Forbidden))
-        )
+        given application: Application =
+          applicationWith(
+            classOf[FakeVatTraderIdentifierAction],
+            Some(answersBusinessUse),
+            stubConnector(draft = Left(GetDraftNotificationError.Forbidden))
+          )
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, notificationTaskListRoute)
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
 
           val result = route(application, request).value
 
@@ -316,14 +341,16 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
       }
 
       "must redirect to Journey Recovery when the draft fetch returns NotFound" in {
-        given application: Application = applicationWith(
-          classOf[FakeVatTraderIdentifierAction],
-          Some(answersBusinessUse),
-          stubConnector(draft = Left(GetDraftNotificationError.NotFound))
-        )
+        given application: Application =
+          applicationWith(
+            classOf[FakeVatTraderIdentifierAction],
+            Some(answersBusinessUse),
+            stubConnector(draft = Left(GetDraftNotificationError.NotFound))
+          )
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, notificationTaskListRoute)
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
 
           val result = route(application, request).value
 
@@ -333,11 +360,12 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
       }
 
       "must redirect to Journey Recovery when the draft fetch returns an UpstreamError" in {
-        given application: Application = applicationWith(
-          classOf[FakeVatTraderIdentifierAction],
-          Some(answersBusinessUse),
-          stubConnector(draft = Left(GetDraftNotificationError.UpstreamError(500, "boom")))
-        )
+        given application: Application =
+          applicationWith(
+            classOf[FakeVatTraderIdentifierAction],
+            Some(answersBusinessUse),
+            stubConnector(draft = Left(GetDraftNotificationError.UpstreamError(500, "boom")))
+          )
 
         running(application) {
           given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, notificationTaskListRoute)

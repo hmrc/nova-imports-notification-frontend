@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package pages
+package pages.sections.introduction
 
+import pages.QuestionPage
 import play.api.libs.json.JsPath
 
-case object PhoneNumberPage extends QuestionPage[String] {
+case object IntroductionAcknowledgePage extends QuestionPage[Boolean] {
 
-  override def path: JsPath = JsPath \ toString
+  override def path: JsPath = JsPath \ "introduction" \ toString
 
-  override def toString: String = "phoneNumber"
+  override def toString: String = "acknowledged"
 }

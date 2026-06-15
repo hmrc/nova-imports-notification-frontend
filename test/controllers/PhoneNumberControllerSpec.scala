@@ -27,6 +27,8 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import pages.*
+import pages.sections.initialquestions.{PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage}
+import pages.sections.notifierDetails.PhoneNumberPage
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.{AnyContent, BodyParser, Call, PlayBodyParsers, Request, Result}
@@ -208,7 +210,7 @@ class PhoneNumberControllerSpec extends SpecBase with MockitoSugar {
             .set(AgentSelectedClientPage, client)
             .success
             .value
-            .set(AgentVehicleBusinessUsePage, true)
+            .set(AgentClientVehicleBusinessUsePage, true)
             .success
             .value
 

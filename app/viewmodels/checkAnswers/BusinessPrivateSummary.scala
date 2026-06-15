@@ -18,7 +18,7 @@ package viewmodels.checkAnswers
 
 import controllers.routes
 import models.{BusinessOrPrivateIndividual, CheckMode, UserAnswers}
-import pages.BusinessPrivatePage
+import pages.sections.initialquestions.BusinessOrPrivatePage
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
@@ -27,7 +27,7 @@ import viewmodels.implicits.*
 object BusinessPrivateSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(BusinessPrivatePage).map { answer =>
+    answers.get(BusinessOrPrivatePage).map { answer =>
 
       val value = answer match {
         case BusinessOrPrivateIndividual.Business          => "businessPrivate.business"

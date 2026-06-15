@@ -57,47 +57,50 @@ class SessionRepository @Inject() (
 
   private def byId(id: String): Bson = Filters.equal("_id", id)
 
-  def keepAlive(id: String): Future[Boolean] = {
-    collection
-      .updateOne(
-        filter = byId(id),
-        update = Updates.set("lastUpdated", Instant.now(clock))
-      )
-      .toFuture()
-      .map(_ => true)
-  }
+  def keepAlive(id: String): Future[Boolean] =
+    Mdc.preservingMdc {
+      collection
+        .updateOne(
+          filter = byId(id),
+          update = Updates.set("lastUpdated", Instant.now(clock))
+        )
+        .toFuture()
+        .map(_ => true)
+    }
 
-  def get(id: String): Future[Option[UserAnswers]] = {
-    keepAlive(id).flatMap { _ =>
-      Mdc.preservingMdc {
+  def get(id: String): Future[Option[UserAnswers]] =
+    Mdc.preservingMdc {
+      keepAlive(id).flatMap { _ =>
         collection
           .find(byId(id))
           .headOption()
       }
     }
-  }
 
-  def set(answers: UserAnswers): Future[Boolean] = {
+  def set(answers: UserAnswers): Future[Boolean] =
+    Mdc.preservingMdc {
+      val updatedAnswers = answers copy (lastUpdated = Instant.now(clock))
+      collection
+        .replaceOne(
+          filter = byId(updatedAnswers.id),
+          replacement = updatedAnswers,
+          options = ReplaceOptions().upsert(true)
+        )
+        .toFuture()
+        .map(_ => true)
+    }
 
-    val updatedAnswers = answers copy (lastUpdated = Instant.now(clock))
+  def setPage[A](answers: UserAnswers, page: Settable[A], value: A)(implicit writes: Writes[A]): Future[UserAnswers] =
+    for {
+      _      <- Future.fromTry(answers.set(page, value)).flatMap(set)
+      result <- get(answers.id)
+    } yield result.getOrElse(answers)
 
-    collection
-      .replaceOne(
-        filter = byId(updatedAnswers.id),
-        replacement = updatedAnswers,
-        options = ReplaceOptions().upsert(true)
-      )
-      .toFuture()
-      .map(_ => true)
-  }
-
-  def setPage[A](answers: UserAnswers, page: Settable[A], value: A)(implicit writes: Writes[A]): Future[Boolean] =
-    Future.fromTry(answers.set(page, value)).flatMap(set)
-
-  def clear(id: String): Future[Boolean] = {
-    collection
-      .deleteOne(byId(id))
-      .toFuture()
-      .map(_ => true)
-  }
+  def clear(id: String): Future[Boolean] =
+    Mdc.preservingMdc {
+      collection
+        .deleteOne(byId(id))
+        .toFuture()
+        .map(_ => true)
+    }
 }

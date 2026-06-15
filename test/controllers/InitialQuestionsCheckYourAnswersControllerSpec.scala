@@ -20,11 +20,13 @@ import base.SpecBase
 import com.google.inject.name.Names
 import connectors.{NovaImportsBackendConnector, UpdateSectionError}
 import controllers.actions.*
+import models.responses.CreateDraftResponse
 import models.{AgentSelectedClient, BusinessOrPrivateIndividual, DraftId, PurchaserBusinessOrIndividual, PurchaserOrOnBehalf, UserAnswers}
-import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import pages.*
+import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -37,7 +39,10 @@ import scala.concurrent.Future
 
 class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with MockitoSugar {
 
-  private lazy val initialQuestionsCyaRoute = routes.InitialQuestionsCheckYourAnswersController.onPageLoad().url
+  private lazy val initialQuestionsCyaRoute =
+    routes.InitialQuestionsCheckYourAnswersController.onPageLoad().url
+
+  private val draftId = "DRAFT-001"
 
   private val orgUserAnswers = emptyUserAnswers
     .set(VehicleFromEuPage, true)
@@ -46,7 +51,7 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
     .set(VehicleBusinessUsePage, true)
     .success
     .value
-    .set(DraftIdPage, DraftId("DRAFT-001"))
+    .set(DraftIdPage, DraftId(draftId))
     .success
     .value
 
@@ -54,13 +59,13 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
     .set(VehicleFromEuPage, true)
     .success
     .value
-    .set(BusinessPrivatePage, BusinessOrPrivateIndividual.Business)
+    .set(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business)
     .success
     .value
     .set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
     .success
     .value
-    .set(DraftIdPage, DraftId("DRAFT-001"))
+    .set(DraftIdPage, DraftId(draftId))
     .success
     .value
 
@@ -68,7 +73,7 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
     .set(VehicleFromEuPage, true)
     .success
     .value
-    .set(BusinessPrivatePage, BusinessOrPrivateIndividual.Business)
+    .set(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business)
     .success
     .value
     .set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
@@ -77,22 +82,23 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
     .set(PurchaserBusinessOrIndividualPage, PurchaserBusinessOrIndividual.NonVatRegisteredBusiness)
     .success
     .value
-    .set(DraftIdPage, DraftId("DRAFT-001"))
+    .set(DraftIdPage, DraftId(draftId))
     .success
     .value
 
-  private val sampleClient           = AgentSelectedClient(vrn = "123456789", name = Some("ABC Ltd"))
+  private val sampleClient = AgentSelectedClient(vrn = "123456789", name = Some("ABC Ltd"))
+
   private val agentWithClientAnswers = emptyUserAnswers
     .set(VehicleFromEuPage, true)
     .success
     .value
-    .set(AgentVehicleBusinessUsePage, true)
+    .set(AgentClientVehicleBusinessUsePage, true)
     .success
     .value
     .set(AgentSelectedClientPage, sampleClient)
     .success
     .value
-    .set(DraftIdPage, DraftId("DRAFT-001"))
+    .set(DraftIdPage, DraftId(draftId))
     .success
     .value
 
@@ -100,15 +106,42 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
     .set(VehicleFromEuPage, false)
     .success
     .value
-    .set(BusinessPrivatePage, BusinessOrPrivateIndividual.Business)
+    .set(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business)
     .success
     .value
     .set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
     .success
     .value
-    .set(DraftIdPage, DraftId("DRAFT-001"))
+    .set(DraftIdPage, DraftId(draftId))
     .success
     .value
+
+  private def connectorWithSuccessfulSubmit(): NovaImportsBackendConnector = {
+    val connector = mock[NovaImportsBackendConnector]
+
+    when(connector.createDraft(any[Option[String]])(any[HeaderCarrier]))
+      .thenReturn(Future.successful(Right(CreateDraftResponse(draftId, 1L))))
+
+    when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
+      .thenReturn(
+        Future.successful(Right(2L)),
+        Future.successful(Right(3L))
+      )
+
+    connector
+  }
+
+  private def connectorWithUpdateFailure(error: UpdateSectionError): NovaImportsBackendConnector = {
+    val connector = mock[NovaImportsBackendConnector]
+
+    when(connector.createDraft(any[Option[String]])(any[HeaderCarrier]))
+      .thenReturn(Future.successful(Right(CreateDraftResponse(draftId, 1L))))
+
+    when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
+      .thenReturn(Future.successful(Left(error)))
+
+    connector
+  }
 
   private def applicationForPageLoad(
     identifierAction: Class[? <: IdentifierAction],
@@ -139,10 +172,12 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
     "onPageLoad" - {
 
       "for a VatRegisteredOrganisation must return OK and render the correct rows" in {
-        given application: Application = applicationForPageLoad(classOf[FakeVatTraderIdentifierAction], Some(orgUserAnswers))
+        given application: Application =
+          applicationForPageLoad(classOf[FakeVatTraderIdentifierAction], Some(orgUserAnswers))
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, initialQuestionsCyaRoute)
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, initialQuestionsCyaRoute)
 
           val result = route(application, request).value
           val body   = contentAsString(result)
@@ -155,10 +190,12 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
       }
 
       "for a PrivateIndividual notifying as the purchaser must return OK and render three rows" in {
-        given application: Application = applicationForPageLoad(classOf[FakeIdentifierAction], Some(individualUserAnswers))
+        given application: Application =
+          applicationForPageLoad(classOf[FakeIdentifierAction], Some(individualUserAnswers))
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, initialQuestionsCyaRoute)
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, initialQuestionsCyaRoute)
 
           val result = route(application, request).value
           val body   = contentAsString(result)
@@ -173,10 +210,12 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
       }
 
       "for a PrivateIndividual notifying on behalf of a purchaser must return OK and render all four rows" in {
-        given application: Application = applicationForPageLoad(classOf[FakeIdentifierAction], Some(individualUserOnBehalfAnswers))
+        given application: Application =
+          applicationForPageLoad(classOf[FakeIdentifierAction], Some(individualUserOnBehalfAnswers))
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, initialQuestionsCyaRoute)
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, initialQuestionsCyaRoute)
 
           val result = route(application, request).value
           val body   = contentAsString(result)
@@ -191,10 +230,12 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
       }
 
       "for an Agent with a selected client must return OK and render the correct rows" in {
-        given application: Application = applicationForPageLoad(classOf[FakeAgentIdentifierAction], Some(agentWithClientAnswers))
+        given application: Application =
+          applicationForPageLoad(classOf[FakeAgentIdentifierAction], Some(agentWithClientAnswers))
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, initialQuestionsCyaRoute)
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, initialQuestionsCyaRoute)
 
           val result = route(application, request).value
           val body   = contentAsString(result)
@@ -210,7 +251,8 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
         given application: Application = applicationBuilder(userAnswers = None).build()
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, initialQuestionsCyaRoute)
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, initialQuestionsCyaRoute)
 
           val result = route(application, request).value
 
@@ -220,10 +262,12 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
       }
 
       "must redirect to Unauthorised for a standard user who has not answered any questions" in {
-        given application: Application = applicationForPageLoad(classOf[FakeIdentifierAction], Some(emptyUserAnswers))
+        given application: Application =
+          applicationForPageLoad(classOf[FakeIdentifierAction], Some(emptyUserAnswers))
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, initialQuestionsCyaRoute)
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, initialQuestionsCyaRoute)
 
           val result = route(application, request).value
 
@@ -238,10 +282,12 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
           .success
           .value
 
-        given application: Application = applicationForPageLoad(classOf[FakeIdentifierAction], Some(answersWithIq1Only))
+        given application: Application =
+          applicationForPageLoad(classOf[FakeIdentifierAction], Some(answersWithIq1Only))
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, initialQuestionsCyaRoute)
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, initialQuestionsCyaRoute)
 
           val result = route(application, request).value
 
@@ -255,17 +301,19 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
           .set(VehicleFromEuPage, true)
           .success
           .value
-          .set(BusinessPrivatePage, BusinessOrPrivateIndividual.Business)
+          .set(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business)
           .success
           .value
           .set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
           .success
           .value
 
-        given application: Application = applicationForPageLoad(classOf[FakeIdentifierAction], Some(answersWithMissingIq3_1))
+        given application: Application =
+          applicationForPageLoad(classOf[FakeIdentifierAction], Some(answersWithMissingIq3_1))
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, initialQuestionsCyaRoute)
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, initialQuestionsCyaRoute)
 
           val result = route(application, request).value
 
@@ -280,10 +328,12 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
           .success
           .value
 
-        given application: Application = applicationForPageLoad(classOf[FakeVatTraderIdentifierAction], Some(answersWithMissingOq1))
+        given application: Application =
+          applicationForPageLoad(classOf[FakeVatTraderIdentifierAction], Some(answersWithMissingOq1))
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, initialQuestionsCyaRoute)
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, initialQuestionsCyaRoute)
 
           val result = route(application, request).value
 
@@ -301,10 +351,12 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
           .success
           .value
 
-        given application: Application = applicationForPageLoad(classOf[FakeAgentIdentifierAction], Some(answersWithMissingAq1))
+        given application: Application =
+          applicationForPageLoad(classOf[FakeAgentIdentifierAction], Some(answersWithMissingAq1))
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, initialQuestionsCyaRoute)
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, initialQuestionsCyaRoute)
 
           val result = route(application, request).value
 
@@ -314,10 +366,12 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
       }
 
       "must redirect to Unauthorised for a standard user when IQ1.0 was answered No" in {
-        given application: Application = applicationForPageLoad(classOf[FakeIdentifierAction], Some(individualUserAnswersEuPageFalse))
+        given application: Application =
+          applicationForPageLoad(classOf[FakeIdentifierAction], Some(individualUserAnswersEuPageFalse))
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, initialQuestionsCyaRoute)
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, initialQuestionsCyaRoute)
 
           val result = route(application, request).value
 
@@ -330,14 +384,14 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
     "onSubmit" - {
 
       "when succeeds must redirect to NTL3.0 for a VatRegisteredOrganisation" in {
-        val connector = mock[NovaImportsBackendConnector]
-        when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
-          .thenReturn(Future.successful(Right(())))
+        val connector = connectorWithSuccessfulSubmit()
 
-        given application: Application = applicationForSubmit(classOf[FakeVatTraderIdentifierAction], Some(orgUserAnswers), connector)
+        given application: Application =
+          applicationForSubmit(classOf[FakeVatTraderIdentifierAction], Some(orgUserAnswers), connector)
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, initialQuestionsCyaRoute)
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(POST, initialQuestionsCyaRoute)
 
           val result = route(application, request).value
 
@@ -347,48 +401,69 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
       }
 
       "when succeeds must redirect to the next page for an Agent with a selected client" in {
-        val connector = mock[NovaImportsBackendConnector]
-        when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
-          .thenReturn(Future.successful(Right(())))
+        val connector = connectorWithSuccessfulSubmit()
 
-        given application: Application = applicationForSubmit(classOf[FakeAgentIdentifierAction], Some(agentWithClientAnswers), connector)
+        given application: Application =
+          applicationForSubmit(classOf[FakeAgentIdentifierAction], Some(agentWithClientAnswers), connector)
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, initialQuestionsCyaRoute)
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(POST, initialQuestionsCyaRoute)
 
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.LandingPageController.onPageLoad().url // TODO: update once next screen is built
+          redirectLocation(result).value mustEqual routes.LandingPageController.onPageLoad().url
         }
       }
 
       "when succeeds must redirect to the next page for a PrivateIndividual" in {
-        val connector = mock[NovaImportsBackendConnector]
-        when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
-          .thenReturn(Future.successful(Right(())))
+        val connector = connectorWithSuccessfulSubmit()
 
-        given application: Application = applicationForSubmit(classOf[FakeIdentifierAction], Some(individualUserAnswers), connector)
+        given application: Application =
+          applicationForSubmit(classOf[FakeIdentifierAction], Some(individualUserAnswers), connector)
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, initialQuestionsCyaRoute)
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(POST, initialQuestionsCyaRoute)
 
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.LandingPageController.onPageLoad().url // TODO: update once next screen is built
+          redirectLocation(result).value mustEqual routes.LandingPageController.onPageLoad().url
+        }
+      }
+
+      "when createDraft returns an error must redirect to Journey Recovery" in {
+        val connector = mock[NovaImportsBackendConnector]
+
+        when(connector.createDraft(any[Option[String]])(any[HeaderCarrier]))
+          .thenReturn(Future.successful(Left(connectors.CreateDraftError.UpstreamError(500, "error"))))
+
+        given application: Application =
+          applicationForSubmit(classOf[FakeVatTraderIdentifierAction], Some(orgUserAnswers), connector)
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(POST, initialQuestionsCyaRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
         }
       }
 
       "when the backend call returns an UpstreamError must redirect to Journey Recovery" in {
-        val connector = mock[NovaImportsBackendConnector]
-        when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
-          .thenReturn(Future.successful(Left(UpdateSectionError.UpstreamError(500, "error"))))
+        val connector =
+          connectorWithUpdateFailure(UpdateSectionError.UpstreamError(500, "error"))
 
-        given application: Application = applicationForSubmit(classOf[FakeVatTraderIdentifierAction], Some(orgUserAnswers), connector)
+        given application: Application =
+          applicationForSubmit(classOf[FakeVatTraderIdentifierAction], Some(orgUserAnswers), connector)
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, initialQuestionsCyaRoute)
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(POST, initialQuestionsCyaRoute)
 
           val result = route(application, request).value
 
@@ -398,14 +473,15 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
       }
 
       "when the backend call returns Forbidden must redirect to Journey Recovery" in {
-        val connector = mock[NovaImportsBackendConnector]
-        when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
-          .thenReturn(Future.successful(Left(UpdateSectionError.Forbidden)))
+        val connector =
+          connectorWithUpdateFailure(UpdateSectionError.Forbidden)
 
-        given application: Application = applicationForSubmit(classOf[FakeVatTraderIdentifierAction], Some(orgUserAnswers), connector)
+        given application: Application =
+          applicationForSubmit(classOf[FakeVatTraderIdentifierAction], Some(orgUserAnswers), connector)
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, initialQuestionsCyaRoute)
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(POST, initialQuestionsCyaRoute)
 
           val result = route(application, request).value
 
@@ -415,14 +491,15 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
       }
 
       "when the backend call returns NotFound must redirect to Journey Recovery" in {
-        val connector = mock[NovaImportsBackendConnector]
-        when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
-          .thenReturn(Future.successful(Left(UpdateSectionError.NotFound)))
+        val connector =
+          connectorWithUpdateFailure(UpdateSectionError.NotFound)
 
-        given application: Application = applicationForSubmit(classOf[FakeVatTraderIdentifierAction], Some(orgUserAnswers), connector)
+        given application: Application =
+          applicationForSubmit(classOf[FakeVatTraderIdentifierAction], Some(orgUserAnswers), connector)
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, initialQuestionsCyaRoute)
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(POST, initialQuestionsCyaRoute)
 
           val result = route(application, request).value
 
@@ -431,24 +508,25 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
         }
       }
 
-      "must redirect to Journey Recovery if DraftId is missing" in {
-        val answersWithoutDraftId = emptyUserAnswers
-          .set(VehicleFromEuPage, true)
-          .success
-          .value
+      "must redirect to Journey Recovery if section data cannot be built" in {
+        val connector = connectorWithSuccessfulSubmit()
+
+        val answersWithoutVehicleFromEu = emptyUserAnswers
           .set(VehicleBusinessUsePage, true)
           .success
           .value
 
-        given application: Application = applicationForPageLoad(classOf[FakeVatTraderIdentifierAction], Some(answersWithoutDraftId))
+        given application: Application =
+          applicationForSubmit(classOf[FakeVatTraderIdentifierAction], Some(answersWithoutVehicleFromEu), connector)
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, initialQuestionsCyaRoute)
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(POST, initialQuestionsCyaRoute)
 
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
         }
       }
     }

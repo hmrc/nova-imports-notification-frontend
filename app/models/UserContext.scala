@@ -26,6 +26,8 @@ final case class UserContext(
   def isAgent: Boolean              = userType == NovaUserType.Agent
   def isAgentWithClient: Boolean    = isAgent && selectedClient.isDefined
   def isAgentWithoutClient: Boolean = isAgent && selectedClient.isEmpty
+
+  def isVatRegisteredOrganisation: Boolean = userType == NovaUserType.VatRegisteredOrganisation
 }
 
 object UserContext {

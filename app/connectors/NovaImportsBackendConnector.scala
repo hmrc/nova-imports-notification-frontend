@@ -18,8 +18,9 @@ package connectors
 
 import com.google.inject.Inject
 import config.FrontendAppConfig
+import models.responses.CreateDraftResponse
 import models.{DraftId, DraftNotification, NotificationSummary}
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.{JsObject, JsSuccess, Json}
 import play.api.libs.ws.writeableOf_JsValue
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
@@ -54,13 +55,13 @@ object GetDraftNotificationError {
 
 trait NovaImportsBackendConnector {
 
-  def createDraft(clientVrn: Option[String])(implicit hc: HeaderCarrier): Future[Either[CreateDraftError, DraftId]]
+  def createDraft(clientVrn: Option[String])(implicit hc: HeaderCarrier): Future[Either[CreateDraftError, CreateDraftResponse]]
 
   def getNotificationSummary(clientVrn: Option[String] = None)(implicit
     hc: HeaderCarrier
   ): Future[Either[GetNotificationSummaryError, NotificationSummary]]
 
-  def updateDraftSection(draftId: DraftId, sectionId: String, body: JsObject)(implicit hc: HeaderCarrier): Future[Either[UpdateSectionError, Unit]]
+  def updateDraftSection(draftId: DraftId, sectionId: String, body: JsObject)(implicit hc: HeaderCarrier): Future[Either[UpdateSectionError, Long]]
 
   def getDraftNotification(draftId: DraftId)(implicit hc: HeaderCarrier): Future[Either[GetDraftNotificationError, DraftNotification]]
 }
@@ -74,7 +75,7 @@ class NovaImportsBackendConnectorImpl @Inject() (
   private def serviceUrl(path: String): String =
     s"${appConfig.novaImportsBackendBaseUrl}/nova-imports$path"
 
-  override def createDraft(clientVrn: Option[String])(implicit hc: HeaderCarrier): Future[Either[CreateDraftError, DraftId]] = {
+  override def createDraft(clientVrn: Option[String])(implicit hc: HeaderCarrier): Future[Either[CreateDraftError, CreateDraftResponse]] = {
     import CreateDraftError.*
 
     val request  = httpClient.post(url"${serviceUrl("/draft-notifications")}")
@@ -86,10 +87,10 @@ class NovaImportsBackendConnectorImpl @Inject() (
     withBody.execute[HttpResponse].map { response =>
       response.status match {
         case 201 =>
-          (response.json \ "draftId")
-            .asOpt[String]
-            .map(id => Right(DraftId(id)))
-            .getOrElse(Left(UpstreamError(201, "Missing draftId in response body")))
+          Json.parse(response.body).validate[CreateDraftResponse] match {
+            case JsSuccess(resp, _) => Right(resp)
+            case err                => Left(UpstreamError(201, s"Malformed create draft response: $err"))
+          }
         case 403 => Left(ClientNotFound)
         case s   => Left(UpstreamError(s, response.body))
       }
@@ -123,7 +124,7 @@ class NovaImportsBackendConnectorImpl @Inject() (
 
   override def updateDraftSection(draftId: DraftId, sectionId: String, body: JsObject)(implicit
     hc: HeaderCarrier
-  ): Future[Either[UpdateSectionError, Unit]] = {
+  ): Future[Either[UpdateSectionError, Long]] = {
     import UpdateSectionError.*
 
     httpClient
@@ -132,7 +133,7 @@ class NovaImportsBackendConnectorImpl @Inject() (
       .execute[HttpResponse]
       .map { response =>
         response.status match {
-          case 200 => Right(())
+          case 200 => Right((response.json \ "versionId").as[Long])
           case 403 => Left(Forbidden)
           case 404 => Left(NotFound)
           case s   => Left(UpstreamError(s, response.body))
