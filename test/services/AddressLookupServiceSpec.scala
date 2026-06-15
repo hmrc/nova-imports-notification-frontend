@@ -108,10 +108,10 @@ class AddressLookupServiceSpec extends SpecBase with MockitoSugar with ScalaFutu
         (buildUkConfig \ "options" \ "allowedCountryCodes").toOption mustBe None
       }
 
-      "must mandate addressLine1 only at the ALF UI level (line2 enforced at the FE callback guard so postcode lookup with 3-section addresses isn't blocked)" in {
+      "must mandate addressLine1 and line2 at the ALF UI level (line2 enforced at the FE callback guard so postcode lookup with 3-section addresses isn't blocked)" in {
         val mf = buildUkConfig \ "options" \ "manualAddressEntryConfig" \ "mandatoryFields"
         (mf \ "addressLine1").as[Boolean] mustBe true
-        (mf \ "addressLine2").toOption mustBe None
+        (mf \ "addressLine2").as[Boolean] mustBe true
         (mf \ "town").toOption mustBe None
         (mf \ "postcode").toOption mustBe None
       }
@@ -170,10 +170,10 @@ class AddressLookupServiceSpec extends SpecBase with MockitoSugar with ScalaFutu
         codes.size must be > 200
       }
 
-      "must mandate addressLine1 only at the ALF UI level (line2 enforced at the FE callback guard for consistency with the UK flow)" in {
+      "must mandate addressLine1 and line2 at the ALF UI level (line2 enforced at the FE callback guard for consistency with the UK flow)" in {
         val mf = buildNonUkConfig \ "options" \ "manualAddressEntryConfig" \ "mandatoryFields"
         (mf \ "addressLine1").as[Boolean] mustBe true
-        (mf \ "addressLine2").toOption mustBe None
+        (mf \ "addressLine2").as[Boolean] mustBe true
         (mf \ "town").toOption mustBe None
         (mf \ "postcode").toOption mustBe None
         (mf \ "country").toOption mustBe None
