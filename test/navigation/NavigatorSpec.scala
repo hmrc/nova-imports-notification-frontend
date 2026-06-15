@@ -237,6 +237,37 @@ class NavigatorSpec extends SpecBase {
         navigator.nextPage(EmailAddressPage, NormalMode, userAnswers, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController
           .onPageLoad() // TODO: redirect to CYA2.0 page when built
       }
+
+      "must go from AddVehicleDetailsPage AVD1.0 to LandingPage when BySupplier is selected" in {
+        // TODO: navigate to AVD-S1.0 when implemented
+        val ua = userAnswers.set(AddVehicleDetailsPage, AddVehicleDetails.BySupplier).success.value
+        navigator.nextPage(
+          AddVehicleDetailsPage,
+          NormalMode,
+          ua,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from AddVehicleDetailsPage AVD1.0 to LandingPage when BySpreadsheet is selected" in {
+        // TODO: navigate to spreadsheet upload flow when implemented
+        val ua = userAnswers.set(AddVehicleDetailsPage, AddVehicleDetails.BySpreadsheet).success.value
+        navigator.nextPage(
+          AddVehicleDetailsPage,
+          NormalMode,
+          ua,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from AddVehicleDetailsPage AVD1.0 to JourneyRecovery when no answer is found" in {
+        navigator.nextPage(
+          AddVehicleDetailsPage,
+          NormalMode,
+          userAnswers,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
     }
 
     "in Check mode" - {

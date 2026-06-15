@@ -74,6 +74,14 @@ class Navigator @Inject() () {
       (_, _) => routes.PurchaserOrOnBehalfController.onPageLoad(NormalMode)
     case PurchaserBusinessOrIndividualPage =>
       (_, _) => routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
+    case AddVehicleDetailsPage =>
+      (userAnswers, _) =>
+        userAnswers.get(AddVehicleDetailsPage) match {
+          case Some(AddVehicleDetails.BySupplier)    => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD-S1.0 when built
+          case Some(AddVehicleDetails.BySpreadsheet) =>
+            routes.LandingPageController.onPageLoad() // TODO: navigate to spreadsheet upload flow when built
+          case _ => routes.JourneyRecoveryController.onPageLoad()
+        }
     case IsYourAddressInTheUkPage =>
       (userAnswers, _) =>
         userAnswers.get(IsYourAddressInTheUkPage) match {

@@ -89,3 +89,8 @@ GET         /email-address                                          controllers.
 POST        /email-address                                          controllers.EmailAddressController.onSubmit(mode: Mode = NormalMode)
 GET         /email-address/change                                   controllers.EmailAddressController.onPageLoad(mode: Mode = CheckMode)
 POST        /email-address/change                                   controllers.EmailAddressController.onSubmit(mode: Mode = CheckMode)
+
+GET         /vehicles-brought-from-eu                               controllers.AddVehicleDetailsController.onPageLoad(mode: Mode = NormalMode)
+POST        /vehicles-brought-from-eu                               controllers.AddVehicleDetailsController.onSubmit(mode: Mode = NormalMode)
+GET         /vehicles-brought-from-eu/change                        controllers.AddVehicleDetailsController.onPageLoad(mode: Mode = CheckMode)
+POST        /vehicles-brought-from-eu/change                        controllers.AddVehicleDetailsController.onSubmit(mode: Mode = CheckMode)

@@ -73,10 +73,11 @@ class NotificationTaskListViewSpec extends SpecBase with Matchers {
       html must include(routes.IsYourAddressInTheUkController.onPageLoad(NormalMode).url)
     }
 
-    "must render the About the vehicles section with the Add vehicle details task" in new Setup {
+    "must render the About the vehicles section with the Add vehicle details task linking to AVD1.0" in new Setup {
       val html: String = view(traderName, vrn, allNotYetSaved, showAddYourAddress = false).toString
       html must include(msgs("notificationTaskList.aboutTheVehicles.heading"))
       html must include(msgs("notificationTaskList.aboutTheVehicles.addVehicleDetails"))
+      html must include(routes.AddVehicleDetailsController.onPageLoad(NormalMode).url)
     }
 
     "must render the Declaration section with Cannot start yet status and the hint" in new Setup {
