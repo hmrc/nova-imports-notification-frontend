@@ -27,7 +27,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import views.html.AddYourNameView
 import controllers.utils.IsDraftIdDefined
-import pages.sections.initialquestions.{BusinessOrPrivatePage, VehicleBusinessUsePage}
+import pages.sections.initialquestions.{BusinessOrPrivatePage, VehicleBusinessUsePage, VehicleFromEuPage}
 import pages.sections.notifierDetails.*
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -82,7 +82,8 @@ object AddYourNameController {
       })
 
   private def standardUserAnswersComplete(answers: UserAnswers): Boolean =
-    answers.get(BusinessOrPrivatePage).contains(BusinessOrPrivateIndividual.PrivateIndividual)
+    answers.get(BusinessOrPrivatePage).contains(BusinessOrPrivateIndividual.PrivateIndividual) &&
+      answers.get(VehicleFromEuPage).contains(true)
 
   private def vatRegisteredOrgAnswersComplete(answers: UserAnswers): Boolean =
     answers.get(VehicleBusinessUsePage).contains(false)
