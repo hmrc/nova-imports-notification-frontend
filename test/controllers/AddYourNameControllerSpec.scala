@@ -24,7 +24,7 @@ import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.sections.initialquestions.BusinessOrPrivatePage
+import pages.sections.initialquestions.{BusinessOrPrivatePage, VehicleFromEuPage}
 import pages.sections.notifierDetails.NameDetailsPage
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -53,6 +53,9 @@ class AddYourNameControllerSpec extends SpecBase with MockitoSugar {
     .success
     .value
     .set(pages.DraftIdPage, DraftId("DRAFT-001"))
+    .success
+    .value
+    .set(VehicleFromEuPage, true)
     .success
     .value
 
