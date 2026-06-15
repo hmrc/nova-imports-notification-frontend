@@ -17,14 +17,13 @@
 package controllers
 
 import com.google.inject.Inject
-import connectors.NovaImportsBackendConnector
 import controllers.actions.*
 import models.{NormalMode, UserAnswers, UserContext}
 import models.NovaUserType
 import pages.sections.introduction.{AmendSubmittedNotificationPage, IntroductionAcknowledgePage}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
-import pages.{AgentSelectedClientPage, DraftIdPage}
+import pages.AgentSelectedClientPage
 import views.html.{BeforeYouContinueOrganisationView, BeforeYouContinueView}
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.mvc.Result
@@ -35,7 +34,6 @@ class BeforeYouContinueController @Inject() (
   individualView: BeforeYouContinueView,
   organisationView: BeforeYouContinueOrganisationView,
   sessionRepository: SessionRepository,
-  backendConnector: NovaImportsBackendConnector,
   actions: Actions
 )(implicit ec: ExecutionContext)
     extends BaseController {
@@ -68,18 +66,9 @@ class BeforeYouContinueController @Inject() (
       case None         => Success(UserAnswers(request.userId))
     }
 
-    backendConnector.createDraft(selectedClient.map(_.vrn)).flatMap {
-      case Right(draftId) =>
-        for {
-          answers <- Future.fromTry(freshUserAnswers)
-          _       <- sessionRepository.setPage(answers, DraftIdPage, draftId)
-        } yield Redirect(routes.VehicleFromEuController.onPageLoad(NormalMode).url)
-      case Left(_) =>
-        Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
-    }
     for {
-      _ <- sessionRepository.setPage(existingAnswers, IntroductionAcknowledgePage, true)
+      answers <- Future.fromTry(freshUserAnswers)
+      _       <- sessionRepository.setPage(answers, IntroductionAcknowledgePage, true)
     } yield Redirect(routes.VehicleFromEuController.onPageLoad(NormalMode).url)
-
   }
 }
