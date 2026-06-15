@@ -338,7 +338,7 @@ class AddressLookupService @Inject() (
       "line3MaxLength"         -> 35,
       "townMaxLength"          -> 35,
       "showOrganisationName"   -> false,
-      "mandatoryFields"        -> Json.obj("addressLine1" -> true),
+      "mandatoryFields"        -> Json.obj("addressLine1" -> true, "addressLine2" -> true),
       "maxLengthErrorMessages" -> maxLengthErrorMessages
     )
 
