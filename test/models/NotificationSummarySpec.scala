@@ -24,99 +24,186 @@ class NotificationSummarySpec extends AnyFreeSpec with Matchers {
 
   "NotificationSummary.reads" - {
 
-    "parses an IndividualOrOrganisation response with hasClients explicitly null" in {
+    "parses an IndividualOrOrganisation response with vrn present" in {
       val json = Json.parse(
-        """{"traderName":"ABC LTD","vrn":"123456789","hasDraftNotifications":true,"hasClients":null}"""
+        """{"traderName":"ABC LTD","vrn":"123456789","hasDraftNotifications":true,"isDeregistered":false}"""
       )
 
       json.validate[NotificationSummary] mustEqual JsSuccess(
         NotificationSummary.IndividualOrOrganisation(
-          traderName = "ABC LTD",
-          vrn = "123456789",
-          hasDraftNotifications = true
+          traderName = Some("ABC LTD"),
+          vrn = Some("123456789"),
+          hasDraftNotifications = true,
+          isDeregistered = false
         )
       )
     }
 
-    "parses an IndividualOrOrganisation response with hasClients omitted" in {
+    "parses an IndividualOrOrganisation response with vrn omitted" in {
       val json = Json.parse(
-        """{"traderName":"ABC LTD","vrn":"123456789","hasDraftNotifications":false}"""
+        """{"traderName":"ABC LTD","hasDraftNotifications":false,"isDeregistered":false}"""
       )
 
       json.validate[NotificationSummary] mustEqual JsSuccess(
         NotificationSummary.IndividualOrOrganisation(
-          traderName = "ABC LTD",
-          vrn = "123456789",
+          traderName = Some("ABC LTD"),
+          vrn = None,
+          hasDraftNotifications = false,
+          isDeregistered = false
+        )
+      )
+    }
+
+    "parses an IndividualOrOrganisation response with traderName omitted" in {
+      val json = Json.parse(
+        """{"hasDraftNotifications":false,"isDeregistered":false}"""
+      )
+
+      json.validate[NotificationSummary] mustEqual JsSuccess(
+        NotificationSummary.IndividualOrOrganisation(
+          traderName = None,
+          vrn = None,
+          hasDraftNotifications = false,
+          isDeregistered = false
+        )
+      )
+    }
+
+    "parses an IndividualOrOrganisation response with isDeregistered true" in {
+      val json = Json.parse(
+        """{"traderName":"ABC LTD","hasDraftNotifications":false,"isDeregistered":true}"""
+      )
+
+      json.validate[NotificationSummary] mustEqual JsSuccess(
+        NotificationSummary.IndividualOrOrganisation(
+          traderName = Some("ABC LTD"),
+          vrn = None,
+          hasDraftNotifications = false,
+          isDeregistered = true
+        )
+      )
+    }
+
+    "parses an AgentWithoutClient response when hasClients is null" in {
+      val json = Json.parse(
+        """{"agentName":"ABC Consultancy","hasDraftNotifications":false,"hasClients":null}"""
+      )
+
+      json.validate[NotificationSummary] mustEqual JsSuccess(
+        NotificationSummary.AgentWithoutClient(
+          agentName = Some("ABC Consultancy"),
           hasDraftNotifications = false
         )
       )
     }
 
-    "parses an AgentWithoutClient response when hasClients is true and clientVrn is absent" in {
+    "parses an AgentWithoutClient response with no agentName as AgentWithoutClient not IndividualOrOrganisation" in {
       val json = Json.parse(
-        """{"traderName":"ABC LTD","vrn":"123456789","hasDraftNotifications":true,"hasClients":true}"""
+        """{"hasDraftNotifications":false,"hasClients":null}"""
       )
 
       json.validate[NotificationSummary] mustEqual JsSuccess(
         NotificationSummary.AgentWithoutClient(
-          traderName = "ABC LTD",
-          vrn = "123456789",
-          hasDraftNotifications = true,
-          hasClients = true
+          agentName = None,
+          hasDraftNotifications = false
         )
       )
     }
 
-    "parses an AgentWithoutClient response when hasClients is false and clientVrn is absent" in {
-      val json = Json.parse(
-        """{"traderName":"ABC LTD","vrn":"123456789","hasDraftNotifications":false,"hasClients":false}"""
-      )
-
-      json.validate[NotificationSummary] mustEqual JsSuccess(
-        NotificationSummary.AgentWithoutClient(
-          traderName = "ABC LTD",
-          vrn = "123456789",
-          hasDraftNotifications = false,
-          hasClients = false
-        )
-      )
-    }
-
-    "parses an AgentWithClient response whenever clientVrn is present (regardless of hasClients value)" in {
+    "parses an AgentWithClient response" in {
       val json = Json.parse(
         """{
-          |  "traderName":"ABC LTD",
-          |  "vrn":"0",
+          |  "agentName":"ABC Consultancy",
           |  "clientTraderName":"CLIENT ABC LTD",
           |  "clientVrn":"123456789",
           |  "clientHasDraftNotifications":true,
+          |  "clientIsDeregistered":false,
           |  "hasClients":true
           |}""".stripMargin
       )
 
       json.validate[NotificationSummary] mustEqual JsSuccess(
         NotificationSummary.AgentWithClient(
-          traderName = "ABC LTD",
-          vrn = "0",
-          clientTraderName = "CLIENT ABC LTD",
+          agentName = Some("ABC Consultancy"),
+          clientTraderName = Some("CLIENT ABC LTD"),
           clientVrn = "123456789",
           clientHasDraftNotifications = true,
-          hasClients = true
+          clientIsDeregistered = false
         )
       )
     }
 
+    "parses an AgentWithClient response with clientIsDeregistered true" in {
+      val json = Json.parse(
+        """{
+          |  "agentName":"ABC Consultancy",
+          |  "clientTraderName":"CLIENT ABC LTD",
+          |  "clientVrn":"123456789",
+          |  "clientHasDraftNotifications":true,
+          |  "clientIsDeregistered":true,
+          |  "hasClients":true
+          |}""".stripMargin
+      )
+
+      json.validate[NotificationSummary] mustEqual JsSuccess(
+        NotificationSummary.AgentWithClient(
+          agentName = Some("ABC Consultancy"),
+          clientTraderName = Some("CLIENT ABC LTD"),
+          clientVrn = "123456789",
+          clientHasDraftNotifications = true,
+          clientIsDeregistered = true
+        )
+      )
+    }
+
+    "parses an AgentWithClient response with no agentName or clientTraderName" in {
+      val json = Json.parse(
+        """{
+          |  "clientVrn":"123456789",
+          |  "clientHasDraftNotifications":true,
+          |  "clientIsDeregistered":false,
+          |  "hasClients":true
+          |}""".stripMargin
+      )
+
+      json.validate[NotificationSummary] mustEqual JsSuccess(
+        NotificationSummary.AgentWithClient(
+          agentName = None,
+          clientTraderName = None,
+          clientVrn = "123456789",
+          clientHasDraftNotifications = true,
+          clientIsDeregistered = false
+        )
+      )
+    }
+
+    "prefers AgentWithClient whenever clientVrn is present" in {
+      val json = Json.parse(
+        """{
+          |  "agentName":"ABC Consultancy",
+          |  "clientTraderName":"CLIENT ABC LTD",
+          |  "clientVrn":"123456789",
+          |  "clientHasDraftNotifications":false,
+          |  "clientIsDeregistered":false,
+          |  "hasClients":true
+          |}""".stripMargin
+      )
+
+      json.validate[NotificationSummary] mustBe a[JsSuccess[?]]
+      json.validate[NotificationSummary].get mustBe a[NotificationSummary.AgentWithClient]
+    }
+
     "fails when an IndividualOrOrganisation response is missing hasDraftNotifications" in {
       val json = Json.parse(
-        """{"traderName":"ABC LTD","vrn":"123456789"}"""
+        """{"traderName":"ABC LTD","isDeregistered":false}"""
       )
 
       json.validate[NotificationSummary] mustBe a[JsError]
     }
 
-    "fails when an AgentWithoutClient response is missing hasDraftNotifications" in {
+    "fails when an IndividualOrOrganisation response is missing isDeregistered" in {
       val json = Json.parse(
-        """{"traderName":"ABC LTD","vrn":"123456789","hasClients":true}"""
+        """{"traderName":"ABC LTD","hasDraftNotifications":false}"""
       )
 
       json.validate[NotificationSummary] mustBe a[JsError]
@@ -125,10 +212,10 @@ class NotificationSummarySpec extends AnyFreeSpec with Matchers {
     "fails when an AgentWithClient response is missing clientHasDraftNotifications" in {
       val json = Json.parse(
         """{
-          |  "traderName":"ABC LTD",
-          |  "vrn":"0",
+          |  "agentName":"ABC Consultancy",
           |  "clientTraderName":"CLIENT ABC LTD",
           |  "clientVrn":"123456789",
+          |  "clientIsDeregistered":false,
           |  "hasClients":true
           |}""".stripMargin
       )

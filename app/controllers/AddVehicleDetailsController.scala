@@ -24,7 +24,8 @@ import models.requests.DataRequest
 import javax.inject.Inject
 import models.{AddVehicleDetails, Mode, NovaUserType}
 import navigation.Navigator
-import pages.{AddVehicleDetailsPage, VehicleFromEuPage}
+import pages.AddVehicleDetailsPage
+import pages.sections.initialquestions.VehicleFromEuPage
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository

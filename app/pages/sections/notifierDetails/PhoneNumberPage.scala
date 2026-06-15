@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package pages
+package pages.sections.notifierDetails
 
-import models.AddYourName
+import pages.QuestionPage
 import play.api.libs.json.JsPath
 
-case object AddYourNamePage extends QuestionPage[AddYourName] {
+case object PhoneNumberPage extends QuestionPage[String] {
 
-  override def path: JsPath = JsPath \ toString
+  override def path: JsPath = JsPath \ "notifier-details" \ toString
 
-  override def toString: String = "addYourName"
+  override def toString: String = "phoneNumber"
 }

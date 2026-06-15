@@ -21,7 +21,8 @@ import forms.AgentVehicleBusinessUseFormProvider
 import javax.inject.Inject
 import models.{Mode, NovaUserType, UserAnswers}
 import navigation.Navigator
-import pages.{AgentVehicleBusinessUsePage, VehicleFromEuPage}
+import pages.AgentClientVehicleBusinessUsePage
+import pages.sections.initialquestions.VehicleFromEuPage
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import views.html.AgentVehicleBusinessUseView
@@ -45,7 +46,7 @@ class AgentVehicleBusinessUseController @Inject() (
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
     actions.novaAgentAuthAndGetDataRequiringClientWithGuard(guardPredicate) { implicit request =>
-      Ok(view(form.withDefault(request.userAnswers.get(AgentVehicleBusinessUsePage)), mode))
+      Ok(view(form.withDefault(request.userAnswers.get(AgentClientVehicleBusinessUsePage)), mode))
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
@@ -56,10 +57,11 @@ class AgentVehicleBusinessUseController @Inject() (
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
           value =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(AgentVehicleBusinessUsePage, value))
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(AgentClientVehicleBusinessUsePage, value))
               _              <- sessionRepository.set(updatedAnswers)
             } yield Redirect(
-              navigator.nextPage(AgentVehicleBusinessUsePage, mode, updatedAnswers, NovaUserType.from(request.affinityGroup, request.enrolments))
+              navigator
+                .nextPage(AgentClientVehicleBusinessUsePage, mode, updatedAnswers, NovaUserType.from(request.affinityGroup, request.enrolments))
             )
         )
     }

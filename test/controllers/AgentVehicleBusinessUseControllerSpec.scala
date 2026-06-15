@@ -25,7 +25,8 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{AgentSelectedClientPage, AgentVehicleBusinessUsePage, VehicleFromEuPage}
+import pages.sections.initialquestions.VehicleFromEuPage
+import pages.{AgentClientVehicleBusinessUsePage, AgentSelectedClientPage}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.Call
@@ -79,7 +80,7 @@ class AgentVehicleBusinessUseControllerSpec extends SpecBase with MockitoSugar {
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = userAnswersAgentWithClientAndIQ1.set(AgentVehicleBusinessUsePage, true).success.value
+      val userAnswers = userAnswersAgentWithClientAndIQ1.set(AgentClientVehicleBusinessUsePage, true).success.value
 
       val application = applicationBuilderWithAgentAsNovaAgent(userAnswers = Some(userAnswers)).build()
 

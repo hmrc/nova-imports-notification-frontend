@@ -17,8 +17,8 @@
 package controllers
 
 import connectors.NovaImportsBackendConnector
-import controllers.actions.IdentifierAction
-import models.{NotificationSummary, NovaUserType}
+import controllers.actions.Actions
+import models.{NotificationSummary, NovaUserType, UserAnswers, UserContext}
 import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -27,12 +27,12 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import views.html.{LandingPageAgentView, LandingPageOrganisationView, LandingPagePrivateView}
 
-import javax.inject.{Inject, Named}
+import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
 class LandingPageController @Inject() (
   val controllerComponents: MessagesControllerComponents,
-  @Named("standard") identify: IdentifierAction,
+  actions: Actions,
   backendConnector: NovaImportsBackendConnector,
   privateView: LandingPagePrivateView,
   organisationView: LandingPageOrganisationView,
@@ -42,15 +42,18 @@ class LandingPageController @Inject() (
     with I18nSupport
     with Logging {
 
-  def onPageLoad(): Action[AnyContent] = identify.async { implicit request =>
+  def onPageLoad(): Action[AnyContent] = actions.authAndGetOptionalData().async { implicit request =>
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
-    NovaUserType.from(request.affinityGroup, request.enrolments) match {
+    val context =
+      UserContext.from(request.affinityGroup, request.enrolments, request.userAnswers.getOrElse(UserAnswers(request.userId)))
+
+    context.userType match {
       case NovaUserType.PrivateIndividual | NovaUserType.NonVatOrganisation =>
-        backendConnector.getNotificationSummary().map { result =>
+        backendConnector.getNotificationSummary(None).map { result =>
           val (traderName, hasDrafts) = result match {
             case Right(summary: NotificationSummary.IndividualOrOrganisation) =>
-              (Some(summary.traderName), summary.hasDraftNotifications)
+              (summary.traderName, summary.hasDraftNotifications)
             case Right(_) =>
               (None, false)
             case Left(error) =>
@@ -61,9 +64,9 @@ class LandingPageController @Inject() (
         }
 
       case NovaUserType.VatRegisteredOrganisation =>
-        backendConnector.getNotificationSummary().map {
+        backendConnector.getNotificationSummary(None).map {
           case Right(summary: NotificationSummary.IndividualOrOrganisation) =>
-            Ok(organisationView(summary.traderName, summary.vrn, summary.hasDraftNotifications))
+            Ok(organisationView(summary.traderName, summary.vrn.getOrElse(""), summary.hasDraftNotifications))
           case Right(other) =>
             logger.warn(s"unexpected notification summary shape for VAT-registered Organisation: $other")
             Redirect(routes.JourneyRecoveryController.onPageLoad())
@@ -73,17 +76,19 @@ class LandingPageController @Inject() (
         }
 
       case NovaUserType.Agent =>
-        backendConnector.getNotificationSummary().map { result =>
-          val (traderName, hasDrafts) = result match {
+        backendConnector.getNotificationSummary(context.selectedClient.map(_.vrn)).map { result =>
+          val (agentName, hasDrafts) = result match {
+            case Right(summary: NotificationSummary.AgentWithClient) =>
+              (summary.agentName, summary.clientHasDraftNotifications)
             case Right(summary: NotificationSummary.AgentWithoutClient) =>
-              (Some(summary.traderName), summary.hasDraftNotifications)
+              (summary.agentName, summary.hasDraftNotifications)
             case Right(_) =>
               (None, false)
             case Left(error) =>
               logger.warn(s"failed to fetch notification summary; defaulting hasDraftNotifications=false: $error")
               (None, false)
           }
-          Ok(agentView(traderName = traderName, hasDraftNotifications = hasDrafts))
+          Ok(agentView(traderName = agentName, hasDraftNotifications = hasDrafts))
         }
     }
   }

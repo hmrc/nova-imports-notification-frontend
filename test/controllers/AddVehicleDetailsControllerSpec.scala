@@ -27,7 +27,8 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{AddVehicleDetailsPage, VehicleFromEuPage}
+import pages.AddVehicleDetailsPage
+import pages.sections.initialquestions.VehicleFromEuPage
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.*

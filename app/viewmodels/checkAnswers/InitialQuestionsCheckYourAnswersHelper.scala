@@ -17,7 +17,7 @@
 package viewmodels.checkAnswers
 
 import models.{NovaUserType, PurchaserOrOnBehalf, UserAnswers, UserContext}
-import pages.PurchaserOrOnBehalfPage
+import pages.sections.initialquestions.PurchaserOrOnBehalfPage
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import viewmodels.govuk.summarylist.*

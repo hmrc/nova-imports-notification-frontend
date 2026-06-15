@@ -20,6 +20,8 @@ import base.SpecBase
 import controllers.routes
 import pages.*
 import models.*
+import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
+import pages.sections.notifierDetails.{EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 
 class NavigatorSpec extends SpecBase {
 
@@ -91,8 +93,8 @@ class NavigatorSpec extends SpecBase {
         }
 
         "must go from AddYourNamePage to PhoneNumberController (AYD1.2)" in {
-          val ua = userAnswers.set(AddYourNamePage, AddYourName("Mr", "John", "Smith")).success.value
-          navigator.nextPage(AddYourNamePage, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.PhoneNumberController
+          val ua = userAnswers.set(NameDetailsPage, NameDetails("Mr", "John", "Smith")).success.value
+          navigator.nextPage(NameDetailsPage, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.PhoneNumberController
             .onPageLoad(NormalMode)
         }
 
@@ -171,7 +173,7 @@ class NavigatorSpec extends SpecBase {
 
       "must go from AgentVehicleBusinessUsePage AQ1.0 to InitialQuestionsCheckYourAnswersController" in {
         navigator.nextPage(
-          AgentVehicleBusinessUsePage,
+          AgentClientVehicleBusinessUsePage,
           NormalMode,
           userAnswers,
           NovaUserType.Agent
@@ -179,7 +181,7 @@ class NavigatorSpec extends SpecBase {
       }
 
       "must go from BusinessPrivatePage IQ2.0 to PurchaserOrOnBehalfController" in {
-        navigator.nextPage(BusinessPrivatePage, NormalMode, userAnswers, NovaUserType.PrivateIndividual) mustBe routes.PurchaserOrOnBehalfController
+        navigator.nextPage(BusinessOrPrivatePage, NormalMode, userAnswers, NovaUserType.PrivateIndividual) mustBe routes.PurchaserOrOnBehalfController
           .onPageLoad(NormalMode)
       }
 
@@ -307,7 +309,7 @@ class NavigatorSpec extends SpecBase {
 
       "must go from BusinessPrivatePage to InitialQuestionsCheckYourAnswers" in {
         navigator.nextPage(
-          BusinessPrivatePage,
+          BusinessOrPrivatePage,
           CheckMode,
           userAnswers,
           NovaUserType.PrivateIndividual
@@ -363,7 +365,7 @@ class NavigatorSpec extends SpecBase {
 
       "must go from AgentVehicleBusinessUsePage AQ1.0 to InitialQuestionsCheckYourAnswers" in {
         navigator.nextPage(
-          AgentVehicleBusinessUsePage,
+          AgentClientVehicleBusinessUsePage,
           CheckMode,
           userAnswers,
           NovaUserType.Agent

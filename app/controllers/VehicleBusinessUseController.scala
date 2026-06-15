@@ -21,7 +21,7 @@ import forms.VehicleBusinessUseFormProvider
 import javax.inject.Inject
 import models.{Mode, NovaUserType, UserAnswers}
 import navigation.Navigator
-import pages.{VehicleBusinessUsePage, VehicleFromEuPage}
+import pages.sections.initialquestions.{VehicleBusinessUsePage, VehicleFromEuPage}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import views.html.VehicleBusinessUseView

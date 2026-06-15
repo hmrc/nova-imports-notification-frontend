@@ -28,7 +28,7 @@ class InitialQuestionsSpec extends AnyFreeSpec with Matchers {
     "does not include fields that have no value" in {
       val model = InitialQuestions(
         vehicleFromEuToNi = true,
-        vehicleIntoUkForBusinessUse = Some(true),
+        isForBusinessUse = Some(true),
         areYouBusinessOrPrivate = None,
         notifyingAsPurchaserOrOnBehalf = None,
         isPurchaserBusinessOrPrivateIndividual = None,
@@ -36,14 +36,14 @@ class InitialQuestionsSpec extends AnyFreeSpec with Matchers {
       )
 
       Json.toJson(model) mustEqual Json.parse(
-        """{"vehicleFromEuToNi":true,"vehicleIntoUkForBusinessUse":true}"""
+        """{"vehicleFromEuToNi":true,"isForBusinessUse":true}"""
       )
     }
 
     "includes the agent client vehicle business use field when it has a value" in {
       val model = InitialQuestions(
         vehicleFromEuToNi = true,
-        vehicleIntoUkForBusinessUse = None,
+        isForBusinessUse = None,
         areYouBusinessOrPrivate = None,
         notifyingAsPurchaserOrOnBehalf = None,
         isPurchaserBusinessOrPrivateIndividual = None,
@@ -58,7 +58,7 @@ class InitialQuestionsSpec extends AnyFreeSpec with Matchers {
     "writes the correct JSON value when the notifier is a business" in {
       val model = InitialQuestions(
         vehicleFromEuToNi = true,
-        vehicleIntoUkForBusinessUse = None,
+        isForBusinessUse = None,
         areYouBusinessOrPrivate = Some(BusinessOrPrivateIndividual.Business),
         notifyingAsPurchaserOrOnBehalf = Some(PurchaserOrOnBehalf.Purchaser),
         isPurchaserBusinessOrPrivateIndividual = None,
@@ -73,7 +73,7 @@ class InitialQuestionsSpec extends AnyFreeSpec with Matchers {
     "writes the correct JSON value when the purchaser is a non-VAT registered business" in {
       val model = InitialQuestions(
         vehicleFromEuToNi = true,
-        vehicleIntoUkForBusinessUse = None,
+        isForBusinessUse = None,
         areYouBusinessOrPrivate = Some(BusinessOrPrivateIndividual.PrivateIndividual),
         notifyingAsPurchaserOrOnBehalf = Some(PurchaserOrOnBehalf.OnBehalfOfPurchaser),
         isPurchaserBusinessOrPrivateIndividual = Some(PurchaserBusinessOrIndividual.NonVatRegisteredBusiness),
@@ -93,7 +93,7 @@ class InitialQuestionsSpec extends AnyFreeSpec with Matchers {
     "writes the correct JSON value when the purchaser is a private individual" in {
       val model = InitialQuestions(
         vehicleFromEuToNi = true,
-        vehicleIntoUkForBusinessUse = None,
+        isForBusinessUse = None,
         areYouBusinessOrPrivate = Some(BusinessOrPrivateIndividual.PrivateIndividual),
         notifyingAsPurchaserOrOnBehalf = Some(PurchaserOrOnBehalf.OnBehalfOfPurchaser),
         isPurchaserBusinessOrPrivateIndividual = Some(PurchaserBusinessOrIndividual.NonVatRegisteredPrivateIndividual),

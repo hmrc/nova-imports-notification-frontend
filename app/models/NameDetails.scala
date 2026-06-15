@@ -14,11 +14,16 @@
  * limitations under the License.
  */
 
-package pages
+package models
 
-import play.api.libs.json.JsPath
+import play.api.libs.json.{Json, OFormat}
 
-case object VehicleBusinessUsePage extends QuestionPage[Boolean] {
-  override def path: JsPath     = JsPath \ toString
-  override def toString: String = "vehicleBusinessUse"
+final case class NameDetails(
+  title: String,
+  firstName: String,
+  lastName: String
+)
+
+object NameDetails {
+  implicit val format: OFormat[NameDetails] = Json.format[NameDetails]
 }

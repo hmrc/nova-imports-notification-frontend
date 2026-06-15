@@ -22,7 +22,7 @@ import models.requests.DataRequest
 import javax.inject.Inject
 import models.{Mode, NovaUserType, UserAnswers}
 import navigation.Navigator
-import pages.{BusinessPrivatePage, VehicleFromEuPage}
+import pages.sections.initialquestions.{BusinessOrPrivatePage, VehicleFromEuPage}
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -45,7 +45,7 @@ class BusinessPrivateController @Inject() (
   val form: Form[models.BusinessOrPrivateIndividual] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate) { implicit request =>
-    Ok(view(form.withDefault(request.userAnswers.get(BusinessPrivatePage)), mode))
+    Ok(view(form.withDefault(request.userAnswers.get(BusinessOrPrivatePage)), mode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate).async { implicit request =>
@@ -55,10 +55,10 @@ class BusinessPrivateController @Inject() (
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
         value =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(BusinessPrivatePage, value))
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(BusinessOrPrivatePage, value))
             _              <- sessionRepository.set(updatedAnswers)
           } yield Redirect(
-            navigator.nextPage(BusinessPrivatePage, mode, updatedAnswers, NovaUserType.from(request.affinityGroup, request.enrolments))
+            navigator.nextPage(BusinessOrPrivatePage, mode, updatedAnswers, NovaUserType.from(request.affinityGroup, request.enrolments))
           )
       )
   }

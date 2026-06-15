@@ -18,7 +18,7 @@ package viewmodels.checkAnswers
 
 import controllers.routes
 import models.{CheckMode, PurchaserBusinessOrIndividual, UserAnswers}
-import pages.PurchaserBusinessOrIndividualPage
+import pages.sections.initialquestions.PurchaserBusinessOrIndividualPage
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
