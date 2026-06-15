@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package pages
+package models.draftsections
 
-import play.api.libs.json.JsPath
+import play.api.libs.json.{Format, Json}
 
-case object VehicleFromEuPage extends QuestionPage[Boolean] {
+final case class Introduction(acknowledged: Boolean, amendSubmittedNotification: Boolean)
 
-  override def path: JsPath = JsPath \ toString
-
-  override def toString: String = "vehicleFromEu"
+object Introduction {
+  implicit val format: Format[Introduction] = Json.format[Introduction]
 }

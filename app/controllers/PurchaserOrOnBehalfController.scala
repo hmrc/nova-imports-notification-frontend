@@ -21,7 +21,7 @@ import forms.PurchaserOrOnBehalfFormProvider
 import models.{BusinessOrPrivateIndividual, Mode, NovaUserType, PurchaserOrOnBehalf, UserAnswers}
 import javax.inject.Inject
 import navigation.Navigator
-import pages.{BusinessPrivatePage, PurchaserOrOnBehalfPage}
+import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserOrOnBehalfPage}
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -40,7 +40,7 @@ class PurchaserOrOnBehalfController @Inject() (
     extends BaseController {
 
   private val guardPredicate: UserAnswers => Boolean =
-    _.get(BusinessPrivatePage).isDefined
+    _.get(BusinessOrPrivatePage).isDefined
 
   val form: Form[PurchaserOrOnBehalf] = formProvider()
 

@@ -19,7 +19,7 @@ package views
 import base.SpecBase
 import models.{UserAnswers, UserContext}
 import org.scalatest.matchers.must.Matchers
-import pages.VehicleFromEuPage
+import pages.sections.initialquestions.VehicleFromEuPage
 import play.api.Application
 import play.api.i18n.Messages
 import play.api.mvc.Request

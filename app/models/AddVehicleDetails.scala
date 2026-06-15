@@ -14,14 +14,18 @@
  * limitations under the License.
  */
 
-package pages
+package models
 
-import models.BusinessOrPrivateIndividual
-import play.api.libs.json.JsPath
+enum AddVehicleDetails(val jsonValue: String) {
+  case BySupplier extends AddVehicleDetails("bySupplier")
+  case BySpreadsheet extends AddVehicleDetails("bySpreadsheet")
 
-case object BusinessPrivatePage extends QuestionPage[BusinessOrPrivateIndividual] {
+  override def toString: String = jsonValue
+}
 
-  override def path: JsPath = JsPath \ toString
-
-  override def toString: String = "businessOrPrivateIndividual"
+object AddVehicleDetails extends Enumerable.Implicits {
+  given Enumerable[AddVehicleDetails] = Enumerable(
+    BySupplier.jsonValue    -> BySupplier,
+    BySpreadsheet.jsonValue -> BySpreadsheet
+  )
 }

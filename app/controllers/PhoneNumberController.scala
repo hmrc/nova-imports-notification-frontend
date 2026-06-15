@@ -22,6 +22,8 @@ import models.requests.DataRequest
 import models.{Mode, NovaUserType, PurchaserOrOnBehalf}
 import navigation.Navigator
 import pages.*
+import pages.sections.initialquestions.{PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage}
+import pages.sections.notifierDetails.PhoneNumberPage
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -50,7 +52,7 @@ class PhoneNumberController @Inject() (
       case NovaUserType.VatRegisteredOrganisation =>
         ua.get(VehicleBusinessUsePage).isDefined
       case NovaUserType.Agent if ctx.selectedClient.isDefined =>
-        ua.get(AgentVehicleBusinessUsePage).isDefined
+        ua.get(AgentClientVehicleBusinessUsePage).isDefined
       case _ =>
         ua.get(PurchaserOrOnBehalfPage) match {
           case Some(PurchaserOrOnBehalf.Purchaser)           => true

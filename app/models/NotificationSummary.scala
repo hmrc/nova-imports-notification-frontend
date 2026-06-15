@@ -19,58 +19,44 @@ package models
 import play.api.libs.functional.syntax.*
 import play.api.libs.json.*
 
-sealed trait NotificationSummary {
-  def traderName: String
-  def vrn: String
-}
+sealed trait NotificationSummary
 
 object NotificationSummary {
 
   final case class IndividualOrOrganisation(
-    traderName: String,
-    vrn: String,
-    hasDraftNotifications: Boolean
+    traderName: Option[String],
+    vrn: Option[String],
+    hasDraftNotifications: Boolean,
+    isDeregistered: Boolean
   ) extends NotificationSummary
 
   final case class AgentWithoutClient(
-    traderName: String,
-    vrn: String,
-    hasDraftNotifications: Boolean,
-    hasClients: Boolean
+    agentName: Option[String],
+    hasDraftNotifications: Boolean
   ) extends NotificationSummary
 
   final case class AgentWithClient(
-    traderName: String,
-    vrn: String,
-    clientTraderName: String,
+    agentName: Option[String],
+    clientTraderName: Option[String],
     clientVrn: String,
     clientHasDraftNotifications: Boolean,
-    hasClients: Boolean
+    clientIsDeregistered: Boolean
   ) extends NotificationSummary
 
   implicit val reads: Reads[NotificationSummary] = Reads { json =>
-    val clientVrn  = (json \ "clientVrn").asOpt[String]
-    val hasClients = (json \ "hasClients").asOpt[Boolean]
-
-    (clientVrn, hasClients) match {
-      case (Some(_), _) =>
-        ((__ \ "traderName").read[String] and
-          (__ \ "vrn").read[String] and
-          (__ \ "clientTraderName").read[String] and
-          (__ \ "clientVrn").read[String] and
-          (__ \ "clientHasDraftNotifications").read[Boolean] and
-          (__ \ "hasClients").read[Boolean])(AgentWithClient.apply _).reads(json)
-
-      case (None, Some(_)) =>
-        ((__ \ "traderName").read[String] and
-          (__ \ "vrn").read[String] and
-          (__ \ "hasDraftNotifications").read[Boolean] and
-          (__ \ "hasClients").read[Boolean])(AgentWithoutClient.apply _).reads(json)
-
-      case (None, None) =>
-        ((__ \ "traderName").read[String] and
-          (__ \ "vrn").read[String] and
-          (__ \ "hasDraftNotifications").read[Boolean])(IndividualOrOrganisation.apply _).reads(json)
-    }
+    if (json \ "clientVrn").asOpt[String].isDefined then
+      ((__ \ "agentName").readNullable[String] and
+        (__ \ "clientTraderName").readNullable[String] and
+        (__ \ "clientVrn").read[String] and
+        (__ \ "clientHasDraftNotifications").read[Boolean] and
+        (__ \ "clientIsDeregistered").read[Boolean])(AgentWithClient.apply _).reads(json)
+    else if (json \ "hasClients").toOption.isDefined then
+      ((__ \ "agentName").readNullable[String] and
+        (__ \ "hasDraftNotifications").read[Boolean])(AgentWithoutClient.apply _).reads(json)
+    else
+      ((__ \ "traderName").readNullable[String] and
+        (__ \ "vrn").readNullable[String] and
+        (__ \ "hasDraftNotifications").read[Boolean] and
+        (__ \ "isDeregistered").read[Boolean])(IndividualOrOrganisation.apply _).reads(json)
   }
 }

@@ -14,11 +14,17 @@
  * limitations under the License.
  */
 
-package pages
+package forms
 
-import play.api.libs.json.JsPath
+import javax.inject.Inject
+import forms.mappings.Mappings
+import models.AddVehicleDetails
+import play.api.data.Form
 
-case object VehicleBusinessUsePage extends QuestionPage[Boolean] {
-  override def path: JsPath     = JsPath \ toString
-  override def toString: String = "vehicleBusinessUse"
+class AddVehicleDetailsFormProvider @Inject() extends Mappings {
+
+  def apply(): Form[AddVehicleDetails] =
+    Form(
+      "value" -> enumerable[AddVehicleDetails]("addVehicleDetails.error.required")
+    )
 }

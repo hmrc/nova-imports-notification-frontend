@@ -21,7 +21,7 @@ import forms.EmailAddressFormProvider
 import javax.inject.Inject
 import models.{Mode, NovaUserType}
 import navigation.Navigator
-import pages.EmailAddressPage
+import pages.sections.notifierDetails.EmailAddressPage
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository

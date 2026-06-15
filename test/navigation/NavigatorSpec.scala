@@ -20,6 +20,8 @@ import base.SpecBase
 import controllers.routes
 import pages.*
 import models.*
+import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
+import pages.sections.notifierDetails.{EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 
 class NavigatorSpec extends SpecBase {
 
@@ -91,8 +93,8 @@ class NavigatorSpec extends SpecBase {
         }
 
         "must go from AddYourNamePage to PhoneNumberController (AYD1.2)" in {
-          val ua = userAnswers.set(AddYourNamePage, AddYourName("Mr", "John", "Smith")).success.value
-          navigator.nextPage(AddYourNamePage, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.PhoneNumberController
+          val ua = userAnswers.set(NameDetailsPage, NameDetails("Mr", "John", "Smith")).success.value
+          navigator.nextPage(NameDetailsPage, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.PhoneNumberController
             .onPageLoad(NormalMode)
         }
 
@@ -171,7 +173,7 @@ class NavigatorSpec extends SpecBase {
 
       "must go from AgentVehicleBusinessUsePage AQ1.0 to InitialQuestionsCheckYourAnswersController" in {
         navigator.nextPage(
-          AgentVehicleBusinessUsePage,
+          AgentClientVehicleBusinessUsePage,
           NormalMode,
           userAnswers,
           NovaUserType.Agent
@@ -179,7 +181,7 @@ class NavigatorSpec extends SpecBase {
       }
 
       "must go from BusinessPrivatePage IQ2.0 to PurchaserOrOnBehalfController" in {
-        navigator.nextPage(BusinessPrivatePage, NormalMode, userAnswers, NovaUserType.PrivateIndividual) mustBe routes.PurchaserOrOnBehalfController
+        navigator.nextPage(BusinessOrPrivatePage, NormalMode, userAnswers, NovaUserType.PrivateIndividual) mustBe routes.PurchaserOrOnBehalfController
           .onPageLoad(NormalMode)
       }
 
@@ -217,6 +219,37 @@ class NavigatorSpec extends SpecBase {
       "must go from EmailAddressPage AYD1.3 to CYA page" in {
         navigator.nextPage(EmailAddressPage, NormalMode, userAnswers, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController
           .onPageLoad() // TODO: redirect to CYA2.0 page when built
+      }
+
+      "must go from AddVehicleDetailsPage AVD1.0 to LandingPage when BySupplier is selected" in {
+        // TODO: navigate to AVD-S1.0 when implemented
+        val ua = userAnswers.set(AddVehicleDetailsPage, AddVehicleDetails.BySupplier).success.value
+        navigator.nextPage(
+          AddVehicleDetailsPage,
+          NormalMode,
+          ua,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from AddVehicleDetailsPage AVD1.0 to LandingPage when BySpreadsheet is selected" in {
+        // TODO: navigate to spreadsheet upload flow when implemented
+        val ua = userAnswers.set(AddVehicleDetailsPage, AddVehicleDetails.BySpreadsheet).success.value
+        navigator.nextPage(
+          AddVehicleDetailsPage,
+          NormalMode,
+          ua,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from AddVehicleDetailsPage AVD1.0 to JourneyRecovery when no answer is found" in {
+        navigator.nextPage(
+          AddVehicleDetailsPage,
+          NormalMode,
+          userAnswers,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
     }
 
@@ -259,7 +292,7 @@ class NavigatorSpec extends SpecBase {
 
       "must go from BusinessPrivatePage to InitialQuestionsCheckYourAnswers" in {
         navigator.nextPage(
-          BusinessPrivatePage,
+          BusinessOrPrivatePage,
           CheckMode,
           userAnswers,
           NovaUserType.PrivateIndividual
@@ -315,7 +348,7 @@ class NavigatorSpec extends SpecBase {
 
       "must go from AgentVehicleBusinessUsePage AQ1.0 to InitialQuestionsCheckYourAnswers" in {
         navigator.nextPage(
-          AgentVehicleBusinessUsePage,
+          AgentClientVehicleBusinessUsePage,
           CheckMode,
           userAnswers,
           NovaUserType.Agent

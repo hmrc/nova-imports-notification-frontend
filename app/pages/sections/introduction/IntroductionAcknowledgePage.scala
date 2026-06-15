@@ -14,22 +14,14 @@
  * limitations under the License.
  */
 
-package pages
+package pages.sections.introduction
 
-import models.{PurchaserOrOnBehalf, UserAnswers}
+import pages.QuestionPage
 import play.api.libs.json.JsPath
 
-import scala.util.Try
+case object IntroductionAcknowledgePage extends QuestionPage[Boolean] {
 
-case object PurchaserOrOnBehalfPage extends QuestionPage[PurchaserOrOnBehalf] {
+  override def path: JsPath = JsPath \ "introduction" \ toString
 
-  override def path: JsPath = JsPath \ toString
-
-  override def toString: String = "purchaserOrOnBehalf"
-
-  override def cleanup(value: Option[PurchaserOrOnBehalf], userAnswers: UserAnswers): Try[UserAnswers] =
-    value match {
-      case Some(PurchaserOrOnBehalf.Purchaser) => userAnswers.remove(PurchaserBusinessOrIndividualPage)
-      case _                                   => super.cleanup(value, userAnswers)
-    }
+  override def toString: String = "acknowledged"
 }

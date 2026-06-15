@@ -1,0 +1,121 @@
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import models.{DraftNotification, NormalMode, SectionStatus}
+
+@this(
+    layout: templates.Layout,
+    govukButton: GovukButton
+)
+
+@(traderName: Option[String], vrn: Option[String], sections: Map[String, SectionStatus], showAddYourAddress: Boolean)(implicit request: Request[?], messages: Messages)
+
+@statusTag(sectionId: String) = {
+    @sections.get(sectionId) match {
+        case Some(SectionStatus.Completed) => {
+            @messages("notificationTaskList.status.completed")
+        }
+        case _ => {
+            <strong class="govuk-tag govuk-tag--blue">@messages("notificationTaskList.status.incomplete")</strong>
+        }
+    }
+}
+
+@layout(pageTitle = titleNoForm(messages("notificationTaskList.title"))) {
+
+    @if(traderName.isDefined || vrn.isDefined) {
+        <span class="govuk-caption-l">
+            @traderName.map { name =>
+                @name
+            }
+
+            @vrn.map { number =>
+                <br>
+             @messages("notificationTaskList.vrn.caption", number)
+            }
+        </span>
+    }
+
+    <h1 class="govuk-heading-l">@messages("notificationTaskList.heading")</h1>
+
+    <h2 class="govuk-heading-m">@messages("notificationTaskList.aboutYou.heading")</h2>
+
+    <ul class="govuk-task-list">
+        <li class="govuk-task-list__item govuk-task-list__item--with-link">
+            <div class="govuk-task-list__name-and-hint">
+                <a class="govuk-link govuk-task-list__link" href="@routes.AboutYourDetailsController.onPageLoad().url" aria-describedby="add-your-details-status">
+                    @messages("notificationTaskList.aboutYou.addYourDetails")
+                </a>
+            </div>
+            <div class="govuk-task-list__status" id="add-your-details-status">
+                @statusTag(DraftNotification.SectionId.NotifierDetails)
+            </div>
+        </li>
+
+        @if(showAddYourAddress) {
+            <li class="govuk-task-list__item govuk-task-list__item--with-link">
+                <div class="govuk-task-list__name-and-hint">
+                    <a class="govuk-link govuk-task-list__link" href="@routes.IsYourAddressInTheUkController.onPageLoad(NormalMode).url" aria-describedby="add-your-address-status">
+                        @messages("notificationTaskList.aboutYou.addYourAddress")
+                    </a>
+                </div>
+                <div class="govuk-task-list__status" id="add-your-address-status">
+                    @statusTag(DraftNotification.SectionId.NotifierAddress)
+                </div>
+            </li>
+        }
+    </ul>
+
+    <h2 class="govuk-heading-m govuk-!-margin-top-5">@messages("notificationTaskList.aboutTheVehicles.heading")</h2>
+
+    <ul class="govuk-task-list">
+        <li class="govuk-task-list__item govuk-task-list__item--with-link">
+            <div class="govuk-task-list__name-and-hint">
+                <a class="govuk-link govuk-task-list__link" href="@routes.AddVehicleDetailsController.onPageLoad(NormalMode).url" aria-describedby="add-vehicle-details-status">
+                    @messages("notificationTaskList.aboutTheVehicles.addVehicleDetails")
+                </a>
+            </div>
+            <div class="govuk-task-list__status" id="add-vehicle-details-status">
+                @statusTag(DraftNotification.SectionId.Vehicles)
+            </div>
+        </li>
+    </ul>
+
+    <h2 class="govuk-heading-m govuk-!-margin-top-5">@messages("notificationTaskList.declaration.heading")</h2>
+
+    <ul class="govuk-task-list">
+        <li class="govuk-task-list__item">
+            <div class="govuk-task-list__name-and-hint">
+                <div>@messages("notificationTaskList.declaration.readDeclaration")</div>
+                <div id="read-declaration-hint" class="govuk-task-list__hint">@messages("notificationTaskList.declaration.hint")</div>
+            </div>
+            <div class="govuk-task-list__status govuk-task-list__status--cannot-start-yet">
+                @messages("notificationTaskList.status.cannotStartYet")
+            </div>
+        </li>
+    </ul>
+
+    <div class="govuk-button-group">
+        <p class="govuk-body">
+            <a href="@routes.LandingPageController.onPageLoad().url" class="govuk-link">@messages("notificationTaskList.returnToHome")</a>
+        </p>
+        @govukButton(
+            ButtonViewModel(messages("notificationTaskList.deleteNotification"))
+                .asLink("#")
+                .asWarningButton()
+        )
+    </div>
+}

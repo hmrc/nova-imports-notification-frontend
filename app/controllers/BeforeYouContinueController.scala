@@ -21,11 +21,13 @@ import connectors.NovaImportsBackendConnector
 import controllers.actions.*
 import models.{NormalMode, UserAnswers, UserContext}
 import models.NovaUserType
+import pages.sections.introduction.{AmendSubmittedNotificationPage, IntroductionAcknowledgePage}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import pages.{AgentSelectedClientPage, DraftIdPage}
 import views.html.{BeforeYouContinueOrganisationView, BeforeYouContinueView}
 import scala.concurrent.{ExecutionContext, Future}
+import play.api.mvc.Result
 
 class BeforeYouContinueController @Inject() (
   val controllerComponents: MessagesControllerComponents,
@@ -37,13 +39,23 @@ class BeforeYouContinueController @Inject() (
 )(implicit ec: ExecutionContext)
     extends BaseController {
 
-  def onPageLoad: Action[AnyContent] = actions.authAndGetOptionalData() { implicit request =>
-    val ctx =
-      UserContext.from(request.affinityGroup, request.enrolments, request.userAnswers.getOrElse(UserAnswers(request.userId)))
+  def onPageLoad: Action[AnyContent] = actions.authAndGetOptionalData().async { implicit request =>
+    renderPage(isAmendment = false)
+  }
+
+  def onPageLoadAmend: Action[AnyContent] = actions.authAndGetOptionalData().async { implicit request =>
+    renderPage(isAmendment = true)
+  }
+
+  private def renderPage(isAmendment: Boolean)(implicit request: models.requests.OptionalDataRequest[AnyContent]): Future[Result] = {
+    val existingAnswers       = request.userAnswers.getOrElse(UserAnswers(request.userId))
+    val ctx                   = UserContext.from(request.affinityGroup, request.enrolments, existingAnswers)
     val showIndividualContent =
       ctx.userType == NovaUserType.PrivateIndividual || ctx.userType == NovaUserType.NonVatOrganisation || ctx.isAgentWithoutClient
 
-    if showIndividualContent then Ok(individualView()) else Ok(organisationView())
+    sessionRepository.setPage(existingAnswers, AmendSubmittedNotificationPage, isAmendment).map { _ =>
+      if showIndividualContent then Ok(individualView()) else Ok(organisationView())
+    }
   }
 
   def onSubmit(): Action[AnyContent] = actions.authAndGetOptionalData().async { implicit request =>
@@ -51,13 +63,9 @@ class BeforeYouContinueController @Inject() (
     val ctx             = UserContext.from(request.affinityGroup, request.enrolments, existingAnswers)
     val clientVrn       = if (ctx.isAgentWithClient) existingAnswers.get(AgentSelectedClientPage).map(_.vrn) else None
 
-    backendConnector.createDraft(clientVrn).flatMap {
-      case Right(draftId) =>
-        sessionRepository
-          .setPage(existingAnswers, DraftIdPage, draftId)
-          .map(_ => Redirect(routes.VehicleFromEuController.onPageLoad(NormalMode).url))
-      case Left(_) =>
-        Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
-    }
+    for {
+      _ <- sessionRepository.setPage(existingAnswers, IntroductionAcknowledgePage, true)
+    } yield Redirect(routes.VehicleFromEuController.onPageLoad(NormalMode).url)
+
   }
 }
