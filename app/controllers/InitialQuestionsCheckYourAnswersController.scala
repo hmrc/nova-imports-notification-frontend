@@ -33,7 +33,6 @@ import repositories.SessionRepository
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import views.html.InitialQuestionsCheckYourAnswersView
-import controllers.InitialQuestionsCheckYourAnswersController.*
 import play.api.mvc.Results.*
 
 import scala.concurrent.{ExecutionContext, Future}

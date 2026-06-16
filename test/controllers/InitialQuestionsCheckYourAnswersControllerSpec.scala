@@ -22,7 +22,7 @@ import connectors.{NovaImportsBackendConnector, UpdateSectionError}
 import controllers.actions.*
 import models.responses.CreateDraftResponse
 import models.{AgentSelectedClient, BusinessOrPrivateIndividual, DraftId, PurchaserBusinessOrIndividual, PurchaserOrOnBehalf, UserAnswers}
-import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import pages.*

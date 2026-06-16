@@ -18,7 +18,6 @@ package pages.sections.initialquestions
 
 import models.{PurchaserOrOnBehalf, UserAnswers}
 import pages.QuestionPage
-import pages.sections.initialquestions.PurchaserBusinessOrIndividualPage
 import play.api.libs.json.JsPath
 
 import scala.util.Try

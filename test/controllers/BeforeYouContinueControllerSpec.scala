@@ -20,11 +20,14 @@ import base.SpecBase
 import com.google.inject.name.Names
 import connectors.NovaImportsBackendConnector
 import controllers.actions.*
-import models.{AgentSelectedClient, UserAnswers}
-import org.mockito.ArgumentMatchers.any
+import models.{AgentSelectedClient, PurchaserOrOnBehalf, UserAnswers}
+import org.mockito.ArgumentCaptor
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.AgentSelectedClientPage
+import pages.sections.initialquestions.{PurchaserOrOnBehalfPage, VehicleFromEuPage}
+import pages.sections.introduction.{AmendSubmittedNotificationPage, IntroductionAcknowledgePage}
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -82,6 +85,30 @@ class BeforeYouContinueControllerSpec extends SpecBase with MockitoSugar {
         bind[SessionRepository].toInstance(sessionRepo)
       )
       .build()
+
+  private val staleIndividualAnswers =
+    emptyUserAnswers
+      .set(VehicleFromEuPage, true)
+      .success
+      .value
+      .set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
+      .success
+      .value
+      .set(AmendSubmittedNotificationPage, true)
+      .success
+      .value
+
+  private val staleAgentAnswersWithClient =
+    userAnswersWithClient
+      .set(VehicleFromEuPage, true)
+      .success
+      .value
+      .set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
+      .success
+      .value
+      .set(AmendSubmittedNotificationPage, true)
+      .success
+      .value
 
   "BeforeYouContinueController" - {
 
@@ -183,11 +210,12 @@ class BeforeYouContinueControllerSpec extends SpecBase with MockitoSugar {
 
     "onSubmit" - {
 
-      "must save acknowledgement and redirect to VehicleFromEuController for a non-agent user" in {
-        val sessionRepo = mockSessionRepository
+      "starts a fresh session (clearing previous answers), records the acknowledgement, and redirects to VehicleFromEuController for a non-agent user" in {
+        val sessionRepo   = mockSessionRepository
+        val answersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
 
         given application: Application =
-          applicationWith(classOf[FakeIdentifierAction], Some(emptyUserAnswers), mock[NovaImportsBackendConnector], sessionRepo)
+          applicationWith(classOf[FakeIdentifierAction], Some(staleIndividualAnswers), mock[NovaImportsBackendConnector], sessionRepo)
 
         running(application) {
           given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, onSubmitRoute)
@@ -196,15 +224,26 @@ class BeforeYouContinueControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual vehicleFromEuTarget
-          verify(sessionRepo).setPage(any(), any(), any())(any())
+
+          // the acknowledgement is recorded, and it is written onto a new set of answers
+          verify(sessionRepo).setPage(answersCaptor.capture(), eqTo(IntroductionAcknowledgePage), eqTo(true))(any())
+
+          val capturedAnswers = answersCaptor.getValue
+          // answers from the previous session have been cleared
+          capturedAnswers.get(VehicleFromEuPage) mustEqual None
+          capturedAnswers.get(PurchaserOrOnBehalfPage) mustEqual None
+          // a new notification must NOT inherit an amendment flag from a previous answers
+          capturedAnswers.get(AmendSubmittedNotificationPage) mustEqual None
+          capturedAnswers.get(AgentSelectedClientPage) mustEqual None
         }
       }
 
-      "must save acknowledgement and redirect to VehicleFromEuController for an agent with a selected client" in {
-        val sessionRepo = mockSessionRepository
+      "sets the selected client into the fresh session and records the acknowledgement for an agent with a selected client" in {
+        val sessionRepo   = mockSessionRepository
+        val answersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
 
         given application: Application =
-          applicationWith(classOf[FakeAgentIdentifierAction], Some(userAnswersWithClient), mock[NovaImportsBackendConnector], sessionRepo)
+          applicationWith(classOf[FakeAgentIdentifierAction], Some(staleAgentAnswersWithClient), mock[NovaImportsBackendConnector], sessionRepo)
 
         running(application) {
           given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, onSubmitRoute)
@@ -213,15 +252,24 @@ class BeforeYouContinueControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual vehicleFromEuTarget
-          verify(sessionRepo).setPage(any(), any(), any())(any())
+
+          verify(sessionRepo).setPage(answersCaptor.capture(), eqTo(IntroductionAcknowledgePage), eqTo(true))(any())
+
+          val capturedAnswers = answersCaptor.getValue
+          // the agent's selected client is the only thing preserved into the new session
+          capturedAnswers.get(AgentSelectedClientPage) mustEqual Some(sampleClient)
+          capturedAnswers.get(VehicleFromEuPage) mustEqual None
+          capturedAnswers.get(PurchaserOrOnBehalfPage) mustEqual None
+          capturedAnswers.get(AmendSubmittedNotificationPage) mustEqual None
         }
       }
 
-      "must save acknowledgement and redirect to VehicleFromEuController for an agent without a selected client" in {
-        val sessionRepo = mockSessionRepository
+      "does not carry a client into the fresh session for agent when there is not a selected client" in {
+        val sessionRepo   = mockSessionRepository
+        val answersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
 
         given application: Application =
-          applicationWith(classOf[FakeAgentIdentifierAction], Some(emptyUserAnswers), mock[NovaImportsBackendConnector], sessionRepo)
+          applicationWith(classOf[FakeAgentIdentifierAction], Some(staleIndividualAnswers), mock[NovaImportsBackendConnector], sessionRepo)
 
         running(application) {
           given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, onSubmitRoute)
@@ -230,15 +278,21 @@ class BeforeYouContinueControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual vehicleFromEuTarget
-          verify(sessionRepo).setPage(any(), any(), any())(any())
+
+          verify(sessionRepo).setPage(answersCaptor.capture(), eqTo(IntroductionAcknowledgePage), eqTo(true))(any())
+
+          val capturedAnswers = answersCaptor.getValue
+          capturedAnswers.get(AgentSelectedClientPage) mustEqual None
+          capturedAnswers.get(VehicleFromEuPage) mustEqual None
         }
       }
 
-      "creates a new session and redirects to VehicleFromEuController when there is no existing session" in {
-        val sessionRepo = mockSessionRepository
+      "starts a fresh session and redirects to VehicleFromEuController when there is no existing session" in {
+        val sessionRepo   = mockSessionRepository
+        val answersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
 
         given application: Application =
-          applicationWith(classOf[FakeIdentifierAction], None, mock[NovaImportsBackendConnector], sessionRepo)
+          applicationWith(classOf[FakeIdentifierAction], userAnswers = None, mock[NovaImportsBackendConnector], sessionRepo)
 
         running(application) {
           given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, onSubmitRoute)
@@ -247,7 +301,10 @@ class BeforeYouContinueControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual vehicleFromEuTarget
-          verify(sessionRepo).setPage(any(), any(), any())(any())
+
+          verify(sessionRepo).setPage(answersCaptor.capture(), eqTo(IntroductionAcknowledgePage), eqTo(true))(any())
+
+          answersCaptor.getValue.get(AgentSelectedClientPage) mustEqual None
         }
       }
     }
