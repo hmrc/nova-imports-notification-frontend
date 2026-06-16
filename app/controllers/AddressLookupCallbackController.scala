@@ -22,7 +22,7 @@ import controllers.actions.*
 import models.Address
 import models.draftsections.NotifierAddress
 import models.requests.DataRequest
-import pages.{AddressPage, DraftIdPage}
+import pages.{AddressPage, DraftIdPage, DraftVersionIdPage}
 import play.api.Logging
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -87,13 +87,15 @@ class AddressLookupCallbackController @Inject() (
     address.lines.lift(0).exists(_.trim.nonEmpty) && address.lines.lift(1).exists(_.trim.nonEmpty)
 
   private def saveViaF4(address: Address)(implicit request: DataRequest[?], hc: HeaderCarrier): Future[Result] =
+    val versionId = request.userAnswers.get(DraftVersionIdPage).getOrElse(0L)
+
     request.userAnswers.get(DraftIdPage) match {
       case None =>
         logger.warn("DraftId missing from UserAnswers — cannot persist notifier-address section")
         Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
 
       case Some(draftId) =>
-        val body = Json.toJson(NotifierAddress.fromAddress(address)).as[JsObject]
+        val body = Json.toJson(NotifierAddress.fromAddress(address)).as[JsObject] + ("versionId", Json.toJson(versionId))
         backendConnector.updateDraftSection(draftId, "notifier-address", body).map {
           case Right(_)    => Redirect(routes.LandingPageController.onPageLoad()) // TODO: navigate to NTL3.0
           case Left(error) =>
