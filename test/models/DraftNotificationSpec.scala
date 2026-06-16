@@ -19,7 +19,7 @@ package models
 import org.scalatest.OptionValues
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
-import play.api.libs.json.{JsError, JsObject, JsSuccess, Json}
+import play.api.libs.json.{JsObject, JsSuccess, Json}
 
 class DraftNotificationSpec extends AnyFreeSpec with Matchers with OptionValues {
 

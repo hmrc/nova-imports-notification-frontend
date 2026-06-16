@@ -68,6 +68,12 @@ class BeforeYouContinueViewSpec extends SpecBase with Matchers {
       html must include(msgs("beforeYouContinue.updating.body.2"))
     }
 
+    "must submit the Continue button to the BeforeYouContinue onSubmit action so the session is reset" in new Setup {
+      val html: String = view().toString
+      html must include(s"""action="${controllers.routes.BeforeYouContinueController.onSubmit().url}"""")
+      html must include("""method="POST"""")
+    }
+
     "must render the same content via the render method" in new Setup {
       val html: String = view.render(request, msgs).toString
       html must include(msgs("beforeYouContinue.heading"))
