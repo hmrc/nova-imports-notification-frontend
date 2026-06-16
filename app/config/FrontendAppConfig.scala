@@ -54,7 +54,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val addressLookupFrontendBaseUrl: String =
     configuration.get[Service]("microservice.services.address-lookup-frontend").baseUrl
 
-  val addressLookupCallbackUrl: String = s"$host${controllers.routes.AddressLookupCallbackController.callback(None).url}"
+  val addressLookupCallbackUrl: String = s"$host/nova-imports${controllers.routes.AddressLookupCallbackController.callback(None).url}"
 
   val languageTranslationEnabled: Boolean =
     configuration.get[Boolean]("features.welsh-translation")
