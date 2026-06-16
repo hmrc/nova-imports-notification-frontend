@@ -16,6 +16,7 @@
 
 package controllers
 
+import config.FrontendAppConfig
 import controllers.actions.*
 import forms.IsYourAddressInTheUkFormProvider
 import models.Mode
@@ -40,7 +41,7 @@ class IsYourAddressInTheUkController @Inject() (
   formProvider: IsYourAddressInTheUkFormProvider,
   view: IsYourAddressInTheUkView,
   addressLookupService: AddressLookupService
-)(implicit ec: ExecutionContext)
+)(implicit ec: ExecutionContext, appConfig: FrontendAppConfig)
     extends BaseController
     with Logging {
 
@@ -63,8 +64,7 @@ class IsYourAddressInTheUkController @Inject() (
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(IsYourAddressInTheUkPage, ukMode))
             _              <- sessionRepository.set(updatedAnswers)
-            callbackUrl = routes.AddressLookupCallbackController.callback(None).absoluteURL()
-            initResult <- addressLookupService.initJourney(ukMode, callbackUrl)
+            initResult     <- addressLookupService.initJourney(ukMode, appConfig.addressLookupCallbackUrl)
           } yield initResult match {
             case Right(journeyUrl) =>
               Redirect(journeyUrl)
