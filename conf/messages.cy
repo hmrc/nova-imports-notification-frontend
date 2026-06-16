@@ -64,6 +64,52 @@ landingPage.organisation.saved.heading = Manage a saved notification
 landingPage.organisation.saved.body.empty = You do not have a saved notification
 landingPage.organisation.saved.body.has = View, continue or delete a notification you’ve started but not yet submitted
 
+###########################################################
+# AYA3.0 - Add your address 3.0: We've changed your address #
+###########################################################
+# TODO: Welsh translations to be supplied by content team.
+
+addressChanged.title = We’ve changed your address
+addressChanged.caption = Add your address
+addressChanged.heading = We’ve changed your address
+addressChanged.body = This could be because of invalid characters or some lines are too long.
+addressChanged.checkHeading = Check the updated address
+addressChanged.changeAddress = Change address
+
+###########################################################
+# Address lookup (ALF) journey labels                     #
+###########################################################
+# TODO: Welsh translations to be supplied by content team.
+
+addressLookup.uk.lookup.title = Find your address
+addressLookup.uk.lookup.heading = Find your address
+addressLookup.uk.lookup.postcodeLabel = Postcode
+addressLookup.uk.lookup.submitLabel = Continue
+addressLookup.uk.lookup.manualAddressLinkText = Enter the address manually
+addressLookup.uk.select.title = Choose your address
+addressLookup.uk.select.heading = Choose your address
+addressLookup.uk.select.proposalListLabel = Select your address
+addressLookup.uk.select.editAddressLinkText = Enter the address manually
+addressLookup.uk.edit.title = Enter your address
+addressLookup.uk.edit.heading = Enter your address
+addressLookup.uk.edit.postcodeLabel = Postcode
+addressLookup.nonUk.edit.title = Enter your address
+addressLookup.nonUk.edit.heading = Enter your address
+addressLookup.nonUk.edit.postcodeLabel = Postcode or similar
+addressLookup.edit.line1Label = Address line 1
+addressLookup.edit.line2Label = Address line 2
+addressLookup.edit.line3Label = Address line 3
+addressLookup.edit.townLabel = Address line 4
+addressLookup.edit.countryLabel = Country
+addressLookup.confirm.title = Review and confirm your address
+addressLookup.confirm.heading = Review and confirm your address
+addressLookup.error.line1Length = Address line 1 must be 35 characters or less
+addressLookup.error.line2Length = Address line 2 must be 35 characters or less
+addressLookup.error.line3Length = Address line 3 must be 35 characters or less
+addressLookup.error.townLength = Address line 4 must be 35 characters or less
+addressLookup.error.townRequired = Enter address line 4
+addressLookup.error.countryRequired = Enter a country
+
 ######################################################
 # AYD1.2 - Add your details 1.2: Phone number        #
 ######################################################

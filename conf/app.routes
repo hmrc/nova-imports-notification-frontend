@@ -85,6 +85,11 @@ POST        /is-your-address-in-uk                                  controllers.
 GET         /is-your-address-in-uk/change                           controllers.IsYourAddressInTheUkController.onPageLoad(mode: Mode = CheckMode)
 POST        /is-your-address-in-uk/change                           controllers.IsYourAddressInTheUkController.onSubmit(mode: Mode = CheckMode)
 
+GET         /address-changed                                        controllers.AddressChangedController.onPageLoad()
+POST        /address-changed                                        controllers.AddressChangedController.onSubmit()
+
+GET         /add-address/address-lookup-callback                    controllers.AddressLookupCallbackController.callback(id: Option[String] ?= None)
+
 GET         /email-address                                          controllers.EmailAddressController.onPageLoad(mode: Mode = NormalMode)
 POST        /email-address                                          controllers.EmailAddressController.onSubmit(mode: Mode = NormalMode)
 GET         /email-address/change                                   controllers.EmailAddressController.onPageLoad(mode: Mode = CheckMode)

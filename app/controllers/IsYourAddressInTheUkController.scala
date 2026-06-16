@@ -18,27 +18,31 @@ package controllers
 
 import controllers.actions.*
 import forms.IsYourAddressInTheUkFormProvider
-import javax.inject.Inject
-import models.{Mode, NovaUserType}
+import models.Mode
 import models.requests.DataRequest
-import navigation.Navigator
 import pages.IsYourAddressInTheUkPage
+import play.api.Logging
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
+import services.AddressLookupService
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import views.html.IsYourAddressInTheUkView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class IsYourAddressInTheUkController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   sessionRepository: SessionRepository,
-  navigator: Navigator,
   actions: Actions,
   formProvider: IsYourAddressInTheUkFormProvider,
-  view: IsYourAddressInTheUkView
+  view: IsYourAddressInTheUkView,
+  addressLookupService: AddressLookupService
 )(implicit ec: ExecutionContext)
-    extends BaseController {
+    extends BaseController
+    with Logging {
 
   val form: Form[Boolean] = formProvider()
 
@@ -49,17 +53,25 @@ class IsYourAddressInTheUkController @Inject() (
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(dataGuard).async { implicit request =>
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+
     form
       .bindFromRequest()
       .fold(
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
-        value =>
+        ukMode =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(IsYourAddressInTheUkPage, value))
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(IsYourAddressInTheUkPage, ukMode))
             _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(
-            navigator.nextPage(IsYourAddressInTheUkPage, mode, updatedAnswers, NovaUserType.from(request.affinityGroup, request.enrolments))
-          )
+            callbackUrl = routes.AddressLookupCallbackController.callback(None).absoluteURL()
+            initResult <- addressLookupService.initJourney(ukMode, callbackUrl)
+          } yield initResult match {
+            case Right(journeyUrl) =>
+              Redirect(journeyUrl)
+            case Left(error) =>
+              logger.warn(s"Failed to init ALF journey (ukMode=$ukMode): $error")
+              Redirect(routes.JourneyRecoveryController.onPageLoad())
+          }
       )
   }
 }
