@@ -14,17 +14,13 @@
  * limitations under the License.
  */
 
-package models.draftsections
+package pages
 
-import models.AddYourName
-import play.api.libs.json.{Format, Json}
+import play.api.libs.json.JsPath
 
-final case class YourDetails(
-  name: Option[AddYourName],
-  phoneNumber: String,
-  emailAddress: String
-)
+case object IsDeregisteredPage extends QuestionPage[Boolean] {
 
-object YourDetails {
-  implicit val format: Format[YourDetails] = Json.format[YourDetails]
+  override def path: JsPath = JsPath \ toString
+
+  override def toString: String = "isDeregistered"
 }

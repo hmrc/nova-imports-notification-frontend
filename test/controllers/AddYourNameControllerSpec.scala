@@ -77,6 +77,52 @@ class AddYourNameControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
+    "must return OK for a GET for a deregistered organisation that answered yes to IQ1 (VehicleFromEu)" in {
+
+      val deregisteredAnswers = emptyUserAnswers
+        .set(pages.IsDeregisteredPage, true)
+        .success
+        .value
+        .set(VehicleFromEuPage, true)
+        .success
+        .value
+        .set(pages.DraftIdPage, DraftId("DRAFT-001"))
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(deregisteredAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, addYourNameRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+      }
+    }
+
+    "must redirect to Unauthorised for a GET for a deregistered organisation that has not answered IQ1 (VehicleFromEu)" in {
+
+      val deregisteredAnswers = emptyUserAnswers
+        .set(pages.IsDeregisteredPage, true)
+        .success
+        .value
+        .set(pages.DraftIdPage, DraftId("DRAFT-001"))
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(deregisteredAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, addYourNameRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
       val answer      = NameDetails(validTitle, validFirstName, validLastName)

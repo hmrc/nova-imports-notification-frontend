@@ -17,9 +17,10 @@
 package views
 
 import base.SpecBase
-import models.{AddYourName, UserAnswers, UserContext}
+import models.{NameDetails, UserAnswers, UserContext}
+import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.must.Matchers
-import pages.{AddYourNamePage, EmailAddressPage, PhoneNumberPage}
+import pages.sections.notifierDetails.{EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 import play.api.Application
 import play.api.i18n.Messages
 import play.api.mvc.Request
@@ -27,63 +28,70 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments}
 import views.html.YourDetailsCheckYourAnswersView
 
-class YourDetailsCheckYourAnswersViewSpec extends SpecBase with Matchers {
+import scala.concurrent.Await
+import scala.concurrent.duration.DurationInt
+
+class YourDetailsCheckYourAnswersViewSpec extends SpecBase with Matchers with BeforeAndAfterAll {
+
+  val app: Application             = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+  implicit val request: Request[?] = FakeRequest()
+  implicit val msgs: Messages      = messages(app)
+
+  val answers: UserAnswers = emptyUserAnswers
+    .set(NameDetailsPage, NameDetails("Mr", "John", "Smith"))
+    .success
+    .value
+    .set(PhoneNumberPage, "01632 960 001")
+    .success
+    .value
+    .set(EmailAddressPage, "name@example.com")
+    .success
+    .value
+  val userContext: UserContext = UserContext.from(AffinityGroup.Individual, Enrolments(Set.empty), answers)
+
+  val view: YourDetailsCheckYourAnswersView = app.injector.instanceOf[YourDetailsCheckYourAnswersView]
+
+  override def afterAll(): Unit = {
+    Await.result(app.stop(), 10.seconds)
+    super.afterAll()
+  }
 
   "YourDetailsCheckYourAnswersView" - {
 
-    "must render the correct heading" in new Setup {
+    "must render the correct heading" in {
       val html: String = view(userContext, answers)(request, msgs).toString
 
       html must include(msgs("yourDetailsCheckYourAnswers.heading"))
     }
 
-    "must render the correct page title" in new Setup {
+    "must render the correct page title" in {
       val html: String = view(userContext, answers)(request, msgs).toString
 
       html must include(msgs("yourDetailsCheckYourAnswers.title"))
     }
 
-    "must render the caption" in new Setup {
+    "must render the caption" in {
       val html: String = view(userContext, answers)(request, msgs).toString
 
       html must include(msgs("yourDetailsCheckYourAnswers.caption"))
       html must include("govuk-caption-l")
     }
 
-    "must render the same content via the render method" in new Setup {
+    "must render the same content via the render method" in {
       val html: String = view.render(userContext, answers, request, msgs).toString
 
       html must include(msgs("yourDetailsCheckYourAnswers.heading"))
     }
 
-    "must render the same content via the f method" in new Setup {
+    "must render the same content via the f method" in {
       val html: String = view.f(userContext, answers)(request, msgs).toString
 
       html must include(msgs("yourDetailsCheckYourAnswers.heading"))
     }
 
-    "must return itself via the ref method" in new Setup {
+    "must return itself via the ref method" in {
       view.ref mustBe view
     }
   }
 
-  trait Setup {
-    val app: Application             = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-    implicit val request: Request[?] = FakeRequest()
-    implicit val msgs: Messages      = messages(app)
-
-    val answers: UserAnswers = emptyUserAnswers
-      .set(AddYourNamePage, AddYourName("Mr", "John", "Smith"))
-      .success
-      .value
-      .set(PhoneNumberPage, "01632 960 001")
-      .success
-      .value
-      .set(EmailAddressPage, "name@example.com")
-      .success
-      .value
-    val userContext: UserContext = UserContext.from(AffinityGroup.Individual, Enrolments(Set.empty), answers)
-
-    val view: YourDetailsCheckYourAnswersView = app.injector.instanceOf[YourDetailsCheckYourAnswersView]
-  }
 }

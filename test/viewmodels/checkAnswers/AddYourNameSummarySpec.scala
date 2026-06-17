@@ -18,8 +18,8 @@ package viewmodels.checkAnswers
 
 import base.SpecBase
 import controllers.routes
-import models.{AddYourName, CheckMode, UserAnswers}
-import pages.AddYourNamePage
+import models.{CheckMode, NameDetails, UserAnswers}
+import pages.sections.notifierDetails.NameDetailsPage
 import play.api.Application
 import play.api.i18n.Messages
 
@@ -31,7 +31,7 @@ class AddYourNameSummarySpec extends SpecBase {
   "AddYourNameSummary" - {
 
     "must return a summary for the name parts on a separate line stacked and a single change link" in {
-      val userAnswers = UserAnswers(userAnswersId).set(AddYourNamePage, AddYourName("Mr", "John", "Smith")).success.value
+      val userAnswers = UserAnswers(userAnswersId).set(NameDetailsPage, NameDetails("Mr", "John", "Smith")).success.value
 
       val result = AddYourNameSummary.row(userAnswers).value
       val value  = result.value.content.asHtml.toString

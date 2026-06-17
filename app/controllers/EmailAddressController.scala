@@ -17,11 +17,13 @@
 package controllers
 
 import controllers.actions.*
+import controllers.utils.IsDraftIdDefined
 import forms.EmailAddressFormProvider
 import javax.inject.Inject
 import models.{Mode, NovaUserType}
+import models.requests.DataRequest
 import navigation.Navigator
-import pages.sections.notifierDetails.EmailAddressPage
+import pages.sections.notifierDetails.{EmailAddressPage, PhoneNumberPage}
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -41,11 +43,14 @@ class EmailAddressController @Inject() (
 
   val form: Form[String] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetData() { implicit request =>
+  private val guardPredicate: DataRequest[?] => Boolean = request =>
+    IsDraftIdDefined(request.userAnswers) && request.userAnswers.get(PhoneNumberPage).isDefined
+
+  def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate) { implicit request =>
     Ok(view(form.withDefault(request.userAnswers.get(EmailAddressPage)), mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = actions.authAndGetData().async { implicit request =>
+  def onSubmit(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate).async { implicit request =>
     form
       .bindFromRequest()
       .fold(

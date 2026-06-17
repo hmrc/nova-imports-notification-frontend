@@ -19,13 +19,17 @@ package controllers
 import javax.inject.Inject
 import connectors.NovaImportsBackendConnector
 import controllers.actions.*
-import models.draftsections.YourDetails
+import controllers.utils.IsDraftIdDefined
+import models.draftsections.{NotifierDetailsIndividual, NotifierDetailsOrganisation}
 import models.requests.DataRequest
 import models.{BusinessOrPrivateIndividual, NovaUserType, UserAnswers, UserContext}
 import pages.*
+import pages.sections.notifierDetails.*
+import pages.sections.initialquestions.{BusinessOrPrivatePage, VehicleBusinessUsePage, VehicleFromEuPage}
 import play.api.libs.json.{JsObject, Json}
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.SessionRepository
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import views.html.YourDetailsCheckYourAnswersView
@@ -36,6 +40,7 @@ class YourDetailsCheckYourAnswersController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   actions: Actions,
   backendConnector: NovaImportsBackendConnector,
+  sessionRepository: SessionRepository,
   view: YourDetailsCheckYourAnswersView
 )(implicit ec: ExecutionContext)
     extends BaseController
@@ -52,21 +57,25 @@ class YourDetailsCheckYourAnswersController @Inject() (
 
     val submissionData = for {
       draftId     <- request.userAnswers.get(DraftIdPage)
+      versionId   <- request.userAnswers.get(DraftVersionIdPage)
       sectionData <- buildSectionData(request.userContext, request.userAnswers)
-    } yield (draftId, sectionData)
+    } yield (draftId, versionId, sectionData)
 
     submissionData match {
       case None =>
-        logger.warn("Failed to submit 'your-details' — draftId or section data missing from UserAnswers")
+        logger.warn("Failed to submit 'your-details' — draftId, versionId or section data missing")
         Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
 
-      case Some((draftId, sectionData)) =>
-        val sectionJsonBody = Json.toJson(sectionData).as[JsObject]
-        backendConnector.updateDraftSection(draftId, "your-details", sectionJsonBody).map {
-          case Right(_)    => Redirect(nextPage(request.userContext))
+      case Some((draftId, versionId, sectionData)) =>
+        val sectionJsonBody = sectionData + ("versionId" -> Json.toJson(versionId))
+        backendConnector.updateDraftSection(draftId, "notifier-details", sectionJsonBody).flatMap {
+          case Right(newVersionId) =>
+            sessionRepository
+              .setPage(request.userAnswers, DraftVersionIdPage, newVersionId)
+              .map(_ => Redirect(nextPage(request.userContext)))
           case Left(error) =>
-            logger.warn(s"Failed to update 'your-details' section for draftId ${draftId.value}: $error")
-            Redirect(routes.JourneyRecoveryController.onPageLoad())
+            logger.warn(s"Failed to update 'notifier-details' section for draftId ${draftId.value}: $error")
+            Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
         }
     }
   }
@@ -74,36 +83,68 @@ class YourDetailsCheckYourAnswersController @Inject() (
 
 object YourDetailsCheckYourAnswersController {
 
-  // TODO: currently set up for all users to go to NTL next page, if agents go to different NTL screen, then this will need to get updated
+  // TODO: route nav set up remaining for other user types once downstream task list pages are set up.
   def nextPage(userContext: UserContext): play.api.mvc.Call =
-    routes.NotificationTaskListController.onPageLoad()
-
-  def guardPredicate(request: DataRequest[?]): Boolean = {
-    val answers = request.userAnswers
-    answers.get(PhoneNumberPage).isDefined &&
-    answers.get(EmailAddressPage).isDefined &&
-    (!nameRequired(request.userContext, answers) || answers.get(AddYourNamePage).isDefined)
-  }
-
-  private def nameRequired(userContext: UserContext, answers: UserAnswers): Boolean =
     userContext.userType match {
-      case NovaUserType.PrivateIndividual | NovaUserType.NonVatOrganisation =>
-        answers.get(BusinessPrivatePage).contains(BusinessOrPrivateIndividual.PrivateIndividual)
-      case NovaUserType.Agent if userContext.isAgentWithoutClient =>
-        answers.get(BusinessPrivatePage).contains(BusinessOrPrivateIndividual.PrivateIndividual)
-      case NovaUserType.VatRegisteredOrganisation =>
-        answers.get(VehicleBusinessUsePage).contains(false)
-      case NovaUserType.Agent =>
-        answers.get(AgentVehicleBusinessUsePage).contains(false)
+      case NovaUserType.VatRegisteredOrganisation => routes.NotificationTaskListController.onPageLoad()
+      case _                                      => routes.LandingPageController.onPageLoad()
     }
 
-  def buildSectionData(userContext: UserContext, answers: UserAnswers): Option[YourDetails] =
+  def guardPredicate(request: DataRequest[?]): Boolean = {
+    val answers     = request.userAnswers
+    val userContext = request.userContext
+
+    IsDraftIdDefined(answers) && {
+      if (userContext.isDeregistered)
+        deregisteredOrganisationAnswersComplete(answers)
+      else
+        userContext.userType match {
+          case NovaUserType.PrivateIndividual | NovaUserType.NonVatOrganisation =>
+            standardUserAnswersComplete(answers)
+          case NovaUserType.Agent if userContext.isAgentWithoutClient =>
+            agentWithoutClientAnswersComplete(answers)
+          case NovaUserType.VatRegisteredOrganisation =>
+            vatRegisteredOrgAnswersComplete(answers)
+          case NovaUserType.Agent =>
+            agentWithClientAnswersComplete(answers)
+        }
+    }
+  }
+
+  private def deregisteredOrganisationAnswersComplete(answers: UserAnswers): Boolean =
+    answers.get(VehicleFromEuPage).contains(true) &&
+      answers.get(NameDetailsPage).isDefined &&
+      answers.get(PhoneNumberPage).isDefined &&
+      answers.get(EmailAddressPage).isDefined
+
+  private def vatRegisteredOrgAnswersComplete(answers: UserAnswers): Boolean =
+    answers.get(PhoneNumberPage).isDefined &&
+      answers.get(EmailAddressPage).isDefined &&
+      (answers.get(NameDetailsPage).isDefined == answers.get(VehicleBusinessUsePage).contains(false))
+
+  private def standardUserAnswersComplete(answers: UserAnswers): Boolean =
+    answers.get(PhoneNumberPage).isDefined &&
+      answers.get(EmailAddressPage).isDefined &&
+      (answers.get(NameDetailsPage).isDefined == answers.get(BusinessOrPrivatePage).contains(BusinessOrPrivateIndividual.PrivateIndividual))
+
+  private def agentWithoutClientAnswersComplete(answers: UserAnswers): Boolean =
+    answers.get(PhoneNumberPage).isDefined &&
+      answers.get(EmailAddressPage).isDefined &&
+      (answers.get(NameDetailsPage).isDefined == answers.get(BusinessOrPrivatePage).contains(BusinessOrPrivateIndividual.PrivateIndividual))
+
+  private def agentWithClientAnswersComplete(answers: UserAnswers): Boolean =
+    answers.get(PhoneNumberPage).isDefined &&
+      answers.get(EmailAddressPage).isDefined &&
+      (answers.get(NameDetailsPage).isDefined == answers.get(AgentClientVehicleBusinessUsePage).contains(false))
+
+  def buildSectionData(userContext: UserContext, answers: UserAnswers): Option[JsObject] =
     for {
       phoneNumber  <- answers.get(PhoneNumberPage)
       emailAddress <- answers.get(EmailAddressPage)
-    } yield YourDetails(
-      name = answers.get(AddYourNamePage),
-      phoneNumber = phoneNumber,
-      emailAddress = emailAddress
-    )
+    } yield answers.get(NameDetailsPage) match {
+      case Some(name) =>
+        Json.toJson(NotifierDetailsIndividual(name.title, name.firstName, name.lastName, emailAddress, phoneNumber)).as[JsObject]
+      case None =>
+        Json.toJson(NotifierDetailsOrganisation(emailAddress, phoneNumber)).as[JsObject]
+    }
 }

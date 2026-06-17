@@ -51,11 +51,14 @@ class Navigator @Inject() () {
         }
     case AboutYourDetailsPage =>
       (userAnswers, _) =>
-        userAnswers.get(VehicleBusinessUsePage) match {
-          case Some(true)  => routes.PhoneNumberController.onPageLoad(NormalMode)
-          case Some(false) => routes.AddYourNameController.onPageLoad(NormalMode)
-          case _           => routes.JourneyRecoveryController.onPageLoad()
-        }
+        if (userAnswers.get(IsDeregisteredPage).contains(true))
+          routes.AddYourNameController.onPageLoad(NormalMode)
+        else
+          userAnswers.get(VehicleBusinessUsePage) match {
+            case Some(true)  => routes.PhoneNumberController.onPageLoad(NormalMode)
+            case Some(false) => routes.AddYourNameController.onPageLoad(NormalMode)
+            case _           => routes.JourneyRecoveryController.onPageLoad()
+          }
     case NameDetailsPage =>
       (_, _) => routes.PhoneNumberController.onPageLoad(NormalMode)
     case PhoneNumberPage =>
@@ -109,8 +112,6 @@ class Navigator @Inject() () {
         }
     case VehicleBusinessUsePage | AgentClientVehicleBusinessUsePage | BusinessOrPrivatePage | PurchaserBusinessOrIndividualPage =>
       (_, _) => routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
-    case PhoneNumberPage =>
-      (_, _) => routes.YourDetailsCheckYourAnswersController.onPageLoad()
     case PurchaserOrOnBehalfPage =>
       (userAnswers, _) =>
         userAnswers.get(PurchaserOrOnBehalfPage) match {
@@ -119,6 +120,8 @@ class Navigator @Inject() () {
           case _                                             => routes.JourneyRecoveryController.onPageLoad()
         }
     case NameDetailsPage =>
+      (_, _) => routes.YourDetailsCheckYourAnswersController.onPageLoad()
+    case PhoneNumberPage =>
       (_, _) => routes.YourDetailsCheckYourAnswersController.onPageLoad()
     case EmailAddressPage =>
       (_, _) => routes.YourDetailsCheckYourAnswersController.onPageLoad()

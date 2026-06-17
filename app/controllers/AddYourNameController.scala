@@ -68,18 +68,29 @@ class AddYourNameController @Inject() (
 
 object AddYourNameController {
 
-  def guardPredicate(request: DataRequest[?]): Boolean =
-    IsDraftIdDefined(request.userAnswers) &&
-      (request.userContext.userType match {
-        case NovaUserType.PrivateIndividual | NovaUserType.NonVatOrganisation =>
-          standardUserAnswersComplete(request.userAnswers)
-        case NovaUserType.Agent if request.userContext.isAgentWithoutClient =>
-          standardUserAnswersComplete(request.userAnswers)
-        case NovaUserType.VatRegisteredOrganisation =>
-          vatRegisteredOrgAnswersComplete(request.userAnswers)
-        case NovaUserType.Agent =>
-          agentWithClientAnswersComplete(request.userAnswers)
-      })
+  def guardPredicate(request: DataRequest[?]): Boolean = {
+    val answers     = request.userAnswers
+    val userContext = request.userContext
+
+    IsDraftIdDefined(answers) && {
+      if (userContext.isDeregistered)
+        deregisteredOrgAnswersComplete(answers)
+      else
+        userContext.userType match {
+          case NovaUserType.PrivateIndividual | NovaUserType.NonVatOrganisation =>
+            standardUserAnswersComplete(answers)
+          case NovaUserType.Agent if userContext.isAgentWithoutClient =>
+            standardUserAnswersComplete(answers)
+          case NovaUserType.VatRegisteredOrganisation =>
+            vatRegisteredOrgAnswersComplete(answers)
+          case NovaUserType.Agent =>
+            agentWithClientAnswersComplete(answers)
+        }
+    }
+  }
+
+  private def deregisteredOrgAnswersComplete(answers: UserAnswers): Boolean =
+    answers.get(VehicleFromEuPage).contains(true)
 
   private def standardUserAnswersComplete(answers: UserAnswers): Boolean =
     answers.get(BusinessOrPrivatePage).contains(BusinessOrPrivateIndividual.PrivateIndividual) &&

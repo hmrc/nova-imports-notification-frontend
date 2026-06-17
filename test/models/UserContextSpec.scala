@@ -17,7 +17,7 @@
 package models
 
 import base.SpecBase
-import pages.AgentSelectedClientPage
+import pages.{AgentSelectedClientPage, IsDeregisteredPage}
 import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolment, EnrolmentIdentifier, Enrolments}
 
 class UserContextSpec extends SpecBase {
@@ -66,6 +66,17 @@ class UserContextSpec extends SpecBase {
       ctx.isAgentWithClient mustBe true
       ctx.isAgentWithoutClient mustBe false
       ctx.selectedClient must contain(sampleClient)
+    }
+
+    "defaults isDeregistered to false when the answer is not present" in {
+      val ctx = UserContext.from(AffinityGroup.Organisation, vatEnrolment, emptyUserAnswers)
+      ctx.isDeregistered mustBe false
+    }
+
+    "reads isDeregistered as true when the answer is present and true" in {
+      val answers = emptyUserAnswers.set(IsDeregisteredPage, true).success.value
+      val ctx     = UserContext.from(AffinityGroup.Organisation, vatEnrolment, answers)
+      ctx.isDeregistered mustBe true
     }
   }
 

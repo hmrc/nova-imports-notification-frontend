@@ -22,23 +22,25 @@ import connectors.NovaImportsBackendConnector
 import controllers.actions.Actions
 import models.DraftNotification.SectionId
 import models.{NormalMode, NotificationSummary, SectionStatus, UserAnswers}
-import pages.DraftIdPage
+import pages.{DraftIdPage, IsDeregisteredPage}
 import pages.sections.initialquestions.VehicleBusinessUsePage
 import pages.sections.notifieraddress.AddressJourneyIdPage
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.SessionRepository
 import services.UserDataService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import views.html.NotificationTaskListView
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class NotificationTaskListController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   actions: Actions,
   backendConnector: NovaImportsBackendConnector,
   userDataService: UserDataService,
+  sessionRepository: SessionRepository,
   view: NotificationTaskListView
 )(implicit ec: ExecutionContext, appConfig: FrontendAppConfig)
     extends BaseController
@@ -51,17 +53,19 @@ class NotificationTaskListController @Inject() (
 
     val draftId = request.userAnswers.get(DraftIdPage).get // guard guarantees presence
 
-    for {
+    val results = for {
       summaryResult        <- backendConnector.getNotificationSummary()
       updatedAnswersResult <- userDataService.retrieveAndStoreDraftNotification(draftId, request.userAnswers)
-    } yield (summaryResult, updatedAnswersResult) match {
+    } yield (summaryResult, updatedAnswersResult)
+
+    results.flatMap {
       case (Left(error), _) =>
         logger.warn(s"Failed to fetch notification summary for VAT-registered Organisation: $error")
-        Redirect(routes.JourneyRecoveryController.onPageLoad())
+        Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
 
       case (_, Left(error)) =>
         logger.warn(s"Failed to retrieve draft notification for draftId ${draftId.value}: $error")
-        Redirect(routes.JourneyRecoveryController.onPageLoad())
+        Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
 
       case (Right(summary), Right(updatedAnswers)) =>
         val sections: Map[String, SectionStatus] = userDataService.determineAndUpdateStatus(updatedAnswers, request.userContext)
@@ -69,11 +73,14 @@ class NotificationTaskListController @Inject() (
 
         summary match {
           case org: NotificationSummary.IndividualOrOrganisation =>
-            Ok(view(org.traderName, org.vrn, sections, showAddYourAddress(updatedAnswers), sectionLink))
+            sessionRepository.setPage(updatedAnswers, IsDeregisteredPage, org.isDeregistered).map { savedAnswers =>
+              val sections = userDataService.determineAndUpdateStatus(savedAnswers, request.userContext)
+              Ok(view(org.traderName, org.vrn, sections, showAddYourAddress(savedAnswers), sectionLink)))
+            }
 
           case other =>
             logger.warn(s"Unexpected notification summary shape for VAT-registered Organisation: $other")
-            Redirect(routes.JourneyRecoveryController.onPageLoad())
+            Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
         }
     }
   }

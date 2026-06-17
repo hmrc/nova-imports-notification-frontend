@@ -18,7 +18,7 @@ package viewmodels.checkAnswers
 
 import controllers.routes
 import models.{CheckMode, UserAnswers}
-import pages.AddYourNamePage
+import pages.sections.notifierDetails.NameDetailsPage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
@@ -29,7 +29,7 @@ import viewmodels.implicits.*
 object AddYourNameSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(AddYourNamePage).map { name =>
+    answers.get(NameDetailsPage).map { name =>
 
       val value = Seq(name.title, name.firstName, name.lastName)
         .map(part => HtmlFormat.escape(part).body)

@@ -19,6 +19,7 @@ package views
 import base.SpecBase
 import forms.AddVehicleDetailsFormProvider
 import models.NormalMode
+import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.must.Matchers
 import play.api.Application
 import play.api.i18n.Messages
@@ -26,7 +27,21 @@ import play.api.mvc.Request
 import play.api.test.FakeRequest
 import views.html.AddVehicleDetailsView
 
-class AddVehicleDetailsViewSpec extends SpecBase with Matchers {
+import scala.concurrent.Await
+import scala.concurrent.duration.DurationInt
+
+class AddVehicleDetailsViewSpec extends SpecBase with Matchers with BeforeAndAfterAll {
+
+  val app: Application             = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+  implicit val request: Request[?] = FakeRequest()
+  implicit val msgs: Messages      = messages(app)
+
+  val view: AddVehicleDetailsView = app.injector.instanceOf[AddVehicleDetailsView]
+
+  override def afterAll(): Unit = {
+    Await.result(app.stop(), 10.seconds)
+    super.afterAll()
+  }
 
   private val spreadsheetUrl = "https://example.com/spreadsheets"
 
@@ -35,33 +50,33 @@ class AddVehicleDetailsViewSpec extends SpecBase with Matchers {
 
   "AddVehicleDetailsView" - {
 
-    "must render the correct page title" in new Setup {
+    "must render the correct page title" in {
       val html: String = view(form, NormalMode, spreadsheetUrl)(request, msgs).toString
 
       html must include(msgs("addVehicleDetails.title"))
     }
 
-    "must render the correct heading" in new Setup {
+    "must render the correct heading" in {
       val html: String = view(form, NormalMode, spreadsheetUrl)(request, msgs).toString
 
       html must include(msgs("addVehicleDetails.heading"))
     }
 
-    "must render the correct page caption" in new Setup {
+    "must render the correct page caption" in {
       val html: String = view(form, NormalMode, spreadsheetUrl)(request, msgs).toString
 
       html must include("govuk-caption-l")
       html must include(msgs("addVehicleDetails.caption"))
     }
 
-    "must render the introductory paragraphs" in new Setup {
+    "must render the introductory paragraphs" in {
       val html: String = view(form, NormalMode, spreadsheetUrl)(request, msgs).toString
 
       html must include(msgs("addVehicleDetails.paragraph.1"))
       html must include(msgs("addVehicleDetails.paragraph.2"))
     }
 
-    "must render the method heading and both radio options with hints" in new Setup {
+    "must render the method heading and both radio options with hints" in {
       val html: String = view(form, NormalMode, spreadsheetUrl)(request, msgs).toString
 
       html must include(msgs("addVehicleDetails.method.heading"))
@@ -71,7 +86,7 @@ class AddVehicleDetailsViewSpec extends SpecBase with Matchers {
       html must include(msgs("addVehicleDetails.radio.bySpreadsheet.hint"))
     }
 
-    "must render the spreadsheet inset text with the provided URL opening in a new tab" in new Setup {
+    "must render the spreadsheet inset text with the provided URL opening in a new tab" in {
       val html: String = view(form, NormalMode, spreadsheetUrl)(request, msgs).toString
 
       html must include("govuk-inset-text")
@@ -81,7 +96,7 @@ class AddVehicleDetailsViewSpec extends SpecBase with Matchers {
       html must include("target=\"_blank\"")
     }
 
-    "must render the error summary when the form has errors" in new Setup {
+    "must render the error summary when the form has errors" in {
       val boundForm    = form.bind(Map("value" -> ""))
       val html: String = view(boundForm, NormalMode, spreadsheetUrl)(request, msgs).toString
 
@@ -89,11 +104,4 @@ class AddVehicleDetailsViewSpec extends SpecBase with Matchers {
     }
   }
 
-  trait Setup {
-    val app: Application             = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-    implicit val request: Request[?] = FakeRequest()
-    implicit val msgs: Messages      = messages(app)
-
-    val view: AddVehicleDetailsView = app.injector.instanceOf[AddVehicleDetailsView]
-  }
 }

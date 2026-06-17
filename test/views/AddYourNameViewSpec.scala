@@ -19,6 +19,7 @@ package views
 import base.SpecBase
 import forms.AddYourNameFormProvider
 import models.NormalMode
+import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.must.Matchers
 import play.api.Application
 import play.api.i18n.Messages
@@ -26,57 +27,71 @@ import play.api.mvc.Request
 import play.api.test.FakeRequest
 import views.html.AddYourNameView
 
-class AddYourNameViewSpec extends SpecBase with Matchers {
+import scala.concurrent.Await
+import scala.concurrent.duration.DurationInt
+
+class AddYourNameViewSpec extends SpecBase with Matchers with BeforeAndAfterAll {
+
+  val app: Application             = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+  implicit val request: Request[?] = FakeRequest()
+  implicit val msgs: Messages      = messages(app)
+
+  val view: AddYourNameView = app.injector.instanceOf[AddYourNameView]
+
+  override def afterAll(): Unit = {
+    Await.result(app.stop(), 10.seconds)
+    super.afterAll()
+  }
 
   val formProvider = new AddYourNameFormProvider()
   val form         = formProvider()
 
   "AddYourNameView" - {
 
-    "must render the page title" in new Setup {
+    "must render the page title" in {
       val html: String = view(form, NormalMode)(request, msgs).toString
 
       html must include(msgs("addYourName.title"))
     }
 
-    "must render the caption" in new Setup {
+    "must render the caption" in {
       val html: String = view(form, NormalMode)(request, msgs).toString
 
       html must include("govuk-caption-l")
       html must include(msgs("addYourName.caption"))
     }
 
-    "must render the heading" in new Setup {
+    "must render the heading" in {
       val html: String = view(form, NormalMode)(request, msgs).toString
 
       html must include(msgs("addYourName.heading"))
     }
 
-    "must render the titleField" in new Setup {
+    "must render the titleField" in {
       val html: String = view(form, NormalMode)(request, msgs).toString
 
       html must include(msgs("addYourName.titleField"))
     }
 
-    "must render the firstName" in new Setup {
+    "must render the firstName" in {
       val html: String = view(form, NormalMode)(request, msgs).toString
 
       html must include(msgs("addYourName.firstName"))
     }
 
-    "must render the lastName" in new Setup {
+    "must render the lastName" in {
       val html: String = view(form, NormalMode)(request, msgs).toString
 
       html must include(msgs("addYourName.lastName"))
     }
 
-    "must render the Continue button" in new Setup {
+    "must render the Continue button" in {
       val html: String = view(form, NormalMode)(request, msgs).toString
 
       html must include(msgs("site.continue"))
     }
 
-    "must render the error summary when the form has errors" in new Setup {
+    "must render the error summary when the form has errors" in {
       val boundForm    = form.bind(Map("title" -> "", "firstName" -> "", "lastName" -> ""))
       val html: String = view(boundForm, NormalMode)(request, msgs).toString
 
@@ -84,28 +99,21 @@ class AddYourNameViewSpec extends SpecBase with Matchers {
       html must include(msgs("addYourName.titleField.error.required"))
     }
 
-    "must render the same content via the render method" in new Setup {
+    "must render the same content via the render method" in {
       val html: String = view.render(form, NormalMode, request, msgs).toString
 
       html must include(msgs("addYourName.heading"))
     }
 
-    "must render the same content via the f method" in new Setup {
+    "must render the same content via the f method" in {
       val html: String = view.f(form, NormalMode)(request, msgs).toString
 
       html must include(msgs("addYourName.heading"))
     }
 
-    "must return itself via the ref method" in new Setup {
+    "must return itself via the ref method" in {
       view.ref mustBe view
     }
   }
 
-  trait Setup {
-    val app: Application             = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-    implicit val request: Request[?] = FakeRequest()
-    implicit val msgs: Messages      = messages(app)
-
-    val view: AddYourNameView = app.injector.instanceOf[AddYourNameView]
-  }
 }

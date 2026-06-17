@@ -20,14 +20,18 @@ import base.SpecBase
 import com.google.inject.name.Names
 import connectors.{NovaImportsBackendConnector, UpdateSectionError}
 import controllers.actions.*
-import models.{AddYourName, AgentSelectedClient, BusinessOrPrivateIndividual, DraftId, UserAnswers}
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import models.{AgentSelectedClient, BusinessOrPrivateIndividual, DraftId, NameDetails, UserAnswers}
+import org.mockito.ArgumentCaptor
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.*
+import pages.sections.notifierDetails.{EmailAddressPage, NameDetailsPage, PhoneNumberPage}
+import pages.sections.initialquestions.{BusinessOrPrivatePage, VehicleBusinessUsePage, VehicleFromEuPage}
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.libs.json.JsObject
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -39,7 +43,7 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
 
   private lazy val yourDetailsCyaRoute = routes.YourDetailsCheckYourAnswersController.onPageLoad().url
 
-  private val name         = AddYourName("Mr", "John", "Smith")
+  private val name         = NameDetails("Mr", "John", "Smith")
   private val phone        = "01632 960 001"
   private val email        = "name@example.com"
   private val sampleClient = AgentSelectedClient(vrn = "123456789", name = Some("ABC Ltd"))
@@ -57,12 +61,15 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
     .set(DraftIdPage, DraftId("DRAFT-001"))
     .success
     .value
+    .set(DraftVersionIdPage, 1L)
+    .success
+    .value
 
   private val vatOrgWithNameAnswers = emptyUserAnswers
     .set(VehicleBusinessUsePage, false)
     .success
     .value
-    .set(AddYourNamePage, name)
+    .set(NameDetailsPage, name)
     .success
     .value
     .set(PhoneNumberPage, phone)
@@ -72,14 +79,17 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
     .success
     .value
     .set(DraftIdPage, DraftId("DRAFT-001"))
+    .success
+    .value
+    .set(DraftVersionIdPage, 1L)
     .success
     .value
 
   private val individualWithNameAnswers = emptyUserAnswers
-    .set(BusinessPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
+    .set(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
     .success
     .value
-    .set(AddYourNamePage, name)
+    .set(NameDetailsPage, name)
     .success
     .value
     .set(PhoneNumberPage, phone)
@@ -89,15 +99,18 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
     .success
     .value
     .set(DraftIdPage, DraftId("DRAFT-001"))
+    .success
+    .value
+    .set(DraftVersionIdPage, 1L)
     .success
     .value
 
   // agent with client, if client vehicle not for business use then name is required
   private val agentWithClientAnswers = emptyUserAnswers
-    .set(AgentVehicleBusinessUsePage, false)
+    .set(AgentClientVehicleBusinessUsePage, false)
     .success
     .value
-    .set(AddYourNamePage, name)
+    .set(NameDetailsPage, name)
     .success
     .value
     .set(PhoneNumberPage, phone)
@@ -110,12 +123,15 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
     .success
     .value
     .set(DraftIdPage, DraftId("DRAFT-001"))
+    .success
+    .value
+    .set(DraftVersionIdPage, 1L)
     .success
     .value
 
   // agent with client, if client vehicle is for business use then no name is required
   private val agentNoNameAnswers = emptyUserAnswers
-    .set(AgentVehicleBusinessUsePage, true)
+    .set(AgentClientVehicleBusinessUsePage, true)
     .success
     .value
     .set(PhoneNumberPage, phone)
@@ -128,6 +144,78 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
     .success
     .value
     .set(DraftIdPage, DraftId("DRAFT-001"))
+    .success
+    .value
+    .set(DraftVersionIdPage, 1L)
+    .success
+    .value
+
+  // deregistered org: answered IQ1 (VehicleFromEu) yes, name required also for a deregistered org.
+  private val deregisteredOrgAnswers = emptyUserAnswers
+    .set(IsDeregisteredPage, true)
+    .success
+    .value
+    .set(VehicleFromEuPage, true)
+    .success
+    .value
+    .set(VehicleBusinessUsePage, true)
+    .success
+    .value
+    .set(NameDetailsPage, name)
+    .success
+    .value
+    .set(PhoneNumberPage, phone)
+    .success
+    .value
+    .set(EmailAddressPage, email)
+    .success
+    .value
+    .set(DraftIdPage, DraftId("DRAFT-001"))
+    .success
+    .value
+    .set(DraftVersionIdPage, 1L)
+    .success
+    .value
+
+  // deregistered org that answered IQ1 yes but is missing the required name
+  private val deregisteredOrgNoNameAnswers = emptyUserAnswers
+    .set(IsDeregisteredPage, true)
+    .success
+    .value
+    .set(VehicleFromEuPage, true)
+    .success
+    .value
+    .set(PhoneNumberPage, phone)
+    .success
+    .value
+    .set(EmailAddressPage, email)
+    .success
+    .value
+    .set(DraftIdPage, DraftId("DRAFT-001"))
+    .success
+    .value
+    .set(DraftVersionIdPage, 1L)
+    .success
+    .value
+
+  // deregistered org with all contact details but has not answered IQ1 (VehicleFromEu)
+  private val deregisteredOrgNoIq1Answer = emptyUserAnswers
+    .set(IsDeregisteredPage, true)
+    .success
+    .value
+    .set(NameDetailsPage, name)
+    .success
+    .value
+    .set(PhoneNumberPage, phone)
+    .success
+    .value
+    .set(EmailAddressPage, email)
+    .success
+    .value
+    .set(DraftIdPage, DraftId("DRAFT-001"))
+    .success
+    .value
+    .set(DraftVersionIdPage, 1L)
     .success
     .value
 
@@ -195,6 +283,49 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
         }
       }
 
+      "for a deregistered Organisation must return OK with the name row" in {
+        given application: Application = applicationForPageLoad(classOf[FakeVatTraderIdentifierAction], Some(deregisteredOrgAnswers))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, yourDetailsCyaRoute)
+
+          val result = route(application, request).value
+          val body   = contentAsString(result)
+
+          status(result) mustEqual OK
+          body must include("Check your answers")
+          body must (include("Mr") and include("John") and include("Smith"))
+          body must include(phone)
+          body must include(email)
+        }
+      }
+
+      "for a deregistered Organisation without a name must redirect to Unauthorised" in {
+        given application: Application = applicationForPageLoad(classOf[FakeVatTraderIdentifierAction], Some(deregisteredOrgNoNameAnswers))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, yourDetailsCyaRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+        }
+      }
+
+      "for a deregistered Organisation that has not answered IQ1 must redirect to Unauthorised" in {
+        given application: Application = applicationForPageLoad(classOf[FakeVatTraderIdentifierAction], Some(deregisteredOrgNoIq1Answer))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, yourDetailsCyaRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+        }
+      }
+
       "for a PrivateIndividual must return OK with the name row" in {
         given application: Application = applicationForPageLoad(classOf[FakeIdentifierAction], Some(individualWithNameAnswers))
 
@@ -228,7 +359,7 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
         }
       }
 
-      "for an Agent wit client vehicle that is for business use must return OK with phone and email but no name" in {
+      "for an Agent with client vehicle that is for business use must return OK with phone and email but no name" in {
         given application: Application = applicationForPageLoad(classOf[FakeAgentIdentifierAction], Some(agentNoNameAnswers))
 
         running(application) {
@@ -275,7 +406,7 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
 
       "must redirect to Unauthorised for a standard user who has not provided an email" in {
         val answers = emptyUserAnswers
-          .set(BusinessPrivatePage, BusinessOrPrivateIndividual.Business)
+          .set(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business)
           .success
           .value
           .set(PhoneNumberPage, phone)
@@ -323,6 +454,36 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
           redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
         }
       }
+
+      "must redirect to Unauthorised for a VAT reg org that has set a name but should not (vehicle for business use = true)" in {
+        val answers = emptyUserAnswers
+          .set(VehicleBusinessUsePage, true)
+          .success
+          .value
+          .set(NameDetailsPage, name)
+          .success
+          .value
+          .set(PhoneNumberPage, phone)
+          .success
+          .value
+          .set(EmailAddressPage, email)
+          .success
+          .value
+          .set(DraftIdPage, DraftId("DRAFT-001"))
+          .success
+          .value
+
+        given application: Application = applicationForPageLoad(classOf[FakeVatTraderIdentifierAction], Some(answers))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, yourDetailsCyaRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+        }
+      }
     }
 
     "onSubmit" - {
@@ -330,7 +491,7 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
       "when succeeds must redirect to NTL for a VatRegisteredOrganisation" in {
         val connector = mock[NovaImportsBackendConnector]
         when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
-          .thenReturn(Future.successful(Right(())))
+          .thenReturn(Future.successful(Right(2L)))
 
         given application: Application = applicationForSubmit(classOf[FakeVatTraderIdentifierAction], Some(vatOrgWithNameAnswers), connector)
 
@@ -344,12 +505,12 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
         }
       }
 
-      "when succeeds must redirect to NTL for a PrivateIndividual" in {
+      "when succeeds must update notifier-details and redirect to NTL for a deregistered Organisation" in {
         val connector = mock[NovaImportsBackendConnector]
         when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
-          .thenReturn(Future.successful(Right(())))
+          .thenReturn(Future.successful(Right(2L)))
 
-        given application: Application = applicationForSubmit(classOf[FakeIdentifierAction], Some(individualWithNameAnswers), connector)
+        given application: Application = applicationForSubmit(classOf[FakeVatTraderIdentifierAction], Some(deregisteredOrgAnswers), connector)
 
         running(application) {
           given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, yourDetailsCyaRoute)
@@ -361,10 +522,29 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
         }
       }
 
-      "when succeeds must redirect to NTL for an Agent with a selected client" in {
+      // TODO: Update route when downstream NTL screens are ready
+      "when succeeds must redirect to the correct downstream Page for a PrivateIndividual" in {
         val connector = mock[NovaImportsBackendConnector]
         when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
-          .thenReturn(Future.successful(Right(())))
+          .thenReturn(Future.successful(Right(2L)))
+
+        given application: Application = applicationForSubmit(classOf[FakeIdentifierAction], Some(individualWithNameAnswers), connector)
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, yourDetailsCyaRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.LandingPageController.onPageLoad().url
+        }
+      }
+
+      // TODO: Update route when downstream NTL screens are ready
+      "when succeeds must redirect to the correct downstream Page for an Agent with a selected client" in {
+        val connector = mock[NovaImportsBackendConnector]
+        when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
+          .thenReturn(Future.successful(Right(2L)))
 
         given application: Application = applicationForSubmit(classOf[FakeAgentIdentifierAction], Some(agentWithClientAnswers), connector)
 
@@ -374,7 +554,7 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.NotificationTaskListController.onPageLoad().url
+          redirectLocation(result).value mustEqual routes.LandingPageController.onPageLoad().url
         }
       }
 
@@ -429,7 +609,7 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
         }
       }
 
-      "must redirect to Journey Recovery if DraftId is missing" in {
+      "must redirect to Unauthorised if DraftId is missing" in {
         val answersWithoutDraftId = emptyUserAnswers
           .set(VehicleBusinessUsePage, true)
           .success
@@ -443,6 +623,88 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
 
         given application: Application =
           applicationForSubmit(classOf[FakeVatTraderIdentifierAction], Some(answersWithoutDraftId), mock[NovaImportsBackendConnector])
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, yourDetailsCyaRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+        }
+      }
+
+      "must send the correct individual notifier-details body with the current versionId" in {
+        val connector = mock[NovaImportsBackendConnector]
+        when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
+          .thenReturn(Future.successful(Right(2L)))
+
+        given application: Application = applicationForSubmit(classOf[FakeVatTraderIdentifierAction], Some(vatOrgWithNameAnswers), connector)
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, yourDetailsCyaRoute)
+
+          val result = route(application, request).value
+          status(result) mustEqual SEE_OTHER
+
+          val bodyCaptor = ArgumentCaptor.forClass(classOf[JsObject])
+          verify(connector).updateDraftSection(any[DraftId], eqTo("notifier-details"), bodyCaptor.capture())(any[HeaderCarrier])
+          val sentBody = bodyCaptor.getValue
+
+          (sentBody \ "versionId").as[Long] mustEqual 1L
+          (sentBody \ "title").as[String] mustEqual "Mr"
+          (sentBody \ "firstName").as[String] mustEqual "John"
+          (sentBody \ "lastName").as[String] mustEqual "Smith"
+          (sentBody \ "phoneNumber").as[String] mustEqual phone
+          (sentBody \ "emailAddress").as[String] mustEqual email
+        }
+      }
+
+      "must send an organisation notifier-details body (no name fields) when no name was provided" in {
+        val connector = mock[NovaImportsBackendConnector]
+        when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
+          .thenReturn(Future.successful(Right(2L)))
+
+        given application: Application = applicationForSubmit(classOf[FakeVatTraderIdentifierAction], Some(vatOrgNoNameAnswers), connector)
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, yourDetailsCyaRoute)
+
+          val result = route(application, request).value
+          status(result) mustEqual SEE_OTHER
+
+          val bodyCaptor = ArgumentCaptor.forClass(classOf[JsObject])
+          verify(connector).updateDraftSection(any[DraftId], eqTo("notifier-details"), bodyCaptor.capture())(any[HeaderCarrier])
+          val sentBody = bodyCaptor.getValue
+
+          (sentBody \ "phoneNumber").as[String] mustEqual phone
+          (sentBody \ "emailAddress").as[String] mustEqual email
+          (sentBody \ "title").toOption mustBe None
+          (sentBody \ "firstName").toOption mustBe None
+          (sentBody \ "lastName").toOption mustBe None
+        }
+      }
+
+      "must redirect to Journey Recovery if the versionId is missing" in {
+        val answersWithoutVersionId = emptyUserAnswers
+          .set(VehicleBusinessUsePage, false)
+          .success
+          .value
+          .set(NameDetailsPage, name)
+          .success
+          .value
+          .set(PhoneNumberPage, phone)
+          .success
+          .value
+          .set(EmailAddressPage, email)
+          .success
+          .value
+          .set(DraftIdPage, DraftId("DRAFT-001"))
+          .success
+          .value
+
+        given application: Application =
+          applicationForSubmit(classOf[FakeVatTraderIdentifierAction], Some(answersWithoutVersionId), mock[NovaImportsBackendConnector])
 
         running(application) {
           given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, yourDetailsCyaRoute)

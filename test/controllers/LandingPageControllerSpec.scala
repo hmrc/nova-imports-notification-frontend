@@ -24,13 +24,14 @@ import models.{AgentSelectedClient, NotificationSummary, UserAnswers}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.AgentSelectedClientPage
+import pages.{AgentSelectedClientPage, IsDeregisteredPage}
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import repositories.SessionRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
@@ -64,6 +65,14 @@ class LandingPageControllerSpec extends SpecBase with MockitoSugar {
       vrn = Some("000000000"),
       hasDraftNotifications = false,
       isDeregistered = false
+    )
+
+  private val deregisteredSummary =
+    NotificationSummary.IndividualOrOrganisation(
+      traderName = Some(testTrader),
+      vrn = Some("000000000"),
+      hasDraftNotifications = false,
+      isDeregistered = true
     )
 
   private val agentSummaryWithoutDrafts =
@@ -125,6 +134,30 @@ class LandingPageControllerSpec extends SpecBase with MockitoSugar {
       .thenReturn(Future.successful(Left(GetNotificationSummaryError.UpstreamError(500, "boom"))))
     m
   }
+
+  private def mockSessionRepository: SessionRepository = {
+    val sessionRepo = mock[SessionRepository]
+    when(sessionRepo.setPage(any(), any(), any())(any())).thenReturn(Future.successful(emptyUserAnswers))
+    sessionRepo
+  }
+
+  private def applicationWithRepo(
+    identifierAction: Class[? <: IdentifierAction],
+    connector: NovaImportsBackendConnector,
+    sessionRepo: SessionRepository
+  ): Application =
+    new GuiceApplicationBuilder()
+      .overrides(
+        bind[IdentifierAction].to(identifierAction),
+        bind[IdentifierAction].qualifiedWith(Names.named("standard")).to(identifierAction),
+        bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
+        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(None)),
+        bind[NovaImportsBackendConnector].toInstance(connector),
+        bind[SessionRepository].toInstance(sessionRepo)
+      )
+      .build()
 
   "LandingPageController" - {
 
@@ -299,6 +332,19 @@ class LandingPageControllerSpec extends SpecBase with MockitoSugar {
           body must include("VAT registration number: GB000000000")
           body must not include testTrader
           redirectLocation(result) mustBe None
+        }
+      }
+
+      "for a VAT-registered Organisation saves the deregistered status from the summary into the session" in {
+        val sessionRepo                = mockSessionRepository
+        given application: Application =
+          applicationWithRepo(classOf[FakeVatTraderIdentifierAction], stubConnector(deregisteredSummary), sessionRepo)
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, landingPageRoute)
+
+          status(route(application, request).value) mustEqual OK
+          verify(sessionRepo).setPage(any(), eqTo(IsDeregisteredPage), eqTo(true))(any())
         }
       }
 

@@ -17,6 +17,7 @@
 package views
 
 import base.SpecBase
+import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.must.Matchers
 import play.api.Application
 import play.api.i18n.Messages
@@ -24,26 +25,40 @@ import play.api.mvc.Request
 import play.api.test.FakeRequest
 import views.html.BeforeYouContinueView
 
-class BeforeYouContinueViewSpec extends SpecBase with Matchers {
+import scala.concurrent.Await
+import scala.concurrent.duration.DurationInt
+
+class BeforeYouContinueViewSpec extends SpecBase with Matchers with BeforeAndAfterAll {
+
+  val app: Application             = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+  implicit val request: Request[?] = FakeRequest()
+  implicit val msgs: Messages      = messages(app)
+
+  val view: BeforeYouContinueView = app.injector.instanceOf[BeforeYouContinueView]
+
+  override def afterAll(): Unit = {
+    Await.result(app.stop(), 10.seconds)
+    super.afterAll()
+  }
 
   "BeforeYouContinueView" - {
 
-    "must render the correct heading" in new Setup {
+    "must render the correct heading" in {
       val html: String = view().toString
       html must include(msgs("beforeYouContinue.heading"))
     }
 
-    "must render the correct page title" in new Setup {
+    "must render the correct page title" in {
       val html: String = view().toString
       html must include(msgs("beforeYouContinue.title"))
     }
 
-    "must render the intro body" in new Setup {
+    "must render the intro body" in {
       val html: String = view().toString
       html must include(msgs("beforeYouContinue.body.1"))
     }
 
-    "must render the vehicle section body and all six bulleted items" in new Setup {
+    "must render the vehicle section body and all six bulleted items" in {
       val html: String = view().toString
       html must include(msgs("beforeYouContinue.vehicle.body"))
       html must include(msgs("beforeYouContinue.vehicle.list.1"))
@@ -54,46 +69,39 @@ class BeforeYouContinueViewSpec extends SpecBase with Matchers {
       html must include(msgs("beforeYouContinue.vehicle.list.6"))
     }
 
-    "must render the supplier section body and both bulleted items" in new Setup {
+    "must render the supplier section body and both bulleted items" in {
       val html: String = view().toString
       html must include(msgs("beforeYouContinue.supplier.body"))
       html must include(msgs("beforeYouContinue.supplier.list.1"))
       html must include(msgs("beforeYouContinue.supplier.list.2"))
     }
 
-    "must render the Updating vehicle notifications H2 and both paragraphs" in new Setup {
+    "must render the Updating vehicle notifications H2 and both paragraphs" in {
       val html: String = view().toString
       html must include(msgs("beforeYouContinue.updating.heading"))
       html must include(msgs("beforeYouContinue.updating.body.1"))
       html must include(msgs("beforeYouContinue.updating.body.2"))
     }
 
-    "must submit the Continue button to the BeforeYouContinue onSubmit action so the session is reset" in new Setup {
+    "must submit the Continue button to the BeforeYouContinue onSubmit action so the session is reset" in {
       val html: String = view().toString
       html must include(s"""action="${controllers.routes.BeforeYouContinueController.onSubmit().url}"""")
       html must include("""method="POST"""")
     }
 
-    "must render the same content via the render method" in new Setup {
+    "must render the same content via the render method" in {
       val html: String = view.render(request, msgs).toString
       html must include(msgs("beforeYouContinue.heading"))
     }
 
-    "must render the same content via the f method" in new Setup {
+    "must render the same content via the f method" in {
       val html: String = view.f()(request, msgs).toString
       html must include(msgs("beforeYouContinue.heading"))
     }
 
-    "must return itself via the ref method" in new Setup {
+    "must return itself via the ref method" in {
       view.ref mustBe view
     }
   }
 
-  trait Setup {
-    val app: Application             = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-    implicit val request: Request[?] = FakeRequest()
-    implicit val msgs: Messages      = messages(app)
-
-    val view: BeforeYouContinueView = app.injector.instanceOf[BeforeYouContinueView]
-  }
 }

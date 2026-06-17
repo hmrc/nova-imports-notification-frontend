@@ -19,7 +19,7 @@ package viewmodels.checkAnswers
 import base.SpecBase
 import controllers.routes
 import models.{CheckMode, UserAnswers}
-import pages.EmailAddressPage
+import pages.sections.notifierDetails.EmailAddressPage
 import play.api.Application
 import play.api.i18n.Messages
 

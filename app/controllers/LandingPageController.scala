@@ -19,21 +19,24 @@ package controllers
 import connectors.NovaImportsBackendConnector
 import controllers.actions.Actions
 import models.{NotificationSummary, NovaUserType, UserAnswers, UserContext}
+import pages.IsDeregisteredPage
 import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.SessionRepository
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import views.html.{LandingPageAgentView, LandingPageOrganisationView, LandingPagePrivateView}
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class LandingPageController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   actions: Actions,
   backendConnector: NovaImportsBackendConnector,
+  sessionRepository: SessionRepository,
   privateView: LandingPagePrivateView,
   organisationView: LandingPageOrganisationView,
   agentView: LandingPageAgentView
@@ -45,34 +48,35 @@ class LandingPageController @Inject() (
   def onPageLoad(): Action[AnyContent] = actions.authAndGetOptionalData().async { implicit request =>
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
-    val context =
-      UserContext.from(request.affinityGroup, request.enrolments, request.userAnswers.getOrElse(UserAnswers(request.userId)))
+    val answers = request.userAnswers.getOrElse(UserAnswers(request.userId))
+    val context = UserContext.from(request.affinityGroup, request.enrolments, answers)
 
     context.userType match {
       case NovaUserType.PrivateIndividual | NovaUserType.NonVatOrganisation =>
-        backendConnector.getNotificationSummary(None).map { result =>
-          val (traderName, hasDrafts) = result match {
-            case Right(summary: NotificationSummary.IndividualOrOrganisation) =>
-              (summary.traderName, summary.hasDraftNotifications)
-            case Right(_) =>
-              (None, false)
-            case Left(error) =>
-              logger.warn(s"failed to fetch notification summary; defaulting hasDraftNotifications=false: $error")
-              (None, false)
-          }
-          Ok(privateView(traderName = traderName, hasDraftNotifications = hasDrafts))
+        backendConnector.getNotificationSummary(None).flatMap {
+          case Right(summary: NotificationSummary.IndividualOrOrganisation) =>
+            saveDeregisteredStatus(answers, summary.isDeregistered).map { _ =>
+              Ok(privateView(traderName = summary.traderName, hasDraftNotifications = summary.hasDraftNotifications))
+            }
+          case Right(_) =>
+            Future.successful(Ok(privateView(traderName = None, hasDraftNotifications = false)))
+          case Left(error) =>
+            logger.warn(s"failed to fetch notification summary; defaulting hasDraftNotifications=false: $error")
+            Future.successful(Ok(privateView(traderName = None, hasDraftNotifications = false)))
         }
 
       case NovaUserType.VatRegisteredOrganisation =>
-        backendConnector.getNotificationSummary(None).map {
+        backendConnector.getNotificationSummary(None).flatMap {
           case Right(summary: NotificationSummary.IndividualOrOrganisation) =>
-            Ok(organisationView(summary.traderName, summary.vrn.getOrElse(""), summary.hasDraftNotifications))
+            saveDeregisteredStatus(answers, summary.isDeregistered).map { _ =>
+              Ok(organisationView(summary.traderName, summary.vrn.getOrElse(""), summary.hasDraftNotifications))
+            }
           case Right(other) =>
             logger.warn(s"unexpected notification summary shape for VAT-registered Organisation: $other")
-            Redirect(routes.JourneyRecoveryController.onPageLoad())
+            Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
           case Left(error) =>
             logger.warn(s"failed to fetch notification summary for VAT-registered Organisation: $error")
-            Redirect(routes.JourneyRecoveryController.onPageLoad())
+            Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
         }
 
       case NovaUserType.Agent =>
@@ -92,4 +96,7 @@ class LandingPageController @Inject() (
         }
     }
   }
+
+  private def saveDeregisteredStatus(answers: UserAnswers, isDeregistered: Boolean): Future[UserAnswers] =
+    sessionRepository.setPage(answers, IsDeregisteredPage, isDeregistered)
 }

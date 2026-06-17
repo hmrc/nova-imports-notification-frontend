@@ -17,6 +17,7 @@
 package views
 
 import base.SpecBase
+import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.must.Matchers
 import play.api.Application
 import play.api.i18n.Messages
@@ -24,58 +25,65 @@ import play.api.mvc.Request
 import play.api.test.FakeRequest
 import views.html.VehicleOutsideEUView
 
-class VehicleOutsideEUViewSpec extends SpecBase with Matchers {
+import scala.concurrent.Await
+import scala.concurrent.duration.DurationInt
+
+class VehicleOutsideEUViewSpec extends SpecBase with Matchers with BeforeAndAfterAll {
+
+  val app: Application             = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+  implicit val request: Request[?] = FakeRequest()
+  implicit val msgs: Messages      = messages(app)
+
+  val view: VehicleOutsideEUView = app.injector.instanceOf[VehicleOutsideEUView]
+
+  override def afterAll(): Unit = {
+    Await.result(app.stop(), 10.seconds)
+    super.afterAll()
+  }
 
   "VehicleOutsideEUView" - {
 
-    "must render the correct heading" in new Setup {
+    "must render the correct heading" in {
       val html: String = view.apply("https://example.com/importing")("https://example.com/eu-countries").toString
 
       html must include(msgs("vehicleOutsideEU.heading"))
     }
 
-    "must render the correct page title" in new Setup {
+    "must render the correct page title" in {
       val html: String = view.apply("https://example.com/importing")("https://example.com/eu-countries").toString
 
       html must include(msgs("vehicleOutsideEU.title"))
     }
 
-    "must include the importing vehicles URL in the first paragraph" in new Setup {
+    "must include the importing vehicles URL in the first paragraph" in {
       val importingUrl: String = "https://example.com/importing-vehicles"
       val html: String         = view.apply(importingUrl)("https://example.com/eu-countries").toString
 
       html must include(importingUrl)
     }
 
-    "must include the EU countries URL in the second paragraph" in new Setup {
+    "must include the EU countries URL in the second paragraph" in {
       val euCountriesUrl: String = "https://example.com/eu-countries"
       val html: String           = view.apply("https://example.com/importing")(euCountriesUrl).toString
 
       html must include(euCountriesUrl)
     }
 
-    "must render the same content via the render method" in new Setup {
+    "must render the same content via the render method" in {
       val html: String = view.render("https://example.com/importing", "https://example.com/eu-countries", request, msgs).toString
 
       html must include(msgs("vehicleOutsideEU.heading"))
     }
 
-    "must render the same content via the f method" in new Setup {
+    "must render the same content via the f method" in {
       val html: String = view.f("https://example.com/importing")("https://example.com/eu-countries")(request, msgs).toString
 
       html must include(msgs("vehicleOutsideEU.heading"))
     }
 
-    "must return itself via the ref method" in new Setup {
+    "must return itself via the ref method" in {
       view.ref mustBe view
     }
   }
 
-  trait Setup {
-    val app: Application             = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-    implicit val request: Request[?] = FakeRequest()
-    implicit val msgs: Messages      = messages(app)
-
-    val view: VehicleOutsideEUView = app.injector.instanceOf[VehicleOutsideEUView]
-  }
 }
