@@ -52,7 +52,7 @@ class AddressChangedController @Inject() (
 
   def onSubmit(): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(dataGuard).async { implicit request =>
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-    lazy val versionId = request.userAnswers.get(DraftVersionIdPage).getOrElse(0L)
+    lazy val versionId             = request.userAnswers.get(DraftVersionIdPage).getOrElse(0L)
 
     (request.userAnswers.get(AddressPage), request.userAnswers.get(DraftIdPage)) match {
       case (Some(address), Some(draftId)) =>

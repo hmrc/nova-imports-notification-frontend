@@ -110,7 +110,7 @@ class AddressChangedControllerSpec extends SpecBase with MockitoSugar {
 
         val body = ArgumentCaptor.forClass(classOf[JsObject])
         verify(backendConnector).updateDraftSection(eqTo(draftId), eqTo("notifier-address"), body.capture())(any[HeaderCarrier])
-        body.getValue mustBe Json.toJson(NotifierAddress.fromAddress(address)).as[JsObject] + ("versionId", 0L)
+        body.getValue mustBe Json.toJson(NotifierAddress.fromAddress(address)).as[JsObject] + ("versionId", Json.toJson(0L))
       }
     }
 
