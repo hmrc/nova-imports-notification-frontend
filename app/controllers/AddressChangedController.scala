@@ -20,7 +20,7 @@ import connectors.NovaImportsBackendConnector
 import controllers.actions.*
 import models.draftsections.NotifierAddress
 import models.requests.DataRequest
-import pages.{AddressPage, DraftIdPage}
+import pages.{AddressPage, DraftIdPage, DraftVersionIdPage}
 import play.api.Logging
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -52,10 +52,11 @@ class AddressChangedController @Inject() (
 
   def onSubmit(): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(dataGuard).async { implicit request =>
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+    lazy val versionId = request.userAnswers.get(DraftVersionIdPage).getOrElse(0L)
 
     (request.userAnswers.get(AddressPage), request.userAnswers.get(DraftIdPage)) match {
       case (Some(address), Some(draftId)) =>
-        val body = Json.toJson(NotifierAddress.fromAddress(address)).as[JsObject]
+        val body = Json.toJson(NotifierAddress.fromAddress(address)).as[JsObject] + ("versionId", Json.toJson(versionId))
         backendConnector.updateDraftSection(draftId, "notifier-address", body).map {
           case Right(_)    => Redirect(routes.LandingPageController.onPageLoad()) // TODO: navigate to NTL3.0
           case Left(error) =>
