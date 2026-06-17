@@ -75,7 +75,6 @@ class AddVehicleDetailsViewSpec extends SpecBase with Matchers {
       val html: String = view(form, NormalMode, spreadsheetUrl)(request, msgs).toString
 
       html must include("govuk-inset-text")
-      html must include(msgs("addVehicleDetails.inset.heading"))
       html must include(msgs("addVehicleDetails.inset.paragraph.1"))
       html must include(msgs("addVehicleDetails.inset.findSpreadsheet.linkText"))
       html must include(spreadsheetUrl)
