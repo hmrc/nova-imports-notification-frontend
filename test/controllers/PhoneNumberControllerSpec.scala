@@ -21,14 +21,14 @@ import com.google.inject.name.Names
 import controllers.actions.*
 import forms.PhoneNumberFormProvider
 import models.requests.IdentifierRequest
-import models.{AgentSelectedClient, NormalMode, PurchaserOrOnBehalf, UserAnswers}
+import models.{AgentSelectedClient, DraftId, NameDetails, NormalMode, PurchaserOrOnBehalf, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import pages.*
-import pages.sections.initialquestions.{PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage}
-import pages.sections.notifierDetails.PhoneNumberPage
+import pages.sections.initialquestions.{PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
+import pages.sections.notifierDetails.{NameDetailsPage, PhoneNumberPage}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.{AnyContent, BodyParser, Call, PlayBodyParsers, Request, Result}
@@ -50,8 +50,10 @@ class PhoneNumberControllerSpec extends SpecBase with MockitoSugar {
 
   val validPhoneNumber = "01632 960 001"
 
+  val baseRequiredAnswers: UserAnswers = UserAnswers(userAnswersId).set(DraftIdPage, DraftId("DRAFT-001")).success.value
+
   val answersForIndividual: UserAnswers =
-    emptyUserAnswers.set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser).success.value
+    baseRequiredAnswers.set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser).success.value
 
   lazy val phoneNumberRoute       = routes.PhoneNumberController.onPageLoad(NormalMode).url
   lazy val phoneNumberSubmitRoute = routes.PhoneNumberController.onSubmit(NormalMode).url
@@ -174,7 +176,7 @@ class PhoneNumberControllerSpec extends SpecBase with MockitoSugar {
 
         "must allow access when OQ1 has been answered" in {
 
-          val answers = emptyUserAnswers.set(VehicleBusinessUsePage, true).success.value
+          val answers = baseRequiredAnswers.set(VehicleBusinessUsePage, true).success.value
 
           val application = vatTraderApplicationBuilder(Some(answers)).build()
 
@@ -188,7 +190,7 @@ class PhoneNumberControllerSpec extends SpecBase with MockitoSugar {
 
         "must redirect to Unauthorised when OQ1 has not been answered" in {
 
-          val application = vatTraderApplicationBuilder(Some(emptyUserAnswers)).build()
+          val application = vatTraderApplicationBuilder(Some(baseRequiredAnswers)).build()
 
           running(application) {
             val request = FakeRequest(GET, phoneNumberRoute)
@@ -206,7 +208,7 @@ class PhoneNumberControllerSpec extends SpecBase with MockitoSugar {
 
         "must allow access when AQ1 has been answered" in {
 
-          val answers = emptyUserAnswers
+          val answers = baseRequiredAnswers
             .set(AgentSelectedClientPage, client)
             .success
             .value
@@ -226,7 +228,7 @@ class PhoneNumberControllerSpec extends SpecBase with MockitoSugar {
 
         "must redirect to Unauthorised when AQ1 has not been answered" in {
 
-          val answers = emptyUserAnswers.set(AgentSelectedClientPage, client).success.value
+          val answers = baseRequiredAnswers.set(AgentSelectedClientPage, client).success.value
 
           val application = agentApplicationBuilder(Some(answers)).build()
 
@@ -244,7 +246,7 @@ class PhoneNumberControllerSpec extends SpecBase with MockitoSugar {
 
         "must allow access when IQ3 = Purchaser" in {
 
-          val answers = emptyUserAnswers.set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser).success.value
+          val answers = baseRequiredAnswers.set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser).success.value
 
           val application = applicationBuilder(userAnswers = Some(answers)).build()
 
@@ -258,7 +260,7 @@ class PhoneNumberControllerSpec extends SpecBase with MockitoSugar {
 
         "must allow access when IQ3 = OnBehalfOfPurchaser and IQ3.1 is answered" in {
 
-          val answers = emptyUserAnswers
+          val answers = baseRequiredAnswers
             .set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
             .success
             .value
@@ -278,7 +280,7 @@ class PhoneNumberControllerSpec extends SpecBase with MockitoSugar {
 
         "must redirect to Unauthorised when IQ3 has not been answered" in {
 
-          val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+          val application = applicationBuilder(userAnswers = Some(baseRequiredAnswers)).build()
 
           running(application) {
             val request = FakeRequest(GET, phoneNumberRoute)
@@ -292,9 +294,79 @@ class PhoneNumberControllerSpec extends SpecBase with MockitoSugar {
         "must redirect to Unauthorised when IQ3 = OnBehalfOfPurchaser but IQ3.1 has not been answered" in {
 
           val answers =
-            emptyUserAnswers.set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser).success.value
+            baseRequiredAnswers.set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser).success.value
 
           val application = applicationBuilder(userAnswers = Some(answers)).build()
+
+          running(application) {
+            val request = FakeRequest(GET, phoneNumberRoute)
+            val result  = route(application, request).value
+
+            status(result) mustEqual SEE_OTHER
+            redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+          }
+        }
+      }
+
+      "for a deregistered organisation" - {
+
+        val name = NameDetails("Mr", "John", "Smith")
+
+        "must allow access when IQ1 is yes and a name is defined" in {
+
+          val answers = baseRequiredAnswers
+            .set(IsDeregisteredPage, true)
+            .success
+            .value
+            .set(VehicleFromEuPage, true)
+            .success
+            .value
+            .set(NameDetailsPage, name)
+            .success
+            .value
+
+          val application = vatTraderApplicationBuilder(Some(answers)).build()
+
+          running(application) {
+            val request = FakeRequest(GET, phoneNumberRoute)
+            val result  = route(application, request).value
+
+            status(result) mustEqual OK
+          }
+        }
+
+        "must redirect to Unauthorised when IQ1 is yes but a name has not been defined" in {
+
+          val answers = baseRequiredAnswers
+            .set(IsDeregisteredPage, true)
+            .success
+            .value
+            .set(VehicleFromEuPage, true)
+            .success
+            .value
+
+          val application = vatTraderApplicationBuilder(Some(answers)).build()
+
+          running(application) {
+            val request = FakeRequest(GET, phoneNumberRoute)
+            val result  = route(application, request).value
+
+            status(result) mustEqual SEE_OTHER
+            redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+          }
+        }
+
+        "must redirect to Unauthorised when IQ1 has not been answered" in {
+
+          val answers = baseRequiredAnswers
+            .set(IsDeregisteredPage, true)
+            .success
+            .value
+            .set(NameDetailsPage, name)
+            .success
+            .value
+
+          val application = vatTraderApplicationBuilder(Some(answers)).build()
 
           running(application) {
             val request = FakeRequest(GET, phoneNumberRoute)

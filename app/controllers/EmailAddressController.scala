@@ -23,7 +23,8 @@ import javax.inject.Inject
 import models.{Mode, NovaUserType}
 import models.requests.DataRequest
 import navigation.Navigator
-import pages.sections.notifierDetails.{EmailAddressPage, PhoneNumberPage}
+import pages.sections.initialquestions.VehicleFromEuPage
+import pages.sections.notifierDetails.{EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -43,8 +44,18 @@ class EmailAddressController @Inject() (
 
   val form: Form[String] = formProvider()
 
-  private val guardPredicate: DataRequest[?] => Boolean = request =>
-    IsDraftIdDefined(request.userAnswers) && request.userAnswers.get(PhoneNumberPage).isDefined
+  private val guardPredicate: DataRequest[?] => Boolean = request => {
+    val answers = request.userAnswers
+
+    IsDraftIdDefined(answers) && {
+      if (request.userContext.isDeregistered)
+        answers.get(VehicleFromEuPage).contains(true) &&
+        answers.get(NameDetailsPage).isDefined &&
+        answers.get(PhoneNumberPage).isDefined
+      else
+        answers.get(PhoneNumberPage).isDefined
+    }
+  }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate) { implicit request =>
     Ok(view(form.withDefault(request.userAnswers.get(EmailAddressPage)), mode))

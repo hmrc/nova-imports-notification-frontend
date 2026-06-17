@@ -18,14 +18,15 @@ package controllers
 
 import base.SpecBase
 import forms.EmailAddressFormProvider
-import models.{DraftId, NormalMode, UserAnswers}
+import models.{DraftId, NameDetails, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.DraftIdPage
-import pages.sections.notifierDetails.{EmailAddressPage, PhoneNumberPage}
+import pages.{DraftIdPage, IsDeregisteredPage}
+import pages.sections.initialquestions.VehicleFromEuPage
+import pages.sections.notifierDetails.{EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -259,6 +260,74 @@ class EmailAddressControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+
+    "for a deregistered organisation" - {
+
+      val name = NameDetails("Mr", "John", "Smith")
+
+      "must allow access when IQ1 is yes and a name and phone are defined" in {
+        val answers = requiredAnswers
+          .set(IsDeregisteredPage, true)
+          .success
+          .value
+          .set(VehicleFromEuPage, true)
+          .success
+          .value
+          .set(NameDetailsPage, name)
+          .success
+          .value
+
+        val application = applicationBuilder(userAnswers = Some(answers)).build()
+
+        running(application) {
+          val request = FakeRequest(GET, emailAddressRoute)
+
+          status(route(application, request).value) mustEqual OK
+        }
+      }
+
+      "must redirect to Unauthorised when a name has not been defined" in {
+        val answers = requiredAnswers
+          .set(IsDeregisteredPage, true)
+          .success
+          .value
+          .set(VehicleFromEuPage, true)
+          .success
+          .value
+
+        val application = applicationBuilder(userAnswers = Some(answers)).build()
+
+        running(application) {
+          val request = FakeRequest(GET, emailAddressRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+        }
+      }
+
+      "must redirect to Unauthorised when IQ1 has not been answered" in {
+        val answers = requiredAnswers
+          .set(IsDeregisteredPage, true)
+          .success
+          .value
+          .set(NameDetailsPage, name)
+          .success
+          .value
+
+        val application = applicationBuilder(userAnswers = Some(answers)).build()
+
+        running(application) {
+          val request = FakeRequest(GET, emailAddressRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+        }
       }
     }
   }
