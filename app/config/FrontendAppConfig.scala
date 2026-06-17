@@ -41,6 +41,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val countriesInTheEUUrl: String             = configuration.get[String]("urls.countriesInTheEUUrl")
   val multipleVehiclesSpreadsheetsUrl: String = configuration.get[String]("urls.multipleVehiclesSpreadsheetsUrl")
   val onlineServicesHelpdeskUrl: String       = configuration.get[String]("urls.onlineServicesHelpdeskUrl")
+  val technicalSupportUrl: String             = configuration.get[String]("urls.technicalSupportUrl")
 
   val hmrcOnlineAccountAuthorisationUrl: String = configuration.get[String]("urls.hmrcOnlineAccountAuthorisationUrl")
   val onlineAgentAuthorisationUrl: String       = configuration.get[String]("urls.onlineAgentAuthorisationUrl")
