@@ -30,7 +30,7 @@ object AddressSanitiser {
 
   def sanitise(address: Address): Address =
     Address(
-      lines = address.lines.map(clean(_, disallowedInLine, lineMaxLength)),
+      lines = address.lines.map(clean(_, disallowedInLine, lineMaxLength)).filter(_.nonEmpty),
       postcode = address.postcode.map(clean(_, disallowedInPostcode, postcodeMaxLength)),
       country = address.country
     )
