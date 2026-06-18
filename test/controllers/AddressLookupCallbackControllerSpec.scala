@@ -24,7 +24,8 @@ import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{AddressPage, DraftIdPage}
+import pages.DraftIdPage
+import pages.sections.notifieraddress.AddressPage
 import play.api.Application
 import play.api.inject.bind
 import play.api.libs.json.{JsObject, Json}
@@ -107,7 +108,7 @@ class AddressLookupCallbackControllerSpec extends SpecBase with MockitoSugar {
         val result = route(app, FakeRequest(GET, callbackOk)).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.LandingPageController.onPageLoad().url
+        redirectLocation(result).value mustEqual routes.NotificationTaskListController.onPageLoad().url
 
         val answers = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(sessionRepository).set(answers.capture())

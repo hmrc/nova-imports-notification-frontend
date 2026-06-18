@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-package pages
+package pages.sections.notifieraddress
 
 import models.Address
+import pages.QuestionPage
 import play.api.libs.json.JsPath
 
 case object AddressPage extends QuestionPage[Address] {
 
-  override def path: JsPath = JsPath \ toString
+  override def path: JsPath = JsPath \ "notifier-address" \ toString
 
   override def toString: String = "address"
 }

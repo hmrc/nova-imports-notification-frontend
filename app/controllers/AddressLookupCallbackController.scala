@@ -22,7 +22,8 @@ import controllers.actions.*
 import models.Address
 import models.draftsections.NotifierAddress
 import models.requests.DataRequest
-import pages.{AddressPage, DraftIdPage, DraftVersionIdPage}
+import pages.sections.notifieraddress.AddressPage
+import pages.{DraftIdPage, DraftVersionIdPage}
 import play.api.Logging
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -97,7 +98,7 @@ class AddressLookupCallbackController @Inject() (
       case Some(draftId) =>
         val body = Json.toJson(NotifierAddress.fromAddress(address)).as[JsObject] + ("versionId", Json.toJson(versionId))
         backendConnector.updateDraftSection(draftId, "notifier-address", body).map {
-          case Right(_)    => Redirect(routes.LandingPageController.onPageLoad()) // TODO: navigate to NTL3.0
+          case Right(_)    => Redirect(routes.NotificationTaskListController.onPageLoad())
           case Left(error) =>
             logger.warn(s"Failed to update notifier-address section for draftId ${draftId.value}: $error")
             Redirect(routes.JourneyRecoveryController.onPageLoad())
