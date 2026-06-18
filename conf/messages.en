@@ -31,9 +31,16 @@ error.summary.title = There is a problem
 journeyRecovery.continue.title = Sorry, there is a problem with the service
 journeyRecovery.continue.heading = Sorry, there is a problem with the service
 journeyRecovery.continue.guidance = [Add content to explain how to proceed.]
-journeyRecovery.startAgain.title = Sorry, there is a problem with the service
-journeyRecovery.startAgain.heading = Sorry, there is a problem with the service
-journeyRecovery.startAgain.guidance = [Add content to explain why the user needs to start again.]
+
+######################################################
+# ERR2.0 - Error message - System error              #
+######################################################
+
+journeyRecovery.startAgain.title = Sorry, there is a problem with this service
+journeyRecovery.startAgain.heading = Sorry, there is a problem with this service
+journeyRecovery.startAgain.paragraph.1 = Try again later.
+journeyRecovery.startAgain.paragraph.2 = If you have any questions,
+journeyRecovery.startAgain.link.text = contact HMRC technical support (opens in new tab)
 
 signedOut.title = For your security, we signed you out
 signedOut.heading = For your security, we signed you out
