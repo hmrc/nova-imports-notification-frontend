@@ -20,7 +20,8 @@ import connectors.NovaImportsBackendConnector
 import controllers.actions.*
 import models.draftsections.NotifierAddress
 import models.requests.DataRequest
-import pages.{AddressPage, DraftIdPage, DraftVersionIdPage}
+import pages.sections.notifieraddress.AddressPage
+import pages.{DraftIdPage, DraftVersionIdPage}
 import play.api.Logging
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
