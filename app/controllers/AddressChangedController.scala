@@ -59,7 +59,7 @@ class AddressChangedController @Inject() (
       case (Some(address), Some(draftId)) =>
         val body = Json.toJson(NotifierAddress.fromAddress(address)).as[JsObject] + ("versionId", Json.toJson(versionId))
         backendConnector.updateDraftSection(draftId, "notifier-address", body).map {
-          case Right(_)    => Redirect(routes.LandingPageController.onPageLoad()) // TODO: navigate to NTL3.0
+          case Right(_)    => Redirect(routes.NotificationTaskListController.onPageLoad()) // TODO: navigate to NTL3.0
           case Left(error) =>
             logger.warn(s"Failed to update notifier-address section for draftId ${draftId.value}: $error")
             Redirect(routes.JourneyRecoveryController.onPageLoad())
