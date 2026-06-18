@@ -20,9 +20,10 @@ import com.google.inject.{ImplementedBy, Inject, Singleton}
 import connectors.{GetDraftNotificationError, NovaImportsBackendConnector}
 import models.*
 import models.DraftNotification.SectionId
-import models.draftsections.{InitialQuestions, Introduction, NotifierDetailsIndividual, NotifierDetailsOrganisation}
+import models.draftsections.*
 import pages.sections.introduction.*
 import pages.sections.initialquestions.*
+import pages.sections.notifieraddress.*
 import play.api.libs.json.*
 import repositories.SessionRepository
 import uk.gov.hmrc.http.HeaderCarrier
@@ -61,7 +62,8 @@ class UserDataServiceImpl @Inject() (
           u0 <- storeIntroductionPages(draft, userAnswers, repository)
           u1 <- storeInitialQuestionsPages(draft, u0, repository)
           u2 <- storeNotifierDetailsPages(draft, u1, repository)
-        } yield Right(u2)
+          u3 <- storeNotifierAddressPages(draft, u2, repository)
+        } yield Right(u3)
     }
 
   def determineAndUpdateStatus(userAnswers: UserAnswers, userContext: UserContext): Map[String, SectionStatus] =
@@ -136,6 +138,20 @@ object UserDataService {
         }
     }
 
+  def storeNotifierAddressPages(draft: DraftNotification, answers: UserAnswers, sessionRepository: SessionRepository)(implicit
+    ec: ExecutionContext
+  ): Future[UserAnswers] =
+    draft.sections.get(SectionId.NotifierAddress).flatMap(_.data).flatMap(_.asOpt[NotifierAddress]) match {
+      case Some(a) =>
+        val address = Address(
+          lines = Seq(Option(a.line1), Option(a.line2), a.line3, a.line4).flatten,
+          postcode = a.postCode,
+          country = a.country
+        )
+        sessionRepository.setPage(answers, AddressPage, address)
+      case None => Future.successful(answers)
+    }
+
   def orgWithEnrolments(answers: UserAnswers): Map[String, SectionStatus] = {
     /* Introduction */
     val acknowledged               = answers.get(IntroductionAcknowledgePage)
@@ -149,6 +165,9 @@ object UserDataService {
     val nameDetails         = answers.get(NameDetailsPage)
     val phoneNumber         = answers.get(PhoneNumberPage)
     val nameDetailsRequired = if (vehicleBusinessUse.contains(false)) nameDetails.isDefined else true
+
+    /* Notifier Address */
+    val address = answers.get(AddressPage)
 
     val introStatus = (acknowledged, amendSubmittedNotification.isDefined) match {
       case (Some(true), true) => SectionStatus.Completed
@@ -168,11 +187,15 @@ object UserDataService {
       case _              => SectionStatus.Incomplete
     }
 
+    val notifierAddressStatus =
+      if address.isDefined then SectionStatus.Completed
+      else SectionStatus.Incomplete
+
     Map(
       SectionId.Introduction     -> introStatus,
       SectionId.InitialQuestions -> initialQsStatus,
       SectionId.NotifierDetails  -> notifierDetailsStatus,
-      SectionId.NotifierAddress  -> SectionStatus.NotYetSaved,
+      SectionId.NotifierAddress  -> notifierAddressStatus,
       SectionId.Vehicles         -> SectionStatus.NotYetSaved,
       SectionId.Declaration      -> SectionStatus.NotYetSaved
     )

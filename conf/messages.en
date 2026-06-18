@@ -333,6 +333,50 @@ isYourAddressInTheUk.checkYourAnswersLabel = Is your address in the UK
 isYourAddressInTheUk.error.required = Select yes if your address is in the UK
 isYourAddressInTheUk.change.hidden = whether your address is in the UK
 
+###########################################################
+# AYA3.0 - Add your address 3.0: We've changed your address #
+###########################################################
+
+addressChanged.title = We’ve changed your address
+addressChanged.caption = Add your address
+addressChanged.heading = We’ve changed your address
+addressChanged.body = This could be because of invalid characters or some lines are too long.
+addressChanged.checkHeading = Check the updated address
+addressChanged.changeAddress = Change address
+
+###########################################################
+# Address lookup (ALF) journey labels                     #
+###########################################################
+
+addressLookup.uk.lookup.title = Find your address
+addressLookup.uk.lookup.heading = Find your address
+addressLookup.uk.lookup.postcodeLabel = Postcode
+addressLookup.uk.lookup.submitLabel = Continue
+addressLookup.uk.lookup.manualAddressLinkText = Enter the address manually
+addressLookup.uk.select.title = Choose your address
+addressLookup.uk.select.heading = Choose your address
+addressLookup.uk.select.proposalListLabel = Select your address
+addressLookup.uk.select.editAddressLinkText = Enter the address manually
+addressLookup.uk.edit.title = Enter your address
+addressLookup.uk.edit.heading = Enter your address
+addressLookup.uk.edit.postcodeLabel = Postcode
+addressLookup.nonUk.edit.title = Enter your address
+addressLookup.nonUk.edit.heading = Enter your address
+addressLookup.nonUk.edit.postcodeLabel = Postcode or similar
+addressLookup.edit.line1Label = Address line 1
+addressLookup.edit.line2Label = Address line 2
+addressLookup.edit.line3Label = Address line 3
+addressLookup.edit.townLabel = Address line 4
+addressLookup.edit.countryLabel = Country
+addressLookup.confirm.title = Review and confirm your address
+addressLookup.confirm.heading = Review and confirm your address
+addressLookup.error.line1Length = Address line 1 must be 35 characters or less
+addressLookup.error.line2Length = Address line 2 must be 35 characters or less
+addressLookup.error.line3Length = Address line 3 must be 35 characters or less
+addressLookup.error.townLength = Address line 4 must be 35 characters or less
+addressLookup.error.townRequired = Enter address line 4
+addressLookup.error.countryRequired = Enter a country
+
 ######################################################
 # AYD1.2 - Add your details 1.2: Phone number        #
 ######################################################
@@ -384,8 +428,8 @@ notificationTaskList.deleteNotification = Delete notification
 # AVD1.0 - Add vehicle details: Vehicles brought from the EU #
 ######################################################
 
-addVehicleDetails.title = Vehicles brought from an EU country
-addVehicleDetails.heading = Vehicles brought from an EU country
+addVehicleDetails.title = Vehicles brought from the EU
+addVehicleDetails.heading = Vehicles brought from the EU
 addVehicleDetails.caption = Add vehicle details
 addVehicleDetails.paragraph.1 = You must provide details of all vehicles bought from a supplier in the EU.
 addVehicleDetails.paragraph.2 = You can add details of up to 100 vehicles in one notification.
@@ -394,8 +438,7 @@ addVehicleDetails.radio.bySupplier = Add by supplier
 addVehicleDetails.radio.bySupplier.hint = Provide the supplier details first, then add the vehicles bought from them
 addVehicleDetails.radio.bySpreadsheet = Upload a vehicle spreadsheet
 addVehicleDetails.radio.bySpreadsheet.hint = Use the spreadsheet option to add details for more than one vehicle of the same type at the same time
-addVehicleDetails.inset.heading = If you’re uploading a spreadsheet
-addVehicleDetails.inset.paragraph.1 = You must use the correct spreadsheet for the same type of vehicles.
+addVehicleDetails.inset.paragraph.1 = If you’re uploading a spreadsheet, you must use the correct spreadsheet for the same type of vehicles.
 addVehicleDetails.inset.paragraph.2 = {0} you must download and use.
 addVehicleDetails.inset.findSpreadsheet.linkText = Find the spreadsheet (opens in new tab)
 addVehicleDetails.error.required = Select how you want to add vehicle details

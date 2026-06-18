@@ -22,7 +22,7 @@ import connectors.{GetDraftNotificationError, GetNotificationSummaryError, NovaI
 import controllers.actions.*
 import models.NormalMode
 import models.{DraftId, DraftNotification, DraftNotificationSection, NotificationSummary, UserAnswers}
-import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import pages.DraftIdPage

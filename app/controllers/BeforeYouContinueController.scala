@@ -17,24 +17,23 @@
 package controllers
 
 import com.google.inject.Inject
-import connectors.NovaImportsBackendConnector
 import controllers.actions.*
 import models.{NormalMode, UserAnswers, UserContext}
 import models.NovaUserType
 import pages.sections.introduction.{AmendSubmittedNotificationPage, IntroductionAcknowledgePage}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
-import pages.{AgentSelectedClientPage, DraftIdPage}
+import pages.AgentSelectedClientPage
 import views.html.{BeforeYouContinueOrganisationView, BeforeYouContinueView}
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.mvc.Result
+import scala.util.{Success, Try}
 
 class BeforeYouContinueController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   individualView: BeforeYouContinueView,
   organisationView: BeforeYouContinueOrganisationView,
   sessionRepository: SessionRepository,
-  backendConnector: NovaImportsBackendConnector,
   actions: Actions
 )(implicit ec: ExecutionContext)
     extends BaseController {
@@ -59,13 +58,17 @@ class BeforeYouContinueController @Inject() (
   }
 
   def onSubmit(): Action[AnyContent] = actions.authAndGetOptionalData().async { implicit request =>
-    val existingAnswers = request.userAnswers.getOrElse(UserAnswers(request.userId))
-    val ctx             = UserContext.from(request.affinityGroup, request.enrolments, existingAnswers)
-    val clientVrn       = if (ctx.isAgentWithClient) existingAnswers.get(AgentSelectedClientPage).map(_.vrn) else None
+    val existingAnswers                    = request.userAnswers.getOrElse(UserAnswers(request.userId))
+    val ctx                                = UserContext.from(request.affinityGroup, request.enrolments, existingAnswers)
+    val selectedClient                     = if (ctx.isAgentWithClient) existingAnswers.get(AgentSelectedClientPage) else None
+    val freshUserAnswers: Try[UserAnswers] = selectedClient match {
+      case Some(client) => UserAnswers(request.userId).set(AgentSelectedClientPage, client)
+      case None         => Success(UserAnswers(request.userId))
+    }
 
     for {
-      _ <- sessionRepository.setPage(existingAnswers, IntroductionAcknowledgePage, true)
+      answers <- Future.fromTry(freshUserAnswers)
+      _       <- sessionRepository.setPage(answers, IntroductionAcknowledgePage, true)
     } yield Redirect(routes.VehicleFromEuController.onPageLoad(NormalMode).url)
-
   }
 }

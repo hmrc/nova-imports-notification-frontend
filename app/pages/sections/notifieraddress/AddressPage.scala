@@ -14,23 +14,15 @@
  * limitations under the License.
  */
 
-package pages.sections.initialquestions
+package pages.sections.notifieraddress
 
-import models.{PurchaserOrOnBehalf, UserAnswers}
+import models.Address
 import pages.QuestionPage
 import play.api.libs.json.JsPath
 
-import scala.util.Try
+case object AddressPage extends QuestionPage[Address] {
 
-case object PurchaserOrOnBehalfPage extends QuestionPage[PurchaserOrOnBehalf] {
+  override def path: JsPath = JsPath \ "notifier-address" \ toString
 
-  override def path: JsPath = JsPath \ "initial-question" \ toString
-
-  override def toString: String = "purchaserOrOnBehalf"
-
-  override def cleanup(value: Option[PurchaserOrOnBehalf], userAnswers: UserAnswers): Try[UserAnswers] =
-    value match {
-      case Some(PurchaserOrOnBehalf.Purchaser) => userAnswers.remove(PurchaserBusinessOrIndividualPage)
-      case _                                   => super.cleanup(value, userAnswers)
-    }
+  override def toString: String = "address"
 }
