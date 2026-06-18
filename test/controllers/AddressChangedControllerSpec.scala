@@ -107,7 +107,7 @@ class AddressChangedControllerSpec extends SpecBase with MockitoSugar {
         val result  = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.LandingPageController.onPageLoad().url
+        redirectLocation(result).value mustEqual routes.NotificationTaskListController.onPageLoad().url
 
         val body = ArgumentCaptor.forClass(classOf[JsObject])
         verify(backendConnector).updateDraftSection(eqTo(draftId), eqTo("notifier-address"), body.capture())(any[HeaderCarrier])
