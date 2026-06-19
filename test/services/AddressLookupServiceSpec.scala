@@ -88,11 +88,9 @@ class AddressLookupServiceSpec extends SpecBase with MockitoSugar with ScalaFutu
         (buildUkConfig \ "options" \ "continueUrl").as[String] mustBe callbackUrl
       }
 
-      "must set service-nav + phase banner + sign-out + heading style options" in {
+      "must set service-nav + sign-out + heading style options" in {
         val opts = buildUkConfig \ "options"
         (opts \ "signOutHref").as[String] mustBe appConfig.signOutUrl
-        (opts \ "showPhaseBanner").as[Boolean] mustBe true
-        (opts \ "alphaPhase").as[Boolean] mustBe true
         (opts \ "useNewGovUkServiceNavigation").as[Boolean] mustBe true
         (opts \ "pageHeadingStyle").as[String] mustBe "govuk-heading-l"
       }

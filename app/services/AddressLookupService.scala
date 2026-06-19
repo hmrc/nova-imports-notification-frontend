@@ -290,8 +290,6 @@ class AddressLookupService @Inject() (
   private def commonOptions(callbackUrl: String): JsObject = Json.obj(
     "continueUrl"                  -> callbackUrl,
     "signOutHref"                  -> appConfig.signOutUrl,
-    "showPhaseBanner"              -> true,
-    "alphaPhase"                   -> true,
     "useNewGovUkServiceNavigation" -> true,
     "showBackButtons"              -> true,
     "includeHMRCBranding"          -> false,
