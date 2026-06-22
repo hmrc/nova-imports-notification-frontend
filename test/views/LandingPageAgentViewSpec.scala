@@ -17,6 +17,7 @@
 package views
 
 import base.SpecBase
+import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.must.Matchers
 import play.api.Application
 import play.api.i18n.Messages
@@ -24,7 +25,10 @@ import play.api.mvc.Request
 import play.api.test.FakeRequest
 import views.html.LandingPageAgentView
 
-class LandingPageAgentViewSpec extends SpecBase with Matchers {
+import scala.concurrent.Await
+import scala.concurrent.duration.DurationInt
+
+class LandingPageAgentViewSpec extends SpecBase with Matchers with BeforeAndAfterAll {
 
   private val traderName = "ABC Consultancy"
 
@@ -33,6 +37,11 @@ class LandingPageAgentViewSpec extends SpecBase with Matchers {
   implicit private val msgs: Messages      = messages(app)
 
   private val view: LandingPageAgentView = app.injector.instanceOf[LandingPageAgentView]
+
+  override def afterAll(): Unit = {
+    Await.result(app.stop(), 10.seconds)
+    super.afterAll()
+  }
 
   "LandingPageAgentView" - {
 

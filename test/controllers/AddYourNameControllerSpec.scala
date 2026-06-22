@@ -17,16 +17,20 @@
 package controllers
 
 import base.SpecBase
+import com.google.inject.name.Names
+import controllers.actions.*
 import forms.AddYourNameFormProvider
-import models.{BusinessOrPrivateIndividual, DraftId, NameDetails, NormalMode, UserAnswers}
+import models.{AgentSelectedClient, BusinessOrPrivateIndividual, DraftId, NameDetails, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
+import pages.AgentClientVehicleBusinessUsePage
 import pages.sections.initialquestions.{BusinessOrPrivatePage, VehicleFromEuPage}
 import pages.sections.notifierDetails.NameDetailsPage
 import play.api.inject.bind
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -74,6 +78,64 @@ class AddYourNameControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
+      }
+    }
+
+    "must redirect to Unauthorised for a GET for an agent with no enrolments accessing name page" in {
+
+      val agentNoEnrolmentsAnswers = emptyUserAnswers
+        .set(AgentClientVehicleBusinessUsePage, false)
+        .success
+        .value
+        .set(pages.AgentSelectedClientPage, AgentSelectedClient("123456789", Some("ABC Ltd")))
+        .success
+        .value
+        .set(pages.DraftIdPage, DraftId("DRAFT-001"))
+        .success
+        .value
+
+      val application = new GuiceApplicationBuilder()
+        .overrides(
+          bind[DataRequiredAction].to[DataRequiredActionImpl],
+          bind[IdentifierAction].to[FakeAgentNoEnrolmentsIdentifierAction],
+          bind[IdentifierAction].qualifiedWith(Names.named("standard")).to[FakeAgentNoEnrolmentsIdentifierAction],
+          bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeAgentNoEnrolmentsIdentifierAction],
+          bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeAgentNoEnrolmentsIdentifierAction],
+          bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeAgentNoEnrolmentsIdentifierAction],
+          bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(Some(agentNoEnrolmentsAnswers)))
+        )
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, addYourNameRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+
+    "must return OK for a GET for an agent with no enrolments and no selected client" in {
+
+      val application = new GuiceApplicationBuilder()
+        .overrides(
+          bind[DataRequiredAction].to[DataRequiredActionImpl],
+          bind[IdentifierAction].to[FakeAgentNoEnrolmentsIdentifierAction],
+          bind[IdentifierAction].qualifiedWith(Names.named("standard")).to[FakeAgentNoEnrolmentsIdentifierAction],
+          bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeAgentNoEnrolmentsIdentifierAction],
+          bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeAgentNoEnrolmentsIdentifierAction],
+          bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeAgentNoEnrolmentsIdentifierAction],
+          bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(Some(requiredPreviousAnswers)))
+        )
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, addYourNameRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
       }
     }
 

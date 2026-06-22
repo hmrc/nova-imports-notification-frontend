@@ -18,7 +18,6 @@ package controllers
 
 import com.google.inject.Inject
 import config.FrontendAppConfig
-import connectors.NovaImportsBackendConnector
 import controllers.actions.Actions
 import models.DraftNotification.SectionId
 import models.{NormalMode, NotificationSummary, SectionStatus, UserAnswers}
@@ -27,17 +26,17 @@ import pages.sections.initialquestions.VehicleBusinessUsePage
 import pages.sections.notifieraddress.AddressJourneyIdPage
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.UserDataService
+import services.{NotificationSummaryService, UserDataService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import views.html.NotificationTaskListView
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class NotificationTaskListController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   actions: Actions,
-  backendConnector: NovaImportsBackendConnector,
+  notificationSummaryService: NotificationSummaryService,
   userDataService: UserDataService,
   view: NotificationTaskListView
 )(implicit ec: ExecutionContext, appConfig: FrontendAppConfig)
@@ -51,28 +50,24 @@ class NotificationTaskListController @Inject() (
 
     val draftId = request.userAnswers.get(DraftIdPage).get // guard guarantees presence
 
-    for {
-      summaryResult        <- backendConnector.getNotificationSummary()
-      updatedAnswersResult <- userDataService.retrieveAndStoreDraftNotification(draftId, request.userAnswers)
-    } yield (summaryResult, updatedAnswersResult) match {
-      case (Left(error), _) =>
-        logger.warn(s"Failed to fetch notification summary for VAT-registered Organisation: $error")
-        Redirect(routes.JourneyRecoveryController.onPageLoad())
-
-      case (_, Left(error)) =>
+    userDataService.retrieveAndStoreDraftNotification(draftId, request.userAnswers).flatMap {
+      case Left(error) =>
         logger.warn(s"Failed to retrieve draft notification for draftId ${draftId.value}: $error")
-        Redirect(routes.JourneyRecoveryController.onPageLoad())
+        Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
 
-      case (Right(summary), Right(updatedAnswers)) =>
-        val sections: Map[String, SectionStatus] = userDataService.determineAndUpdateStatus(updatedAnswers, request.userContext)
-        val sectionLink                          = determineSectionLink(sections, updatedAnswers)
+      case Right(updatedAnswers) =>
+        notificationSummaryService.getSummaryAndStoreDeregisteredStatus(updatedAnswers, None).map {
+          case Right((org: NotificationSummary.IndividualOrOrganisation, savedAnswers)) =>
+            val sections    = userDataService.determineAndUpdateStatus(savedAnswers, request.userContext)
+            val sectionLink = determineSectionLink(sections, savedAnswers)
+            Ok(view(org.traderName, org.vrn, sections, showAddYourAddress(savedAnswers), sectionLink))
 
-        summary match {
-          case org: NotificationSummary.IndividualOrOrganisation =>
-            Ok(view(org.traderName, org.vrn, sections, showAddYourAddress(updatedAnswers), sectionLink))
-
-          case other =>
+          case Right((other, _)) =>
             logger.warn(s"Unexpected notification summary shape for VAT-registered Organisation: $other")
+            Redirect(routes.JourneyRecoveryController.onPageLoad())
+
+          case Left(error) =>
+            logger.warn(s"Failed to fetch notification summary for VAT-registered Organisation: $error")
             Redirect(routes.JourneyRecoveryController.onPageLoad())
         }
     }
@@ -91,10 +86,10 @@ object NotificationTaskListController {
 
   def determineSectionLink(sections: Map[String, SectionStatus], userAnswers: UserAnswers)(implicit
     appConfig: FrontendAppConfig
-  ): Map[String, String] = {
+  ): Map[String, String] =
     sections.flatMap {
       case (section @ SectionId.NotifierDetails, status) =>
-        if (status == SectionStatus.Completed) Map(section -> routes.LandingPageController.onPageLoad().url) // TODO - Update to CYA 2.0
+        if (status == SectionStatus.Completed) Map(section -> routes.LandingPageController.onPageLoad().url) // TODO - Update to CYA
         else Map(section                                   -> routes.AboutYourDetailsController.onPageLoad().url)
 
       case (section @ SectionId.NotifierAddress, status) =>
@@ -106,6 +101,4 @@ object NotificationTaskListController {
 
       case _ => Map.empty[String, String]
     }
-
-  }
 }

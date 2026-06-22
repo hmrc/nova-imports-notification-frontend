@@ -22,10 +22,10 @@ import connectors.{GetDraftNotificationError, GetNotificationSummaryError, NovaI
 import controllers.actions.*
 import models.NormalMode
 import models.{DraftId, DraftNotification, DraftNotificationSection, NotificationSummary, UserAnswers}
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.DraftIdPage
+import pages.{DraftIdPage, IsDeregisteredPage}
 import pages.sections.initialquestions.VehicleBusinessUsePage
 import pages.sections.notifierDetails.PhoneNumberPage
 import play.api.Application
@@ -34,6 +34,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import repositories.SessionRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
@@ -60,6 +61,8 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
     hasDraftNotifications = true,
     isDeregistered = false
   )
+
+  private val deregisteredOrgSummary = orgSummary.copy(isDeregistered = true)
 
   private val emptySection: DraftNotificationSection =
     DraftNotificationSection(None)
@@ -112,6 +115,32 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
       )
       .build()
 
+  private def mockSessionRepository: SessionRepository = {
+    val sessionRepo = mock[SessionRepository]
+    when(sessionRepo.setPage(any(), any(), any())(any())).thenReturn(Future.successful(emptyUserAnswers))
+    sessionRepo
+  }
+
+  private def applicationWithRepo(
+    identifierAction: Class[? <: IdentifierAction],
+    userAnswers: Option[UserAnswers],
+    connector: NovaImportsBackendConnector,
+    sessionRepo: SessionRepository
+  ): Application =
+    new GuiceApplicationBuilder()
+      .overrides(
+        bind[DataRequiredAction].to[DataRequiredActionImpl],
+        bind[IdentifierAction].to[FakeIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("standard")).to[FakeIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to(identifierAction),
+        bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
+        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers)),
+        bind[NovaImportsBackendConnector].toInstance(connector),
+        bind[SessionRepository].toInstance(sessionRepo)
+      )
+      .build()
+
   "NotificationTaskListController" - {
 
     "onPageLoad" - {
@@ -140,6 +169,25 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
           body must include("Cannot start yet")
           body must include("Return to home")
           body must include("Delete notification")
+        }
+      }
+
+      "must save the deregistered status from the summary into the session" in {
+        val sessionRepo                = mockSessionRepository
+        given application: Application =
+          applicationWithRepo(
+            classOf[FakeVatTraderIdentifierAction],
+            Some(answersBusinessUse),
+            stubConnector(summary = Right(deregisteredOrgSummary)),
+            sessionRepo
+          )
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
+
+          status(route(application, request).value) mustEqual OK
+          verify(sessionRepo).setPage(any(), eqTo(IsDeregisteredPage), eqTo(true))(any())
         }
       }
 

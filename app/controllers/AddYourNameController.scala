@@ -68,18 +68,17 @@ class AddYourNameController @Inject() (
 
 object AddYourNameController {
 
-  def guardPredicate(request: DataRequest[?]): Boolean =
-    IsDraftIdDefined(request.userAnswers) &&
-      (request.userContext.userType match {
-        case NovaUserType.PrivateIndividual | NovaUserType.NonVatOrganisation =>
-          standardUserAnswersComplete(request.userAnswers)
-        case NovaUserType.Agent if request.userContext.isAgentWithoutClient =>
-          standardUserAnswersComplete(request.userAnswers)
-        case NovaUserType.VatRegisteredOrganisation =>
-          vatRegisteredOrgAnswersComplete(request.userAnswers)
-        case NovaUserType.Agent =>
-          agentWithClientAnswersComplete(request.userAnswers)
-      })
+  def guardPredicate(request: DataRequest[?]): Boolean = {
+    val answers     = request.userAnswers
+    val userContext = request.userContext
+
+    IsDraftIdDefined(answers) && (userContext match {
+      case ctx if ctx.isAgentWithClientNoEnrolments => false
+      case ctx if ctx.isVatRegisteredOrganisation   => vatRegisteredOrgAnswersComplete(answers)
+      case ctx if ctx.isAgentWithClient             => agentWithClientAnswersComplete(answers)
+      case _                                        => standardUserAnswersComplete(answers)
+    })
+  }
 
   private def standardUserAnswersComplete(answers: UserAnswers): Boolean =
     answers.get(BusinessOrPrivatePage).contains(BusinessOrPrivateIndividual.PrivateIndividual) &&

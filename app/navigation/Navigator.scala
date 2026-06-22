@@ -91,7 +91,7 @@ class Navigator @Inject() () {
           case _           => routes.JourneyRecoveryController.onPageLoad()
         }
     case EmailAddressPage =>
-      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to CYA2.0
+      (_, _) => routes.YourDetailsCheckYourAnswersController.onPageLoad()
     case _ => (_, _) => routes.LandingPageController.onPageLoad()
   }
 
@@ -109,8 +109,6 @@ class Navigator @Inject() () {
         }
     case VehicleBusinessUsePage | AgentClientVehicleBusinessUsePage | BusinessOrPrivatePage | PurchaserBusinessOrIndividualPage =>
       (_, _) => routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
-    case PhoneNumberPage =>
-      (_, _) => routes.EmailAddressController.onPageLoad(CheckMode)
     case PurchaserOrOnBehalfPage =>
       (userAnswers, _) =>
         userAnswers.get(PurchaserOrOnBehalfPage) match {
@@ -119,9 +117,11 @@ class Navigator @Inject() () {
           case _                                             => routes.JourneyRecoveryController.onPageLoad()
         }
     case NameDetailsPage =>
-      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to CYA2.0 - to be added later
+      (_, _) => routes.YourDetailsCheckYourAnswersController.onPageLoad()
+    case PhoneNumberPage =>
+      (_, _) => routes.YourDetailsCheckYourAnswersController.onPageLoad()
     case EmailAddressPage =>
-      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to CYA2.0
+      (_, _) => routes.YourDetailsCheckYourAnswersController.onPageLoad()
     case _ =>
       (_, _) => routes.LandingPageController.onPageLoad()
   }

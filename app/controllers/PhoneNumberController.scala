@@ -17,6 +17,7 @@
 package controllers
 
 import controllers.actions.*
+import controllers.utils.IsDraftIdDefined
 import forms.PhoneNumberFormProvider
 import models.requests.DataRequest
 import models.{Mode, NovaUserType, PurchaserOrOnBehalf}
@@ -44,23 +45,21 @@ class PhoneNumberController @Inject() (
 
   val form: Form[String] = formProvider()
 
-  // Checks the previous page per user type; earlier pages cascade via their own guards.
   private val guardPredicate: DataRequest[?] => Boolean = request => {
-    val ua  = request.userAnswers
-    val ctx = request.userContext
-    ctx.userType match {
-      case NovaUserType.VatRegisteredOrganisation =>
-        ua.get(VehicleBusinessUsePage).isDefined
-      case NovaUserType.Agent if ctx.selectedClient.isDefined =>
-        ua.get(AgentClientVehicleBusinessUsePage).isDefined
-      case _ =>
+    val ua          = request.userAnswers
+    val userContext = request.userContext
+
+    IsDraftIdDefined(ua) && (userContext match {
+      case ctx if ctx.isAgentWithClientNoEnrolments => ua.get(AgentClientVehicleBusinessUsePage).isDefined
+      case ctx if ctx.isVatRegisteredOrganisation   => ua.get(VehicleBusinessUsePage).isDefined
+      case ctx if ctx.isAgentWithClient             => ua.get(AgentClientVehicleBusinessUsePage).isDefined
+      case _                                        =>
         ua.get(PurchaserOrOnBehalfPage) match {
           case Some(PurchaserOrOnBehalf.Purchaser)           => true
-          case Some(PurchaserOrOnBehalf.OnBehalfOfPurchaser) =>
-            ua.get(PurchaserBusinessOrIndividualPage).isDefined
-          case None => false
+          case Some(PurchaserOrOnBehalf.OnBehalfOfPurchaser) => ua.get(PurchaserBusinessOrIndividualPage).isDefined
+          case None                                          => false
         }
-    }
+    })
   }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate) { implicit request =>

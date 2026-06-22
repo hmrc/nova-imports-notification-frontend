@@ -321,6 +321,8 @@ addYourName.lastName = Last name
 addYourName.lastName.error.format = Enter your last name in the correct format
 addYourName.lastName.error.length = Your last name must be 100 characters or less
 addYourName.lastName.error.required = Enter your last name
+addYourName.checkYourAnswersLabel = Name
+addYourName.change.hidden = your name
 
 ######################################################
 # AYA1.0 - Add Your Address: Is your address in the UK #
@@ -402,6 +404,8 @@ emailAddress.hint = We’ll use this to send you a confirmation for your notific
 emailAddress.error.required = Enter your email address
 emailAddress.error.length = Your email address must be 70 characters or less
 emailAddress.error.invalid = Enter your email address in the correct format, like name@example.com
+emailAddress.checkYourAnswersLabel = Email address
+emailAddress.change.hidden = your email address
 
 ##########################################################################
 # NTL3.0 - Notification task list for VAT-registered organisation (4/5)  #
@@ -442,3 +446,11 @@ addVehicleDetails.inset.paragraph.1 = If you’re uploading a spreadsheet, you m
 addVehicleDetails.inset.paragraph.2 = {0} you must download and use.
 addVehicleDetails.inset.findSpreadsheet.linkText = Find the spreadsheet (opens in new tab)
 addVehicleDetails.error.required = Select how you want to add vehicle details
+
+######################################################
+# CYA2.0 - Check your answers 2 - Your details       #
+######################################################
+
+yourDetailsCheckYourAnswers.caption = Add your details
+yourDetailsCheckYourAnswers.title = Check your answers - your details
+yourDetailsCheckYourAnswers.heading = Check your answers

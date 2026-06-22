@@ -17,15 +17,19 @@
 package controllers
 
 import base.SpecBase
+import com.google.inject.name.Names
+import controllers.actions.*
 import forms.EmailAddressFormProvider
-import models.{NormalMode, UserAnswers}
+import models.{AgentSelectedClient, DraftId, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.sections.notifierDetails.EmailAddressPage
+import pages.{AgentClientVehicleBusinessUsePage, AgentSelectedClientPage, DraftIdPage}
+import pages.sections.notifierDetails.{EmailAddressPage, PhoneNumberPage}
 import play.api.inject.bind
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -43,11 +47,19 @@ class EmailAddressControllerSpec extends SpecBase with MockitoSugar {
   lazy val emailAddressRoute = routes.EmailAddressController.onPageLoad(NormalMode).url
   val validEmail             = "name@example.com"
 
+  val requiredAnswers: UserAnswers = emptyUserAnswers
+    .set(DraftIdPage, DraftId("DRAFT-001"))
+    .success
+    .value
+    .set(PhoneNumberPage, "07000000000")
+    .success
+    .value
+
   "EmailAddress Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder(userAnswers = Some(requiredAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, emailAddressRoute)
@@ -63,7 +75,7 @@ class EmailAddressControllerSpec extends SpecBase with MockitoSugar {
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = emptyUserAnswers.set(EmailAddressPage, validEmail).success.value
+      val userAnswers = requiredAnswers.set(EmailAddressPage, validEmail).success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -86,7 +98,7 @@ class EmailAddressControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        applicationBuilder(userAnswers = Some(requiredAnswers))
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
             bind[SessionRepository].toInstance(mockSessionRepository)
@@ -113,7 +125,7 @@ class EmailAddressControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        applicationBuilder(userAnswers = Some(requiredAnswers))
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
             bind[SessionRepository].toInstance(mockSessionRepository)
@@ -136,7 +148,7 @@ class EmailAddressControllerSpec extends SpecBase with MockitoSugar {
 
     "must return a Bad Request and errors when the email is blank" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder(userAnswers = Some(requiredAnswers)).build()
 
       running(application) {
         val request =
@@ -156,7 +168,7 @@ class EmailAddressControllerSpec extends SpecBase with MockitoSugar {
 
     "must return a Bad Request and errors when the email exceeds 70 characters" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder(userAnswers = Some(requiredAnswers)).build()
       val tooLong     = "a" * 71 + "@b.com"
 
       running(application) {
@@ -177,7 +189,7 @@ class EmailAddressControllerSpec extends SpecBase with MockitoSugar {
 
     "must return a Bad Request and errors when the email is malformed" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder(userAnswers = Some(requiredAnswers)).build()
 
       running(application) {
         val request =
@@ -224,5 +236,109 @@ class EmailAddressControllerSpec extends SpecBase with MockitoSugar {
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
+
+    "must redirect to Unauthorised for a GET when the phone page has not been answered" in {
+      val answers     = emptyUserAnswers.set(DraftIdPage, DraftId("DRAFT-001")).success.value
+      val application = applicationBuilder(userAnswers = Some(answers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, emailAddressRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Unauthorised for a GET when no draft is in progress" in {
+      val answers     = emptyUserAnswers.set(PhoneNumberPage, "07000000000").success.value
+      val application = applicationBuilder(userAnswers = Some(answers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, emailAddressRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+
+    "for an agent with no enrolments and has a selected client" - {
+
+      val client = AgentSelectedClient(vrn = "GB123456789", name = Some("Acme Ltd"))
+
+      def agentNoEnrolmentsApplication(answers: UserAnswers) =
+        new GuiceApplicationBuilder()
+          .overrides(
+            bind[DataRequiredAction].to[DataRequiredActionImpl],
+            bind[IdentifierAction].to[FakeAgentNoEnrolmentsIdentifierAction],
+            bind[IdentifierAction].qualifiedWith(Names.named("standard")).to[FakeAgentNoEnrolmentsIdentifierAction],
+            bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeAgentNoEnrolmentsIdentifierAction],
+            bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeAgentNoEnrolmentsIdentifierAction],
+            bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeAgentNoEnrolmentsIdentifierAction],
+            bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(Some(answers)))
+          )
+          .build()
+
+      "must allow access to email page when AQ1 is answered and a phone number is defined" in {
+        val answers = requiredAnswers
+          .set(AgentSelectedClientPage, client)
+          .success
+          .value
+          .set(AgentClientVehicleBusinessUsePage, true)
+          .success
+          .value
+
+        val application = agentNoEnrolmentsApplication(answers)
+
+        running(application) {
+          val request = FakeRequest(GET, emailAddressRoute)
+
+          status(route(application, request).value) mustEqual OK
+        }
+      }
+
+      "must redirect to Unauthorised when AQ1 has not been answered" in {
+        val answers = requiredAnswers.set(AgentSelectedClientPage, client).success.value
+
+        val application = agentNoEnrolmentsApplication(answers)
+
+        running(application) {
+          val request = FakeRequest(GET, emailAddressRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+        }
+      }
+
+      "must redirect to Unauthorised when the phone number has not been defined accessing email page" in {
+        val answers = emptyUserAnswers
+          .set(DraftIdPage, DraftId("DRAFT-001"))
+          .success
+          .value
+          .set(AgentSelectedClientPage, client)
+          .success
+          .value
+          .set(AgentClientVehicleBusinessUsePage, true)
+          .success
+          .value
+
+        val application = agentNoEnrolmentsApplication(answers)
+
+        running(application) {
+          val request = FakeRequest(GET, emailAddressRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+        }
+      }
+    }
+
   }
 }

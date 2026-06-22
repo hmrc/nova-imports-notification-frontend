@@ -17,6 +17,7 @@
 package views
 
 import base.SpecBase
+import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.must.Matchers
 import play.api.Application
 import play.api.i18n.Messages
@@ -24,7 +25,21 @@ import play.api.mvc.Request
 import play.api.test.FakeRequest
 import views.html.NoAuthorisedClientsView
 
-class NoAuthorisedClientsViewSpec extends SpecBase with Matchers {
+import scala.concurrent.Await
+import scala.concurrent.duration.DurationInt
+
+class NoAuthorisedClientsViewSpec extends SpecBase with Matchers with BeforeAndAfterAll {
+
+  val app: Application             = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+  implicit val request: Request[?] = FakeRequest()
+  implicit val msgs: Messages      = messages(app)
+
+  val view: NoAuthorisedClientsView = app.injector.instanceOf[NoAuthorisedClientsView]
+
+  override def afterAll(): Unit = {
+    Await.result(app.stop(), 10.seconds)
+    super.afterAll()
+  }
 
   private val hmrcOnlineUrl   = "https://example.com/hmrc-online"
   private val oaaUrl          = "https://example.com/oaa"
@@ -32,99 +47,92 @@ class NoAuthorisedClientsViewSpec extends SpecBase with Matchers {
 
   "NoAuthorisedClientsView" - {
 
-    "must render the correct page title" in new Setup {
+    "must render the correct page title" in {
       val html: String = view.apply(hmrcOnlineUrl, oaaUrl).toString
 
       html must include(msgs("noAuthorisedClients.title"))
     }
 
-    "must render the H1 heading" in new Setup {
+    "must render the H1 heading" in {
       val html: String = view.apply(hmrcOnlineUrl, oaaUrl).toString
 
       html must include(msgs("noAuthorisedClients.heading"))
     }
 
-    "must render both introductory body paragraphs" in new Setup {
+    "must render both introductory body paragraphs" in {
       val html: String = view.apply(hmrcOnlineUrl, oaaUrl).toString
 
       html must include(msgs("noAuthorisedClients.body.1"))
       html must include(msgs("noAuthorisedClients.body.2"))
     }
 
-    "must render the 'What you need to do' H2" in new Setup {
+    "must render the 'What you need to do' H2" in {
       val html: String = view.apply(hmrcOnlineUrl, oaaUrl).toString
 
       html must include(msgs("noAuthorisedClients.whatToDo.heading"))
     }
 
-    "must render the 'You can either:' intro" in new Setup {
+    "must render the 'You can either:' intro" in {
       val html: String = view.apply(hmrcOnlineUrl, oaaUrl).toString
 
       html must include(msgs("noAuthorisedClients.whatToDo.body"))
     }
 
-    "must render the HMRC online account list item with its link text and URL" in new Setup {
+    "must render the HMRC online account list item with its link text and URL" in {
       val html: String = view.apply(hmrcOnlineUrl, oaaUrl).toString
 
       html must include(msgs("noAuthorisedClients.list.hmrcOnlineAccount.link"))
       html must include(hmrcOnlineUrl)
     }
 
-    "must render the Online Agent Authorisation list item with its link text and URL" in new Setup {
+    "must render the Online Agent Authorisation list item with its link text and URL" in {
       val html: String = view.apply(hmrcOnlineUrl, oaaUrl).toString
 
       html must include(msgs("noAuthorisedClients.list.onlineAgentAuthorisation.link"))
       html must include(oaaUrl)
     }
 
-    "must render both external links with target=_blank and rel=noopener noreferrer" in new Setup {
+    "must render both external links with target=_blank and rel=noopener noreferrer" in {
       val html: String = view.apply(hmrcOnlineUrl, oaaUrl).toString
 
       html must include("""target="_blank"""")
       html must include("""rel="noopener noreferrer"""")
     }
 
-    "must render the 5 working days timing paragraph" in new Setup {
+    "must render the 5 working days timing paragraph" in {
       val html: String = view.apply(hmrcOnlineUrl, oaaUrl).toString
 
       html must include(msgs("noAuthorisedClients.timing"))
     }
 
-    "must render the Return to home button linking to the Index page" in new Setup {
+    "must render the Return to home button linking to the Index page" in {
       val html: String = view.apply(hmrcOnlineUrl, oaaUrl).toString
 
       html must include(msgs("noAuthorisedClients.returnToHome"))
       html must include(placeholderHome)
     }
 
-    "must render the Return to home button as a secondary button to match the prototype" in new Setup {
+    "must render the Return to home button as a secondary button to match the prototype" in {
       val html: String = view.apply(hmrcOnlineUrl, oaaUrl).toString
 
       html must include("govuk-button--secondary")
     }
 
-    "must render the same content via the render method" in new Setup {
+    "must render the same content via the render method" in {
       val html: String = view.render(hmrcOnlineUrl, oaaUrl, request, msgs).toString
 
       html must include(msgs("noAuthorisedClients.heading"))
     }
 
-    "must render the same content via the f method" in new Setup {
+    "must render the same content via the f method" in {
       val html: String = view.f(hmrcOnlineUrl, oaaUrl)(request, msgs).toString
 
       html must include(msgs("noAuthorisedClients.heading"))
     }
 
-    "must return itself via the ref method" in new Setup {
+    "must return itself via the ref method" in {
       view.ref mustBe view
     }
   }
 
-  trait Setup {
-    val app: Application             = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-    implicit val request: Request[?] = FakeRequest()
-    implicit val msgs: Messages      = messages(app)
-
-    val view: NoAuthorisedClientsView = app.injector.instanceOf[NoAuthorisedClientsView]
-  }
 }

@@ -16,27 +16,33 @@
 
 package models
 
-import pages.AgentSelectedClientPage
+import pages.{AgentSelectedClientPage, IsDeregisteredPage}
 import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments}
 
 final case class UserContext(
   userType: NovaUserType,
-  selectedClient: Option[AgentSelectedClient]
+  selectedClient: Option[AgentSelectedClient],
+  isDeregistered: Boolean,
+  isAgentWithClientNoEnrolments: Boolean
 ) {
-  def isAgent: Boolean              = userType == NovaUserType.Agent
-  def isAgentWithClient: Boolean    = isAgent && selectedClient.isDefined
-  def isAgentWithoutClient: Boolean = isAgent && selectedClient.isEmpty
-
+  def isAgent: Boolean                     = userType == NovaUserType.Agent
+  def isAgentWithClient: Boolean           = isAgent && selectedClient.isDefined
+  def isAgentWithoutClient: Boolean        = isAgent && selectedClient.isEmpty
   def isVatRegisteredOrganisation: Boolean = userType == NovaUserType.VatRegisteredOrganisation
 }
 
 object UserContext {
 
-  def from(affinityGroup: AffinityGroup, enrolments: Enrolments, userAnswers: UserAnswers): UserContext =
+  def from(affinityGroup: AffinityGroup, enrolments: Enrolments, userAnswers: UserAnswers): UserContext = {
+    val selectedClient = userAnswers.get(AgentSelectedClientPage)
+
     UserContext(
       userType = NovaUserType.from(affinityGroup, enrolments),
-      selectedClient = userAnswers.get(AgentSelectedClientPage)
+      selectedClient = selectedClient,
+      isDeregistered = userAnswers.get(IsDeregisteredPage).getOrElse(false),
+      isAgentWithClientNoEnrolments = affinityGroup == AffinityGroup.Agent && selectedClient.isDefined && !enrolments.enrolments.exists(_.isActivated)
     )
+  }
 
   val agentMustHaveClient: UserContext => Boolean =
     ctx => !ctx.isAgent || ctx.selectedClient.isDefined

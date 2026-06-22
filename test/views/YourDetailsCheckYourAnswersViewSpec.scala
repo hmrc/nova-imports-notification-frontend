@@ -17,67 +17,76 @@
 package views
 
 import base.SpecBase
-import models.{UserAnswers, UserContext}
+import models.{NameDetails, UserAnswers, UserContext}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.must.Matchers
-import pages.sections.initialquestions.VehicleFromEuPage
+import pages.sections.notifierDetails.{EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 import play.api.Application
 import play.api.i18n.Messages
 import play.api.mvc.Request
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments}
-import views.html.InitialQuestionsCheckYourAnswersView
+import views.html.YourDetailsCheckYourAnswersView
 
 import scala.concurrent.Await
 import scala.concurrent.duration.DurationInt
 
-class InitialQuestionsCheckYourAnswersViewSpec extends SpecBase with Matchers with BeforeAndAfterAll {
+class YourDetailsCheckYourAnswersViewSpec extends SpecBase with Matchers with BeforeAndAfterAll {
 
   val app: Application             = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
   implicit val request: Request[?] = FakeRequest()
   implicit val msgs: Messages      = messages(app)
 
-  val answers: UserAnswers     = emptyUserAnswers.set(VehicleFromEuPage, true).success.value
+  val answers: UserAnswers = emptyUserAnswers
+    .set(NameDetailsPage, NameDetails("Mr", "John", "Smith"))
+    .success
+    .value
+    .set(PhoneNumberPage, "01632 960 001")
+    .success
+    .value
+    .set(EmailAddressPage, "name@example.com")
+    .success
+    .value
   val userContext: UserContext = UserContext.from(AffinityGroup.Individual, Enrolments(Set.empty), answers)
 
-  val view: InitialQuestionsCheckYourAnswersView = app.injector.instanceOf[InitialQuestionsCheckYourAnswersView]
+  val view: YourDetailsCheckYourAnswersView = app.injector.instanceOf[YourDetailsCheckYourAnswersView]
 
   override def afterAll(): Unit = {
     Await.result(app.stop(), 10.seconds)
     super.afterAll()
   }
 
-  "InitialQuestionsCheckYourAnswersView" - {
+  "YourDetailsCheckYourAnswersView" - {
 
     "must render the correct heading" in {
       val html: String = view(userContext, answers)(request, msgs).toString
 
-      html must include(msgs("initialQuestionsCheckYourAnswers.heading"))
+      html must include(msgs("yourDetailsCheckYourAnswers.heading"))
     }
 
     "must render the correct page title" in {
       val html: String = view(userContext, answers)(request, msgs).toString
 
-      html must include(msgs("initialQuestionsCheckYourAnswers.title"))
+      html must include(msgs("yourDetailsCheckYourAnswers.title"))
     }
 
     "must render the caption" in {
       val html: String = view(userContext, answers)(request, msgs).toString
 
-      html must include(msgs("initialQuestionsCheckYourAnswers.caption"))
+      html must include(msgs("yourDetailsCheckYourAnswers.caption"))
       html must include("govuk-caption-l")
     }
 
     "must render the same content via the render method" in {
       val html: String = view.render(userContext, answers, request, msgs).toString
 
-      html must include(msgs("initialQuestionsCheckYourAnswers.heading"))
+      html must include(msgs("yourDetailsCheckYourAnswers.heading"))
     }
 
     "must render the same content via the f method" in {
       val html: String = view.f(userContext, answers)(request, msgs).toString
 
-      html must include(msgs("initialQuestionsCheckYourAnswers.heading"))
+      html must include(msgs("yourDetailsCheckYourAnswers.heading"))
     }
 
     "must return itself via the ref method" in {

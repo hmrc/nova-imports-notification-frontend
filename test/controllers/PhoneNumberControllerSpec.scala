@@ -21,7 +21,7 @@ import com.google.inject.name.Names
 import controllers.actions.*
 import forms.PhoneNumberFormProvider
 import models.requests.IdentifierRequest
-import models.{AgentSelectedClient, NormalMode, PurchaserOrOnBehalf, UserAnswers}
+import models.{AgentSelectedClient, DraftId, NormalMode, PurchaserOrOnBehalf, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -50,8 +50,10 @@ class PhoneNumberControllerSpec extends SpecBase with MockitoSugar {
 
   val validPhoneNumber = "01632 960 001"
 
+  val baseRequiredAnswers: UserAnswers = UserAnswers(userAnswersId).set(DraftIdPage, DraftId("DRAFT-001")).success.value
+
   val answersForIndividual: UserAnswers =
-    emptyUserAnswers.set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser).success.value
+    baseRequiredAnswers.set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser).success.value
 
   lazy val phoneNumberRoute       = routes.PhoneNumberController.onPageLoad(NormalMode).url
   lazy val phoneNumberSubmitRoute = routes.PhoneNumberController.onSubmit(NormalMode).url
@@ -174,7 +176,7 @@ class PhoneNumberControllerSpec extends SpecBase with MockitoSugar {
 
         "must allow access when OQ1 has been answered" in {
 
-          val answers = emptyUserAnswers.set(VehicleBusinessUsePage, true).success.value
+          val answers = baseRequiredAnswers.set(VehicleBusinessUsePage, true).success.value
 
           val application = vatTraderApplicationBuilder(Some(answers)).build()
 
@@ -188,7 +190,7 @@ class PhoneNumberControllerSpec extends SpecBase with MockitoSugar {
 
         "must redirect to Unauthorised when OQ1 has not been answered" in {
 
-          val application = vatTraderApplicationBuilder(Some(emptyUserAnswers)).build()
+          val application = vatTraderApplicationBuilder(Some(baseRequiredAnswers)).build()
 
           running(application) {
             val request = FakeRequest(GET, phoneNumberRoute)
@@ -206,7 +208,7 @@ class PhoneNumberControllerSpec extends SpecBase with MockitoSugar {
 
         "must allow access when AQ1 has been answered" in {
 
-          val answers = emptyUserAnswers
+          val answers = baseRequiredAnswers
             .set(AgentSelectedClientPage, client)
             .success
             .value
@@ -226,9 +228,49 @@ class PhoneNumberControllerSpec extends SpecBase with MockitoSugar {
 
         "must redirect to Unauthorised when AQ1 has not been answered" in {
 
-          val answers = emptyUserAnswers.set(AgentSelectedClientPage, client).success.value
+          val answers = baseRequiredAnswers.set(AgentSelectedClientPage, client).success.value
 
           val application = agentApplicationBuilder(Some(answers)).build()
+
+          running(application) {
+            val request = FakeRequest(GET, phoneNumberRoute)
+            val result  = route(application, request).value
+
+            status(result) mustEqual SEE_OTHER
+            redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+          }
+        }
+      }
+
+      "for an Agent with no enrolments and has a selected client" - {
+
+        val client = AgentSelectedClient(vrn = "GB123456789", name = Some("Acme Ltd"))
+
+        "must allow access to phone number page when AQ1 has been answered" in {
+
+          val answers = baseRequiredAnswers
+            .set(AgentSelectedClientPage, client)
+            .success
+            .value
+            .set(AgentClientVehicleBusinessUsePage, true)
+            .success
+            .value
+
+          val application = agentNoEnrolmentsApplicationBuilder(Some(answers)).build()
+
+          running(application) {
+            val request = FakeRequest(GET, phoneNumberRoute)
+            val result  = route(application, request).value
+
+            status(result) mustEqual OK
+          }
+        }
+
+        "must redirect to Unauthorised when AQ1 has not been answered" in {
+
+          val answers = baseRequiredAnswers.set(AgentSelectedClientPage, client).success.value
+
+          val application = agentNoEnrolmentsApplicationBuilder(Some(answers)).build()
 
           running(application) {
             val request = FakeRequest(GET, phoneNumberRoute)
@@ -244,7 +286,7 @@ class PhoneNumberControllerSpec extends SpecBase with MockitoSugar {
 
         "must allow access when IQ3 = Purchaser" in {
 
-          val answers = emptyUserAnswers.set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser).success.value
+          val answers = baseRequiredAnswers.set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser).success.value
 
           val application = applicationBuilder(userAnswers = Some(answers)).build()
 
@@ -258,7 +300,7 @@ class PhoneNumberControllerSpec extends SpecBase with MockitoSugar {
 
         "must allow access when IQ3 = OnBehalfOfPurchaser and IQ3.1 is answered" in {
 
-          val answers = emptyUserAnswers
+          val answers = baseRequiredAnswers
             .set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
             .success
             .value
@@ -278,7 +320,7 @@ class PhoneNumberControllerSpec extends SpecBase with MockitoSugar {
 
         "must redirect to Unauthorised when IQ3 has not been answered" in {
 
-          val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+          val application = applicationBuilder(userAnswers = Some(baseRequiredAnswers)).build()
 
           running(application) {
             val request = FakeRequest(GET, phoneNumberRoute)
@@ -292,7 +334,7 @@ class PhoneNumberControllerSpec extends SpecBase with MockitoSugar {
         "must redirect to Unauthorised when IQ3 = OnBehalfOfPurchaser but IQ3.1 has not been answered" in {
 
           val answers =
-            emptyUserAnswers.set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser).success.value
+            baseRequiredAnswers.set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser).success.value
 
           val application = applicationBuilder(userAnswers = Some(answers)).build()
 
@@ -305,6 +347,7 @@ class PhoneNumberControllerSpec extends SpecBase with MockitoSugar {
           }
         }
       }
+
     }
 
     "must redirect to Unauthorised when the user is OGD (user type 7+)" in {
@@ -352,6 +395,18 @@ class PhoneNumberControllerSpec extends SpecBase with MockitoSugar {
         bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeAgentIdentifierAction],
         bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeAgentIdentifierAction],
         bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeAgentIdentifierAction],
+        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
+      )
+
+  private def agentNoEnrolmentsApplicationBuilder(userAnswers: Option[UserAnswers]): GuiceApplicationBuilder =
+    new GuiceApplicationBuilder()
+      .overrides(
+        bind[DataRequiredAction].to[DataRequiredActionImpl],
+        bind[IdentifierAction].to[FakeAgentNoEnrolmentsIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("standard")).to[FakeAgentNoEnrolmentsIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeAgentNoEnrolmentsIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeAgentNoEnrolmentsIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeAgentNoEnrolmentsIdentifierAction],
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
       )
 }

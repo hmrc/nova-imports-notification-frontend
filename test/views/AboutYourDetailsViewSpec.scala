@@ -17,6 +17,7 @@
 package views
 
 import base.SpecBase
+import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.must.Matchers
 import play.api.Application
 import play.api.i18n.Messages
@@ -24,61 +25,68 @@ import play.api.mvc.Request
 import play.api.test.FakeRequest
 import views.html.AboutYourDetailsView
 
-class AboutYourDetailsViewSpec extends SpecBase with Matchers {
+import scala.concurrent.Await
+import scala.concurrent.duration.DurationInt
+
+class AboutYourDetailsViewSpec extends SpecBase with Matchers with BeforeAndAfterAll {
+
+  val app: Application             = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+  implicit val request: Request[?] = FakeRequest()
+  implicit val msgs: Messages      = messages(app)
+
+  val view: AboutYourDetailsView = app.injector.instanceOf[AboutYourDetailsView]
+
+  override def afterAll(): Unit = {
+    Await.result(app.stop(), 10.seconds)
+    super.afterAll()
+  }
 
   "AboutYourDetailsView" - {
 
-    "must render the correct heading" in new Setup {
+    "must render the correct heading" in {
       val html: String = view().toString
       html must include(msgs("aboutYourDetails.heading"))
     }
 
-    "must render the correct page title" in new Setup {
+    "must render the correct page title" in {
       val html: String = view().toString
       html must include(msgs("aboutYourDetails.title"))
     }
 
-    "must render the correct page caption" in new Setup {
+    "must render the correct page caption" in {
       val html: String = view().toString
       html must include("govuk-caption-l")
       html must include(msgs("aboutYourDetails.caption"))
     }
 
-    "must render the first paragraph" in new Setup {
+    "must render the first paragraph" in {
       val html: String = view().toString
       html must include(msgs("aboutYourDetails.paragraph.1"))
     }
 
-    "must render the second paragraph" in new Setup {
+    "must render the second paragraph" in {
       val html: String = view().toString
       html must include(msgs("aboutYourDetails.paragraph.2"))
     }
 
-    "must render the Continue button" in new Setup {
+    "must render the Continue button" in {
       val html: String = view().toString
       html must include(msgs("site.continue"))
     }
 
-    "must render the same content via the render method" in new Setup {
+    "must render the same content via the render method" in {
       val html: String = view.render(request, msgs).toString
       html must include(msgs("aboutYourDetails.heading"))
     }
 
-    "must render the same content via the f method" in new Setup {
+    "must render the same content via the f method" in {
       val html: String = view.f(request, msgs).toString
       html must include(msgs("aboutYourDetails.heading"))
     }
 
-    "must return itself via the ref method" in new Setup {
+    "must return itself via the ref method" in {
       view.ref mustBe view
     }
   }
 
-  trait Setup {
-    val app: Application             = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-    implicit val request: Request[?] = FakeRequest()
-    implicit val msgs: Messages      = messages(app)
-
-    val view: AboutYourDetailsView = app.injector.instanceOf[AboutYourDetailsView]
-  }
 }
