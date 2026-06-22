@@ -25,7 +25,7 @@ import models.requests.DataRequest
 import models.{BusinessOrPrivateIndividual, NovaUserType, UserAnswers, UserContext}
 import pages.*
 import pages.sections.notifierDetails.*
-import pages.sections.initialquestions.{BusinessOrPrivatePage, VehicleBusinessUsePage, VehicleFromEuPage}
+import pages.sections.initialquestions.{BusinessOrPrivatePage, VehicleBusinessUsePage}
 import play.api.libs.json.{JsObject, Json}
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -94,26 +94,17 @@ object YourDetailsCheckYourAnswersController {
     val answers     = request.userAnswers
     val userContext = request.userContext
 
-    IsDraftIdDefined(answers) && {
-      if (userContext.isDeregistered)
-        deregisteredOrganisationAnswersComplete(answers)
-      else
-        userContext.userType match {
-          case NovaUserType.PrivateIndividual | NovaUserType.NonVatOrganisation =>
-            standardUserAnswersComplete(answers)
-          case NovaUserType.Agent if userContext.isAgentWithoutClient =>
-            agentWithoutClientAnswersComplete(answers)
-          case NovaUserType.VatRegisteredOrganisation =>
-            vatRegisteredOrgAnswersComplete(answers)
-          case NovaUserType.Agent =>
-            agentWithClientAnswersComplete(answers)
-        }
-    }
+    IsDraftIdDefined(answers) && (userContext match {
+      case ctx if ctx.isAgentWithNoEnrolments     => agentWithoutEnrolmentsAnswersComplete(answers)
+      case ctx if ctx.isVatRegisteredOrganisation => vatRegisteredOrgAnswersComplete(answers)
+      case ctx if ctx.isAgentWithoutClient        => agentWithoutClientAnswersComplete(answers)
+      case ctx if ctx.isAgentWithClient           => agentWithClientAnswersComplete(answers)
+      case _                                      => standardUserAnswersComplete(answers)
+    })
   }
 
-  private def deregisteredOrganisationAnswersComplete(answers: UserAnswers): Boolean =
-    answers.get(VehicleFromEuPage).contains(true) &&
-      answers.get(NameDetailsPage).isDefined &&
+  private def agentWithoutEnrolmentsAnswersComplete(answers: UserAnswers): Boolean =
+    answers.get(AgentClientVehicleBusinessUsePage).isDefined &&
       answers.get(PhoneNumberPage).isDefined &&
       answers.get(EmailAddressPage).isDefined
 

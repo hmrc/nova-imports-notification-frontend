@@ -28,6 +28,14 @@ class UserContextSpec extends SpecBase {
     Set(Enrolment("HMRC-MTD-VAT", Seq(EnrolmentIdentifier("VRN", "123")), "Activated"))
   )
 
+  private val activeAgentEnrolment = Enrolments(
+    Set(Enrolment("HMCE-VAT-AGNT", Seq(EnrolmentIdentifier("AgentRefNo", "AB123")), "Activated"))
+  )
+
+  private val inactiveAgentEnrolment = Enrolments(
+    Set(Enrolment("HMCE-VAT-AGNT", Seq(EnrolmentIdentifier("AgentRefNo", "AB123")), "NotYetActivated"))
+  )
+
   private val sampleClient = AgentSelectedClient("GB123456789", Some("Acme Ltd"))
 
   private def answersWith(client: AgentSelectedClient): UserAnswers =
@@ -77,6 +85,26 @@ class UserContextSpec extends SpecBase {
       val answers = emptyUserAnswers.set(IsDeregisteredPage, true).success.value
       val ctx     = UserContext.from(AffinityGroup.Organisation, vatEnrolment, answers)
       ctx.isDeregistered mustBe true
+    }
+
+    "marks an Agent with no enrolments as isAgentWithNoEnrolments" in {
+      val ctx = UserContext.from(AffinityGroup.Agent, noEnrolments, answersWith(sampleClient))
+      ctx.isAgentWithNoEnrolments mustBe true
+    }
+
+    "marks an Agent whose only enrolment is not activated as isAgentWithNoEnrolments" in {
+      val ctx = UserContext.from(AffinityGroup.Agent, inactiveAgentEnrolment, answersWith(sampleClient))
+      ctx.isAgentWithNoEnrolments mustBe true
+    }
+
+    "does not mark an Agent with an active enrolment as isAgentWithNoEnrolments" in {
+      val ctx = UserContext.from(AffinityGroup.Agent, activeAgentEnrolment, answersWith(sampleClient))
+      ctx.isAgentWithNoEnrolments mustBe false
+    }
+
+    "does not mark a non-Agent as isAgentWithNoEnrolments" in {
+      val ctx = UserContext.from(AffinityGroup.Organisation, noEnrolments, emptyUserAnswers)
+      ctx.isAgentWithNoEnrolments mustBe false
     }
   }
 

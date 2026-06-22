@@ -51,14 +51,11 @@ class Navigator @Inject() () {
         }
     case AboutYourDetailsPage =>
       (userAnswers, _) =>
-        if (userAnswers.get(IsDeregisteredPage).contains(true))
-          routes.AddYourNameController.onPageLoad(NormalMode)
-        else
-          userAnswers.get(VehicleBusinessUsePage) match {
-            case Some(true)  => routes.PhoneNumberController.onPageLoad(NormalMode)
-            case Some(false) => routes.AddYourNameController.onPageLoad(NormalMode)
-            case _           => routes.JourneyRecoveryController.onPageLoad()
-          }
+        userAnswers.get(VehicleBusinessUsePage) match {
+          case Some(true)  => routes.PhoneNumberController.onPageLoad(NormalMode)
+          case Some(false) => routes.AddYourNameController.onPageLoad(NormalMode)
+          case _           => routes.JourneyRecoveryController.onPageLoad()
+        }
     case NameDetailsPage =>
       (_, _) => routes.PhoneNumberController.onPageLoad(NormalMode)
     case PhoneNumberPage =>

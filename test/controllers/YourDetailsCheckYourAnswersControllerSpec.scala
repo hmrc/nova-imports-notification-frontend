@@ -27,7 +27,7 @@ import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.*
 import pages.sections.notifierDetails.{EmailAddressPage, NameDetailsPage, PhoneNumberPage}
-import pages.sections.initialquestions.{BusinessOrPrivatePage, VehicleBusinessUsePage, VehicleFromEuPage}
+import pages.sections.initialquestions.{BusinessOrPrivatePage, VehicleBusinessUsePage}
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -39,14 +39,515 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 
+import YourDetailsCheckYourAnswersControllerSpec.*
+
 class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSugar {
 
-  private lazy val yourDetailsCyaRoute = routes.YourDetailsCheckYourAnswersController.onPageLoad().url
+  private lazy val yourDetailsCheckYourAnswersRoute = routes.YourDetailsCheckYourAnswersController.onPageLoad().url
+
+  private def applicationForPageLoad(
+    identifierAction: Class[? <: IdentifierAction],
+    userAnswers: Option[UserAnswers]
+  ): Application =
+    applicationForSubmit(identifierAction, userAnswers, mock[NovaImportsBackendConnector])
+
+  private def applicationForSubmit(
+    identifierAction: Class[? <: IdentifierAction],
+    userAnswers: Option[UserAnswers],
+    connector: NovaImportsBackendConnector
+  ): Application =
+    new GuiceApplicationBuilder()
+      .overrides(
+        bind[DataRequiredAction].to[DataRequiredActionImpl],
+        bind[IdentifierAction].to(identifierAction),
+        bind[IdentifierAction].qualifiedWith(Names.named("standard")).to(identifierAction),
+        bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
+        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers)),
+        bind[NovaImportsBackendConnector].toInstance(connector)
+      )
+      .build()
+
+  "YourDetailsCheckYourAnswersController" - {
+
+    "onPageLoad" - {
+
+      "for a VatRegisteredOrganisation with vehicle for business use must return OK with phone and email but no name" in {
+        given application: Application = applicationForPageLoad(classOf[FakeVatTraderIdentifierAction], Some(vatOrgNoNameAnswers))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, yourDetailsCheckYourAnswersRoute)
+
+          val result = route(application, request).value
+          val body   = contentAsString(result)
+
+          status(result) mustEqual OK
+          body must include("Check your answers")
+          body must include("Phone number")
+          body must include("Email address")
+          body must include(phone)
+          body must include(email)
+          body must not include "Smith"
+        }
+      }
+
+      "for a VatRegisteredOrganisation whose vehicle is not for business use must return OK with the name row" in {
+        given application: Application = applicationForPageLoad(classOf[FakeVatTraderIdentifierAction], Some(vatOrgWithNameAnswers))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, yourDetailsCheckYourAnswersRoute)
+
+          val result = route(application, request).value
+          val body   = contentAsString(result)
+
+          status(result) mustEqual OK
+          body must include("Check your answers")
+          body must (include("Mr") and include("John") and include("Smith"))
+          body must include(phone)
+          body must include(email)
+        }
+      }
+
+      "for a PrivateIndividual must return OK with the name row" in {
+        given application: Application = applicationForPageLoad(classOf[FakeIdentifierAction], Some(individualWithNameAnswers))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, yourDetailsCheckYourAnswersRoute)
+
+          val result = route(application, request).value
+          val body   = contentAsString(result)
+
+          status(result) mustEqual OK
+          body must include("Check your answers")
+          body must include("Smith")
+          body must include(phone)
+          body must include(email)
+        }
+      }
+
+      "for Agent with client vehicle that is not for business use must return OK with the name row" in {
+        given application: Application = applicationForPageLoad(classOf[FakeAgentIdentifierAction], Some(agentWithClientAnswers))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, yourDetailsCheckYourAnswersRoute)
+
+          val result = route(application, request).value
+          val body   = contentAsString(result)
+
+          status(result) mustEqual OK
+          body must (include("Mr") and include("John") and include("Smith"))
+          body must include(phone)
+          body must include(email)
+        }
+      }
+
+      "for an Agent with client vehicle that is for business use must return OK with phone and email but no name" in {
+        given application: Application = applicationForPageLoad(classOf[FakeAgentIdentifierAction], Some(agentNoNameAnswers))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, yourDetailsCheckYourAnswersRoute)
+
+          val result = route(application, request).value
+          val body   = contentAsString(result)
+
+          status(result) mustEqual OK
+          body must include("Check your answers")
+          body must include("Phone number")
+          body must include("Email address")
+          body must include(phone)
+          body must include(email)
+          body must not include "Smith"
+        }
+      }
+
+      "for an Agent with no enrolments must return OK with phone and email entered but no name entered" in {
+        given application: Application =
+          applicationForPageLoad(classOf[FakeAgentNoEnrolmentsIdentifierAction], Some(agentNoEnrolmentsAnswers))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, yourDetailsCheckYourAnswersRoute)
+
+          val result = route(application, request).value
+          val body   = contentAsString(result)
+
+          status(result) mustEqual OK
+          body must include("Check your answers")
+          body must include("Phone number")
+          body must include("Email address")
+          body must include(phone)
+          body must include(email)
+          body must not include "Smith"
+        }
+      }
+
+      "for an Agent with no enrolments who has not provided an email must redirect to Unauthorised" in {
+        given application: Application =
+          applicationForPageLoad(classOf[FakeAgentNoEnrolmentsIdentifierAction], Some(agentNoEnrolmentsNoEmailAnswers))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, yourDetailsCheckYourAnswersRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+        }
+      }
+
+      "must redirect to Journey Recovery if no existing data is found" in {
+        given application: Application = applicationBuilder(userAnswers = None).build()
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, yourDetailsCheckYourAnswersRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+        }
+      }
+
+      "must redirect to Unauthorised for a standard user who has not answered any questions" in {
+        given application: Application = applicationForPageLoad(classOf[FakeIdentifierAction], Some(emptyUserAnswers))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, yourDetailsCheckYourAnswersRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+        }
+      }
+
+      "must redirect to Unauthorised for a standard user who has not provided an email" in {
+        val answers = emptyUserAnswers
+          .set(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business)
+          .success
+          .value
+          .set(PhoneNumberPage, phone)
+          .success
+          .value
+          .set(DraftIdPage, DraftId("DRAFT-001"))
+          .success
+          .value
+
+        given application: Application = applicationForPageLoad(classOf[FakeIdentifierAction], Some(answers))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, yourDetailsCheckYourAnswersRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+        }
+      }
+
+      "must redirect to Unauthorised for a VatRegisteredOrganisation that should have a name but does not have one" in {
+        val answers = emptyUserAnswers
+          .set(VehicleBusinessUsePage, false)
+          .success
+          .value
+          .set(PhoneNumberPage, phone)
+          .success
+          .value
+          .set(EmailAddressPage, email)
+          .success
+          .value
+          .set(DraftIdPage, DraftId("DRAFT-001"))
+          .success
+          .value
+
+        given application: Application = applicationForPageLoad(classOf[FakeVatTraderIdentifierAction], Some(answers))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, yourDetailsCheckYourAnswersRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+        }
+      }
+
+      "must redirect to Unauthorised for a VAT reg org that has set a name but should not (vehicle for business use = true)" in {
+        val answers = emptyUserAnswers
+          .set(VehicleBusinessUsePage, true)
+          .success
+          .value
+          .set(NameDetailsPage, name)
+          .success
+          .value
+          .set(PhoneNumberPage, phone)
+          .success
+          .value
+          .set(EmailAddressPage, email)
+          .success
+          .value
+          .set(DraftIdPage, DraftId("DRAFT-001"))
+          .success
+          .value
+
+        given application: Application = applicationForPageLoad(classOf[FakeVatTraderIdentifierAction], Some(answers))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, yourDetailsCheckYourAnswersRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+        }
+      }
+    }
+
+    "onSubmit" - {
+
+      "when succeeds must redirect to NTL for a VatRegisteredOrganisation" in {
+        val connector = mock[NovaImportsBackendConnector]
+        when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
+          .thenReturn(Future.successful(Right(2L)))
+
+        given application: Application = applicationForSubmit(classOf[FakeVatTraderIdentifierAction], Some(vatOrgWithNameAnswers), connector)
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, yourDetailsCheckYourAnswersRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.NotificationTaskListController.onPageLoad().url
+        }
+      }
+
+      // TODO: Update route when downstream NTL screens are ready
+      "when succeeds must redirect to the correct downstream Page for a PrivateIndividual" in {
+        val connector = mock[NovaImportsBackendConnector]
+        when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
+          .thenReturn(Future.successful(Right(2L)))
+
+        given application: Application = applicationForSubmit(classOf[FakeIdentifierAction], Some(individualWithNameAnswers), connector)
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, yourDetailsCheckYourAnswersRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.LandingPageController.onPageLoad().url
+        }
+      }
+
+      // TODO: Update route when downstream NTL screens are ready
+      "when succeeds must redirect to the correct downstream Page for an Agent with a selected client" in {
+        val connector = mock[NovaImportsBackendConnector]
+        when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
+          .thenReturn(Future.successful(Right(2L)))
+
+        given application: Application = applicationForSubmit(classOf[FakeAgentIdentifierAction], Some(agentWithClientAnswers), connector)
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, yourDetailsCheckYourAnswersRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.LandingPageController.onPageLoad().url
+        }
+      }
+
+      // TODO: Update route when downstream NTL screens are ready
+      "when succeeds must redirect to the correct downstream Page for an Agent with no enrolments" in {
+        val connector = mock[NovaImportsBackendConnector]
+        when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
+          .thenReturn(Future.successful(Right(2L)))
+
+        given application: Application =
+          applicationForSubmit(classOf[FakeAgentNoEnrolmentsIdentifierAction], Some(agentNoEnrolmentsAnswers), connector)
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, yourDetailsCheckYourAnswersRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.LandingPageController.onPageLoad().url
+        }
+      }
+
+      "when the backend call returns an UpstreamError must redirect to Journey Recovery" in {
+        val connector = mock[NovaImportsBackendConnector]
+        when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
+          .thenReturn(Future.successful(Left(UpdateSectionError.UpstreamError(500, "error"))))
+
+        given application: Application = applicationForSubmit(classOf[FakeVatTraderIdentifierAction], Some(vatOrgWithNameAnswers), connector)
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, yourDetailsCheckYourAnswersRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+        }
+      }
+
+      "when the backend call returns Forbidden must redirect to Journey Recovery" in {
+        val connector = mock[NovaImportsBackendConnector]
+        when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
+          .thenReturn(Future.successful(Left(UpdateSectionError.Forbidden)))
+
+        given application: Application = applicationForSubmit(classOf[FakeVatTraderIdentifierAction], Some(vatOrgWithNameAnswers), connector)
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, yourDetailsCheckYourAnswersRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+        }
+      }
+
+      "when the backend call returns NotFound must redirect to Journey Recovery" in {
+        val connector = mock[NovaImportsBackendConnector]
+        when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
+          .thenReturn(Future.successful(Left(UpdateSectionError.NotFound)))
+
+        given application: Application = applicationForSubmit(classOf[FakeVatTraderIdentifierAction], Some(vatOrgWithNameAnswers), connector)
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, yourDetailsCheckYourAnswersRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+        }
+      }
+
+      "must redirect to Unauthorised if DraftId is missing" in {
+        val answersWithoutDraftId = emptyUserAnswers
+          .set(VehicleBusinessUsePage, true)
+          .success
+          .value
+          .set(PhoneNumberPage, phone)
+          .success
+          .value
+          .set(EmailAddressPage, email)
+          .success
+          .value
+
+        given application: Application =
+          applicationForSubmit(classOf[FakeVatTraderIdentifierAction], Some(answersWithoutDraftId), mock[NovaImportsBackendConnector])
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, yourDetailsCheckYourAnswersRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+        }
+      }
+
+      "must send the correct individual notifier-details body with the current versionId" in {
+        val connector = mock[NovaImportsBackendConnector]
+        when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
+          .thenReturn(Future.successful(Right(2L)))
+
+        given application: Application = applicationForSubmit(classOf[FakeVatTraderIdentifierAction], Some(vatOrgWithNameAnswers), connector)
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, yourDetailsCheckYourAnswersRoute)
+
+          val result = route(application, request).value
+          status(result) mustEqual SEE_OTHER
+
+          val bodyCaptor = ArgumentCaptor.forClass(classOf[JsObject])
+          verify(connector).updateDraftSection(any[DraftId], eqTo("notifier-details"), bodyCaptor.capture())(any[HeaderCarrier])
+          val sentBody = bodyCaptor.getValue
+
+          (sentBody \ "versionId").as[Long] mustEqual 1L
+          (sentBody \ "title").as[String] mustEqual "Mr"
+          (sentBody \ "firstName").as[String] mustEqual "John"
+          (sentBody \ "lastName").as[String] mustEqual "Smith"
+          (sentBody \ "phoneNumber").as[String] mustEqual phone
+          (sentBody \ "emailAddress").as[String] mustEqual email
+        }
+      }
+
+      "must send an organisation notifier-details body (no name fields) when no name was provided" in {
+        val connector = mock[NovaImportsBackendConnector]
+        when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
+          .thenReturn(Future.successful(Right(2L)))
+
+        given application: Application = applicationForSubmit(classOf[FakeVatTraderIdentifierAction], Some(vatOrgNoNameAnswers), connector)
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, yourDetailsCheckYourAnswersRoute)
+
+          val result = route(application, request).value
+          status(result) mustEqual SEE_OTHER
+
+          val bodyCaptor = ArgumentCaptor.forClass(classOf[JsObject])
+          verify(connector).updateDraftSection(any[DraftId], eqTo("notifier-details"), bodyCaptor.capture())(any[HeaderCarrier])
+          val sentBody = bodyCaptor.getValue
+
+          (sentBody \ "phoneNumber").as[String] mustEqual phone
+          (sentBody \ "emailAddress").as[String] mustEqual email
+          (sentBody \ "title").toOption mustBe None
+          (sentBody \ "firstName").toOption mustBe None
+          (sentBody \ "lastName").toOption mustBe None
+        }
+      }
+
+      "must redirect to Journey Recovery if the versionId is missing" in {
+        val answersWithoutVersionId = emptyUserAnswers
+          .set(VehicleBusinessUsePage, false)
+          .success
+          .value
+          .set(NameDetailsPage, name)
+          .success
+          .value
+          .set(PhoneNumberPage, phone)
+          .success
+          .value
+          .set(EmailAddressPage, email)
+          .success
+          .value
+          .set(DraftIdPage, DraftId("DRAFT-001"))
+          .success
+          .value
+
+        given application: Application =
+          applicationForSubmit(classOf[FakeVatTraderIdentifierAction], Some(answersWithoutVersionId), mock[NovaImportsBackendConnector])
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, yourDetailsCheckYourAnswersRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+        }
+      }
+    }
+  }
+}
+
+object YourDetailsCheckYourAnswersControllerSpec {
+
+  import org.scalatest.TryValues.*
 
   private val name         = NameDetails("Mr", "John", "Smith")
   private val phone        = "01632 960 001"
   private val email        = "name@example.com"
   private val sampleClient = AgentSelectedClient(vrn = "123456789", name = Some("ABC Ltd"))
+
+  private val emptyUserAnswers = UserAnswers("id")
 
   private val vatOrgNoNameAnswers = emptyUserAnswers
     .set(VehicleBusinessUsePage, true)
@@ -150,24 +651,17 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
     .success
     .value
 
-  // deregistered org: answered IQ1 (VehicleFromEu) yes, name required also for a deregistered org.
-  private val deregisteredOrgAnswers = emptyUserAnswers
-    .set(IsDeregisteredPage, true)
-    .success
-    .value
-    .set(VehicleFromEuPage, true)
-    .success
-    .value
-    .set(VehicleBusinessUsePage, true)
-    .success
-    .value
-    .set(NameDetailsPage, name)
+  private val agentNoEnrolmentsAnswers = emptyUserAnswers
+    .set(AgentClientVehicleBusinessUsePage, true)
     .success
     .value
     .set(PhoneNumberPage, phone)
     .success
     .value
     .set(EmailAddressPage, email)
+    .success
+    .value
+    .set(AgentSelectedClientPage, sampleClient)
     .success
     .value
     .set(DraftIdPage, DraftId("DRAFT-001"))
@@ -177,18 +671,14 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
     .success
     .value
 
-  // deregistered org that answered IQ1 yes but is missing the required name
-  private val deregisteredOrgNoNameAnswers = emptyUserAnswers
-    .set(IsDeregisteredPage, true)
-    .success
-    .value
-    .set(VehicleFromEuPage, true)
+  private val agentNoEnrolmentsNoEmailAnswers = emptyUserAnswers
+    .set(AgentClientVehicleBusinessUsePage, true)
     .success
     .value
     .set(PhoneNumberPage, phone)
     .success
     .value
-    .set(EmailAddressPage, email)
+    .set(AgentSelectedClientPage, sampleClient)
     .success
     .value
     .set(DraftIdPage, DraftId("DRAFT-001"))
@@ -197,524 +687,4 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
     .set(DraftVersionIdPage, 1L)
     .success
     .value
-
-  // deregistered org with all contact details but has not answered IQ1 (VehicleFromEu)
-  private val deregisteredOrgNoIq1Answer = emptyUserAnswers
-    .set(IsDeregisteredPage, true)
-    .success
-    .value
-    .set(NameDetailsPage, name)
-    .success
-    .value
-    .set(PhoneNumberPage, phone)
-    .success
-    .value
-    .set(EmailAddressPage, email)
-    .success
-    .value
-    .set(DraftIdPage, DraftId("DRAFT-001"))
-    .success
-    .value
-    .set(DraftVersionIdPage, 1L)
-    .success
-    .value
-
-  private def applicationForPageLoad(
-    identifierAction: Class[? <: IdentifierAction],
-    userAnswers: Option[UserAnswers]
-  ): Application =
-    applicationForSubmit(identifierAction, userAnswers, mock[NovaImportsBackendConnector])
-
-  private def applicationForSubmit(
-    identifierAction: Class[? <: IdentifierAction],
-    userAnswers: Option[UserAnswers],
-    connector: NovaImportsBackendConnector
-  ): Application =
-    new GuiceApplicationBuilder()
-      .overrides(
-        bind[DataRequiredAction].to[DataRequiredActionImpl],
-        bind[IdentifierAction].to(identifierAction),
-        bind[IdentifierAction].qualifiedWith(Names.named("standard")).to(identifierAction),
-        bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeIdentifierAction],
-        bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeIdentifierAction],
-        bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
-        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers)),
-        bind[NovaImportsBackendConnector].toInstance(connector)
-      )
-      .build()
-
-  "YourDetailsCheckYourAnswersController" - {
-
-    "onPageLoad" - {
-
-      "for a VatRegisteredOrganisation with vehicle for business use must return OK with phone and email but no name" in {
-        given application: Application = applicationForPageLoad(classOf[FakeVatTraderIdentifierAction], Some(vatOrgNoNameAnswers))
-
-        running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, yourDetailsCyaRoute)
-
-          val result = route(application, request).value
-          val body   = contentAsString(result)
-
-          status(result) mustEqual OK
-          body must include("Check your answers")
-          body must include("Phone number")
-          body must include("Email address")
-          body must include(phone)
-          body must include(email)
-          body must not include "Smith"
-        }
-      }
-
-      "for a VatRegisteredOrganisation whose vehicle is not for business use must return OK with the name row" in {
-        given application: Application = applicationForPageLoad(classOf[FakeVatTraderIdentifierAction], Some(vatOrgWithNameAnswers))
-
-        running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, yourDetailsCyaRoute)
-
-          val result = route(application, request).value
-          val body   = contentAsString(result)
-
-          status(result) mustEqual OK
-          body must include("Check your answers")
-          body must (include("Mr") and include("John") and include("Smith"))
-          body must include(phone)
-          body must include(email)
-        }
-      }
-
-      "for a deregistered Organisation must return OK with the name row" in {
-        given application: Application = applicationForPageLoad(classOf[FakeVatTraderIdentifierAction], Some(deregisteredOrgAnswers))
-
-        running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, yourDetailsCyaRoute)
-
-          val result = route(application, request).value
-          val body   = contentAsString(result)
-
-          status(result) mustEqual OK
-          body must include("Check your answers")
-          body must (include("Mr") and include("John") and include("Smith"))
-          body must include(phone)
-          body must include(email)
-        }
-      }
-
-      "for a deregistered Organisation without a name must redirect to Unauthorised" in {
-        given application: Application = applicationForPageLoad(classOf[FakeVatTraderIdentifierAction], Some(deregisteredOrgNoNameAnswers))
-
-        running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, yourDetailsCyaRoute)
-
-          val result = route(application, request).value
-
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
-        }
-      }
-
-      "for a deregistered Organisation that has not answered IQ1 must redirect to Unauthorised" in {
-        given application: Application = applicationForPageLoad(classOf[FakeVatTraderIdentifierAction], Some(deregisteredOrgNoIq1Answer))
-
-        running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, yourDetailsCyaRoute)
-
-          val result = route(application, request).value
-
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
-        }
-      }
-
-      "for a PrivateIndividual must return OK with the name row" in {
-        given application: Application = applicationForPageLoad(classOf[FakeIdentifierAction], Some(individualWithNameAnswers))
-
-        running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, yourDetailsCyaRoute)
-
-          val result = route(application, request).value
-          val body   = contentAsString(result)
-
-          status(result) mustEqual OK
-          body must include("Check your answers")
-          body must include("Smith")
-          body must include(phone)
-          body must include(email)
-        }
-      }
-
-      "for Agent with client vehicle that is not for business use must return OK with the name row" in {
-        given application: Application = applicationForPageLoad(classOf[FakeAgentIdentifierAction], Some(agentWithClientAnswers))
-
-        running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, yourDetailsCyaRoute)
-
-          val result = route(application, request).value
-          val body   = contentAsString(result)
-
-          status(result) mustEqual OK
-          body must (include("Mr") and include("John") and include("Smith"))
-          body must include(phone)
-          body must include(email)
-        }
-      }
-
-      "for an Agent with client vehicle that is for business use must return OK with phone and email but no name" in {
-        given application: Application = applicationForPageLoad(classOf[FakeAgentIdentifierAction], Some(agentNoNameAnswers))
-
-        running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, yourDetailsCyaRoute)
-
-          val result = route(application, request).value
-          val body   = contentAsString(result)
-
-          status(result) mustEqual OK
-          body must include("Check your answers")
-          body must include("Phone number")
-          body must include("Email address")
-          body must include(phone)
-          body must include(email)
-          body must not include "Smith"
-        }
-      }
-
-      "must redirect to Journey Recovery if no existing data is found" in {
-        given application: Application = applicationBuilder(userAnswers = None).build()
-
-        running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, yourDetailsCyaRoute)
-
-          val result = route(application, request).value
-
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
-        }
-      }
-
-      "must redirect to Unauthorised for a standard user who has not answered any questions" in {
-        given application: Application = applicationForPageLoad(classOf[FakeIdentifierAction], Some(emptyUserAnswers))
-
-        running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, yourDetailsCyaRoute)
-
-          val result = route(application, request).value
-
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
-        }
-      }
-
-      "must redirect to Unauthorised for a standard user who has not provided an email" in {
-        val answers = emptyUserAnswers
-          .set(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business)
-          .success
-          .value
-          .set(PhoneNumberPage, phone)
-          .success
-          .value
-          .set(DraftIdPage, DraftId("DRAFT-001"))
-          .success
-          .value
-
-        given application: Application = applicationForPageLoad(classOf[FakeIdentifierAction], Some(answers))
-
-        running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, yourDetailsCyaRoute)
-
-          val result = route(application, request).value
-
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
-        }
-      }
-
-      "must redirect to Unauthorised for a VatRegisteredOrganisation that should have a name but does not have one" in {
-        val answers = emptyUserAnswers
-          .set(VehicleBusinessUsePage, false)
-          .success
-          .value
-          .set(PhoneNumberPage, phone)
-          .success
-          .value
-          .set(EmailAddressPage, email)
-          .success
-          .value
-          .set(DraftIdPage, DraftId("DRAFT-001"))
-          .success
-          .value
-
-        given application: Application = applicationForPageLoad(classOf[FakeVatTraderIdentifierAction], Some(answers))
-
-        running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, yourDetailsCyaRoute)
-
-          val result = route(application, request).value
-
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
-        }
-      }
-
-      "must redirect to Unauthorised for a VAT reg org that has set a name but should not (vehicle for business use = true)" in {
-        val answers = emptyUserAnswers
-          .set(VehicleBusinessUsePage, true)
-          .success
-          .value
-          .set(NameDetailsPage, name)
-          .success
-          .value
-          .set(PhoneNumberPage, phone)
-          .success
-          .value
-          .set(EmailAddressPage, email)
-          .success
-          .value
-          .set(DraftIdPage, DraftId("DRAFT-001"))
-          .success
-          .value
-
-        given application: Application = applicationForPageLoad(classOf[FakeVatTraderIdentifierAction], Some(answers))
-
-        running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, yourDetailsCyaRoute)
-
-          val result = route(application, request).value
-
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
-        }
-      }
-    }
-
-    "onSubmit" - {
-
-      "when succeeds must redirect to NTL for a VatRegisteredOrganisation" in {
-        val connector = mock[NovaImportsBackendConnector]
-        when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
-          .thenReturn(Future.successful(Right(2L)))
-
-        given application: Application = applicationForSubmit(classOf[FakeVatTraderIdentifierAction], Some(vatOrgWithNameAnswers), connector)
-
-        running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, yourDetailsCyaRoute)
-
-          val result = route(application, request).value
-
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.NotificationTaskListController.onPageLoad().url
-        }
-      }
-
-      "when succeeds must update notifier-details and redirect to NTL for a deregistered Organisation" in {
-        val connector = mock[NovaImportsBackendConnector]
-        when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
-          .thenReturn(Future.successful(Right(2L)))
-
-        given application: Application = applicationForSubmit(classOf[FakeVatTraderIdentifierAction], Some(deregisteredOrgAnswers), connector)
-
-        running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, yourDetailsCyaRoute)
-
-          val result = route(application, request).value
-
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.NotificationTaskListController.onPageLoad().url
-        }
-      }
-
-      // TODO: Update route when downstream NTL screens are ready
-      "when succeeds must redirect to the correct downstream Page for a PrivateIndividual" in {
-        val connector = mock[NovaImportsBackendConnector]
-        when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
-          .thenReturn(Future.successful(Right(2L)))
-
-        given application: Application = applicationForSubmit(classOf[FakeIdentifierAction], Some(individualWithNameAnswers), connector)
-
-        running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, yourDetailsCyaRoute)
-
-          val result = route(application, request).value
-
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.LandingPageController.onPageLoad().url
-        }
-      }
-
-      // TODO: Update route when downstream NTL screens are ready
-      "when succeeds must redirect to the correct downstream Page for an Agent with a selected client" in {
-        val connector = mock[NovaImportsBackendConnector]
-        when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
-          .thenReturn(Future.successful(Right(2L)))
-
-        given application: Application = applicationForSubmit(classOf[FakeAgentIdentifierAction], Some(agentWithClientAnswers), connector)
-
-        running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, yourDetailsCyaRoute)
-
-          val result = route(application, request).value
-
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.LandingPageController.onPageLoad().url
-        }
-      }
-
-      "when the backend call returns an UpstreamError must redirect to Journey Recovery" in {
-        val connector = mock[NovaImportsBackendConnector]
-        when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
-          .thenReturn(Future.successful(Left(UpdateSectionError.UpstreamError(500, "error"))))
-
-        given application: Application = applicationForSubmit(classOf[FakeVatTraderIdentifierAction], Some(vatOrgWithNameAnswers), connector)
-
-        running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, yourDetailsCyaRoute)
-
-          val result = route(application, request).value
-
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
-        }
-      }
-
-      "when the backend call returns Forbidden must redirect to Journey Recovery" in {
-        val connector = mock[NovaImportsBackendConnector]
-        when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
-          .thenReturn(Future.successful(Left(UpdateSectionError.Forbidden)))
-
-        given application: Application = applicationForSubmit(classOf[FakeVatTraderIdentifierAction], Some(vatOrgWithNameAnswers), connector)
-
-        running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, yourDetailsCyaRoute)
-
-          val result = route(application, request).value
-
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
-        }
-      }
-
-      "when the backend call returns NotFound must redirect to Journey Recovery" in {
-        val connector = mock[NovaImportsBackendConnector]
-        when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
-          .thenReturn(Future.successful(Left(UpdateSectionError.NotFound)))
-
-        given application: Application = applicationForSubmit(classOf[FakeVatTraderIdentifierAction], Some(vatOrgWithNameAnswers), connector)
-
-        running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, yourDetailsCyaRoute)
-
-          val result = route(application, request).value
-
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
-        }
-      }
-
-      "must redirect to Unauthorised if DraftId is missing" in {
-        val answersWithoutDraftId = emptyUserAnswers
-          .set(VehicleBusinessUsePage, true)
-          .success
-          .value
-          .set(PhoneNumberPage, phone)
-          .success
-          .value
-          .set(EmailAddressPage, email)
-          .success
-          .value
-
-        given application: Application =
-          applicationForSubmit(classOf[FakeVatTraderIdentifierAction], Some(answersWithoutDraftId), mock[NovaImportsBackendConnector])
-
-        running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, yourDetailsCyaRoute)
-
-          val result = route(application, request).value
-
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
-        }
-      }
-
-      "must send the correct individual notifier-details body with the current versionId" in {
-        val connector = mock[NovaImportsBackendConnector]
-        when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
-          .thenReturn(Future.successful(Right(2L)))
-
-        given application: Application = applicationForSubmit(classOf[FakeVatTraderIdentifierAction], Some(vatOrgWithNameAnswers), connector)
-
-        running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, yourDetailsCyaRoute)
-
-          val result = route(application, request).value
-          status(result) mustEqual SEE_OTHER
-
-          val bodyCaptor = ArgumentCaptor.forClass(classOf[JsObject])
-          verify(connector).updateDraftSection(any[DraftId], eqTo("notifier-details"), bodyCaptor.capture())(any[HeaderCarrier])
-          val sentBody = bodyCaptor.getValue
-
-          (sentBody \ "versionId").as[Long] mustEqual 1L
-          (sentBody \ "title").as[String] mustEqual "Mr"
-          (sentBody \ "firstName").as[String] mustEqual "John"
-          (sentBody \ "lastName").as[String] mustEqual "Smith"
-          (sentBody \ "phoneNumber").as[String] mustEqual phone
-          (sentBody \ "emailAddress").as[String] mustEqual email
-        }
-      }
-
-      "must send an organisation notifier-details body (no name fields) when no name was provided" in {
-        val connector = mock[NovaImportsBackendConnector]
-        when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
-          .thenReturn(Future.successful(Right(2L)))
-
-        given application: Application = applicationForSubmit(classOf[FakeVatTraderIdentifierAction], Some(vatOrgNoNameAnswers), connector)
-
-        running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, yourDetailsCyaRoute)
-
-          val result = route(application, request).value
-          status(result) mustEqual SEE_OTHER
-
-          val bodyCaptor = ArgumentCaptor.forClass(classOf[JsObject])
-          verify(connector).updateDraftSection(any[DraftId], eqTo("notifier-details"), bodyCaptor.capture())(any[HeaderCarrier])
-          val sentBody = bodyCaptor.getValue
-
-          (sentBody \ "phoneNumber").as[String] mustEqual phone
-          (sentBody \ "emailAddress").as[String] mustEqual email
-          (sentBody \ "title").toOption mustBe None
-          (sentBody \ "firstName").toOption mustBe None
-          (sentBody \ "lastName").toOption mustBe None
-        }
-      }
-
-      "must redirect to Journey Recovery if the versionId is missing" in {
-        val answersWithoutVersionId = emptyUserAnswers
-          .set(VehicleBusinessUsePage, false)
-          .success
-          .value
-          .set(NameDetailsPage, name)
-          .success
-          .value
-          .set(PhoneNumberPage, phone)
-          .success
-          .value
-          .set(EmailAddressPage, email)
-          .success
-          .value
-          .set(DraftIdPage, DraftId("DRAFT-001"))
-          .success
-          .value
-
-        given application: Application =
-          applicationForSubmit(classOf[FakeVatTraderIdentifierAction], Some(answersWithoutVersionId), mock[NovaImportsBackendConnector])
-
-        running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, yourDetailsCyaRoute)
-
-          val result = route(application, request).value
-
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
-        }
-      }
-    }
-  }
 }

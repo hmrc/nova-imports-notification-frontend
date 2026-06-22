@@ -17,17 +17,19 @@
 package controllers
 
 import base.SpecBase
+import com.google.inject.name.Names
+import controllers.actions.*
 import forms.EmailAddressFormProvider
-import models.{DraftId, NameDetails, NormalMode, UserAnswers}
+import models.{AgentSelectedClient, DraftId, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{DraftIdPage, IsDeregisteredPage}
-import pages.sections.initialquestions.VehicleFromEuPage
-import pages.sections.notifierDetails.{EmailAddressPage, NameDetailsPage, PhoneNumberPage}
+import pages.{AgentClientVehicleBusinessUsePage, AgentSelectedClientPage, DraftIdPage}
+import pages.sections.notifierDetails.{EmailAddressPage, PhoneNumberPage}
 import play.api.inject.bind
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -263,23 +265,33 @@ class EmailAddressControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "for a deregistered organisation" - {
+    "for an agent with no enrolments and has a selected client" - {
 
-      val name = NameDetails("Mr", "John", "Smith")
+      val client = AgentSelectedClient(vrn = "GB123456789", name = Some("Acme Ltd"))
 
-      "must allow access when IQ1 is yes and a name and phone are defined" in {
+      def agentNoEnrolmentsApplication(answers: UserAnswers) =
+        new GuiceApplicationBuilder()
+          .overrides(
+            bind[DataRequiredAction].to[DataRequiredActionImpl],
+            bind[IdentifierAction].to[FakeAgentNoEnrolmentsIdentifierAction],
+            bind[IdentifierAction].qualifiedWith(Names.named("standard")).to[FakeAgentNoEnrolmentsIdentifierAction],
+            bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeAgentNoEnrolmentsIdentifierAction],
+            bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeAgentNoEnrolmentsIdentifierAction],
+            bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeAgentNoEnrolmentsIdentifierAction],
+            bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(Some(answers)))
+          )
+          .build()
+
+      "must allow access to email page when AQ1 is answered and a phone number is defined" in {
         val answers = requiredAnswers
-          .set(IsDeregisteredPage, true)
+          .set(AgentSelectedClientPage, client)
           .success
           .value
-          .set(VehicleFromEuPage, true)
-          .success
-          .value
-          .set(NameDetailsPage, name)
+          .set(AgentClientVehicleBusinessUsePage, true)
           .success
           .value
 
-        val application = applicationBuilder(userAnswers = Some(answers)).build()
+        val application = agentNoEnrolmentsApplication(answers)
 
         running(application) {
           val request = FakeRequest(GET, emailAddressRoute)
@@ -288,16 +300,10 @@ class EmailAddressControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must redirect to Unauthorised when a name has not been defined" in {
-        val answers = requiredAnswers
-          .set(IsDeregisteredPage, true)
-          .success
-          .value
-          .set(VehicleFromEuPage, true)
-          .success
-          .value
+      "must redirect to Unauthorised when AQ1 has not been answered" in {
+        val answers = requiredAnswers.set(AgentSelectedClientPage, client).success.value
 
-        val application = applicationBuilder(userAnswers = Some(answers)).build()
+        val application = agentNoEnrolmentsApplication(answers)
 
         running(application) {
           val request = FakeRequest(GET, emailAddressRoute)
@@ -309,16 +315,19 @@ class EmailAddressControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must redirect to Unauthorised when IQ1 has not been answered" in {
-        val answers = requiredAnswers
-          .set(IsDeregisteredPage, true)
+      "must redirect to Unauthorised when the phone number has not been defined accessing email page" in {
+        val answers = emptyUserAnswers
+          .set(DraftIdPage, DraftId("DRAFT-001"))
           .success
           .value
-          .set(NameDetailsPage, name)
+          .set(AgentSelectedClientPage, client)
+          .success
+          .value
+          .set(AgentClientVehicleBusinessUsePage, true)
           .success
           .value
 
-        val application = applicationBuilder(userAnswers = Some(answers)).build()
+        val application = agentNoEnrolmentsApplication(answers)
 
         running(application) {
           val request = FakeRequest(GET, emailAddressRoute)
@@ -330,5 +339,6 @@ class EmailAddressControllerSpec extends SpecBase with MockitoSugar {
         }
       }
     }
+
   }
 }

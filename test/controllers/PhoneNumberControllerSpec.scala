@@ -21,14 +21,14 @@ import com.google.inject.name.Names
 import controllers.actions.*
 import forms.PhoneNumberFormProvider
 import models.requests.IdentifierRequest
-import models.{AgentSelectedClient, DraftId, NameDetails, NormalMode, PurchaserOrOnBehalf, UserAnswers}
+import models.{AgentSelectedClient, DraftId, NormalMode, PurchaserOrOnBehalf, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import pages.*
-import pages.sections.initialquestions.{PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
-import pages.sections.notifierDetails.{NameDetailsPage, PhoneNumberPage}
+import pages.sections.initialquestions.{PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage}
+import pages.sections.notifierDetails.PhoneNumberPage
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.{AnyContent, BodyParser, Call, PlayBodyParsers, Request, Result}
@@ -242,6 +242,46 @@ class PhoneNumberControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
+      "for an Agent with no enrolments and has a selected client" - {
+
+        val client = AgentSelectedClient(vrn = "GB123456789", name = Some("Acme Ltd"))
+
+        "must allow access to phone number page when AQ1 has been answered" in {
+
+          val answers = baseRequiredAnswers
+            .set(AgentSelectedClientPage, client)
+            .success
+            .value
+            .set(AgentClientVehicleBusinessUsePage, true)
+            .success
+            .value
+
+          val application = agentNoEnrolmentsApplicationBuilder(Some(answers)).build()
+
+          running(application) {
+            val request = FakeRequest(GET, phoneNumberRoute)
+            val result  = route(application, request).value
+
+            status(result) mustEqual OK
+          }
+        }
+
+        "must redirect to Unauthorised when AQ1 has not been answered" in {
+
+          val answers = baseRequiredAnswers.set(AgentSelectedClientPage, client).success.value
+
+          val application = agentNoEnrolmentsApplicationBuilder(Some(answers)).build()
+
+          running(application) {
+            val request = FakeRequest(GET, phoneNumberRoute)
+            val result  = route(application, request).value
+
+            status(result) mustEqual SEE_OTHER
+            redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+          }
+        }
+      }
+
       "for an Individual / NonVatOrg / Agent without client (users 1, 2, 3-no-client, 6-no-client)" - {
 
         "must allow access when IQ3 = Purchaser" in {
@@ -308,75 +348,6 @@ class PhoneNumberControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "for a deregistered organisation" - {
-
-        val name = NameDetails("Mr", "John", "Smith")
-
-        "must allow access when IQ1 is yes and a name is defined" in {
-
-          val answers = baseRequiredAnswers
-            .set(IsDeregisteredPage, true)
-            .success
-            .value
-            .set(VehicleFromEuPage, true)
-            .success
-            .value
-            .set(NameDetailsPage, name)
-            .success
-            .value
-
-          val application = vatTraderApplicationBuilder(Some(answers)).build()
-
-          running(application) {
-            val request = FakeRequest(GET, phoneNumberRoute)
-            val result  = route(application, request).value
-
-            status(result) mustEqual OK
-          }
-        }
-
-        "must redirect to Unauthorised when IQ1 is yes but a name has not been defined" in {
-
-          val answers = baseRequiredAnswers
-            .set(IsDeregisteredPage, true)
-            .success
-            .value
-            .set(VehicleFromEuPage, true)
-            .success
-            .value
-
-          val application = vatTraderApplicationBuilder(Some(answers)).build()
-
-          running(application) {
-            val request = FakeRequest(GET, phoneNumberRoute)
-            val result  = route(application, request).value
-
-            status(result) mustEqual SEE_OTHER
-            redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
-          }
-        }
-
-        "must redirect to Unauthorised when IQ1 has not been answered" in {
-
-          val answers = baseRequiredAnswers
-            .set(IsDeregisteredPage, true)
-            .success
-            .value
-            .set(NameDetailsPage, name)
-            .success
-            .value
-
-          val application = vatTraderApplicationBuilder(Some(answers)).build()
-
-          running(application) {
-            val request = FakeRequest(GET, phoneNumberRoute)
-            val result  = route(application, request).value
-
-            status(result) mustEqual SEE_OTHER
-            redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
-          }
-        }
-      }
     }
 
     "must redirect to Unauthorised when the user is OGD (user type 7+)" in {
@@ -424,6 +395,18 @@ class PhoneNumberControllerSpec extends SpecBase with MockitoSugar {
         bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeAgentIdentifierAction],
         bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeAgentIdentifierAction],
         bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeAgentIdentifierAction],
+        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
+      )
+
+  private def agentNoEnrolmentsApplicationBuilder(userAnswers: Option[UserAnswers]): GuiceApplicationBuilder =
+    new GuiceApplicationBuilder()
+      .overrides(
+        bind[DataRequiredAction].to[DataRequiredActionImpl],
+        bind[IdentifierAction].to[FakeAgentNoEnrolmentsIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("standard")).to[FakeAgentNoEnrolmentsIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeAgentNoEnrolmentsIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeAgentNoEnrolmentsIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeAgentNoEnrolmentsIdentifierAction],
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
       )
 }

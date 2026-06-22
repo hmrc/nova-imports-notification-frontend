@@ -72,25 +72,13 @@ object AddYourNameController {
     val answers     = request.userAnswers
     val userContext = request.userContext
 
-    IsDraftIdDefined(answers) && {
-      if (userContext.isDeregistered)
-        deregisteredOrgAnswersComplete(answers)
-      else
-        userContext.userType match {
-          case NovaUserType.PrivateIndividual | NovaUserType.NonVatOrganisation =>
-            standardUserAnswersComplete(answers)
-          case NovaUserType.Agent if userContext.isAgentWithoutClient =>
-            standardUserAnswersComplete(answers)
-          case NovaUserType.VatRegisteredOrganisation =>
-            vatRegisteredOrgAnswersComplete(answers)
-          case NovaUserType.Agent =>
-            agentWithClientAnswersComplete(answers)
-        }
-    }
+    IsDraftIdDefined(answers) && (userContext match {
+      case ctx if ctx.isAgentWithNoEnrolments     => false
+      case ctx if ctx.isVatRegisteredOrganisation => vatRegisteredOrgAnswersComplete(answers)
+      case ctx if ctx.isAgentWithClient           => agentWithClientAnswersComplete(answers)
+      case _                                      => standardUserAnswersComplete(answers)
+    })
   }
-
-  private def deregisteredOrgAnswersComplete(answers: UserAnswers): Boolean =
-    answers.get(VehicleFromEuPage).contains(true)
 
   private def standardUserAnswersComplete(answers: UserAnswers): Boolean =
     answers.get(BusinessOrPrivatePage).contains(BusinessOrPrivateIndividual.PrivateIndividual) &&

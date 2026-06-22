@@ -17,16 +17,20 @@
 package controllers
 
 import base.SpecBase
+import com.google.inject.name.Names
+import controllers.actions.*
 import forms.AddYourNameFormProvider
-import models.{BusinessOrPrivateIndividual, DraftId, NameDetails, NormalMode, UserAnswers}
+import models.{AgentSelectedClient, BusinessOrPrivateIndividual, DraftId, NameDetails, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
+import pages.AgentClientVehicleBusinessUsePage
 import pages.sections.initialquestions.{BusinessOrPrivatePage, VehicleFromEuPage}
 import pages.sections.notifierDetails.NameDetailsPage
 import play.api.inject.bind
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -77,41 +81,30 @@ class AddYourNameControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must return OK for a GET for a deregistered organisation that answered yes to IQ1 (VehicleFromEu)" in {
+    "must redirect to Unauthorised for a GET for an agent with no enrolments accessing name page" in {
 
-      val deregisteredAnswers = emptyUserAnswers
-        .set(pages.IsDeregisteredPage, true)
+      val agentNoEnrolmentsAnswers = emptyUserAnswers
+        .set(AgentClientVehicleBusinessUsePage, false)
         .success
         .value
-        .set(VehicleFromEuPage, true)
-        .success
-        .value
-        .set(pages.DraftIdPage, DraftId("DRAFT-001"))
-        .success
-        .value
-
-      val application = applicationBuilder(userAnswers = Some(deregisteredAnswers)).build()
-
-      running(application) {
-        val request = FakeRequest(GET, addYourNameRoute)
-
-        val result = route(application, request).value
-
-        status(result) mustEqual OK
-      }
-    }
-
-    "must redirect to Unauthorised for a GET for a deregistered organisation that has not answered IQ1 (VehicleFromEu)" in {
-
-      val deregisteredAnswers = emptyUserAnswers
-        .set(pages.IsDeregisteredPage, true)
+        .set(pages.AgentSelectedClientPage, AgentSelectedClient("123456789", Some("ABC Ltd")))
         .success
         .value
         .set(pages.DraftIdPage, DraftId("DRAFT-001"))
         .success
         .value
 
-      val application = applicationBuilder(userAnswers = Some(deregisteredAnswers)).build()
+      val application = new GuiceApplicationBuilder()
+        .overrides(
+          bind[DataRequiredAction].to[DataRequiredActionImpl],
+          bind[IdentifierAction].to[FakeAgentNoEnrolmentsIdentifierAction],
+          bind[IdentifierAction].qualifiedWith(Names.named("standard")).to[FakeAgentNoEnrolmentsIdentifierAction],
+          bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeAgentNoEnrolmentsIdentifierAction],
+          bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeAgentNoEnrolmentsIdentifierAction],
+          bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeAgentNoEnrolmentsIdentifierAction],
+          bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(Some(agentNoEnrolmentsAnswers)))
+        )
+        .build()
 
       running(application) {
         val request = FakeRequest(GET, addYourNameRoute)

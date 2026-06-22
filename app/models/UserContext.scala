@@ -22,7 +22,8 @@ import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments}
 final case class UserContext(
   userType: NovaUserType,
   selectedClient: Option[AgentSelectedClient],
-  isDeregistered: Boolean
+  isDeregistered: Boolean,
+  isAgentWithNoEnrolments: Boolean
 ) {
   def isAgent: Boolean                     = userType == NovaUserType.Agent
   def isAgentWithClient: Boolean           = isAgent && selectedClient.isDefined
@@ -36,7 +37,8 @@ object UserContext {
     UserContext(
       userType = NovaUserType.from(affinityGroup, enrolments),
       selectedClient = userAnswers.get(AgentSelectedClientPage),
-      isDeregistered = userAnswers.get(IsDeregisteredPage).getOrElse(false)
+      isDeregistered = userAnswers.get(IsDeregisteredPage).getOrElse(false),
+      isAgentWithNoEnrolments = affinityGroup == AffinityGroup.Agent && !enrolments.enrolments.exists(_.isActivated)
     )
 
   val agentMustHaveClient: UserContext => Boolean =

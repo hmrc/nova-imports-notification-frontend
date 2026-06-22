@@ -92,18 +92,6 @@ class NavigatorSpec extends SpecBase {
             .onPageLoad(NormalMode)
         }
 
-        "must go from AboutYourDetailsPage to AddYourNamePage for a deregistered organisation even when OQ1.0 was answered yes" in {
-          val ua = userAnswers
-            .set(IsDeregisteredPage, true)
-            .success
-            .value
-            .set(VehicleBusinessUsePage, true)
-            .success
-            .value
-          navigator.nextPage(AboutYourDetailsPage, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.AddYourNameController
-            .onPageLoad(NormalMode)
-        }
-
         "must go from AddYourNamePage to PhoneNumberController (AYD1.2)" in {
           val ua = userAnswers.set(NameDetailsPage, NameDetails("Mr", "John", "Smith")).success.value
           navigator.nextPage(NameDetailsPage, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.PhoneNumberController
