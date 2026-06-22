@@ -50,10 +50,10 @@ class PhoneNumberController @Inject() (
     val userContext = request.userContext
 
     IsDraftIdDefined(ua) && (userContext match {
-      case ctx if ctx.isAgentWithNoEnrolments     => ua.get(AgentClientVehicleBusinessUsePage).isDefined
-      case ctx if ctx.isVatRegisteredOrganisation => ua.get(VehicleBusinessUsePage).isDefined
-      case ctx if ctx.isAgentWithClient           => ua.get(AgentClientVehicleBusinessUsePage).isDefined
-      case _                                      =>
+      case ctx if ctx.isAgentWithClientNoEnrolments => ua.get(AgentClientVehicleBusinessUsePage).isDefined
+      case ctx if ctx.isVatRegisteredOrganisation   => ua.get(VehicleBusinessUsePage).isDefined
+      case ctx if ctx.isAgentWithClient             => ua.get(AgentClientVehicleBusinessUsePage).isDefined
+      case _                                        =>
         ua.get(PurchaserOrOnBehalfPage) match {
           case Some(PurchaserOrOnBehalf.Purchaser)           => true
           case Some(PurchaserOrOnBehalf.OnBehalfOfPurchaser) => ua.get(PurchaserBusinessOrIndividualPage).isDefined

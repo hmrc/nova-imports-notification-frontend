@@ -116,6 +116,29 @@ class AddYourNameControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
+    "must return OK for a GET for an agent with no enrolments and no selected client" in {
+
+      val application = new GuiceApplicationBuilder()
+        .overrides(
+          bind[DataRequiredAction].to[DataRequiredActionImpl],
+          bind[IdentifierAction].to[FakeAgentNoEnrolmentsIdentifierAction],
+          bind[IdentifierAction].qualifiedWith(Names.named("standard")).to[FakeAgentNoEnrolmentsIdentifierAction],
+          bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeAgentNoEnrolmentsIdentifierAction],
+          bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeAgentNoEnrolmentsIdentifierAction],
+          bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeAgentNoEnrolmentsIdentifierAction],
+          bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(Some(requiredPreviousAnswers)))
+        )
+        .build()
+
+      running(application) {
+        val request = FakeRequest(GET, addYourNameRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+      }
+    }
+
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
       val answer      = NameDetails(validTitle, validFirstName, validLastName)

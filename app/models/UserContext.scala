@@ -23,7 +23,7 @@ final case class UserContext(
   userType: NovaUserType,
   selectedClient: Option[AgentSelectedClient],
   isDeregistered: Boolean,
-  isAgentWithNoEnrolments: Boolean
+  isAgentWithClientNoEnrolments: Boolean
 ) {
   def isAgent: Boolean                     = userType == NovaUserType.Agent
   def isAgentWithClient: Boolean           = isAgent && selectedClient.isDefined
@@ -33,13 +33,16 @@ final case class UserContext(
 
 object UserContext {
 
-  def from(affinityGroup: AffinityGroup, enrolments: Enrolments, userAnswers: UserAnswers): UserContext =
+  def from(affinityGroup: AffinityGroup, enrolments: Enrolments, userAnswers: UserAnswers): UserContext = {
+    val selectedClient = userAnswers.get(AgentSelectedClientPage)
+
     UserContext(
       userType = NovaUserType.from(affinityGroup, enrolments),
-      selectedClient = userAnswers.get(AgentSelectedClientPage),
+      selectedClient = selectedClient,
       isDeregistered = userAnswers.get(IsDeregisteredPage).getOrElse(false),
-      isAgentWithNoEnrolments = affinityGroup == AffinityGroup.Agent && !enrolments.enrolments.exists(_.isActivated)
+      isAgentWithClientNoEnrolments = affinityGroup == AffinityGroup.Agent && selectedClient.isDefined && !enrolments.enrolments.exists(_.isActivated)
     )
+  }
 
   val agentMustHaveClient: UserContext => Boolean =
     ctx => !ctx.isAgent || ctx.selectedClient.isDefined

@@ -87,24 +87,29 @@ class UserContextSpec extends SpecBase {
       ctx.isDeregistered mustBe true
     }
 
-    "marks an Agent with no enrolments as isAgentWithNoEnrolments" in {
+    "marks an Agent with a selected client and no enrolments as isAgentWithClientNoEnrolments" in {
       val ctx = UserContext.from(AffinityGroup.Agent, noEnrolments, answersWith(sampleClient))
-      ctx.isAgentWithNoEnrolments mustBe true
+      ctx.isAgentWithClientNoEnrolments mustBe true
     }
 
-    "marks an Agent whose only enrolment is not activated as isAgentWithNoEnrolments" in {
+    "marks an Agent with a selected client that has enrolment but not activated as isAgentWithClientNoEnrolments" in {
       val ctx = UserContext.from(AffinityGroup.Agent, inactiveAgentEnrolment, answersWith(sampleClient))
-      ctx.isAgentWithNoEnrolments mustBe true
+      ctx.isAgentWithClientNoEnrolments mustBe true
     }
 
-    "does not mark an Agent with an active enrolment as isAgentWithNoEnrolments" in {
+    "does not mark an Agent with a selected client and an active enrolment as isAgentWithClientNoEnrolments" in {
       val ctx = UserContext.from(AffinityGroup.Agent, activeAgentEnrolment, answersWith(sampleClient))
-      ctx.isAgentWithNoEnrolments mustBe false
+      ctx.isAgentWithClientNoEnrolments mustBe false
     }
 
-    "does not mark a non-Agent as isAgentWithNoEnrolments" in {
+    "does not mark an Agent with no enrolments and no selected client as isAgentWithClientNoEnrolments" in {
+      val ctx = UserContext.from(AffinityGroup.Agent, noEnrolments, emptyUserAnswers)
+      ctx.isAgentWithClientNoEnrolments mustBe false
+    }
+
+    "does not mark a non-Agent as isAgentWithClientNoEnrolments" in {
       val ctx = UserContext.from(AffinityGroup.Organisation, noEnrolments, emptyUserAnswers)
-      ctx.isAgentWithNoEnrolments mustBe false
+      ctx.isAgentWithClientNoEnrolments mustBe false
     }
   }
 

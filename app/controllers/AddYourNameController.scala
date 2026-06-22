@@ -73,10 +73,10 @@ object AddYourNameController {
     val userContext = request.userContext
 
     IsDraftIdDefined(answers) && (userContext match {
-      case ctx if ctx.isAgentWithNoEnrolments     => false
-      case ctx if ctx.isVatRegisteredOrganisation => vatRegisteredOrgAnswersComplete(answers)
-      case ctx if ctx.isAgentWithClient           => agentWithClientAnswersComplete(answers)
-      case _                                      => standardUserAnswersComplete(answers)
+      case ctx if ctx.isAgentWithClientNoEnrolments => false
+      case ctx if ctx.isVatRegisteredOrganisation   => vatRegisteredOrgAnswersComplete(answers)
+      case ctx if ctx.isAgentWithClient             => agentWithClientAnswersComplete(answers)
+      case _                                        => standardUserAnswersComplete(answers)
     })
   }
 

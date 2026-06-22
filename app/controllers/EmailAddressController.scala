@@ -49,7 +49,7 @@ class EmailAddressController @Inject() (
     val userContext = request.userContext
 
     IsDraftIdDefined(answers) && (userContext match {
-      case ctx if ctx.isAgentWithNoEnrolments =>
+      case ctx if ctx.isAgentWithClientNoEnrolments =>
         answers.get(AgentClientVehicleBusinessUsePage).isDefined &&
         answers.get(PhoneNumberPage).isDefined
       case _ =>

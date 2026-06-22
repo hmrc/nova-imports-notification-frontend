@@ -95,15 +95,15 @@ object YourDetailsCheckYourAnswersController {
     val userContext = request.userContext
 
     IsDraftIdDefined(answers) && (userContext match {
-      case ctx if ctx.isAgentWithNoEnrolments     => agentWithoutEnrolmentsAnswersComplete(answers)
-      case ctx if ctx.isVatRegisteredOrganisation => vatRegisteredOrgAnswersComplete(answers)
-      case ctx if ctx.isAgentWithoutClient        => agentWithoutClientAnswersComplete(answers)
-      case ctx if ctx.isAgentWithClient           => agentWithClientAnswersComplete(answers)
-      case _                                      => standardUserAnswersComplete(answers)
+      case ctx if ctx.isAgentWithClientNoEnrolments => agentWithClientNoEnrolmentsAnswersComplete(answers)
+      case ctx if ctx.isVatRegisteredOrganisation   => vatRegisteredOrgAnswersComplete(answers)
+      case ctx if ctx.isAgentWithoutClient          => agentWithoutClientAnswersComplete(answers)
+      case ctx if ctx.isAgentWithClient             => agentWithClientAnswersComplete(answers)
+      case _                                        => standardUserAnswersComplete(answers)
     })
   }
 
-  private def agentWithoutEnrolmentsAnswersComplete(answers: UserAnswers): Boolean =
+  private def agentWithClientNoEnrolmentsAnswersComplete(answers: UserAnswers): Boolean =
     answers.get(AgentClientVehicleBusinessUsePage).isDefined &&
       answers.get(PhoneNumberPage).isDefined &&
       answers.get(EmailAddressPage).isDefined
