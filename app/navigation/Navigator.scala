@@ -23,6 +23,7 @@ import pages.*
 import models.*
 import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
 import pages.sections.notifierDetails.{EmailAddressPage, NameDetailsPage, PhoneNumberPage}
+import pages.sections.notifieraddress.IsYourAddressInTheUkPage
 
 @Singleton
 class Navigator @Inject() () {

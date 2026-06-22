@@ -21,7 +21,7 @@ import controllers.actions.*
 import forms.IsYourAddressInTheUkFormProvider
 import models.Mode
 import models.requests.DataRequest
-import pages.IsYourAddressInTheUkPage
+import pages.sections.notifieraddress.IsYourAddressInTheUkPage
 import play.api.Logging
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}

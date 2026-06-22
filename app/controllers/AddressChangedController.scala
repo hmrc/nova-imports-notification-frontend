@@ -25,6 +25,7 @@ import pages.{DraftIdPage, DraftVersionIdPage}
 import play.api.Logging
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.SessionRepository
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import views.html.AddressChangedView
@@ -34,6 +35,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class AddressChangedController @Inject() (
   val controllerComponents: MessagesControllerComponents,
+  sessionRepository: SessionRepository,
   actions: Actions,
   view: AddressChangedView,
   backendConnector: NovaImportsBackendConnector
@@ -59,7 +61,9 @@ class AddressChangedController @Inject() (
       case (Some(address), Some(draftId)) =>
         val body = Json.toJson(NotifierAddress.fromAddress(address)).as[JsObject] + ("versionId", Json.toJson(versionId))
         backendConnector.updateDraftSection(draftId, "notifier-address", body).map {
-          case Right(_)    => Redirect(routes.NotificationTaskListController.onPageLoad())
+          case Right(vId) =>
+            sessionRepository.setPage(request.userAnswers, DraftVersionIdPage, vId)
+            Redirect(routes.NotificationTaskListController.onPageLoad())
           case Left(error) =>
             logger.warn(s"Failed to update notifier-address section for draftId ${draftId.value}: $error")
             Redirect(routes.JourneyRecoveryController.onPageLoad())

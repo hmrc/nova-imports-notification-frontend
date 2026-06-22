@@ -25,7 +25,7 @@ import models.{NormalMode, UserAnswers}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.IsYourAddressInTheUkPage
+import pages.sections.notifieraddress.IsYourAddressInTheUkPage
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
