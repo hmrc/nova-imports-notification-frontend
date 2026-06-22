@@ -24,13 +24,14 @@ import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.DraftIdPage
+import pages.{DraftIdPage, DraftVersionIdPage}
 import pages.sections.notifieraddress.AddressPage
 import play.api.Application
 import play.api.inject.bind
 import play.api.libs.json.{JsObject, Json}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import repositories.SessionRepository
 import uk.gov.hmrc.http.HeaderCarrier
 import views.html.AddressChangedView
 
@@ -56,19 +57,32 @@ class AddressChangedControllerSpec extends SpecBase with MockitoSugar {
       .set(DraftIdPage, draftId)
       .success
       .value
+      .set(DraftVersionIdPage, 0L)
+      .success
+      .value
 
-  private def stubBackendConnector(result: Either[UpdateSectionError, Unit] = Right(())): NovaImportsBackendConnector = {
+  private def stubBackendConnector(result: Either[UpdateSectionError, Long] = Right(0L)): NovaImportsBackendConnector = {
     val m = mock[NovaImportsBackendConnector]
     when(m.updateDraftSection(any, any, any)(any)).thenReturn(Future.successful(result))
     m
   }
 
+  private def stubSessionRepository(): SessionRepository = {
+    val m = mock[SessionRepository]
+    when(m.setPage(any(), any(), any())(any())).thenReturn(Future.successful(answersWithAddressAndDraft))
+    m
+  }
+
   private def applicationWith(
     userAnswers: Option[UserAnswers] = Some(answersWithAddressAndDraft),
-    backendConnector: NovaImportsBackendConnector = stubBackendConnector()
+    backendConnector: NovaImportsBackendConnector = stubBackendConnector(),
+    sessionRepository: SessionRepository = stubSessionRepository()
   ): Application =
     applicationBuilder(userAnswers)
-      .overrides(bind[NovaImportsBackendConnector].toInstance(backendConnector))
+      .overrides(
+        bind[NovaImportsBackendConnector].toInstance(backendConnector),
+        bind[SessionRepository].toInstance(sessionRepository)
+      )
       .build()
 
   "AddressChanged Controller" - {
