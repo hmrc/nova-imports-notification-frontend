@@ -17,10 +17,13 @@
 package controllers
 
 import com.google.inject.Inject
+import config.FrontendAppConfig
 import controllers.actions.Actions
-import models.{NotificationSummary, UserAnswers}
+import models.DraftNotification.SectionId
+import models.{NormalMode, NotificationSummary, SectionStatus, UserAnswers}
 import pages.DraftIdPage
 import pages.sections.initialquestions.VehicleBusinessUsePage
+import pages.sections.notifieraddress.AddressJourneyIdPage
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{NotificationSummaryService, UserDataService}
@@ -36,7 +39,7 @@ class NotificationTaskListController @Inject() (
   notificationSummaryService: NotificationSummaryService,
   userDataService: UserDataService,
   view: NotificationTaskListView
-)(implicit ec: ExecutionContext)
+)(implicit ec: ExecutionContext, appConfig: FrontendAppConfig)
     extends BaseController
     with Logging {
 
@@ -55,8 +58,9 @@ class NotificationTaskListController @Inject() (
       case Right(updatedAnswers) =>
         notificationSummaryService.getSummaryAndStoreDeregisteredStatus(updatedAnswers, None).map {
           case Right((org: NotificationSummary.IndividualOrOrganisation, savedAnswers)) =>
-            val sections = userDataService.determineAndUpdateStatus(savedAnswers, request.userContext)
-            Ok(view(org.traderName, org.vrn, sections, showAddYourAddress(savedAnswers)))
+            val sections    = userDataService.determineAndUpdateStatus(savedAnswers, request.userContext)
+            val sectionLink = determineSectionLink(sections, savedAnswers)
+            Ok(view(org.traderName, org.vrn, sections, showAddYourAddress(savedAnswers), sectionLink))
 
           case Right((other, _)) =>
             logger.warn(s"Unexpected notification summary shape for VAT-registered Organisation: $other")
@@ -79,4 +83,22 @@ object NotificationTaskListController {
   // AC2: 'Add your address' is shown only when the user answered 'No' to OQ1.0.
   def showAddYourAddress(answers: UserAnswers): Boolean =
     answers.get(VehicleBusinessUsePage).contains(false)
+
+  def determineSectionLink(sections: Map[String, SectionStatus], userAnswers: UserAnswers)(implicit
+    appConfig: FrontendAppConfig
+  ): Map[String, String] =
+    sections.flatMap {
+      case (section @ SectionId.NotifierDetails, status) =>
+        if (status == SectionStatus.Completed) Map(section -> routes.LandingPageController.onPageLoad().url) // TODO - Update to CYA
+        else Map(section                                   -> routes.AboutYourDetailsController.onPageLoad().url)
+
+      case (section @ SectionId.NotifierAddress, status) =>
+        userAnswers.get(AddressJourneyIdPage) match
+          case Some(journeyId) if status == SectionStatus.Completed => Map(section -> appConfig.addressLookupFrontendConfirmPath(journeyId))
+          case _ => Map(section -> routes.IsYourAddressInTheUkController.onPageLoad(NormalMode).url)
+
+      case (section @ SectionId.Vehicles, status) => Map(section -> routes.AddVehicleDetailsController.onPageLoad(NormalMode).url)
+
+      case _ => Map.empty[String, String]
+    }
 }

@@ -36,9 +36,6 @@ class NotificationTaskListViewSpec extends SpecBase with Matchers with BeforeAnd
   implicit val request: Request[?] = FakeRequest()
   implicit val msgs: Messages      = messages(app)
 
-  val traderName = Some("Harbourview Limited")
-  val vrn        = Some("123456789")
-
   val view: NotificationTaskListView = app.injector.instanceOf[NotificationTaskListView]
 
   override def afterAll(): Unit = {
@@ -46,11 +43,21 @@ class NotificationTaskListViewSpec extends SpecBase with Matchers with BeforeAnd
     super.afterAll()
   }
 
+  val traderName = Some("Harbourview Limited")
+  val vrn        = Some("123456789")
+
   private val allNotYetSaved: Map[String, SectionStatus] = Map(
     DraftNotification.SectionId.NotifierDetails -> SectionStatus.NotYetSaved,
     DraftNotification.SectionId.NotifierAddress -> SectionStatus.NotYetSaved,
     DraftNotification.SectionId.Vehicles        -> SectionStatus.NotYetSaved,
     DraftNotification.SectionId.Declaration     -> SectionStatus.NotYetSaved
+  )
+
+  private val sectionLinks: Map[String, String] = Map(
+    DraftNotification.SectionId.NotifierDetails -> routes.AboutYourDetailsController.onPageLoad().url,
+    DraftNotification.SectionId.NotifierAddress -> routes.IsYourAddressInTheUkController.onPageLoad(NormalMode).url,
+    DraftNotification.SectionId.Vehicles        -> routes.AddVehicleDetailsController.onPageLoad(NormalMode).url,
+    DraftNotification.SectionId.Declaration     -> "/some-url"
   )
 
   "NotificationTaskListView" - {
@@ -147,23 +154,5 @@ class NotificationTaskListViewSpec extends SpecBase with Matchers with BeforeAnd
     "must return itself via the ref method" in {
       view.ref mustBe view
     }
-  }
-
-  trait Setup {
-    val app: Application             = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-    implicit val request: Request[?] = FakeRequest()
-    implicit val msgs: Messages      = messages(app)
-
-    val traderName = Some("Harbourview Limited")
-    val vrn        = Some("123456789")
-
-    val view: NotificationTaskListView = app.injector.instanceOf[NotificationTaskListView]
-
-    val sectionLinks: Map[String, String] = Map(
-      DraftNotification.SectionId.NotifierDetails -> routes.AboutYourDetailsController.onPageLoad().url,
-      DraftNotification.SectionId.NotifierAddress -> routes.IsYourAddressInTheUkController.onPageLoad(NormalMode).url,
-      DraftNotification.SectionId.Vehicles        -> routes.AddVehicleDetailsController.onPageLoad(NormalMode).url,
-      DraftNotification.SectionId.Declaration     -> "/some-url"
-    )
   }
 }
