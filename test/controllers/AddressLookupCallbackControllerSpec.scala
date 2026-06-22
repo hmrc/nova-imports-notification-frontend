@@ -25,7 +25,7 @@ import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.DraftIdPage
-import pages.sections.notifieraddress.AddressPage
+import pages.sections.notifieraddress.{AddressJourneyIdPage, AddressPage}
 import play.api.Application
 import play.api.inject.bind
 import play.api.libs.json.{JsObject, Json}
@@ -35,6 +35,7 @@ import repositories.SessionRepository
 import services.AddressSanitiser
 import uk.gov.hmrc.http.HeaderCarrier
 
+import java.util.UUID
 import scala.concurrent.Future
 
 class AddressLookupCallbackControllerSpec extends SpecBase with MockitoSugar {
@@ -53,7 +54,13 @@ class AddressLookupCallbackControllerSpec extends SpecBase with MockitoSugar {
   private val dirtyAddress = cleanAddress.copy(lines = Seq("12 High Street £", "Reading"))
 
   private val answersWithDraftId: UserAnswers =
-    emptyUserAnswers.set(DraftIdPage, draftId).success.value
+    emptyUserAnswers
+      .set(DraftIdPage, draftId)
+      .success
+      .value
+      .set(AddressJourneyIdPage, UUID.randomUUID().toString)
+      .success
+      .value
 
   private def stubAlfConnector(result: Either[AddressLookupError, Address]): AddressLookupConnector = {
     val m = mock[AddressLookupConnector]
@@ -61,15 +68,16 @@ class AddressLookupCallbackControllerSpec extends SpecBase with MockitoSugar {
     m
   }
 
-  private def stubBackendConnector(result: Either[UpdateSectionError, Unit] = Right(())): NovaImportsBackendConnector = {
+  private def stubBackendConnector(result: Either[UpdateSectionError, Long] = Right(0L)): NovaImportsBackendConnector = {
     val m = mock[NovaImportsBackendConnector]
     when(m.updateDraftSection(any, any, any)(any)).thenReturn(Future.successful(result))
     m
   }
 
-  private def stubSessionRepository: SessionRepository = {
+  private def stubSessionRepository(userAnswers: UserAnswers = answersWithDraftId): SessionRepository = {
     val m = mock[SessionRepository]
     when(m.set(any())).thenReturn(Future.successful(true))
+    when(m.setPage(any(), any(), any())(any())).thenReturn(Future.successful(userAnswers))
     m
   }
 
@@ -77,7 +85,7 @@ class AddressLookupCallbackControllerSpec extends SpecBase with MockitoSugar {
     userAnswers: Option[UserAnswers] = Some(answersWithDraftId),
     alfConnector: AddressLookupConnector = stubAlfConnector(Right(cleanAddress)),
     backendConnector: NovaImportsBackendConnector = stubBackendConnector(),
-    sessionRepository: SessionRepository = stubSessionRepository
+    sessionRepository: SessionRepository = stubSessionRepository()
   ): Application =
     applicationBuilder(userAnswers)
       .overrides(
@@ -101,7 +109,7 @@ class AddressLookupCallbackControllerSpec extends SpecBase with MockitoSugar {
 
     "must save the address, call F4, and redirect to the next section when no sanitising is needed" in {
       val backendConnector  = stubBackendConnector()
-      val sessionRepository = stubSessionRepository
+      val sessionRepository = stubSessionRepository()
       val app               = applicationWith(backendConnector = backendConnector, sessionRepository = sessionRepository)
 
       running(app) {
@@ -122,7 +130,7 @@ class AddressLookupCallbackControllerSpec extends SpecBase with MockitoSugar {
 
     "must save the sanitised address and redirect to AddressChanged when sanitiser altered the address" in {
       val backendConnector  = stubBackendConnector()
-      val sessionRepository = stubSessionRepository
+      val sessionRepository = stubSessionRepository()
       val app               = applicationWith(
         alfConnector = stubAlfConnector(Right(dirtyAddress)),
         backendConnector = backendConnector,
@@ -146,7 +154,7 @@ class AddressLookupCallbackControllerSpec extends SpecBase with MockitoSugar {
     "must redirect to JourneyRecovery (and NOT touch the session) when the sanitiser empties a mandatory line" in {
       val junkAddress       = cleanAddress.copy(lines = Seq("@", "###"))
       val backendConnector  = stubBackendConnector()
-      val sessionRepository = stubSessionRepository
+      val sessionRepository = stubSessionRepository()
       val app               = applicationWith(
         alfConnector = stubAlfConnector(Right(junkAddress)),
         backendConnector = backendConnector,
@@ -187,7 +195,10 @@ class AddressLookupCallbackControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to JourneyRecovery when DraftId is missing" in {
-      val app = applicationWith(userAnswers = Some(emptyUserAnswers))
+      val app = applicationWith(
+        userAnswers = Some(emptyUserAnswers),
+        sessionRepository = stubSessionRepository(emptyUserAnswers)
+      )
 
       running(app) {
         val result = route(app, FakeRequest(GET, callbackOk)).value

@@ -19,10 +19,10 @@ package controllers
 import com.google.inject.Inject
 import connectors.{AddressLookupConnector, NovaImportsBackendConnector}
 import controllers.actions.*
-import models.Address
+import models.{Address, UserAnswers}
 import models.draftsections.NotifierAddress
 import models.requests.DataRequest
-import pages.sections.notifieraddress.AddressPage
+import pages.sections.notifieraddress.{AddressJourneyIdPage, AddressPage}
 import pages.{DraftIdPage, DraftVersionIdPage}
 import play.api.Logging
 import play.api.libs.json.{JsObject, Json}
@@ -56,52 +56,63 @@ class AddressLookupCallbackController @Inject() (
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
 
         case Some(journeyId) =>
-          addressLookupConnector.confirmedAddress(journeyId).flatMap {
-            case Left(error) =>
-              logger.warn(s"Failed to retrieve confirmed address from ALF for journey $journeyId: $error")
-              Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
-
-            case Right(address) =>
-              val sanitised = AddressSanitiser.sanitise(address)
-
-              if (!mandatoryFieldsPopulated(sanitised)) {
-                logger.warn(s"Sanitiser stripped mandatory address fields to empty for journey $journeyId")
-                Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
-              } else {
-                val toStore = if (sanitised == address) address else sanitised
-
-                for {
-                  updatedAnswers <- Future.fromTry(request.userAnswers.set(AddressPage, toStore))
-                  _              <- sessionRepository.set(updatedAnswers)
-                  result         <-
-                    if (sanitised == address)
-                      saveViaF4(toStore)
-                    else
-                      Future.successful(Redirect(routes.AddressChangedController.onPageLoad()))
-                } yield result
-              }
-          }
+          for {
+            updatedAnswers <- sessionRepository.setPage(request.userAnswers, AddressJourneyIdPage, journeyId)
+            result         <- confirmAddress(journeyId, updatedAnswers)
+          } yield result
       }
     }
+
+  private def confirmAddress(journeyId: String, userAnswers: UserAnswers)(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
+    addressLookupConnector.confirmedAddress(journeyId).flatMap {
+      case Left(error) =>
+        logger.warn(s"Failed to retrieve confirmed address from ALF for journey $journeyId: $error")
+        Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+
+      case Right(address) =>
+        val sanitised = AddressSanitiser.sanitise(address)
+
+        if (!mandatoryFieldsPopulated(sanitised)) {
+          logger.warn(s"Sanitiser stripped mandatory address fields to empty for journey $journeyId")
+          Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+        } else {
+          val toStore = if (sanitised == address) address else sanitised
+
+          for {
+            updatedAnswers <- Future.fromTry(userAnswers.set(AddressPage, toStore))
+            _              <- sessionRepository.set(updatedAnswers)
+            result         <-
+              if (sanitised == address)
+                saveViaF4(toStore, updatedAnswers)
+              else
+                Future.successful(Redirect(routes.AddressChangedController.onPageLoad()))
+          } yield result
+        }
+    }
+  }
 
   private def mandatoryFieldsPopulated(address: Address): Boolean =
     address.lines.lift(0).exists(_.trim.nonEmpty) && address.lines.lift(1).exists(_.trim.nonEmpty)
 
-  private def saveViaF4(address: Address)(implicit request: DataRequest[?], hc: HeaderCarrier): Future[Result] =
-    val versionId = request.userAnswers.get(DraftVersionIdPage).getOrElse(0L)
+  private def saveViaF4(address: Address, userAnswers: UserAnswers)(implicit hc: HeaderCarrier): Future[Result] =
+    val versionId = userAnswers.get(DraftVersionIdPage).getOrElse(0L)
 
-    request.userAnswers.get(DraftIdPage) match {
+    userAnswers.get(DraftIdPage) match {
       case None =>
         logger.warn("DraftId missing from UserAnswers — cannot persist notifier-address section")
         Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
 
       case Some(draftId) =>
         val body = Json.toJson(NotifierAddress.fromAddress(address)).as[JsObject] + ("versionId", Json.toJson(versionId))
-        backendConnector.updateDraftSection(draftId, "notifier-address", body).map {
-          case Right(_)    => Redirect(routes.NotificationTaskListController.onPageLoad())
+        backendConnector.updateDraftSection(draftId, "notifier-address", body).flatMap {
+          case Right(versionId) =>
+            for {
+              _      <- sessionRepository.setPage(userAnswers, DraftVersionIdPage, versionId)
+              result <- Future successful Redirect(routes.NotificationTaskListController.onPageLoad())
+            } yield result
           case Left(error) =>
             logger.warn(s"Failed to update notifier-address section for draftId ${draftId.value}: $error")
-            Redirect(routes.JourneyRecoveryController.onPageLoad())
+            Future successful Redirect(routes.JourneyRecoveryController.onPageLoad())
         }
     }
 }

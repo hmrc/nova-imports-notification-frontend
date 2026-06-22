@@ -57,6 +57,11 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
 
   val addressLookupCallbackUrl: String = s"$host/nova-imports${controllers.routes.AddressLookupCallbackController.callback(None).url}"
 
+  val addressLookupFrontendConfirmPath: String => String = (journeyId: String) => {
+    val addressHost = if host.contains("localhost") then "http://localhost:9028" else host
+    s"$addressHost/lookup-address/$journeyId/confirm"
+  }
+
   val languageTranslationEnabled: Boolean =
     configuration.get[Boolean]("features.welsh-translation")
 

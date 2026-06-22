@@ -21,7 +21,7 @@
     govukButton: GovukButton
 )
 
-@(traderName: Option[String], vrn: Option[String], sections: Map[String, SectionStatus], showAddYourAddress: Boolean)(implicit request: Request[?], messages: Messages)
+@(traderName: Option[String], vrn: Option[String], sections: Map[String, SectionStatus], showAddYourAddress: Boolean, sectionLink: Map[String, String])(implicit request: Request[?], messages: Messages)
 
 @statusTag(sectionId: String) = {
     @sections.get(sectionId) match {
@@ -56,7 +56,7 @@
     <ul class="govuk-task-list">
         <li class="govuk-task-list__item govuk-task-list__item--with-link">
             <div class="govuk-task-list__name-and-hint">
-                <a class="govuk-link govuk-task-list__link" href="@routes.AboutYourDetailsController.onPageLoad().url" aria-describedby="add-your-details-status">
+                <a class="govuk-link govuk-task-list__link" href="@sectionLink(DraftNotification.SectionId.NotifierDetails)" aria-describedby="add-your-details-status">
                     @messages("notificationTaskList.aboutYou.addYourDetails")
                 </a>
             </div>
@@ -68,7 +68,7 @@
         @if(showAddYourAddress) {
             <li class="govuk-task-list__item govuk-task-list__item--with-link">
                 <div class="govuk-task-list__name-and-hint">
-                    <a class="govuk-link govuk-task-list__link" href="@routes.IsYourAddressInTheUkController.onPageLoad(NormalMode).url" aria-describedby="add-your-address-status">
+                    <a class="govuk-link govuk-task-list__link" href="@sectionLink(DraftNotification.SectionId.NotifierAddress)" aria-describedby="add-your-address-status">
                         @messages("notificationTaskList.aboutYou.addYourAddress")
                     </a>
                 </div>
@@ -84,7 +84,7 @@
     <ul class="govuk-task-list">
         <li class="govuk-task-list__item govuk-task-list__item--with-link">
             <div class="govuk-task-list__name-and-hint">
-                <a class="govuk-link govuk-task-list__link" href="@routes.AddVehicleDetailsController.onPageLoad(NormalMode).url" aria-describedby="add-vehicle-details-status">
+                <a class="govuk-link govuk-task-list__link" href="@sectionLink(DraftNotification.SectionId.Vehicles)" aria-describedby="add-vehicle-details-status">
                     @messages("notificationTaskList.aboutTheVehicles.addVehicleDetails")
                 </a>
             </div>
