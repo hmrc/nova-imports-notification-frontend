@@ -17,18 +17,13 @@
 package controllers
 
 import com.google.inject.Inject
-import config.FrontendAppConfig
-import connectors.NovaImportsBackendConnector
 import controllers.actions.Actions
-import models.DraftNotification.SectionId
-import models.{NormalMode, NotificationSummary, SectionStatus, UserAnswers}
-import pages.{DraftIdPage, IsDeregisteredPage}
+import models.{NotificationSummary, UserAnswers}
+import pages.DraftIdPage
 import pages.sections.initialquestions.VehicleBusinessUsePage
-import pages.sections.notifieraddress.AddressJourneyIdPage
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import repositories.SessionRepository
-import services.UserDataService
+import services.{NotificationSummaryService, UserDataService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import views.html.NotificationTaskListView
@@ -38,11 +33,10 @@ import scala.concurrent.{ExecutionContext, Future}
 class NotificationTaskListController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   actions: Actions,
-  backendConnector: NovaImportsBackendConnector,
+  notificationSummaryService: NotificationSummaryService,
   userDataService: UserDataService,
-  sessionRepository: SessionRepository,
   view: NotificationTaskListView
-)(implicit ec: ExecutionContext, appConfig: FrontendAppConfig)
+)(implicit ec: ExecutionContext)
     extends BaseController
     with Logging {
 
@@ -53,34 +47,24 @@ class NotificationTaskListController @Inject() (
 
     val draftId = request.userAnswers.get(DraftIdPage).get // guard guarantees presence
 
-    val results = for {
-      summaryResult        <- backendConnector.getNotificationSummary()
-      updatedAnswersResult <- userDataService.retrieveAndStoreDraftNotification(draftId, request.userAnswers)
-    } yield (summaryResult, updatedAnswersResult)
-
-    results.flatMap {
-      case (Left(error), _) =>
-        logger.warn(s"Failed to fetch notification summary for VAT-registered Organisation: $error")
-        Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
-
-      case (_, Left(error)) =>
+    userDataService.retrieveAndStoreDraftNotification(draftId, request.userAnswers).flatMap {
+      case Left(error) =>
         logger.warn(s"Failed to retrieve draft notification for draftId ${draftId.value}: $error")
         Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
 
-      case (Right(summary), Right(updatedAnswers)) =>
-        val sections: Map[String, SectionStatus] = userDataService.determineAndUpdateStatus(updatedAnswers, request.userContext)
-        val sectionLink                          = determineSectionLink(sections, updatedAnswers)
+      case Right(updatedAnswers) =>
+        notificationSummaryService.getSummaryAndStoreDeregisteredStatus(updatedAnswers, None).map {
+          case Right((org: NotificationSummary.IndividualOrOrganisation, savedAnswers)) =>
+            val sections = userDataService.determineAndUpdateStatus(savedAnswers, request.userContext)
+            Ok(view(org.traderName, org.vrn, sections, showAddYourAddress(savedAnswers)))
 
-        summary match {
-          case org: NotificationSummary.IndividualOrOrganisation =>
-            sessionRepository.setPage(updatedAnswers, IsDeregisteredPage, org.isDeregistered).map { savedAnswers =>
-              val sections = userDataService.determineAndUpdateStatus(savedAnswers, request.userContext)
-              Ok(view(org.traderName, org.vrn, sections, showAddYourAddress(savedAnswers), sectionLink)))
-            }
-
-          case other =>
+          case Right((other, _)) =>
             logger.warn(s"Unexpected notification summary shape for VAT-registered Organisation: $other")
-            Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+            Redirect(routes.JourneyRecoveryController.onPageLoad())
+
+          case Left(error) =>
+            logger.warn(s"Failed to fetch notification summary for VAT-registered Organisation: $error")
+            Redirect(routes.JourneyRecoveryController.onPageLoad())
         }
     }
   }
@@ -95,24 +79,4 @@ object NotificationTaskListController {
   // AC2: 'Add your address' is shown only when the user answered 'No' to OQ1.0.
   def showAddYourAddress(answers: UserAnswers): Boolean =
     answers.get(VehicleBusinessUsePage).contains(false)
-
-  def determineSectionLink(sections: Map[String, SectionStatus], userAnswers: UserAnswers)(implicit
-    appConfig: FrontendAppConfig
-  ): Map[String, String] = {
-    sections.flatMap {
-      case (section @ SectionId.NotifierDetails, status) =>
-        if (status == SectionStatus.Completed) Map(section -> routes.LandingPageController.onPageLoad().url) // TODO - Update to CYA 2.0
-        else Map(section                                   -> routes.AboutYourDetailsController.onPageLoad().url)
-
-      case (section @ SectionId.NotifierAddress, status) =>
-        userAnswers.get(AddressJourneyIdPage) match
-          case Some(journeyId) if status == SectionStatus.Completed => Map(section -> appConfig.addressLookupFrontendConfirmPath(journeyId))
-          case _ => Map(section -> routes.IsYourAddressInTheUkController.onPageLoad(NormalMode).url)
-
-      case (section @ SectionId.Vehicles, status) => Map(section -> routes.AddVehicleDetailsController.onPageLoad(NormalMode).url)
-
-      case _ => Map.empty[String, String]
-    }
-
-  }
 }
