@@ -20,7 +20,7 @@ import controllers.actions.*
 import controllers.utils.IsDraftIdDefined
 import forms.EmailAddressFormProvider
 import javax.inject.Inject
-import models.{Mode, NovaUserType}
+import models.{CheckMode, Mode, NovaUserType}
 import models.requests.DataRequest
 import navigation.Navigator
 import pages.AgentClientVehicleBusinessUsePage
@@ -44,24 +44,28 @@ class EmailAddressController @Inject() (
 
   val form: Form[String] = formProvider()
 
-  private val guardPredicate: DataRequest[?] => Boolean = request => {
-    val answers     = request.userAnswers
-    val userContext = request.userContext
+  private def guardPredicate(mode: Mode): DataRequest[?] => Boolean = request => {
+    val answers = request.userAnswers
 
-    IsDraftIdDefined(answers) && (userContext match {
-      case ctx if ctx.isAgentWithClientNoEnrolments =>
-        answers.get(AgentClientVehicleBusinessUsePage).isDefined &&
-        answers.get(PhoneNumberPage).isDefined
-      case _ =>
-        answers.get(PhoneNumberPage).isDefined
-    })
+    IsDraftIdDefined(answers) && {
+      if (mode == CheckMode) {
+        YourDetailsCheckYourAnswersController.guardPredicate(request)
+      } else {
+        request.userContext match {
+          case ctx if ctx.isAgentWithClientNoEnrolments =>
+            answers.get(AgentClientVehicleBusinessUsePage).isDefined && answers.get(PhoneNumberPage).isDefined
+          case _ =>
+            answers.get(PhoneNumberPage).isDefined
+        }
+      }
+    }
   }
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate) { implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate(mode)) { implicit request =>
     Ok(view(form.withDefault(request.userAnswers.get(EmailAddressPage)), mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate).async { implicit request =>
+  def onSubmit(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate(mode)).async { implicit request =>
     form
       .bindFromRequest()
       .fold(

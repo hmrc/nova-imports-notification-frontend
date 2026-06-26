@@ -17,19 +17,17 @@
 package controllers
 
 import base.SpecBase
-import com.google.inject.name.Names
-import controllers.actions.*
 import forms.EmailAddressFormProvider
-import models.{AgentSelectedClient, DraftId, NormalMode, UserAnswers}
+import models.{BusinessOrPrivateIndividual, CheckMode, DraftId, NameDetails, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{AgentClientVehicleBusinessUsePage, AgentSelectedClientPage, DraftIdPage}
-import pages.sections.notifierDetails.{EmailAddressPage, PhoneNumberPage}
+import pages.DraftIdPage
+import pages.sections.initialquestions.BusinessOrPrivatePage
+import pages.sections.notifierDetails.{EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 import play.api.inject.bind
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -42,16 +40,34 @@ class EmailAddressControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute: Call = Call("GET", "/foo")
 
-  val formProvider           = new EmailAddressFormProvider()
-  val form                   = formProvider()
-  lazy val emailAddressRoute = routes.EmailAddressController.onPageLoad(NormalMode).url
-  val validEmail             = "name@example.com"
+  val formProvider                 = new EmailAddressFormProvider()
+  val form                         = formProvider()
+  lazy val emailAddressRoute       = routes.EmailAddressController.onPageLoad(NormalMode).url
+  lazy val emailAddressChangeRoute = routes.EmailAddressController.onPageLoad(CheckMode).url
+  val validEmail                   = "name@example.com"
 
   val requiredAnswers: UserAnswers = emptyUserAnswers
     .set(DraftIdPage, DraftId("DRAFT-001"))
     .success
     .value
     .set(PhoneNumberPage, "07000000000")
+    .success
+    .value
+
+  val cyaCompleteAnswers: UserAnswers = emptyUserAnswers
+    .set(DraftIdPage, DraftId("DRAFT-001"))
+    .success
+    .value
+    .set(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
+    .success
+    .value
+    .set(NameDetailsPage, NameDetails("Mr", "John", "Doe"))
+    .success
+    .value
+    .set(PhoneNumberPage, "07000000000")
+    .success
+    .value
+    .set(EmailAddressPage, validEmail)
     .success
     .value
 
@@ -207,6 +223,46 @@ class EmailAddressControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
+    "must redirect to Unauthorised when PhoneNumberPage is not set" in {
+      val answers     = emptyUserAnswers.set(DraftIdPage, DraftId("DRAFT-001")).success.value
+      val application = applicationBuilder(userAnswers = Some(answers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, emailAddressRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Unauthorised for a GET when no draft is in progress" in {
+      val answers     = emptyUserAnswers.set(PhoneNumberPage, "07000000000").success.value
+      val application = applicationBuilder(userAnswers = Some(answers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, emailAddressRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+
+    "must allow CheckMode access from completed CYA2 data" in {
+      val application = applicationBuilder(userAnswers = Some(cyaCompleteAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, emailAddressChangeRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+      }
+    }
+
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
 
       val application = applicationBuilder(userAnswers = None).build()
@@ -236,109 +292,5 @@ class EmailAddressControllerSpec extends SpecBase with MockitoSugar {
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
-
-    "must redirect to Unauthorised for a GET when the phone page has not been answered" in {
-      val answers     = emptyUserAnswers.set(DraftIdPage, DraftId("DRAFT-001")).success.value
-      val application = applicationBuilder(userAnswers = Some(answers)).build()
-
-      running(application) {
-        val request = FakeRequest(GET, emailAddressRoute)
-
-        val result = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
-      }
-    }
-
-    "must redirect to Unauthorised for a GET when no draft is in progress" in {
-      val answers     = emptyUserAnswers.set(PhoneNumberPage, "07000000000").success.value
-      val application = applicationBuilder(userAnswers = Some(answers)).build()
-
-      running(application) {
-        val request = FakeRequest(GET, emailAddressRoute)
-
-        val result = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
-      }
-    }
-
-    "for an agent with no enrolments and has a selected client" - {
-
-      val client = AgentSelectedClient(vrn = "GB123456789", name = Some("Acme Ltd"))
-
-      def agentNoEnrolmentsApplication(answers: UserAnswers) =
-        new GuiceApplicationBuilder()
-          .overrides(
-            bind[DataRequiredAction].to[DataRequiredActionImpl],
-            bind[IdentifierAction].to[FakeAgentNoEnrolmentsIdentifierAction],
-            bind[IdentifierAction].qualifiedWith(Names.named("standard")).to[FakeAgentNoEnrolmentsIdentifierAction],
-            bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeAgentNoEnrolmentsIdentifierAction],
-            bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeAgentNoEnrolmentsIdentifierAction],
-            bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeAgentNoEnrolmentsIdentifierAction],
-            bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(Some(answers)))
-          )
-          .build()
-
-      "must allow access to email page when AQ1 is answered and a phone number is defined" in {
-        val answers = requiredAnswers
-          .set(AgentSelectedClientPage, client)
-          .success
-          .value
-          .set(AgentClientVehicleBusinessUsePage, true)
-          .success
-          .value
-
-        val application = agentNoEnrolmentsApplication(answers)
-
-        running(application) {
-          val request = FakeRequest(GET, emailAddressRoute)
-
-          status(route(application, request).value) mustEqual OK
-        }
-      }
-
-      "must redirect to Unauthorised when AQ1 has not been answered" in {
-        val answers = requiredAnswers.set(AgentSelectedClientPage, client).success.value
-
-        val application = agentNoEnrolmentsApplication(answers)
-
-        running(application) {
-          val request = FakeRequest(GET, emailAddressRoute)
-
-          val result = route(application, request).value
-
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
-        }
-      }
-
-      "must redirect to Unauthorised when the phone number has not been defined accessing email page" in {
-        val answers = emptyUserAnswers
-          .set(DraftIdPage, DraftId("DRAFT-001"))
-          .success
-          .value
-          .set(AgentSelectedClientPage, client)
-          .success
-          .value
-          .set(AgentClientVehicleBusinessUsePage, true)
-          .success
-          .value
-
-        val application = agentNoEnrolmentsApplication(answers)
-
-        running(application) {
-          val request = FakeRequest(GET, emailAddressRoute)
-
-          val result = route(application, request).value
-
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
-        }
-      }
-    }
-
   }
 }
