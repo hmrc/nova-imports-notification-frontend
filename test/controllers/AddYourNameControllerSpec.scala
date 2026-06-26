@@ -17,20 +17,18 @@
 package controllers
 
 import base.SpecBase
-import com.google.inject.name.Names
-import controllers.actions.*
 import forms.AddYourNameFormProvider
-import models.{AgentSelectedClient, BusinessOrPrivateIndividual, DraftId, NameDetails, NormalMode, UserAnswers}
+import models.{BusinessOrPrivateIndividual, CheckMode, DraftId, NameDetails, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.AgentClientVehicleBusinessUsePage
+import pages.AboutYourDetailsPage
 import pages.sections.initialquestions.{BusinessOrPrivatePage, VehicleFromEuPage}
+import pages.sections.notifierDetails.{EmailAddressPage, PhoneNumberPage}
 import pages.sections.notifierDetails.NameDetailsPage
 import play.api.inject.bind
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -46,20 +44,41 @@ class AddYourNameControllerSpec extends SpecBase with MockitoSugar {
   val formProvider = new AddYourNameFormProvider()
   val form         = formProvider()
 
-  lazy val addYourNameRoute = routes.AddYourNameController.onPageLoad(NormalMode).url
+  lazy val addYourNameRoute       = routes.AddYourNameController.onPageLoad(NormalMode).url
+  lazy val addYourNameChangeRoute = routes.AddYourNameController.onPageLoad(CheckMode).url
 
   val validTitle     = "Mr"
   val validFirstName = "John"
   val validLastName  = "Doe"
 
   private val requiredPreviousAnswers = emptyUserAnswers
-    .set(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
-    .success
-    .value
     .set(pages.DraftIdPage, DraftId("DRAFT-001"))
     .success
     .value
+    .set(AboutYourDetailsPage, true)
+    .success
+    .value
     .set(VehicleFromEuPage, true)
+    .success
+    .value
+    .set(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
+    .success
+    .value
+
+  private val cyaCompleteAnswers = emptyUserAnswers
+    .set(pages.DraftIdPage, DraftId("DRAFT-001"))
+    .success
+    .value
+    .set(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
+    .success
+    .value
+    .set(NameDetailsPage, NameDetails(validTitle, validFirstName, validLastName))
+    .success
+    .value
+    .set(PhoneNumberPage, "01632 960 001")
+    .success
+    .value
+    .set(EmailAddressPage, "name@example.com")
     .success
     .value
 
@@ -78,64 +97,6 @@ class AddYourNameControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
-      }
-    }
-
-    "must redirect to Unauthorised for a GET for an agent with no enrolments accessing name page" in {
-
-      val agentNoEnrolmentsAnswers = emptyUserAnswers
-        .set(AgentClientVehicleBusinessUsePage, false)
-        .success
-        .value
-        .set(pages.AgentSelectedClientPage, AgentSelectedClient("123456789", Some("ABC Ltd")))
-        .success
-        .value
-        .set(pages.DraftIdPage, DraftId("DRAFT-001"))
-        .success
-        .value
-
-      val application = new GuiceApplicationBuilder()
-        .overrides(
-          bind[DataRequiredAction].to[DataRequiredActionImpl],
-          bind[IdentifierAction].to[FakeAgentNoEnrolmentsIdentifierAction],
-          bind[IdentifierAction].qualifiedWith(Names.named("standard")).to[FakeAgentNoEnrolmentsIdentifierAction],
-          bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeAgentNoEnrolmentsIdentifierAction],
-          bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeAgentNoEnrolmentsIdentifierAction],
-          bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeAgentNoEnrolmentsIdentifierAction],
-          bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(Some(agentNoEnrolmentsAnswers)))
-        )
-        .build()
-
-      running(application) {
-        val request = FakeRequest(GET, addYourNameRoute)
-
-        val result = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
-      }
-    }
-
-    "must return OK for a GET for an agent with no enrolments and no selected client" in {
-
-      val application = new GuiceApplicationBuilder()
-        .overrides(
-          bind[DataRequiredAction].to[DataRequiredActionImpl],
-          bind[IdentifierAction].to[FakeAgentNoEnrolmentsIdentifierAction],
-          bind[IdentifierAction].qualifiedWith(Names.named("standard")).to[FakeAgentNoEnrolmentsIdentifierAction],
-          bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeAgentNoEnrolmentsIdentifierAction],
-          bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeAgentNoEnrolmentsIdentifierAction],
-          bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeAgentNoEnrolmentsIdentifierAction],
-          bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(Some(requiredPreviousAnswers)))
-        )
-        .build()
-
-      running(application) {
-        val request = FakeRequest(GET, addYourNameRoute)
-
-        val result = route(application, request).value
-
-        status(result) mustEqual OK
       }
     }
 
@@ -238,6 +199,35 @@ class AddYourNameControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual BAD_REQUEST
         contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
+      }
+    }
+
+    "must redirect to Unauthorised when AboutYourDetailsPage is not set" in {
+
+      val answers = emptyUserAnswers.set(pages.DraftIdPage, DraftId("DRAFT-001")).success.value
+
+      val application = applicationBuilder(userAnswers = Some(answers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, addYourNameRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+
+    "must allow CheckMode access from completed CYA2 data without AboutYourDetailsPage" in {
+
+      val application = applicationBuilder(userAnswers = Some(cyaCompleteAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, addYourNameChangeRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
       }
     }
 

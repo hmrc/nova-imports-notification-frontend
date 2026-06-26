@@ -20,11 +20,11 @@ import controllers.actions.*
 import controllers.utils.IsDraftIdDefined
 import forms.PhoneNumberFormProvider
 import models.requests.DataRequest
-import models.{Mode, NovaUserType, PurchaserOrOnBehalf}
+import models.{BusinessOrPrivateIndividual, CheckMode, Mode, NovaUserType}
 import navigation.Navigator
-import pages.*
-import pages.sections.initialquestions.{PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage}
-import pages.sections.notifierDetails.PhoneNumberPage
+import pages.{AboutYourDetailsPage, AgentClientVehicleBusinessUsePage}
+import pages.sections.initialquestions.{BusinessOrPrivatePage, VehicleBusinessUsePage, VehicleFromEuPage}
+import pages.sections.notifierDetails.{NameDetailsPage, PhoneNumberPage}
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -45,28 +45,37 @@ class PhoneNumberController @Inject() (
 
   val form: Form[String] = formProvider()
 
-  private val guardPredicate: DataRequest[?] => Boolean = request => {
-    val ua          = request.userAnswers
-    val userContext = request.userContext
+  private def guardPredicate(mode: Mode): DataRequest[?] => Boolean = request => {
+    val ua = request.userAnswers
 
-    IsDraftIdDefined(ua) && (userContext match {
-      case ctx if ctx.isAgentWithClientNoEnrolments => ua.get(AgentClientVehicleBusinessUsePage).isDefined
-      case ctx if ctx.isVatRegisteredOrganisation   => ua.get(VehicleBusinessUsePage).isDefined
-      case ctx if ctx.isAgentWithClient             => ua.get(AgentClientVehicleBusinessUsePage).isDefined
-      case _                                        =>
-        ua.get(PurchaserOrOnBehalfPage) match {
-          case Some(PurchaserOrOnBehalf.Purchaser)           => true
-          case Some(PurchaserOrOnBehalf.OnBehalfOfPurchaser) => ua.get(PurchaserBusinessOrIndividualPage).isDefined
-          case None                                          => false
-        }
-    })
+    IsDraftIdDefined(ua) && {
+      if (mode == CheckMode) {
+        YourDetailsCheckYourAnswersController.guardPredicate(request)
+      } else {
+        ua.get(NameDetailsPage).isDefined ||
+        (ua.get(AboutYourDetailsPage).contains(true) && nameNotRequiredFor(request))
+      }
+    }
   }
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate) { implicit request =>
+  private def nameNotRequiredFor(request: DataRequest[?]): Boolean = {
+    val answers = request.userAnswers
+
+    request.userContext match {
+      case ctx if ctx.isAgentWithClientNoEnrolments => answers.get(AgentClientVehicleBusinessUsePage).isDefined
+      case ctx if ctx.isVatRegisteredOrganisation   => answers.get(VehicleBusinessUsePage).contains(true)
+      case ctx if ctx.isAgentWithClient             => answers.get(AgentClientVehicleBusinessUsePage).contains(true)
+      case _                                        =>
+        answers.get(VehicleFromEuPage).contains(true) &&
+        answers.get(BusinessOrPrivatePage).exists(_ != BusinessOrPrivateIndividual.PrivateIndividual)
+    }
+  }
+
+  def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate(mode)) { implicit request =>
     Ok(view(form.withDefault(request.userAnswers.get(PhoneNumberPage)), mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate).async { implicit request =>
+  def onSubmit(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate(mode)).async { implicit request =>
     form
       .bindFromRequest()
       .fold(

@@ -18,17 +18,17 @@ package controllers
 
 import javax.inject.Inject
 import controllers.actions.*
+import controllers.utils.IsDraftIdDefined
 import forms.AddYourNameFormProvider
-import models.{BusinessOrPrivateIndividual, Mode, NovaUserType, UserAnswers}
+import models.{BusinessOrPrivateIndividual, CheckMode, Mode, NovaUserType}
 import models.requests.DataRequest
 import navigation.Navigator
-import pages.*
+import pages.{AboutYourDetailsPage, AgentClientVehicleBusinessUsePage}
+import pages.sections.initialquestions.{BusinessOrPrivatePage, VehicleBusinessUsePage, VehicleFromEuPage}
+import pages.sections.notifierDetails.NameDetailsPage
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import views.html.AddYourNameView
-import controllers.utils.IsDraftIdDefined
-import pages.sections.initialquestions.{BusinessOrPrivatePage, VehicleBusinessUsePage, VehicleFromEuPage}
-import pages.sections.notifierDetails.*
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -42,15 +42,38 @@ class AddYourNameController @Inject() (
 )(implicit ec: ExecutionContext)
     extends BaseController {
 
-  import AddYourNameController.*
-
   private val form = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate) { implicit request =>
+  private def guardPredicate(mode: Mode): DataRequest[?] => Boolean = request => {
+    val answers = request.userAnswers
+
+    IsDraftIdDefined(answers) && {
+      if (mode == CheckMode) {
+        answers.get(NameDetailsPage).isDefined && YourDetailsCheckYourAnswersController.guardPredicate(request)
+      } else {
+        answers.get(AboutYourDetailsPage).isDefined && nameRequiredFor(request)
+      }
+    }
+  }
+
+  private def nameRequiredFor(request: DataRequest[?]): Boolean = {
+    val answers = request.userAnswers
+
+    request.userContext match {
+      case ctx if ctx.isAgentWithClientNoEnrolments => false
+      case ctx if ctx.isVatRegisteredOrganisation   => answers.get(VehicleBusinessUsePage).contains(false)
+      case ctx if ctx.isAgentWithClient             => answers.get(AgentClientVehicleBusinessUsePage).contains(false)
+      case _                                        =>
+        answers.get(VehicleFromEuPage).contains(true) &&
+        answers.get(BusinessOrPrivatePage).contains(BusinessOrPrivateIndividual.PrivateIndividual)
+    }
+  }
+
+  def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate(mode)) { implicit request =>
     Ok(view(form.withDefault(request.userAnswers.get(NameDetailsPage)), mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate).async { implicit request =>
+  def onSubmit(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate(mode)).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
@@ -64,29 +87,4 @@ class AddYourNameController @Inject() (
           )
       )
   }
-}
-
-object AddYourNameController {
-
-  def guardPredicate(request: DataRequest[?]): Boolean = {
-    val answers     = request.userAnswers
-    val userContext = request.userContext
-
-    IsDraftIdDefined(answers) && (userContext match {
-      case ctx if ctx.isAgentWithClientNoEnrolments => false
-      case ctx if ctx.isVatRegisteredOrganisation   => vatRegisteredOrgAnswersComplete(answers)
-      case ctx if ctx.isAgentWithClient             => agentWithClientAnswersComplete(answers)
-      case _                                        => standardUserAnswersComplete(answers)
-    })
-  }
-
-  private def standardUserAnswersComplete(answers: UserAnswers): Boolean =
-    answers.get(BusinessOrPrivatePage).contains(BusinessOrPrivateIndividual.PrivateIndividual) &&
-      answers.get(VehicleFromEuPage).contains(true)
-
-  private def vatRegisteredOrgAnswersComplete(answers: UserAnswers): Boolean =
-    answers.get(VehicleBusinessUsePage).contains(false)
-
-  private def agentWithClientAnswersComplete(answers: UserAnswers): Boolean =
-    answers.get(AgentClientVehicleBusinessUsePage).contains(false)
 }

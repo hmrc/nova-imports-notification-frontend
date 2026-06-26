@@ -16,4 +16,9 @@
 
 package pages
 
-case object AboutYourDetailsPage extends Page
+import play.api.libs.json.JsPath
+
+case object AboutYourDetailsPage extends QuestionPage[Boolean] {
+  override def path: JsPath     = JsPath \ toString
+  override def toString: String = "aboutYourDetailsVisited"
+}

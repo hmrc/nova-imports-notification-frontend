@@ -20,28 +20,35 @@ import com.google.inject.Inject
 import controllers.actions.*
 import models.{NormalMode, NovaUserType, UserAnswers}
 import navigation.Navigator
-import pages.AboutYourDetailsPage
-import pages.sections.initialquestions.VehicleBusinessUsePage
+import pages.{AboutYourDetailsPage, NotificationTaskListPage}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.SessionRepository
 import views.html.AboutYourDetailsView
+
+import scala.concurrent.{ExecutionContext, Future}
 
 class AboutYourDetailsController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   navigator: Navigator,
   actions: Actions,
+  sessionRepository: SessionRepository,
   view: AboutYourDetailsView
-) extends BaseController {
+)(implicit ec: ExecutionContext)
+    extends BaseController {
 
   private val guardPredicate: UserAnswers => Boolean =
-    _.get(VehicleBusinessUsePage).isDefined
+    _.get(NotificationTaskListPage).isDefined
 
   def onPageLoad: Action[AnyContent] = actions.vatTraderAuthAndGetDataWithGuard(guardPredicate) { implicit request =>
     Ok(view())
   }
 
-  def onSubmit: Action[AnyContent] = actions.vatTraderAuthAndGetDataWithGuard(guardPredicate) { implicit request =>
-    Redirect(
-      navigator.nextPage(AboutYourDetailsPage, NormalMode, request.userAnswers, NovaUserType.from(request.affinityGroup, request.enrolments))
+  def onSubmit: Action[AnyContent] = actions.vatTraderAuthAndGetDataWithGuard(guardPredicate).async { implicit request =>
+    for {
+      updatedAnswers <- Future.fromTry(request.userAnswers.set(AboutYourDetailsPage, true))
+      _              <- sessionRepository.set(updatedAnswers)
+    } yield Redirect(
+      navigator.nextPage(AboutYourDetailsPage, NormalMode, updatedAnswers, NovaUserType.from(request.affinityGroup, request.enrolments))
     )
   }
 }

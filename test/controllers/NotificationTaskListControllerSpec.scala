@@ -22,10 +22,11 @@ import connectors.{GetDraftNotificationError, GetNotificationSummaryError, NovaI
 import controllers.actions.*
 import models.NormalMode
 import models.{DraftId, DraftNotification, DraftNotificationSection, NotificationSummary, UserAnswers}
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
-import org.mockito.Mockito.{verify, when}
+import org.mockito.Mockito.{never, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{DraftIdPage, IsDeregisteredPage}
+import pages.{DraftIdPage, IsDeregisteredPage, NotificationTaskListPage}
 import pages.sections.initialquestions.VehicleBusinessUsePage
 import pages.sections.notifierDetails.PhoneNumberPage
 import play.api.Application
@@ -97,35 +98,24 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
     m
   }
 
-  private def applicationWith(
-    identifierAction: Class[? <: IdentifierAction],
-    userAnswers: Option[UserAnswers],
-    connector: NovaImportsBackendConnector = stubConnector()
-  ): Application =
-    new GuiceApplicationBuilder()
-      .overrides(
-        bind[DataRequiredAction].to[DataRequiredActionImpl],
-        bind[IdentifierAction].to[FakeIdentifierAction],
-        bind[IdentifierAction].qualifiedWith(Names.named("standard")).to[FakeIdentifierAction],
-        bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to(identifierAction),
-        bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeIdentifierAction],
-        bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
-        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers)),
-        bind[NovaImportsBackendConnector].toInstance(connector)
-      )
-      .build()
-
-  private def mockSessionRepository: SessionRepository = {
+  private def stubSessionRepository(): SessionRepository = {
     val sessionRepo = mock[SessionRepository]
-    when(sessionRepo.setPage(any(), any(), any())(any())).thenReturn(Future.successful(emptyUserAnswers))
+    when(sessionRepo.setPage(any(), any(), any())(any())).thenAnswer { (invocation: org.mockito.invocation.InvocationOnMock) =>
+      val answers = invocation.getArgument[UserAnswers](0)
+      val page    = invocation.getArgument[queries.Settable[Any]](1)
+      val value   = invocation.getArgument[Any](2)
+      val writes  = invocation.getArgument[play.api.libs.json.Writes[Any]](3)
+      Future.successful(answers.set(page, value)(writes).get)
+    }
+    when(sessionRepo.set(any())).thenReturn(Future.successful(true))
     sessionRepo
   }
 
-  private def applicationWithRepo(
+  private def applicationWith(
     identifierAction: Class[? <: IdentifierAction],
     userAnswers: Option[UserAnswers],
-    connector: NovaImportsBackendConnector,
-    sessionRepo: SessionRepository
+    connector: NovaImportsBackendConnector = stubConnector(),
+    sessionRepo: SessionRepository = stubSessionRepository()
   ): Application =
     new GuiceApplicationBuilder()
       .overrides(
@@ -172,10 +162,28 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must save the deregistered status from the summary into the session" in {
-        val sessionRepo                = mockSessionRepository
+      "must persist NotificationTaskListPage = true in the session" in {
+        val sessionRepo = stubSessionRepository()
+        val captor      = ArgumentCaptor.forClass(classOf[UserAnswers])
+
         given application: Application =
-          applicationWithRepo(
+          applicationWith(classOf[FakeVatTraderIdentifierAction], Some(answersBusinessUse), sessionRepo = sessionRepo)
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
+
+          status(route(application, request).value) mustEqual OK
+
+          verify(sessionRepo).set(captor.capture())
+          captor.getValue.get(NotificationTaskListPage) mustBe Some(true)
+        }
+      }
+
+      "must save the deregistered status from the summary into the session" in {
+        val sessionRepo                = stubSessionRepository()
+        given application: Application =
+          applicationWith(
             classOf[FakeVatTraderIdentifierAction],
             Some(answersBusinessUse),
             stubConnector(summary = Right(deregisteredOrgSummary)),
@@ -261,8 +269,9 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
       }
 
       "must redirect to Unauthorised when the user is not a VAT-registered organisation" in {
+        val sessionRepo                = stubSessionRepository()
         given application: Application =
-          applicationWith(classOf[UnauthorisedIdentifierAction], Some(answersBusinessUse))
+          applicationWith(classOf[UnauthorisedIdentifierAction], Some(answersBusinessUse), sessionRepo = sessionRepo)
 
         running(application) {
           given request: FakeRequest[AnyContentAsEmpty.type] =
@@ -272,12 +281,14 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+          verify(sessionRepo, never).set(any())
         }
       }
 
       "must redirect to Journey Recovery when no user answers exist" in {
+        val sessionRepo                = stubSessionRepository()
         given application: Application =
-          applicationWith(classOf[FakeVatTraderIdentifierAction], None)
+          applicationWith(classOf[FakeVatTraderIdentifierAction], None, sessionRepo = sessionRepo)
 
         running(application) {
           given request: FakeRequest[AnyContentAsEmpty.type] =
@@ -287,15 +298,17 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+          verify(sessionRepo, never).set(any())
         }
       }
 
       "must redirect to Journey Recovery when OQ1.0 has not been answered" in {
         val onlyDraftId =
           emptyUserAnswers.set(DraftIdPage, testDraftId).success.value
+        val sessionRepo = stubSessionRepository()
 
         given application: Application =
-          applicationWith(classOf[FakeVatTraderIdentifierAction], Some(onlyDraftId))
+          applicationWith(classOf[FakeVatTraderIdentifierAction], Some(onlyDraftId), sessionRepo = sessionRepo)
 
         running(application) {
           given request: FakeRequest[AnyContentAsEmpty.type] =
@@ -305,15 +318,17 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+          verify(sessionRepo, never).set(any())
         }
       }
 
       "must redirect to Journey Recovery when the draft id is missing" in {
         val onlyBusinessUse =
           emptyUserAnswers.set(VehicleBusinessUsePage, true).success.value
+        val sessionRepo = stubSessionRepository()
 
         given application: Application =
-          applicationWith(classOf[FakeVatTraderIdentifierAction], Some(onlyBusinessUse))
+          applicationWith(classOf[FakeVatTraderIdentifierAction], Some(onlyBusinessUse), sessionRepo = sessionRepo)
 
         running(application) {
           given request: FakeRequest[AnyContentAsEmpty.type] =
@@ -323,15 +338,18 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+          verify(sessionRepo, never).set(any())
         }
       }
 
       "must redirect to Journey Recovery when the summary fetch fails" in {
+        val sessionRepo                = stubSessionRepository()
         given application: Application =
           applicationWith(
             classOf[FakeVatTraderIdentifierAction],
             Some(answersBusinessUse),
-            stubConnector(summary = Left(GetNotificationSummaryError.UpstreamError(500, "boom")))
+            stubConnector(summary = Left(GetNotificationSummaryError.UpstreamError(500, "boom"))),
+            sessionRepo
           )
 
         running(application) {
@@ -342,6 +360,7 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+          verify(sessionRepo, never).set(any())
         }
       }
 
@@ -350,12 +369,14 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
           agentName = Some("ABC Consultancy"),
           hasDraftNotifications = false
         )
+        val sessionRepo = stubSessionRepository()
 
         given application: Application =
           applicationWith(
             classOf[FakeVatTraderIdentifierAction],
             Some(answersBusinessUse),
-            stubConnector(summary = Right(agentSummary))
+            stubConnector(summary = Right(agentSummary)),
+            sessionRepo
           )
 
         running(application) {
@@ -366,15 +387,18 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+          verify(sessionRepo, never).set(any())
         }
       }
 
       "must redirect to Journey Recovery when the draft fetch returns Forbidden" in {
+        val sessionRepo                = stubSessionRepository()
         given application: Application =
           applicationWith(
             classOf[FakeVatTraderIdentifierAction],
             Some(answersBusinessUse),
-            stubConnector(draft = Left(GetDraftNotificationError.Forbidden))
+            stubConnector(draft = Left(GetDraftNotificationError.Forbidden)),
+            sessionRepo
           )
 
         running(application) {
@@ -385,15 +409,18 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+          verify(sessionRepo, never).set(any())
         }
       }
 
       "must redirect to Journey Recovery when the draft fetch returns NotFound" in {
+        val sessionRepo                = stubSessionRepository()
         given application: Application =
           applicationWith(
             classOf[FakeVatTraderIdentifierAction],
             Some(answersBusinessUse),
-            stubConnector(draft = Left(GetDraftNotificationError.NotFound))
+            stubConnector(draft = Left(GetDraftNotificationError.NotFound)),
+            sessionRepo
           )
 
         running(application) {
@@ -404,15 +431,18 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+          verify(sessionRepo, never).set(any())
         }
       }
 
       "must redirect to Journey Recovery when the draft fetch returns an UpstreamError" in {
+        val sessionRepo                = stubSessionRepository()
         given application: Application =
           applicationWith(
             classOf[FakeVatTraderIdentifierAction],
             Some(answersBusinessUse),
-            stubConnector(draft = Left(GetDraftNotificationError.UpstreamError(500, "boom")))
+            stubConnector(draft = Left(GetDraftNotificationError.UpstreamError(500, "boom"))),
+            sessionRepo
           )
 
         running(application) {
@@ -422,6 +452,7 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+          verify(sessionRepo, never).set(any())
         }
       }
     }
