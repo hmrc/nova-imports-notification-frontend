@@ -89,7 +89,7 @@ object NotificationTaskListController {
   ): Map[String, String] =
     sections.flatMap {
       case (section @ SectionId.NotifierDetails, status) =>
-        if (status == SectionStatus.Completed) Map(section -> routes.LandingPageController.onPageLoad().url) // TODO - Update to CYA
+        if (status == SectionStatus.Completed) Map(section -> routes.YourDetailsCheckYourAnswersController.onPageLoad().url)
         else Map(section                                   -> routes.AboutYourDetailsController.onPageLoad().url)
 
       case (section @ SectionId.NotifierAddress, status) =>

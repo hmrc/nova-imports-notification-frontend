@@ -72,7 +72,7 @@ class YourDetailsCheckYourAnswersController @Inject() (
           case Right(newVersionId) =>
             sessionRepository
               .setPage(request.userAnswers, DraftVersionIdPage, newVersionId)
-              .map(_ => Redirect(nextPage(request.userContext)))
+              .map(_ => Redirect(routes.NotificationTaskListController.onPageLoad()))
           case Left(error) =>
             logger.warn(s"Failed to update 'notifier-details' section for draftId ${draftId.value}: $error")
             Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
