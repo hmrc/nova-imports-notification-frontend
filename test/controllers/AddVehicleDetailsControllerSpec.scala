@@ -21,13 +21,12 @@ import com.google.inject.name.Names
 import config.FrontendAppConfig
 import controllers.actions.*
 import forms.AddVehicleDetailsFormProvider
-import models.requests.IdentifierRequest
-import models.{AddVehicleDetails, NormalMode, UserAnswers}
+import models.{AddVehicleDetails, DraftId, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.AddVehicleDetailsPage
+import pages.{AddVehicleDetailsPage, DraftIdPage}
 import pages.sections.initialquestions.VehicleFromEuPage
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -35,11 +34,9 @@ import play.api.mvc.*
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolment, EnrolmentIdentifier, Enrolments}
 import views.html.AddVehicleDetailsView
 
-import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class AddVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
 
@@ -50,7 +47,13 @@ class AddVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
 
   lazy val addVehicleDetailsRoute = routes.AddVehicleDetailsController.onPageLoad(NormalMode).url
 
-  val userAnswersWithIq1Yes: UserAnswers = emptyUserAnswers.set(VehicleFromEuPage, true).success.value
+  val userAnswersWithIQ1Yes: UserAnswers = emptyUserAnswers
+    .set(DraftIdPage, DraftId("DRAFT-001"))
+    .success
+    .value
+    .set(VehicleFromEuPage, true)
+    .success
+    .value
 
   private def spreadsheetUrl(app: play.api.Application): String =
     app.injector.instanceOf[FrontendAppConfig].multipleVehiclesSpreadsheetsUrl
@@ -75,7 +78,7 @@ class AddVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithIq1Yes)).build()
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithIQ1Yes)).build()
 
       running(application) {
         val request = FakeRequest(GET, addVehicleDetailsRoute)
@@ -91,7 +94,7 @@ class AddVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = userAnswersWithIq1Yes
+      val userAnswers = userAnswersWithIQ1Yes
         .set(AddVehicleDetailsPage, AddVehicleDetails.BySupplier)
         .success
         .value
@@ -120,7 +123,7 @@ class AddVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val application =
-        applicationBuilder(userAnswers = Some(userAnswersWithIq1Yes))
+        applicationBuilder(userAnswers = Some(userAnswersWithIQ1Yes))
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
             bind[SessionRepository].toInstance(mockSessionRepository)
@@ -141,7 +144,7 @@ class AddVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
 
     "must return a Bad Request and errors when invalid data is submitted" in {
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithIq1Yes)).build()
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithIQ1Yes)).build()
 
       running(application) {
         val request =
@@ -218,9 +221,10 @@ class AddVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to Unauthorised for a GET when the user is an OGD agent (user type 7 or 8)" in {
+    "must redirect to Unauthorised for a GET if draftId is missing" in {
 
-      val application = applicationFor(classOf[UnauthorisedIdentifierAction], Some(userAnswersWithIq1Yes))
+      val answersWithoutDraftId = emptyUserAnswers.set(VehicleFromEuPage, true).success.value
+      val application           = applicationBuilder(userAnswers = Some(answersWithoutDraftId)).build()
 
       running(application) {
         val request = FakeRequest(GET, addVehicleDetailsRoute)
@@ -232,9 +236,10 @@ class AddVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to Unauthorised for a POST when the user is an OGD agent (user type 7 or 8)" in {
+    "must redirect to Unauthorised for a POST if draftId is missing" in {
 
-      val application = applicationFor(classOf[UnauthorisedIdentifierAction], Some(userAnswersWithIq1Yes))
+      val answersWithoutDraftId = emptyUserAnswers.set(VehicleFromEuPage, true).success.value
+      val application           = applicationBuilder(userAnswers = Some(answersWithoutDraftId)).build()
 
       running(application) {
         val request =
@@ -248,9 +253,9 @@ class AddVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to Unauthorised for a GET when the user is a de-registered organisation (user type 9)" in {
+    "must redirect to the unauthorised page for a GET when the user is not allowed to access the service" in {
 
-      val application = applicationFor(classOf[FakeDeregisteredOrganisationIdentifierAction], Some(userAnswersWithIq1Yes))
+      val application = applicationFor(classOf[UnauthorisedIdentifierAction], Some(userAnswersWithIQ1Yes))
 
       running(application) {
         val request = FakeRequest(GET, addVehicleDetailsRoute)
@@ -262,9 +267,9 @@ class AddVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to Unauthorised for a POST when the user is a de-registered organisation (user type 9)" in {
+    "must redirect to the unauthorised page for a POST when the user is not allowed to access the service" in {
 
-      val application = applicationFor(classOf[FakeDeregisteredOrganisationIdentifierAction], Some(userAnswersWithIq1Yes))
+      val application = applicationFor(classOf[UnauthorisedIdentifierAction], Some(userAnswersWithIQ1Yes))
 
       running(application) {
         val request =
@@ -278,23 +283,4 @@ class AddVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
       }
     }
   }
-}
-
-class FakeDeregisteredOrganisationIdentifierAction @Inject() (bodyParsers: PlayBodyParsers) extends IdentifierAction {
-
-  override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] =
-    block(
-      IdentifierRequest(
-        request,
-        "id",
-        AffinityGroup.Organisation,
-        Enrolments(Set(Enrolment("HMCE-VATDEC-ORG", Seq(EnrolmentIdentifier("VATRegNo", "700037204")), "NotYetActivated")))
-      )
-    )
-
-  override def parser: BodyParser[AnyContent] =
-    bodyParsers.default
-
-  override protected def executionContext: ExecutionContext =
-    scala.concurrent.ExecutionContext.Implicits.global
 }
