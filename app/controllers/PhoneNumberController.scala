@@ -52,8 +52,7 @@ class PhoneNumberController @Inject() (
       if (mode == CheckMode) {
         YourDetailsCheckYourAnswersController.guardPredicate(request)
       } else {
-        ua.get(NameDetailsPage).isDefined ||
-        (ua.get(AboutYourDetailsPage).contains(true) && nameNotRequiredFor(request))
+        ua.get(NameDetailsPage).isDefined || nameNotRequiredFor(request)
       }
     }
   }
@@ -63,9 +62,10 @@ class PhoneNumberController @Inject() (
 
     request.userContext match {
       case ctx if ctx.isAgentWithClientNoEnrolments => answers.get(AgentClientVehicleBusinessUsePage).isDefined
-      case ctx if ctx.isVatRegisteredOrganisation   => answers.get(VehicleBusinessUsePage).contains(true)
-      case ctx if ctx.isAgentWithClient             => answers.get(AgentClientVehicleBusinessUsePage).contains(true)
-      case _                                        =>
+      case ctx if ctx.isVatRegisteredOrganisation   =>
+        answers.get(AboutYourDetailsPage).contains(true) && answers.get(VehicleBusinessUsePage).contains(true)
+      case ctx if ctx.isAgentWithClient => answers.get(AgentClientVehicleBusinessUsePage).contains(true)
+      case _                            =>
         answers.get(VehicleFromEuPage).contains(true) &&
         answers.get(BusinessOrPrivatePage).exists(_ != BusinessOrPrivateIndividual.PrivateIndividual)
     }
