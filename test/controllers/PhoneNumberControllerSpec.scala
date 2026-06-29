@@ -18,7 +18,7 @@ package controllers
 
 import base.SpecBase
 import com.google.inject.name.Names
-import controllers.actions.{DataRequiredAction, DataRequiredActionImpl, DataRetrievalAction, FakeDataRetrievalAction, FakeIdentifierAction, FakeVatTraderIdentifierAction, IdentifierAction}
+import controllers.actions.{DataRequiredAction, DataRequiredActionImpl, DataRetrievalAction, FakeAgentIdentifierAction, FakeDataRetrievalAction, FakeIdentifierAction, FakeVatTraderIdentifierAction, IdentifierAction}
 import forms.PhoneNumberFormProvider
 import models.{BusinessOrPrivateIndividual, CheckMode, DraftId, NameDetails, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
@@ -91,6 +91,18 @@ class PhoneNumberControllerSpec extends SpecBase with MockitoSugar {
         bind[IdentifierAction].qualifiedWith(Names.named("standard")).to[FakeVatTraderIdentifierAction],
         bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeVatTraderIdentifierAction],
         bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
+        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
+      )
+
+  private def agentWithClientApplicationBuilder(userAnswers: Option[UserAnswers]): GuiceApplicationBuilder =
+    new GuiceApplicationBuilder()
+      .overrides(
+        bind[DataRequiredAction].to[DataRequiredActionImpl],
+        bind[IdentifierAction].to[FakeAgentIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("standard")).to[FakeAgentIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeAgentIdentifierAction],
         bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
       )
@@ -180,6 +192,29 @@ class PhoneNumberControllerSpec extends SpecBase with MockitoSugar {
     "must return OK for a VAT organisation that came directly from AYD1.0 (OQ1.0 = Yes, no NameDetailsPage)" in {
 
       val application = vatTraderApplicationBuilder(Some(vatOrgRequiredAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, phoneNumberRoute)
+        val result  = route(application, request).value
+
+        status(result) mustEqual OK
+      }
+    }
+
+    // Regression: agents have no AYD1.0 step in their journey. An agent acting for a
+    // client with AQ1.0 = Yes (business use) skips the name page and reaches /phone-number
+    // directly — the guard must accept that without an AboutYourDetailsPage flag.
+    "must return OK for an agent acting for a client with AQ1.0 = Yes (no AboutYourDetailsPage, no NameDetailsPage)" in {
+
+      val agentBusinessUseAnswers = baseRequiredAnswers
+        .set(AgentSelectedClientPage, models.AgentSelectedClient("123456789"))
+        .success
+        .value
+        .set(AgentClientVehicleBusinessUsePage, true)
+        .success
+        .value
+
+      val application = agentWithClientApplicationBuilder(Some(agentBusinessUseAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, phoneNumberRoute)
