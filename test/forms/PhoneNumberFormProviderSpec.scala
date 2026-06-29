@@ -17,77 +17,101 @@
 package forms
 
 import forms.behaviours.StringFieldBehaviours
+import models.ContactNumbers
 import play.api.data.FormError
 
 class PhoneNumberFormProviderSpec extends StringFieldBehaviours {
 
-  val requiredKey  = "phoneNumber.error.required"
-  val lengthKey    = "phoneNumber.error.length"
-  val invalidKey   = "phoneNumber.error.invalid"
-  val maxLength    = 20
-  val allowedChars = "^[0-9 ]+$"
+  val requiredKey      = "phoneNumber.error.required"
+  val lengthKey        = "phoneNumber.error.length"
+  val invalidKey       = "phoneNumber.error.invalid"
+  val mobileLengthKey  = "phoneNumber.error.mobileLength"
+  val mobileInvalidKey = "phoneNumber.error.mobileInvalid"
+  val maxLength        = 20
+  val allowedChars     = "^[0-9 ]+$"
 
   val form = new PhoneNumberFormProvider()()
 
-  ".value" - {
+  "PhoneNumberFormProvider" - {
 
-    val fieldName = "value"
+    "must bind both a phone number and a mobile number" in {
+      val result = form.bind(Map("phoneNumber" -> "01632 960 001", "mobileNumber" -> "07700 900 982"))
+      result.errors mustBe empty
+      result.value.value mustBe ContactNumbers(Some("01632 960 001"), Some("07700 900 982"))
+    }
 
-    behave like mandatoryField(
-      form,
-      fieldName,
-      requiredError = FormError(fieldName, requiredKey)
-    )
+    "must bind when only the phone number is provided" in {
+      val result = form.bind(Map("phoneNumber" -> "01632 960 001", "mobileNumber" -> ""))
+      result.errors mustBe empty
+      result.value.value mustBe ContactNumbers(Some("01632 960 001"), None)
+    }
 
-    behave like fieldWithMaxLength(
-      form,
-      fieldName,
-      maxLength = maxLength,
-      lengthError = FormError(fieldName, lengthKey, Seq(maxLength))
-    )
+    "must bind when only the mobile number is provided" in {
+      val result = form.bind(Map("phoneNumber" -> "", "mobileNumber" -> "07700 900 982"))
+      result.errors mustBe empty
+      result.value.value mustBe ContactNumbers(None, Some("07700 900 982"))
+    }
 
-    "bind valid phone numbers consisting only of digits and spaces" in {
+    "must fail with error when both numbers are missing" in {
+      val result = form.bind(Map("phoneNumber" -> "", "mobileNumber" -> ""))
+      result.errors must contain only FormError("", requiredKey)
+    }
+
+    "must bind valid phone numbers in correct format" in {
       val validValues = Seq("0121 456 7898", "02079460123", "01632960001", "01632 960 001", "07700 900 982", "020 7946 0958")
 
       validValues.foreach { value =>
-        val result = form.bind(Map(fieldName -> value)).apply(fieldName)
+        val result = form.bind(Map("phoneNumber" -> value))
         withClue(s"bind '$value': ") {
           result.errors mustBe empty
-          result.value.value mustBe value
+          result.value.value mustBe ContactNumbers(Some(value), None)
         }
       }
     }
 
-    "not bind values containing characters other than digits or spaces" in {
-      val invalidValues = Seq(
-        "+44 7700 900 982",
-        "+1 555 123 4567",
-        "+447700900982",
-        "020-7946-0958",
-        "(01632) 960001",
-        "01632.960.001",
-        "abc12345",
-        "0123 ext 4"
-      )
+    ".phoneNumber" - {
+      val fieldName = "phoneNumber"
 
-      invalidValues.foreach { value =>
-        val result = form.bind(Map(fieldName -> value)).apply(fieldName)
-        withClue(s"bind '$value': ") {
-          result.errors must contain(FormError(fieldName, invalidKey, Seq(allowedChars)))
+      "must not bind a phone number longer than 20 characters" in {
+        val result = form.bind(Map(fieldName -> "012345678901234567890")).apply(fieldName)
+        result.errors must contain(FormError(fieldName, lengthKey, Seq(maxLength)))
+      }
+
+      "must not bind a phone number containing characters other than digits or spaces" in {
+        val invalidValues = Seq("+44 7700 900 982", "020-7946-0958", "(01632) 960001", "abc12345")
+
+        invalidValues.foreach { value =>
+          val result = form.bind(Map(fieldName -> value)).apply(fieldName)
+          withClue(s"bind '$value': ") {
+            result.errors must contain(FormError(fieldName, invalidKey, Seq(allowedChars)))
+          }
         }
+      }
+
+      "must give the length error first over the invalid-chars error when input is too long" in {
+        val result = form.bind(Map(fieldName -> "020-7946-0958-extra-stuff")).apply(fieldName)
+        result.errors must contain only FormError(fieldName, lengthKey, Seq(maxLength))
       }
     }
 
-    "prefer the length error over the invalid-characters error when input is too long" in {
-      val tooLongAndInvalid = "020-7946-0958-extra-bits"
+    ".mobileNumber" - {
+      val fieldName = "mobileNumber"
 
-      val result = form.bind(Map(fieldName -> tooLongAndInvalid)).apply(fieldName)
-      result.errors must contain only FormError(fieldName, lengthKey, Seq(maxLength))
-    }
+      "must not bind a mobile number longer than 20 characters" in {
+        val result = form.bind(Map(fieldName -> "012345678901234567890")).apply(fieldName)
+        result.errors must contain(FormError(fieldName, mobileLengthKey, Seq(maxLength)))
+      }
 
-    "prefer the required error over other errors when input is blank" in {
-      val result = form.bind(Map(fieldName -> "")).apply(fieldName)
-      result.errors must contain only FormError(fieldName, requiredKey)
+      "must not bind a mobile number containing invalid characters" in {
+        val invalidValues = Seq("+44 7700 900 982", "070-0000-0000", "(0770) 0900982", "abc12345")
+
+        invalidValues.foreach { value =>
+          val result = form.bind(Map(fieldName -> value)).apply(fieldName)
+          withClue(s"bind '$value': ") {
+            result.errors must contain(FormError(fieldName, mobileInvalidKey, Seq(allowedChars)))
+          }
+        }
+      }
     }
   }
 }

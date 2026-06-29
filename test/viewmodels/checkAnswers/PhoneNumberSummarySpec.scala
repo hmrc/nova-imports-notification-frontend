@@ -18,7 +18,7 @@ package viewmodels.checkAnswers
 
 import base.SpecBase
 import controllers.routes
-import models.{CheckMode, UserAnswers}
+import models.{CheckMode, ContactNumbers, UserAnswers}
 import pages.sections.notifierDetails.PhoneNumberPage
 import play.api.Application
 import play.api.i18n.Messages
@@ -30,14 +30,38 @@ class PhoneNumberSummarySpec extends SpecBase {
 
   "PhoneNumberSummary" - {
 
-    "must return a summary row with the correct phone number value" in {
-      val userAnswers = UserAnswers(userAnswersId).set(PhoneNumberPage, "01632 960 001").success.value
+    "must return a summary row with both contact numbers separated by a line break" in {
+      val userAnswers =
+        UserAnswers(userAnswersId).set(PhoneNumberPage, ContactNumbers(Some("01632 960 001"), Some("07700 900 982"))).success.value
 
       val result = PhoneNumberSummary.row(userAnswers).value
+      val value  = result.value.content.asHtml.toString
 
-      result.key.content.asHtml.toString   must include(msgs("phoneNumber.checkYourAnswersLabel"))
-      result.value.content.asHtml.toString must include("01632 960 001")
+      result.key.content.asHtml.toString must include(msgs("phoneNumber.checkYourAnswersLabel"))
+      value                              must include("01632 960 001")
+      value                              must include("07700 900 982")
+      value                              must include("<br>")
       result.actions.value.items.head.href mustBe routes.PhoneNumberController.onPageLoad(CheckMode).url
+    }
+
+    "must return a summary row with only the phone number when no mobile number is present" in {
+      val userAnswers = UserAnswers(userAnswersId).set(PhoneNumberPage, ContactNumbers(Some("01632 960 001"), None)).success.value
+
+      val result = PhoneNumberSummary.row(userAnswers).value
+      val value  = result.value.content.asHtml.toString
+
+      value must include("01632 960 001")
+      value must not include "<br>"
+    }
+
+    "must return a summary row with only the mobile number when no phone number is present" in {
+      val userAnswers = UserAnswers(userAnswersId).set(PhoneNumberPage, ContactNumbers(None, Some("07700 900 982"))).success.value
+
+      val result = PhoneNumberSummary.row(userAnswers).value
+      val value  = result.value.content.asHtml.toString
+
+      value must include("07700 900 982")
+      value must not include "<br>"
     }
 
     "must return None when the answer is not present" in {

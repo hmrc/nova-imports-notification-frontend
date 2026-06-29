@@ -22,6 +22,7 @@ import models.NormalMode
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.must.Matchers
 import play.api.Application
+import play.api.data.FormError
 import play.api.i18n.Messages
 import play.api.mvc.Request
 import play.api.test.FakeRequest
@@ -67,10 +68,17 @@ class PhoneNumberViewSpec extends SpecBase with Matchers with BeforeAndAfterAll 
       html must include("govuk-caption-l")
     }
 
-    "must render the hint text" in {
+    "must render the paragraph text" in {
       val html: String = view(form, NormalMode)(request, msgs).toString
 
-      html must include(msgs("phoneNumber.hint"))
+      html must include(msgs("phoneNumber.paragraph"))
+    }
+
+    "must render the phone number and mobile number labels" in {
+      val html: String = view(form, NormalMode)(request, msgs).toString
+
+      html must include(msgs("phoneNumber.label.phoneNumber"))
+      html must include(msgs("phoneNumber.label.mobileNumber"))
     }
 
     "must render an input field with type tel autocomplete and inputmode" in {
@@ -86,25 +94,48 @@ class PhoneNumberViewSpec extends SpecBase with Matchers with BeforeAndAfterAll 
       html must include(msgs("site.continue"))
     }
 
-    "must render the error summary with the required error when value is blank" in {
-      val boundForm    = form.bind(Map("value" -> ""))
+    "must render the required error plus per number field error messages when both numbers are blank" in {
+      val bound     = form.bind(Map("phoneNumber" -> "", "mobileNumber" -> ""))
+      val boundForm = bound.copy(errors =
+        bound.errors ++ Seq(
+          FormError("phoneNumber", "phoneNumber.error.phoneRequired"),
+          FormError("mobileNumber", "phoneNumber.error.mobileRequired")
+        )
+      )
+
       val html: String = view(boundForm, NormalMode)(request, msgs).toString
 
       html must include(msgs("phoneNumber.error.required"))
+      html must include(msgs("phoneNumber.error.phoneRequired"))
+      html must include(msgs("phoneNumber.error.mobileRequired"))
     }
 
-    "must render the error summary with the length error when value exceeds 20 characters" in {
-      val boundForm    = form.bind(Map("value" -> "012345678901234567890"))
+    "must render the length error when the phone number exceeds 20 characters" in {
+      val boundForm    = form.bind(Map("phoneNumber" -> "012345678901234567890"))
       val html: String = view(boundForm, NormalMode)(request, msgs).toString
 
       html must include(msgs("phoneNumber.error.length"))
     }
 
-    "must render the error summary with the invalid error when value contains disallowed characters" in {
-      val boundForm    = form.bind(Map("value" -> "020-7946-0958"))
+    "must render the invalid error when the phone number contains invalid characters" in {
+      val boundForm    = form.bind(Map("phoneNumber" -> "020-7946-0958"))
       val html: String = view(boundForm, NormalMode)(request, msgs).toString
 
       html must include(msgs("phoneNumber.error.invalid"))
+    }
+
+    "must render the length error when the mobile number exceeds 20 characters" in {
+      val boundForm    = form.bind(Map("mobileNumber" -> "012345678901234567890"))
+      val html: String = view(boundForm, NormalMode)(request, msgs).toString
+
+      html must include(msgs("phoneNumber.error.mobileLength"))
+    }
+
+    "must render the invalid error when the mobile number contains invalid characters" in {
+      val boundForm    = form.bind(Map("mobileNumber" -> "070-0000-0000"))
+      val html: String = view(boundForm, NormalMode)(request, msgs).toString
+
+      html must include(msgs("phoneNumber.error.mobileInvalid"))
     }
 
     "must post to the PhoneNumber submit URL" in {
@@ -129,5 +160,4 @@ class PhoneNumberViewSpec extends SpecBase with Matchers with BeforeAndAfterAll 
       view.ref mustBe view
     }
   }
-
 }

@@ -21,7 +21,7 @@ import com.google.inject.name.Names
 import connectors.{GetDraftNotificationError, GetNotificationSummaryError, NovaImportsBackendConnector}
 import controllers.actions.*
 import models.NormalMode
-import models.{DraftId, DraftNotification, DraftNotificationSection, NotificationSummary, UserAnswers}
+import models.{ContactNumbers, DraftId, DraftNotification, DraftNotificationSection, NotificationSummary, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{never, verify, when}
@@ -251,7 +251,7 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
 
       "must render a Completed tag for any section whose status is completed" in {
         val answersWithPhone =
-          answersBusinessUse.set(PhoneNumberPage, "01234567890").success.value
+          answersBusinessUse.set(PhoneNumberPage, ContactNumbers(Some("01234567890"), None)).success.value
 
         given application: Application =
           applicationWith(classOf[FakeVatTraderIdentifierAction], Some(answersWithPhone))

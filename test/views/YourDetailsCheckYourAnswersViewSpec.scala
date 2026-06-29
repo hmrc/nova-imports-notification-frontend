@@ -17,7 +17,7 @@
 package views
 
 import base.SpecBase
-import models.{NameDetails, UserAnswers, UserContext}
+import models.{ContactNumbers, NameDetails, UserAnswers, UserContext}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.must.Matchers
 import pages.sections.notifierDetails.{EmailAddressPage, NameDetailsPage, PhoneNumberPage}
@@ -41,7 +41,7 @@ class YourDetailsCheckYourAnswersViewSpec extends SpecBase with Matchers with Be
     .set(NameDetailsPage, NameDetails("Mr", "John", "Smith"))
     .success
     .value
-    .set(PhoneNumberPage, "01632 960 001")
+    .set(PhoneNumberPage, ContactNumbers(Some("01632 960 001"), None))
     .success
     .value
     .set(EmailAddressPage, "name@example.com")

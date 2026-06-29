@@ -130,12 +130,23 @@ object YourDetailsCheckYourAnswersController {
 
   def buildSectionData(userContext: UserContext, answers: UserAnswers): Option[JsObject] =
     for {
-      phoneNumber  <- answers.get(PhoneNumberPage)
-      emailAddress <- answers.get(EmailAddressPage)
+      contactNumbers <- answers.get(PhoneNumberPage)
+      emailAddress   <- answers.get(EmailAddressPage)
     } yield answers.get(NameDetailsPage) match {
       case Some(name) =>
-        Json.toJson(NotifierDetailsIndividual(name.title, name.firstName, name.lastName, emailAddress, phoneNumber)).as[JsObject]
+        Json
+          .toJson(
+            NotifierDetailsIndividual(
+              name.title,
+              name.firstName,
+              name.lastName,
+              emailAddress,
+              contactNumbers.phoneNumber,
+              contactNumbers.mobileNumber
+            )
+          )
+          .as[JsObject]
       case None =>
-        Json.toJson(NotifierDetailsOrganisation(emailAddress, phoneNumber)).as[JsObject]
+        Json.toJson(NotifierDetailsOrganisation(emailAddress, contactNumbers.phoneNumber, contactNumbers.mobileNumber)).as[JsObject]
     }
 }

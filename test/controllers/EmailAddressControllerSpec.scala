@@ -18,7 +18,7 @@ package controllers
 
 import base.SpecBase
 import forms.EmailAddressFormProvider
-import models.{BusinessOrPrivateIndividual, CheckMode, DraftId, NameDetails, NormalMode, UserAnswers}
+import models.{BusinessOrPrivateIndividual, CheckMode, ContactNumbers, DraftId, NameDetails, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
@@ -50,7 +50,7 @@ class EmailAddressControllerSpec extends SpecBase with MockitoSugar {
     .set(DraftIdPage, DraftId("DRAFT-001"))
     .success
     .value
-    .set(PhoneNumberPage, "07000000000")
+    .set(PhoneNumberPage, ContactNumbers(Some("07000000000"), None))
     .success
     .value
 
@@ -64,7 +64,7 @@ class EmailAddressControllerSpec extends SpecBase with MockitoSugar {
     .set(NameDetailsPage, NameDetails("Mr", "John", "Doe"))
     .success
     .value
-    .set(PhoneNumberPage, "07000000000")
+    .set(PhoneNumberPage, ContactNumbers(Some("07000000000"), None))
     .success
     .value
     .set(EmailAddressPage, validEmail)
@@ -238,7 +238,7 @@ class EmailAddressControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to Unauthorised for a GET when no draft is in progress" in {
-      val answers     = emptyUserAnswers.set(PhoneNumberPage, "07000000000").success.value
+      val answers     = emptyUserAnswers.set(PhoneNumberPage, ContactNumbers(Some("07000000000"), None)).success.value
       val application = applicationBuilder(userAnswers = Some(answers)).build()
 
       running(application) {

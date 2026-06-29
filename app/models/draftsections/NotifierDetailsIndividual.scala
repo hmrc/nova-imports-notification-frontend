@@ -23,7 +23,8 @@ final case class NotifierDetailsIndividual(
   firstName: String,
   lastName: String,
   emailAddress: String,
-  phoneNumber: String
+  phoneNumber: Option[String],
+  mobileNumber: Option[String]
 )
 
 object NotifierDetailsIndividual {

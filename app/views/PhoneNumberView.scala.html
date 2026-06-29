@@ -15,7 +15,6 @@
  *@
 
 @import viewmodels.InputWidth._
-@import viewmodels.LabelSize
 
 @this(
     layout: templates.Layout,
@@ -29,20 +28,34 @@
 
 @layout(pageTitle = title(form, messages("phoneNumber.title"))) {
 
+    @if(form.errors.nonEmpty) {
+        @govukErrorSummary(ErrorSummaryViewModel(
+            if(form.hasGlobalErrors) form.copy(errors = form.globalErrors) else form,
+            errorLinkOverrides = Map("" -> "phoneNumber")
+        ))
+    }
+
+    <span class="govuk-caption-l">@messages("phoneNumber.caption")</span>
+    <h1 class="govuk-heading-l">@messages("phoneNumber.heading")</h1>
+    <p class="govuk-body">@messages("phoneNumber.paragraph")</p>
+
     @formHelper(action = routes.PhoneNumberController.onSubmit(mode), Symbol("autoComplete") -> "off") {
-
-        @if(form.errors.nonEmpty) {
-            @govukErrorSummary(ErrorSummaryViewModel(form))
-        }
-
-        <span class="govuk-caption-l">@messages("phoneNumber.caption")</span>
 
         @govukInput(
             InputViewModel(
-                field = form("value"),
-                label = LabelViewModel(messages("phoneNumber.heading")).asPageHeading(LabelSize.Large)
+                field = form("phoneNumber"),
+                label = LabelViewModel(messages("phoneNumber.label.phoneNumber"))
             )
-            .withHint(HintViewModel(messages("phoneNumber.hint")))
+            .withWidth(Fixed20)
+            .withAutocomplete("tel")
+            .withInputMode("tel")
+        )
+
+        @govukInput(
+            InputViewModel(
+                field = form("mobileNumber"),
+                label = LabelViewModel(messages("phoneNumber.label.mobileNumber"))
+            )
             .withWidth(Fixed20)
             .withAutocomplete("tel")
             .withInputMode("tel")

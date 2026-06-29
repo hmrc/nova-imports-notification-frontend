@@ -17,7 +17,9 @@
 package forms
 
 import forms.mappings.Mappings
+import models.ContactNumbers
 import play.api.data.Form
+import play.api.data.Forms.{mapping, optional}
 
 import javax.inject.Inject
 
@@ -26,14 +28,31 @@ class PhoneNumberFormProvider @Inject() extends Mappings {
   private val maxLengthChars = 20
   private val allowedChars   = "^[0-9 ]+$"
 
-  def apply(): Form[String] =
+  def apply(): Form[ContactNumbers] =
     Form(
-      "value" -> text("phoneNumber.error.required")
+      mapping(
+        "phoneNumber" -> optional(
+          text()
+            .verifying(
+              firstError(
+                maxLength(maxLengthChars, "phoneNumber.error.length"),
+                regexp(allowedChars, "phoneNumber.error.invalid")
+              )
+            )
+        ),
+        "mobileNumber" -> optional(
+          text()
+            .verifying(
+              firstError(
+                maxLength(maxLengthChars, "phoneNumber.error.mobileLength"),
+                regexp(allowedChars, "phoneNumber.error.mobileInvalid")
+              )
+            )
+        )
+      )(ContactNumbers.apply)(contactNumbers => Some((contactNumbers.phoneNumber, contactNumbers.mobileNumber)))
         .verifying(
-          firstError(
-            maxLength(maxLengthChars, "phoneNumber.error.length"),
-            regexp(allowedChars, "phoneNumber.error.invalid")
-          )
+          "phoneNumber.error.required",
+          contactNumbers => contactNumbers.phoneNumber.isDefined || contactNumbers.mobileNumber.isDefined
         )
     )
 }
