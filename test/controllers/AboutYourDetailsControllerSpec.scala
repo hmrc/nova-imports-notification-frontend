@@ -19,11 +19,12 @@ package controllers
 import base.SpecBase
 import com.google.inject.name.Names
 import controllers.actions.*
+import models.DraftId
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.NotificationTaskListPage
+import pages.{DraftIdPage, NotificationTaskListPage}
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -40,14 +41,20 @@ class AboutYourDetailsControllerSpec extends SpecBase with MockitoSugar {
 
   private lazy val aboutYourDetailsRoute = routes.AboutYourDetailsController.onPageLoad().url
 
-  private val answersWithNtlVisited = emptyUserAnswers.set(NotificationTaskListPage, true).success.value
+  private val answersWithNtlAndDraft = emptyUserAnswers
+    .unsafeSet(NotificationTaskListPage, true)
+    .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
+
+  private val answersWithNtlButNoDraft = emptyUserAnswers.unsafeSet(NotificationTaskListPage, true)
+
+  private val answersWithDraftButNoNtl = emptyUserAnswers.unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
 
   "AboutYourDetailsController" - {
 
     "onPageLoad" - {
 
       "must return OK and render the correct view when the guard passes" in {
-        given application: Application = applicationBuilder(userAnswers = Some(answersWithNtlVisited)).build()
+        given application: Application = applicationBuilder(userAnswers = Some(answersWithNtlAndDraft)).build()
 
         running(application) {
           given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, aboutYourDetailsRoute)
@@ -73,8 +80,8 @@ class AboutYourDetailsControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must redirect to Journey Recovery if NotificationTaskListPage is not set" in {
-        given application: Application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      "must redirect to Unauthorised when NotificationTaskListPage is not set" in {
+        given application: Application = applicationBuilder(userAnswers = Some(answersWithDraftButNoNtl)).build()
 
         running(application) {
           given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, aboutYourDetailsRoute)
@@ -82,7 +89,20 @@ class AboutYourDetailsControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+        }
+      }
+
+      "must redirect to Unauthorised for a GET when no draft is in progress" in {
+        given application: Application = applicationBuilder(userAnswers = Some(answersWithNtlButNoDraft)).build()
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, aboutYourDetailsRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
         }
       }
 
@@ -95,7 +115,7 @@ class AboutYourDetailsControllerSpec extends SpecBase with MockitoSugar {
             bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[UnauthorisedIdentifierAction],
             bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeIdentifierAction],
             bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
-            bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(Some(answersWithNtlVisited)))
+            bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(Some(answersWithNtlAndDraft)))
           )
           .build()
 
@@ -116,7 +136,7 @@ class AboutYourDetailsControllerSpec extends SpecBase with MockitoSugar {
         val mockSessionRepository = mock[SessionRepository]
         when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
 
-        given application: Application = applicationBuilder(userAnswers = Some(answersWithNtlVisited))
+        given application: Application = applicationBuilder(userAnswers = Some(answersWithNtlAndDraft))
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
             bind[SessionRepository].toInstance(mockSessionRepository)
@@ -146,8 +166,8 @@ class AboutYourDetailsControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must redirect to Journey Recovery if NotificationTaskListPage is not set" in {
-        given application: Application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      "must redirect to Unauthorised when NotificationTaskListPage is not set" in {
+        given application: Application = applicationBuilder(userAnswers = Some(answersWithDraftButNoNtl)).build()
 
         running(application) {
           given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, aboutYourDetailsRoute)
@@ -155,7 +175,20 @@ class AboutYourDetailsControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+        }
+      }
+
+      "must redirect to Unauthorised for a POST when no draft is in progress" in {
+        given application: Application = applicationBuilder(userAnswers = Some(answersWithNtlButNoDraft)).build()
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, aboutYourDetailsRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
         }
       }
     }

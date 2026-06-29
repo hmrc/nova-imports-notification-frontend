@@ -51,7 +51,7 @@ class AddYourNameController @Inject() (
       if (mode == CheckMode) {
         answers.get(NameDetailsPage).isDefined && YourDetailsCheckYourAnswersController.guardPredicate(request)
       } else {
-        answers.get(AboutYourDetailsPage).isDefined && nameRequiredFor(request)
+        nameRequiredFor(request)
       }
     }
   }
@@ -61,9 +61,10 @@ class AddYourNameController @Inject() (
 
     request.userContext match {
       case ctx if ctx.isAgentWithClientNoEnrolments => false
-      case ctx if ctx.isVatRegisteredOrganisation   => answers.get(VehicleBusinessUsePage).contains(false)
-      case ctx if ctx.isAgentWithClient             => answers.get(AgentClientVehicleBusinessUsePage).contains(false)
-      case _                                        =>
+      case ctx if ctx.isVatRegisteredOrganisation   =>
+        answers.get(AboutYourDetailsPage).isDefined && answers.get(VehicleBusinessUsePage).contains(false)
+      case ctx if ctx.isAgentWithClient => answers.get(AgentClientVehicleBusinessUsePage).contains(false)
+      case _                            =>
         answers.get(VehicleFromEuPage).contains(true) &&
         answers.get(BusinessOrPrivatePage).contains(BusinessOrPrivateIndividual.PrivateIndividual)
     }

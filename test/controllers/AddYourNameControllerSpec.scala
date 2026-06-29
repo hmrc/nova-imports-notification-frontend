@@ -24,7 +24,6 @@ import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.AboutYourDetailsPage
 import pages.sections.initialquestions.{BusinessOrPrivatePage, VehicleFromEuPage}
 import pages.sections.notifierDetails.{EmailAddressPage, PhoneNumberPage}
 import pages.sections.notifierDetails.NameDetailsPage
@@ -51,11 +50,10 @@ class AddYourNameControllerSpec extends SpecBase with MockitoSugar {
   val validFirstName = "John"
   val validLastName  = "Doe"
 
+  // A private-individual user reaches /name directly from the initial questions
+  // (no NotificationTaskList / AYD1.0 stop) — AYD1.0 is VAT-org only.
   private val requiredPreviousAnswers = emptyUserAnswers
     .set(pages.DraftIdPage, DraftId("DRAFT-001"))
-    .success
-    .value
-    .set(AboutYourDetailsPage, true)
     .success
     .value
     .set(VehicleFromEuPage, true)
@@ -202,7 +200,7 @@ class AddYourNameControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to Unauthorised when AboutYourDetailsPage is not set" in {
+    "must redirect to Unauthorised when upstream initial-question answers are missing" in {
 
       val answers = emptyUserAnswers.set(pages.DraftIdPage, DraftId("DRAFT-001")).success.value
 
@@ -242,6 +240,24 @@ class AddYourNameControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Unauthorised for a GET when no draft is in progress" in {
+
+      val answersWithoutDraft = emptyUserAnswers
+        .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
+        .unsafeSet(VehicleFromEuPage, true)
+
+      val application = applicationBuilder(userAnswers = Some(answersWithoutDraft)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, addYourNameRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
       }
     }
 

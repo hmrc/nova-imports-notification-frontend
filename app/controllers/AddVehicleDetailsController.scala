@@ -18,6 +18,7 @@ package controllers
 
 import config.FrontendAppConfig
 import controllers.actions.*
+import controllers.utils.IsDraftIdDefined
 import forms.AddVehicleDetailsFormProvider
 import models.requests.DataRequest
 
@@ -29,7 +30,6 @@ import pages.sections.initialquestions.VehicleFromEuPage
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
-import uk.gov.hmrc.auth.core.AffinityGroup
 import views.html.AddVehicleDetailsView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -72,12 +72,8 @@ class AddVehicleDetailsController @Inject() (
 object AddVehicleDetailsController {
 
   // Allow user types 1-6 with IQ1.0 = Yes. User types 7 & 8 (HMRC-NOVRN-AGNT) are
-  // already rejected by StandardIdentifierAction. Reject user type 9 here:
-  // organisation with HMCE-VATDEC-ORG present but not Activated (de-registered).
+  // already rejected by StandardIdentifierAction.
   def guardPredicate(request: DataRequest[?]): Boolean =
-    !isDeregisteredOrganisation(request) && request.userAnswers.get(VehicleFromEuPage).contains(true)
-
-  private def isDeregisteredOrganisation(request: DataRequest[?]): Boolean =
-    request.affinityGroup == AffinityGroup.Organisation &&
-      request.enrolments.getEnrolment(NovaEnrolments.vatDec).exists(!_.isActivated)
+    IsDraftIdDefined(request.userAnswers) &&
+      request.userAnswers.get(VehicleFromEuPage).contains(true)
 }
