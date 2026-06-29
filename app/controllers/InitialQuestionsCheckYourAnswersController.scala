@@ -74,8 +74,7 @@ object InitialQuestionsCheckYourAnswersController {
 
   private val logger = play.api.Logger(classOf[InitialQuestionsCheckYourAnswersController])
 
-  // AC6: user type 4/5 lands on NTL3.0 after Save and continue.
-  // TODO: route remaining user types once their downstream task list pages exist.
+  // TODO: nav to nextPage set up remaining once downstream NTL screen set up for all user types inc agents
   def nextPage(userContext: UserContext): play.api.mvc.Call =
     userContext.userType match {
       case NovaUserType.VatRegisteredOrganisation => routes.NotificationTaskListController.onPageLoad()
@@ -200,5 +199,4 @@ object InitialQuestionsCheckYourAnswersController {
         }
     }
   }
-
 }

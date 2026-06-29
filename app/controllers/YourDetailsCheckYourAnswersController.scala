@@ -72,7 +72,7 @@ class YourDetailsCheckYourAnswersController @Inject() (
           case Right(newVersionId) =>
             sessionRepository
               .setPage(request.userAnswers, DraftVersionIdPage, newVersionId)
-              .map(_ => Redirect(routes.NotificationTaskListController.onPageLoad()))
+              .map(_ => Redirect(nextPage(request.userContext)))
           case Left(error) =>
             logger.warn(s"Failed to update 'notifier-details' section for draftId ${draftId.value}: $error")
             Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
@@ -83,7 +83,7 @@ class YourDetailsCheckYourAnswersController @Inject() (
 
 object YourDetailsCheckYourAnswersController {
 
-  // TODO: route nav set up remaining for other user types once downstream task list pages are set up.
+  // TODO: nav to nextPage set up remaining once downstream NTL screen set up for all user types inc agents
   def nextPage(userContext: UserContext): play.api.mvc.Call =
     userContext.userType match {
       case NovaUserType.VatRegisteredOrganisation => routes.NotificationTaskListController.onPageLoad()
