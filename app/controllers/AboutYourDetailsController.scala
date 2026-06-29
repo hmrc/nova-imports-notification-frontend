@@ -18,7 +18,9 @@ package controllers
 
 import com.google.inject.Inject
 import controllers.actions.*
-import models.{NormalMode, NovaUserType, UserAnswers}
+import controllers.utils.IsDraftIdDefined
+import models.{NormalMode, NovaUserType}
+import models.requests.DataRequest
 import navigation.Navigator
 import pages.{AboutYourDetailsPage, NotificationTaskListPage}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -36,14 +38,14 @@ class AboutYourDetailsController @Inject() (
 )(implicit ec: ExecutionContext)
     extends BaseController {
 
-  private val guardPredicate: UserAnswers => Boolean =
-    _.get(NotificationTaskListPage).isDefined
+  private val guardPredicate: DataRequest[?] => Boolean = request =>
+    IsDraftIdDefined(request.userAnswers) && request.userAnswers.get(NotificationTaskListPage).isDefined
 
-  def onPageLoad: Action[AnyContent] = actions.vatTraderAuthAndGetDataWithGuard(guardPredicate) { implicit request =>
+  def onPageLoad: Action[AnyContent] = actions.vatTraderAuthAndGetDataWithUserTypeGuard(guardPredicate) { implicit request =>
     Ok(view())
   }
 
-  def onSubmit: Action[AnyContent] = actions.vatTraderAuthAndGetDataWithGuard(guardPredicate).async { implicit request =>
+  def onSubmit: Action[AnyContent] = actions.vatTraderAuthAndGetDataWithUserTypeGuard(guardPredicate).async { implicit request =>
     for {
       updatedAnswers <- Future.fromTry(request.userAnswers.set(AboutYourDetailsPage, true))
       _              <- sessionRepository.set(updatedAnswers)
