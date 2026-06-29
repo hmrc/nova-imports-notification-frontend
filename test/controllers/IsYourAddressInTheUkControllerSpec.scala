@@ -21,10 +21,12 @@ import com.google.inject.name.Names
 import connectors.AddressLookupError
 import controllers.actions.*
 import forms.IsYourAddressInTheUkFormProvider
-import models.{NormalMode, UserAnswers}
+import models.NormalMode
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
+import pages.NotificationTaskListPage
+import pages.sections.initialquestions.VehicleBusinessUsePage
 import pages.sections.notifieraddress.IsYourAddressInTheUkPage
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -45,11 +47,20 @@ class IsYourAddressInTheUkControllerSpec extends SpecBase with MockitoSugar {
   lazy val isYourAddressInTheUkRoute       = routes.IsYourAddressInTheUkController.onPageLoad(NormalMode).url
   lazy val isYourAddressInTheUkSubmitRoute = routes.IsYourAddressInTheUkController.onSubmit(NormalMode).url
 
+  private val answersSatisfyingGuard =
+    emptyUserAnswers
+      .set(NotificationTaskListPage, true)
+      .success
+      .value
+      .set(VehicleBusinessUsePage, false)
+      .success
+      .value
+
   "IsYourAddressInTheUkController" - {
 
-    "must return OK and the correct view for a GET" in {
+    "must return OK and the correct view for a GET when guard passes" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder(userAnswers = Some(answersSatisfyingGuard)).build()
 
       running(application) {
         val request = FakeRequest(GET, isYourAddressInTheUkRoute)
@@ -63,7 +74,7 @@ class IsYourAddressInTheUkControllerSpec extends SpecBase with MockitoSugar {
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = UserAnswers(userAnswersId).set(IsYourAddressInTheUkPage, true).success.value
+      val userAnswers = answersSatisfyingGuard.set(IsYourAddressInTheUkPage, true).success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
@@ -84,7 +95,7 @@ class IsYourAddressInTheUkControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
       when(mockAlfService.initJourney(eqTo(true), any[String])(any[HeaderCarrier])).thenReturn(Future.successful(Right(journeyUrl)))
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+      val application = applicationBuilder(userAnswers = Some(answersSatisfyingGuard))
         .overrides(
           bind[SessionRepository].toInstance(mockSessionRepository),
           bind[AddressLookupService].toInstance(mockAlfService)
@@ -109,7 +120,7 @@ class IsYourAddressInTheUkControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
       when(mockAlfService.initJourney(eqTo(false), any[String])(any[HeaderCarrier])).thenReturn(Future.successful(Right(journeyUrl)))
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+      val application = applicationBuilder(userAnswers = Some(answersSatisfyingGuard))
         .overrides(
           bind[SessionRepository].toInstance(mockSessionRepository),
           bind[AddressLookupService].toInstance(mockAlfService)
@@ -134,7 +145,7 @@ class IsYourAddressInTheUkControllerSpec extends SpecBase with MockitoSugar {
       when(mockAlfService.initJourney(any[Boolean], any[String])(any[HeaderCarrier]))
         .thenReturn(Future.successful(Left(AddressLookupError.UpstreamError(500, "boom"))))
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+      val application = applicationBuilder(userAnswers = Some(answersSatisfyingGuard))
         .overrides(
           bind[SessionRepository].toInstance(mockSessionRepository),
           bind[AddressLookupService].toInstance(mockAlfService)
@@ -152,7 +163,7 @@ class IsYourAddressInTheUkControllerSpec extends SpecBase with MockitoSugar {
 
     "must return a Bad Request and errors when invalid data is submitted" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application = applicationBuilder(userAnswers = Some(answersSatisfyingGuard)).build()
 
       running(application) {
         val request   = FakeRequest(POST, isYourAddressInTheUkSubmitRoute).withFormUrlEncodedBody("value" -> "")
@@ -162,6 +173,42 @@ class IsYourAddressInTheUkControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual BAD_REQUEST
         contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
+      }
+    }
+
+    "must redirect to Journey Recovery when NotificationTaskListPage is not set (user bypassed NTL)" in {
+
+      val answersWithoutNtl =
+        emptyUserAnswers.set(VehicleBusinessUsePage, false).success.value
+      val application = applicationBuilder(userAnswers = Some(answersWithoutNtl)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, isYourAddressInTheUkRoute)
+        val result  = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Journey Recovery when VehicleBusinessUsePage = true (address section hidden when OQ1.0 = Yes)" in {
+
+      val answersBusinessUse =
+        emptyUserAnswers
+          .set(NotificationTaskListPage, true)
+          .success
+          .value
+          .set(VehicleBusinessUsePage, true)
+          .success
+          .value
+      val application = applicationBuilder(userAnswers = Some(answersBusinessUse)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, isYourAddressInTheUkRoute)
+        val result  = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
 
@@ -191,63 +238,17 @@ class IsYourAddressInTheUkControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to Unauthorised for a GET when the user is an Agent (not permitted by data guard)" in {
-
-      val application = new GuiceApplicationBuilder()
-        .overrides(
-          bind[DataRequiredAction].to[DataRequiredActionImpl],
-          bind[IdentifierAction].to[FakeAgentIdentifierAction],
-          bind[IdentifierAction].qualifiedWith(Names.named("standard")).to[FakeAgentIdentifierAction],
-          bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeIdentifierAction],
-          bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeAgentIdentifierAction],
-          bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
-          bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(Some(emptyUserAnswers)))
-        )
-        .build()
-
-      running(application) {
-        val request = FakeRequest(GET, isYourAddressInTheUkRoute)
-        val result  = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
-      }
-    }
-
-    "must redirect to Unauthorised for a POST when the user is an Agent (not permitted by data guard)" in {
-
-      val application = new GuiceApplicationBuilder()
-        .overrides(
-          bind[DataRequiredAction].to[DataRequiredActionImpl],
-          bind[IdentifierAction].to[FakeAgentIdentifierAction],
-          bind[IdentifierAction].qualifiedWith(Names.named("standard")).to[FakeAgentIdentifierAction],
-          bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeIdentifierAction],
-          bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeAgentIdentifierAction],
-          bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
-          bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(Some(emptyUserAnswers)))
-        )
-        .build()
-
-      running(application) {
-        val request = FakeRequest(POST, isYourAddressInTheUkSubmitRoute).withFormUrlEncodedBody("value" -> "true")
-        val result  = route(application, request).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
-      }
-    }
-
-    "must redirect to Unauthorised when the user is an OGD (Type 8) user" in {
+    "must redirect to Unauthorised when the user is not a VAT-registered organisation" in {
 
       val application = new GuiceApplicationBuilder()
         .overrides(
           bind[DataRequiredAction].to[DataRequiredActionImpl],
           bind[IdentifierAction].to[FakeIdentifierAction],
-          bind[IdentifierAction].qualifiedWith(Names.named("standard")).to[UnauthorisedIdentifierAction],
-          bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeIdentifierAction],
+          bind[IdentifierAction].qualifiedWith(Names.named("standard")).to[FakeIdentifierAction],
+          bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[UnauthorisedIdentifierAction],
           bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeIdentifierAction],
           bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
-          bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(Some(emptyUserAnswers)))
+          bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(Some(answersSatisfyingGuard)))
         )
         .build()
 

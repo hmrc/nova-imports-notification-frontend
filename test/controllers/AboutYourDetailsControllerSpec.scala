@@ -20,14 +20,19 @@ import base.SpecBase
 import com.google.inject.name.Names
 import controllers.actions.*
 import navigation.{FakeNavigator, Navigator}
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.sections.initialquestions.VehicleBusinessUsePage
+import pages.NotificationTaskListPage
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.{AnyContentAsEmpty, Call}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import repositories.SessionRepository
+
+import scala.concurrent.Future
 
 class AboutYourDetailsControllerSpec extends SpecBase with MockitoSugar {
 
@@ -35,15 +40,14 @@ class AboutYourDetailsControllerSpec extends SpecBase with MockitoSugar {
 
   private lazy val aboutYourDetailsRoute = routes.AboutYourDetailsController.onPageLoad().url
 
-  // guard requires OQ1.0 to have been answered
-  private val answersWithVehicleBusinessUseAnswered = emptyUserAnswers.set(VehicleBusinessUsePage, true).success.value
+  private val answersWithNtlVisited = emptyUserAnswers.set(NotificationTaskListPage, true).success.value
 
   "AboutYourDetailsController" - {
 
     "onPageLoad" - {
 
       "must return OK and render the correct view when the guard passes" in {
-        given application: Application = applicationBuilder(userAnswers = Some(answersWithVehicleBusinessUseAnswered)).build()
+        given application: Application = applicationBuilder(userAnswers = Some(answersWithNtlVisited)).build()
 
         running(application) {
           given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, aboutYourDetailsRoute)
@@ -69,7 +73,7 @@ class AboutYourDetailsControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must redirect to Journey Recovery if OQ1.0 has not been answered" in {
+      "must redirect to Journey Recovery if NotificationTaskListPage is not set" in {
         given application: Application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
         running(application) {
@@ -91,7 +95,7 @@ class AboutYourDetailsControllerSpec extends SpecBase with MockitoSugar {
             bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[UnauthorisedIdentifierAction],
             bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeIdentifierAction],
             bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
-            bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(Some(answersWithVehicleBusinessUseAnswered)))
+            bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(Some(answersWithNtlVisited)))
           )
           .build()
 
@@ -109,9 +113,13 @@ class AboutYourDetailsControllerSpec extends SpecBase with MockitoSugar {
     "onSubmit" - {
 
       "must redirect to the next page when the guard passes" in {
-        given application: Application = applicationBuilder(userAnswers = Some(answersWithVehicleBusinessUseAnswered))
+        val mockSessionRepository = mock[SessionRepository]
+        when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
+
+        given application: Application = applicationBuilder(userAnswers = Some(answersWithNtlVisited))
           .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute))
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[SessionRepository].toInstance(mockSessionRepository)
           )
           .build()
 
@@ -138,7 +146,7 @@ class AboutYourDetailsControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must redirect to Journey Recovery if OQ1.0 has not been answered" in {
+      "must redirect to Journey Recovery if NotificationTaskListPage is not set" in {
         given application: Application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
         running(application) {

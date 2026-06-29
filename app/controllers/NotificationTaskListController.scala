@@ -21,11 +21,12 @@ import config.FrontendAppConfig
 import controllers.actions.Actions
 import models.DraftNotification.SectionId
 import models.{NormalMode, NotificationSummary, SectionStatus, UserAnswers}
-import pages.DraftIdPage
+import pages.{DraftIdPage, NotificationTaskListPage}
 import pages.sections.initialquestions.VehicleBusinessUsePage
 import pages.sections.notifieraddress.AddressJourneyIdPage
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.SessionRepository
 import services.{NotificationSummaryService, UserDataService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
@@ -38,6 +39,7 @@ class NotificationTaskListController @Inject() (
   actions: Actions,
   notificationSummaryService: NotificationSummaryService,
   userDataService: UserDataService,
+  sessionRepository: SessionRepository,
   view: NotificationTaskListView
 )(implicit ec: ExecutionContext, appConfig: FrontendAppConfig)
     extends BaseController
@@ -56,19 +58,22 @@ class NotificationTaskListController @Inject() (
         Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
 
       case Right(updatedAnswers) =>
-        notificationSummaryService.getSummaryAndStoreDeregisteredStatus(updatedAnswers, None).map {
+        notificationSummaryService.getSummaryAndStoreDeregisteredStatus(updatedAnswers, None).flatMap {
           case Right((org: NotificationSummary.IndividualOrOrganisation, savedAnswers)) =>
             val sections    = userDataService.determineAndUpdateStatus(savedAnswers, request.userContext)
             val sectionLink = determineSectionLink(sections, savedAnswers)
-            Ok(view(org.traderName, org.vrn, sections, showAddYourAddress(savedAnswers), sectionLink))
+            for {
+              flagged <- Future.fromTry(savedAnswers.set(NotificationTaskListPage, true))
+              _       <- sessionRepository.set(flagged)
+            } yield Ok(view(org.traderName, org.vrn, sections, showAddYourAddress(flagged), sectionLink))
 
           case Right((other, _)) =>
             logger.warn(s"Unexpected notification summary shape for VAT-registered Organisation: $other")
-            Redirect(routes.JourneyRecoveryController.onPageLoad())
+            Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
 
           case Left(error) =>
             logger.warn(s"Failed to fetch notification summary for VAT-registered Organisation: $error")
-            Redirect(routes.JourneyRecoveryController.onPageLoad())
+            Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
         }
     }
   }
@@ -89,7 +94,7 @@ object NotificationTaskListController {
   ): Map[String, String] =
     sections.flatMap {
       case (section @ SectionId.NotifierDetails, status) =>
-        if (status == SectionStatus.Completed) Map(section -> routes.LandingPageController.onPageLoad().url) // TODO - Update to CYA
+        if (status == SectionStatus.Completed) Map(section -> routes.YourDetailsCheckYourAnswersController.onPageLoad().url)
         else Map(section                                   -> routes.AboutYourDetailsController.onPageLoad().url)
 
       case (section @ SectionId.NotifierAddress, status) =>

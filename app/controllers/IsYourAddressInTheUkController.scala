@@ -19,8 +19,9 @@ package controllers
 import config.FrontendAppConfig
 import controllers.actions.*
 import forms.IsYourAddressInTheUkFormProvider
-import models.Mode
-import models.requests.DataRequest
+import models.{Mode, UserAnswers}
+import pages.NotificationTaskListPage
+import pages.sections.initialquestions.VehicleBusinessUsePage
 import pages.sections.notifieraddress.IsYourAddressInTheUkPage
 import play.api.Logging
 import play.api.data.Form
@@ -47,13 +48,15 @@ class IsYourAddressInTheUkController @Inject() (
 
   val form: Form[Boolean] = formProvider()
 
-  private val dataGuard: DataRequest[?] => Boolean = !_.userContext.isAgent
+  private val guardPredicate: UserAnswers => Boolean = answers =>
+    answers.get(NotificationTaskListPage).isDefined &&
+      answers.get(VehicleBusinessUsePage).contains(false)
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(dataGuard) { implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] = actions.vatTraderAuthAndGetDataWithGuard(guardPredicate) { implicit request =>
     Ok(view(form.withDefault(request.userAnswers.get(IsYourAddressInTheUkPage)), mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(dataGuard).async { implicit request =>
+  def onSubmit(mode: Mode): Action[AnyContent] = actions.vatTraderAuthAndGetDataWithGuard(guardPredicate).async { implicit request =>
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
     form
