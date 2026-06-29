@@ -16,7 +16,6 @@
 
 package pages.sections.notifieraddress
 
-import models.Address
 import pages.QuestionPage
 import play.api.libs.json.JsPath
 
