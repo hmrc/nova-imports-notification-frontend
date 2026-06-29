@@ -243,6 +243,24 @@ class AddYourNameControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
+    "must redirect to Unauthorised for a GET when no draft is in progress" in {
+
+      val answersWithoutDraft = emptyUserAnswers
+        .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
+        .unsafeSet(VehicleFromEuPage, true)
+
+      val application = applicationBuilder(userAnswers = Some(answersWithoutDraft)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, addYourNameRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+
     "must redirect to Journey Recovery for a POST if no existing data is found" in {
 
       val application = applicationBuilder(userAnswers = None).build()

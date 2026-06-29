@@ -18,6 +18,8 @@ package base
 
 import controllers.actions.*
 import models.UserAnswers
+import play.api.libs.json.Writes
+import queries.Settable
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
@@ -34,6 +36,10 @@ trait SpecBase extends AnyFreeSpec with Matchers with TryValues with OptionValue
   val userAnswersId: String = "id"
 
   def emptyUserAnswers: UserAnswers = UserAnswers(userAnswersId)
+
+  extension (answers: UserAnswers)
+    def unsafeSet[A](page: Settable[A], value: A)(using Writes[A]): UserAnswers =
+      answers.set(page, value).success.value
 
   def messages(app: Application): Messages = app.injector.instanceOf[MessagesApi].preferred(FakeRequest())
 
