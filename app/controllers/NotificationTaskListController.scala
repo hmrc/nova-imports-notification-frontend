@@ -47,10 +47,11 @@ class NotificationTaskListController @Inject() (
 
   import NotificationTaskListController.*
 
+  // TODO: guardPredicate to be set up to allow for other user types, not just vatTrader
   def onPageLoad(): Action[AnyContent] = actions.vatTraderAuthAndGetDataWithGuard(guardPredicate).async { implicit request =>
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
-    val draftId = request.userAnswers.get(DraftIdPage).get // guard guarantees presence
+    val draftId = request.userAnswers.get(DraftIdPage).get
 
     userDataService.retrieveAndStoreDraftNotification(draftId, request.userAnswers).flatMap {
       case Left(error) =>
