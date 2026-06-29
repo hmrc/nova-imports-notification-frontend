@@ -36,5 +36,5 @@ class EmailAddressFormProvider @Inject() extends Mappings {
 
 object EmailAddressFormProvider {
   val MaxLength: Int     = 70
-  val EmailRegex: String = """^[A-Za-z0-9\-_.@]{1,70}$"""
+  val EmailRegex: String = """^[A-Za-z0-9\-_.]+@[A-Za-z0-9\-_.]+\.[A-Za-z]{2,}$"""
 }

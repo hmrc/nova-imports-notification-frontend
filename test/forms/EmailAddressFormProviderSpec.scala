@@ -47,7 +47,6 @@ class EmailAddressFormProviderSpec extends StringFieldBehaviours {
     "must bind valid email addresses" in {
 
       val validEmails = Seq(
-        "a@b",
         "name@example.com",
         "first.last@sub.example.com",
         "a-b_c@example-host.co.uk"
@@ -60,13 +59,18 @@ class EmailAddressFormProviderSpec extends StringFieldBehaviours {
       }
     }
 
-    "must not bind email addresses containing characters outside the allowed set" in {
+    "must not bind values that are not a structurally valid email address" in {
 
       val invalidEmails = Seq(
         "with space@example.com",
         "name+plus@example.com",
         "name!boss@example.com",
-        "name(test)@example.com"
+        "name(test)@example.com",
+        "1",
+        "name",
+        "name@example",
+        "@example.com",
+        "name@.com"
       )
 
       invalidEmails.foreach { email =>
