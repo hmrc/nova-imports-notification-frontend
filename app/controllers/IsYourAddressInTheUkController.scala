@@ -18,8 +18,10 @@ package controllers
 
 import config.FrontendAppConfig
 import controllers.actions.*
+import controllers.utils.IsDraftIdDefined
 import forms.IsYourAddressInTheUkFormProvider
-import models.{Mode, UserAnswers}
+import models.Mode
+import models.requests.DataRequest
 import pages.NotificationTaskListPage
 import pages.sections.initialquestions.VehicleBusinessUsePage
 import pages.sections.notifieraddress.IsYourAddressInTheUkPage
@@ -48,15 +50,22 @@ class IsYourAddressInTheUkController @Inject() (
 
   val form: Form[Boolean] = formProvider()
 
-  private val guardPredicate: UserAnswers => Boolean = answers =>
-    answers.get(NotificationTaskListPage).isDefined &&
-      answers.get(VehicleBusinessUsePage).contains(false)
+  private val guardPredicate: DataRequest[?] => Boolean = request => {
+    val answers = request.userAnswers
+    request.userContext match {
+      case ctx if ctx.isAgent                     => false
+      case ctx if ctx.isVatRegisteredOrganisation =>
+        answers.get(NotificationTaskListPage).isDefined &&
+        answers.get(VehicleBusinessUsePage).contains(false)
+      case _ => IsDraftIdDefined(answers)
+    }
+  }
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = actions.vatTraderAuthAndGetDataWithGuard(guardPredicate) { implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate) { implicit request =>
     Ok(view(form.withDefault(request.userAnswers.get(IsYourAddressInTheUkPage)), mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = actions.vatTraderAuthAndGetDataWithGuard(guardPredicate).async { implicit request =>
+  def onSubmit(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate).async { implicit request =>
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
     form

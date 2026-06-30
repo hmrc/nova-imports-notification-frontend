@@ -21,11 +21,11 @@ import com.google.inject.name.Names
 import connectors.AddressLookupError
 import controllers.actions.*
 import forms.IsYourAddressInTheUkFormProvider
-import models.NormalMode
+import models.{DraftId, NormalMode, UserAnswers}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.NotificationTaskListPage
+import pages.{DraftIdPage, NotificationTaskListPage}
 import pages.sections.initialquestions.VehicleBusinessUsePage
 import pages.sections.notifieraddress.IsYourAddressInTheUkPage
 import play.api.inject.bind
@@ -47,14 +47,43 @@ class IsYourAddressInTheUkControllerSpec extends SpecBase with MockitoSugar {
   lazy val isYourAddressInTheUkRoute       = routes.IsYourAddressInTheUkController.onPageLoad(NormalMode).url
   lazy val isYourAddressInTheUkSubmitRoute = routes.IsYourAddressInTheUkController.onSubmit(NormalMode).url
 
-  private val answersSatisfyingGuard =
-    emptyUserAnswers
+  private val piAnswersSatisfyingGuard: UserAnswers =
+    emptyUserAnswers.set(DraftIdPage, DraftId("DRAFT-001")).success.value
+
+  private val vatAnswersSatisfyingGuard: UserAnswers =
+    piAnswersSatisfyingGuard
       .set(NotificationTaskListPage, true)
       .success
       .value
       .set(VehicleBusinessUsePage, false)
       .success
       .value
+
+  private val answersSatisfyingGuard: UserAnswers = piAnswersSatisfyingGuard
+
+  private def vatTraderApplicationBuilder(userAnswers: Option[UserAnswers]): GuiceApplicationBuilder =
+    new GuiceApplicationBuilder()
+      .overrides(
+        bind[DataRequiredAction].to[DataRequiredActionImpl],
+        bind[IdentifierAction].to[FakeVatTraderIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("standard")).to[FakeVatTraderIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeVatTraderIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
+        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
+      )
+
+  private def agentApplicationBuilder(userAnswers: Option[UserAnswers]): GuiceApplicationBuilder =
+    new GuiceApplicationBuilder()
+      .overrides(
+        bind[DataRequiredAction].to[DataRequiredActionImpl],
+        bind[IdentifierAction].to[FakeAgentIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("standard")).to[FakeAgentIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeAgentIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
+        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
+      )
 
   "IsYourAddressInTheUkController" - {
 
@@ -176,39 +205,38 @@ class IsYourAddressInTheUkControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to Journey Recovery when NotificationTaskListPage is not set (user bypassed NTL)" in {
+    "must redirect to Unauthorised for a VAT trader when NotificationTaskListPage is not set (bypassed NTL)" in {
 
-      val answersWithoutNtl =
-        emptyUserAnswers.set(VehicleBusinessUsePage, false).success.value
-      val application = applicationBuilder(userAnswers = Some(answersWithoutNtl)).build()
+      val answersWithoutNtl = piAnswersSatisfyingGuard.set(VehicleBusinessUsePage, false).success.value
+      val application       = vatTraderApplicationBuilder(Some(answersWithoutNtl)).build()
 
       running(application) {
         val request = FakeRequest(GET, isYourAddressInTheUkRoute)
         val result  = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
       }
     }
 
-    "must redirect to Journey Recovery when VehicleBusinessUsePage = true (address section hidden when OQ1.0 = Yes)" in {
+    "must redirect to Unauthorised for a VAT trader when VehicleBusinessUsePage = true (address section hidden when OQ1.0 = Yes)" in {
 
       val answersBusinessUse =
-        emptyUserAnswers
+        piAnswersSatisfyingGuard
           .set(NotificationTaskListPage, true)
           .success
           .value
           .set(VehicleBusinessUsePage, true)
           .success
           .value
-      val application = applicationBuilder(userAnswers = Some(answersBusinessUse)).build()
+      val application = vatTraderApplicationBuilder(Some(answersBusinessUse)).build()
 
       running(application) {
         val request = FakeRequest(GET, isYourAddressInTheUkRoute)
         val result  = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
       }
     }
 
@@ -238,19 +266,34 @@ class IsYourAddressInTheUkControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to Unauthorised when the user is not a VAT-registered organisation" in {
+    "must return OK for a VAT trader who reached this from NTL with OQ1.0 = No" in {
 
-      val application = new GuiceApplicationBuilder()
-        .overrides(
-          bind[DataRequiredAction].to[DataRequiredActionImpl],
-          bind[IdentifierAction].to[FakeIdentifierAction],
-          bind[IdentifierAction].qualifiedWith(Names.named("standard")).to[FakeIdentifierAction],
-          bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[UnauthorisedIdentifierAction],
-          bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeIdentifierAction],
-          bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
-          bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(Some(answersSatisfyingGuard)))
-        )
-        .build()
+      val application = vatTraderApplicationBuilder(Some(vatAnswersSatisfyingGuard)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, isYourAddressInTheUkRoute)
+        val result  = route(application, request).value
+
+        status(result) mustEqual OK
+      }
+    }
+
+    "must redirect to Unauthorised for an agent (agents have no address section)" in {
+
+      val application = agentApplicationBuilder(Some(piAnswersSatisfyingGuard)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, isYourAddressInTheUkRoute)
+        val result  = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Unauthorised for a private individual when no draft has been created" in {
+
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, isYourAddressInTheUkRoute)
