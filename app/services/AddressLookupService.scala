@@ -23,13 +23,13 @@ import play.api.i18n.{Lang, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class AddressLookupService @Inject() (
   connector: AddressLookupConnector,
   messagesApi: MessagesApi,
   appConfig: FrontendAppConfig
-)(implicit ec: ExecutionContext) {
+) {
 
   private val notifierAllowedCountryCodes: Seq[String] = Seq(
     "AF",

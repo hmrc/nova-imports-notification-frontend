@@ -20,7 +20,7 @@ import base.SpecBase
 import com.google.inject.name.Names
 import connectors.{NovaImportsBackendConnector, UpdateSectionError}
 import controllers.actions.*
-import models.{AgentSelectedClient, BusinessOrPrivateIndividual, DraftId, NameDetails, UserAnswers}
+import models.{AgentSelectedClient, BusinessOrPrivateIndividual, ContactNumbers, DraftId, NameDetails, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{verify, when}
@@ -84,7 +84,7 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
 
           status(result) mustEqual OK
           body must include("Check your answers")
-          body must include("Phone number")
+          body must include("Contact numbers")
           body must include("Email address")
           body must include(phone)
           body must include(email)
@@ -153,7 +153,7 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
 
           status(result) mustEqual OK
           body must include("Check your answers")
-          body must include("Phone number")
+          body must include("Contact numbers")
           body must include("Email address")
           body must include(phone)
           body must include(email)
@@ -173,7 +173,7 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
 
           status(result) mustEqual OK
           body must include("Check your answers")
-          body must include("Phone number")
+          body must include("Contact numbers")
           body must include("Email address")
           body must include(phone)
           body must include(email)
@@ -226,7 +226,7 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
           .set(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business)
           .success
           .value
-          .set(PhoneNumberPage, phone)
+          .set(PhoneNumberPage, contactNumbers)
           .success
           .value
           .set(DraftIdPage, DraftId("DRAFT-001"))
@@ -250,7 +250,7 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
           .set(VehicleBusinessUsePage, false)
           .success
           .value
-          .set(PhoneNumberPage, phone)
+          .set(PhoneNumberPage, contactNumbers)
           .success
           .value
           .set(EmailAddressPage, email)
@@ -280,7 +280,7 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
           .set(NameDetailsPage, name)
           .success
           .value
-          .set(PhoneNumberPage, phone)
+          .set(PhoneNumberPage, contactNumbers)
           .success
           .value
           .set(EmailAddressPage, email)
@@ -322,6 +322,7 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
         }
       }
 
+      // TODO: change correct downstream redirect once NTL set up for all user types
       "when succeeds must redirect to the correct downstream Page for a PrivateIndividual" in {
         val connector = mock[NovaImportsBackendConnector]
         when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
@@ -335,10 +336,11 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.NotificationTaskListController.onPageLoad().url
+          redirectLocation(result).value mustEqual routes.LandingPageController.onPageLoad().url
         }
       }
 
+      // TODO: change correct downstream redirect once NTL set up for all user types
       "when succeeds must redirect to the correct downstream Page for an Agent with a selected client" in {
         val connector = mock[NovaImportsBackendConnector]
         when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
@@ -352,10 +354,11 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.NotificationTaskListController.onPageLoad().url
+          redirectLocation(result).value mustEqual routes.LandingPageController.onPageLoad().url
         }
       }
 
+      // TODO: change correct downstream redirect once NTL set up for all user types
       "when succeeds must redirect to the correct downstream Page for an Agent with no enrolments" in {
         val connector = mock[NovaImportsBackendConnector]
         when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
@@ -370,7 +373,7 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.NotificationTaskListController.onPageLoad().url
+          redirectLocation(result).value mustEqual routes.LandingPageController.onPageLoad().url
         }
       }
 
@@ -430,7 +433,7 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
           .set(VehicleBusinessUsePage, true)
           .success
           .value
-          .set(PhoneNumberPage, phone)
+          .set(PhoneNumberPage, contactNumbers)
           .success
           .value
           .set(EmailAddressPage, email)
@@ -509,7 +512,7 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
           .set(NameDetailsPage, name)
           .success
           .value
-          .set(PhoneNumberPage, phone)
+          .set(PhoneNumberPage, contactNumbers)
           .success
           .value
           .set(EmailAddressPage, email)
@@ -539,10 +542,11 @@ object YourDetailsCheckYourAnswersControllerSpec {
 
   import org.scalatest.TryValues.*
 
-  private val name         = NameDetails("Mr", "John", "Smith")
-  private val phone        = "01632 960 001"
-  private val email        = "name@example.com"
-  private val sampleClient = AgentSelectedClient(vrn = "123456789", name = Some("ABC Ltd"))
+  private val name           = NameDetails("Mr", "John", "Smith")
+  private val phone          = "01632 960 001"
+  private val contactNumbers = ContactNumbers(Some(phone), None)
+  private val email          = "name@example.com"
+  private val sampleClient   = AgentSelectedClient(vrn = "123456789", name = Some("ABC Ltd"))
 
   private val emptyUserAnswers = UserAnswers("id")
 
@@ -550,7 +554,7 @@ object YourDetailsCheckYourAnswersControllerSpec {
     .set(VehicleBusinessUsePage, true)
     .success
     .value
-    .set(PhoneNumberPage, phone)
+    .set(PhoneNumberPage, contactNumbers)
     .success
     .value
     .set(EmailAddressPage, email)
@@ -570,7 +574,7 @@ object YourDetailsCheckYourAnswersControllerSpec {
     .set(NameDetailsPage, name)
     .success
     .value
-    .set(PhoneNumberPage, phone)
+    .set(PhoneNumberPage, contactNumbers)
     .success
     .value
     .set(EmailAddressPage, email)
@@ -590,7 +594,7 @@ object YourDetailsCheckYourAnswersControllerSpec {
     .set(NameDetailsPage, name)
     .success
     .value
-    .set(PhoneNumberPage, phone)
+    .set(PhoneNumberPage, contactNumbers)
     .success
     .value
     .set(EmailAddressPage, email)
@@ -611,7 +615,7 @@ object YourDetailsCheckYourAnswersControllerSpec {
     .set(NameDetailsPage, name)
     .success
     .value
-    .set(PhoneNumberPage, phone)
+    .set(PhoneNumberPage, contactNumbers)
     .success
     .value
     .set(EmailAddressPage, email)
@@ -632,7 +636,7 @@ object YourDetailsCheckYourAnswersControllerSpec {
     .set(AgentClientVehicleBusinessUsePage, true)
     .success
     .value
-    .set(PhoneNumberPage, phone)
+    .set(PhoneNumberPage, contactNumbers)
     .success
     .value
     .set(EmailAddressPage, email)
@@ -652,7 +656,7 @@ object YourDetailsCheckYourAnswersControllerSpec {
     .set(AgentClientVehicleBusinessUsePage, true)
     .success
     .value
-    .set(PhoneNumberPage, phone)
+    .set(PhoneNumberPage, contactNumbers)
     .success
     .value
     .set(EmailAddressPage, email)
@@ -672,7 +676,7 @@ object YourDetailsCheckYourAnswersControllerSpec {
     .set(AgentClientVehicleBusinessUsePage, true)
     .success
     .value
-    .set(PhoneNumberPage, phone)
+    .set(PhoneNumberPage, contactNumbers)
     .success
     .value
     .set(AgentSelectedClientPage, sampleClient)

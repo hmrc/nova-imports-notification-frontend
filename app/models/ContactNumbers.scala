@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-package models.draftsections
+package models
 
-import play.api.libs.json.{Format, Json}
+import play.api.libs.json.{Json, OFormat}
 
-final case class NotifierDetailsOrganisation(
-  emailAddress: String,
+final case class ContactNumbers(
   phoneNumber: Option[String],
   mobileNumber: Option[String]
 )
 
-object NotifierDetailsOrganisation {
-  implicit val format: Format[NotifierDetailsOrganisation] = Json.format[NotifierDetailsOrganisation]
+object ContactNumbers {
+  implicit val format: OFormat[ContactNumbers] = Json.format[ContactNumbers]
 }

@@ -20,7 +20,7 @@ import base.SpecBase
 import com.google.inject.name.Names
 import controllers.actions.{DataRequiredAction, DataRequiredActionImpl, DataRetrievalAction, FakeAgentIdentifierAction, FakeDataRetrievalAction, FakeIdentifierAction, FakeVatTraderIdentifierAction, IdentifierAction}
 import forms.PhoneNumberFormProvider
-import models.{BusinessOrPrivateIndividual, CheckMode, DraftId, NameDetails, NormalMode, UserAnswers}
+import models.{BusinessOrPrivateIndividual, CheckMode, ContactNumbers, DraftId, NameDetails, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -45,7 +45,9 @@ class PhoneNumberControllerSpec extends SpecBase with MockitoSugar {
   val formProvider = new PhoneNumberFormProvider()
   val form         = formProvider()
 
-  val validPhoneNumber = "01632 960 001"
+  val validPhoneNumber                    = "01632 960 001"
+  val validMobileNumber                   = "07700 900 982"
+  val validContactNumbers: ContactNumbers = ContactNumbers(Some(validPhoneNumber), None)
 
   val baseRequiredAnswers: UserAnswers = UserAnswers(userAnswersId).set(DraftIdPage, DraftId("DRAFT-001")).success.value
 
@@ -73,7 +75,7 @@ class PhoneNumberControllerSpec extends SpecBase with MockitoSugar {
       .set(NameDetailsPage, NameDetails("Mr", "John", "Doe"))
       .success
       .value
-      .set(PhoneNumberPage, validPhoneNumber)
+      .set(PhoneNumberPage, validContactNumbers)
       .success
       .value
       .set(EmailAddressPage, "name@example.com")
@@ -127,7 +129,7 @@ class PhoneNumberControllerSpec extends SpecBase with MockitoSugar {
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = requiredAnswers.set(PhoneNumberPage, validPhoneNumber).success.value
+      val userAnswers = requiredAnswers.set(PhoneNumberPage, validContactNumbers).success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -139,7 +141,7 @@ class PhoneNumberControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(validPhoneNumber), NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill(validContactNumbers), NormalMode)(request, messages(application)).toString
       }
     }
 
@@ -160,7 +162,7 @@ class PhoneNumberControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request =
           FakeRequest(POST, phoneNumberSubmitRoute)
-            .withFormUrlEncodedBody(("value", validPhoneNumber))
+            .withFormUrlEncodedBody(("phoneNumber", validPhoneNumber))
 
         val result = route(application, request).value
 
@@ -169,23 +171,51 @@ class PhoneNumberControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must return a Bad Request and errors when invalid data is submitted" in {
+    "must redirect to the next page when only a mobile number is submitted" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val application =
+        applicationBuilder(userAnswers = Some(requiredAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, phoneNumberSubmitRoute)
+            .withFormUrlEncodedBody(("mobileNumber", validMobileNumber))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRoute.url
+      }
+    }
+
+    "must show an error when neither number has been entered" in {
 
       val application = applicationBuilder(userAnswers = Some(requiredAnswers)).build()
 
       running(application) {
         val request =
           FakeRequest(POST, phoneNumberSubmitRoute)
-            .withFormUrlEncodedBody(("value", ""))
-
-        val boundForm = form.bind(Map("value" -> ""))
-
-        val view = application.injector.instanceOf[PhoneNumberView]
+            .withFormUrlEncodedBody(("phoneNumber", ""), ("mobileNumber", ""))
 
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
+
+        val content = contentAsString(result)
+        // error line is linked to the first phone field
+        content must include(messages(application)("phoneNumber.error.required"))
+        content must include("href=\"#phoneNumber\"")
+        content must include(messages(application)("phoneNumber.error.phoneRequired"))
+        content must include(messages(application)("phoneNumber.error.mobileRequired"))
       }
     }
 
@@ -308,7 +338,7 @@ class PhoneNumberControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request =
           FakeRequest(POST, phoneNumberSubmitRoute)
-            .withFormUrlEncodedBody(("value", validPhoneNumber))
+            .withFormUrlEncodedBody(("phoneNumber", validPhoneNumber))
 
         val result = route(application, request).value
 

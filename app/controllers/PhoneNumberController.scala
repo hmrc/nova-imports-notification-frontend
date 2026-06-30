@@ -20,12 +20,12 @@ import controllers.actions.*
 import controllers.utils.IsDraftIdDefined
 import forms.PhoneNumberFormProvider
 import models.requests.DataRequest
-import models.{BusinessOrPrivateIndividual, CheckMode, Mode, NovaUserType}
+import models.{BusinessOrPrivateIndividual, CheckMode, ContactNumbers, Mode, NovaUserType}
 import navigation.Navigator
 import pages.{AboutYourDetailsPage, AgentClientVehicleBusinessUsePage}
 import pages.sections.initialquestions.{BusinessOrPrivatePage, VehicleBusinessUsePage, VehicleFromEuPage}
 import pages.sections.notifierDetails.{NameDetailsPage, PhoneNumberPage}
-import play.api.data.Form
+import play.api.data.{Form, FormError}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import views.html.PhoneNumberView
@@ -43,9 +43,45 @@ class PhoneNumberController @Inject() (
 )(implicit ec: ExecutionContext)
     extends BaseController {
 
-  val form: Form[String] = formProvider()
+  import PhoneNumberController.*
 
-  private def guardPredicate(mode: Mode): DataRequest[?] => Boolean = request => {
+  val form: Form[ContactNumbers] = formProvider()
+
+  def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate(mode)) { implicit request =>
+    Ok(view(form.withDefault(request.userAnswers.get(PhoneNumberPage)), mode))
+  }
+
+  def onSubmit(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate(mode)).async { implicit request =>
+    form
+      .bindFromRequest()
+      .fold(
+        formWithErrors => Future.successful(BadRequest(view(addRequiredErrorsPerField(formWithErrors), mode))),
+        value =>
+          for {
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(PhoneNumberPage, value))
+            _              <- sessionRepository.set(updatedAnswers)
+          } yield Redirect(
+            navigator.nextPage(PhoneNumberPage, mode, updatedAnswers, NovaUserType.from(request.affinityGroup, request.enrolments))
+          )
+      )
+  }
+}
+
+object PhoneNumberController {
+
+  def addRequiredErrorsPerField(form: Form[ContactNumbers]): Form[ContactNumbers] =
+    if (form.hasGlobalErrors) {
+      form.copy(errors =
+        form.errors ++ Seq(
+          FormError("phoneNumber", "phoneNumber.error.phoneRequired"),
+          FormError("mobileNumber", "phoneNumber.error.mobileRequired")
+        )
+      )
+    } else {
+      form
+    }
+
+  def guardPredicate(mode: Mode): DataRequest[?] => Boolean = request => {
     val ua = request.userAnswers
 
     IsDraftIdDefined(ua) && {
@@ -69,24 +105,5 @@ class PhoneNumberController @Inject() (
         answers.get(VehicleFromEuPage).contains(true) &&
         answers.get(BusinessOrPrivatePage).exists(_ != BusinessOrPrivateIndividual.PrivateIndividual)
     }
-  }
-
-  def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate(mode)) { implicit request =>
-    Ok(view(form.withDefault(request.userAnswers.get(PhoneNumberPage)), mode))
-  }
-
-  def onSubmit(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate(mode)).async { implicit request =>
-    form
-      .bindFromRequest()
-      .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
-        value =>
-          for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(PhoneNumberPage, value))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(
-            navigator.nextPage(PhoneNumberPage, mode, updatedAnswers, NovaUserType.from(request.affinityGroup, request.enrolments))
-          )
-      )
   }
 }

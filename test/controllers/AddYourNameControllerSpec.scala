@@ -18,7 +18,7 @@ package controllers
 
 import base.SpecBase
 import forms.AddYourNameFormProvider
-import models.{BusinessOrPrivateIndividual, CheckMode, DraftId, NameDetails, NormalMode, UserAnswers}
+import models.{BusinessOrPrivateIndividual, CheckMode, ContactNumbers, DraftId, NameDetails, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
@@ -73,7 +73,7 @@ class AddYourNameControllerSpec extends SpecBase with MockitoSugar {
     .set(NameDetailsPage, NameDetails(validTitle, validFirstName, validLastName))
     .success
     .value
-    .set(PhoneNumberPage, "01632 960 001")
+    .set(PhoneNumberPage, ContactNumbers(Some("01632 960 001"), None))
     .success
     .value
     .set(EmailAddressPage, "name@example.com")

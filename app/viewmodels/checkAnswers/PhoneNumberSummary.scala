@@ -20,7 +20,8 @@ import controllers.routes
 import models.{CheckMode, UserAnswers}
 import pages.sections.notifierDetails.PhoneNumberPage
 import play.api.i18n.Messages
-import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+import play.twirl.api.HtmlFormat
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
@@ -28,10 +29,15 @@ import viewmodels.implicits.*
 object PhoneNumberSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(PhoneNumberPage).map { answer =>
+    answers.get(PhoneNumberPage).map { contactNumbers =>
+
+      val value = Seq(contactNumbers.phoneNumber, contactNumbers.mobileNumber).flatten
+        .map(number => HtmlFormat.escape(number).body)
+        .mkString("<br>")
+
       SummaryListRowViewModel(
         key = "phoneNumber.checkYourAnswersLabel",
-        value = ValueViewModel(Text(answer)),
+        value = ValueViewModel(HtmlContent(value)),
         actions = Seq(
           ActionItemViewModel("site.change", routes.PhoneNumberController.onPageLoad(CheckMode).url)
             .withVisuallyHiddenText(messages("phoneNumber.change.hidden"))

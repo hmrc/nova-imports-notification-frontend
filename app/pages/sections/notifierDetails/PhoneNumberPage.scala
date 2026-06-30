@@ -16,10 +16,11 @@
 
 package pages.sections.notifierDetails
 
+import models.ContactNumbers
 import pages.QuestionPage
 import play.api.libs.json.JsPath
 
-case object PhoneNumberPage extends QuestionPage[String] {
+case object PhoneNumberPage extends QuestionPage[ContactNumbers] {
 
   override def path: JsPath = JsPath \ "notifier-details" \ toString
 

@@ -28,7 +28,6 @@ import play.api.libs.json.JsObject
 import play.api.test.Helpers.stubMessagesApi
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class AddressLookupServiceSpec extends SpecBase with MockitoSugar with ScalaFutures {

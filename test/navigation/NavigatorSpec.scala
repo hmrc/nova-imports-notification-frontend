@@ -211,7 +211,7 @@ class NavigatorSpec extends SpecBase {
       }
 
       "must go from PhoneNumberPage to EmailAddressController (AYD1.3)" in {
-        val ua = userAnswers.set(PhoneNumberPage, "01632 960 001").success.value
+        val ua = userAnswers.set(PhoneNumberPage, ContactNumbers(Some("01632 960 001"), None)).success.value
         navigator.nextPage(PhoneNumberPage, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.EmailAddressController
           .onPageLoad(NormalMode)
       }
@@ -377,7 +377,7 @@ class NavigatorSpec extends SpecBase {
       }
 
       "must go from PhoneNumberPage to YourDetailsCheckYourAnswersController in CheckMode" in {
-        val ua = userAnswers.set(PhoneNumberPage, "01632 960 001").success.value
+        val ua = userAnswers.set(PhoneNumberPage, ContactNumbers(Some("01632 960 001"), None)).success.value
         navigator.nextPage(PhoneNumberPage, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.YourDetailsCheckYourAnswersController
           .onPageLoad()
       }

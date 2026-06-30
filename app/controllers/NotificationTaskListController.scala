@@ -47,10 +47,11 @@ class NotificationTaskListController @Inject() (
 
   import NotificationTaskListController.*
 
+  // TODO: guardPredicate to be set up to allow for other user types, not just vatTrader
   def onPageLoad(): Action[AnyContent] = actions.vatTraderAuthAndGetDataWithGuard(guardPredicate).async { implicit request =>
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
-    val draftId = request.userAnswers.get(DraftIdPage).get // guard guarantees presence
+    val draftId = request.userAnswers.get(DraftIdPage).get
 
     userDataService.retrieveAndStoreDraftNotification(draftId, request.userAnswers).flatMap {
       case Left(error) =>
@@ -81,11 +82,9 @@ class NotificationTaskListController @Inject() (
 
 object NotificationTaskListController {
 
-  // Reached after OQ1.0 has been answered and a draft has been created (via CYA1.0 → Save and continue).
   val guardPredicate: UserAnswers => Boolean =
     answers => answers.get(VehicleBusinessUsePage).isDefined && answers.get(DraftIdPage).isDefined
 
-  // AC2: 'Add your address' is shown only when the user answered 'No' to OQ1.0.
   def showAddYourAddress(answers: UserAnswers): Boolean =
     answers.get(VehicleBusinessUsePage).contains(false)
 

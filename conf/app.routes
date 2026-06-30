@@ -75,10 +75,10 @@ POST        /name                                                   controllers.
 GET         /name/change                                            controllers.AddYourNameController.onPageLoad(mode: Mode = CheckMode)
 POST        /name/change                                            controllers.AddYourNameController.onSubmit(mode: Mode = CheckMode)
 
-GET         /phone-number                                           controllers.PhoneNumberController.onPageLoad(mode: Mode = NormalMode)
-POST        /phone-number                                           controllers.PhoneNumberController.onSubmit(mode: Mode = NormalMode)
-GET         /phone-number/change                                    controllers.PhoneNumberController.onPageLoad(mode: Mode = CheckMode)
-POST        /phone-number/change                                    controllers.PhoneNumberController.onSubmit(mode: Mode = CheckMode)
+GET         /contact-numbers                                        controllers.PhoneNumberController.onPageLoad(mode: Mode = NormalMode)
+POST        /contact-numbers                                        controllers.PhoneNumberController.onSubmit(mode: Mode = NormalMode)
+GET         /contact-numbers/change                                 controllers.PhoneNumberController.onPageLoad(mode: Mode = CheckMode)
+POST        /contact-numbers/change                                 controllers.PhoneNumberController.onSubmit(mode: Mode = CheckMode)
 
 GET         /is-your-address-in-uk                                  controllers.IsYourAddressInTheUkController.onPageLoad(mode: Mode = NormalMode)
 POST        /is-your-address-in-uk                                  controllers.IsYourAddressInTheUkController.onSubmit(mode: Mode = NormalMode)
