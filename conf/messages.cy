@@ -124,3 +124,16 @@ phoneNumber.error.required = Enter your phone number
 phoneNumber.error.length = Your phone number must be 20 characters or less
 phoneNumber.error.invalid = Enter your phone number, like 01632 960 001, 07700 900 982 or 44 808 157 0192
 phoneNumber.change.hidden = your phone number
+
+######################################################
+# ERR3.0 - Error message - Page not found            #
+######################################################
+# TODO: Welsh translations to be supplied by content team.
+
+pageNotFound.title = Page not found
+pageNotFound.heading = Page not found
+pageNotFound.paragraph.1 = If you typed the web address, check it is correct.
+pageNotFound.paragraph.2 = If you pasted the web address, check you copied the entire address.
+pageNotFound.paragraph.3.start = If the web address is correct or you selected a link or button,
+pageNotFound.link.text = contact HMRC technical support (opens in new tab)
+pageNotFound.paragraph.3.end = if you need to speak to someone.
