@@ -22,6 +22,7 @@ import pages.*
 import models.*
 import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
 import pages.sections.notifierDetails.{EmailAddressPage, NameDetailsPage, PhoneNumberPage}
+import pages.sections.purchaserDetails.PurchaserNamePage
 
 class NavigatorSpec extends SpecBase {
 
@@ -96,6 +97,12 @@ class NavigatorSpec extends SpecBase {
           val ua = userAnswers.set(NameDetailsPage, NameDetails("Mr", "John", "Smith")).success.value
           navigator.nextPage(NameDetailsPage, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.PhoneNumberController
             .onPageLoad(NormalMode)
+        }
+
+        "must go from PurchaserNamePage (APD1.0) to LandingPageController until CYA4.0 is built" in {
+          val ua = userAnswers.set(PurchaserNamePage, NameDetails("Mr", "John", "Smith")).success.value
+          navigator.nextPage(PurchaserNamePage, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController
+            .onPageLoad()
         }
 
         "must go from AboutYourDetailsPage to JourneyRecovery when OQ1.0 has not been answered" in {
@@ -363,6 +370,12 @@ class NavigatorSpec extends SpecBase {
       "must go from AddYourNamePage to YourDetailsCheckYourAnswersController in CheckMode" in {
         val ua = userAnswers.set(NameDetailsPage, NameDetails("Mr", "John", "Smith")).success.value
         navigator.nextPage(NameDetailsPage, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.YourDetailsCheckYourAnswersController
+          .onPageLoad()
+      }
+
+      "must go from PurchaserNamePage (APD1.0) to LandingPageController in CheckMode until CYA4.0 is built" in {
+        val ua = userAnswers.set(PurchaserNamePage, NameDetails("Mr", "John", "Smith")).success.value
+        navigator.nextPage(PurchaserNamePage, CheckMode, ua, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController
           .onPageLoad()
       }
 
