@@ -58,6 +58,18 @@ unauthorised.link.text = HMRC technical support (opens in new tab).
 unauthorised.returnHome = Return to home
 
 ######################################################
+# ERR3.0 - Error message - Page not found            #
+######################################################
+
+pageNotFound.title = Page not found
+pageNotFound.heading = Page not found
+pageNotFound.paragraph.1 = If you typed the web address, check it is correct.
+pageNotFound.paragraph.2 = If you pasted the web address, check you copied the entire address.
+pageNotFound.paragraph.3.start = If the web address is correct or you selected a link or button,
+pageNotFound.link.text = contact HMRC technical support (opens in new tab)
+pageNotFound.paragraph.3.end = if you need to speak to someone.
+
+######################################################
 # LPs - Landing page common information              #
 ######################################################
 
