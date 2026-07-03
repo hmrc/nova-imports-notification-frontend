@@ -100,7 +100,7 @@ class AddressChangedControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to Journey Recovery for a GET if no address is found" in {
+    "must redirect to Unauthorised for a GET if no session data is found" in {
       val application = applicationWith(userAnswers = None)
 
       running(application) {
@@ -108,7 +108,7 @@ class AddressChangedControllerSpec extends SpecBase with MockitoSugar {
         val result  = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
       }
     }
 

@@ -285,7 +285,7 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must redirect to Journey Recovery when no user answers exist" in {
+      "must redirect to Unauthorised when no user answers exist" in {
         val sessionRepo                = stubSessionRepository()
         given application: Application =
           applicationWith(classOf[FakeVatTraderIdentifierAction], None, sessionRepo = sessionRepo)
@@ -297,7 +297,7 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
           verify(sessionRepo, never).set(any())
         }
       }
