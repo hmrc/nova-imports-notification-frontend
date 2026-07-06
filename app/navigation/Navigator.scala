@@ -24,7 +24,7 @@ import models.*
 import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
 import pages.sections.notifierDetails.{EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 import pages.sections.notifieraddress.IsYourAddressInTheUkPage
-import pages.sections.purchaserDetails.PurchaserNamePage
+import pages.sections.purchaserDetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 
 @Singleton
 class Navigator @Inject() () {
@@ -77,7 +77,12 @@ class Navigator @Inject() () {
     case BusinessOrPrivatePage =>
       (_, _) => routes.PurchaserOrOnBehalfController.onPageLoad(NormalMode)
     case PurchaserBusinessOrIndividualPage =>
-      (_, _) => routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
+      (userAnswers, _) =>
+        userAnswers.get(PurchaserBusinessOrIndividualPage) match {
+          case Some(PurchaserBusinessOrIndividual.NonVatRegisteredBusiness)          => routes.PurchaserBusinessNameController.onPageLoad(NormalMode)
+          case Some(PurchaserBusinessOrIndividual.NonVatRegisteredPrivateIndividual) => routes.PurchaserNameController.onPageLoad(NormalMode)
+          case _                                                                     => routes.JourneyRecoveryController.onPageLoad()
+        }
     case AddVehicleDetailsPage =>
       (userAnswers, _) =>
         userAnswers.get(AddVehicleDetailsPage) match {
@@ -95,6 +100,8 @@ class Navigator @Inject() () {
         }
     case EmailAddressPage =>
       (_, _) => routes.YourDetailsCheckYourAnswersController.onPageLoad()
+    case PurchaserBusinessNamePage =>
+      (_, _) => routes.LandingPageController.onPageLoad() // TODO: redirect to CYA4.0 page when built
     case _ => (_, _) => routes.LandingPageController.onPageLoad()
   }
 
@@ -127,6 +134,8 @@ class Navigator @Inject() () {
       (_, _) => routes.YourDetailsCheckYourAnswersController.onPageLoad()
     case EmailAddressPage =>
       (_, _) => routes.YourDetailsCheckYourAnswersController.onPageLoad()
+    case PurchaserBusinessNamePage =>
+      (_, _) => routes.LandingPageController.onPageLoad() // TODO: redirect to CYA4.0 page when built
     case _ =>
       (_, _) => routes.LandingPageController.onPageLoad()
   }
