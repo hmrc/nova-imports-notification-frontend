@@ -256,6 +256,17 @@ purchaserBusinessOrIndividual.change.hidden = Is the purchaser you are notifying
 purchaserBusinessOrIndividual.radio.nonVatRegisteredBusiness = Non-VAT registered business
 purchaserBusinessOrIndividual.radio.nonVatRegisteredPrivateIndividual = Non-VAT registered private individual
 
+###########################################################################
+# APD2.0 - Add purchaser details 2.0: Purchaser business name             #
+###########################################################################
+
+purchaserBusinessName.title = What is the purchaser’s business name?
+purchaserBusinessName.heading = What is the purchaser’s business name?
+purchaserBusinessName.caption = Add purchaser details
+purchaserBusinessName.error.required = Enter the purchaser’s business name
+purchaserBusinessName.error.length = The purchaser’s business name must be 160 characters or less
+purchaserBusinessName.error.invalid = Enter the purchaser’s business name in the correct format
+
 ######################################################
 # CYA1.0 - Check your answers 1 - Initial questions  #
 ######################################################
@@ -335,6 +346,28 @@ addYourName.lastName.error.length = Your last name must be 100 characters or les
 addYourName.lastName.error.required = Enter your last name
 addYourName.checkYourAnswersLabel = Name
 addYourName.change.hidden = your name
+
+######################################################
+# APD1.0 - Add Purchaser Details: Purchaser name     #
+######################################################
+
+purchaserName.title = What is the purchaser’s name?
+purchaserName.caption = Add purchaser details
+purchaserName.heading = What is the purchaser’s name?
+purchaserName.titleField = Title
+purchaserName.titleField.error.format = Enter the purchaser’s title in the correct format
+purchaserName.titleField.error.length = The purchaser’s title must be 20 characters or less
+purchaserName.titleField.error.required = Enter the purchaser’s title
+purchaserName.firstName = First name
+purchaserName.firstName.error.format = Enter the purchaser’s first name in the correct format
+purchaserName.firstName.error.length = The purchaser’s first name must be 100 characters or less
+purchaserName.firstName.error.required = Enter the purchaser’s first name
+purchaserName.lastName = Last name
+purchaserName.lastName.error.format = Enter the purchaser’s last name in the correct format
+purchaserName.lastName.error.length = The purchaser’s last name must be 100 characters or less
+purchaserName.lastName.error.required = Enter the purchaser’s last name
+purchaserName.checkYourAnswersLabel = Name
+purchaserName.change.hidden = the purchaser’s name
 
 ######################################################
 # AYA1.0 - Add Your Address: Is your address in the UK #

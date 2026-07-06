@@ -22,6 +22,7 @@ import pages.*
 import models.*
 import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
 import pages.sections.notifierDetails.{EmailAddressPage, NameDetailsPage, PhoneNumberPage}
+import pages.sections.purchaserDetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 
 class NavigatorSpec extends SpecBase {
 
@@ -96,6 +97,12 @@ class NavigatorSpec extends SpecBase {
           val ua = userAnswers.set(NameDetailsPage, NameDetails("Mr", "John", "Smith")).success.value
           navigator.nextPage(NameDetailsPage, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.PhoneNumberController
             .onPageLoad(NormalMode)
+        }
+
+        "must go from PurchaserNamePage (APD1.0) to LandingPageController until CYA4.0 is built" in {
+          val ua = userAnswers.set(PurchaserNamePage, NameDetails("Mr", "John", "Smith")).success.value
+          navigator.nextPage(PurchaserNamePage, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController
+            .onPageLoad()
         }
 
         "must go from AboutYourDetailsPage to JourneyRecovery when OQ1.0 has not been answered" in {
@@ -210,6 +217,36 @@ class NavigatorSpec extends SpecBase {
           .onPageLoad()
       }
 
+      "must go from PurchaserBusinessOrIndividualPage to PurchaserBusinessNameController when Business is selected" in {
+        val ua = userAnswers.set(PurchaserBusinessOrIndividualPage, PurchaserBusinessOrIndividual.NonVatRegisteredBusiness).success.value
+        navigator.nextPage(
+          PurchaserBusinessOrIndividualPage,
+          NormalMode,
+          ua,
+          NovaUserType.PrivateIndividual
+        ) mustBe routes.PurchaserBusinessNameController.onPageLoad(NormalMode)
+      }
+
+      "must go from PurchaserBusinessOrIndividualPage to PurchaserNameController when private individual is selected" in {
+        val ua =
+          userAnswers.set(PurchaserBusinessOrIndividualPage, PurchaserBusinessOrIndividual.NonVatRegisteredPrivateIndividual).success.value
+        navigator.nextPage(
+          PurchaserBusinessOrIndividualPage,
+          NormalMode,
+          ua,
+          NovaUserType.PrivateIndividual
+        ) mustBe routes.PurchaserNameController.onPageLoad(NormalMode)
+      }
+
+      "must go from PurchaserBusinessOrIndividualPage to JourneyRecovery when no answer is found" in {
+        navigator.nextPage(
+          PurchaserBusinessOrIndividualPage,
+          NormalMode,
+          userAnswers,
+          NovaUserType.PrivateIndividual
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
       "must go from PhoneNumberPage to EmailAddressController (AYD1.3)" in {
         val ua = userAnswers.set(PhoneNumberPage, ContactNumbers(Some("01632 960 001"), None)).success.value
         navigator.nextPage(PhoneNumberPage, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.EmailAddressController
@@ -255,6 +292,15 @@ class NavigatorSpec extends SpecBase {
           userAnswers,
           NovaUserType.VatRegisteredOrganisation
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from PurchaserBusinessNamePage to the purchaser details check your answers page" in {
+        navigator.nextPage(
+          PurchaserBusinessNamePage,
+          NormalMode,
+          userAnswers,
+          NovaUserType.PrivateIndividual
+        ) mustBe routes.LandingPageController.onPageLoad() // TODO: assert CYA4.0 route when built
       }
     }
 
@@ -366,6 +412,12 @@ class NavigatorSpec extends SpecBase {
           .onPageLoad()
       }
 
+      "must go from PurchaserNamePage (APD1.0) to LandingPageController in CheckMode until CYA4.0 is built" in {
+        val ua = userAnswers.set(PurchaserNamePage, NameDetails("Mr", "John", "Smith")).success.value
+        navigator.nextPage(PurchaserNamePage, CheckMode, ua, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController
+          .onPageLoad()
+      }
+
       "must go from EmailAddressPage to YourDetailsCheckYourAnswersController" in {
         navigator.nextPage(
           EmailAddressPage,
@@ -380,6 +432,15 @@ class NavigatorSpec extends SpecBase {
         val ua = userAnswers.set(PhoneNumberPage, ContactNumbers(Some("01632 960 001"), None)).success.value
         navigator.nextPage(PhoneNumberPage, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.YourDetailsCheckYourAnswersController
           .onPageLoad()
+      }
+
+      "must go from PurchaserBusinessNamePage to the purchaser details check your answers page" in {
+        navigator.nextPage(
+          PurchaserBusinessNamePage,
+          CheckMode,
+          userAnswers,
+          NovaUserType.PrivateIndividual
+        ) mustBe routes.LandingPageController.onPageLoad() // TODO: assert CYA4.0 route when built
       }
     }
   }
