@@ -52,7 +52,7 @@ class PageNotFoundViewSpec extends SpecBase with Matchers with BeforeAndAfterAll
     "must render the correct heading" in {
       val html: String = view(technicalSupportUrl)(request, msgs).toString
 
-      html must include("govuk-heading-xl")
+      html must include("govuk-heading-l")
       html must include(msgs("pageNotFound.heading"))
     }
 
