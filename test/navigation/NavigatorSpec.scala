@@ -217,34 +217,14 @@ class NavigatorSpec extends SpecBase {
           .onPageLoad()
       }
 
-      "must go from PurchaserBusinessOrIndividualPage to PurchaserBusinessNameController when Business is selected" in {
+      "must go from PurchaserBusinessOrIndividualPage to InitialQuestionsCheckYourAnswersController" in {
         val ua = userAnswers.set(PurchaserBusinessOrIndividualPage, PurchaserBusinessOrIndividual.NonVatRegisteredBusiness).success.value
         navigator.nextPage(
           PurchaserBusinessOrIndividualPage,
           NormalMode,
           ua,
           NovaUserType.PrivateIndividual
-        ) mustBe routes.PurchaserBusinessNameController.onPageLoad(NormalMode)
-      }
-
-      "must go from PurchaserBusinessOrIndividualPage to PurchaserNameController when private individual is selected" in {
-        val ua =
-          userAnswers.set(PurchaserBusinessOrIndividualPage, PurchaserBusinessOrIndividual.NonVatRegisteredPrivateIndividual).success.value
-        navigator.nextPage(
-          PurchaserBusinessOrIndividualPage,
-          NormalMode,
-          ua,
-          NovaUserType.PrivateIndividual
-        ) mustBe routes.PurchaserNameController.onPageLoad(NormalMode)
-      }
-
-      "must go from PurchaserBusinessOrIndividualPage to JourneyRecovery when no answer is found" in {
-        navigator.nextPage(
-          PurchaserBusinessOrIndividualPage,
-          NormalMode,
-          userAnswers,
-          NovaUserType.PrivateIndividual
-        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+        ) mustBe routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
       }
 
       "must go from PhoneNumberPage to EmailAddressController (AYD1.3)" in {
