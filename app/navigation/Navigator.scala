@@ -77,12 +77,7 @@ class Navigator @Inject() () {
     case BusinessOrPrivatePage =>
       (_, _) => routes.PurchaserOrOnBehalfController.onPageLoad(NormalMode)
     case PurchaserBusinessOrIndividualPage =>
-      (userAnswers, _) =>
-        userAnswers.get(PurchaserBusinessOrIndividualPage) match {
-          case Some(PurchaserBusinessOrIndividual.NonVatRegisteredBusiness)          => routes.PurchaserBusinessNameController.onPageLoad(NormalMode)
-          case Some(PurchaserBusinessOrIndividual.NonVatRegisteredPrivateIndividual) => routes.PurchaserNameController.onPageLoad(NormalMode)
-          case _                                                                     => routes.JourneyRecoveryController.onPageLoad()
-        }
+      (_, _) => routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
     case AddVehicleDetailsPage =>
       (userAnswers, _) =>
         userAnswers.get(AddVehicleDetailsPage) match {
