@@ -75,6 +75,11 @@ POST        /name                                                   controllers.
 GET         /name/change                                            controllers.AddYourNameController.onPageLoad(mode: Mode = CheckMode)
 POST        /name/change                                            controllers.AddYourNameController.onSubmit(mode: Mode = CheckMode)
 
+GET         /purchaser-name                                         controllers.PurchaserNameController.onPageLoad(mode: Mode = NormalMode)
+POST        /purchaser-name                                         controllers.PurchaserNameController.onSubmit(mode: Mode = NormalMode)
+GET         /purchaser-name/change                                  controllers.PurchaserNameController.onPageLoad(mode: Mode = CheckMode)
+POST        /purchaser-name/change                                  controllers.PurchaserNameController.onSubmit(mode: Mode = CheckMode)
+
 GET         /contact-numbers                                        controllers.PhoneNumberController.onPageLoad(mode: Mode = NormalMode)
 POST        /contact-numbers                                        controllers.PhoneNumberController.onSubmit(mode: Mode = NormalMode)
 GET         /contact-numbers/change                                 controllers.PhoneNumberController.onPageLoad(mode: Mode = CheckMode)
