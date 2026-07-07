@@ -63,5 +63,19 @@ class DataRetrievalActionSpec extends SpecBase with MockitoSugar {
         result.userAnswers mustBe defined
       }
     }
+
+    "when the session lookup fails" - {
+
+      "must return a failed future with the exception" in {
+
+        val sessionRepository = mock[SessionRepository]
+        when(sessionRepository.get("id")) thenReturn Future.failed(new RuntimeException("mongo error"))
+        val action = new Harness(sessionRepository)
+
+        val result = action.callTransform(IdentifierRequest(FakeRequest(), "id", AffinityGroup.Individual, Enrolments(Set.empty)))
+
+        result.failed.futureValue mustBe a[RuntimeException]
+      }
+    }
   }
 }

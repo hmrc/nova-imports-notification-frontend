@@ -71,7 +71,7 @@ class AddVehicleDetailsController @Inject() (
 
 object AddVehicleDetailsController {
 
-  // Allow user types 1-6 with IQ1.0 = Yes. User types 7 & 8 (HMRC-NOVRN-AGNT) are
+  // Allow user access if IQ1.0 = Yes. User types 7 & 8 (HMRC-NOVRN-AGNT) are
   // already rejected by StandardIdentifierAction.
   def guardPredicate(request: DataRequest[?]): Boolean =
     IsDraftIdDefined(request.userAnswers) &&
