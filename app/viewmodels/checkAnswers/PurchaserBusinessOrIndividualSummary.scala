@@ -30,9 +30,9 @@ object PurchaserBusinessOrIndividualSummary {
     answers.get(PurchaserBusinessOrIndividualPage).map { answer =>
 
       val value = answer match {
-        case PurchaserBusinessOrIndividual.NonVatRegisteredBusiness => messages("purchaserBusinessOrIndividual.radio.nonVatRegisteredBusiness")
+        case PurchaserBusinessOrIndividual.NonVatRegisteredBusiness          => messages("purchaserBusinessOrIndividual.radio.business")
         case PurchaserBusinessOrIndividual.NonVatRegisteredPrivateIndividual =>
-          messages("purchaserBusinessOrIndividual.radio.nonVatRegisteredPrivateIndividual")
+          messages("purchaserBusinessOrIndividual.radio.privateIndividual")
       }
 
       SummaryListRowViewModel(
