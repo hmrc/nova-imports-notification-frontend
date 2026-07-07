@@ -49,9 +49,9 @@ class UnauthorisedControllerSpec extends SpecBase {
 
         status(result) mustEqual OK
         contentAsString(result) must include("You tried to access a part of this service that you’re not authorised to use.")
-        contentAsString(result) must include("If this is wrong, contact")
+        contentAsString(result) must include("If this is wrong,")
         contentAsString(result) must include("https://www.gov.uk/government/organisations/hm-revenue-customs/contact/online-services-helpdesk")
-        contentAsString(result) must include("HMRC technical support (opens in new tab).")
+        contentAsString(result) must include("contact HMRC technical support (opens in new tab).")
       }
     }
 
