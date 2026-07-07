@@ -48,8 +48,8 @@ class UnauthorisedControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) must include("You tried to access a part of this service that you are not authorised to use.")
-        contentAsString(result) must include("If this information is wrong, contact")
+        contentAsString(result) must include("You tried to access a part of this service that you’re not authorised to use.")
+        contentAsString(result) must include("If this is wrong, contact")
         contentAsString(result) must include("https://www.gov.uk/government/organisations/hm-revenue-customs/contact/online-services-helpdesk")
         contentAsString(result) must include("HMRC technical support (opens in new tab).")
       }
