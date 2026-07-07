@@ -16,64 +16,55 @@
 
 package controllers
 
-import config.FrontendAppConfig
 import controllers.actions.*
 import controllers.utils.IsDraftIdDefined
-import forms.AddVehicleDetailsFormProvider
-import models.requests.DataRequest
-
+import forms.PurchaserBusinessNameFormProvider
 import javax.inject.Inject
-import models.{AddVehicleDetails, Mode, NovaUserType}
+import models.{Mode, NovaUserType, PurchaserBusinessOrIndividual, PurchaserOrOnBehalf}
+import models.requests.DataRequest
 import navigation.Navigator
-import pages.AddVehicleDetailsPage
-import pages.sections.initialquestions.VehicleFromEuPage
+import pages.sections.initialquestions.{PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage}
+import pages.sections.purchaserDetails.PurchaserBusinessNamePage
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
-import views.html.AddVehicleDetailsView
+import views.html.PurchaserBusinessNameView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class AddVehicleDetailsController @Inject() (
+class PurchaserBusinessNameController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   sessionRepository: SessionRepository,
   navigator: Navigator,
   actions: Actions,
-  formProvider: AddVehicleDetailsFormProvider,
-  view: AddVehicleDetailsView,
-  appConfig: FrontendAppConfig
+  formProvider: PurchaserBusinessNameFormProvider,
+  view: PurchaserBusinessNameView
 )(implicit ec: ExecutionContext)
     extends BaseController {
 
-  import AddVehicleDetailsController.*
+  val form: Form[String] = formProvider()
 
-  val form: Form[AddVehicleDetails] = formProvider()
+  private val guardPredicate: DataRequest[?] => Boolean = request =>
+    IsDraftIdDefined(request.userAnswers) &&
+      request.userAnswers.get(PurchaserOrOnBehalfPage).contains(PurchaserOrOnBehalf.OnBehalfOfPurchaser) &&
+      request.userAnswers.get(PurchaserBusinessOrIndividualPage).contains(PurchaserBusinessOrIndividual.NonVatRegisteredBusiness)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate) { implicit request =>
-    Ok(view(form.withDefault(request.userAnswers.get(AddVehicleDetailsPage)), mode, appConfig.multipleVehiclesSpreadsheetsUrl))
+    Ok(view(form.withDefault(request.userAnswers.get(PurchaserBusinessNamePage)), mode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, appConfig.multipleVehiclesSpreadsheetsUrl))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
         value =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(AddVehicleDetailsPage, value))
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(PurchaserBusinessNamePage, value))
             _              <- sessionRepository.set(updatedAnswers)
           } yield Redirect(
-            navigator.nextPage(AddVehicleDetailsPage, mode, updatedAnswers, NovaUserType.from(request.affinityGroup, request.enrolments))
+            navigator.nextPage(PurchaserBusinessNamePage, mode, updatedAnswers, NovaUserType.from(request.affinityGroup, request.enrolments))
           )
       )
   }
-}
-
-object AddVehicleDetailsController {
-
-  // Allow user access if IQ1.0 = Yes. User types 7 & 8 (HMRC-NOVRN-AGNT) are
-  // already rejected by StandardIdentifierAction.
-  def guardPredicate(request: DataRequest[?]): Boolean =
-    IsDraftIdDefined(request.userAnswers) &&
-      request.userAnswers.get(VehicleFromEuPage).contains(true)
 }

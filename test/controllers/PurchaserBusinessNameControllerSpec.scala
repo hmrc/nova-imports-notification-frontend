@@ -17,72 +17,52 @@
 package controllers
 
 import base.SpecBase
-import forms.EmailAddressFormProvider
-import models.{BusinessOrPrivateIndividual, CheckMode, ContactNumbers, DraftId, NameDetails, NormalMode, UserAnswers}
+import forms.PurchaserBusinessNameFormProvider
+import models.{CheckMode, DraftId, NormalMode, PurchaserBusinessOrIndividual, PurchaserOrOnBehalf, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.DraftIdPage
-import pages.sections.initialquestions.BusinessOrPrivatePage
-import pages.sections.notifierDetails.{EmailAddressPage, NameDetailsPage, PhoneNumberPage}
+import pages.sections.initialquestions.{PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage}
+import pages.sections.purchaserDetails.PurchaserBusinessNamePage
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-import views.html.EmailAddressView
+import views.html.PurchaserBusinessNameView
 
 import scala.concurrent.Future
 
-class EmailAddressControllerSpec extends SpecBase with MockitoSugar {
+class PurchaserBusinessNameControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute: Call = Call("GET", "/foo")
 
-  val formProvider                 = new EmailAddressFormProvider()
-  val form                         = formProvider()
-  lazy val emailAddressRoute       = routes.EmailAddressController.onPageLoad(NormalMode).url
-  lazy val emailAddressChangeRoute = routes.EmailAddressController.onPageLoad(CheckMode).url
-  val validEmail                   = "name@example.com"
+  val formProvider                          = new PurchaserBusinessNameFormProvider()
+  val form                                  = formProvider()
+  lazy val purchaserBusinessNameRoute       = routes.PurchaserBusinessNameController.onPageLoad(NormalMode).url
+  lazy val purchaserBusinessNameChangeRoute = routes.PurchaserBusinessNameController.onPageLoad(CheckMode).url
+  val validName                             = "Acme Trading Co Ltd"
 
   val requiredAnswers: UserAnswers = emptyUserAnswers
-    .set(DraftIdPage, DraftId("DRAFT-001"))
-    .success
-    .value
-    .set(PhoneNumberPage, ContactNumbers(Some("07000000000"), None))
-    .success
-    .value
+    .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
+    .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+    .unsafeSet(PurchaserBusinessOrIndividualPage, PurchaserBusinessOrIndividual.NonVatRegisteredBusiness)
 
-  val cyaCompleteAnswers: UserAnswers = emptyUserAnswers
-    .set(DraftIdPage, DraftId("DRAFT-001"))
-    .success
-    .value
-    .set(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
-    .success
-    .value
-    .set(NameDetailsPage, NameDetails("Mr", "John", "Doe"))
-    .success
-    .value
-    .set(PhoneNumberPage, ContactNumbers(Some("07000000000"), None))
-    .success
-    .value
-    .set(EmailAddressPage, validEmail)
-    .success
-    .value
-
-  "EmailAddress Controller" - {
+  "PurchaserBusinessName Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
       val application = applicationBuilder(userAnswers = Some(requiredAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, emailAddressRoute)
+        val request = FakeRequest(GET, purchaserBusinessNameRoute)
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[EmailAddressView]
+        val view = application.injector.instanceOf[PurchaserBusinessNameView]
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
@@ -91,19 +71,19 @@ class EmailAddressControllerSpec extends SpecBase with MockitoSugar {
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = requiredAnswers.set(EmailAddressPage, validEmail).success.value
+      val userAnswers = requiredAnswers.unsafeSet(PurchaserBusinessNamePage, validName)
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, emailAddressRoute)
+        val request = FakeRequest(GET, purchaserBusinessNameRoute)
 
-        val view = application.injector.instanceOf[EmailAddressView]
+        val view = application.injector.instanceOf[PurchaserBusinessNameView]
 
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(validEmail), NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill(validName), NormalMode)(request, messages(application)).toString
       }
     }
 
@@ -123,8 +103,8 @@ class EmailAddressControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, emailAddressRoute)
-            .withFormUrlEncodedBody(("value", validEmail))
+          FakeRequest(POST, purchaserBusinessNameRoute)
+            .withFormUrlEncodedBody(("value", validName))
 
         val result = route(application, request).value
 
@@ -133,7 +113,7 @@ class EmailAddressControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must save the email to UserAnswers on submission" in {
+    "must save the business name to UserAnswers on submission" in {
 
       val mockSessionRepository = mock[SessionRepository]
       val captor                = ArgumentCaptor.forClass(classOf[UserAnswers])
@@ -150,30 +130,30 @@ class EmailAddressControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, emailAddressRoute)
-            .withFormUrlEncodedBody(("value", validEmail))
+          FakeRequest(POST, purchaserBusinessNameRoute)
+            .withFormUrlEncodedBody(("value", validName))
 
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
 
         verify(mockSessionRepository).set(captor.capture())
-        captor.getValue.get(EmailAddressPage) mustBe Some(validEmail)
+        captor.getValue.get(PurchaserBusinessNamePage) mustBe Some(validName)
       }
     }
 
-    "must return a Bad Request and errors when the email is blank" in {
+    "must return a Bad Request and errors when the business name is blank" in {
 
       val application = applicationBuilder(userAnswers = Some(requiredAnswers)).build()
 
       running(application) {
         val request =
-          FakeRequest(POST, emailAddressRoute)
+          FakeRequest(POST, purchaserBusinessNameRoute)
             .withFormUrlEncodedBody(("value", ""))
 
         val boundForm = form.bind(Map("value" -> ""))
 
-        val view = application.injector.instanceOf[EmailAddressView]
+        val view = application.injector.instanceOf[PurchaserBusinessNameView]
 
         val result = route(application, request).value
 
@@ -182,19 +162,19 @@ class EmailAddressControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must return a Bad Request and errors when the email exceeds 70 characters" in {
+    "must return a Bad Request and errors when the business name exceeds 160 characters" in {
 
       val application = applicationBuilder(userAnswers = Some(requiredAnswers)).build()
-      val tooLong     = "a" * 71 + "@b.com"
+      val tooLong     = "a" * 161
 
       running(application) {
         val request =
-          FakeRequest(POST, emailAddressRoute)
+          FakeRequest(POST, purchaserBusinessNameRoute)
             .withFormUrlEncodedBody(("value", tooLong))
 
         val boundForm = form.bind(Map("value" -> tooLong))
 
-        val view = application.injector.instanceOf[EmailAddressView]
+        val view = application.injector.instanceOf[PurchaserBusinessNameView]
 
         val result = route(application, request).value
 
@@ -203,18 +183,18 @@ class EmailAddressControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must return a Bad Request and errors when the email is malformed" in {
+    "must return a Bad Request and errors when the business name contains invalid characters" in {
 
       val application = applicationBuilder(userAnswers = Some(requiredAnswers)).build()
 
       running(application) {
         val request =
-          FakeRequest(POST, emailAddressRoute)
-            .withFormUrlEncodedBody(("value", "name+plus@example.com"))
+          FakeRequest(POST, purchaserBusinessNameRoute)
+            .withFormUrlEncodedBody(("value", "Acme#Ltd"))
 
-        val boundForm = form.bind(Map("value" -> "name+plus@example.com"))
+        val boundForm = form.bind(Map("value" -> "Acme#Ltd"))
 
-        val view = application.injector.instanceOf[EmailAddressView]
+        val view = application.injector.instanceOf[PurchaserBusinessNameView]
 
         val result = route(application, request).value
 
@@ -223,12 +203,30 @@ class EmailAddressControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to Unauthorised when PhoneNumberPage is not set" in {
-      val answers     = emptyUserAnswers.set(DraftIdPage, DraftId("DRAFT-001")).success.value
+    "must redirect to Unauthorised for a GET when the purchaser is not on behalf of a purchaser" in {
+      val answers = emptyUserAnswers
+        .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
+        .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
       val application = applicationBuilder(userAnswers = Some(answers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, emailAddressRoute)
+        val request = FakeRequest(GET, purchaserBusinessNameRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Unauthorised for a GET when the purchaser is not a non-VAT registered business" in {
+      val answers = emptyUserAnswers
+        .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
+        .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+      val application = applicationBuilder(userAnswers = Some(answers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, purchaserBusinessNameRoute)
 
         val result = route(application, request).value
 
@@ -238,11 +236,13 @@ class EmailAddressControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to Unauthorised for a GET when no draft is in progress" in {
-      val answers     = emptyUserAnswers.set(PhoneNumberPage, ContactNumbers(Some("07000000000"), None)).success.value
+      val answers = emptyUserAnswers
+        .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+        .unsafeSet(PurchaserBusinessOrIndividualPage, PurchaserBusinessOrIndividual.NonVatRegisteredBusiness)
       val application = applicationBuilder(userAnswers = Some(answers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, emailAddressRoute)
+        val request = FakeRequest(GET, purchaserBusinessNameRoute)
 
         val result = route(application, request).value
 
@@ -251,11 +251,29 @@ class EmailAddressControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must allow CheckMode access from completed CYA2 data" in {
-      val application = applicationBuilder(userAnswers = Some(cyaCompleteAnswers)).build()
+    "must redirect to Unauthorised for a POST when the breadcrumb is missing" in {
+      val answers = emptyUserAnswers
+        .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
+        .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
+      val application = applicationBuilder(userAnswers = Some(answers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, emailAddressChangeRoute)
+        val request =
+          FakeRequest(POST, purchaserBusinessNameRoute)
+            .withFormUrlEncodedBody(("value", validName))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+
+    "must allow CheckMode access with a valid breadcrumb" in {
+      val application = applicationBuilder(userAnswers = Some(requiredAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, purchaserBusinessNameChangeRoute)
 
         val result = route(application, request).value
 
@@ -268,7 +286,7 @@ class EmailAddressControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
-        val request = FakeRequest(GET, emailAddressRoute)
+        val request = FakeRequest(GET, purchaserBusinessNameRoute)
 
         val result = route(application, request).value
 
@@ -283,8 +301,8 @@ class EmailAddressControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, emailAddressRoute)
-            .withFormUrlEncodedBody(("value", validEmail))
+          FakeRequest(POST, purchaserBusinessNameRoute)
+            .withFormUrlEncodedBody(("value", validName))
 
         val result = route(application, request).value
 

@@ -52,6 +52,11 @@ POST        /purchaser-business-or-private-individual               controllers.
 GET         /purchaser-business-or-private-individual/change        controllers.PurchaserBusinessOrIndividualController.onPageLoad(mode: Mode = CheckMode)
 POST        /purchaser-business-or-private-individual/change        controllers.PurchaserBusinessOrIndividualController.onSubmit(mode: Mode = CheckMode)
 
+GET         /purchaser-business-name                                controllers.PurchaserBusinessNameController.onPageLoad(mode: Mode = NormalMode)
+POST        /purchaser-business-name                                controllers.PurchaserBusinessNameController.onSubmit(mode: Mode = NormalMode)
+GET         /purchaser-business-name/change                         controllers.PurchaserBusinessNameController.onPageLoad(mode: Mode = CheckMode)
+POST        /purchaser-business-name/change                         controllers.PurchaserBusinessNameController.onSubmit(mode: Mode = CheckMode)
+
 GET         /vehicle-business-use                                   controllers.VehicleBusinessUseController.onPageLoad(mode: Mode = NormalMode)
 POST        /vehicle-business-use                                   controllers.VehicleBusinessUseController.onSubmit(mode: Mode = NormalMode)
 GET         /change-vehicle-business-use                            controllers.VehicleBusinessUseController.onPageLoad(mode: Mode = CheckMode)
@@ -74,6 +79,11 @@ GET         /name                                                   controllers.
 POST        /name                                                   controllers.AddYourNameController.onSubmit(mode: Mode = NormalMode)
 GET         /name/change                                            controllers.AddYourNameController.onPageLoad(mode: Mode = CheckMode)
 POST        /name/change                                            controllers.AddYourNameController.onSubmit(mode: Mode = CheckMode)
+
+GET         /purchaser-name                                         controllers.PurchaserNameController.onPageLoad(mode: Mode = NormalMode)
+POST        /purchaser-name                                         controllers.PurchaserNameController.onSubmit(mode: Mode = NormalMode)
+GET         /purchaser-name/change                                  controllers.PurchaserNameController.onPageLoad(mode: Mode = CheckMode)
+POST        /purchaser-name/change                                  controllers.PurchaserNameController.onSubmit(mode: Mode = CheckMode)
 
 GET         /contact-numbers                                        controllers.PhoneNumberController.onPageLoad(mode: Mode = NormalMode)
 POST        /contact-numbers                                        controllers.PhoneNumberController.onSubmit(mode: Mode = NormalMode)

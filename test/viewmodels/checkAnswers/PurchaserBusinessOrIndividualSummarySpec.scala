@@ -38,7 +38,7 @@ class PurchaserBusinessOrIndividualSummarySpec extends SpecBase {
       val result = PurchaserBusinessOrIndividualSummary.row(userAnswers).value
 
       result.key.content.asHtml.toString   must include(msgs("purchaserBusinessOrIndividual.checkYourAnswersLabel"))
-      result.value.content.asHtml.toString must include(msgs("purchaserBusinessOrIndividual.radio.nonVatRegisteredBusiness"))
+      result.value.content.asHtml.toString must include(msgs("purchaserBusinessOrIndividual.radio.business"))
       result.actions.value.items.head.href mustBe routes.PurchaserBusinessOrIndividualController.onPageLoad(CheckMode).url
     }
 
@@ -52,7 +52,7 @@ class PurchaserBusinessOrIndividualSummarySpec extends SpecBase {
       val result = PurchaserBusinessOrIndividualSummary.row(userAnswers).value
 
       result.key.content.asHtml.toString   must include(msgs("purchaserBusinessOrIndividual.checkYourAnswersLabel"))
-      result.value.content.asHtml.toString must include(msgs("purchaserBusinessOrIndividual.radio.nonVatRegisteredPrivateIndividual"))
+      result.value.content.asHtml.toString must include(msgs("purchaserBusinessOrIndividual.radio.privateIndividual"))
       result.actions.value.items.head.href mustBe routes.PurchaserBusinessOrIndividualController.onPageLoad(CheckMode).url
     }
 

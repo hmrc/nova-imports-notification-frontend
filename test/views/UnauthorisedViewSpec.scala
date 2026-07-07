@@ -88,7 +88,7 @@ class UnauthorisedViewSpec extends SpecBase with Matchers with BeforeAndAfterAll
     "must render the 'Return to home' button" in {
       val html: String = view(helpdeskUrl)(request, msgs).toString
 
-      html must include("govuk-button  govuk-button--secondary")
+      html must include("govuk-link")
       html must include(msgs("unauthorised.returnHome"))
     }
 

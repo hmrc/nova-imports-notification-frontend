@@ -44,7 +44,7 @@ class ActionsSpec extends SpecBase {
         }
       }
 
-      "must redirect to Journey Recovery when no user data exists" in {
+      "must redirect to Unauthorised when no user data exists" in {
         given application: Application = applicationBuilder(userAnswers = None).build()
 
         running(application) {
@@ -53,7 +53,7 @@ class ActionsSpec extends SpecBase {
           val result           = action.apply(FakeRequest())
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+          redirectLocation(result).value mustEqual controllers.routes.UnauthorisedController.onPageLoad().url
         }
       }
     }
@@ -73,7 +73,7 @@ class ActionsSpec extends SpecBase {
         }
       }
 
-      "must redirect to Journey Recovery when no user data exists" in {
+      "must redirect to Unauthorised when no user data exists" in {
         given application: Application = applicationBuilder(userAnswers = None).build()
 
         running(application) {
@@ -82,7 +82,7 @@ class ActionsSpec extends SpecBase {
           val result           = action.apply(FakeRequest())
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+          redirectLocation(result).value mustEqual controllers.routes.UnauthorisedController.onPageLoad().url
         }
       }
     }
@@ -102,7 +102,7 @@ class ActionsSpec extends SpecBase {
         }
       }
 
-      "must redirect to Journey Recovery when no user data exists" in {
+      "must redirect to Unauthorised when no user data exists" in {
         given application: Application = applicationBuilder(userAnswers = None).build()
 
         running(application) {
@@ -111,7 +111,7 @@ class ActionsSpec extends SpecBase {
           val result           = action.apply(FakeRequest())
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+          redirectLocation(result).value mustEqual controllers.routes.UnauthorisedController.onPageLoad().url
         }
       }
     }
@@ -144,7 +144,7 @@ class ActionsSpec extends SpecBase {
         }
       }
 
-      "must redirect to Journey Recovery when no user data exists" in {
+      "must redirect to Unauthorised when no user data exists" in {
         given application: Application = applicationBuilder(userAnswers = None).build()
 
         running(application) {
@@ -153,7 +153,7 @@ class ActionsSpec extends SpecBase {
           val result           = action.apply(FakeRequest())
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+          redirectLocation(result).value mustEqual controllers.routes.UnauthorisedController.onPageLoad().url
         }
       }
     }
@@ -202,7 +202,7 @@ class ActionsSpec extends SpecBase {
         }
       }
 
-      "must redirect to Journey Recovery when no user data exists" in {
+      "must redirect to Unauthorised when no user data exists" in {
         given application: Application = applicationBuilder(userAnswers = None).build()
 
         running(application) {
@@ -211,7 +211,7 @@ class ActionsSpec extends SpecBase {
           val result           = action.apply(FakeRequest())
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+          redirectLocation(result).value mustEqual controllers.routes.UnauthorisedController.onPageLoad().url
         }
       }
     }
@@ -258,7 +258,7 @@ class ActionsSpec extends SpecBase {
         }
       }
 
-      "must redirect to Journey Recovery when no user data exists" in {
+      "must redirect to Unauthorised when no user data exists" in {
         given application: Application = applicationBuilder(userAnswers = None).build()
 
         running(application) {
@@ -267,7 +267,7 @@ class ActionsSpec extends SpecBase {
           val result           = action.apply(FakeRequest())
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+          redirectLocation(result).value mustEqual controllers.routes.UnauthorisedController.onPageLoad().url
         }
       }
     }

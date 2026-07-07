@@ -34,10 +34,7 @@
     </p>
 
     <p class="govuk-body">
-        @govukButton(
-        ButtonViewModel(messages("unauthorised.returnHome"))
-        .asLink(routes.LandingPageController.onPageLoad().url)
-        .asSecondaryButton()
-        )
+        <a class="govuk-link" href="@routes.LandingPageController.onPageLoad().url">@messages("unauthorised.returnHome")
+        </a>
     </p>
 }

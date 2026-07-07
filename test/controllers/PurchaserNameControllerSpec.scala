@@ -17,98 +17,101 @@
 package controllers
 
 import base.SpecBase
-import forms.AddYourNameFormProvider
-import models.{BusinessOrPrivateIndividual, CheckMode, ContactNumbers, DraftId, NameDetails, NormalMode, UserAnswers}
+import forms.PurchaserNameFormProvider
+import models.{CheckMode, DraftId, NameDetails, NormalMode, PurchaserBusinessOrIndividual, PurchaserOrOnBehalf, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.sections.initialquestions.{BusinessOrPrivatePage, VehicleFromEuPage}
-import pages.sections.notifierDetails.{EmailAddressPage, PhoneNumberPage}
-import pages.sections.notifierDetails.NameDetailsPage
+import pages.sections.initialquestions.{PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage}
+import pages.sections.purchaserDetails.PurchaserNamePage
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-import views.html.AddYourNameView
+import views.html.PurchaserNameView
 
 import scala.concurrent.Future
 
-class AddYourNameControllerSpec extends SpecBase with MockitoSugar {
+class PurchaserNameControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute: Call = Call("GET", "/foo")
 
-  val formProvider = new AddYourNameFormProvider()
+  val formProvider = new PurchaserNameFormProvider()
   val form         = formProvider()
 
-  lazy val addYourNameRoute       = routes.AddYourNameController.onPageLoad(NormalMode).url
-  lazy val addYourNameChangeRoute = routes.AddYourNameController.onPageLoad(CheckMode).url
+  lazy val purchaserNameRoute       = routes.PurchaserNameController.onPageLoad(NormalMode).url
+  lazy val purchaserNameChangeRoute = routes.PurchaserNameController.onPageLoad(CheckMode).url
 
   val validTitle     = "Mr"
   val validFirstName = "John"
   val validLastName  = "Doe"
 
-  // A private-individual user reaches /name directly from the initial questions
-  // (no NotificationTaskList / AYD1.0 stop) — AYD1.0 is VAT-org only.
+  // A user reaches /purchaser-name after answering IQ3.0 "As the purchaser",
+  // or IQ3.0 "On behalf of a purchaser" and IQ3.1 "Private individual".
   private val requiredPreviousAnswers = emptyUserAnswers
     .set(pages.DraftIdPage, DraftId("DRAFT-001"))
     .success
     .value
-    .set(VehicleFromEuPage, true)
-    .success
-    .value
-    .set(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
+    .set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
     .success
     .value
 
-  private val cyaCompleteAnswers = emptyUserAnswers
-    .set(pages.DraftIdPage, DraftId("DRAFT-001"))
-    .success
-    .value
-    .set(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
-    .success
-    .value
-    .set(NameDetailsPage, NameDetails(validTitle, validFirstName, validLastName))
-    .success
-    .value
-    .set(PhoneNumberPage, ContactNumbers(Some("01632 960 001"), None))
-    .success
-    .value
-    .set(EmailAddressPage, "name@example.com")
-    .success
-    .value
-
-  "AddYourName Controller" - {
+  "PurchaserName Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
       val application = applicationBuilder(userAnswers = Some(requiredPreviousAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, addYourNameRoute)
+        val request = FakeRequest(GET, purchaserNameRoute)
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[AddYourNameView]
+        val view = application.injector.instanceOf[PurchaserNameView]
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
       }
     }
 
-    "must populate the view correctly on a GET when the question has previously been answered" in {
+    "must allow access when notifying on behalf of a private individual purchaser" in {
 
-      val answer      = NameDetails(validTitle, validFirstName, validLastName)
-      val userAnswers = requiredPreviousAnswers.set(NameDetailsPage, answer).success.value
+      val userAnswers = emptyUserAnswers
+        .set(pages.DraftIdPage, DraftId("DRAFT-001"))
+        .success
+        .value
+        .set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+        .success
+        .value
+        .set(PurchaserBusinessOrIndividualPage, PurchaserBusinessOrIndividual.NonVatRegisteredPrivateIndividual)
+        .success
+        .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, addYourNameRoute)
+        val request = FakeRequest(GET, purchaserNameRoute)
 
-        val view = application.injector.instanceOf[AddYourNameView]
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+      }
+    }
+
+    "must populate the view correctly on a GET when the question has previously been answered" in {
+
+      val answer      = NameDetails(validTitle, validFirstName, validLastName)
+      val userAnswers = requiredPreviousAnswers.set(PurchaserNamePage, answer).success.value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, purchaserNameRoute)
+
+        val view = application.injector.instanceOf[PurchaserNameView]
 
         val result = route(application, request).value
 
@@ -133,7 +136,7 @@ class AddYourNameControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, addYourNameRoute)
+          FakeRequest(POST, purchaserNameRoute)
             .withFormUrlEncodedBody(
               ("title", validTitle),
               ("firstName", validFirstName),
@@ -164,7 +167,7 @@ class AddYourNameControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, addYourNameRoute)
+          FakeRequest(POST, purchaserNameRoute)
             .withFormUrlEncodedBody(
               ("title", validTitle),
               ("firstName", validFirstName),
@@ -176,7 +179,7 @@ class AddYourNameControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual SEE_OTHER
 
         verify(mockSessionRepository).set(captor.capture())
-        captor.getValue.get(NameDetailsPage) mustBe Some(NameDetails(validTitle, validFirstName, validLastName))
+        captor.getValue.get(PurchaserNamePage) mustBe Some(NameDetails(validTitle, validFirstName, validLastName))
       }
     }
 
@@ -186,12 +189,12 @@ class AddYourNameControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, addYourNameRoute)
+          FakeRequest(POST, purchaserNameRoute)
             .withFormUrlEncodedBody(("title", validTitle), ("firstName", ""), ("lastName", validLastName))
 
         val boundForm = form.bind(Map("title" -> validTitle, "firstName" -> "", "lastName" -> validLastName))
 
-        val view = application.injector.instanceOf[AddYourNameView]
+        val view = application.injector.instanceOf[PurchaserNameView]
 
         val result = route(application, request).value
 
@@ -207,7 +210,7 @@ class AddYourNameControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(answers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, addYourNameRoute)
+        val request = FakeRequest(GET, purchaserNameRoute)
 
         val result = route(application, request).value
 
@@ -216,12 +219,42 @@ class AddYourNameControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must allow CheckMode access from completed CYA2 data without AboutYourDetailsPage" in {
+    "must redirect to Unauthorised when notifying on behalf of a business purchaser" in {
 
-      val application = applicationBuilder(userAnswers = Some(cyaCompleteAnswers)).build()
+      val userAnswers = emptyUserAnswers
+        .set(pages.DraftIdPage, DraftId("DRAFT-001"))
+        .success
+        .value
+        .set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+        .success
+        .value
+        .set(PurchaserBusinessOrIndividualPage, PurchaserBusinessOrIndividual.NonVatRegisteredBusiness)
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, addYourNameChangeRoute)
+        val request = FakeRequest(GET, purchaserNameRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+
+    "must allow CheckMode access when the purchaser name has already been answered" in {
+
+      val userAnswers = requiredPreviousAnswers
+        .set(PurchaserNamePage, NameDetails(validTitle, validFirstName, validLastName))
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, purchaserNameChangeRoute)
 
         val result = route(application, request).value
 
@@ -234,7 +267,7 @@ class AddYourNameControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
-        val request = FakeRequest(GET, addYourNameRoute)
+        val request = FakeRequest(GET, purchaserNameRoute)
 
         val result = route(application, request).value
 
@@ -246,13 +279,12 @@ class AddYourNameControllerSpec extends SpecBase with MockitoSugar {
     "must redirect to Unauthorised for a GET when no draft is in progress" in {
 
       val answersWithoutDraft = emptyUserAnswers
-        .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
-        .unsafeSet(VehicleFromEuPage, true)
+        .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
 
       val application = applicationBuilder(userAnswers = Some(answersWithoutDraft)).build()
 
       running(application) {
-        val request = FakeRequest(GET, addYourNameRoute)
+        val request = FakeRequest(GET, purchaserNameRoute)
 
         val result = route(application, request).value
 
@@ -267,7 +299,7 @@ class AddYourNameControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, addYourNameRoute)
+          FakeRequest(POST, purchaserNameRoute)
             .withFormUrlEncodedBody(("title", validTitle), ("firstName", validFirstName), ("lastName", validLastName))
 
         val result = route(application, request).value

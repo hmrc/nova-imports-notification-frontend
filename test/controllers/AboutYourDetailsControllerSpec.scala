@@ -69,7 +69,7 @@ class AboutYourDetailsControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must redirect to Journey Recovery if no existing data is found" in {
+      "must redirect to Unauthorised if no existing data is found" in {
         given application: Application = applicationBuilder(userAnswers = None).build()
 
         running(application) {
@@ -78,7 +78,7 @@ class AboutYourDetailsControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
         }
       }
 
@@ -155,7 +155,7 @@ class AboutYourDetailsControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must redirect to Journey Recovery if no existing userAnswers are found" in {
+      "must redirect to Unauthorised if no existing userAnswers are found" in {
         given application: Application = applicationBuilder(userAnswers = None).build()
 
         running(application) {
@@ -164,7 +164,7 @@ class AboutYourDetailsControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
         }
       }
 
