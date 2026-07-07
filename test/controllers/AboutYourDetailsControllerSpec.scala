@@ -63,7 +63,9 @@ class AboutYourDetailsControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual OK
           contentAsString(result) must include("About your details")
-          contentAsString(result) must include("You need to provide your contact details.")
+          contentAsString(result) must include(
+            "You must provide your contact details. HMRC will only use them to contact you about this notification."
+          )
         }
       }
 
