@@ -184,7 +184,7 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
 
           status(result) mustEqual OK
           body must include("Check your answers")
-          body must include("Are you completing a notification for a vehicle brought into Northern Ireland from an EU country?")
+          body must include("whether this notification is for a vehicle brought into Northern Ireland from an EU country")
           body must include("Have you brought a vehicle into the UK for business use?")
         }
       }
@@ -202,7 +202,7 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
 
           status(result) mustEqual OK
           body must include("Check your answers")
-          body must include("Are you completing a notification for a vehicle brought into Northern Ireland from an EU country?")
+          body must include("whether this notification is for a vehicle brought into Northern Ireland from an EU country")
           body must include("Are you a business or private individual?")
           body must include("Are you notifying as the purchaser, or on behalf of a purchaser?")
           body must not include "Type of purchaser"
@@ -222,7 +222,7 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
 
           status(result) mustEqual OK
           body must include("Check your answers")
-          body must include("Are you completing a notification for a vehicle brought into Northern Ireland from an EU country?")
+          body must include("whether this notification is for a vehicle brought into Northern Ireland from an EU country")
           body must include("Are you a business or private individual?")
           body must include("Are you notifying as the purchaser, or on behalf of a purchaser?")
           body must include("Is the purchaser you’re notifying on behalf of a business or private individual?")
@@ -242,8 +242,8 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
 
           status(result) mustEqual OK
           body must include("Check your answers")
-          body must include("Are you completing a notification for a vehicle brought into Northern Ireland from an EU country?")
-          body must include("Has your client brought a vehicle into the UK for business use?")
+          body must include("whether this notification is for a vehicle brought into Northern Ireland from an EU country")
+          body must include("whether your client has brought a vehicle into the UK for business use")
         }
       }
 
