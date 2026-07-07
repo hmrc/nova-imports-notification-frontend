@@ -225,7 +225,7 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
           body must include("Are you completing a notification for a vehicle brought into Northern Ireland from an EU country?")
           body must include("Are you a business or private individual?")
           body must include("Are you notifying as the purchaser, or on behalf of a purchaser?")
-          body must include("Is the purchaser you are notifying on behalf of a business or private individual?")
+          body must include("Is the purchaser you’re notifying on behalf of a business or private individual?")
         }
       }
 
