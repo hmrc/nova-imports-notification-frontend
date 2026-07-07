@@ -67,16 +67,22 @@ class PurchaserBusinessOrIndividualViewSpec extends SpecBase with Matchers with 
       html must include(msgs("purchaserBusinessOrIndividual.caption"))
     }
 
-    "must render the non-VAT registered business radio option" in {
+    "must render the hint text" in {
       val html: String = view(form, NormalMode)(request, msgs).toString
 
-      html must include(msgs("purchaserBusinessOrIndividual.radio.nonVatRegisteredBusiness"))
+      html must include(msgs("purchaserBusinessOrIndividual.hint"))
     }
 
-    "must render the non-VAT registered private individual radio option" in {
+    "must render the business radio option" in {
       val html: String = view(form, NormalMode)(request, msgs).toString
 
-      html must include(msgs("purchaserBusinessOrIndividual.radio.nonVatRegisteredPrivateIndividual"))
+      html must include(msgs("purchaserBusinessOrIndividual.radio.business"))
+    }
+
+    "must render the private individual radio option" in {
+      val html: String = view(form, NormalMode)(request, msgs).toString
+
+      html must include(msgs("purchaserBusinessOrIndividual.radio.privateIndividual"))
     }
 
     "must render the error summary when the form has errors" in {

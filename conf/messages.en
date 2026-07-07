@@ -247,14 +247,15 @@ purchaserOrOnBehalf.radio.behalfOfPurchaser = On behalf of a purchaser
 # IQ3.1 - Initial Question 3.1: Purchaser business or private individual  #
 ###########################################################################
 
-purchaserBusinessOrIndividual.title = Is the purchaser you are notifying on behalf of a business or private individual?
-purchaserBusinessOrIndividual.heading = Is the purchaser you are notifying on behalf of a business or private individual?
+purchaserBusinessOrIndividual.title = Is the purchaser you’re notifying on behalf of a business or private individual?
+purchaserBusinessOrIndividual.heading = Is the purchaser you’re notifying on behalf of a business or private individual?
 purchaserBusinessOrIndividual.caption = Initial questions
+purchaserBusinessOrIndividual.hint = The purchaser cannot be VAT registered
 purchaserBusinessOrIndividual.checkYourAnswersLabel = Type of purchaser you are notifying for
 purchaserBusinessOrIndividual.error.required = Select if the purchaser is a business or a private individual
-purchaserBusinessOrIndividual.change.hidden = Is the purchaser you are notifying on behalf of a business or private individual?
-purchaserBusinessOrIndividual.radio.nonVatRegisteredBusiness = Non-VAT registered business
-purchaserBusinessOrIndividual.radio.nonVatRegisteredPrivateIndividual = Non-VAT registered private individual
+purchaserBusinessOrIndividual.change.hidden = Is the purchaser you’re notifying on behalf of a business or private individual?
+purchaserBusinessOrIndividual.radio.business = Business
+purchaserBusinessOrIndividual.radio.privateIndividual = Private individual
 
 ###########################################################################
 # APD2.0 - Add purchaser details 2.0: Purchaser business name             #

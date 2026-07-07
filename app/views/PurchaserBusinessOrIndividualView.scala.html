@@ -43,16 +43,16 @@
                     RadioItem(
                         id = Some(form("value").id),
                         value = Some(PurchaserBusinessOrIndividual.NonVatRegisteredBusiness.toString),
-                        content = Text(messages("purchaserBusinessOrIndividual.radio.nonVatRegisteredBusiness"))
+                        content = Text(messages("purchaserBusinessOrIndividual.radio.business"))
                     ),
                     RadioItem(
                         id = Some(form("value").id + "-2"),
                         value = Some(PurchaserBusinessOrIndividual.NonVatRegisteredPrivateIndividual.toString),
-                        content = Text(messages("purchaserBusinessOrIndividual.radio.nonVatRegisteredPrivateIndividual"))
+                        content = Text(messages("purchaserBusinessOrIndividual.radio.privateIndividual"))
                     )
                 ),
                 legend = LegendViewModel(messages("purchaserBusinessOrIndividual.heading")).asPageHeading(LegendSize.Large)
-            )
+            ).withHint(HintViewModel(Text(messages("purchaserBusinessOrIndividual.hint"))))
         )
 
         @govukButton(
