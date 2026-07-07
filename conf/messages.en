@@ -323,7 +323,7 @@ noAuthorisedClients.returnToHome = Return to home
 aboutYourDetails.title = About your details
 aboutYourDetails.caption = Add your details
 aboutYourDetails.heading = About your details
-aboutYourDetails.paragraph.1 = You need to provide your contact details. HMRC will only use them to contact you about this notification.
+aboutYourDetails.paragraph.1 = You must provide your contact details. HMRC will only use them to contact you about this notification.
 aboutYourDetails.paragraph.2 = The details you provide will not replace your VAT registration contact details.
 
 ######################################################
