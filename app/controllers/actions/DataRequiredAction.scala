@@ -31,7 +31,7 @@ class DataRequiredActionImpl @Inject() (implicit val executionContext: Execution
 
     request.userAnswers match {
       case None =>
-        Future.successful(Left(Redirect(routes.JourneyRecoveryController.onPageLoad())))
+        Future.successful(Left(Redirect(routes.UnauthorisedController.onPageLoad())))
       case Some(data) =>
         val userContext = UserContext.from(request.affinityGroup, request.enrolments, data)
         Future.successful(Right(DataRequest(request.request, request.userId, request.affinityGroup, request.enrolments, data, userContext)))

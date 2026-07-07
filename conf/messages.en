@@ -52,8 +52,8 @@ signedOut.guidance = We did not save your answers.
 
 unauthorised.title = You do not have permission to access this page
 unauthorised.heading = You do not have permission to access this page
-unauthorised.paragraph.1 = You tried to access a part of this service that you are not authorised to use.
-unauthorised.paragraph.2 = If this information is wrong, contact
+unauthorised.paragraph.1 = You tried to access a part of this service that you’re not authorised to use.
+unauthorised.paragraph.2 = If this is wrong, contact
 unauthorised.link.text = HMRC technical support (opens in new tab).
 unauthorised.returnHome = Return to home
 

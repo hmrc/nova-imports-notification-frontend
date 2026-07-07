@@ -208,14 +208,14 @@ class AddressLookupCallbackControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to JourneyRecovery for a GET if no user answers are present" in {
+    "must redirect to Unauthorised for a GET if no user answers are present" in {
       val app = applicationWith(userAnswers = None)
 
       running(app) {
         val result = route(app, FakeRequest(GET, callbackOk)).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
       }
     }
   }
