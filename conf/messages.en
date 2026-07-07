@@ -132,7 +132,7 @@ vehicleFromEu.heading = Are you completing a notification for a vehicle brought 
 vehicleFromEu.caption = Initial questions
 vehicleFromEu.checkYourAnswersLabel = Vehicle brought into Northern Ireland from an EU country
 vehicleFromEu.error.required = Select yes if the vehicle was brought into Northern Ireland from an EU country
-vehicleFromEu.change.hidden = Are you completing a notification for a vehicle brought into Northern Ireland from an EU country?
+vehicleFromEu.change.hidden = whether this notification is for a vehicle brought into Northern Ireland from an EU country
 
 ##########################################################################
 # IQ1.1 - Initial Question 1.1: Vehicle brought into NI from outside EU  #
@@ -227,7 +227,7 @@ agentVehicleBusinessUse.caption = Initial questions
 agentVehicleBusinessUse.hint = Select ‘Yes’ only if the vehicle belongs to the business
 agentVehicleBusinessUse.checkYourAnswersLabel = Has your client brought a vehicle into the UK for business use?
 agentVehicleBusinessUse.error.required = Select yes if your client brought a vehicle into the UK for business use
-agentVehicleBusinessUse.change.hidden = Has your client brought a vehicle into the UK for business use?
+agentVehicleBusinessUse.change.hidden = whether your client has brought a vehicle into the UK for business use
 
 ##########################################################################
 # IQ3.0 - Initial Question 3.0: Purchaser or on behalf of the purchaser  #
@@ -251,7 +251,7 @@ purchaserBusinessOrIndividual.title = Is the purchaser you’re notifying on beh
 purchaserBusinessOrIndividual.heading = Is the purchaser you’re notifying on behalf of a business or private individual?
 purchaserBusinessOrIndividual.caption = Initial questions
 purchaserBusinessOrIndividual.hint = The purchaser cannot be VAT registered
-purchaserBusinessOrIndividual.checkYourAnswersLabel = Type of purchaser you are notifying for
+purchaserBusinessOrIndividual.checkYourAnswersLabel = Type of purchaser you’re notifying for
 purchaserBusinessOrIndividual.error.required = Select if the purchaser is a business or a private individual
 purchaserBusinessOrIndividual.change.hidden = Is the purchaser you’re notifying on behalf of a business or private individual?
 purchaserBusinessOrIndividual.radio.business = Business
