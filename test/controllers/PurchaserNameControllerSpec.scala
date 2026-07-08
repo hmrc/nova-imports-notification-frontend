@@ -49,13 +49,16 @@ class PurchaserNameControllerSpec extends SpecBase with MockitoSugar {
   val validFirstName = "John"
   val validLastName  = "Doe"
 
-  // A user reaches /purchaser-name after answering IQ3.0 "As the purchaser",
-  // or IQ3.0 "On behalf of a purchaser" and IQ3.1 "Private individual".
+  // A user reaches /purchaser-name only after answering IQ3.0 "On behalf of a purchaser"
+  // and IQ3.1 "Private individual".
   private val requiredPreviousAnswers = emptyUserAnswers
     .set(pages.DraftIdPage, DraftId("DRAFT-001"))
     .success
     .value
-    .set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
+    .set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+    .success
+    .value
+    .set(PurchaserBusinessOrIndividualPage, PurchaserBusinessOrIndividual.NonVatRegisteredPrivateIndividual)
     .success
     .value
 
@@ -276,10 +279,33 @@ class PurchaserNameControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
+    "must redirect to Unauthorised when the user is the purchaser" in {
+
+      val userAnswers = emptyUserAnswers
+        .set(pages.DraftIdPage, DraftId("DRAFT-001"))
+        .success
+        .value
+        .set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, purchaserNameRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+
     "must redirect to Unauthorised for a GET when no draft is in progress" in {
 
       val answersWithoutDraft = emptyUserAnswers
-        .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
+        .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+        .unsafeSet(PurchaserBusinessOrIndividualPage, PurchaserBusinessOrIndividual.NonVatRegisteredPrivateIndividual)
 
       val application = applicationBuilder(userAnswers = Some(answersWithoutDraft)).build()
 

@@ -57,7 +57,6 @@ class PurchaserNameController @Inject() (
 
   private def purchaserNameRequiredFor(request: DataRequest[?]): Boolean =
     request.userAnswers.get(PurchaserOrOnBehalfPage) match {
-      case Some(PurchaserOrOnBehalf.Purchaser)           => true
       case Some(PurchaserOrOnBehalf.OnBehalfOfPurchaser) =>
         request.userAnswers
           .get(PurchaserBusinessOrIndividualPage)
