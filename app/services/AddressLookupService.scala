@@ -383,8 +383,9 @@ class AddressLookupService @Inject() (
         Json.obj("editPage.town.error" -> messages("addressLookup.error.townRequired"))
       else
         Json.obj(
-          "editPage.town.error"                   -> messages("addressLookup.error.townRequired"),
-          "constants.editPageCountryErrorMessage" -> messages("addressLookup.error.countryRequired")
+          "editPage.town.error"                            -> messages("addressLookup.error.townRequired"),
+          "constants.editPageCountryErrorMessage"          -> messages("addressLookup.error.countryRequired"),
+          "constants.countryPickerPageCountryErrorMessage" -> messages("addressLookup.error.countryPickerRequired")
         )
 
     if (uk) {
@@ -411,9 +412,17 @@ class AddressLookupService @Inject() (
         "otherLabels"       -> otherLabels
       )
     } else {
+      // AYA1.1a country picker (ALF): the H1 already reads "Select your country or territory",
+      // so the dropdown's own label is visually redundant. Hide it visually but keep it as the
+      // accessible name for the <select> (targetID="countryCode") to avoid an empty accessible name.
+      val countryPickerLabels = Json.obj(
+        "countryLabel" -> s"""<span class="govuk-visually-hidden">${messages("addressLookup.countryPicker.countryLabel")}</span>"""
+      )
+
       Json.obj(
-        "appLevelLabels" -> appLevelLabels,
-        "international"  -> Json.obj(
+        "appLevelLabels"      -> appLevelLabels,
+        "countryPickerLabels" -> countryPickerLabels,
+        "international"       -> Json.obj(
           "editPageLabels"    -> editPageLabels,
           "confirmPageLabels" -> confirmPageLabels
         ),

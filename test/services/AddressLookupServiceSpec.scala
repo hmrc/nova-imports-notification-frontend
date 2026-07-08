@@ -145,6 +145,11 @@ class AddressLookupServiceSpec extends SpecBase with MockitoSugar with ScalaFutu
         (otherEn \ "editPage.town.error").asOpt[String] mustBe defined
         (otherEn \ "constants.editPageCountryErrorMessage").toOption mustBe None
       }
+
+      "must not configure country picker labels or error (UK journey has no country picker)" in {
+        (buildUkConfig \ "labels" \ "en" \ "countryPickerLabels").toOption mustBe None
+        (buildUkConfig \ "labels" \ "en" \ "otherLabels" \ "constants.countryPickerPageCountryErrorMessage").toOption mustBe None
+      }
     }
 
     "for non-UK mode" - {
@@ -203,6 +208,16 @@ class AddressLookupServiceSpec extends SpecBase with MockitoSugar with ScalaFutu
         val otherEn = buildNonUkConfig \ "labels" \ "en" \ "otherLabels"
         (otherEn \ "editPage.town.error").asOpt[String] mustBe defined
         (otherEn \ "constants.editPageCountryErrorMessage").asOpt[String] mustBe defined
+      }
+
+      "must override the country picker error message via otherLabels (AYA1.1a)" in {
+        val otherEn = buildNonUkConfig \ "labels" \ "en" \ "otherLabels"
+        (otherEn \ "constants.countryPickerPageCountryErrorMessage").asOpt[String] mustBe defined
+      }
+
+      "must visually hide the country picker label while keeping an accessible name (AYA1.1a)" in {
+        val countryLabel = (buildNonUkConfig \ "labels" \ "en" \ "countryPickerLabels" \ "countryLabel").as[String]
+        countryLabel must include("govuk-visually-hidden")
       }
     }
   }
