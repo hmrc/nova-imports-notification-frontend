@@ -22,7 +22,7 @@ import controllers.routes
 import pages.*
 import models.*
 import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
-import pages.sections.notifierDetails.{EmailAddressPage, NameDetailsPage, PhoneNumberPage}
+import pages.sections.notifierDetails.{BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 import pages.sections.notifieraddress.IsYourAddressInTheUkPage
 import pages.sections.purchaserDetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 
@@ -58,6 +58,8 @@ class Navigator @Inject() () {
           case _           => routes.JourneyRecoveryController.onPageLoad()
         }
     case NameDetailsPage =>
+      (_, _) => routes.PhoneNumberController.onPageLoad(NormalMode)
+    case BusinessNamePage =>
       (_, _) => routes.PhoneNumberController.onPageLoad(NormalMode)
     case PurchaserNamePage =>
       (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to CYA4.0 - Purchaser details when built
@@ -122,6 +124,8 @@ class Navigator @Inject() () {
           case _                                             => routes.JourneyRecoveryController.onPageLoad()
         }
     case NameDetailsPage =>
+      (_, _) => routes.YourDetailsCheckYourAnswersController.onPageLoad()
+    case BusinessNamePage =>
       (_, _) => routes.YourDetailsCheckYourAnswersController.onPageLoad()
     case PurchaserNamePage =>
       (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to CYA4.0 - Purchaser details when built
