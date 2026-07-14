@@ -41,6 +41,7 @@
                 field = form("value"),
                 label = LabelViewModel(messages("businessName.heading")).asPageHeading(LabelSize.Large)
             )
+            .withAutocomplete("organization")
         )
 
         @govukButton(
