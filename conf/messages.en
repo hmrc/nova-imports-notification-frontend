@@ -435,6 +435,8 @@ addressLookup.error.line3Length = Address line 3 must be 35 characters or less
 addressLookup.error.townLength = Address line 4 must be 35 characters or less
 addressLookup.error.townRequired = Enter address line 4
 addressLookup.error.countryRequired = Enter a country
+addressLookup.error.countryPickerRequired = Select country or territory of your address
+addressLookup.countryPicker.countryLabel = Select country or territory
 
 ######################################################
 # AYD1.2 - Add your details 1.2: Phone number        #
