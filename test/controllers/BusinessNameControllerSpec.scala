@@ -219,7 +219,7 @@ class BusinessNameControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to Unauthorised for a GET when IQ2.0 has not been answered" in {
-      val answers = emptyUserAnswers.unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
+      val answers     = emptyUserAnswers.unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
       val application = applicationBuilder(userAnswers = Some(answers)).build()
 
       running(application) {

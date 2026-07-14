@@ -35,7 +35,7 @@ class BusinessNameFormProvider @Inject() extends Mappings {
 }
 
 object BusinessNameFormProvider {
-  val MaxLength: Int          = 160
+  val MaxLength: Int            = 160
   val BusinessNameRegex: String =
     """^[A-Za-z0-9.()/&'\-\"!%*_+:@<>?=; ]{1,160}$"""
 }
