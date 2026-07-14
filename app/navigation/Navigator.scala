@@ -24,6 +24,7 @@ import models.*
 import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
 import pages.sections.notifierDetails.{EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 import pages.sections.notifieraddress.IsYourAddressInTheUkPage
+import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 import pages.sections.purchaserDetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 import pages.sections.supplierDetails.SupplierBusinessOrIndividualPage
 
@@ -107,6 +108,13 @@ class Navigator @Inject() () {
             routes.JourneyRecoveryController.onPageLoad() // TODO: navigate to AVD-S4.0 when built
           case _ =>
             routes.JourneyRecoveryController.onPageLoad()
+        }
+    case IsPurchaserAddressInTheUkPage =>
+      (userAnswers, _) =>
+        userAnswers.get(IsPurchaserAddressInTheUkPage) match {
+          case Some(true)  => routes.LandingPageController.onPageLoad() // TODO: navigate to APA2.0 when built
+          case Some(false) => routes.LandingPageController.onPageLoad() // TODO: navigate to APA1.2 when built
+          case _           => routes.JourneyRecoveryController.onPageLoad()
         }
     case _ => (_, _) => routes.LandingPageController.onPageLoad()
   }

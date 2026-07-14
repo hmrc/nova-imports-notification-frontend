@@ -24,6 +24,7 @@ import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserBusiness
 import pages.sections.notifierDetails.{EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 import pages.sections.purchaserDetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 import pages.sections.supplierDetails.SupplierBusinessOrIndividualPage
+import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 
 class NavigatorSpec extends SpecBase {
 
@@ -317,6 +318,35 @@ class NavigatorSpec extends SpecBase {
           NormalMode,
           userAnswers,
           NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from IsPurchaserAddressInTheUkPage to the UK address journey when the purchaser address is in the UK" in {
+        val ua = userAnswers.set(IsPurchaserAddressInTheUkPage, true).success.value
+        navigator.nextPage(
+          IsPurchaserAddressInTheUkPage,
+          NormalMode,
+          ua,
+          NovaUserType.PrivateIndividual
+        ) mustBe routes.LandingPageController.onPageLoad() // TODO: assert APA2.0 route when built
+      }
+
+      "must go from IsPurchaserAddressInTheUkPage to the international address journey when the purchaser address is not in the UK" in {
+        val ua = userAnswers.set(IsPurchaserAddressInTheUkPage, false).success.value
+        navigator.nextPage(
+          IsPurchaserAddressInTheUkPage,
+          NormalMode,
+          ua,
+          NovaUserType.PrivateIndividual
+        ) mustBe routes.LandingPageController.onPageLoad() // TODO: assert APA1.2 route when built
+      }
+
+      "must go from IsPurchaserAddressInTheUkPage to JourneyRecovery when no answer is found" in {
+        navigator.nextPage(
+          IsPurchaserAddressInTheUkPage,
+          NormalMode,
+          userAnswers,
+          NovaUserType.PrivateIndividual
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
     }
