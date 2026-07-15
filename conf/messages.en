@@ -518,3 +518,17 @@ yourDetailsCheckYourAnswers.heading = Check your answers
 purchaserDetailsCheckYourAnswers.caption = Add purchaser details
 purchaserDetailsCheckYourAnswers.title = Check your answers - Purchaser’s details
 purchaserDetailsCheckYourAnswers.heading = Check your answers
+
+###########################################################################################
+# AVD-S2.0 - Add vehicle details - Supplier 2.0: Supplier business or private individual  #
+###########################################################################################
+
+supplierBusinessOrIndividual.title = Is the supplier a business or private individual?
+supplierBusinessOrIndividual.heading = Is the supplier a business or private individual?
+supplierBusinessOrIndividual.caption = Add vehicle details
+supplierBusinessOrIndividual.hint = Includes businesses that are not VAT registered
+supplierBusinessOrIndividual.checkYourAnswersLabel = Is the supplier a business or private individual?
+supplierBusinessOrIndividual.error.required = Select if the supplier is a business or a private individual
+supplierBusinessOrIndividual.change.hidden = Is the supplier a business or private individual?
+supplierBusinessOrIndividual.radio.business = Business
+supplierBusinessOrIndividual.radio.privateIndividual = Private individual

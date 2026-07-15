@@ -23,6 +23,7 @@ import models.*
 import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
 import pages.sections.notifierDetails.{EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 import pages.sections.purchaserDetails.{PurchaserBusinessNamePage, PurchaserNamePage}
+import pages.sections.supplierDetails.SupplierBusinessOrIndividualPage
 
 class NavigatorSpec extends SpecBase {
 
@@ -287,6 +288,37 @@ class NavigatorSpec extends SpecBase {
           NovaUserType.PrivateIndividual
         ) mustBe routes.PurchaserDetailsCheckYourAnswersController.onPageLoad()
       }
+
+      "must go from SupplierBusinessOrIndividualPage AVD-S2.0 to LandingPage when Business is selected" in {
+        // TODO: navigate to AVD-S3.0 when implemented
+        val ua = userAnswers.set(SupplierBusinessOrIndividualPage, BusinessOrPrivateIndividual.Business).success.value
+        navigator.nextPage(
+          SupplierBusinessOrIndividualPage,
+          NormalMode,
+          ua,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from SupplierBusinessOrIndividualPage AVD-S2.0 to JourneyRecovery when PrivateIndividual is selected" in {
+        // TODO: navigate to AVD-S4.0 when implemented
+        val ua = userAnswers.set(SupplierBusinessOrIndividualPage, BusinessOrPrivateIndividual.PrivateIndividual).success.value
+        navigator.nextPage(
+          SupplierBusinessOrIndividualPage,
+          NormalMode,
+          ua,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from SupplierBusinessOrIndividualPage AVD-S2.0 to JourneyRecovery when no answer is found" in {
+        navigator.nextPage(
+          SupplierBusinessOrIndividualPage,
+          NormalMode,
+          userAnswers,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
     }
 
     "in Check mode" - {
@@ -371,6 +403,16 @@ class NavigatorSpec extends SpecBase {
           userAnswers,
           NovaUserType.PrivateIndividual
         ) mustBe routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
+      }
+
+      "must go from SupplierBusinessOrIndividualPage AVD-S2.0 to LandingPage" in {
+        // TODO: navigate to AVD-S9.0 supplier-details CYA when implemented
+        navigator.nextPage(
+          SupplierBusinessOrIndividualPage,
+          CheckMode,
+          userAnswers,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.LandingPageController.onPageLoad()
       }
 
       "must go from VehicleBusinessUsePage to InitialQuestionsCheckYourAnswersController" in {
