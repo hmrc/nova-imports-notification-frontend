@@ -97,6 +97,7 @@ POST        /is-your-address-in-uk/change                           controllers.
 
 GET         /address-changed                                        controllers.AddressChangedController.onPageLoad()
 POST        /address-changed                                        controllers.AddressChangedController.onSubmit()
+GET         /address-changed/change-address                         controllers.AddressChangedController.onChangeAddress()
 
 GET         /add-address/address-lookup-callback                    controllers.AddressLookupCallbackController.callback(id: Option[String] ?= None)
 

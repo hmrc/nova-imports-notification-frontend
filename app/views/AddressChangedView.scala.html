@@ -15,7 +15,7 @@
  *@
 
 @import controllers.routes
-@import models.{Address, NormalMode}
+@import models.Address
 
 @this(
     layout: templates.Layout,
@@ -48,7 +48,7 @@
     </div>
 
     <p class="govuk-body">
-        <a href="@routes.IsYourAddressInTheUkController.onPageLoad(NormalMode)" class="govuk-link">@messages("addressChanged.changeAddress")</a>
+        <a href="@routes.AddressChangedController.onChangeAddress()" class="govuk-link">@messages("addressChanged.changeAddress")</a>
     </p>
 
     @formHelper(action = routes.AddressChangedController.onSubmit()) {
