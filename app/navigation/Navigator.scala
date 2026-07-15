@@ -24,7 +24,9 @@ import models.*
 import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
 import pages.sections.notifierDetails.{BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 import pages.sections.notifieraddress.IsYourAddressInTheUkPage
+import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 import pages.sections.purchaserDetails.{PurchaserBusinessNamePage, PurchaserNamePage}
+import pages.sections.supplierDetails.SupplierBusinessOrIndividualPage
 
 @Singleton
 class Navigator @Inject() () {
@@ -99,6 +101,23 @@ class Navigator @Inject() () {
       (_, _) => routes.YourDetailsCheckYourAnswersController.onPageLoad()
     case PurchaserBusinessNamePage =>
       (_, _) => routes.PurchaserDetailsCheckYourAnswersController.onPageLoad()
+    case SupplierBusinessOrIndividualPage =>
+      (userAnswers, _) =>
+        userAnswers.get(SupplierBusinessOrIndividualPage) match {
+          case Some(BusinessOrPrivateIndividual.Business) =>
+            routes.LandingPageController.onPageLoad() // TODO: navigate to AVD-S3.0 when built
+          case Some(BusinessOrPrivateIndividual.PrivateIndividual) =>
+            routes.JourneyRecoveryController.onPageLoad() // TODO: navigate to AVD-S4.0 when built
+          case _ =>
+            routes.JourneyRecoveryController.onPageLoad()
+        }
+    case IsPurchaserAddressInTheUkPage =>
+      (userAnswers, _) =>
+        userAnswers.get(IsPurchaserAddressInTheUkPage) match {
+          case Some(true)  => routes.LandingPageController.onPageLoad() // TODO: navigate to APA2.0 when built
+          case Some(false) => routes.LandingPageController.onPageLoad() // TODO: navigate to APA1.2 when built
+          case _           => routes.JourneyRecoveryController.onPageLoad()
+        }
     case _ => (_, _) => routes.LandingPageController.onPageLoad()
   }
 
@@ -135,6 +154,8 @@ class Navigator @Inject() () {
       (_, _) => routes.YourDetailsCheckYourAnswersController.onPageLoad()
     case PurchaserBusinessNamePage =>
       (_, _) => routes.PurchaserDetailsCheckYourAnswersController.onPageLoad()
+    case SupplierBusinessOrIndividualPage =>
+      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD-S9.0 CYA when built
     case _ =>
       (_, _) => routes.LandingPageController.onPageLoad()
   }
