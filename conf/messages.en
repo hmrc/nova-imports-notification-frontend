@@ -383,6 +383,15 @@ isYourAddressInTheUk.checkYourAnswersLabel = Is your address in the UK
 isYourAddressInTheUk.error.required = Select yes if your address is in the UK
 isYourAddressInTheUk.change.hidden = whether your address is in the UK
 
+##################################################################
+# APA1.0 - Add purchaser address: Is the purchaser's address in the UK #
+##################################################################
+
+isPurchaserAddressInTheUk.title = Is the purchaser’s address in the UK?
+isPurchaserAddressInTheUk.heading = Is the purchaser’s address in the UK?
+isPurchaserAddressInTheUk.caption = Add purchaser address
+isPurchaserAddressInTheUk.error.required = Select yes if the purchaser’s address is in the UK
+
 ###########################################################
 # AYA3.0 - Add your address 3.0: We've changed your address #
 ###########################################################
