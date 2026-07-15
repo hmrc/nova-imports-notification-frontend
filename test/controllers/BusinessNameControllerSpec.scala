@@ -17,17 +17,20 @@
 package controllers
 
 import base.SpecBase
+import com.google.inject.name.Names
+import controllers.actions.*
 import forms.BusinessNameFormProvider
-import models.{BusinessOrPrivateIndividual, CheckMode, DraftId, NormalMode, UserAnswers}
+import models.{AgentSelectedClient, BusinessOrPrivateIndividual, CheckMode, DraftId, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.DraftIdPage
+import pages.{AgentSelectedClientPage, DraftIdPage}
 import pages.sections.initialquestions.BusinessOrPrivatePage
 import pages.sections.notifierDetails.BusinessNamePage
 import play.api.inject.bind
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -49,6 +52,18 @@ class BusinessNameControllerSpec extends SpecBase with MockitoSugar {
   val requiredAnswers: UserAnswers = emptyUserAnswers
     .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
     .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business)
+
+  private def agentApplicationBuilder(userAnswers: Option[UserAnswers]): GuiceApplicationBuilder =
+    new GuiceApplicationBuilder()
+      .overrides(
+        bind[DataRequiredAction].to[DataRequiredActionImpl],
+        bind[IdentifierAction].to[FakeAgentIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("standard")).to[FakeAgentIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeAgentIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
+        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
+      )
 
   "BusinessName Controller" - {
 
@@ -229,6 +244,48 @@ class BusinessNameControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Unauthorised for an agent without a client selected even when they answered Business to IQ2.0" in {
+      val application = agentApplicationBuilder(Some(requiredAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, businessNameRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Unauthorised for a POST from an agent without a client selected even when they answered Business to IQ2.0" in {
+      val application = agentApplicationBuilder(Some(requiredAnswers)).build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, businessNameRoute)
+            .withFormUrlEncodedBody(("value", validName))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+
+    "must return OK for an agent with a client selected who answered Business to IQ2.0" in {
+      val answersWithClient =
+        requiredAnswers.unsafeSet(AgentSelectedClientPage, AgentSelectedClient(vrn = "GB123456789", name = Some("Acme Ltd")))
+      val application = agentApplicationBuilder(Some(answersWithClient)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, businessNameRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
       }
     }
 

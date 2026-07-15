@@ -44,8 +44,11 @@ class BusinessNameController @Inject() (
 
   val form: Form[String] = formProvider()
 
+  // An agent without a client selected (a self-notification) cannot provide a business name, even when
+  // they have answered the same initial questions a Private Individual would. See DTR-6196.
   private val guardPredicate: DataRequest[?] => Boolean = request =>
-    IsDraftIdDefined(request.userAnswers) &&
+    !request.userContext.isAgentWithoutClient &&
+      IsDraftIdDefined(request.userAnswers) &&
       request.userAnswers.get(BusinessOrPrivatePage).contains(BusinessOrPrivateIndividual.Business)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate) { implicit request =>
