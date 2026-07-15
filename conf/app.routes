@@ -115,3 +115,8 @@ POST        /check-answers/your-details                             controllers.
 
 GET         /check-answers/purchaser-details                        controllers.PurchaserDetailsCheckYourAnswersController.onPageLoad()
 POST        /check-answers/purchaser-details                        controllers.PurchaserDetailsCheckYourAnswersController.onSubmit()
+
+GET         /supplier-business-or-private-individual                controllers.SupplierBusinessOrIndividualController.onPageLoad(mode: Mode = NormalMode)
+POST        /supplier-business-or-private-individual                controllers.SupplierBusinessOrIndividualController.onSubmit(mode: Mode = NormalMode)
+GET         /supplier-business-or-private-individual/change         controllers.SupplierBusinessOrIndividualController.onPageLoad(mode: Mode = CheckMode)
+POST        /supplier-business-or-private-individual/change         controllers.SupplierBusinessOrIndividualController.onSubmit(mode: Mode = CheckMode)
