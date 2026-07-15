@@ -99,9 +99,14 @@ class NavigatorSpec extends SpecBase {
             .onPageLoad(NormalMode)
         }
 
-        "must go from PurchaserNamePage (APD1.0) to LandingPageController until CYA4.0 is built" in {
+        "must go from PurchaserNamePage (APD1.0) to the purchaser details check your answers page (CYA4.0)" in {
           val ua = userAnswers.set(PurchaserNamePage, NameDetails("Mr", "John", "Smith")).success.value
-          navigator.nextPage(PurchaserNamePage, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController
+          navigator.nextPage(
+            PurchaserNamePage,
+            NormalMode,
+            ua,
+            NovaUserType.PrivateIndividual
+          ) mustBe routes.PurchaserDetailsCheckYourAnswersController
             .onPageLoad()
         }
 
@@ -280,7 +285,7 @@ class NavigatorSpec extends SpecBase {
           NormalMode,
           userAnswers,
           NovaUserType.PrivateIndividual
-        ) mustBe routes.LandingPageController.onPageLoad() // TODO: assert CYA4.0 route when built
+        ) mustBe routes.PurchaserDetailsCheckYourAnswersController.onPageLoad()
       }
     }
 
@@ -392,9 +397,9 @@ class NavigatorSpec extends SpecBase {
           .onPageLoad()
       }
 
-      "must go from PurchaserNamePage (APD1.0) to LandingPageController in CheckMode until CYA4.0 is built" in {
+      "must go from PurchaserNamePage (APD1.0) to the purchaser details check your answers page (CYA4.0) in CheckMode" in {
         val ua = userAnswers.set(PurchaserNamePage, NameDetails("Mr", "John", "Smith")).success.value
-        navigator.nextPage(PurchaserNamePage, CheckMode, ua, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController
+        navigator.nextPage(PurchaserNamePage, CheckMode, ua, NovaUserType.PrivateIndividual) mustBe routes.PurchaserDetailsCheckYourAnswersController
           .onPageLoad()
       }
 
@@ -420,7 +425,7 @@ class NavigatorSpec extends SpecBase {
           CheckMode,
           userAnswers,
           NovaUserType.PrivateIndividual
-        ) mustBe routes.LandingPageController.onPageLoad() // TODO: assert CYA4.0 route when built
+        ) mustBe routes.PurchaserDetailsCheckYourAnswersController.onPageLoad()
       }
     }
   }

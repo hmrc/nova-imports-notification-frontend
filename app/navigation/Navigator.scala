@@ -60,7 +60,7 @@ class Navigator @Inject() () {
     case NameDetailsPage =>
       (_, _) => routes.PhoneNumberController.onPageLoad(NormalMode)
     case PurchaserNamePage =>
-      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to CYA4.0 - Purchaser details when built
+      (_, _) => routes.PurchaserDetailsCheckYourAnswersController.onPageLoad()
     case PhoneNumberPage =>
       (_, _) => routes.EmailAddressController.onPageLoad(NormalMode)
     case VehicleBusinessUsePage =>
@@ -96,7 +96,7 @@ class Navigator @Inject() () {
     case EmailAddressPage =>
       (_, _) => routes.YourDetailsCheckYourAnswersController.onPageLoad()
     case PurchaserBusinessNamePage =>
-      (_, _) => routes.LandingPageController.onPageLoad() // TODO: redirect to CYA4.0 page when built
+      (_, _) => routes.PurchaserDetailsCheckYourAnswersController.onPageLoad()
     case _ => (_, _) => routes.LandingPageController.onPageLoad()
   }
 
@@ -124,13 +124,13 @@ class Navigator @Inject() () {
     case NameDetailsPage =>
       (_, _) => routes.YourDetailsCheckYourAnswersController.onPageLoad()
     case PurchaserNamePage =>
-      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to CYA4.0 - Purchaser details when built
+      (_, _) => routes.PurchaserDetailsCheckYourAnswersController.onPageLoad()
     case PhoneNumberPage =>
       (_, _) => routes.YourDetailsCheckYourAnswersController.onPageLoad()
     case EmailAddressPage =>
       (_, _) => routes.YourDetailsCheckYourAnswersController.onPageLoad()
     case PurchaserBusinessNamePage =>
-      (_, _) => routes.LandingPageController.onPageLoad() // TODO: redirect to CYA4.0 page when built
+      (_, _) => routes.PurchaserDetailsCheckYourAnswersController.onPageLoad()
     case _ =>
       (_, _) => routes.LandingPageController.onPageLoad()
   }

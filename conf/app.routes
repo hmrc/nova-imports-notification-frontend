@@ -112,3 +112,6 @@ POST        /vehicles-brought-from-eu/change                        controllers.
 
 GET         /check-answers/your-details                             controllers.YourDetailsCheckYourAnswersController.onPageLoad()
 POST        /check-answers/your-details                             controllers.YourDetailsCheckYourAnswersController.onSubmit()
+
+GET         /check-answers/purchaser-details                        controllers.PurchaserDetailsCheckYourAnswersController.onPageLoad()
+POST        /check-answers/purchaser-details                        controllers.PurchaserDetailsCheckYourAnswersController.onSubmit()
