@@ -30,6 +30,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import services.UserDataService.*
 import pages.{AgentClientVehicleBusinessUsePage, AgentSelectedClientPage}
 import pages.sections.notifierDetails.{EmailAddressPage, NameDetailsPage, PhoneNumberPage}
+import pages.sections.purchaserDetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -63,7 +64,8 @@ class UserDataServiceImpl @Inject() (
           u1 <- storeInitialQuestionsPages(draft, u0, repository)
           u2 <- storeNotifierDetailsPages(draft, u1, repository)
           u3 <- storeNotifierAddressPages(draft, u2, repository)
-        } yield Right(u3)
+          u4 <- storePurchaserDetailsPages(draft, u3, repository)
+        } yield Right(u4)
     }
 
   def determineAndUpdateStatus(userAnswers: UserAnswers, userContext: UserContext): Map[String, SectionStatus] =
@@ -150,6 +152,25 @@ object UserDataService {
         )
         sessionRepository.setPage(answers, AddressPage, address)
       case None => Future.successful(answers)
+    }
+
+  def storePurchaserDetailsPages(draft: DraftNotification, answers: UserAnswers, sessionRepository: SessionRepository)(implicit
+    ec: ExecutionContext
+  ): Future[UserAnswers] =
+    draft.sections.get(SectionId.PurchaserDetails).flatMap(_.data) match {
+      case None       => Future.successful(answers)
+      case Some(data) =>
+        data.asOpt[PurchaserDetailsIndividual] match {
+          case Some(pd) =>
+            sessionRepository.setPage(answers, PurchaserNamePage, NameDetails(pd.title, pd.firstName, pd.lastName))
+          case None =>
+            data.asOpt[PurchaserDetailsBusiness] match {
+              case Some(pd) =>
+                sessionRepository.setPage(answers, PurchaserBusinessNamePage, pd.businessName)
+              case None =>
+                Future.successful(answers)
+            }
+        }
     }
 
   def orgWithEnrolments(answers: UserAnswers): Map[String, SectionStatus] = {
