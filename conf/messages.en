@@ -351,6 +351,17 @@ addYourName.checkYourAnswersLabel = Name
 addYourName.change.hidden = your name
 
 ######################################################
+# AYD1.4 - Add your details - Business name                #
+######################################################
+
+businessName.title = What is your business name?
+businessName.heading = What is your business name?
+businessName.caption = Add your details
+businessName.error.required = Enter your business name
+businessName.error.length = Your business name must be 160 characters or less
+businessName.error.invalid = Enter your business name in the correct format
+
+######################################################
 # APD1.0 - Add Purchaser Details: Purchaser name     #
 ######################################################
 

@@ -85,6 +85,11 @@ POST        /name                                                   controllers.
 GET         /name/change                                            controllers.AddYourNameController.onPageLoad(mode: Mode = CheckMode)
 POST        /name/change                                            controllers.AddYourNameController.onSubmit(mode: Mode = CheckMode)
 
+GET         /business-name                                          controllers.BusinessNameController.onPageLoad(mode: Mode = NormalMode)
+POST        /business-name                                          controllers.BusinessNameController.onSubmit(mode: Mode = NormalMode)
+GET         /business-name/change                                   controllers.BusinessNameController.onPageLoad(mode: Mode = CheckMode)
+POST        /business-name/change                                   controllers.BusinessNameController.onSubmit(mode: Mode = CheckMode)
+
 GET         /purchaser-name                                         controllers.PurchaserNameController.onPageLoad(mode: Mode = NormalMode)
 POST        /purchaser-name                                         controllers.PurchaserNameController.onSubmit(mode: Mode = NormalMode)
 GET         /purchaser-name/change                                  controllers.PurchaserNameController.onPageLoad(mode: Mode = CheckMode)

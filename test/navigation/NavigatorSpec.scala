@@ -21,7 +21,7 @@ import controllers.routes
 import pages.*
 import models.*
 import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
-import pages.sections.notifierDetails.{EmailAddressPage, NameDetailsPage, PhoneNumberPage}
+import pages.sections.notifierDetails.{BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 import pages.sections.purchaserDetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 import pages.sections.supplierDetails.SupplierBusinessOrIndividualPage
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
@@ -98,6 +98,12 @@ class NavigatorSpec extends SpecBase {
         "must go from AddYourNamePage to PhoneNumberController (AYD1.2)" in {
           val ua = userAnswers.set(NameDetailsPage, NameDetails("Mr", "John", "Smith")).success.value
           navigator.nextPage(NameDetailsPage, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.PhoneNumberController
+            .onPageLoad(NormalMode)
+        }
+
+        "must go from BusinessNamePage (AYD1.4) to PhoneNumberController (AYD1.2)" in {
+          val ua = userAnswers.set(BusinessNamePage, "Acme Trading Co Ltd").success.value
+          navigator.nextPage(BusinessNamePage, NormalMode, ua, NovaUserType.NonVatOrganisation) mustBe routes.PhoneNumberController
             .onPageLoad(NormalMode)
         }
 
@@ -466,6 +472,12 @@ class NavigatorSpec extends SpecBase {
       "must go from AddYourNamePage to YourDetailsCheckYourAnswersController in CheckMode" in {
         val ua = userAnswers.set(NameDetailsPage, NameDetails("Mr", "John", "Smith")).success.value
         navigator.nextPage(NameDetailsPage, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.YourDetailsCheckYourAnswersController
+          .onPageLoad()
+      }
+
+      "must go from BusinessNamePage (AYD1.4) to YourDetailsCheckYourAnswersController in CheckMode" in {
+        val ua = userAnswers.set(BusinessNamePage, "Acme Trading Co Ltd").success.value
+        navigator.nextPage(BusinessNamePage, CheckMode, ua, NovaUserType.NonVatOrganisation) mustBe routes.YourDetailsCheckYourAnswersController
           .onPageLoad()
       }
 
