@@ -160,7 +160,7 @@ class PurchaserDetailsCheckYourAnswersControllerSpec extends SpecBase with Mocki
     "onSubmit" - {
 
       // TODO: change correct downstream redirect once NTL set up for all user types
-      "when it succeeds for an individual purchaser must redirect to the downstream page" in {
+      "when it succeeds for an individual purchaser must redirect to the notification task list" in {
         val connector = mock[NovaImportsBackendConnector]
         when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
           .thenReturn(Future.successful(Right(2L)))
@@ -173,12 +173,11 @@ class PurchaserDetailsCheckYourAnswersControllerSpec extends SpecBase with Mocki
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.LandingPageController.onPageLoad().url
+          redirectLocation(result).value mustEqual routes.NotificationTaskListController.onPageLoad().url
         }
       }
 
-      // TODO: change correct downstream redirect once NTL set up for all user types
-      "when it succeeds for a business purchaser must redirect to the downstream page" in {
+      "when it succeeds for a business purchaser must redirect to the notification task list" in {
         val connector = mock[NovaImportsBackendConnector]
         when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
           .thenReturn(Future.successful(Right(2L)))
@@ -191,7 +190,7 @@ class PurchaserDetailsCheckYourAnswersControllerSpec extends SpecBase with Mocki
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.LandingPageController.onPageLoad().url
+          redirectLocation(result).value mustEqual routes.NotificationTaskListController.onPageLoad().url
         }
       }
 

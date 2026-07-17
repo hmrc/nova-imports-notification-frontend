@@ -61,7 +61,8 @@ class PurchaserNameController @Inject() (
         request.userAnswers
           .get(PurchaserBusinessOrIndividualPage)
           .contains(PurchaserBusinessOrIndividual.NonVatRegisteredPrivateIndividual)
-      case _ => false
+      case Some(PurchaserOrOnBehalf.Purchaser) => request.userContext.isAgentWithoutClient
+      case _                                   => false
     }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate(mode)) { implicit request =>

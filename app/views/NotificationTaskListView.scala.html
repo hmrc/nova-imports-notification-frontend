@@ -18,20 +18,51 @@
 
 @this(
     layout: templates.Layout,
-    govukButton: GovukButton
+    govukButton: GovukButton,
+    govukTaskList: GovukTaskList
 )
 
-@(traderName: Option[String], vrn: Option[String], sections: Map[String, SectionStatus], showAddYourAddress: Boolean, sectionLink: Map[String, String])(implicit request: Request[?], messages: Messages)
+@(traderName: Option[String], vrn: Option[String], sections: Map[String, SectionStatus], showAddYourAddress: Boolean, showAboutThePurchaser: Boolean, sectionLink: Map[String, String])(implicit request: Request[?], messages: Messages)
 
-@statusTag(sectionId: String) = {
-    @sections.get(sectionId) match {
-        case Some(SectionStatus.Completed) => {
-            @messages("notificationTaskList.status.completed")
-        }
-        case _ => {
-            <strong class="govuk-tag govuk-tag--blue">@messages("notificationTaskList.status.incomplete")</strong>
-        }
+@statusFor(sectionId: String) = @{
+    sections.get(sectionId) match {
+        case Some(SectionStatus.Completed) =>
+            TaskListItemStatus(content = Text(messages("notificationTaskList.status.completed")))
+        case _ =>
+            TaskListItemStatus(tag = Some(Tag(content = Text(messages("notificationTaskList.status.incomplete")), classes = "govuk-tag--blue")))
     }
+}
+
+@linkItem(sectionId: String, textKey: String) = @{
+    TaskListItem(
+        title = TaskListItemTitle(content = Text(messages(textKey))),
+        href = Some(sectionLink(sectionId)),
+        status = statusFor(sectionId)
+    )
+}
+
+@aboutYouItems = @{
+    val details = linkItem(DraftNotification.SectionId.NotifierDetails, "notificationTaskList.aboutYou.addYourDetails")
+    if(showAddYourAddress) List(details, linkItem(DraftNotification.SectionId.NotifierAddress, "notificationTaskList.aboutYou.addYourAddress"))
+    else List(details)
+}
+
+@purchaserItems = @{
+    List(
+        linkItem(DraftNotification.SectionId.PurchaserDetails, "notificationTaskList.aboutThePurchaser.addPurchaserDetails"),
+        linkItem(DraftNotification.SectionId.PurchaserAddress, "notificationTaskList.aboutThePurchaser.addPurchaserAddress")
+    )
+}
+
+@declarationItem = @{
+    TaskListItem(
+        title  = TaskListItemTitle(content = Text(messages("notificationTaskList.declaration.readDeclaration"))),
+        hint   = Some(Hint(content = Text(messages("notificationTaskList.declaration.hint")))),
+        status = TaskListItemStatus(
+            content = Text(messages("notificationTaskList.status.cannotStartYet")),
+            classes = "govuk-task-list__status--cannot-start-yet"
+        )
+    )
 }
 
 @layout(pageTitle = titleNoForm(messages("notificationTaskList.title"))) {
@@ -53,60 +84,21 @@
 
     <h2 class="govuk-heading-m">@messages("notificationTaskList.aboutYou.heading")</h2>
 
-    <ul class="govuk-task-list">
-        <li class="govuk-task-list__item govuk-task-list__item--with-link">
-            <div class="govuk-task-list__name-and-hint">
-                <a class="govuk-link govuk-task-list__link" href="@sectionLink(DraftNotification.SectionId.NotifierDetails)" aria-describedby="add-your-details-status">
-                    @messages("notificationTaskList.aboutYou.addYourDetails")
-                </a>
-            </div>
-            <div class="govuk-task-list__status" id="add-your-details-status">
-                @statusTag(DraftNotification.SectionId.NotifierDetails)
-            </div>
-        </li>
+    @govukTaskList(TaskList(items = aboutYouItems, idPrefix = "about-you"))
 
-        @if(showAddYourAddress) {
-            <li class="govuk-task-list__item govuk-task-list__item--with-link">
-                <div class="govuk-task-list__name-and-hint">
-                    <a class="govuk-link govuk-task-list__link" href="@sectionLink(DraftNotification.SectionId.NotifierAddress)" aria-describedby="add-your-address-status">
-                        @messages("notificationTaskList.aboutYou.addYourAddress")
-                    </a>
-                </div>
-                <div class="govuk-task-list__status" id="add-your-address-status">
-                    @statusTag(DraftNotification.SectionId.NotifierAddress)
-                </div>
-            </li>
-        }
-    </ul>
+    @if(showAboutThePurchaser) {
+        <h2 class="govuk-heading-m govuk-!-margin-top-5">@messages("notificationTaskList.aboutThePurchaser.heading")</h2>
+
+        @govukTaskList(TaskList(items = purchaserItems, idPrefix = "about-the-purchaser"))
+    }
 
     <h2 class="govuk-heading-m govuk-!-margin-top-5">@messages("notificationTaskList.aboutTheVehicles.heading")</h2>
 
-    <ul class="govuk-task-list">
-        <li class="govuk-task-list__item govuk-task-list__item--with-link">
-            <div class="govuk-task-list__name-and-hint">
-                <a class="govuk-link govuk-task-list__link" href="@sectionLink(DraftNotification.SectionId.Vehicles)" aria-describedby="add-vehicle-details-status">
-                    @messages("notificationTaskList.aboutTheVehicles.addVehicleDetails")
-                </a>
-            </div>
-            <div class="govuk-task-list__status" id="add-vehicle-details-status">
-                @statusTag(DraftNotification.SectionId.Vehicles)
-            </div>
-        </li>
-    </ul>
+    @govukTaskList(TaskList(items = List(linkItem(DraftNotification.SectionId.Vehicles, "notificationTaskList.aboutTheVehicles.addVehicleDetails")), idPrefix = "about-the-vehicles"))
 
     <h2 class="govuk-heading-m govuk-!-margin-top-5">@messages("notificationTaskList.declaration.heading")</h2>
 
-    <ul class="govuk-task-list">
-        <li class="govuk-task-list__item">
-            <div class="govuk-task-list__name-and-hint">
-                <div>@messages("notificationTaskList.declaration.readDeclaration")</div>
-                <div id="read-declaration-hint" class="govuk-task-list__hint">@messages("notificationTaskList.declaration.hint")</div>
-            </div>
-            <div class="govuk-task-list__status govuk-task-list__status--cannot-start-yet">
-                @messages("notificationTaskList.status.cannotStartYet")
-            </div>
-        </li>
-    </ul>
+    @govukTaskList(TaskList(items = List(declarationItem), idPrefix = "declaration"))
 
     <div class="govuk-button-group">
         <p class="govuk-body">

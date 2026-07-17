@@ -21,13 +21,13 @@ import com.google.inject.name.Names
 import connectors.{GetDraftNotificationError, GetNotificationSummaryError, NovaImportsBackendConnector}
 import controllers.actions.*
 import models.NormalMode
-import models.{ContactNumbers, DraftId, DraftNotification, DraftNotificationSection, NotificationSummary, UserAnswers}
+import models.{AgentSelectedClient, BusinessOrPrivateIndividual, ContactNumbers, DraftId, DraftNotification, DraftNotificationSection, NotificationSummary, PurchaserBusinessOrIndividual, PurchaserOrOnBehalf, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{never, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{DraftIdPage, IsDeregisteredPage, NotificationTaskListPage}
-import pages.sections.initialquestions.VehicleBusinessUsePage
+import pages.{AgentSelectedClientPage, DraftIdPage, IsDeregisteredPage, NotificationTaskListPage}
+import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
 import pages.sections.notifierDetails.PhoneNumberPage
 import play.api.Application
 import play.api.inject.bind
@@ -56,6 +56,37 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
   private val answersPrivateUse =
     baseAnswers.set(VehicleBusinessUsePage, false).success.value
 
+  private val individualAsPurchaserPrivate = baseAnswers
+    .unsafeSet(VehicleFromEuPage, true)
+    .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
+    .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
+
+  private val individualAsPurchaserBusiness = baseAnswers
+    .unsafeSet(VehicleFromEuPage, true)
+    .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business)
+    .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
+
+  private val individualOnBehalfPrivatePurchaser = baseAnswers
+    .unsafeSet(VehicleFromEuPage, true)
+    .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
+    .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+    .unsafeSet(PurchaserBusinessOrIndividualPage, PurchaserBusinessOrIndividual.NonVatRegisteredPrivateIndividual)
+
+  private val individualOnBehalfBusinessPurchaser = baseAnswers
+    .unsafeSet(VehicleFromEuPage, true)
+    .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
+    .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+    .unsafeSet(PurchaserBusinessOrIndividualPage, PurchaserBusinessOrIndividual.NonVatRegisteredBusiness)
+
+  private val agentAsPurchaser = baseAnswers
+    .unsafeSet(VehicleFromEuPage, true)
+    .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
+    .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
+
+  private val agentWithSelectedClient = baseAnswers
+    .unsafeSet(VehicleFromEuPage, true)
+    .unsafeSet(AgentSelectedClientPage, AgentSelectedClient(vrn = "123456789", name = Some("Client Ltd")))
+
   private val orgSummary = NotificationSummary.IndividualOrOrganisation(
     traderName = Some("Harbourview Limited"),
     vrn = Some("123456789"),
@@ -64,6 +95,11 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
   )
 
   private val deregisteredOrgSummary = orgSummary.copy(isDeregistered = true)
+
+  private val agentSummary = NotificationSummary.AgentWithoutClient(
+    agentName = Some("ABC Consultancy"),
+    hasDraftNotifications = false
+  )
 
   private val emptySection: DraftNotificationSection =
     DraftNotificationSection(None)
@@ -120,9 +156,9 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
     new GuiceApplicationBuilder()
       .overrides(
         bind[DataRequiredAction].to[DataRequiredActionImpl],
-        bind[IdentifierAction].to[FakeIdentifierAction],
-        bind[IdentifierAction].qualifiedWith(Names.named("standard")).to[FakeIdentifierAction],
-        bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to(identifierAction),
+        bind[IdentifierAction].to(identifierAction),
+        bind[IdentifierAction].qualifiedWith(Names.named("standard")).to(identifierAction),
+        bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeIdentifierAction],
         bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeIdentifierAction],
         bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers)),
@@ -268,7 +304,152 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must redirect to Unauthorised when the user is not a VAT-registered organisation" in {
+      "for a PrivateIndividual notifying as a private-individual purchaser must render OK with the trader name, the Add your address row, and no purchaser section, linking Add your details to the name page" in {
+        given application: Application =
+          applicationWith(classOf[FakeIdentifierAction], Some(individualAsPurchaserPrivate))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
+
+          val result = route(application, request).value
+          val body   = contentAsString(result)
+
+          status(result) mustEqual OK
+          body must include("Harbourview Limited")
+          body must include("Add your address")
+          body must not include "About the purchaser"
+          body must include(routes.AddYourNameController.onPageLoad(NormalMode).url)
+        }
+      }
+
+      "for a NonVatOrganisation must render OK with the trader name and the Add your address row" in {
+        given application: Application =
+          applicationWith(classOf[FakeOrganisationIdentifierAction], Some(individualAsPurchaserPrivate))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
+
+          val result = route(application, request).value
+          val body   = contentAsString(result)
+
+          status(result) mustEqual OK
+          body must include("Harbourview Limited")
+          body must include("Add your address")
+        }
+      }
+
+      "for a business notifier links Add your details to the business name page" in {
+        given application: Application =
+          applicationWith(classOf[FakeIdentifierAction], Some(individualAsPurchaserBusiness))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
+
+          val result = route(application, request).value
+          val body   = contentAsString(result)
+
+          status(result) mustEqual OK
+          body must include(routes.BusinessNameController.onPageLoad(NormalMode).url)
+        }
+      }
+
+      "for a PrivateIndividual notifying on behalf of a private-individual purchaser must show the purchaser section, linking Add purchaser details to the purchaser name page" in {
+        given application: Application =
+          applicationWith(classOf[FakeIdentifierAction], Some(individualOnBehalfPrivatePurchaser))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
+
+          val result = route(application, request).value
+          val body   = contentAsString(result)
+
+          status(result) mustEqual OK
+          body must include("About the purchaser")
+          body must include("Add purchaser details")
+          body must include("Add purchaser address")
+          body must include(routes.PurchaserNameController.onPageLoad(NormalMode).url)
+          body must include(routes.IsPurchaserAddressInTheUkController.onPageLoad(NormalMode).url)
+        }
+      }
+
+      "for a PrivateIndividual notifying on behalf of a business purchaser links Add purchaser details to the purchaser business name page" in {
+        given application: Application =
+          applicationWith(classOf[FakeIdentifierAction], Some(individualOnBehalfBusinessPurchaser))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
+
+          val result = route(application, request).value
+          val body   = contentAsString(result)
+
+          status(result) mustEqual OK
+          body must include(routes.PurchaserBusinessNameController.onPageLoad(NormalMode).url)
+        }
+      }
+
+      "for an Agent without a client must render OK with the agent name, no Add your address row, the purchaser section, and link Add your details to the contact numbers page" in {
+        given application: Application =
+          applicationWith(classOf[FakeAgentIdentifierAction], Some(agentAsPurchaser), stubConnector(summary = Right(agentSummary)))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
+
+          val result = route(application, request).value
+          val body   = contentAsString(result)
+
+          status(result) mustEqual OK
+          body must include("ABC Consultancy")
+          body must not include "Add your address"
+          body must include("About the purchaser")
+          body must include(routes.PhoneNumberController.onPageLoad(NormalMode).url)
+        }
+      }
+
+      "for an Agent without a client who notifies as the purchaser links Add purchaser details to the purchaser name page" in {
+        given application: Application =
+          applicationWith(classOf[FakeAgentIdentifierAction], Some(agentAsPurchaser), stubConnector(summary = Right(agentSummary)))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
+
+          val result = route(application, request).value
+          val body   = contentAsString(result)
+
+          status(result) mustEqual OK
+          body must include(routes.PurchaserNameController.onPageLoad(NormalMode).url)
+        }
+      }
+
+      "must redirect to Unauthorised for a PrivateIndividual whose draft id is missing" in {
+        val noDraftId = emptyUserAnswers
+          .unsafeSet(VehicleFromEuPage, true)
+          .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
+          .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
+        val sessionRepo = stubSessionRepository()
+
+        given application: Application =
+          applicationWith(classOf[FakeIdentifierAction], Some(noDraftId), sessionRepo = sessionRepo)
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+          verify(sessionRepo, never).set(any())
+        }
+      }
+
+      "must redirect to Unauthorised for an OGD agent rejected at the identifier layer" in {
         val sessionRepo                = stubSessionRepository()
         given application: Application =
           applicationWith(classOf[UnauthorisedIdentifierAction], Some(answersBusinessUse), sessionRepo = sessionRepo)
@@ -302,7 +483,7 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must redirect to Journey Recovery when OQ1.0 has not been answered" in {
+      "must redirect to Unauthorised when a VAT-registered organisation has not answered the vehicle business-use question" in {
         val onlyDraftId =
           emptyUserAnswers.set(DraftIdPage, testDraftId).success.value
         val sessionRepo = stubSessionRepository()
@@ -317,12 +498,30 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
           verify(sessionRepo, never).set(any())
         }
       }
 
-      "must redirect to Journey Recovery when the draft id is missing" in {
+      "must redirect to Unauthorised for an Agent with a selected client" in {
+        val sessionRepo = stubSessionRepository()
+
+        given application: Application =
+          applicationWith(classOf[FakeAgentIdentifierAction], Some(agentWithSelectedClient), sessionRepo = sessionRepo)
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+          verify(sessionRepo, never).set(any())
+        }
+      }
+
+      "must redirect to Unauthorised when the draft id is missing" in {
         val onlyBusinessUse =
           emptyUserAnswers.set(VehicleBusinessUsePage, true).success.value
         val sessionRepo = stubSessionRepository()
@@ -337,7 +536,7 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
           verify(sessionRepo, never).set(any())
         }
       }
@@ -364,10 +563,13 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must redirect to Journey Recovery when the summary returns an unexpected shape" in {
-        val agentSummary = NotificationSummary.AgentWithoutClient(
+      "must redirect to Journey Recovery when the summary is for an agent with a selected client" in {
+        val agentWithClientSummary = NotificationSummary.AgentWithClient(
           agentName = Some("ABC Consultancy"),
-          hasDraftNotifications = false
+          clientTraderName = Some("Client Ltd"),
+          clientVrn = "123456789",
+          clientHasDraftNotifications = false,
+          clientIsDeregistered = false
         )
         val sessionRepo = stubSessionRepository()
 
@@ -375,7 +577,7 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
           applicationWith(
             classOf[FakeVatTraderIdentifierAction],
             Some(answersBusinessUse),
-            stubConnector(summary = Right(agentSummary)),
+            stubConnector(summary = Right(agentWithClientSummary)),
             sessionRepo
           )
 

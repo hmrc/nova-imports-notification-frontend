@@ -31,6 +31,7 @@ import services.UserDataService.*
 import pages.{AgentClientVehicleBusinessUsePage, AgentSelectedClientPage}
 import pages.sections.notifierDetails.{EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 import pages.sections.purchaserDetails.{PurchaserBusinessNamePage, PurchaserNamePage}
+import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -72,6 +73,7 @@ class UserDataServiceImpl @Inject() (
     userContext.userType match {
       case NovaUserType.VatRegisteredOrganisation                                   => orgWithEnrolments(userAnswers)
       case NovaUserType.Agent if userAnswers.get(AgentSelectedClientPage).isDefined => agentWithSelectedClient(userAnswers)
+      case NovaUserType.Agent                                                       => agentWithoutClient(userAnswers)
       case _                                                                        => privateIndividual(userAnswers)
     }
 }
@@ -254,48 +256,82 @@ object UserDataService {
   }
 
   def privateIndividual(answers: UserAnswers): Map[String, SectionStatus] = {
-    /* Introduction */
-    val acknowledged               = answers.get(IntroductionAcknowledgePage)
-    val amendSubmittedNotification = answers.get(AmendSubmittedNotificationPage)
-
-    /* Initial Questions */
-    val vehicleFromEu            = answers.get(VehicleFromEuPage)
-    val areYouBusinessPrivate    = answers.get(BusinessOrPrivatePage)
-    val purchaserOrOnBehalf      = answers.get(PurchaserOrOnBehalfPage)
-    val purchaserBusinessPrivate = answers.get(PurchaserBusinessOrIndividualPage)
-
     /* Notifier Details */
-    val nameDetails = answers.get(NameDetailsPage)
-    val phoneNumber = answers.get(PhoneNumberPage)
+    val nameDetails             = answers.get(NameDetailsPage)
+    val phoneNumber             = answers.get(PhoneNumberPage)
+    val emailAddress            = answers.get(EmailAddressPage)
+    val expectsName             = answers.get(BusinessOrPrivatePage).contains(BusinessOrPrivateIndividual.PrivateIndividual)
+    val notifierDetailsAllUnset = nameDetails.isEmpty && phoneNumber.isEmpty && emailAddress.isEmpty
 
-    val introStatus = (acknowledged, amendSubmittedNotification.isDefined) match {
-      case (Some(true), true) => SectionStatus.Completed
-      case (None, false)      => SectionStatus.NotYetSaved
-      case _                  => SectionStatus.Incomplete
-    }
+    val notifierDetailsStatus =
+      if phoneNumber.isDefined && emailAddress.isDefined && (nameDetails.isDefined == expectsName) then SectionStatus.Completed
+      else if notifierDetailsAllUnset then SectionStatus.NotYetSaved
+      else SectionStatus.Incomplete
 
-    val initialQsStatus =
-      (vehicleFromEu, areYouBusinessPrivate, purchaserOrOnBehalf, purchaserBusinessPrivate.isDefined) match {
-        case (Some(true), Some(_), Some(PurchaserOrOnBehalf.Purchaser), _)              => SectionStatus.Completed
-        case (Some(true), Some(_), Some(PurchaserOrOnBehalf.OnBehalfOfPurchaser), true) => SectionStatus.Completed
-        case (None, None, None, false)                                                  => SectionStatus.NotYetSaved
-        case _                                                                          => SectionStatus.Incomplete
-      }
+    val notifierAddressStatus =
+      if answers.get(AddressPage).isDefined then SectionStatus.Completed
+      else SectionStatus.Incomplete
 
-    val notifierDetailsStatus = (nameDetails.isDefined, phoneNumber.isDefined) match {
+    Map(
+      SectionId.Introduction     -> introStatus(answers),
+      SectionId.InitialQuestions -> standardInitialQsStatus(answers),
+      SectionId.NotifierDetails  -> notifierDetailsStatus,
+      SectionId.NotifierAddress  -> notifierAddressStatus,
+      SectionId.PurchaserDetails -> purchaserDetailsStatus(answers),
+      SectionId.PurchaserAddress -> purchaserAddressStatus(answers),
+      SectionId.Vehicles         -> SectionStatus.NotYetSaved,
+      SectionId.Declaration      -> SectionStatus.NotYetSaved
+    )
+  }
+
+  def agentWithoutClient(answers: UserAnswers): Map[String, SectionStatus] = {
+    val phoneNumber  = answers.get(PhoneNumberPage)
+    val emailAddress = answers.get(EmailAddressPage)
+
+    val notifierDetailsStatus = (phoneNumber.isDefined, emailAddress.isDefined) match {
       case (true, true)   => SectionStatus.Completed
       case (false, false) => SectionStatus.NotYetSaved
       case _              => SectionStatus.Incomplete
     }
 
     Map(
-      SectionId.Introduction     -> introStatus,
-      SectionId.InitialQuestions -> initialQsStatus,
+      SectionId.Introduction     -> introStatus(answers),
+      SectionId.InitialQuestions -> standardInitialQsStatus(answers),
       SectionId.NotifierDetails  -> notifierDetailsStatus,
       SectionId.NotifierAddress  -> SectionStatus.NotYetSaved,
+      SectionId.PurchaserDetails -> purchaserDetailsStatus(answers),
+      SectionId.PurchaserAddress -> purchaserAddressStatus(answers),
       SectionId.Vehicles         -> SectionStatus.NotYetSaved,
       SectionId.Declaration      -> SectionStatus.NotYetSaved
     )
   }
+
+  private def introStatus(answers: UserAnswers): SectionStatus =
+    (answers.get(IntroductionAcknowledgePage), answers.get(AmendSubmittedNotificationPage).isDefined) match {
+      case (Some(true), true) => SectionStatus.Completed
+      case (None, false)      => SectionStatus.NotYetSaved
+      case _                  => SectionStatus.Incomplete
+    }
+
+  private def standardInitialQsStatus(answers: UserAnswers): SectionStatus =
+    (
+      answers.get(VehicleFromEuPage),
+      answers.get(BusinessOrPrivatePage),
+      answers.get(PurchaserOrOnBehalfPage),
+      answers.get(PurchaserBusinessOrIndividualPage).isDefined
+    ) match {
+      case (Some(true), Some(_), Some(PurchaserOrOnBehalf.Purchaser), _)              => SectionStatus.Completed
+      case (Some(true), Some(_), Some(PurchaserOrOnBehalf.OnBehalfOfPurchaser), true) => SectionStatus.Completed
+      case (None, None, None, false)                                                  => SectionStatus.NotYetSaved
+      case _                                                                          => SectionStatus.Incomplete
+    }
+
+  private def purchaserDetailsStatus(answers: UserAnswers): SectionStatus =
+    if answers.get(PurchaserNamePage).isDefined || answers.get(PurchaserBusinessNamePage).isDefined then SectionStatus.Completed
+    else SectionStatus.NotYetSaved
+
+  private def purchaserAddressStatus(answers: UserAnswers): SectionStatus =
+    if answers.get(IsPurchaserAddressInTheUkPage).isDefined then SectionStatus.Incomplete
+    else SectionStatus.NotYetSaved
 
 }
