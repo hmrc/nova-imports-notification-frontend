@@ -267,6 +267,8 @@ purchaserBusinessName.caption = Add purchaser details
 purchaserBusinessName.error.required = Enter the purchaser’s business name
 purchaserBusinessName.error.length = The purchaser’s business name must be 160 characters or less
 purchaserBusinessName.error.invalid = Enter the purchaser’s business name in the correct format
+purchaserBusinessName.checkYourAnswersLabel = Purchaser’s business name
+purchaserBusinessName.change.hidden = the purchaser’s business name
 
 ######################################################
 # CYA1.0 - Check your answers 1 - Initial questions  #
@@ -349,6 +351,17 @@ addYourName.checkYourAnswersLabel = Name
 addYourName.change.hidden = your name
 
 ######################################################
+# AYD1.4 - Add your details - Business name                #
+######################################################
+
+businessName.title = What is your business name?
+businessName.heading = What is your business name?
+businessName.caption = Add your details
+businessName.error.required = Enter your business name
+businessName.error.length = Your business name must be 160 characters or less
+businessName.error.invalid = Enter your business name in the correct format
+
+######################################################
 # APD1.0 - Add Purchaser Details: Purchaser name     #
 ######################################################
 
@@ -367,7 +380,7 @@ purchaserName.lastName = Last name
 purchaserName.lastName.error.format = Enter the purchaser’s last name in the correct format
 purchaserName.lastName.error.length = The purchaser’s last name must be 100 characters or less
 purchaserName.lastName.error.required = Enter the purchaser’s last name
-purchaserName.checkYourAnswersLabel = Name
+purchaserName.checkYourAnswersLabel = Purchaser’s name
 purchaserName.change.hidden = the purchaser’s name
 
 ######################################################
@@ -380,6 +393,15 @@ isYourAddressInTheUk.caption = Add your address
 isYourAddressInTheUk.checkYourAnswersLabel = Is your address in the UK
 isYourAddressInTheUk.error.required = Select yes if your address is in the UK
 isYourAddressInTheUk.change.hidden = whether your address is in the UK
+
+##################################################################
+# APA1.0 - Add purchaser address: Is the purchaser's address in the UK #
+##################################################################
+
+isPurchaserAddressInTheUk.title = Is the purchaser’s address in the UK?
+isPurchaserAddressInTheUk.heading = Is the purchaser’s address in the UK?
+isPurchaserAddressInTheUk.caption = Add purchaser address
+isPurchaserAddressInTheUk.error.required = Select yes if the purchaser’s address is in the UK
 
 ###########################################################
 # AYA3.0 - Add your address 3.0: We've changed your address #
@@ -508,3 +530,25 @@ addVehicleDetails.error.required = Select how you want to add vehicle details
 yourDetailsCheckYourAnswers.caption = Add your details
 yourDetailsCheckYourAnswers.title = Check your answers - your details
 yourDetailsCheckYourAnswers.heading = Check your answers
+
+######################################################
+# CYA4.0 - Check your answers 4 - Purchaser details  #
+######################################################
+
+purchaserDetailsCheckYourAnswers.caption = Add purchaser details
+purchaserDetailsCheckYourAnswers.title = Check your answers - Purchaser’s details
+purchaserDetailsCheckYourAnswers.heading = Check your answers
+
+###########################################################################################
+# AVD-S2.0 - Add vehicle details - Supplier 2.0: Supplier business or private individual  #
+###########################################################################################
+
+supplierBusinessOrIndividual.title = Is the supplier a business or private individual?
+supplierBusinessOrIndividual.heading = Is the supplier a business or private individual?
+supplierBusinessOrIndividual.caption = Add vehicle details
+supplierBusinessOrIndividual.hint = Includes businesses that are not VAT registered
+supplierBusinessOrIndividual.checkYourAnswersLabel = Is the supplier a business or private individual?
+supplierBusinessOrIndividual.error.required = Select if the supplier is a business or a private individual
+supplierBusinessOrIndividual.change.hidden = Is the supplier a business or private individual?
+supplierBusinessOrIndividual.radio.business = Business
+supplierBusinessOrIndividual.radio.privateIndividual = Private individual

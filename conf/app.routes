@@ -57,6 +57,11 @@ POST        /purchaser-business-name                                controllers.
 GET         /purchaser-business-name/change                         controllers.PurchaserBusinessNameController.onPageLoad(mode: Mode = CheckMode)
 POST        /purchaser-business-name/change                         controllers.PurchaserBusinessNameController.onSubmit(mode: Mode = CheckMode)
 
+GET         /is-the-purchaser-address-in-uk                         controllers.IsPurchaserAddressInTheUkController.onPageLoad(mode: Mode = NormalMode)
+POST        /is-the-purchaser-address-in-uk                         controllers.IsPurchaserAddressInTheUkController.onSubmit(mode: Mode = NormalMode)
+GET         /is-the-purchaser-address-in-uk/change                  controllers.IsPurchaserAddressInTheUkController.onPageLoad(mode: Mode = CheckMode)
+POST        /is-the-purchaser-address-in-uk/change                  controllers.IsPurchaserAddressInTheUkController.onSubmit(mode: Mode = CheckMode)
+
 GET         /vehicle-business-use                                   controllers.VehicleBusinessUseController.onPageLoad(mode: Mode = NormalMode)
 POST        /vehicle-business-use                                   controllers.VehicleBusinessUseController.onSubmit(mode: Mode = NormalMode)
 GET         /change-vehicle-business-use                            controllers.VehicleBusinessUseController.onPageLoad(mode: Mode = CheckMode)
@@ -79,6 +84,11 @@ GET         /name                                                   controllers.
 POST        /name                                                   controllers.AddYourNameController.onSubmit(mode: Mode = NormalMode)
 GET         /name/change                                            controllers.AddYourNameController.onPageLoad(mode: Mode = CheckMode)
 POST        /name/change                                            controllers.AddYourNameController.onSubmit(mode: Mode = CheckMode)
+
+GET         /business-name                                          controllers.BusinessNameController.onPageLoad(mode: Mode = NormalMode)
+POST        /business-name                                          controllers.BusinessNameController.onSubmit(mode: Mode = NormalMode)
+GET         /business-name/change                                   controllers.BusinessNameController.onPageLoad(mode: Mode = CheckMode)
+POST        /business-name/change                                   controllers.BusinessNameController.onSubmit(mode: Mode = CheckMode)
 
 GET         /purchaser-name                                         controllers.PurchaserNameController.onPageLoad(mode: Mode = NormalMode)
 POST        /purchaser-name                                         controllers.PurchaserNameController.onSubmit(mode: Mode = NormalMode)
@@ -113,3 +123,11 @@ POST        /vehicles-brought-from-eu/change                        controllers.
 
 GET         /check-answers/your-details                             controllers.YourDetailsCheckYourAnswersController.onPageLoad()
 POST        /check-answers/your-details                             controllers.YourDetailsCheckYourAnswersController.onSubmit()
+
+GET         /check-answers/purchaser-details                        controllers.PurchaserDetailsCheckYourAnswersController.onPageLoad()
+POST        /check-answers/purchaser-details                        controllers.PurchaserDetailsCheckYourAnswersController.onSubmit()
+
+GET         /supplier-business-or-private-individual                controllers.SupplierBusinessOrIndividualController.onPageLoad(mode: Mode = NormalMode)
+POST        /supplier-business-or-private-individual                controllers.SupplierBusinessOrIndividualController.onSubmit(mode: Mode = NormalMode)
+GET         /supplier-business-or-private-individual/change         controllers.SupplierBusinessOrIndividualController.onPageLoad(mode: Mode = CheckMode)
+POST        /supplier-business-or-private-individual/change         controllers.SupplierBusinessOrIndividualController.onSubmit(mode: Mode = CheckMode)

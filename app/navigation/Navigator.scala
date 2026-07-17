@@ -22,9 +22,11 @@ import controllers.routes
 import pages.*
 import models.*
 import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
-import pages.sections.notifierDetails.{EmailAddressPage, NameDetailsPage, PhoneNumberPage}
+import pages.sections.notifierDetails.{BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 import pages.sections.notifieraddress.IsYourAddressInTheUkPage
+import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 import pages.sections.purchaserDetails.{PurchaserBusinessNamePage, PurchaserNamePage}
+import pages.sections.supplierDetails.SupplierBusinessOrIndividualPage
 
 @Singleton
 class Navigator @Inject() () {
@@ -59,8 +61,10 @@ class Navigator @Inject() () {
         }
     case NameDetailsPage =>
       (_, _) => routes.PhoneNumberController.onPageLoad(NormalMode)
+    case BusinessNamePage =>
+      (_, _) => routes.PhoneNumberController.onPageLoad(NormalMode)
     case PurchaserNamePage =>
-      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to CYA4.0 - Purchaser details when built
+      (_, _) => routes.PurchaserDetailsCheckYourAnswersController.onPageLoad()
     case PhoneNumberPage =>
       (_, _) => routes.EmailAddressController.onPageLoad(NormalMode)
     case VehicleBusinessUsePage =>
@@ -96,7 +100,24 @@ class Navigator @Inject() () {
     case EmailAddressPage =>
       (_, _) => routes.YourDetailsCheckYourAnswersController.onPageLoad()
     case PurchaserBusinessNamePage =>
-      (_, _) => routes.LandingPageController.onPageLoad() // TODO: redirect to CYA4.0 page when built
+      (_, _) => routes.PurchaserDetailsCheckYourAnswersController.onPageLoad()
+    case SupplierBusinessOrIndividualPage =>
+      (userAnswers, _) =>
+        userAnswers.get(SupplierBusinessOrIndividualPage) match {
+          case Some(BusinessOrPrivateIndividual.Business) =>
+            routes.LandingPageController.onPageLoad() // TODO: navigate to AVD-S3.0 when built
+          case Some(BusinessOrPrivateIndividual.PrivateIndividual) =>
+            routes.JourneyRecoveryController.onPageLoad() // TODO: navigate to AVD-S4.0 when built
+          case _ =>
+            routes.JourneyRecoveryController.onPageLoad()
+        }
+    case IsPurchaserAddressInTheUkPage =>
+      (userAnswers, _) =>
+        userAnswers.get(IsPurchaserAddressInTheUkPage) match {
+          case Some(true)  => routes.LandingPageController.onPageLoad() // TODO: navigate to APA2.0 when built
+          case Some(false) => routes.LandingPageController.onPageLoad() // TODO: navigate to APA1.2 when built
+          case _           => routes.JourneyRecoveryController.onPageLoad()
+        }
     case _ => (_, _) => routes.LandingPageController.onPageLoad()
   }
 
@@ -123,14 +144,18 @@ class Navigator @Inject() () {
         }
     case NameDetailsPage =>
       (_, _) => routes.YourDetailsCheckYourAnswersController.onPageLoad()
+    case BusinessNamePage =>
+      (_, _) => routes.YourDetailsCheckYourAnswersController.onPageLoad()
     case PurchaserNamePage =>
-      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to CYA4.0 - Purchaser details when built
+      (_, _) => routes.PurchaserDetailsCheckYourAnswersController.onPageLoad()
     case PhoneNumberPage =>
       (_, _) => routes.YourDetailsCheckYourAnswersController.onPageLoad()
     case EmailAddressPage =>
       (_, _) => routes.YourDetailsCheckYourAnswersController.onPageLoad()
     case PurchaserBusinessNamePage =>
-      (_, _) => routes.LandingPageController.onPageLoad() // TODO: redirect to CYA4.0 page when built
+      (_, _) => routes.PurchaserDetailsCheckYourAnswersController.onPageLoad()
+    case SupplierBusinessOrIndividualPage =>
+      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD-S9.0 CYA when built
     case _ =>
       (_, _) => routes.LandingPageController.onPageLoad()
   }

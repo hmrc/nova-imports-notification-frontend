@@ -139,3 +139,12 @@ pageNotFound.paragraph.2 = If you pasted the web address, check you copied the e
 pageNotFound.paragraph.3.start = If the web address is correct or you selected a link or button,
 pageNotFound.link.text = contact HMRC technical support (opens in new tab)
 pageNotFound.paragraph.3.end = if you need to speak to someone.
+
+# APD1.0 / APD2.0 / CYA4.0 - Purchaser details (English defaults, Welsh translation to follow)
+purchaserName.checkYourAnswersLabel = Purchaser’s name
+purchaserName.change.hidden = the purchaser’s name
+purchaserBusinessName.checkYourAnswersLabel = Purchaser’s business name
+purchaserBusinessName.change.hidden = the purchaser’s business name
+purchaserDetailsCheckYourAnswers.caption = Add purchaser details
+purchaserDetailsCheckYourAnswers.title = Check your answers - Purchaser’s details
+purchaserDetailsCheckYourAnswers.heading = Check your answers
