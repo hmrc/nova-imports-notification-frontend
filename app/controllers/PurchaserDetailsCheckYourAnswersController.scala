@@ -82,11 +82,12 @@ class PurchaserDetailsCheckYourAnswersController @Inject() (
 
 object PurchaserDetailsCheckYourAnswersController {
 
-  // TODO: nav to nextPage set up remaining once downstream NTL screen set up for all user types inc agents
   def nextPage(userContext: UserContext): play.api.mvc.Call =
     userContext.userType match {
-      case NovaUserType.VatRegisteredOrganisation => routes.NotificationTaskListController.onPageLoad()
-      case _                                      => routes.LandingPageController.onPageLoad()
+      case NovaUserType.VatRegisteredOrganisation                           => routes.NotificationTaskListController.onPageLoad()
+      case NovaUserType.PrivateIndividual | NovaUserType.NonVatOrganisation => routes.NotificationTaskListController.onPageLoad()
+      case NovaUserType.Agent if userContext.isAgentWithoutClient           => routes.NotificationTaskListController.onPageLoad()
+      case _                                                                => routes.LandingPageController.onPageLoad()
     }
 
   // Purchaser details only apply when notifying on behalf of a purchaser, so a VAT-registered

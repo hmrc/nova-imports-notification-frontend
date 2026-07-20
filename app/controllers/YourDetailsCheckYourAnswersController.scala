@@ -83,11 +83,12 @@ class YourDetailsCheckYourAnswersController @Inject() (
 
 object YourDetailsCheckYourAnswersController {
 
-  // TODO: nav to nextPage set up remaining once downstream NTL screen set up for all user types inc agents
   def nextPage(userContext: UserContext): play.api.mvc.Call =
     userContext.userType match {
-      case NovaUserType.VatRegisteredOrganisation => routes.NotificationTaskListController.onPageLoad()
-      case _                                      => routes.LandingPageController.onPageLoad()
+      case NovaUserType.VatRegisteredOrganisation                           => routes.NotificationTaskListController.onPageLoad()
+      case NovaUserType.PrivateIndividual | NovaUserType.NonVatOrganisation => routes.NotificationTaskListController.onPageLoad()
+      case NovaUserType.Agent if userContext.isAgentWithoutClient           => routes.NotificationTaskListController.onPageLoad()
+      case _                                                                => routes.LandingPageController.onPageLoad()
     }
 
   def guardPredicate(request: DataRequest[?]): Boolean = {
@@ -120,8 +121,7 @@ object YourDetailsCheckYourAnswersController {
 
   private def agentWithoutClientAnswersComplete(answers: UserAnswers): Boolean =
     answers.get(PhoneNumberPage).isDefined &&
-      answers.get(EmailAddressPage).isDefined &&
-      (answers.get(NameDetailsPage).isDefined == answers.get(BusinessOrPrivatePage).contains(BusinessOrPrivateIndividual.PrivateIndividual))
+      answers.get(EmailAddressPage).isDefined
 
   private def agentWithClientAnswersComplete(answers: UserAnswers): Boolean =
     answers.get(PhoneNumberPage).isDefined &&

@@ -161,6 +161,25 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
         }
       }
 
+      "for an Agent without a selected client who has provided phone and email but no name must return OK" in {
+        given application: Application = applicationForPageLoad(classOf[FakeAgentIdentifierAction], Some(agentWithoutClientAnswers))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, yourDetailsCheckYourAnswersRoute)
+
+          val result = route(application, request).value
+          val body   = contentAsString(result)
+
+          status(result) mustEqual OK
+          body must include("Check your answers")
+          body must include("Contact numbers")
+          body must include("Email address")
+          body must include(phone)
+          body must include(email)
+          body must not include "Smith"
+        }
+      }
+
       "for an Agent with no enrolments must return OK with phone and email entered but no name entered" in {
         given application: Application =
           applicationForPageLoad(classOf[FakeAgentNoEnrolmentsIdentifierAction], Some(agentNoEnrolmentsAnswers))
@@ -323,7 +342,7 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
       }
 
       // TODO: change correct downstream redirect once NTL set up for all user types
-      "when succeeds must redirect to the correct downstream Page for a PrivateIndividual" in {
+      "when succeeds must redirect to the notification task list for a PrivateIndividual" in {
         val connector = mock[NovaImportsBackendConnector]
         when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
           .thenReturn(Future.successful(Right(2L)))
@@ -336,7 +355,7 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.LandingPageController.onPageLoad().url
+          redirectLocation(result).value mustEqual routes.NotificationTaskListController.onPageLoad().url
         }
       }
 
@@ -663,6 +682,23 @@ object YourDetailsCheckYourAnswersControllerSpec {
     .success
     .value
     .set(AgentSelectedClientPage, sampleClient)
+    .success
+    .value
+    .set(DraftIdPage, DraftId("DRAFT-001"))
+    .success
+    .value
+    .set(DraftVersionIdPage, 1L)
+    .success
+    .value
+
+  private val agentWithoutClientAnswers = emptyUserAnswers
+    .set(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
+    .success
+    .value
+    .set(PhoneNumberPage, contactNumbers)
+    .success
+    .value
+    .set(EmailAddressPage, email)
     .success
     .value
     .set(DraftIdPage, DraftId("DRAFT-001"))

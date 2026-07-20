@@ -17,6 +17,8 @@
 package controllers
 
 import base.SpecBase
+import com.google.inject.name.Names
+import controllers.actions.*
 import forms.PurchaserNameFormProvider
 import models.{CheckMode, DraftId, NameDetails, NormalMode, PurchaserBusinessOrIndividual, PurchaserOrOnBehalf, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
@@ -27,6 +29,7 @@ import org.scalatestplus.mockito.MockitoSugar
 import pages.sections.initialquestions.{PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage}
 import pages.sections.purchaserDetails.PurchaserNamePage
 import play.api.inject.bind
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -61,6 +64,18 @@ class PurchaserNameControllerSpec extends SpecBase with MockitoSugar {
     .set(PurchaserBusinessOrIndividualPage, PurchaserBusinessOrIndividual.NonVatRegisteredPrivateIndividual)
     .success
     .value
+
+  private def agentApplicationBuilder(userAnswers: Option[UserAnswers]): GuiceApplicationBuilder =
+    new GuiceApplicationBuilder()
+      .overrides(
+        bind[DataRequiredAction].to[DataRequiredActionImpl],
+        bind[IdentifierAction].to[FakeAgentIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("standard")).to[FakeAgentIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
+        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
+      )
 
   "PurchaserName Controller" - {
 
@@ -298,6 +313,23 @@ class PurchaserNameControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+
+    "must return OK for an agent without a selected client who is the purchaser" in {
+
+      val userAnswers = emptyUserAnswers
+        .unsafeSet(pages.DraftIdPage, DraftId("DRAFT-001"))
+        .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
+
+      val application = agentApplicationBuilder(Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, purchaserNameRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
       }
     }
 

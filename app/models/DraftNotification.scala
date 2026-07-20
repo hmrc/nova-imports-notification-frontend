@@ -41,6 +41,7 @@ object DraftNotification {
     val NotifierDetails: String    = "notifierDetails"
     val NotifierAddress: String    = "notifierAddress"
     val PurchaserDetails: String   = "purchaserDetails"
+    val PurchaserAddress: String   = "purchaserAddress"
     val ImportDetails: String      = "importDetails"
     val SupplierSelfSupply: String = "supplierSelfSupply"
     val Vehicles: String           = "vehicles"
