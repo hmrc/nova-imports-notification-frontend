@@ -19,13 +19,13 @@ package controllers
 import base.SpecBase
 import connectors.{NovaImportsBackendConnector, UpdateSectionError}
 import models.draftsections.NotifierAddress
-import models.{Address, Country, DraftId, UserAnswers}
+import models.{Address, Country, DraftId, NormalMode, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.{DraftIdPage, DraftVersionIdPage}
-import pages.sections.notifieraddress.AddressPage
+import pages.sections.notifieraddress.{AddressJourneyIdPage, AddressPage}
 import play.api.Application
 import play.api.inject.bind
 import play.api.libs.json.{JsObject, Json}
@@ -39,8 +39,9 @@ import scala.concurrent.Future
 
 class AddressChangedControllerSpec extends SpecBase with MockitoSugar {
 
-  private lazy val onPageLoadRoute: String = routes.AddressChangedController.onPageLoad().url
-  private lazy val onSubmitRoute: String   = routes.AddressChangedController.onSubmit().url
+  private lazy val onPageLoadRoute: String      = routes.AddressChangedController.onPageLoad().url
+  private lazy val onSubmitRoute: String        = routes.AddressChangedController.onSubmit().url
+  private lazy val onChangeAddressRoute: String = routes.AddressChangedController.onChangeAddress().url
 
   private val draftId = DraftId("DRAFT-001")
   private val address = Address(
@@ -70,6 +71,7 @@ class AddressChangedControllerSpec extends SpecBase with MockitoSugar {
   private def stubSessionRepository(): SessionRepository = {
     val m = mock[SessionRepository]
     when(m.setPage(any(), any(), any())(any())).thenReturn(Future.successful(answersWithAddressAndDraft))
+    when(m.set(any())).thenReturn(Future.successful(true))
     m
   }
 
@@ -155,6 +157,41 @@ class AddressChangedControllerSpec extends SpecBase with MockitoSugar {
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
 
         verify(backendConnector, org.mockito.Mockito.never).updateDraftSection(any, any, any)(any)
+      }
+    }
+
+    "must clear the stored address and journey id from the session and redirect to AYA1.0 on change address" in {
+      val answersWithJourneyId = answersWithAddressAndDraft
+        .set(AddressJourneyIdPage, "journey-123")
+        .success
+        .value
+
+      val sessionRepository = stubSessionRepository()
+      val application       = applicationWith(userAnswers = Some(answersWithJourneyId), sessionRepository = sessionRepository)
+
+      running(application) {
+        val request = FakeRequest(GET, onChangeAddressRoute)
+        val result  = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.IsYourAddressInTheUkController.onPageLoad(NormalMode).url
+
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
+        verify(sessionRepository).set(captor.capture())
+        captor.getValue.get(AddressPage) mustBe None
+        captor.getValue.get(AddressJourneyIdPage) mustBe None
+      }
+    }
+
+    "must redirect to Unauthorised on change address if no session data is found" in {
+      val application = applicationWith(userAnswers = None)
+
+      running(application) {
+        val request = FakeRequest(GET, onChangeAddressRoute)
+        val result  = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
       }
     }
   }

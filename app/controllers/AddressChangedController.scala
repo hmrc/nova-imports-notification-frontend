@@ -18,9 +18,10 @@ package controllers
 
 import connectors.NovaImportsBackendConnector
 import controllers.actions.*
+import models.NormalMode
 import models.draftsections.NotifierAddress
 import models.requests.DataRequest
-import pages.sections.notifieraddress.AddressPage
+import pages.sections.notifieraddress.{AddressJourneyIdPage, AddressPage}
 import pages.{DraftIdPage, DraftVersionIdPage}
 import play.api.Logging
 import play.api.libs.json.{JsObject, Json}
@@ -51,6 +52,13 @@ class AddressChangedController @Inject() (
       case Some(address) => Ok(view(address))
       case None          => Redirect(routes.JourneyRecoveryController.onPageLoad())
     }
+  }
+
+  def onChangeAddress(): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(dataGuard).async { implicit request =>
+    for {
+      cleared <- Future.fromTry(request.userAnswers.remove(AddressPage).flatMap(_.remove(AddressJourneyIdPage)))
+      _       <- sessionRepository.set(cleared)
+    } yield Redirect(routes.IsYourAddressInTheUkController.onPageLoad(NormalMode))
   }
 
   def onSubmit(): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(dataGuard).async { implicit request =>
