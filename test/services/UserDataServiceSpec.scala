@@ -17,11 +17,16 @@
 package services
 
 import base.SpecBase
-import models.{DraftNotification, DraftNotificationSection, NameDetails, UserAnswers}
+import models.DraftNotification.SectionId
+import models.{Address, BusinessOrPrivateIndividual, ContactNumbers, Country, DraftNotification, DraftNotificationSection, NameDetails, SectionStatus, UserAnswers}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
+import pages.sections.initialquestions.{BusinessOrPrivatePage, VehicleFromEuPage}
+import pages.sections.notifierDetails.{EmailAddressPage, NameDetailsPage, PhoneNumberPage}
+import pages.sections.notifieraddress.AddressPage
+import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 import pages.sections.purchaserDetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 import play.api.libs.json.{JsObject, Json, Writes}
 import repositories.SessionRepository
@@ -80,6 +85,104 @@ class UserDataServiceSpec extends SpecBase with MockitoSugar with ScalaFutures {
 
       result.get(PurchaserNamePage) mustBe None
       result.get(PurchaserBusinessNamePage) mustBe None
+    }
+  }
+
+  private val contactNumbers = ContactNumbers(Some("01234567890"), None)
+  private val gb             = Country("GB", "United Kingdom")
+  private val sampleAddress  = Address(lines = List("12 High Street", "Reading"), postcode = Some("RE12 9GC"), country = gb)
+
+  "UserDataService.privateIndividual" - {
+
+    "must mark the purchaser details section Completed when a purchaser name is present" in {
+      val answers = emptyUserAnswers.unsafeSet(PurchaserNamePage, NameDetails("Mr", "John", "Smith"))
+      UserDataService.privateIndividual(answers)(SectionId.PurchaserDetails) mustBe SectionStatus.Completed
+    }
+
+    "must mark the purchaser details section Completed when a purchaser business name is present" in {
+      val answers = emptyUserAnswers.unsafeSet(PurchaserBusinessNamePage, "Acme Trading Ltd")
+      UserDataService.privateIndividual(answers)(SectionId.PurchaserDetails) mustBe SectionStatus.Completed
+    }
+
+    "must mark the purchaser details section NotYetSaved when no purchaser name is present" in {
+      UserDataService.privateIndividual(emptyUserAnswers)(SectionId.PurchaserDetails) mustBe SectionStatus.NotYetSaved
+    }
+
+    "must mark the purchaser address section Incomplete when the in-UK question is answered" in {
+      val answers = emptyUserAnswers.unsafeSet(IsPurchaserAddressInTheUkPage, true)
+      UserDataService.privateIndividual(answers)(SectionId.PurchaserAddress) mustBe SectionStatus.Incomplete
+    }
+
+    "must mark the purchaser address section NotYetSaved when the in-UK question is unanswered" in {
+      UserDataService.privateIndividual(emptyUserAnswers)(SectionId.PurchaserAddress) mustBe SectionStatus.NotYetSaved
+    }
+
+    "must mark the notifier address section Completed when an address is stored" in {
+      val answers = emptyUserAnswers.unsafeSet(AddressPage, sampleAddress)
+      UserDataService.privateIndividual(answers)(SectionId.NotifierAddress) mustBe SectionStatus.Completed
+    }
+
+    "must mark the notifier address section Incomplete when no address is stored" in {
+      UserDataService.privateIndividual(emptyUserAnswers)(SectionId.NotifierAddress) mustBe SectionStatus.Incomplete
+    }
+
+    "must mark the notifier details section Completed for a private individual with name, phone and email" in {
+      val answers = emptyUserAnswers
+        .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
+        .unsafeSet(NameDetailsPage, NameDetails("Mr", "John", "Smith"))
+        .unsafeSet(PhoneNumberPage, contactNumbers)
+        .unsafeSet(EmailAddressPage, "john@example.com")
+      UserDataService.privateIndividual(answers)(SectionId.NotifierDetails) mustBe SectionStatus.Completed
+    }
+
+    "must mark the notifier details section Completed for a business with phone and email but no name" in {
+      val answers = emptyUserAnswers
+        .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business)
+        .unsafeSet(PhoneNumberPage, contactNumbers)
+        .unsafeSet(EmailAddressPage, "acme@example.com")
+      UserDataService.privateIndividual(answers)(SectionId.NotifierDetails) mustBe SectionStatus.Completed
+    }
+
+    "must mark the notifier details section NotYetSaved when name, phone and email are all absent" in {
+      UserDataService.privateIndividual(emptyUserAnswers)(SectionId.NotifierDetails) mustBe SectionStatus.NotYetSaved
+    }
+
+    "must mark the notifier details section Incomplete when only some details are present" in {
+      val answers = emptyUserAnswers.unsafeSet(PhoneNumberPage, contactNumbers)
+      UserDataService.privateIndividual(answers)(SectionId.NotifierDetails) mustBe SectionStatus.Incomplete
+    }
+  }
+
+  "UserDataService.agentWithoutClient" - {
+
+    "must mark the notifier details section Completed with only phone and email (no name required)" in {
+      val answers = emptyUserAnswers
+        .unsafeSet(PhoneNumberPage, contactNumbers)
+        .unsafeSet(EmailAddressPage, "agent@example.com")
+      UserDataService.agentWithoutClient(answers)(SectionId.NotifierDetails) mustBe SectionStatus.Completed
+    }
+
+    "must mark the notifier details section NotYetSaved when both phone and email are absent" in {
+      UserDataService.agentWithoutClient(emptyUserAnswers)(SectionId.NotifierDetails) mustBe SectionStatus.NotYetSaved
+    }
+
+    "must mark the notifier details section Incomplete when only phone is present" in {
+      val answers = emptyUserAnswers.unsafeSet(PhoneNumberPage, contactNumbers)
+      UserDataService.agentWithoutClient(answers)(SectionId.NotifierDetails) mustBe SectionStatus.Incomplete
+    }
+
+    "must mark the notifier address section NotYetSaved" in {
+      val answers = emptyUserAnswers.unsafeSet(AddressPage, sampleAddress)
+      UserDataService.agentWithoutClient(answers)(SectionId.NotifierAddress) mustBe SectionStatus.NotYetSaved
+    }
+
+    "must include the purchaser details section, Completed when a purchaser name is present" in {
+      val answers = emptyUserAnswers.unsafeSet(PurchaserNamePage, NameDetails("Mr", "John", "Smith"))
+      UserDataService.agentWithoutClient(answers)(SectionId.PurchaserDetails) mustBe SectionStatus.Completed
+    }
+
+    "must include the purchaser address section, NotYetSaved when unanswered" in {
+      UserDataService.agentWithoutClient(emptyUserAnswers)(SectionId.PurchaserAddress) mustBe SectionStatus.NotYetSaved
     }
   }
 }
