@@ -26,7 +26,7 @@ import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.*
-import pages.sections.notifierDetails.{EmailAddressPage, NameDetailsPage, PhoneNumberPage}
+import pages.sections.notifierDetails.{BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 import pages.sections.initialquestions.{BusinessOrPrivatePage, VehicleBusinessUsePage}
 import play.api.Application
 import play.api.inject.bind
@@ -123,6 +123,24 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
           body must include("Smith")
           body must include(phone)
           body must include(email)
+        }
+      }
+
+      "for a business user must return OK with the business name row included" in {
+        given application: Application = applicationForPageLoad(classOf[FakeIdentifierAction], Some(businessNameAnswers))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, yourDetailsCheckYourAnswersRoute)
+
+          val result = route(application, request).value
+          val body   = contentAsString(result)
+
+          status(result) mustEqual OK
+          body must include("Check your answers")
+          body must include(businessName)
+          body must include(phone)
+          body must include(email)
+          body must not include "Smith"
         }
       }
 
@@ -246,6 +264,126 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
           .success
           .value
           .set(PhoneNumberPage, contactNumbers)
+          .success
+          .value
+          .set(DraftIdPage, DraftId("DRAFT-001"))
+          .success
+          .value
+
+        given application: Application = applicationForPageLoad(classOf[FakeIdentifierAction], Some(answers))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, yourDetailsCheckYourAnswersRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+        }
+      }
+
+      "must redirect to Unauthorised for a business user who has not provided a business name" in {
+        val answers = emptyUserAnswers
+          .set(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business)
+          .success
+          .value
+          .set(PhoneNumberPage, contactNumbers)
+          .success
+          .value
+          .set(EmailAddressPage, email)
+          .success
+          .value
+          .set(DraftIdPage, DraftId("DRAFT-001"))
+          .success
+          .value
+
+        given application: Application = applicationForPageLoad(classOf[FakeIdentifierAction], Some(answers))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, yourDetailsCheckYourAnswersRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+        }
+      }
+
+      "must redirect to Unauthorised for a business user who has answered both personal name and business name entries" in {
+        val answers = emptyUserAnswers
+          .set(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business)
+          .success
+          .value
+          .set(NameDetailsPage, name)
+          .success
+          .value
+          .set(BusinessNamePage, businessName)
+          .success
+          .value
+          .set(PhoneNumberPage, contactNumbers)
+          .success
+          .value
+          .set(EmailAddressPage, email)
+          .success
+          .value
+          .set(DraftIdPage, DraftId("DRAFT-001"))
+          .success
+          .value
+
+        given application: Application = applicationForPageLoad(classOf[FakeIdentifierAction], Some(answers))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, yourDetailsCheckYourAnswersRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+        }
+      }
+
+      "must redirect to Unauthorised for a private individual who has not provided a name" in {
+        val answers = emptyUserAnswers
+          .set(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
+          .success
+          .value
+          .set(PhoneNumberPage, contactNumbers)
+          .success
+          .value
+          .set(EmailAddressPage, email)
+          .success
+          .value
+          .set(DraftIdPage, DraftId("DRAFT-001"))
+          .success
+          .value
+
+        given application: Application = applicationForPageLoad(classOf[FakeIdentifierAction], Some(answers))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, yourDetailsCheckYourAnswersRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+        }
+      }
+
+      "must redirect to Unauthorised for a private individual who has also provided a business name entry" in {
+        val answers = emptyUserAnswers
+          .set(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
+          .success
+          .value
+          .set(NameDetailsPage, name)
+          .success
+          .value
+          .set(BusinessNamePage, businessName)
+          .success
+          .value
+          .set(PhoneNumberPage, contactNumbers)
+          .success
+          .value
+          .set(EmailAddressPage, email)
           .success
           .value
           .set(DraftIdPage, DraftId("DRAFT-001"))
@@ -523,6 +661,32 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
         }
       }
 
+      "must send an organisation notifier-details body with the business name when a business name was provided" in {
+        val connector = mock[NovaImportsBackendConnector]
+        when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
+          .thenReturn(Future.successful(Right(2L)))
+
+        given application: Application = applicationForSubmit(classOf[FakeIdentifierAction], Some(businessNameAnswers), connector)
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, yourDetailsCheckYourAnswersRoute)
+
+          val result = route(application, request).value
+          status(result) mustEqual SEE_OTHER
+
+          val bodyCaptor = ArgumentCaptor.forClass(classOf[JsObject])
+          verify(connector).updateDraftSection(any[DraftId], eqTo("notifier-details"), bodyCaptor.capture())(any[HeaderCarrier])
+          val sentBody = bodyCaptor.getValue
+
+          (sentBody \ "businessName").as[String] mustEqual businessName
+          (sentBody \ "phoneNumber").as[String] mustEqual phone
+          (sentBody \ "emailAddress").as[String] mustEqual email
+          (sentBody \ "title").toOption mustBe None
+          (sentBody \ "firstName").toOption mustBe None
+          (sentBody \ "lastName").toOption mustBe None
+        }
+      }
+
       "must redirect to Journey Recovery if the versionId is missing" in {
         val answersWithoutVersionId = emptyUserAnswers
           .set(VehicleBusinessUsePage, false)
@@ -565,6 +729,7 @@ object YourDetailsCheckYourAnswersControllerSpec {
   private val phone          = "01632 960 001"
   private val contactNumbers = ContactNumbers(Some(phone), None)
   private val email          = "name@example.com"
+  private val businessName   = "ABC Ltd"
   private val sampleClient   = AgentSelectedClient(vrn = "123456789", name = Some("ABC Ltd"))
 
   private val emptyUserAnswers = UserAnswers("id")
@@ -611,6 +776,26 @@ object YourDetailsCheckYourAnswersControllerSpec {
     .success
     .value
     .set(NameDetailsPage, name)
+    .success
+    .value
+    .set(PhoneNumberPage, contactNumbers)
+    .success
+    .value
+    .set(EmailAddressPage, email)
+    .success
+    .value
+    .set(DraftIdPage, DraftId("DRAFT-001"))
+    .success
+    .value
+    .set(DraftVersionIdPage, 1L)
+    .success
+    .value
+
+  private val businessNameAnswers = emptyUserAnswers
+    .set(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business)
+    .success
+    .value
+    .set(BusinessNamePage, businessName)
     .success
     .value
     .set(PhoneNumberPage, contactNumbers)

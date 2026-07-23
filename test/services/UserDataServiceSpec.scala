@@ -23,7 +23,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
-import pages.sections.initialquestions.{BusinessOrPrivatePage, VehicleFromEuPage}
+import pages.sections.initialquestions.BusinessOrPrivatePage
 import pages.sections.notifierDetails.{EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 import pages.sections.notifieraddress.AddressPage
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage

@@ -117,7 +117,8 @@ object YourDetailsCheckYourAnswersController {
   private def standardUserAnswersComplete(answers: UserAnswers): Boolean =
     answers.get(PhoneNumberPage).isDefined &&
       answers.get(EmailAddressPage).isDefined &&
-      (answers.get(NameDetailsPage).isDefined == answers.get(BusinessOrPrivatePage).contains(BusinessOrPrivateIndividual.PrivateIndividual))
+      (answers.get(NameDetailsPage).isDefined == answers.get(BusinessOrPrivatePage).contains(BusinessOrPrivateIndividual.PrivateIndividual) &&
+        answers.get(BusinessNamePage).isDefined == answers.get(BusinessOrPrivatePage).contains(BusinessOrPrivateIndividual.Business))
 
   private def agentWithoutClientAnswersComplete(answers: UserAnswers): Boolean =
     answers.get(PhoneNumberPage).isDefined &&
@@ -147,6 +148,15 @@ object YourDetailsCheckYourAnswersController {
           )
           .as[JsObject]
       case None =>
-        Json.toJson(NotifierDetailsOrganisation(emailAddress, contactNumbers.phoneNumber, contactNumbers.mobileNumber)).as[JsObject]
+        Json
+          .toJson(
+            NotifierDetailsOrganisation(
+              emailAddress,
+              contactNumbers.phoneNumber,
+              contactNumbers.mobileNumber,
+              answers.get(BusinessNamePage)
+            )
+          )
+          .as[JsObject]
     }
 }
