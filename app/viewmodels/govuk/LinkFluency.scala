@@ -14,24 +14,17 @@
  * limitations under the License.
  */
 
-package viewmodels
+package viewmodels.govuk
 
-package object govuk {
+import uk.gov.hmrc.hmrcfrontend.views.viewmodels.newtablink.NewTabLink
 
-  object all
-      extends ImplicitConversions
-      with BackLinkFluency
-      with ButtonFluency
-      with CheckboxFluency
-      with DateFluency
-      with ErrorSummaryFluency
-      with FieldsetFluency
-      with HintFluency
-      with InputFluency
-      with InsetFluency
-      with LabelFluency
-      with LinkFluency
-      with RadiosFluency
-      with SummaryListFluency
-      with TagFluency
+object link extends LinkFluency
+
+trait LinkFluency {
+
+  object LinkViewModel {
+
+    def apply(text: String, href: String): NewTabLink =
+      NewTabLink(text = text, href = Some(href))
+  }
 }

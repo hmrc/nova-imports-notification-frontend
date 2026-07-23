@@ -14,24 +14,18 @@
  * limitations under the License.
  */
 
-package viewmodels
+package viewmodels.govuk
 
-package object govuk {
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
+import uk.gov.hmrc.govukfrontend.views.viewmodels.insettext.InsetText
 
-  object all
-      extends ImplicitConversions
-      with BackLinkFluency
-      with ButtonFluency
-      with CheckboxFluency
-      with DateFluency
-      with ErrorSummaryFluency
-      with FieldsetFluency
-      with HintFluency
-      with InputFluency
-      with InsetFluency
-      with LabelFluency
-      with LinkFluency
-      with RadiosFluency
-      with SummaryListFluency
-      with TagFluency
+object inset extends InsetFluency
+
+trait InsetFluency {
+
+  object InsetTextViewModel {
+
+    def apply(content: String): InsetText =
+      InsetText(content = HtmlContent(content))
+  }
 }

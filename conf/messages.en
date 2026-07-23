@@ -514,15 +514,13 @@ notificationTaskList.deleteNotification = Delete notification
 addVehicleDetails.title = Vehicles brought from the EU
 addVehicleDetails.heading = Vehicles brought from the EU
 addVehicleDetails.caption = Add vehicle details
-addVehicleDetails.paragraph.1 = You must provide details of all vehicles bought from a supplier in the EU.
-addVehicleDetails.paragraph.2 = You can add details of up to 100 vehicles in one notification.
+addVehicleDetails.paragraph.1 = You must provide details of all vehicles bought from a supplier in the EU. You can add up to 100 vehicles in one notification.
 addVehicleDetails.method.heading = How do you want to add vehicle details?
 addVehicleDetails.radio.bySupplier = Add by supplier
 addVehicleDetails.radio.bySupplier.hint = Provide the supplier details first, then add the vehicles bought from them
 addVehicleDetails.radio.bySpreadsheet = Upload a vehicle spreadsheet
 addVehicleDetails.radio.bySpreadsheet.hint = Use the spreadsheet option to add details for more than one vehicle of the same type at the same time
-addVehicleDetails.inset.paragraph.1 = If you’re uploading a spreadsheet, you must use the correct spreadsheet for the same type of vehicles.
-addVehicleDetails.inset.paragraph.2 = {0} you must download and use.
+addVehicleDetails.inset.paragraph.1 = If you’re uploading a spreadsheet, you must use the correct one for the same type of vehicles. {0} you must download and use.
 addVehicleDetails.inset.findSpreadsheet.linkText = Find the spreadsheet (opens in new tab)
 addVehicleDetails.error.required = Select how you want to add vehicle details
 
