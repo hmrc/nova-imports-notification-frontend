@@ -360,6 +360,8 @@ businessName.caption = Add your details
 businessName.error.required = Enter your business name
 businessName.error.length = Your business name must be 160 characters or less
 businessName.error.invalid = Enter your business name in the correct format
+businessName.checkYourAnswersLabel = Business name
+businessName.change.hidden = your business name
 
 ######################################################
 # APD1.0 - Add Purchaser Details: Purchaser name     #
