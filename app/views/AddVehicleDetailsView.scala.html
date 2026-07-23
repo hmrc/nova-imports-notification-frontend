@@ -22,7 +22,9 @@
     formHelper: FormWithCSRF,
     govukErrorSummary: GovukErrorSummary,
     govukRadios: GovukRadios,
-    govukButton: GovukButton
+    govukInsetText: GovukInsetText,
+    govukButton: GovukButton,
+    hmrcNewTabLink: HmrcNewTabLink
 )
 
 @(form: Form[_], mode: Mode, spreadsheetUrl: String)(implicit request: Request[_], messages: Messages)
@@ -40,8 +42,6 @@
         <h1 class="govuk-heading-l">@messages("addVehicleDetails.heading")</h1>
 
         <p class="govuk-body">@messages("addVehicleDetails.paragraph.1")</p>
-
-        <p class="govuk-body">@messages("addVehicleDetails.paragraph.2")</p>
 
         <h2 class="govuk-heading-m">@messages("addVehicleDetails.method.heading")</h2>
 
@@ -66,13 +66,10 @@
             )
         )
 
-        <div class="govuk-inset-text">
-            <p class="govuk-body">@messages("addVehicleDetails.inset.paragraph.1")</p>
-            <p class="govuk-body">
-                @Html(messages("addVehicleDetails.inset.paragraph.2",
-                    s"""<a class="govuk-link" href="$spreadsheetUrl" target="_blank" rel="noopener noreferrer">${messages("addVehicleDetails.inset.findSpreadsheet.linkText")}</a>"""))
-            </p>
-        </div>
+        @govukInsetText(InsetTextViewModel(
+            messages("addVehicleDetails.inset.paragraph.1",
+                hmrcNewTabLink(LinkViewModel(messages("addVehicleDetails.inset.findSpreadsheet.linkText"), spreadsheetUrl)))
+        ))
 
         @govukButton(
             ButtonViewModel(messages("site.continue"))

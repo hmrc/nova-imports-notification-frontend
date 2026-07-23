@@ -25,6 +25,8 @@ import play.api.Application
 import play.api.i18n.Messages
 import play.api.mvc.Request
 import play.api.test.FakeRequest
+import uk.gov.hmrc.hmrcfrontend.views.html.components.HmrcNewTabLink
+import viewmodels.govuk.all.LinkViewModel
 import views.html.AddVehicleDetailsView
 
 import scala.concurrent.Await
@@ -36,7 +38,8 @@ class AddVehicleDetailsViewSpec extends SpecBase with Matchers with BeforeAndAft
   implicit val request: Request[?] = FakeRequest()
   implicit val msgs: Messages      = messages(app)
 
-  val view: AddVehicleDetailsView = app.injector.instanceOf[AddVehicleDetailsView]
+  val view: AddVehicleDetailsView    = app.injector.instanceOf[AddVehicleDetailsView]
+  val hmrcNewTabLink: HmrcNewTabLink = app.injector.instanceOf[HmrcNewTabLink]
 
   override def afterAll(): Unit = {
     Await.result(app.stop(), 10.seconds)
@@ -69,11 +72,10 @@ class AddVehicleDetailsViewSpec extends SpecBase with Matchers with BeforeAndAft
       html must include(msgs("addVehicleDetails.caption"))
     }
 
-    "must render the introductory paragraphs" in {
+    "must render the introductory paragraph" in {
       val html: String = view(form, NormalMode, spreadsheetUrl)(request, msgs).toString
 
       html must include(msgs("addVehicleDetails.paragraph.1"))
-      html must include(msgs("addVehicleDetails.paragraph.2"))
     }
 
     "must render the method heading and both radio options with hints" in {
@@ -86,12 +88,14 @@ class AddVehicleDetailsViewSpec extends SpecBase with Matchers with BeforeAndAft
       html must include(msgs("addVehicleDetails.radio.bySpreadsheet.hint"))
     }
 
-    "must render the spreadsheet inset text with the provided URL opening in a new tab" in {
+    "must render the spreadsheet inset text with the embedded link opening in a new tab" in {
       val html: String = view(form, NormalMode, spreadsheetUrl)(request, msgs).toString
 
+      val expectedLink =
+        hmrcNewTabLink(LinkViewModel(msgs("addVehicleDetails.inset.findSpreadsheet.linkText"), spreadsheetUrl))
+
       html must include("govuk-inset-text")
-      html must include(msgs("addVehicleDetails.inset.paragraph.1"))
-      html must include(msgs("addVehicleDetails.inset.findSpreadsheet.linkText"))
+      html must include(msgs("addVehicleDetails.inset.paragraph.1", expectedLink))
       html must include(spreadsheetUrl)
       html must include("target=\"_blank\"")
     }
