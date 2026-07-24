@@ -30,6 +30,6 @@ class VehicleOutsideEUController @Inject() (
 ) extends BaseController {
 
   def onPageLoad: Action[AnyContent] = actions.authAndGetData() { implicit request =>
-    Ok(view(appConfig.importingVehiclesIntoTheUKUrl)(appConfig.countriesInTheEUUrl))
+    Ok(view(appConfig.importingVehiclesIntoTheUKUrl))
   }
 }

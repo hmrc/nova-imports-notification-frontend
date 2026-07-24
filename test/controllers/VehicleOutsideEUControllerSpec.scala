@@ -38,7 +38,7 @@ class VehicleOutsideEUControllerSpec extends SpecBase {
           val result = route(application, request).value
 
           status(result) mustEqual OK
-          contentAsString(result) must include("If you’ve brought a vehicle into Northern Ireland from outside the EU")
+          contentAsString(result) must include("If you’ve brought a vehicle into Northern Ireland from outside an EU country")
         }
       }
 
@@ -59,26 +59,6 @@ class VehicleOutsideEUControllerSpec extends SpecBase {
 
           status(result) mustEqual OK
           contentAsString(result) must include("https://test.example.com/importing-vehicles")
-        }
-      }
-
-      "must include the correct EU countries URL from configuration" in {
-        val customConfig = Map(
-          "urls.countriesInTheEUUrl" -> "https://test.example.com/eu-countries"
-        )
-
-        given application: Application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-          .configure(customConfig)
-          .build()
-
-        running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] =
-            FakeRequest(GET, routes.VehicleOutsideEUController.onPageLoad().url)
-
-          val result = route(application, request).value
-
-          status(result) mustEqual OK
-          contentAsString(result) must include("https://test.example.com/eu-countries")
         }
       }
 

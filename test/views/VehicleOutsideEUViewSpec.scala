@@ -44,39 +44,38 @@ class VehicleOutsideEUViewSpec extends SpecBase with Matchers with BeforeAndAfte
   "VehicleOutsideEUView" - {
 
     "must render the correct heading" in {
-      val html: String = view.apply("https://example.com/importing")("https://example.com/eu-countries").toString
+      val html: String = view.apply("https://example.com/importing").toString
 
       html must include(msgs("vehicleOutsideEU.heading"))
     }
 
     "must render the correct page title" in {
-      val html: String = view.apply("https://example.com/importing")("https://example.com/eu-countries").toString
+      val html: String = view.apply("https://example.com/importing").toString
 
       html must include(msgs("vehicleOutsideEU.title"))
     }
 
-    "must include the importing vehicles URL in the first paragraph" in {
+    "must render the first paragraph" in {
+      val html: String = view.apply("https://example.com/importing").toString
+
+      html must include(msgs("vehicleOutsideEU.paragraph.1"))
+    }
+
+    "must include the importing vehicles URL in the second paragraph" in {
       val importingUrl: String = "https://example.com/importing-vehicles"
-      val html: String         = view.apply(importingUrl)("https://example.com/eu-countries").toString
+      val html: String         = view.apply(importingUrl).toString
 
       html must include(importingUrl)
     }
 
-    "must include the EU countries URL in the second paragraph" in {
-      val euCountriesUrl: String = "https://example.com/eu-countries"
-      val html: String           = view.apply("https://example.com/importing")(euCountriesUrl).toString
-
-      html must include(euCountriesUrl)
-    }
-
     "must render the same content via the render method" in {
-      val html: String = view.render("https://example.com/importing", "https://example.com/eu-countries", request, msgs).toString
+      val html: String = view.render("https://example.com/importing", request, msgs).toString
 
       html must include(msgs("vehicleOutsideEU.heading"))
     }
 
     "must render the same content via the f method" in {
-      val html: String = view.f("https://example.com/importing")("https://example.com/eu-countries")(request, msgs).toString
+      val html: String = view.f("https://example.com/importing")(request, msgs).toString
 
       html must include(msgs("vehicleOutsideEU.heading"))
     }

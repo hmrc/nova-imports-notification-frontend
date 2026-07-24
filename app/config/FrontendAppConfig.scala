@@ -38,7 +38,6 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val signOutUrl: String       = configuration.get[String]("urls.signOut")
 
   val importingVehiclesIntoTheUKUrl: String   = configuration.get[String]("urls.importingVehiclesIntoTheUKUrl")
-  val countriesInTheEUUrl: String             = configuration.get[String]("urls.countriesInTheEUUrl")
   val multipleVehiclesSpreadsheetsUrl: String = configuration.get[String]("urls.multipleVehiclesSpreadsheetsUrl")
   val onlineServicesHelpdeskUrl: String       = configuration.get[String]("urls.onlineServicesHelpdeskUrl")
   val technicalSupportUrl: String             = configuration.get[String]("urls.technicalSupportUrl")
