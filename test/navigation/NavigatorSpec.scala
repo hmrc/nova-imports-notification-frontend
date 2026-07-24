@@ -23,7 +23,7 @@ import models.*
 import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
 import pages.sections.notifierDetails.{BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 import pages.sections.purchaserDetails.{PurchaserBusinessNamePage, PurchaserNamePage}
-import pages.sections.supplierDetails.SupplierBusinessOrIndividualPage
+import pages.sections.supplierDetails.{SupplierBusinessOrIndividualPage, UsePersonalDetailsAsSupplierPage}
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 
 class NavigatorSpec extends SpecBase {
@@ -256,15 +256,14 @@ class NavigatorSpec extends SpecBase {
           .onPageLoad()
       }
 
-      "must go from AddVehicleDetailsPage AVD1.0 to LandingPage when BySupplier is selected" in {
-        // TODO: navigate to AVD-S1.0 when implemented
+      "must go from AddVehicleDetailsPage AVD1.0 to UsePersonalDetailsAsSupplier AVD-S1.0 when BySupplier is selected" in {
         val ua = userAnswers.set(AddVehicleDetailsPage, AddVehicleDetails.BySupplier).success.value
         navigator.nextPage(
           AddVehicleDetailsPage,
           NormalMode,
           ua,
           NovaUserType.VatRegisteredOrganisation
-        ) mustBe routes.LandingPageController.onPageLoad()
+        ) mustBe routes.UsePersonalDetailsAsSupplierController.onPageLoad(NormalMode)
       }
 
       "must go from AddVehicleDetailsPage AVD1.0 to LandingPage when BySpreadsheet is selected" in {
@@ -281,6 +280,36 @@ class NavigatorSpec extends SpecBase {
       "must go from AddVehicleDetailsPage AVD1.0 to JourneyRecovery when no answer is found" in {
         navigator.nextPage(
           AddVehicleDetailsPage,
+          NormalMode,
+          userAnswers,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from UsePersonalDetailsAsSupplierPage AVD-S1.0 to LandingPage when Yes is selected" in {
+        // TODO: navigate to CYA3.0 when implemented
+        val ua = userAnswers.set(UsePersonalDetailsAsSupplierPage, true).success.value
+        navigator.nextPage(
+          UsePersonalDetailsAsSupplierPage,
+          NormalMode,
+          ua,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from UsePersonalDetailsAsSupplierPage AVD-S1.0 to SupplierBusinessOrIndividual AVD-S2.0 when No is selected" in {
+        val ua = userAnswers.set(UsePersonalDetailsAsSupplierPage, false).success.value
+        navigator.nextPage(
+          UsePersonalDetailsAsSupplierPage,
+          NormalMode,
+          ua,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.SupplierBusinessOrIndividualController.onPageLoad(NormalMode)
+      }
+
+      "must go from UsePersonalDetailsAsSupplierPage AVD-S1.0 to JourneyRecovery when no answer is found" in {
+        navigator.nextPage(
+          UsePersonalDetailsAsSupplierPage,
           NormalMode,
           userAnswers,
           NovaUserType.VatRegisteredOrganisation
