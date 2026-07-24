@@ -138,10 +138,10 @@ vehicleFromEu.change.hidden = whether this notification is for a vehicle brought
 # IQ1.1 - Initial Question 1.1: Vehicle brought into NI from outside EU  #
 ##########################################################################
 
-vehicleOutsideEU.title = If you’ve brought a vehicle into Northern Ireland from outside the EU
-vehicleOutsideEU.heading = If you’ve brought a vehicle into Northern Ireland from outside the EU
-vehicleOutsideEU.paragraph.1 = Find out how to notify HMRC about it on {0}.
-vehicleOutsideEU.paragraph.2 = See the list of the {0}.
+vehicleOutsideEU.title = If you’ve brought a vehicle into Northern Ireland from outside an EU country
+vehicleOutsideEU.heading = If you’ve brought a vehicle into Northern Ireland from outside an EU country
+vehicleOutsideEU.paragraph.1 = You must follow a different process.
+vehicleOutsideEU.paragraph.2 = Find out how to notify HMRC about it on {0}.
 
 #########################################################
 # BY1.0 - Before you continue  - Individual             #

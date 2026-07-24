@@ -30,7 +30,7 @@ POST        /vehicle-from-eu-into-northern-ireland                  controllers.
 GET         /vehicle-from-eu-into-northern-ireland/change           controllers.VehicleFromEuController.onPageLoad(mode: Mode = CheckMode)
 POST        /vehicle-from-eu-into-northern-ireland/change           controllers.VehicleFromEuController.onSubmit(mode: Mode = CheckMode)
 
-GET         /vehicle-from-outside-eu-into-northern-ireland          controllers.VehicleOutsideEUController.onPageLoad()
+GET         /vehicle-outside-eu-to-northern-ireland                 controllers.VehicleOutsideEUController.onPageLoad()
 
 GET         /view-clients/loading                                   controllers.LoadingClientListController.onPageLoad()
 
