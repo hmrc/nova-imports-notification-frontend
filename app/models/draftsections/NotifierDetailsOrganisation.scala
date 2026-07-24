@@ -21,7 +21,8 @@ import play.api.libs.json.{Format, Json}
 final case class NotifierDetailsOrganisation(
   emailAddress: String,
   phoneNumber: Option[String],
-  mobileNumber: Option[String]
+  mobileNumber: Option[String],
+  businessName: Option[String]
 )
 
 object NotifierDetailsOrganisation {

@@ -28,6 +28,7 @@ object YourDetailsCheckYourAnswersHelper {
 
   private def buildRows(answers: UserAnswers)(implicit messages: Messages) =
     Seq(
+      BusinessNameSummary.row(answers),
       AddYourNameSummary.row(answers),
       PhoneNumberSummary.row(answers),
       EmailAddressSummary.row(answers)
