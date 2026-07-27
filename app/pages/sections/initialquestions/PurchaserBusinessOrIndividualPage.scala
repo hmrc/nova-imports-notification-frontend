@@ -16,13 +16,24 @@
 
 package pages.sections.initialquestions
 
-import models.PurchaserBusinessOrIndividual
+import models.{PurchaserBusinessOrIndividual, UserAnswers}
 import pages.QuestionPage
+import pages.sections.purchaserDetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 import play.api.libs.json.JsPath
+
+import scala.util.Try
 
 case object PurchaserBusinessOrIndividualPage extends QuestionPage[PurchaserBusinessOrIndividual] {
 
   override def path: JsPath = JsPath \ "initial-question" \ toString
 
   override def toString: String = "purchaserBusinessPrivate"
+
+  // Changing the purchaser type clears any name entered for the other type
+  override def cleanup(value: Option[PurchaserBusinessOrIndividual], userAnswers: UserAnswers): Try[UserAnswers] =
+    value match {
+      case Some(PurchaserBusinessOrIndividual.NonVatRegisteredBusiness)          => userAnswers.remove(PurchaserNamePage)
+      case Some(PurchaserBusinessOrIndividual.NonVatRegisteredPrivateIndividual) => userAnswers.remove(PurchaserBusinessNamePage)
+      case _                                                                     => super.cleanup(value, userAnswers)
+    }
 }

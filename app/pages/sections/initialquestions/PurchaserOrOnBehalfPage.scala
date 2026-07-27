@@ -18,6 +18,7 @@ package pages.sections.initialquestions
 
 import models.{PurchaserOrOnBehalf, UserAnswers}
 import pages.QuestionPage
+import pages.sections.purchaserDetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 import play.api.libs.json.JsPath
 
 import scala.util.Try
@@ -28,9 +29,15 @@ case object PurchaserOrOnBehalfPage extends QuestionPage[PurchaserOrOnBehalf] {
 
   override def toString: String = "purchaserOrOnBehalf"
 
+  // User is the purchaser, so there is no separate purchaser to capture. Clear the type and name answers
   override def cleanup(value: Option[PurchaserOrOnBehalf], userAnswers: UserAnswers): Try[UserAnswers] =
     value match {
-      case Some(PurchaserOrOnBehalf.Purchaser) => userAnswers.remove(PurchaserBusinessOrIndividualPage)
-      case _                                   => super.cleanup(value, userAnswers)
+      case Some(PurchaserOrOnBehalf.Purchaser) =>
+        for {
+          a1 <- userAnswers.remove(PurchaserBusinessOrIndividualPage)
+          a2 <- a1.remove(PurchaserNamePage)
+          a3 <- a2.remove(PurchaserBusinessNamePage)
+        } yield a3
+      case _ => super.cleanup(value, userAnswers)
     }
 }
