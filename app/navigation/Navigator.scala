@@ -26,7 +26,7 @@ import pages.sections.notifierDetails.{BusinessNamePage, EmailAddressPage, NameD
 import pages.sections.notifieraddress.IsYourAddressInTheUkPage
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 import pages.sections.purchaserDetails.{PurchaserBusinessNamePage, PurchaserNamePage}
-import pages.sections.supplierDetails.SupplierBusinessOrIndividualPage
+import pages.sections.supplierDetails.{SupplierBusinessOrIndividualPage, UsePersonalDetailsAsSupplierPage}
 
 @Singleton
 class Navigator @Inject() () {
@@ -85,10 +85,17 @@ class Navigator @Inject() () {
     case AddVehicleDetailsPage =>
       (userAnswers, _) =>
         userAnswers.get(AddVehicleDetailsPage) match {
-          case Some(AddVehicleDetails.BySupplier)    => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD-S1.0 when built
+          case Some(AddVehicleDetails.BySupplier)    => routes.UsePersonalDetailsAsSupplierController.onPageLoad(NormalMode)
           case Some(AddVehicleDetails.BySpreadsheet) =>
             routes.LandingPageController.onPageLoad() // TODO: navigate to spreadsheet upload flow when built
           case _ => routes.JourneyRecoveryController.onPageLoad()
+        }
+    case UsePersonalDetailsAsSupplierPage =>
+      (userAnswers, _) =>
+        userAnswers.get(UsePersonalDetailsAsSupplierPage) match {
+          case Some(true)  => routes.LandingPageController.onPageLoad() // TODO: navigate to CYA3.0 when built
+          case Some(false) => routes.SupplierBusinessOrIndividualController.onPageLoad(NormalMode)
+          case _           => routes.JourneyRecoveryController.onPageLoad()
         }
     case IsYourAddressInTheUkPage =>
       (userAnswers, _) =>
