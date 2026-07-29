@@ -20,7 +20,7 @@ import base.SpecBase
 import models.{UserAnswers, UserContext}
 import models.requests.DataRequest
 import play.api.libs.json.Json
-import play.api.mvc.{ActionBuilder, AnyContent, Results}
+import play.api.mvc.{ActionBuilder, AnyContent, Call, Results}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments}
@@ -86,6 +86,30 @@ class GuardActionSpec extends SpecBase {
 
       status(result) mustEqual SEE_OTHER
       redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+    }
+
+    // Controllers are built before prod.Routes adds the /nova-imports prefix, so a guard that
+    // resolves its failure route up front would serve the unprefixed url forever.
+    "must resolve the failure route when the request runs, not when the guard is built" in {
+      var timesResolved = 0
+
+      def failureRoute: Call = {
+        timesResolved += 1
+        Call("GET", "/resolved-at-request-time")
+      }
+
+      val guard = guardAction.forUserContext(_ => false, failureRoute)
+
+      timesResolved mustEqual 0
+
+      val action = fakeActionBuilder(emptyUserAnswers)
+        .andThen(guard)
+        .apply((_: DataRequest[AnyContent]) => Results.Ok)
+      val result = action(FakeRequest())
+
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual "/resolved-at-request-time"
+      timesResolved mustEqual 1
     }
   }
 }
