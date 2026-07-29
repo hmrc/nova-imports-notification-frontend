@@ -52,6 +52,16 @@ class PurchaseOrOnBehalfSummarySpec extends SpecBase {
       result.actions.value.items.head.href mustBe routes.PurchaserOrOnBehalfController.onPageLoad(CheckMode).url
     }
 
+    "must describe the change link with the notifying capacity question in visually hidden text" in {
+
+      val userAnswers = UserAnswers(userAnswersId).set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser).success.value
+
+      val result = PurchaseOrOnBehalfSummary.row(userAnswers).value
+
+      result.actions.value.items.head.visuallyHiddenText.value mustBe
+        "whether you are notifying as the purchaser or on behalf of a purchaser"
+    }
+
     "must return None when the answer is not present" in {
 
       val userAnswers = UserAnswers(userAnswersId)

@@ -56,6 +56,17 @@ class PurchaserBusinessOrIndividualSummarySpec extends SpecBase {
       result.actions.value.items.head.href mustBe routes.PurchaserBusinessOrIndividualController.onPageLoad(CheckMode).url
     }
 
+    "must describe the change link with the purchaser type question in visually hidden text" in {
+
+      val userAnswers =
+        UserAnswers(userAnswersId).set(PurchaserBusinessOrIndividualPage, PurchaserBusinessOrIndividual.NonVatRegisteredBusiness).success.value
+
+      val result = PurchaserBusinessOrIndividualSummary.row(userAnswers).value
+
+      result.actions.value.items.head.visuallyHiddenText.value mustBe
+        "whether the purchaser you are notifying on behalf of is a business or private individual"
+    }
+
     "must return None when the answer is not present" in {
 
       val userAnswers = UserAnswers(userAnswersId)
