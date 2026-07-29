@@ -203,7 +203,7 @@ businessPrivate.privateIndividual = Private individual
 businessPrivate.privateIndividual.hint = Acting on your own behalf or for another private individual
 businessPrivate.checkYourAnswersLabel = Are you a business or private individual?
 businessPrivate.error.required = Select if you are a business or private individual
-businessPrivate.change.hidden = Are you a business or private individual?
+businessPrivate.change.hidden = whether you are a business or private individual
 
 ##########################################################
 # OQ1.0 - Organisation Question 1: Vehicle business use  #
@@ -239,7 +239,7 @@ purchaserOrOnBehalf.caption = Initial questions
 purchaserOrOnBehalf.hint = The purchaser is a private individual or business that brought the vehicle into the UK
 purchaserOrOnBehalf.checkYourAnswersLabel = Are you the purchaser or notifying on behalf of a purchaser?
 purchaserOrOnBehalf.error.required = Select if you are notifying as the purchaser or on behalf of a purchaser
-purchaserOrOnBehalf.change.hidden = Are you notifying as the purchaser, or on behalf of a purchaser?
+purchaserOrOnBehalf.change.hidden = whether you are notifying as the purchaser or on behalf of a purchaser
 purchaserOrOnBehalf.radio.purchaser = As the purchaser
 purchaserOrOnBehalf.radio.behalfOfPurchaser = On behalf of a purchaser
 
@@ -253,7 +253,7 @@ purchaserBusinessOrIndividual.caption = Initial questions
 purchaserBusinessOrIndividual.hint = The purchaser cannot be VAT registered
 purchaserBusinessOrIndividual.checkYourAnswersLabel = Type of purchaser you’re notifying for
 purchaserBusinessOrIndividual.error.required = Select if the purchaser is a business or a private individual
-purchaserBusinessOrIndividual.change.hidden = Is the purchaser you’re notifying on behalf of a business or private individual?
+purchaserBusinessOrIndividual.change.hidden = whether the purchaser you are notifying on behalf of is a business or private individual
 purchaserBusinessOrIndividual.radio.business = Business
 purchaserBusinessOrIndividual.radio.privateIndividual = Private individual
 
