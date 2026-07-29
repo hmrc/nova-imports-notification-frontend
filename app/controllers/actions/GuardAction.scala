@@ -36,10 +36,12 @@ class GuardAction @Inject() ()(using ec: ExecutionContext) {
   def forUserContext(predicate: UserContext => Boolean): ActionFilter[DataRequest] =
     filterWith(req => predicate(req.userContext), Results.Redirect(routes.JourneyRecoveryController.onPageLoad()))
 
-  def forUserContext(predicate: UserContext => Boolean, onFailure: Call): ActionFilter[DataRequest] =
+  def forUserContext(predicate: UserContext => Boolean, onFailure: => Call): ActionFilter[DataRequest] =
     filterWith(req => predicate(req.userContext), Results.Redirect(onFailure))
 
-  private def filterWith(test: DataRequest[?] => Boolean, failureResult: Result): ActionFilter[DataRequest] =
+  // By-name so the route resolves per request. app.RoutesPrefix only picks up /nova-imports
+  // once prod.Routes wires in app.Routes, and by then the controllers are already built.
+  private def filterWith(test: DataRequest[?] => Boolean, failureResult: => Result): ActionFilter[DataRequest] =
     new ActionFilter[DataRequest] {
       override def executionContext: ExecutionContext = ec
 
