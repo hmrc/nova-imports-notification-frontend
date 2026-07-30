@@ -14,6 +14,8 @@
  * limitations under the License.
  *@
 
+@import viewmodels.LegendSize
+
 @this(
     layout: templates.Layout,
     formHelper: FormWithCSRF,
@@ -45,12 +47,12 @@
         <p class="govuk-body">@Html(messages("vehicleFromEu.paragraph.3",
             hmrcNewTabLink(LinkViewModel(messages("vehicleFromEu.paragraph.3.linkText"), euCountriesUrl))))</p>
 
-        <h2 class="govuk-heading-m">@messages("vehicleFromEu.heading")</h2>
-
         @govukRadios(
             RadiosViewModel.yesNo(
                 field  = form("value"),
-                legend = LegendViewModel(messages("vehicleFromEu.heading")).visuallyHidden
+                legend = LegendViewModel(
+                    HtmlContent(s"""<h2 class="govuk-fieldset__heading">${messages("vehicleFromEu.heading")}</h2>""")
+                ).withCssClass(LegendSize.Medium.toString)
             )
         )
 
