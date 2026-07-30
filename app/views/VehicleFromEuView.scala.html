@@ -14,17 +14,16 @@
  * limitations under the License.
  *@
 
-@import viewmodels.LegendSize
-
 @this(
     layout: templates.Layout,
     formHelper: FormWithCSRF,
     govukErrorSummary: GovukErrorSummary,
     govukRadios: GovukRadios,
-    govukButton: GovukButton
+    govukButton: GovukButton,
+    hmrcNewTabLink: HmrcNewTabLink
 )
 
-@(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode, importingVehiclesIntoTheUKUrl: String, euCountriesUrl: String)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = title(form, messages("vehicleFromEu.title"))) {
 
@@ -36,10 +35,22 @@
 
         <span class="govuk-caption-l">@messages("vehicleFromEu.caption")</span>
 
+        <h1 class="govuk-heading-l">@messages("vehicleFromEu.title")</h1>
+
+        <p class="govuk-body">@messages("vehicleFromEu.paragraph.1")</p>
+
+        <p class="govuk-body">@Html(messages("vehicleFromEu.paragraph.2",
+            hmrcNewTabLink(LinkViewModel(messages("vehicleFromEu.paragraph.2.linkText"), importingVehiclesIntoTheUKUrl))))</p>
+
+        <p class="govuk-body">@Html(messages("vehicleFromEu.paragraph.3",
+            hmrcNewTabLink(LinkViewModel(messages("vehicleFromEu.paragraph.3.linkText"), euCountriesUrl))))</p>
+
+        <h2 class="govuk-heading-m">@messages("vehicleFromEu.heading")</h2>
+
         @govukRadios(
             RadiosViewModel.yesNo(
-                field = form("value"),
-                legend = LegendViewModel(messages("vehicleFromEu.heading")).asPageHeading(LegendSize.Large)
+                field  = form("value"),
+                legend = LegendViewModel(messages("vehicleFromEu.heading")).visuallyHidden
             )
         )
 

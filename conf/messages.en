@@ -127,11 +127,16 @@ landingPage.agent.clients.body = View, search, remove or select a client to act 
 # IQ1.0 - Initial Question 1.0: Vehicle brought into NI from EU  #
 ##################################################################
 
-vehicleFromEu.title = Are you completing a notification for a vehicle brought into Northern Ireland from an EU country?
-vehicleFromEu.heading = Are you completing a notification for a vehicle brought into Northern Ireland from an EU country?
+vehicleFromEu.title = Notifying for a vehicle brought into Northern Ireland
+vehicleFromEu.heading = Is this notification for a vehicle brought into Northern Ireland from an EU country?
 vehicleFromEu.caption = Initial questions
+vehicleFromEu.paragraph.1 = If you import a vehicle into Northern Ireland from outside an EU country, you must follow a different process.
+vehicleFromEu.paragraph.2 = Find out how to notify HMRC about it on {0}.
+vehicleFromEu.paragraph.2.linkText = Importing vehicles into the UK (opens in new tab)
+vehicleFromEu.paragraph.3 = See the list of {0}.
+vehicleFromEu.paragraph.3.linkText = EU countries (opens in new tab)
 vehicleFromEu.checkYourAnswersLabel = Vehicle brought into Northern Ireland from an EU country
-vehicleFromEu.error.required = Select yes if the vehicle was brought into Northern Ireland from an EU country
+vehicleFromEu.error.required = Select yes if this notification is for a vehicle brought into Northern Ireland from an EU country
 vehicleFromEu.change.hidden = whether this notification is for a vehicle brought into Northern Ireland from an EU country
 
 ##########################################################################
@@ -297,8 +302,8 @@ couldNotRetrieveClientList.paragraph = This could be because:
 couldNotRetrieveClientList.reason1 = there is a temporary problem with the service
 couldNotRetrieveClientList.reason2 = your authorisations are still being processed
 couldNotRetrieveClientList.reason3 = you do not have any authorised clients linked to your agent code
-couldNotRetrieveClientList.helpdesk = If the problem continues, contact the
-couldNotRetrieveClientList.helpdesk.linkText = HMRC Online Services Helpdesk (opens in new tab).
+couldNotRetrieveClientList.helpdesk = If the problem continues,
+couldNotRetrieveClientList.helpdesk.linkText = contact HMRC technical support (opens in new tab).
 couldNotRetrieveClientList.returnHome = Return to home
 
 ###########################################################
