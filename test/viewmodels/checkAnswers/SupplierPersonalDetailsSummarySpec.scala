@@ -82,41 +82,37 @@ class SupplierPersonalDetailsSummarySpec extends SpecBase with BeforeAndAfterAll
       valueOf(rows.head) mustBe "A &amp; B &lt;Ltd&gt;"
     }
 
-    "must return no rows when the session holds no personal details" in {
-      SupplierPersonalDetailsSummary.rows(emptyUserAnswers) mustBe empty
+    "must render both rows as 'Not provided' when the session holds no personal details" in {
+      val rows = SupplierPersonalDetailsSummary.rows(emptyUserAnswers)
+
+      rows.size mustBe 2
+      valueOf(rows.head) mustBe "Not provided"
+      valueOf(rows(1)) mustBe "Not provided"
+    }
+
+    "must render the name as 'Not provided' when only the address is present" in {
+      val answers = emptyUserAnswers
+        .unsafeSet(AddressPage, Address(Seq("1 High Street"), Some("AB1 2CD"), Country("GB", "United Kingdom")))
+
+      val rows = SupplierPersonalDetailsSummary.rows(answers)
+
+      valueOf(rows.head) mustBe "Not provided"
+      valueOf(rows(1)) mustBe "1 High Street<br>AB1 2CD"
+    }
+
+    "must render the address as 'Not provided' when only the name is present" in {
+      val answers = emptyUserAnswers.unsafeSet(BusinessNamePage, "ABC Ltd")
+
+      val rows = SupplierPersonalDetailsSummary.rows(answers)
+
+      valueOf(rows.head) mustBe "ABC Ltd"
+      valueOf(rows(1)) mustBe "Not provided"
     }
 
     "must expose the rows as a SummaryList" in {
       val answers = emptyUserAnswers.unsafeSet(BusinessNamePage, "ABC Ltd")
 
-      SupplierPersonalDetailsSummary.summaryList(answers).rows.size mustBe 1
-    }
-
-    "hasPersonalDetails" - {
-
-      "must be true when both a name and an address are present" in {
-        val answers = emptyUserAnswers
-          .unsafeSet(BusinessNamePage, "ABC Ltd")
-          .unsafeSet(AddressPage, Address(Seq("1 High Street"), Some("AB1 2CD"), Country("GB", "United Kingdom")))
-
-        SupplierPersonalDetailsSummary.hasPersonalDetails(answers) mustBe true
-      }
-
-      "must be false when the address is missing" in {
-        val answers = emptyUserAnswers.unsafeSet(BusinessNamePage, "ABC Ltd")
-
-        SupplierPersonalDetailsSummary.hasPersonalDetails(answers) mustBe false
-      }
-
-      "must be false when the name is missing" in {
-        val answers = emptyUserAnswers.unsafeSet(AddressPage, Address(Seq("1 High Street"), Some("AB1 2CD"), Country("GB", "United Kingdom")))
-
-        SupplierPersonalDetailsSummary.hasPersonalDetails(answers) mustBe false
-      }
-
-      "must be false for empty answers" in {
-        SupplierPersonalDetailsSummary.hasPersonalDetails(emptyUserAnswers) mustBe false
-      }
+      SupplierPersonalDetailsSummary.summaryList(answers).rows.size mustBe 2
     }
   }
 }

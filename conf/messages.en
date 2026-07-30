@@ -564,6 +564,7 @@ usePersonalDetailsAsSupplier.bullet.4.linkText = read VAT Notice 728 (opens in n
 usePersonalDetailsAsSupplier.personalDetails = Your personal details are:
 usePersonalDetailsAsSupplier.name = Name
 usePersonalDetailsAsSupplier.address = Address
+usePersonalDetailsAsSupplier.notProvided = Not provided
 usePersonalDetailsAsSupplier.question = Do you want to use your personal details as the supplier details?
 usePersonalDetailsAsSupplier.yes.hint = I meet all the required conditions and I want to use my personal details as the supplier details
 usePersonalDetailsAsSupplier.no.hint = I want to add different supplier details

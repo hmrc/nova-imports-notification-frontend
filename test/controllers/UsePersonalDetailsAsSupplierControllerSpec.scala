@@ -213,7 +213,7 @@ class UsePersonalDetailsAsSupplierControllerSpec extends SpecBase with MockitoSu
       }
     }
 
-    "must redirect to JourneyRecovery for a non-VAT-registered user whose personal details are not in the session" in {
+    "must return OK and render the details as 'Not provided' for a non-VAT-registered user whose personal details are not in the session" in {
 
       val answers = emptyUserAnswers
         .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
@@ -226,26 +226,35 @@ class UsePersonalDetailsAsSupplierControllerSpec extends SpecBase with MockitoSu
         val request = FakeRequest(GET, usePersonalDetailsAsSupplierRoute)
         val result  = route(application, request).value
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+        status(result) mustEqual OK
+        contentAsString(result) must include("Not provided")
       }
     }
 
-    "must redirect to JourneyRecovery for a POST from a non-VAT-registered user whose personal details are not in the session" in {
+    "must proceed to the next page for a POST from a non-VAT-registered user whose personal details are not in the session" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val answers = emptyUserAnswers
         .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
         .unsafeSet(AddVehicleDetailsPage, AddVehicleDetails.BySupplier)
         .unsafeSet(VehicleFromEuPage, true)
         .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
-      val application = applicationBuilder(userAnswers = Some(answers)).build()
+      val application = applicationBuilder(userAnswers = Some(answers))
+        .overrides(
+          bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+          bind[SessionRepository].toInstance(mockSessionRepository)
+        )
+        .build()
 
       running(application) {
         val request = FakeRequest(POST, usePersonalDetailsAsSupplierSubmitRoute).withFormUrlEncodedBody(("value", "true"))
         val result  = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustEqual onwardRoute.url
       }
     }
 

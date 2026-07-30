@@ -27,7 +27,7 @@ import pages.AddVehicleDetailsPage
 import pages.sections.initialquestions.{PurchaserOrOnBehalfPage, VehicleFromEuPage}
 import pages.sections.supplierDetails.UsePersonalDetailsAsSupplierPage
 import play.api.data.Form
-import play.api.mvc.{Action, ActionFilter, AnyContent, MessagesControllerComponents, Result}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import viewmodels.checkAnswers.SupplierPersonalDetailsSummary
 import views.html.UsePersonalDetailsAsSupplierView
@@ -50,20 +50,9 @@ class UsePersonalDetailsAsSupplierController @Inject() (
 
   val form: Form[Boolean] = formProvider()
 
-  // Types 4 & 5 get their supplier details from F21, not the session, so are exempt from this check.
-  private val requirePersonalDetails: ActionFilter[DataRequest] = new ActionFilter[DataRequest] {
-    override protected def executionContext: ExecutionContext = ec
-
-    override protected def filter[A](request: DataRequest[A]): Future[Option[Result]] =
-      Future.successful {
-        if (!request.userContext.isVatRegisteredOrganisation && !SupplierPersonalDetailsSummary.hasPersonalDetails(request.userAnswers))
-          Some(Redirect(routes.JourneyRecoveryController.onPageLoad()))
-        else
-          None
-      }
-  }
-
-  private val authenticate = actions.authAndGetDataWithUserTypeGuard(guardPredicate).andThen(requirePersonalDetails)
+  // The user can reach this page before completing "Add your details"/"Add your address". Any missing
+  // personal details render as "Not provided"; the user can continue or choose "No" to add them later.
+  private val authenticate = actions.authAndGetDataWithUserTypeGuard(guardPredicate)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = authenticate { implicit request =>
     Ok(

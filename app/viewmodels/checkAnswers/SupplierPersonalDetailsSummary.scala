@@ -34,26 +34,23 @@ object SupplierPersonalDetailsSummary {
     SummaryListViewModel(rows = rows(answers))
 
   def rows(answers: UserAnswers)(implicit messages: Messages): Seq[SummaryListRow] =
-    Seq(nameRow(answers), addressRow(answers)).flatten
+    Seq(nameRow(answers), addressRow(answers))
 
-  def hasPersonalDetails(answers: UserAnswers): Boolean =
-    name(answers).isDefined && answers.get(AddressPage).isDefined
+  // Both rows always render, missing details fall back to "Not provided" so the user can still continue.
+  private def nameRow(answers: UserAnswers)(implicit messages: Messages): SummaryListRow =
+    SummaryListRowViewModel(
+      key = "usePersonalDetailsAsSupplier.name",
+      value = ValueViewModel(HtmlContent(name(answers).map(HtmlFormat.escape(_).body).getOrElse(notProvided)))
+    )
 
-  private def nameRow(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    name(answers).map { value =>
-      SummaryListRowViewModel(
-        key = "usePersonalDetailsAsSupplier.name",
-        value = ValueViewModel(HtmlContent(HtmlFormat.escape(value).body))
-      )
-    }
+  private def addressRow(answers: UserAnswers)(implicit messages: Messages): SummaryListRow =
+    SummaryListRowViewModel(
+      key = "usePersonalDetailsAsSupplier.address",
+      value = ValueViewModel(HtmlContent(answers.get(AddressPage).map(formatAddress).getOrElse(notProvided)))
+    )
 
-  private def addressRow(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(AddressPage).map { address =>
-      SummaryListRowViewModel(
-        key = "usePersonalDetailsAsSupplier.address",
-        value = ValueViewModel(HtmlContent(formatAddress(address)))
-      )
-    }
+  private def notProvided(implicit messages: Messages): String =
+    HtmlFormat.escape(messages("usePersonalDetailsAsSupplier.notProvided")).body
 
   private def name(answers: UserAnswers): Option[String] =
     answers.get(BusinessNamePage).orElse(answers.get(NameDetailsPage).map(formatName))
