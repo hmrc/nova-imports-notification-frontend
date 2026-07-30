@@ -32,7 +32,7 @@ POST        /vehicle-from-eu-into-northern-ireland/change           controllers.
 
 GET         /vehicle-outside-eu-to-northern-ireland                 controllers.VehicleOutsideEUController.onPageLoad()
 
-GET         /view-clients/loading                                   controllers.LoadingClientListController.onPageLoad()
+GET         /load-client-list                                       controllers.LoadingClientListController.onPageLoad()
 
 GET         /view-clients/no-authorised-clients                     controllers.NoAuthorisedClientsController.onPageLoad()
 
