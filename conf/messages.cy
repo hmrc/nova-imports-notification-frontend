@@ -1,3 +1,29 @@
+service.name = Hysbysiad o Gerbydau’n Cyrraedd
+
+site.back = Yn ôl
+# TODO: Welsh translations to be supplied by content team.
+site.remove = Remove
+
+site.change = Newid
+site.no = Na
+site.yes = Iawn
+site.continue = Parhau
+site.saveAndContinue = Cadw a pharhau
+# TODO: Welsh translations to be supplied by content team.
+site.start = Start now
+site.startAgain = Start again
+site.signIn = Sign in
+site.govuk = GOV.UK
+
+
+date.day = Diwrnod
+date.month = Mis
+date.year = Blwyddyn
+date.error.day = Diwrnod
+date.error.month = Mis
+date.error.year = Blwyddyn
+
+
 vehicleBusinessUse.title = Have you brought a vehicle into the UK for business use?
 vehicleBusinessUse.heading = Have you brought a vehicle into the UK for business use?
 vehicleBusinessUse.hint = Select ‘Yes’ only if the vehicle belongs to the business
@@ -148,3 +174,29 @@ purchaserBusinessName.change.hidden = the purchaser’s business name
 purchaserDetailsCheckYourAnswers.caption = Add purchaser details
 purchaserDetailsCheckYourAnswers.title = Check your answers - Purchaser’s details
 purchaserDetailsCheckYourAnswers.heading = Check your answers
+
+######################################################
+# ERR2.0 - Error message - System error              #
+######################################################
+
+journeyRecovery.startAgain.title = Mae’n ddrwg gennym – mae problem gyda’r gwasanaeth hwn
+journeyRecovery.startAgain.heading = Mae’n ddrwg gennym – mae problem gyda’r gwasanaeth hwn
+journeyRecovery.startAgain.paragraph.1 = Rhowch gynnig arall arni yn nes ymlaen.
+journeyRecovery.startAgain.paragraph.2 = Os oes gennych unrhyw gwestiynau,
+journeyRecovery.startAgain.link.text = cysylltwch â chymorth technegol CThEF (yn agor tab newydd).
+
+# TODO: Welsh translations to be supplied by content team.
+signedOut.title = For your security, we signed you out
+signedOut.heading = For your security, we signed you out
+signedOut.guidance = We did not save your answers.
+
+######################################################
+# ERR1.0 - Error message - Unauthorised Access       #
+######################################################
+
+unauthorised.title = Nid oes gennych ganiatâd i gyrraedd y dudalen hon
+unauthorised.heading = Nid oes gennych ganiatâd i gyrraedd y dudalen hon
+unauthorised.paragraph.1 =  Fe geisioch chi gael mynediad at ran o’r gwasanaeth hwn nad oes gennych awdurdod i’w defnyddio.
+unauthorised.paragraph.2 = Os yw hyn yn anghywir,
+unauthorised.link.text = cysylltwch â chymorth technegol CThEF (yn agor tab newydd).
+unauthorised.returnHome = Dychwelyd i’r hafan
