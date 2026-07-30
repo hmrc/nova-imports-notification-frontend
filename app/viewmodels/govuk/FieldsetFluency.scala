@@ -62,6 +62,9 @@ trait FieldsetFluency {
         .copy(isPageHeading = true)
         .withCssClass(size.toString)
 
+    def visuallyHidden: Legend =
+      withCssClass("govuk-visually-hidden")
+
     def withCssClass(newClass: String): Legend =
       legend.copy(classes = s"${legend.classes} $newClass")
   }

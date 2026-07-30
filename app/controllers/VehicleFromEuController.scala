@@ -16,6 +16,7 @@
 
 package controllers
 
+import config.FrontendAppConfig
 import controllers.actions.*
 import forms.VehicleFromEuFormProvider
 import javax.inject.Inject
@@ -34,6 +35,7 @@ class VehicleFromEuController @Inject() (
   navigator: Navigator,
   actions: Actions,
   formProvider: VehicleFromEuFormProvider,
+  appConfig: FrontendAppConfig,
   view: VehicleFromEuView
 )(implicit ec: ExecutionContext)
     extends BaseController {
@@ -41,7 +43,14 @@ class VehicleFromEuController @Inject() (
   val form = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetData() { implicit request =>
-    Ok(view(form.withDefault(request.userAnswers.get(VehicleFromEuPage)), mode))
+    Ok(
+      view(
+        form.withDefault(request.userAnswers.get(VehicleFromEuPage)),
+        mode,
+        appConfig.importingVehiclesIntoTheUKUrl,
+        appConfig.euCountriesUrl
+      )
+    )
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = actions.authAndGetData().async { implicit request =>
@@ -49,7 +58,12 @@ class VehicleFromEuController @Inject() (
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
+        formWithErrors =>
+          Future.successful(
+            BadRequest(
+              view(formWithErrors, mode, appConfig.importingVehiclesIntoTheUKUrl, appConfig.euCountriesUrl)
+            )
+          ),
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(VehicleFromEuPage, value))
