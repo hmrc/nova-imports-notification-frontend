@@ -1,3 +1,29 @@
+service.name = Hysbysiad o Gerbydau’n Cyrraedd
+
+site.back = Yn ôl
+# TODO: Welsh translations to be supplied by content team.
+site.remove = Remove
+
+site.change = Newid
+site.no = Na
+site.yes = Iawn
+site.continue = Parhau
+site.saveAndContinue = Cadw a pharhau
+# TODO: Welsh translations to be supplied by content team.
+site.start = Start now
+site.startAgain = Start again
+site.signIn = Sign in
+site.govuk = GOV.UK
+
+
+date.day = Diwrnod
+date.month = Mis
+date.year = Blwyddyn
+date.error.day = Diwrnod
+date.error.month = Mis
+date.error.year = Blwyddyn
+
+
 vehicleBusinessUse.title = Have you brought a vehicle into the UK for business use?
 vehicleBusinessUse.heading = Have you brought a vehicle into the UK for business use?
 vehicleBusinessUse.hint = Select ‘Yes’ only if the vehicle belongs to the business
@@ -148,3 +174,43 @@ purchaserBusinessName.change.hidden = the purchaser’s business name
 purchaserDetailsCheckYourAnswers.caption = Add purchaser details
 purchaserDetailsCheckYourAnswers.title = Check your answers - Purchaser’s details
 purchaserDetailsCheckYourAnswers.heading = Check your answers
+
+########################################################
+# CS1.0 - Client State 1: Retrieving your client list  #
+########################################################
+
+loadingClientList.title = Adalw rhestr o’ch cleientiaid
+loadingClientList.heading = Adalw rhestr o’ch cleientiaid
+loadingClientList.paragraph = Arhoswch tra byddwn yn adfer eich cleientiaid awdurdodedig. Dim ond ychydig eiliadau y dylai hyn eu cymryd.
+loadingClientList.warning = Peidiwch ag adfywio’r dudalen hon na defnyddio’r botwm yn ôl.
+
+##########################################################
+# CS2.0 - Client State 2: Could not retrieve client list #
+##########################################################
+
+couldNotRetrieveClientList.title = Ni allem adalw eich rhestr o gleientiaid
+couldNotRetrieveClientList.heading = Ni allem adalw eich rhestr o gleientiaid
+couldNotRetrieveClientList.paragraph = Gallai hyn fod oherwydd y rhesymau canlynol:
+couldNotRetrieveClientList.reason1 = mae problem dros dro gyda’r gwasanaeth
+couldNotRetrieveClientList.reason2 = mae’ch awdurdodiadau yn dal i gael eu prosesu
+couldNotRetrieveClientList.reason3 = nid oes gennych unrhyw gleientiaid awdurdodedig wedi’u cysylltu â’ch cod asiant
+couldNotRetrieveClientList.helpdesk = Os yw’r broblem yn parhau,
+couldNotRetrieveClientList.helpdesk.linkText = cysylltwch â chymorth technegol CThEF (yn agor tab newydd).
+couldNotRetrieveClientList.returnHome = Dychwelyd i’r hafan
+
+###########################################################
+# CS3.0 - Client State 3: You have no authorised clients  #
+###########################################################
+
+noAuthorisedClients.title = Nid oes gennych unrhyw gleientiaid awdurdodedig
+noAuthorisedClients.heading = Nid oes gennych unrhyw gleientiaid awdurdodedig
+noAuthorisedClients.body.1 = Nid oes gennych unrhyw gleientiaid sydd wedi’u hawdurdodi i ddefnyddio’r gwasanaeth NOVA.
+noAuthorisedClients.body.2 = I gyflwyno a rheoli hysbysiadau cerbydau ar ran cleient, mae’n rhaid iddynt eich awdurdodi i weithredu ar eu rhan.
+noAuthorisedClients.whatToDo.heading = Yr hyn y mae angen i chi ei wneud
+noAuthorisedClients.whatToDo.body = Gallwch wneud un o’r canlynol:
+noAuthorisedClients.list.hmrcOnlineAccount = gofyn i’ch cleient eich awdurdodi drwy ei {0}
+noAuthorisedClients.list.hmrcOnlineAccount.link = gyfrif ar-lein CThEF (yn agor tab newydd)
+noAuthorisedClients.list.onlineAgentAuthorisation = cwblhau’r broses {0} ar gyfer y cleient rydych yn gweithredu ar ei ran
+noAuthorisedClients.list.onlineAgentAuthorisation.link = wdurdodi Ar-lein i Asiantau (yn agor tab newydd)
+noAuthorisedClients.timing = Gall gymryd hyd at 5 diwrnod gwaith i awdurdodiadau newydd ymddangos yn eich cyfrif.
+noAuthorisedClients.returnToHome = Dychwelyd i’r hafan
