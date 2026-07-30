@@ -29,7 +29,7 @@ class CouldNotRetrieveClientListController @Inject() (
   appConfig: FrontendAppConfig
 ) extends BaseController {
 
-  def onPageLoad: Action[AnyContent] = actions.novaAgentAuthAndGetData() { implicit request =>
+  def onPageLoad: Action[AnyContent] = actions.novaAgentAuthAndGetOptionalData() { implicit request =>
     Ok(view(appConfig.onlineServicesHelpdeskUrl))
   }
 }

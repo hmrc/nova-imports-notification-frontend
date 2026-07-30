@@ -91,20 +91,6 @@ class CouldNotRetrieveClientListControllerSpec extends SpecBase {
         }
       }
 
-      "must redirect to Unauthorised if no existing data is found" in {
-        given application: Application = applicationBuilder(userAnswers = None).build()
-
-        running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] =
-            FakeRequest(GET, routes.CouldNotRetrieveClientListController.onPageLoad().url)
-
-          val result = route(application, request).value
-
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
-        }
-      }
-
       "must redirect to unauthorised if the user is not a nova agent" in {
         given application: Application = new GuiceApplicationBuilder()
           .overrides(
