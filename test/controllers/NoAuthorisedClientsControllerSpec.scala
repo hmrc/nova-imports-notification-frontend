@@ -35,6 +35,14 @@ class NoAuthorisedClientsControllerSpec extends SpecBase {
 
     "onPageLoad" - {
 
+      "must be served from /no-clients" in {
+        given application: Application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+
+        running(application) {
+          routes.NoAuthorisedClientsController.onPageLoad().url mustEqual "/nova-imports/no-clients"
+        }
+      }
+
       "must return OK and render the correct view for an authorised agent" in {
         given application: Application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 

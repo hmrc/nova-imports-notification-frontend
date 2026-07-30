@@ -15,8 +15,7 @@
  *@
 
 @this(
-    layout: templates.Layout,
-    govukButton: GovukButton
+    layout: templates.Layout
 )
 
 @(hmrcOnlineAccountAuthorisationUrl: String, onlineAgentAuthorisationUrl: String)(implicit request: Request[?], messages: Messages)
@@ -43,10 +42,6 @@
     <p class="govuk-body">@messages("noAuthorisedClients.timing")</p>
 
     <p class="govuk-body">
-        @govukButton(
-            ButtonViewModel(messages("noAuthorisedClients.returnToHome"))
-                .asLink(routes.LandingPageController.onPageLoad().url)
-                .asSecondaryButton()
-        )
+        <a class="govuk-link" href="@routes.LandingPageController.onPageLoad().url">@messages("noAuthorisedClients.returnToHome")</a>
     </p>
 }
