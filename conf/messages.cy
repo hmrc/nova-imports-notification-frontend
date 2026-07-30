@@ -122,22 +122,17 @@ addressLookup.uk.lookup.title = Dod o hyd i’ch cyfeiriad
 addressLookup.uk.lookup.heading = Dod o hyd i’ch cyfeiriad
 addressLookup.uk.lookup.postcodeLabel = Cod post
 addressLookup.uk.lookup.submitLabel = Parhau
-# TODO: Welsh translations to be supplied by content team.
-addressLookup.uk.lookup.manualAddressLinkText = Enter the address manually
+addressLookup.uk.lookup.manualAddressLinkText = Nodwch y cyfeiriad â llaw
 addressLookup.uk.select.title = Dewiswch eich cyfeiriad
 addressLookup.uk.select.heading = Dewiswch eich cyfeiriad
-# TODO: Welsh translations to be supplied by content team.
+# TODO: Welsh translations to be supplied by content team. (if needed we may not be using this string anymore)
 addressLookup.uk.select.proposalListLabel = Select your address
-# TODO: Welsh translations to be supplied by content team.
-addressLookup.uk.select.editAddressLinkText = Enter the address manually
-# TODO: Welsh translations to be supplied by content team.
-addressLookup.uk.edit.title = Enter your address
-# TODO: Welsh translations to be supplied by content team.
-addressLookup.uk.edit.heading = Enter your address
+addressLookup.uk.select.editAddressLinkText = Nodwch y cyfeiriad â llaw
+addressLookup.uk.edit.title = Nodwch eich cyfeiriad
+addressLookup.uk.edit.heading = Nodwch eich cyfeiriad
 addressLookup.uk.edit.postcodeLabel = Cod post
 addressLookup.nonUk.edit.title = Nodwch eich cyfeiriad
-# TODO: Welsh translations to be supplied by content team.
-addressLookup.nonUk.edit.heading = Enter your address
+addressLookup.nonUk.edit.heading = Nodwch eich cyfeiriad
 addressLookup.nonUk.edit.postcodeLabel = Cod post neu debyg
 addressLookup.edit.line1Label = Cyfeiriad – llinell 1
 addressLookup.edit.line2Label = Cyfeiriad – llinell 2
