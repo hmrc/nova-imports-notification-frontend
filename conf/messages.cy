@@ -1,3 +1,29 @@
+service.name = Hysbysiad o Gerbydau’n Cyrraedd
+
+site.back = Yn ôl
+# TODO: Welsh translations to be supplied by content team.
+site.remove = Remove
+
+site.change = Newid
+site.no = Na
+site.yes = Iawn
+site.continue = Parhau
+site.saveAndContinue = Cadw a pharhau
+# TODO: Welsh translations to be supplied by content team.
+site.start = Start now
+site.startAgain = Start again
+site.signIn = Sign in
+site.govuk = GOV.UK
+
+
+date.day = Diwrnod
+date.month = Mis
+date.year = Blwyddyn
+date.error.day = Diwrnod
+date.error.month = Mis
+date.error.year = Blwyddyn
+
+
 vehicleBusinessUse.title = Have you brought a vehicle into the UK for business use?
 vehicleBusinessUse.heading = Have you brought a vehicle into the UK for business use?
 vehicleBusinessUse.hint = Select ‘Yes’ only if the vehicle belongs to the business
@@ -148,3 +174,30 @@ purchaserBusinessName.change.hidden = the purchaser’s business name
 purchaserDetailsCheckYourAnswers.caption = Add purchaser details
 purchaserDetailsCheckYourAnswers.title = Check your answers - Purchaser’s details
 purchaserDetailsCheckYourAnswers.heading = Check your answers
+
+##########################################################################
+# NTL3.0 - Notification task list for VAT-registered organisation (4/5)  #
+##########################################################################
+
+notificationTaskList.title = Creu hysbysiad cerbyd
+notificationTaskList.heading = Creu hysbysiad cerbyd
+notificationTaskList.vrn.caption = Rhif cofrestru TAW: GB{0}
+notificationTaskList.aboutYou.heading = Amdanoch chi
+notificationTaskList.aboutYou.addYourDetails = Ychwanegu eich manylion chi
+notificationTaskList.aboutYou.addYourAddress = Ychwanegwch eich cyfeiriad
+
+# TODO: Welsh translations to be supplied by content team.
+notificationTaskList.aboutThePurchaser.heading = About the purchaser
+notificationTaskList.aboutThePurchaser.addPurchaserDetails = Add purchaser details
+notificationTaskList.aboutThePurchaser.addPurchaserAddress = Add purchaser address
+
+notificationTaskList.aboutTheVehicles.heading = Ynglŷn â’r cerbydau
+notificationTaskList.aboutTheVehicles.addVehicleDetails = Ychwanegwch fanylion cerbyd
+notificationTaskList.declaration.heading = Datganiad
+notificationTaskList.declaration.readDeclaration = Darllen y datganiad
+notificationTaskList.declaration.hint = Mae’n rhaid i chi gwblhau pob adran cyn i chi ddatgan.
+notificationTaskList.status.incomplete = Heb ei gwblhau
+notificationTaskList.status.completed = Wedi’i gwblhau
+notificationTaskList.status.cannotStartYet = Methu dechrau eto
+notificationTaskList.returnToHome = Dychwelyd i’r hafan
+notificationTaskList.deleteNotification = Dileu hysbysiad
