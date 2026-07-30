@@ -40,7 +40,7 @@ GET         /before-you-continue                                    controllers.
 GET         /before-you-continue/update                             controllers.BeforeYouContinueController.onPageLoadAmend()
 POST        /before-you-continue                                    controllers.BeforeYouContinueController.onSubmit()
 
-GET         /view-clients/failed                                    controllers.CouldNotRetrieveClientListController.onPageLoad()
+GET         /client-list-problem                                    controllers.CouldNotRetrieveClientListController.onPageLoad()
 
 GET         /purchaser-or-on-behalf                                 controllers.PurchaserOrOnBehalfController.onPageLoad(mode: Mode = NormalMode)
 POST        /purchaser-or-on-behalf                                 controllers.PurchaserOrOnBehalfController.onSubmit(mode: Mode = NormalMode)
