@@ -179,16 +179,17 @@ purchaserDetailsCheckYourAnswers.heading = Check your answers
 # IQ1.0 - Initial Question 1.0: Vehicle brought into NI from EU  #
 ##################################################################
 
-vehicleFromEu.title = Notifying for a vehicle brought into Northern Ireland
-vehicleFromEu.heading = Is this notification for a vehicle brought into Northern Ireland from an EU country?
-vehicleFromEu.caption = Initial questions
-vehicleFromEu.paragraph.1 = If you import a vehicle into Northern Ireland from outside an EU country, you must follow a different process.
+vehicleFromEu.title = Hysbysu ar gyfer cerbyd sy’n dod i mewn i Ogledd Iwerddon
+vehicleFromEu.heading = A yw’r hysbysiad hwn ar gyfer cerbyd sy’n dod i mewn i Ogledd Iwerddon o wlad yn yr UE?
+vehicleFromEu.caption = Cwestiynau cychwynnol
+vehicleFromEu.paragraph.1 = Os ydych chi’n mewnforio cerbyd i Ogledd Iwerddon o’r tu allan i wlad yn yr UE, mae’n rhaid i chi ddilyn proses wahanol.
 vehicleFromEu.paragraph.2 = Dysgwch sut i hysbysu CThEF amdano ar {0}.
 vehicleFromEu.paragraph.2.linkText = Mewnforio cerbydau i mewn i’r DU (yn agor tab newydd).
-vehicleFromEu.paragraph.3 = See the list of {0}.
-vehicleFromEu.paragraph.3.linkText = EU countries (opens in new tab)
+vehicleFromEu.paragraph.3 = Gweler y rhestr o {0}.
+vehicleFromEu.paragraph.3.linkText = wledydd yr UE (yn agor tab newydd).
+vehicleFromEu.error.required = Dewiswch ‘Iawn’ os yw’r hysbysiad hwn ar gyfer cerbyd sy’n dod i mewn i Ogledd Iwerddon o wlad yn yr UE
+# TODO: Welsh translations to be supplied by content team.
 vehicleFromEu.checkYourAnswersLabel = Vehicle brought into Northern Ireland from an EU country
-vehicleFromEu.error.required = Select yes if this notification is for a vehicle brought into Northern Ireland from an EU country
 vehicleFromEu.change.hidden = whether this notification is for a vehicle brought into Northern Ireland from an EU country
 
 ##########################################################################
