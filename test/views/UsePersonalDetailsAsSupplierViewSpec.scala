@@ -102,8 +102,7 @@ class UsePersonalDetailsAsSupplierViewSpec extends SpecBase with Matchers with B
 
       html must include(msgs("usePersonalDetailsAsSupplier.personalDetails"))
       html must include(msgs("usePersonalDetailsAsSupplier.name"))
-      html must include(msgs("usePersonalDetailsAsSupplier.addressLine.1"))
-      html must include(msgs("usePersonalDetailsAsSupplier.postcode"))
+      html must include(msgs("usePersonalDetailsAsSupplier.address"))
       html must include("ABC Ltd")
       html must include("23, North Road")
       html must include("ER45 6UI")

@@ -33,39 +33,54 @@ object SupplierPersonalDetailsSummary {
   def summaryList(answers: UserAnswers)(implicit messages: Messages): SummaryList =
     SummaryListViewModel(rows = rows(answers))
 
-  // Every field renders on its own row so partial addresses are visible; the UK flow ends with the
-  // postcode, a non-UK flow with the country. Missing fields fall back to "Not provided".
   def rows(answers: UserAnswers)(implicit messages: Messages): Seq[SummaryListRow] =
-    nameRow(answers) +: addressRows(answers)
+    Seq(nameRow(answers), addressRow(answers))
 
   private def nameRow(answers: UserAnswers)(implicit messages: Messages): SummaryListRow =
-    row("usePersonalDetailsAsSupplier.name", name(answers))
+    row("usePersonalDetailsAsSupplier.name", name(answers).map(escape).getOrElse(notProvided))
 
-  private def addressRows(answers: UserAnswers)(implicit messages: Messages): Seq[SummaryListRow] = {
+  // The address collapses into a single comma-separated row. Lines 1 & 2 and the postcode/country show
+  // "Not provided" when empty; lines 3 & 4 are dropped when empty. UK addresses end with the postcode,
+  // non-UK addresses with the country. An entirely empty address collapses to a single "Not provided".
+  private def addressRow(answers: UserAnswers)(implicit messages: Messages): SummaryListRow = {
     val address = answers.get(AddressPage)
     val lines   = address.map(_.lines).getOrElse(Seq.empty)
 
-    val lineRows = (1 to 4).map(i => row(s"usePersonalDetailsAsSupplier.addressLine.$i", lines.lift(i - 1)))
+    def lineAt(i: Int): Option[String] = lines.lift(i).filter(_.nonEmpty).map(escape)
 
-    val lastRow =
-      if (isUk(answers)) row("usePersonalDetailsAsSupplier.postcode", address.flatMap(_.postcode))
-      else row("usePersonalDetailsAsSupplier.country", address.map(_.country.name))
+    val lastPart =
+      (if (isUk(answers)) address.flatMap(_.postcode) else address.map(_.country.name)).filter(_.nonEmpty).map(escape)
 
-    lineRows :+ lastRow
+    val providedParts = Seq(lineAt(0), lineAt(1), lineAt(2), lineAt(3), lastPart)
+
+    val value =
+      if (providedParts.forall(_.isEmpty)) notProvided
+      else
+        Seq(
+          Some(lineAt(0).getOrElse(notProvided)),
+          Some(lineAt(1).getOrElse(notProvided)),
+          lineAt(2),
+          lineAt(3),
+          Some(lastPart.getOrElse(notProvided))
+        ).flatten.mkString(", ")
+
+    row("usePersonalDetailsAsSupplier.address", value)
   }
 
   // Prefer the "Is your address in the UK?" answer; fall back to the stored country (GB, or absent, is UK).
   private def isUk(answers: UserAnswers): Boolean =
     answers.get(IsYourAddressInTheUkPage).getOrElse(answers.get(AddressPage).forall(_.country.code == "GB"))
 
-  private def row(key: String, value: Option[String])(implicit messages: Messages): SummaryListRow =
+  private def row(key: String, valueHtml: String)(implicit messages: Messages): SummaryListRow =
     SummaryListRowViewModel(
       key = key,
-      value = ValueViewModel(HtmlContent(value.filter(_.nonEmpty).map(HtmlFormat.escape(_).body).getOrElse(notProvided)))
+      value = ValueViewModel(HtmlContent(valueHtml))
     )
 
+  private def escape(value: String): String = HtmlFormat.escape(value).body
+
   private def notProvided(implicit messages: Messages): String =
-    HtmlFormat.escape(messages("usePersonalDetailsAsSupplier.notProvided")).body
+    escape(messages("usePersonalDetailsAsSupplier.notProvided"))
 
   private def name(answers: UserAnswers): Option[String] =
     answers.get(BusinessNamePage).orElse(answers.get(NameDetailsPage).map(formatName))
