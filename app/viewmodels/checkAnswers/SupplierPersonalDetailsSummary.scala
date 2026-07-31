@@ -16,9 +16,11 @@
 
 package viewmodels.checkAnswers
 
-import models.{NameDetails, UserAnswers}
+import models.{Country, NameDetails, UserAnswers}
+
+import java.util.Locale
 import pages.sections.notifierDetails.{BusinessNamePage, NameDetailsPage}
-import pages.sections.notifieraddress.{AddressPage, IsYourAddressInTheUkPage}
+import pages.sections.notifieraddress.AddressPage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
@@ -48,8 +50,12 @@ object SupplierPersonalDetailsSummary {
 
     def lineAt(i: Int): Option[String] = lines.lift(i).filter(_.nonEmpty).map(escape)
 
+    // The stored address country decides the final part: postcode for a UK address, otherwise the country.
     val lastPart =
-      (if (isUk(answers)) address.flatMap(_.postcode) else address.map(_.country.name)).filter(_.nonEmpty).map(escape)
+      address
+        .flatMap(a => if (a.country.code == "GB") a.postcode else Some(countryName(a.country)))
+        .filter(_.nonEmpty)
+        .map(escape)
 
     val providedParts = Seq(lineAt(0), lineAt(1), lineAt(2), lineAt(3), lastPart)
 
@@ -67,10 +73,6 @@ object SupplierPersonalDetailsSummary {
     row("usePersonalDetailsAsSupplier.address", value)
   }
 
-  // Prefer the "Is your address in the UK?" answer; fall back to the stored country (GB, or absent, is UK).
-  private def isUk(answers: UserAnswers): Boolean =
-    answers.get(IsYourAddressInTheUkPage).getOrElse(answers.get(AddressPage).forall(_.country.code == "GB"))
-
   private def row(key: String, valueHtml: String)(implicit messages: Messages): SummaryListRow =
     SummaryListRowViewModel(
       key = key,
@@ -78,6 +80,17 @@ object SupplierPersonalDetailsSummary {
     )
 
   private def escape(value: String): String = HtmlFormat.escape(value).body
+
+  private val isoCountryCodes: Set[String] = Locale.getISOCountries.toSet
+
+  // ALF supplies the country name, but drafts rehydrated from the backend may carry only the code.
+  // Resolve the display name from the ISO code in that case, falling back to the raw code if unknown.
+  private def countryName(country: Country): String = {
+    val stored = country.name.trim
+    if (stored.nonEmpty) stored
+    else if (isoCountryCodes.contains(country.code)) new Locale("", country.code).getDisplayCountry(Locale.UK)
+    else country.code
+  }
 
   private def notProvided(implicit messages: Messages): String =
     escape(messages("usePersonalDetailsAsSupplier.notProvided"))

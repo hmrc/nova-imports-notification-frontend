@@ -72,6 +72,20 @@ class SupplierPersonalDetailsSummarySpec extends SpecBase with BeforeAndAfterAll
       valueOf(SupplierPersonalDetailsSummary.rows(answers)(msgs)(1)) mustBe "10 Rue de Paris<br>Not provided<br>France"
     }
 
+    "must resolve the country name from the ISO code when the stored name is empty" in {
+      val answers = emptyUserAnswers
+        .unsafeSet(AddressPage, Address(Seq("Some Street", "Kabul"), None, Country("AF", "")))
+
+      valueOf(SupplierPersonalDetailsSummary.rows(answers)(msgs)(1)) mustBe "Some Street<br>Kabul<br>Afghanistan"
+    }
+
+    "must fall back to the raw country code when neither a name nor a resolvable code is available" in {
+      val answers = emptyUserAnswers
+        .unsafeSet(AddressPage, Address(Seq("10 Rue de Paris"), None, Country("ZZ", "")))
+
+      valueOf(SupplierPersonalDetailsSummary.rows(answers)(msgs)(1)) mustBe "10 Rue de Paris<br>Not provided<br>ZZ"
+    }
+
     "must fall back to the individual name when no business name is present" in {
       val answers = emptyUserAnswers
         .unsafeSet(NameDetailsPage, NameDetails("Mr", "John", "Smith"))
@@ -94,18 +108,18 @@ class SupplierPersonalDetailsSummarySpec extends SpecBase with BeforeAndAfterAll
       valueOf(SupplierPersonalDetailsSummary.rows(answers)(msgs)(1)) mustBe "Not provided<br>Not provided<br>Afghanistan"
     }
 
-    "must use the 'Is your address in the UK?' answer over the stored country" in {
-      val ukAnswerNonGbCountry = emptyUserAnswers
-        .unsafeSet(IsYourAddressInTheUkPage, true)
-        .unsafeSet(AddressPage, Address(Seq("1 High Street"), Some("AB1 2CD"), Country("FR", "France")))
-
-      valueOf(SupplierPersonalDetailsSummary.rows(ukAnswerNonGbCountry)(msgs)(1)) mustBe "1 High Street<br>Not provided<br>AB1 2CD"
-
-      val nonUkAnswerGbCountry = emptyUserAnswers
+    "must decide postcode vs country from the stored country code, ignoring the 'Is your address in the UK?' answer" in {
+      val gbAddressAnsweredNo = emptyUserAnswers
         .unsafeSet(IsYourAddressInTheUkPage, false)
         .unsafeSet(AddressPage, Address(Seq("1 High Street"), Some("AB1 2CD"), Country("GB", "United Kingdom")))
 
-      valueOf(SupplierPersonalDetailsSummary.rows(nonUkAnswerGbCountry)(msgs)(1)) mustBe "1 High Street<br>Not provided<br>United Kingdom"
+      valueOf(SupplierPersonalDetailsSummary.rows(gbAddressAnsweredNo)(msgs)(1)) mustBe "1 High Street<br>Not provided<br>AB1 2CD"
+
+      val nonGbAddressAnsweredYes = emptyUserAnswers
+        .unsafeSet(IsYourAddressInTheUkPage, true)
+        .unsafeSet(AddressPage, Address(Seq("1 High Street"), None, Country("FR", "France")))
+
+      valueOf(SupplierPersonalDetailsSummary.rows(nonGbAddressAnsweredYes)(msgs)(1)) mustBe "1 High Street<br>Not provided<br>France"
     }
 
     "must HTML-escape personal details" in {
