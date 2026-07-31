@@ -43,7 +43,7 @@ class SupplierPersonalDetailsSummarySpec extends SpecBase with BeforeAndAfterAll
 
   "SupplierPersonalDetailsSummary" - {
 
-    "must render a name row and a single comma-separated address row" in {
+    "must render a name row and a single address row with one part per line" in {
       val answers = emptyUserAnswers
         .unsafeSet(BusinessNamePage, "ABC Ltd")
         .unsafeSet(
@@ -55,21 +55,21 @@ class SupplierPersonalDetailsSummarySpec extends SpecBase with BeforeAndAfterAll
 
       rows.map(keyOf) mustBe Seq("Name", "Address")
       valueOf(rows.head) mustBe "ABC Ltd"
-      valueOf(rows(1)) mustBe "23, North Road, East London, London, Greater London, ER45 6UI"
+      valueOf(rows(1)) mustBe "23, North Road<br>East London<br>London<br>Greater London<br>ER45 6UI"
     }
 
     "must end a UK address with the postcode" in {
       val answers = emptyUserAnswers
         .unsafeSet(AddressPage, Address(Seq("1 High Street"), Some("AB1 2CD"), Country("GB", "United Kingdom")))
 
-      valueOf(SupplierPersonalDetailsSummary.rows(answers)(msgs)(1)) mustBe "1 High Street, Not provided, AB1 2CD"
+      valueOf(SupplierPersonalDetailsSummary.rows(answers)(msgs)(1)) mustBe "1 High Street<br>Not provided<br>AB1 2CD"
     }
 
     "must end a non-UK address with the country (never the postcode) even if a postcode is held" in {
       val answers = emptyUserAnswers
         .unsafeSet(AddressPage, Address(Seq("10 Rue de Paris"), Some("75000"), Country("FR", "France")))
 
-      valueOf(SupplierPersonalDetailsSummary.rows(answers)(msgs)(1)) mustBe "10 Rue de Paris, Not provided, France"
+      valueOf(SupplierPersonalDetailsSummary.rows(answers)(msgs)(1)) mustBe "10 Rue de Paris<br>Not provided<br>France"
     }
 
     "must fall back to the individual name when no business name is present" in {
@@ -84,14 +84,14 @@ class SupplierPersonalDetailsSummarySpec extends SpecBase with BeforeAndAfterAll
       val answers = emptyUserAnswers
         .unsafeSet(AddressPage, Address(Seq("1", "2"), None, Country("AF", "Afghanistan")))
 
-      valueOf(SupplierPersonalDetailsSummary.rows(answers)(msgs)(1)) mustBe "1, 2, Afghanistan"
+      valueOf(SupplierPersonalDetailsSummary.rows(answers)(msgs)(1)) mustBe "1<br>2<br>Afghanistan"
     }
 
     "must show 'Not provided' for missing lines 1 & 2 while still omitting empty lines 3 & 4" in {
       val answers = emptyUserAnswers
         .unsafeSet(AddressPage, Address(Seq.empty, None, Country("AF", "Afghanistan")))
 
-      valueOf(SupplierPersonalDetailsSummary.rows(answers)(msgs)(1)) mustBe "Not provided, Not provided, Afghanistan"
+      valueOf(SupplierPersonalDetailsSummary.rows(answers)(msgs)(1)) mustBe "Not provided<br>Not provided<br>Afghanistan"
     }
 
     "must use the 'Is your address in the UK?' answer over the stored country" in {
@@ -99,13 +99,13 @@ class SupplierPersonalDetailsSummarySpec extends SpecBase with BeforeAndAfterAll
         .unsafeSet(IsYourAddressInTheUkPage, true)
         .unsafeSet(AddressPage, Address(Seq("1 High Street"), Some("AB1 2CD"), Country("FR", "France")))
 
-      valueOf(SupplierPersonalDetailsSummary.rows(ukAnswerNonGbCountry)(msgs)(1)) mustBe "1 High Street, Not provided, AB1 2CD"
+      valueOf(SupplierPersonalDetailsSummary.rows(ukAnswerNonGbCountry)(msgs)(1)) mustBe "1 High Street<br>Not provided<br>AB1 2CD"
 
       val nonUkAnswerGbCountry = emptyUserAnswers
         .unsafeSet(IsYourAddressInTheUkPage, false)
         .unsafeSet(AddressPage, Address(Seq("1 High Street"), Some("AB1 2CD"), Country("GB", "United Kingdom")))
 
-      valueOf(SupplierPersonalDetailsSummary.rows(nonUkAnswerGbCountry)(msgs)(1)) mustBe "1 High Street, Not provided, United Kingdom"
+      valueOf(SupplierPersonalDetailsSummary.rows(nonUkAnswerGbCountry)(msgs)(1)) mustBe "1 High Street<br>Not provided<br>United Kingdom"
     }
 
     "must HTML-escape personal details" in {
@@ -116,7 +116,7 @@ class SupplierPersonalDetailsSummarySpec extends SpecBase with BeforeAndAfterAll
       val rows = SupplierPersonalDetailsSummary.rows(answers)
 
       valueOf(rows.head) mustBe "A &amp; B &lt;Ltd&gt;"
-      valueOf(rows(1)) mustBe "A &amp; B, Not provided, Not provided"
+      valueOf(rows(1)) mustBe "A &amp; B<br>Not provided<br>Not provided"
     }
 
     "must collapse an entirely empty address to a single 'Not provided'" in {

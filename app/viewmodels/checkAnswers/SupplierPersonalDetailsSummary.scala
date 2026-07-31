@@ -39,7 +39,7 @@ object SupplierPersonalDetailsSummary {
   private def nameRow(answers: UserAnswers)(implicit messages: Messages): SummaryListRow =
     row("usePersonalDetailsAsSupplier.name", name(answers).map(escape).getOrElse(notProvided))
 
-  // The address collapses into a single comma-separated row. Lines 1 & 2 and the postcode/country show
+  // The address collapses into a single row, one part per line. Lines 1 & 2 and the postcode/country show
   // "Not provided" when empty; lines 3 & 4 are dropped when empty. UK addresses end with the postcode,
   // non-UK addresses with the country. An entirely empty address collapses to a single "Not provided".
   private def addressRow(answers: UserAnswers)(implicit messages: Messages): SummaryListRow = {
@@ -62,7 +62,7 @@ object SupplierPersonalDetailsSummary {
           lineAt(2),
           lineAt(3),
           Some(lastPart.getOrElse(notProvided))
-        ).flatten.mkString(", ")
+        ).flatten.mkString("<br>")
 
     row("usePersonalDetailsAsSupplier.address", value)
   }
