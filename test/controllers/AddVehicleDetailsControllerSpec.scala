@@ -23,11 +23,13 @@ import controllers.actions.*
 import forms.AddVehicleDetailsFormProvider
 import models.{AddVehicleDetails, DraftId, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.{AddVehicleDetailsPage, DraftIdPage}
 import pages.sections.initialquestions.VehicleFromEuPage
+import pages.sections.supplierDetails.SupplierNumberPage
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.*
@@ -73,6 +75,28 @@ class AddVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
       )
       .build()
+
+  private def applicationWithMockRepository(userAnswers: UserAnswers): (play.api.Application, SessionRepository) = {
+
+    val mockSessionRepository = mock[SessionRepository]
+    when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+    val application =
+      applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(
+          bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+          bind[SessionRepository].toInstance(mockSessionRepository)
+        )
+        .build()
+
+    (application, mockSessionRepository)
+  }
+
+  private def savedAnswers(mockSessionRepository: SessionRepository): UserAnswers = {
+    val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
+    verify(mockSessionRepository).set(captor.capture())
+    captor.getValue
+  }
 
   "AddVehicleDetailsController" - {
 
@@ -139,6 +163,39 @@ class AddVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
+      }
+    }
+
+    "must save supplier number 1 when the user chooses to add vehicles by supplier" in {
+
+      val (application, mockSessionRepository) = applicationWithMockRepository(userAnswersWithIQ1Yes)
+
+      running(application) {
+        val request =
+          FakeRequest(POST, addVehicleDetailsRoute)
+            .withFormUrlEncodedBody(("value", AddVehicleDetails.BySupplier.toString))
+
+        val result = route(application, request).value
+        status(result) mustEqual SEE_OTHER
+
+        savedAnswers(mockSessionRepository).get(SupplierNumberPage) mustEqual Some(1)
+      }
+    }
+
+    "must not overwrite supplier number that is already saved when the user chooses to add vehicles by supplier again" in {
+
+      val answersWithSupplier                  = userAnswersWithIQ1Yes.set(SupplierNumberPage, 3).success.value
+      val (application, mockSessionRepository) = applicationWithMockRepository(answersWithSupplier)
+
+      running(application) {
+        val request =
+          FakeRequest(POST, addVehicleDetailsRoute)
+            .withFormUrlEncodedBody(("value", AddVehicleDetails.BySupplier.toString))
+
+        val result = route(application, request).value
+        status(result) mustEqual SEE_OTHER
+
+        savedAnswers(mockSessionRepository).get(SupplierNumberPage) mustEqual Some(3)
       }
     }
 
