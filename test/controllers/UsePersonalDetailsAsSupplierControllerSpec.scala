@@ -86,7 +86,7 @@ class UsePersonalDetailsAsSupplierControllerSpec extends SpecBase with MockitoSu
     traderName = Some("ABC LTD"),
     tradingName = Some("ABC Trading"),
     addressLine1 = Some("1 High Street"),
-    addressLine2 = None,
+    addressLine2 = Some("Testtown"),
     addressLine3 = None,
     addressLine4 = None,
     postcode = Some("TF3 4ER")
