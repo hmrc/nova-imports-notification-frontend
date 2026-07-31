@@ -49,7 +49,7 @@ class UsePersonalDetailsAsSupplierViewSpec extends SpecBase with Matchers with B
       .unsafeSet(BusinessNamePage, "ABC Ltd")
       .unsafeSet(AddressPage, Address(Seq("23, North Road", "East London", "London"), Some("ER45 6UI"), Country("GB", "United Kingdom")))
 
-  val personalDetails: SummaryList = SupplierPersonalDetailsSummary.summaryList(answersWithDetails)
+  val personalDetails: SummaryList = SupplierPersonalDetailsSummary.fromSession(answersWithDetails)
 
   override def afterAll(): Unit = {
     Await.result(app.stop(), 10.seconds)

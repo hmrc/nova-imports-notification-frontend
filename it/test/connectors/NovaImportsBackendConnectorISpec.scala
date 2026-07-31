@@ -17,7 +17,7 @@
 package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock.*
-import models.{DraftId, NotificationSummary}
+import models.{DraftId, NotificationSummary, TraderInformation}
 import models.responses.CreateDraftResponse
 import play.api.libs.json.Json
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
@@ -278,6 +278,80 @@ class NovaImportsBackendConnectorISpec
       connector.updateDraftSection(draftId, sectionId, body).futureValue mustEqual Left(
         UpdateSectionError.UpstreamError(500, "upstream error")
       )
+    }
+  }
+
+  "getTraderInformation" - {
+
+    val url = "/nova-imports/trader-information"
+
+    "returns the trader information on 200" in {
+      wireMockServer.stubFor(
+        get(urlEqualTo(url))
+          .willReturn(
+            okJson(
+              """{"traderName":"ABC LTD","tradingName":"ABC Trading",
+                |"addressLine1":"1 High Street","addressLine2":"Testtown","postcode":"TF3 4ER"}""".stripMargin
+            )
+          )
+      )
+
+      connector.getTraderInformation().futureValue mustEqual Right(
+        TraderInformation(
+          traderName = Some("ABC LTD"),
+          tradingName = Some("ABC Trading"),
+          addressLine1 = Some("1 High Street"),
+          addressLine2 = Some("Testtown"),
+          addressLine3 = None,
+          addressLine4 = None,
+          postcode = Some("TF3 4ER")
+        )
+      )
+    }
+
+    "ignores any field the backend adds that this journey does not display" in {
+      wireMockServer.stubFor(
+        get(urlEqualTo(url))
+          .willReturn(okJson("""{"traderName":"ABC LTD","vrn":"123456789","status":"Registered","email":"test@test.com"}"""))
+      )
+
+      connector.getTraderInformation().futureValue mustEqual Right(
+        TraderInformation(Some("ABC LTD"), None, None, None, None, None, None)
+      )
+    }
+
+    "returns NotFound on 404 when the vrn has no trader record" in {
+      wireMockServer.stubFor(
+        get(urlEqualTo(url))
+          .willReturn(aResponse().withStatus(404).withBody("""{"code":"TRADER_NOT_FOUND","message":"No trader found"}"""))
+      )
+
+      connector.getTraderInformation().futureValue mustEqual Left(GetTraderInformationError.NotFound)
+    }
+
+    "returns UpstreamError on a 5xx response" in {
+      wireMockServer.stubFor(
+        get(urlEqualTo(url))
+          .willReturn(aResponse().withStatus(502).withBody("downstream service error"))
+      )
+
+      connector.getTraderInformation().futureValue mustEqual Left(
+        GetTraderInformationError.UpstreamError(502, "downstream service error")
+      )
+    }
+
+    "returns UpstreamError when the 200 body is not trader information" in {
+      wireMockServer.stubFor(
+        get(urlEqualTo(url))
+          .willReturn(okJson("""["not","an","object"]"""))
+      )
+
+      connector.getTraderInformation().futureValue match {
+        case Left(GetTraderInformationError.UpstreamError(200, message)) =>
+          message must startWith("Malformed trader information")
+        case other =>
+          fail(s"expected UpstreamError(200, ...) but got $other")
+      }
     }
   }
 }

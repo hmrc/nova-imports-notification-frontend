@@ -16,9 +16,7 @@
 
 package viewmodels.checkAnswers
 
-import models.{Country, NameDetails, UserAnswers}
-
-import java.util.Locale
+import models.{Address, NameDetails, TraderInformation, UserAnswers}
 import pages.sections.notifierDetails.{BusinessNamePage, NameDetailsPage}
 import pages.sections.notifieraddress.AddressPage
 import play.api.i18n.Messages
@@ -28,76 +26,51 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{SummaryList, Summ
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 
-// TODO (F21): user types 4 & 5 should get name/address from the RDS DataCache GetTraderInformation
-// lookup; until then all types render from the session. Swap the data source here when F21 is built.
 object SupplierPersonalDetailsSummary {
 
-  def summaryList(answers: UserAnswers)(implicit messages: Messages): SummaryList =
-    SummaryListViewModel(rows = rows(answers))
+  def fromSession(answers: UserAnswers)(implicit messages: Messages): SummaryList =
+    SummaryListViewModel(rows = sessionRows(answers))
 
-  def rows(answers: UserAnswers)(implicit messages: Messages): Seq[SummaryListRow] =
-    Seq(nameRow(answers), addressRow(answers))
+  def fromTraderInformation(traderInformation: Option[TraderInformation])(implicit messages: Messages): SummaryList =
+    SummaryListViewModel(rows = traderRows(traderInformation))
 
-  private def nameRow(answers: UserAnswers)(implicit messages: Messages): SummaryListRow =
-    row("usePersonalDetailsAsSupplier.name", name(answers).map(escape).getOrElse(notProvided))
+  def sessionRows(answers: UserAnswers)(implicit messages: Messages): Seq[SummaryListRow] =
+    rows(sessionName(answers), answers.get(AddressPage).map(addressLines).getOrElse(Seq.empty))
 
-  // The address collapses into a single row, one part per line. Lines 1 & 2 and the postcode/country show
-  // "Not provided" when empty; lines 3 & 4 are dropped when empty. UK addresses end with the postcode,
-  // non-UK addresses with the country. An entirely empty address collapses to a single "Not provided".
-  private def addressRow(answers: UserAnswers)(implicit messages: Messages): SummaryListRow = {
-    val address = answers.get(AddressPage)
-    val lines   = address.map(_.lines).getOrElse(Seq.empty)
+  def traderRows(traderInformation: Option[TraderInformation])(implicit messages: Messages): Seq[SummaryListRow] =
+    rows(traderInformation.flatMap(_.name), traderInformation.map(_.addressLines).getOrElse(Seq.empty))
 
-    def lineAt(i: Int): Option[String] = lines.lift(i).filter(_.nonEmpty).map(escape)
+  private def rows(name: Option[String], addressLines: Seq[String])(implicit messages: Messages): Seq[SummaryListRow] =
+    Seq(nameRow(name), addressRow(addressLines))
 
-    // The stored address country decides the final part: postcode for a UK address, otherwise the country.
-    val lastPart =
-      address
-        .flatMap(a => if (a.country.code == "GB") a.postcode else Some(countryName(a.country)))
-        .filter(_.nonEmpty)
-        .map(escape)
-
-    val providedParts = Seq(lineAt(0), lineAt(1), lineAt(2), lineAt(3), lastPart)
-
-    val value =
-      if (providedParts.forall(_.isEmpty)) notProvided
-      else
-        Seq(
-          Some(lineAt(0).getOrElse(notProvided)),
-          Some(lineAt(1).getOrElse(notProvided)),
-          lineAt(2),
-          lineAt(3),
-          Some(lastPart.getOrElse(notProvided))
-        ).flatten.mkString("<br>")
-
-    row("usePersonalDetailsAsSupplier.address", value)
-  }
-
-  private def row(key: String, valueHtml: String)(implicit messages: Messages): SummaryListRow =
+  private def nameRow(name: Option[String])(implicit messages: Messages): SummaryListRow =
     SummaryListRowViewModel(
-      key = key,
-      value = ValueViewModel(HtmlContent(valueHtml))
+      key = "usePersonalDetailsAsSupplier.name",
+      value = ValueViewModel(HtmlContent(name.map(HtmlFormat.escape(_).body).getOrElse(notProvided)))
     )
 
-  private def escape(value: String): String = HtmlFormat.escape(value).body
-
-  private val isoCountryCodes: Set[String] = Locale.getISOCountries.toSet
-
-  // ALF supplies the country name, but drafts rehydrated from the backend may carry only the code.
-  // Resolve the display name from the ISO code in that case, falling back to the raw code if unknown.
-  private def countryName(country: Country): String = {
-    val stored = country.name.trim
-    if (stored.nonEmpty) stored
-    else if (isoCountryCodes.contains(country.code)) new Locale("", country.code).getDisplayCountry(Locale.UK)
-    else country.code
-  }
+  private def addressRow(addressLines: Seq[String])(implicit messages: Messages): SummaryListRow =
+    SummaryListRowViewModel(
+      key = "usePersonalDetailsAsSupplier.address",
+      value = ValueViewModel(
+        HtmlContent(
+          if (addressLines.isEmpty) notProvided
+          else addressLines.map(line => HtmlFormat.escape(line).body).mkString("<br>")
+        )
+      )
+    )
 
   private def notProvided(implicit messages: Messages): String =
-    escape(messages("usePersonalDetailsAsSupplier.notProvided"))
+    HtmlFormat.escape(messages("usePersonalDetailsAsSupplier.notProvided")).body
 
-  private def name(answers: UserAnswers): Option[String] =
+  private def sessionName(answers: UserAnswers): Option[String] =
     answers.get(BusinessNamePage).orElse(answers.get(NameDetailsPage).map(formatName))
 
   private def formatName(name: NameDetails): String =
     Seq(name.title, name.firstName, name.lastName).filter(_.nonEmpty).mkString(" ")
+
+  private def addressLines(address: Address): Seq[String] = {
+    val countryLine = if (address.country.code == "GB") Seq.empty else Seq(address.country.name)
+    (address.lines ++ address.postcode.toSeq ++ countryLine).filter(_.nonEmpty)
+  }
 }
