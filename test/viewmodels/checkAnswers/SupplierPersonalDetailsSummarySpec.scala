@@ -74,14 +74,35 @@ class SupplierPersonalDetailsSummarySpec extends SpecBase with BeforeAndAfterAll
       valueOf(rows.head) mustBe "Mr John Smith"
     }
 
-    "must include the country line for a non-UK address" in {
+    "must end a non-UK address with the country (never the postcode) and mark empty lines 1 & 2 'Not provided'" in {
       val answers = emptyUserAnswers
         .unsafeSet(BusinessNamePage, "ABC Ltd")
-        .unsafeSet(AddressPage, Address(Seq("10 Rue de Paris"), None, Country("FR", "France")))
+        .unsafeSet(AddressPage, Address(Seq("10 Rue de Paris"), Some("75000"), Country("FR", "France")))
 
       val rows = SupplierPersonalDetailsSummary.sessionRows(answers)
 
-      valueOf(rows(1)) mustBe "10 Rue de Paris<br>France"
+      valueOf(rows(1)) mustBe "10 Rue de Paris<br>Not provided<br>France"
+    }
+
+    "must resolve a non-UK country name from the ISO code when the stored name is empty" in {
+      val answers = emptyUserAnswers
+        .unsafeSet(AddressPage, Address(Seq("Some Street", "Kabul"), None, Country("AF", "")))
+
+      valueOf(SupplierPersonalDetailsSummary.sessionRows(answers)(msgs)(1)) mustBe "Some Street<br>Kabul<br>Afghanistan"
+    }
+
+    "must fall back to the raw country code when it is not a resolvable ISO code" in {
+      val answers = emptyUserAnswers
+        .unsafeSet(AddressPage, Address(Seq("10 Rue de Paris"), None, Country("ZZ", "")))
+
+      valueOf(SupplierPersonalDetailsSummary.sessionRows(answers)(msgs)(1)) mustBe "10 Rue de Paris<br>Not provided<br>ZZ"
+    }
+
+    "must show 'Not provided' for empty lines 1 & 2 but omit empty lines 3 & 4" in {
+      val answers = emptyUserAnswers
+        .unsafeSet(AddressPage, Address(Seq("1", "2"), None, Country("AF", "Afghanistan")))
+
+      valueOf(SupplierPersonalDetailsSummary.sessionRows(answers)(msgs)(1)) mustBe "1<br>2<br>Afghanistan"
     }
 
     "must HTML-escape personal details" in {
@@ -107,7 +128,7 @@ class SupplierPersonalDetailsSummarySpec extends SpecBase with BeforeAndAfterAll
       val rows = SupplierPersonalDetailsSummary.sessionRows(answers)
 
       valueOf(rows.head) mustBe "Not provided"
-      valueOf(rows(1)) mustBe "1 High Street<br>AB1 2CD"
+      valueOf(rows(1)) mustBe "1 High Street<br>Not provided<br>AB1 2CD"
     }
 
     "must render the address as 'Not provided' when only the name is present" in {
@@ -141,10 +162,10 @@ class SupplierPersonalDetailsSummarySpec extends SpecBase with BeforeAndAfterAll
         valueOf(rows.head) mustBe "ABC Trading"
       }
 
-      "must skip missing address lines" in {
+      "must show 'Not provided' for an empty line 2 and postcode, while omitting empty lines 3 & 4" in {
         val sparse = traderInformation.copy(addressLine2 = None, postcode = None)
 
-        valueOf(SupplierPersonalDetailsSummary.traderRows(Some(sparse))(msgs)(1)) mustBe "1 High Street"
+        valueOf(SupplierPersonalDetailsSummary.traderRows(Some(sparse))(msgs)(1)) mustBe "1 High Street<br>Not provided<br>Not provided"
       }
 
       "must render both rows as 'Not provided' when there is no trader record" in {
