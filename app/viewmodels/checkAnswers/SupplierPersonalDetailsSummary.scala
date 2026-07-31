@@ -16,7 +16,7 @@
 
 package viewmodels.checkAnswers
 
-import models.{Address, NameDetails, UserAnswers}
+import models.{Address, NameDetails, TraderInformation, UserAnswers}
 import pages.sections.notifierDetails.{BusinessNamePage, NameDetailsPage}
 import pages.sections.notifieraddress.AddressPage
 import play.api.i18n.Messages
@@ -26,43 +26,51 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{SummaryList, Summ
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 
-// TODO (F21): user types 4 & 5 should get name/address from the RDS DataCache GetTraderInformation
-// lookup; until then all types render from the session. Swap the data source here when F21 is built.
 object SupplierPersonalDetailsSummary {
 
-  def summaryList(answers: UserAnswers)(implicit messages: Messages): SummaryList =
-    SummaryListViewModel(rows = rows(answers))
+  def fromSession(answers: UserAnswers)(implicit messages: Messages): SummaryList =
+    SummaryListViewModel(rows = sessionRows(answers))
 
-  def rows(answers: UserAnswers)(implicit messages: Messages): Seq[SummaryListRow] =
-    Seq(nameRow(answers), addressRow(answers))
+  def fromTraderInformation(traderInformation: Option[TraderInformation])(implicit messages: Messages): SummaryList =
+    SummaryListViewModel(rows = traderRows(traderInformation))
 
-  // Both rows always render, missing details fall back to "Not provided" so the user can still continue.
-  private def nameRow(answers: UserAnswers)(implicit messages: Messages): SummaryListRow =
+  def sessionRows(answers: UserAnswers)(implicit messages: Messages): Seq[SummaryListRow] =
+    rows(sessionName(answers), answers.get(AddressPage).map(addressLines).getOrElse(Seq.empty))
+
+  def traderRows(traderInformation: Option[TraderInformation])(implicit messages: Messages): Seq[SummaryListRow] =
+    rows(traderInformation.flatMap(_.name), traderInformation.map(_.addressLines).getOrElse(Seq.empty))
+
+  private def rows(name: Option[String], addressLines: Seq[String])(implicit messages: Messages): Seq[SummaryListRow] =
+    Seq(nameRow(name), addressRow(addressLines))
+
+  private def nameRow(name: Option[String])(implicit messages: Messages): SummaryListRow =
     SummaryListRowViewModel(
       key = "usePersonalDetailsAsSupplier.name",
-      value = ValueViewModel(HtmlContent(name(answers).map(HtmlFormat.escape(_).body).getOrElse(notProvided)))
+      value = ValueViewModel(HtmlContent(name.map(HtmlFormat.escape(_).body).getOrElse(notProvided)))
     )
 
-  private def addressRow(answers: UserAnswers)(implicit messages: Messages): SummaryListRow =
+  private def addressRow(addressLines: Seq[String])(implicit messages: Messages): SummaryListRow =
     SummaryListRowViewModel(
       key = "usePersonalDetailsAsSupplier.address",
-      value = ValueViewModel(HtmlContent(answers.get(AddressPage).map(formatAddress).getOrElse(notProvided)))
+      value = ValueViewModel(
+        HtmlContent(
+          if (addressLines.isEmpty) notProvided
+          else addressLines.map(line => HtmlFormat.escape(line).body).mkString("<br>")
+        )
+      )
     )
 
   private def notProvided(implicit messages: Messages): String =
     HtmlFormat.escape(messages("usePersonalDetailsAsSupplier.notProvided")).body
 
-  private def name(answers: UserAnswers): Option[String] =
+  private def sessionName(answers: UserAnswers): Option[String] =
     answers.get(BusinessNamePage).orElse(answers.get(NameDetailsPage).map(formatName))
 
   private def formatName(name: NameDetails): String =
     Seq(name.title, name.firstName, name.lastName).filter(_.nonEmpty).mkString(" ")
 
-  private def formatAddress(address: Address): String = {
+  private def addressLines(address: Address): Seq[String] = {
     val countryLine = if (address.country.code == "GB") Seq.empty else Seq(address.country.name)
-    (address.lines ++ address.postcode.toSeq ++ countryLine)
-      .filter(_.nonEmpty)
-      .map(part => HtmlFormat.escape(part).body)
-      .mkString("<br>")
+    (address.lines ++ address.postcode.toSeq ++ countryLine).filter(_.nonEmpty)
   }
 }
