@@ -1,3 +1,26 @@
+service.name = Hysbysiad o Gerbydau’n Cyrraedd
+
+site.back = Yn ôl
+site.remove = Remove # TODO: Welsh translations to be supplied by content team.
+site.change = Newid
+site.no = Na
+site.yes = Iawn
+site.continue = Parhau
+site.saveAndContinue = Save and continue   # TODO: Welsh translations to be supplied by content team.
+site.start = Start now                     # TODO: Welsh translations to be supplied by content team.
+site.startAgain = Start again              # TODO: Welsh translations to be supplied by content team.
+site.signIn = Sign in                      # TODO: Welsh translations to be supplied by content team.
+site.govuk = GOV.UK                        # TODO: Welsh translations to be supplied by content team.
+
+
+date.day = Diwrnod
+date.month = Mis
+date.year = Blwyddyn
+date.error.day = Diwrnod
+date.error.month = Mis
+date.error.year = Blwyddyn
+
+
 vehicleBusinessUse.title = Have you brought a vehicle into the UK for business use?
 vehicleBusinessUse.heading = Have you brought a vehicle into the UK for business use?
 vehicleBusinessUse.hint = Select ‘Yes’ only if the vehicle belongs to the business
@@ -113,19 +136,76 @@ addressLookup.error.countryPickerRequired = Select country or territory of your 
 addressLookup.countryPicker.countryLabel = Select country or territory
 
 ######################################################
+# AYD1.0 - Add Your Details 1: Guidance page         #
+######################################################
+
+aboutYourDetails.title = Ynglŷn â’ch manylion
+aboutYourDetails.caption = Ychwanegu eich manylion chi
+aboutYourDetails.heading = Ynglŷn â’ch manylion
+aboutYourDetails.paragraph.1 = Mae’n rhaid i chi ddarparu’ch manylion cyswllt. Bydd CThEF ond yn eu defnyddio i gysylltu â chi am yr hysbysiad hwn.
+aboutYourDetails.paragraph.2 = Ni fydd y manylion rydych yn eu darparu yn disodli eich manylion cyswllt cofrestru TAW.
+
+######################################################
+# AYD1.1 - Add Your Details 1.1: Name                #
+######################################################
+
+addYourName.title = Beth yw’ch enw?
+addYourName.caption = Ychwanegu eich manylion chi
+addYourName.heading = Beth yw’ch enw?
+addYourName.titleField = Title
+addYourName.titleField.error.format = Nodwch eich teitl yn y fformat cywir
+addYourName.titleField.error.length = Mae’n rhaid i’ch teitl fod yn 20 o gymeriadau neu lai
+addYourName.titleField.error.required = Nodwch eich teitl
+addYourName.firstName = Enw cyntaf
+addYourName.firstName.error.format = Nodwch eich enw cyntaf yn y fformat cywir
+addYourName.firstName.error.length = Mae’n rhaid i’ch enw cyntaf fod yn 100 o gymeriadau neu lai
+addYourName.firstName.error.required = Nodwch eich enw cyntaf
+addYourName.lastName = Enw olaf
+addYourName.lastName.error.format = Nodwch eich cyfenw yn y fformat cywir
+addYourName.lastName.error.length = Mae’n rhaid i’ch enw olaf fod yn 100 o gymeriadau neu lai
+addYourName.lastName.error.required = Nodwch eich enw olaf
+
+# TODO: Welsh translations to be supplied by content team.
+addYourName.checkYourAnswersLabel = Name
+addYourName.change.hidden = your name
+
+######################################################
 # AYD1.2 - Add your details 1.2: Phone number        #
 ######################################################
-# TODO: Welsh translations to be supplied by content team.
 
-phoneNumber.title = What is your phone number?
-phoneNumber.heading = What is your phone number?
-phoneNumber.caption = Add your details
-phoneNumber.hint = For international numbers include the country code
-phoneNumber.checkYourAnswersLabel = Phone number
-phoneNumber.error.required = Enter your phone number
-phoneNumber.error.length = Your phone number must be 20 characters or less
-phoneNumber.error.invalid = Enter your phone number, like 01632 960 001, 07700 900 982 or 44 808 157 0192
-phoneNumber.change.hidden = your phone number
+phoneNumber.title = Beth yw’ch rhifau cyswllt?
+phoneNumber.heading = Beth yw’ch rhifau cyswllt?
+phoneNumber.caption = Ychwanegu eich manylion chi
+phoneNumber.paragraph = Mae’n rhaid i chi roi o leiaf un rhif cyswllt.
+phoneNumber.label.phoneNumber = Rhif ffôn
+phoneNumber.label.mobileNumber = Rhif ffôn symudol
+phoneNumber.error.required = Nodwch o leiaf un rhif cyswllt
+phoneNumber.error.phoneRequired = Nodwch eich rhif ffôn
+phoneNumber.error.mobileRequired = Nodwch eich rhif ffôn symudol
+phoneNumber.error.length = Mae’n rhaid i’ch rhif ffôn fod yn 20 o gymeriadau neu lai
+phoneNumber.error.invalid = Nodwch eich rhif ffôn yn y fformat cywir, fel 01632 960 001
+phoneNumber.error.mobileLength = Mae’n rhaid i’ch rhif ffôn symudol fod yn 20 o gymeriadau neu lai
+phoneNumber.error.mobileInvalid = Nodwch eich rhif ffôn yn y fformat cywir, fel 07700 900 982 neu 44 7700 900 982
+
+# TODO: Welsh translations to be supplied by content team.
+phoneNumber.checkYourAnswersLabel = Contact numbers
+phoneNumber.change.hidden = your contact numbers
+
+######################################################
+# AYD1.3 - Add your details: email address           #
+######################################################
+
+emailAddress.title = Beth yw’ch cyfeiriad e-bost?
+emailAddress.heading = Beth yw’ch cyfeiriad e-bost?
+emailAddress.caption = Ychwanegu eich manylion chi
+emailAddress.hint = Byddwn yn defnyddio hyn i anfon cadarnhad o’ch hysbysiad atoch
+emailAddress.error.required = Nodwch eich cyfeiriad e-bost
+emailAddress.error.length = Mae’n rhaid i’ch cyfeiriad e-bost fod yn 70 o gymeriadau neu lai
+emailAddress.error.invalid = Nodwch eich cyfeiriad e-bost yn y fformat cywir, er enghraifft enw@enghraifft.com
+
+# TODO: Welsh translations to be supplied by content team.
+emailAddress.checkYourAnswersLabel = Email address
+emailAddress.change.hidden = your email address
 
 ######################################################
 # ERR3.0 - Error message - Page not found            #
