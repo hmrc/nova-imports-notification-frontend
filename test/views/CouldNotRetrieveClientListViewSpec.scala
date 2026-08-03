@@ -73,7 +73,7 @@ class CouldNotRetrieveClientListViewSpec extends SpecBase with Matchers with Bef
     "must render the full helpdesk sentence with inline link" in {
       val html: String = view(helpdeskUrl)(request, msgs).toString
 
-      html must include("If the problem continues, contact the")
+      html must include(msgs("couldNotRetrieveClientList.helpdesk"))
       html must include(msgs("couldNotRetrieveClientList.helpdesk.linkText"))
     }
 
@@ -89,7 +89,7 @@ class CouldNotRetrieveClientListViewSpec extends SpecBase with Matchers with Bef
       html must include("target=\"_blank\"")
     }
 
-    "must render the return to home button" in {
+    "must render the return to home link" in {
       val html: String = view(helpdeskUrl)(request, msgs).toString
 
       html must include(msgs("couldNotRetrieveClientList.returnHome"))

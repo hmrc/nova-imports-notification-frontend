@@ -62,7 +62,7 @@ class CouldNotRetrieveClientListControllerSpec extends SpecBase {
         }
       }
 
-      "must render the HMRC Online Services Helpdesk link" in {
+      "must render the HMRC technical support link" in {
         given application: Application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
         running(application) {
@@ -72,12 +72,12 @@ class CouldNotRetrieveClientListControllerSpec extends SpecBase {
           val result = route(application, request).value
 
           status(result) mustEqual OK
-          contentAsString(result) must include("HMRC Online Services Helpdesk (opens in new tab).")
+          contentAsString(result) must include("HMRC technical support (opens in new tab).")
           contentAsString(result) must include("https://www.gov.uk/government/organisations/hm-revenue-customs/contact/online-services-helpdesk")
         }
       }
 
-      "must render the return to home button" in {
+      "must render the return to home link" in {
         given application: Application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
         running(application) {

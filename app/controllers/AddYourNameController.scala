@@ -63,8 +63,9 @@ class AddYourNameController @Inject() (
       case ctx if ctx.isAgentWithClientNoEnrolments => false
       case ctx if ctx.isVatRegisteredOrganisation   =>
         answers.get(AboutYourDetailsPage).isDefined && answers.get(VehicleBusinessUsePage).contains(false)
-      case ctx if ctx.isAgentWithClient => answers.get(AgentClientVehicleBusinessUsePage).contains(false)
-      case _                            =>
+      case ctx if ctx.isAgentWithClient       => answers.get(AgentClientVehicleBusinessUsePage).contains(false)
+      case ctx if ctx.isVatAgentWithoutClient => false
+      case _                                  =>
         answers.get(VehicleFromEuPage).contains(true) &&
         answers.get(BusinessOrPrivatePage).contains(BusinessOrPrivateIndividual.PrivateIndividual)
     }
