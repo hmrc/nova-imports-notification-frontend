@@ -17,6 +17,8 @@
 package controllers
 
 import base.SpecBase
+import com.google.inject.name.Names
+import controllers.actions.{DataRequiredAction, DataRequiredActionImpl, DataRetrievalAction, FakeAgentIdentifierAction, FakeAgentNoEnrolmentsIdentifierAction, FakeDataRetrievalAction, FakeIdentifierAction, IdentifierAction}
 import forms.AddYourNameFormProvider
 import models.{BusinessOrPrivateIndividual, CheckMode, ContactNumbers, DraftId, NameDetails, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
@@ -28,6 +30,7 @@ import pages.sections.initialquestions.{BusinessOrPrivatePage, VehicleFromEuPage
 import pages.sections.notifierDetails.{EmailAddressPage, PhoneNumberPage}
 import pages.sections.notifierDetails.NameDetailsPage
 import play.api.inject.bind
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -79,6 +82,30 @@ class AddYourNameControllerSpec extends SpecBase with MockitoSugar {
     .set(EmailAddressPage, "name@example.com")
     .success
     .value
+
+  private def agentApplicationBuilder(userAnswers: Option[UserAnswers]): GuiceApplicationBuilder =
+    new GuiceApplicationBuilder()
+      .overrides(
+        bind[DataRequiredAction].to[DataRequiredActionImpl],
+        bind[IdentifierAction].to[FakeAgentIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("standard")).to[FakeAgentIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeAgentIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
+        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
+      )
+
+  private def nonVatAgentApplicationBuilder(userAnswers: Option[UserAnswers]): GuiceApplicationBuilder =
+    new GuiceApplicationBuilder()
+      .overrides(
+        bind[DataRequiredAction].to[DataRequiredActionImpl],
+        bind[IdentifierAction].to[FakeAgentNoEnrolmentsIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("standard")).to[FakeAgentNoEnrolmentsIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeAgentNoEnrolmentsIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
+        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
+      )
 
   "AddYourName Controller" - {
 
@@ -205,6 +232,52 @@ class AddYourNameControllerSpec extends SpecBase with MockitoSugar {
       val answers = emptyUserAnswers.set(pages.DraftIdPage, DraftId("DRAFT-001")).success.value
 
       val application = applicationBuilder(userAnswers = Some(answers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, addYourNameRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Unauthorised for a VAT agent (HMCE-VAT-AGNT) without a client who answered private individual" in {
+
+      val application = agentApplicationBuilder(Some(requiredPreviousAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, addYourNameRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+
+    "must return OK for a non-VAT agent without a client who answered private individual" in {
+
+      val application = nonVatAgentApplicationBuilder(Some(requiredPreviousAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, addYourNameRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+      }
+    }
+
+    "must redirect to Unauthorised for a non-VAT agent without a client who answered business" in {
+
+      val businessAnswers = emptyUserAnswers
+        .unsafeSet(pages.DraftIdPage, DraftId("DRAFT-001"))
+        .unsafeSet(VehicleFromEuPage, true)
+        .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business)
+
+      val application = nonVatAgentApplicationBuilder(Some(businessAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, addYourNameRoute)

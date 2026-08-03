@@ -16,13 +16,23 @@
 
 package pages.sections.initialquestions
 
-import models.BusinessOrPrivateIndividual
+import models.{BusinessOrPrivateIndividual, UserAnswers}
 import pages.QuestionPage
+import pages.sections.notifierDetails.{BusinessNamePage, NameDetailsPage}
 import play.api.libs.json.JsPath
+
+import scala.util.Try
 
 case object BusinessOrPrivatePage extends QuestionPage[BusinessOrPrivateIndividual] {
 
   override def path: JsPath = JsPath \ "initial-question" \ toString
 
   override def toString: String = "areYouBusinessPrivate"
+
+  override def cleanup(value: Option[BusinessOrPrivateIndividual], userAnswers: UserAnswers): Try[UserAnswers] =
+    value match {
+      case Some(BusinessOrPrivateIndividual.Business)          => userAnswers.remove(NameDetailsPage)
+      case Some(BusinessOrPrivateIndividual.PrivateIndividual) => userAnswers.remove(BusinessNamePage)
+      case _                                                   => super.cleanup(value, userAnswers)
+    }
 }

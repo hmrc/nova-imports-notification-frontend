@@ -18,15 +18,15 @@ package controllers
 
 import base.SpecBase
 import com.google.inject.name.Names
-import controllers.actions.{DataRequiredAction, DataRequiredActionImpl, DataRetrievalAction, FakeAgentIdentifierAction, FakeDataRetrievalAction, FakeIdentifierAction, FakeVatTraderIdentifierAction, IdentifierAction}
+import controllers.actions.{DataRequiredAction, DataRequiredActionImpl, DataRetrievalAction, FakeAgentIdentifierAction, FakeAgentNoEnrolmentsIdentifierAction, FakeDataRetrievalAction, FakeIdentifierAction, FakeVatTraderIdentifierAction, IdentifierAction}
 import forms.PhoneNumberFormProvider
-import models.{BusinessOrPrivateIndividual, CheckMode, ContactNumbers, DraftId, NameDetails, NormalMode, UserAnswers}
+import models.{BusinessOrPrivateIndividual, CheckMode, ContactNumbers, DraftId, NameDetails, NormalMode, PurchaserOrOnBehalf, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import pages.*
-import pages.sections.initialquestions.{BusinessOrPrivatePage, VehicleBusinessUsePage}
+import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
 import pages.sections.notifierDetails.{EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -105,6 +105,18 @@ class PhoneNumberControllerSpec extends SpecBase with MockitoSugar {
         bind[IdentifierAction].qualifiedWith(Names.named("standard")).to[FakeAgentIdentifierAction],
         bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeIdentifierAction],
         bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeAgentIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
+        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
+      )
+
+  private def nonVatAgentApplicationBuilder(userAnswers: Option[UserAnswers]): GuiceApplicationBuilder =
+    new GuiceApplicationBuilder()
+      .overrides(
+        bind[DataRequiredAction].to[DataRequiredActionImpl],
+        bind[IdentifierAction].to[FakeAgentNoEnrolmentsIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("standard")).to[FakeAgentNoEnrolmentsIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeAgentNoEnrolmentsIdentifierAction],
         bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
       )
@@ -251,6 +263,147 @@ class PhoneNumberControllerSpec extends SpecBase with MockitoSugar {
         val result  = route(application, request).value
 
         status(result) mustEqual OK
+      }
+    }
+
+    "must return OK for a VAT agent (HMCE-VAT-AGNT) without a client who answered they are a private individual" in {
+
+      val agentWithoutClientPrivate = baseRequiredAnswers
+        .set(VehicleFromEuPage, true)
+        .success
+        .value
+        .set(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
+        .success
+        .value
+        .set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
+        .success
+        .value
+
+      val application = agentWithClientApplicationBuilder(Some(agentWithoutClientPrivate)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, phoneNumberRoute)
+        val result  = route(application, request).value
+
+        status(result) mustEqual OK
+      }
+    }
+
+    "must return OK for a VAT agent (HMCE-VAT-AGNT) without a client who answered business" in {
+
+      val agentWithoutClientBusiness = baseRequiredAnswers
+        .set(VehicleFromEuPage, true)
+        .success
+        .value
+        .set(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business)
+        .success
+        .value
+        .set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
+        .success
+        .value
+
+      val application = agentWithClientApplicationBuilder(Some(agentWithoutClientBusiness)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, phoneNumberRoute)
+        val result  = route(application, request).value
+
+        status(result) mustEqual OK
+      }
+    }
+
+    "must return OK for a non-VAT agent without a client who answered business" in {
+
+      val nonVatAgentBusiness = baseRequiredAnswers
+        .unsafeSet(VehicleFromEuPage, true)
+        .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business)
+        .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
+
+      val application = nonVatAgentApplicationBuilder(Some(nonVatAgentBusiness)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, phoneNumberRoute)
+        val result  = route(application, request).value
+
+        status(result) mustEqual OK
+      }
+    }
+
+    "must redirect to Unauthorised for a non-VAT agent without a client who answered private individual and has not yet entered a name" in {
+
+      val nonVatAgentPrivateNoName = baseRequiredAnswers
+        .unsafeSet(VehicleFromEuPage, true)
+        .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
+        .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
+
+      val application = nonVatAgentApplicationBuilder(Some(nonVatAgentPrivateNoName)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, phoneNumberRoute)
+        val result  = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+
+    "must return OK for a non-VAT agent without a client who answered private individual once a name is entered" in {
+
+      val nonVatAgentPrivateWithName = baseRequiredAnswers
+        .unsafeSet(VehicleFromEuPage, true)
+        .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
+        .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
+        .unsafeSet(NameDetailsPage, NameDetails("Mr", "John", "Doe"))
+
+      val application = nonVatAgentApplicationBuilder(Some(nonVatAgentPrivateWithName)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, phoneNumberRoute)
+        val result  = route(application, request).value
+
+        status(result) mustEqual OK
+      }
+    }
+
+    "must redirect to Unauthorised for an agent without a client whose initial questions are incomplete" in {
+
+      val agentWithoutClientIncomplete = baseRequiredAnswers
+        .set(VehicleFromEuPage, true)
+        .success
+        .value
+
+      val application = agentWithClientApplicationBuilder(Some(agentWithoutClientIncomplete)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, phoneNumberRoute)
+        val result  = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Unauthorised for an agent without a client notifying on behalf of a purchaser without the purchaser type" in {
+
+      val agentWithoutClientMissingPurchaserType = baseRequiredAnswers
+        .set(VehicleFromEuPage, true)
+        .success
+        .value
+        .set(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business)
+        .success
+        .value
+        .set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+        .success
+        .value
+
+      val application = agentWithClientApplicationBuilder(Some(agentWithoutClientMissingPurchaserType)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, phoneNumberRoute)
+        val result  = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
       }
     }
 
