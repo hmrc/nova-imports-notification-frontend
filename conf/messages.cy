@@ -90,45 +90,59 @@ landingPage.organisation.saved.heading = Manage a saved notification
 landingPage.organisation.saved.body.empty = You do not have a saved notification
 landingPage.organisation.saved.body.has = View, continue or delete a notification you’ve started but not yet submitted
 
+######################################################
+# AYA1.0 - Add Your Address: Is your address in the UK #
+######################################################
+
+isYourAddressInTheUk.title = A yw’ch cyfeiriad yn y DU?
+isYourAddressInTheUk.heading = A yw’ch cyfeiriad yn y DU?
+isYourAddressInTheUk.caption = Ychwanegwch eich cyfeiriad
+isYourAddressInTheUk.error.required = Dewiswch ‘Iawn’ os yw’ch cyfeiriad yn y DU
+
+# TODO: Welsh translations to be supplied by content team.
+isYourAddressInTheUk.change.hidden = whether your address is in the UK
+isYourAddressInTheUk.checkYourAnswersLabel = Is your address in the UK
+
 ###########################################################
 # AYA3.0 - Add your address 3.0: We've changed your address #
 ###########################################################
-# TODO: Welsh translations to be supplied by content team.
 
-addressChanged.title = We’ve changed your address
-addressChanged.caption = Add your address
-addressChanged.heading = We’ve changed your address
-addressChanged.body = This could be because of invalid characters or some lines are too long.
-addressChanged.checkHeading = Check the updated address
-addressChanged.changeAddress = Change address
+addressChanged.title = Rydym wedi newid eich cyfeiriad
+addressChanged.caption = Ychwanegwch eich cyfeiriad
+addressChanged.heading = Rydym wedi newid eich cyfeiriad
+addressChanged.body = Gallai hyn fod oherwydd nodau annilys neu fod rhai llinellau’n rhy hir.
+addressChanged.checkHeading = Gwiriwch y cyfeiriad wedi’i ddiweddaru
+addressChanged.changeAddress = Newid y cyfeiriad
 
 ###########################################################
 # Address lookup (ALF) journey labels                     #
 ###########################################################
-# TODO: Welsh translations to be supplied by content team.
 
-addressLookup.uk.lookup.title = Find your address
-addressLookup.uk.lookup.heading = Find your address
-addressLookup.uk.lookup.postcodeLabel = Postcode
-addressLookup.uk.lookup.submitLabel = Continue
-addressLookup.uk.lookup.manualAddressLinkText = Enter the address manually
-addressLookup.uk.select.title = Choose your address
-addressLookup.uk.select.heading = Choose your address
+addressLookup.uk.lookup.title = Dod o hyd i’ch cyfeiriad
+addressLookup.uk.lookup.heading = Dod o hyd i’ch cyfeiriad
+addressLookup.uk.lookup.postcodeLabel = Cod post
+addressLookup.uk.lookup.submitLabel = Parhau
+addressLookup.uk.lookup.manualAddressLinkText = Nodwch y cyfeiriad â llaw
+addressLookup.uk.select.title = Dewiswch eich cyfeiriad
+addressLookup.uk.select.heading = Dewiswch eich cyfeiriad
+# TODO: Welsh translations to be supplied by content team. (if needed we may not be using this string anymore)
 addressLookup.uk.select.proposalListLabel = Select your address
-addressLookup.uk.select.editAddressLinkText = Enter the address manually
-addressLookup.uk.edit.title = Enter your address
-addressLookup.uk.edit.heading = Enter your address
-addressLookup.uk.edit.postcodeLabel = Postcode
-addressLookup.nonUk.edit.title = Enter your address
-addressLookup.nonUk.edit.heading = Enter your address
-addressLookup.nonUk.edit.postcodeLabel = Postcode or similar
-addressLookup.edit.line1Label = Address line 1
-addressLookup.edit.line2Label = Address line 2
-addressLookup.edit.line3Label = Address line 3
-addressLookup.edit.townLabel = Address line 4
-addressLookup.edit.countryLabel = Country
-addressLookup.confirm.title = Review and confirm your address
-addressLookup.confirm.heading = Review and confirm your address
+addressLookup.uk.select.editAddressLinkText = Nodwch y cyfeiriad â llaw
+addressLookup.uk.edit.title = Nodwch eich cyfeiriad
+addressLookup.uk.edit.heading = Nodwch eich cyfeiriad
+addressLookup.uk.edit.postcodeLabel = Cod post
+addressLookup.nonUk.edit.title = Nodwch eich cyfeiriad
+addressLookup.nonUk.edit.heading = Nodwch eich cyfeiriad
+addressLookup.nonUk.edit.postcodeLabel = Cod post neu debyg
+addressLookup.edit.line1Label = Cyfeiriad – llinell 1
+addressLookup.edit.line2Label = Cyfeiriad – llinell 2
+addressLookup.edit.line3Label = Cyfeiriad – llinell 3
+addressLookup.edit.townLabel = Cyfeiriad – llinell 4
+addressLookup.edit.countryLabel = Gwlad
+addressLookup.confirm.title = Adolygu a chadarnhau’ch cyfeiriad
+addressLookup.confirm.heading = Adolygu a chadarnhau’ch cyfeiriad
+
+# TODO: Welsh translations to be supplied by content team.
 addressLookup.error.line1Length = Address line 1 must be 35 characters or less
 addressLookup.error.line2Length = Address line 2 must be 35 characters or less
 addressLookup.error.line3Length = Address line 3 must be 35 characters or less

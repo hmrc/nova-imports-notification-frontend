@@ -399,9 +399,9 @@ purchaserName.change.hidden = the purchaser’s name
 isYourAddressInTheUk.title = Is your address in the UK?
 isYourAddressInTheUk.heading = Is your address in the UK?
 isYourAddressInTheUk.caption = Add your address
-isYourAddressInTheUk.checkYourAnswersLabel = Is your address in the UK
 isYourAddressInTheUk.error.required = Select yes if your address is in the UK
 isYourAddressInTheUk.change.hidden = whether your address is in the UK
+isYourAddressInTheUk.checkYourAnswersLabel = Is your address in the UK
 
 ##################################################################
 # APA1.0 - Add purchaser address: Is the purchaser's address in the UK #
