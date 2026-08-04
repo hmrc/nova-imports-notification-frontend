@@ -38,10 +38,10 @@
         </a>
     </p>
 
-    <form action="@routes.LandingPageController.onPageLoad()" method="get">
-        <button type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+    <p class="govuk-body">
+        <a class="govuk-link" href="@routes.LandingPageController.onPageLoad()">
             @messages("couldNotRetrieveClientList.returnHome")
-        </button>
-    </form>
+        </a>
+    </p>
 
 }

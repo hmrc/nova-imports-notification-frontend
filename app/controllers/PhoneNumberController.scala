@@ -20,10 +20,10 @@ import controllers.actions.*
 import controllers.utils.IsDraftIdDefined
 import forms.PhoneNumberFormProvider
 import models.requests.DataRequest
-import models.{BusinessOrPrivateIndividual, CheckMode, ContactNumbers, Mode, NovaUserType}
+import models.{BusinessOrPrivateIndividual, CheckMode, ContactNumbers, Mode, NovaUserType, PurchaserOrOnBehalf}
 import navigation.Navigator
 import pages.{AboutYourDetailsPage, AgentClientVehicleBusinessUsePage}
-import pages.sections.initialquestions.{BusinessOrPrivatePage, VehicleBusinessUsePage, VehicleFromEuPage}
+import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
 import pages.sections.notifierDetails.{NameDetailsPage, PhoneNumberPage}
 import play.api.data.{Form, FormError}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -100,8 +100,17 @@ object PhoneNumberController {
       case ctx if ctx.isAgentWithClientNoEnrolments => answers.get(AgentClientVehicleBusinessUsePage).isDefined
       case ctx if ctx.isVatRegisteredOrganisation   =>
         answers.get(AboutYourDetailsPage).contains(true) && answers.get(VehicleBusinessUsePage).contains(true)
-      case ctx if ctx.isAgentWithClient => answers.get(AgentClientVehicleBusinessUsePage).contains(true)
-      case _                            =>
+      case ctx if ctx.isAgentWithClient    => answers.get(AgentClientVehicleBusinessUsePage).contains(true)
+      case ctx if ctx.isAgentWithoutClient =>
+        answers.get(VehicleFromEuPage).contains(true) &&
+        answers.get(BusinessOrPrivatePage).isDefined &&
+        answers.get(PurchaserOrOnBehalfPage).exists {
+          case PurchaserOrOnBehalf.Purchaser           => true
+          case PurchaserOrOnBehalf.OnBehalfOfPurchaser => answers.get(PurchaserBusinessOrIndividualPage).isDefined
+        } &&
+        (ctx.agentHasVatAgentEnrolment ||
+          answers.get(BusinessOrPrivatePage).exists(_ != BusinessOrPrivateIndividual.PrivateIndividual))
+      case _ =>
         answers.get(VehicleFromEuPage).contains(true) &&
         answers.get(BusinessOrPrivatePage).exists(_ != BusinessOrPrivateIndividual.PrivateIndividual)
     }

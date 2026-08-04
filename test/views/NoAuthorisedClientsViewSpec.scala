@@ -105,17 +105,16 @@ class NoAuthorisedClientsViewSpec extends SpecBase with Matchers with BeforeAndA
       html must include(msgs("noAuthorisedClients.timing"))
     }
 
-    "must render the Return to home button linking to the Index page" in {
+    "must render the Return to home link pointing at the landing page" in {
       val html: String = view.apply(hmrcOnlineUrl, oaaUrl).toString
 
-      html must include(msgs("noAuthorisedClients.returnToHome"))
-      html must include(placeholderHome)
+      html must include(s"""<a class="govuk-link" href="$placeholderHome">${msgs("noAuthorisedClients.returnToHome")}</a>""")
     }
 
-    "must render the Return to home button as a secondary button to match the prototype" in {
+    "must not render Return to home as a button" in {
       val html: String = view.apply(hmrcOnlineUrl, oaaUrl).toString
 
-      html must include("govuk-button--secondary")
+      html must not include "govuk-button"
     }
 
     "must render the same content via the render method" in {

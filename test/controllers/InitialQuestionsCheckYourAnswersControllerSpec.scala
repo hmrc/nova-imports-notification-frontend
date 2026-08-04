@@ -23,7 +23,7 @@ import controllers.actions.*
 import models.responses.CreateDraftResponse
 import models.{AgentSelectedClient, BusinessOrPrivateIndividual, DraftId, PurchaserBusinessOrIndividual, PurchaserOrOnBehalf, UserAnswers}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{never, times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.*
 import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
@@ -99,6 +99,30 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
     .success
     .value
     .set(DraftIdPage, DraftId(draftId))
+    .success
+    .value
+
+  private val individualUserAnswersWithVersion = individualUserAnswers
+    .set(DraftVersionIdPage, 1L)
+    .success
+    .value
+
+  private val noDraftIndividualAnswers = emptyUserAnswers
+    .set(VehicleFromEuPage, true)
+    .success
+    .value
+    .set(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business)
+    .success
+    .value
+    .set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
+    .success
+    .value
+
+  private val noDraftOrgAnswers = emptyUserAnswers
+    .set(VehicleFromEuPage, true)
+    .success
+    .value
+    .set(VehicleBusinessUsePage, true)
     .success
     .value
 
@@ -434,6 +458,45 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
         }
       }
 
+      "must not create a new draft when a draft already exists and must update the existing draft" in {
+        val connector = connectorWithSuccessfulSubmit()
+
+        given application: Application =
+          applicationForSubmit(classOf[FakeIdentifierAction], Some(individualUserAnswersWithVersion), connector)
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(POST, initialQuestionsCyaRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.NotificationTaskListController.onPageLoad().url
+
+          verify(connector, never()).createDraft(any[Option[String]])(any[HeaderCarrier])
+          verify(connector, times(2)).updateDraftSection(any(), any(), any())(any[HeaderCarrier])
+        }
+      }
+
+      "must create a new draft on first submit when no draft exists" in {
+        val connector = connectorWithSuccessfulSubmit()
+
+        given application: Application =
+          applicationForSubmit(classOf[FakeIdentifierAction], Some(noDraftIndividualAnswers), connector)
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(POST, initialQuestionsCyaRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.NotificationTaskListController.onPageLoad().url
+
+          verify(connector, times(1)).createDraft(any[Option[String]])(any[HeaderCarrier])
+        }
+      }
+
       "when createDraft returns an error must redirect to Journey Recovery" in {
         val connector = mock[NovaImportsBackendConnector]
 
@@ -441,7 +504,7 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
           .thenReturn(Future.successful(Left(connectors.CreateDraftError.UpstreamError(500, "error"))))
 
         given application: Application =
-          applicationForSubmit(classOf[FakeVatTraderIdentifierAction], Some(orgUserAnswers), connector)
+          applicationForSubmit(classOf[FakeVatTraderIdentifierAction], Some(noDraftOrgAnswers), connector)
 
         running(application) {
           given request: FakeRequest[AnyContentAsEmpty.type] =

@@ -17,6 +17,7 @@
 package controllers
 
 import base.SpecBase
+import config.FrontendAppConfig
 import forms.VehicleFromEuFormProvider
 import models.{NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
@@ -53,10 +54,14 @@ class VehicleFromEuControllerSpec extends SpecBase with MockitoSugar {
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[VehicleFromEuView]
+        val view      = application.injector.instanceOf[VehicleFromEuView]
+        val appConfig = application.injector.instanceOf[FrontendAppConfig]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode, appConfig.importingVehiclesIntoTheUKUrl, appConfig.euCountriesUrl)(
+          request,
+          messages(application)
+        ).toString
       }
     }
 
@@ -69,12 +74,18 @@ class VehicleFromEuControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request = FakeRequest(GET, vehicleFromEuRoute)
 
-        val view = application.injector.instanceOf[VehicleFromEuView]
+        val view      = application.injector.instanceOf[VehicleFromEuView]
+        val appConfig = application.injector.instanceOf[FrontendAppConfig]
 
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(true), NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(
+          form.fill(true),
+          NormalMode,
+          appConfig.importingVehiclesIntoTheUKUrl,
+          appConfig.euCountriesUrl
+        )(request, messages(application)).toString
       }
     }
 
@@ -115,12 +126,18 @@ class VehicleFromEuControllerSpec extends SpecBase with MockitoSugar {
 
         val boundForm = form.bind(Map("value" -> ""))
 
-        val view = application.injector.instanceOf[VehicleFromEuView]
+        val view      = application.injector.instanceOf[VehicleFromEuView]
+        val appConfig = application.injector.instanceOf[FrontendAppConfig]
 
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(
+          boundForm,
+          NormalMode,
+          appConfig.importingVehiclesIntoTheUKUrl,
+          appConfig.euCountriesUrl
+        )(request, messages(application)).toString
       }
     }
 

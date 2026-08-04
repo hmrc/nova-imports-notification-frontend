@@ -26,6 +26,10 @@
 
 @(form: Form[_], mode: Mode, personalDetails: SummaryList, vatNotice728Url: String)(implicit request: Request[_], messages: Messages)
 
+@questionHeading = {
+    <h2 class="govuk-fieldset__heading">@messages("usePersonalDetailsAsSupplier.question")</h2>
+}
+
 @layout(pageTitle = title(form, messages("usePersonalDetailsAsSupplier.title"))) {
 
     @formHelper(action = routes.UsePersonalDetailsAsSupplierController.onSubmit(mode), Symbol("autoComplete") -> "off") {
@@ -53,12 +57,10 @@
 
         @govukSummaryList(personalDetails)
 
-        <h2 class="govuk-heading-m">@messages("usePersonalDetailsAsSupplier.question")</h2>
-
         @govukRadios(
             RadiosViewModel(
                 field  = form("value"),
-                legend = LegendViewModel(messages("usePersonalDetailsAsSupplier.question")).withCssClass("govuk-visually-hidden"),
+                legend = LegendViewModel(HtmlContent(questionHeading)).withCssClass("govuk-fieldset__legend--m"),
                 items  = Seq(
                     RadioItem(
                         id      = Some(form("value").id),
