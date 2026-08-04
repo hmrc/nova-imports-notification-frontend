@@ -18,8 +18,8 @@ package viewmodels.checkAnswers
 
 import base.SpecBase
 import controllers.routes
-import models.{BusinessOrPrivateIndividual, CheckMode, UserAnswers}
-import pages.sections.supplierDetails.SupplierBusinessOrIndividualPage
+import models.{BusinessOrPrivateIndividual, CheckMode, SupplierNumber, UserAnswers}
+import pages.sections.supplierDetails.{SupplierBusinessOrIndividualPage, SupplierNumberPage}
 import play.api.Application
 import play.api.i18n.Messages
 
@@ -33,13 +33,19 @@ class SupplierBusinessOrIndividualSummarySpec extends SpecBase {
     "must return a summary row with the correct value when the answer is Business" in {
 
       val userAnswers =
-        UserAnswers(userAnswersId).set(SupplierBusinessOrIndividualPage, BusinessOrPrivateIndividual.Business).success.value
+        UserAnswers(userAnswersId)
+          .set(SupplierBusinessOrIndividualPage, BusinessOrPrivateIndividual.Business)
+          .success
+          .value
+          .set(SupplierNumberPage, 2)
+          .success
+          .value
 
       val result = SupplierBusinessOrIndividualSummary.row(userAnswers).value
 
       result.key.content.asHtml.toString   must include(msgs("supplierBusinessOrIndividual.checkYourAnswersLabel"))
       result.value.content.asHtml.toString must include(msgs("supplierBusinessOrIndividual.radio.business"))
-      result.actions.value.items.head.href mustBe routes.SupplierBusinessOrIndividualController.onPageLoad(CheckMode).url
+      result.actions.value.items.head.href mustBe routes.SupplierBusinessOrIndividualController.onPageLoad(SupplierNumber(2), CheckMode).url
     }
 
     "must return a summary row with the correct value when the answer is PrivateIndividual" in {
@@ -48,12 +54,15 @@ class SupplierBusinessOrIndividualSummarySpec extends SpecBase {
         .set(SupplierBusinessOrIndividualPage, BusinessOrPrivateIndividual.PrivateIndividual)
         .success
         .value
+        .set(SupplierNumberPage, 4)
+        .success
+        .value
 
       val result = SupplierBusinessOrIndividualSummary.row(userAnswers).value
 
       result.key.content.asHtml.toString   must include(msgs("supplierBusinessOrIndividual.checkYourAnswersLabel"))
       result.value.content.asHtml.toString must include(msgs("supplierBusinessOrIndividual.radio.privateIndividual"))
-      result.actions.value.items.head.href mustBe routes.SupplierBusinessOrIndividualController.onPageLoad(CheckMode).url
+      result.actions.value.items.head.href mustBe routes.SupplierBusinessOrIndividualController.onPageLoad(SupplierNumber(4), CheckMode).url
     }
 
     "must return None when the answer is not present" in {

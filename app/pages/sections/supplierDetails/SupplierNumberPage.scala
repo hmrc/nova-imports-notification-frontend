@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,19 +12,16 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@this(
-    layout: templates.Layout
-)
+package pages.sections.supplierDetails
 
-@()(implicit request: Request[?], messages: Messages)
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-@layout(pageTitle = titleNoForm(messages("loadingClientList.title")), showBackLink = true) {
+case object SupplierNumberPage extends QuestionPage[Int] {
 
-    <h1 class="govuk-heading-l">@messages("loadingClientList.heading")</h1>
+  override def path: JsPath = JsPath \ "supplier-details" \ toString
 
-    <p class="govuk-body">@messages("loadingClientList.paragraph")</p>
-
-    <h2 class="govuk-heading-s">@messages("loadingClientList.warning")</h2>
+  override def toString: String = "supplierNumber"
 }

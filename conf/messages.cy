@@ -232,6 +232,99 @@ purchaserDetailsCheckYourAnswers.caption = Add purchaser details
 purchaserDetailsCheckYourAnswers.title = Check your answers - Purchaser’s details
 purchaserDetailsCheckYourAnswers.heading = Check your answers
 
+######################################################
+# ERR2.0 - Error message - System error              #
+######################################################
+
+journeyRecovery.startAgain.title = Mae’n ddrwg gennym – mae problem gyda’r gwasanaeth hwn
+journeyRecovery.startAgain.heading = Mae’n ddrwg gennym – mae problem gyda’r gwasanaeth hwn
+journeyRecovery.startAgain.paragraph.1 = Rhowch gynnig arall arni yn nes ymlaen.
+journeyRecovery.startAgain.paragraph.2 = Os oes gennych unrhyw gwestiynau,
+journeyRecovery.startAgain.link.text = cysylltwch â chymorth technegol CThEF (yn agor tab newydd).
+
+# TODO: Welsh translations to be supplied by content team.
+signedOut.title = For your security, we signed you out
+signedOut.heading = For your security, we signed you out
+signedOut.guidance = We did not save your answers.
+
+######################################################
+# ERR1.0 - Error message - Unauthorised Access       #
+######################################################
+
+unauthorised.title = Nid oes gennych ganiatâd i gyrraedd y dudalen hon
+unauthorised.heading = Nid oes gennych ganiatâd i gyrraedd y dudalen hon
+unauthorised.paragraph.1 =  Fe geisioch chi gael mynediad at ran o’r gwasanaeth hwn nad oes gennych awdurdod i’w defnyddio.
+unauthorised.paragraph.2 = Os yw hyn yn anghywir,
+unauthorised.link.text = cysylltwch â chymorth technegol CThEF (yn agor tab newydd).
+unauthorised.returnHome = Dychwelyd i’r hafan
+
+##########################################################################
+# NTL3.0 - Notification task list for VAT-registered organisation (4/5)  #
+##########################################################################
+
+notificationTaskList.title = Creu hysbysiad cerbyd
+notificationTaskList.heading = Creu hysbysiad cerbyd
+notificationTaskList.vrn.caption = Rhif cofrestru TAW: GB{0}
+notificationTaskList.aboutYou.heading = Amdanoch chi
+notificationTaskList.aboutYou.addYourDetails = Ychwanegu eich manylion chi
+notificationTaskList.aboutYou.addYourAddress = Ychwanegwch eich cyfeiriad
+
+# TODO: Welsh translations to be supplied by content team.
+notificationTaskList.aboutThePurchaser.heading = About the purchaser
+notificationTaskList.aboutThePurchaser.addPurchaserDetails = Add purchaser details
+notificationTaskList.aboutThePurchaser.addPurchaserAddress = Add purchaser address
+
+notificationTaskList.aboutTheVehicles.heading = Ynglŷn â’r cerbydau
+notificationTaskList.aboutTheVehicles.addVehicleDetails = Ychwanegwch fanylion cerbyd
+notificationTaskList.declaration.heading = Datganiad
+notificationTaskList.declaration.readDeclaration = Darllen y datganiad
+notificationTaskList.declaration.hint = Mae’n rhaid i chi gwblhau pob adran cyn i chi ddatgan.
+notificationTaskList.status.incomplete = Heb ei gwblhau
+notificationTaskList.status.completed = Wedi’i gwblhau
+notificationTaskList.status.cannotStartYet = Methu dechrau eto
+notificationTaskList.returnToHome = Dychwelyd i’r hafan
+notificationTaskList.deleteNotification = Dileu hysbysiad
+
+########################################################
+# CS1.0 - Client State 1: Retrieving your client list  #
+########################################################
+
+loadingClientList.title = Adalw rhestr o’ch cleientiaid
+loadingClientList.heading = Adalw rhestr o’ch cleientiaid
+loadingClientList.paragraph = Arhoswch tra byddwn yn adfer eich cleientiaid awdurdodedig. Dim ond ychydig eiliadau y dylai hyn eu cymryd.
+loadingClientList.warning = Peidiwch ag adfywio’r dudalen hon na defnyddio’r botwm yn ôl.
+
+##########################################################
+# CS2.0 - Client State 2: Could not retrieve client list #
+##########################################################
+
+couldNotRetrieveClientList.title = Ni allem adalw eich rhestr o gleientiaid
+couldNotRetrieveClientList.heading = Ni allem adalw eich rhestr o gleientiaid
+couldNotRetrieveClientList.paragraph = Gallai hyn fod oherwydd y rhesymau canlynol:
+couldNotRetrieveClientList.reason1 = mae problem dros dro gyda’r gwasanaeth
+couldNotRetrieveClientList.reason2 = mae’ch awdurdodiadau yn dal i gael eu prosesu
+couldNotRetrieveClientList.reason3 = nid oes gennych unrhyw gleientiaid awdurdodedig wedi’u cysylltu â’ch cod asiant
+couldNotRetrieveClientList.helpdesk = Os yw’r broblem yn parhau,
+couldNotRetrieveClientList.helpdesk.linkText = cysylltwch â chymorth technegol CThEF (yn agor tab newydd).
+couldNotRetrieveClientList.returnHome = Dychwelyd i’r hafan
+
+###########################################################
+# CS3.0 - Client State 3: You have no authorised clients  #
+###########################################################
+
+noAuthorisedClients.title = Nid oes gennych unrhyw gleientiaid awdurdodedig
+noAuthorisedClients.heading = Nid oes gennych unrhyw gleientiaid awdurdodedig
+noAuthorisedClients.body.1 = Nid oes gennych unrhyw gleientiaid sydd wedi’u hawdurdodi i ddefnyddio’r gwasanaeth NOVA.
+noAuthorisedClients.body.2 = I gyflwyno a rheoli hysbysiadau cerbydau ar ran cleient, mae’n rhaid iddynt eich awdurdodi i weithredu ar eu rhan.
+noAuthorisedClients.whatToDo.heading = Yr hyn y mae angen i chi ei wneud
+noAuthorisedClients.whatToDo.body = Gallwch wneud un o’r canlynol:
+noAuthorisedClients.list.hmrcOnlineAccount = gofyn i’ch cleient eich awdurdodi drwy ei {0}
+noAuthorisedClients.list.hmrcOnlineAccount.link = gyfrif ar-lein CThEF (yn agor tab newydd)
+noAuthorisedClients.list.onlineAgentAuthorisation = cwblhau’r broses {0} ar gyfer y cleient rydych yn gweithredu ar ei ran
+noAuthorisedClients.list.onlineAgentAuthorisation.link = wdurdodi Ar-lein i Asiantau (yn agor tab newydd)
+noAuthorisedClients.timing = Gall gymryd hyd at 5 diwrnod gwaith i awdurdodiadau newydd ymddangos yn eich cyfrif.
+noAuthorisedClients.returnToHome = Dychwelyd i’r hafan
+
 ##################################################################
 # IQ1.0 - Initial Question 1.0: Vehicle brought into NI from EU  #
 ##################################################################
