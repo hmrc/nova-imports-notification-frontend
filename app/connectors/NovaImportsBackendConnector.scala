@@ -136,7 +136,7 @@ class NovaImportsBackendConnectorImpl @Inject() (
     import UpdateSectionError.*
 
     httpClient
-      .put(url"${serviceUrl(s"/draft-notifications/${draftId.value}/sections/$sectionId")}")
+      .put(url"${serviceUrl(s"/draft-notifications/${draftId.value}/sections")}/$sectionId")
       .withBody(body)
       .execute[HttpResponse]
       .map { response =>
