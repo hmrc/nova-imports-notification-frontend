@@ -245,3 +245,195 @@ purchaserBusinessName.change.hidden = the purchaser’s business name
 purchaserDetailsCheckYourAnswers.caption = Add purchaser details
 purchaserDetailsCheckYourAnswers.title = Check your answers - Purchaser’s details
 purchaserDetailsCheckYourAnswers.heading = Check your answers
+
+######################################################
+# ERR2.0 - Error message - System error              #
+######################################################
+
+journeyRecovery.startAgain.title = Mae’n ddrwg gennym – mae problem gyda’r gwasanaeth hwn
+journeyRecovery.startAgain.heading = Mae’n ddrwg gennym – mae problem gyda’r gwasanaeth hwn
+journeyRecovery.startAgain.paragraph.1 = Rhowch gynnig arall arni yn nes ymlaen.
+journeyRecovery.startAgain.paragraph.2 = Os oes gennych unrhyw gwestiynau,
+journeyRecovery.startAgain.link.text = cysylltwch â chymorth technegol CThEF (yn agor tab newydd).
+
+# TODO: Welsh translations to be supplied by content team.
+signedOut.title = For your security, we signed you out
+signedOut.heading = For your security, we signed you out
+signedOut.guidance = We did not save your answers.
+
+######################################################
+# ERR1.0 - Error message - Unauthorised Access       #
+######################################################
+
+unauthorised.title = Nid oes gennych ganiatâd i gyrraedd y dudalen hon
+unauthorised.heading = Nid oes gennych ganiatâd i gyrraedd y dudalen hon
+unauthorised.paragraph.1 =  Fe geisioch chi gael mynediad at ran o’r gwasanaeth hwn nad oes gennych awdurdod i’w defnyddio.
+unauthorised.paragraph.2 = Os yw hyn yn anghywir,
+unauthorised.link.text = cysylltwch â chymorth technegol CThEF (yn agor tab newydd).
+unauthorised.returnHome = Dychwelyd i’r hafan
+
+##########################################################################
+# NTL3.0 - Notification task list for VAT-registered organisation (4/5)  #
+##########################################################################
+
+notificationTaskList.title = Creu hysbysiad cerbyd
+notificationTaskList.heading = Creu hysbysiad cerbyd
+notificationTaskList.vrn.caption = Rhif cofrestru TAW: GB{0}
+notificationTaskList.aboutYou.heading = Amdanoch chi
+notificationTaskList.aboutYou.addYourDetails = Ychwanegu eich manylion chi
+notificationTaskList.aboutYou.addYourAddress = Ychwanegwch eich cyfeiriad
+
+# TODO: Welsh translations to be supplied by content team.
+notificationTaskList.aboutThePurchaser.heading = About the purchaser
+notificationTaskList.aboutThePurchaser.addPurchaserDetails = Add purchaser details
+notificationTaskList.aboutThePurchaser.addPurchaserAddress = Add purchaser address
+
+notificationTaskList.aboutTheVehicles.heading = Ynglŷn â’r cerbydau
+notificationTaskList.aboutTheVehicles.addVehicleDetails = Ychwanegwch fanylion cerbyd
+notificationTaskList.declaration.heading = Datganiad
+notificationTaskList.declaration.readDeclaration = Darllen y datganiad
+notificationTaskList.declaration.hint = Mae’n rhaid i chi gwblhau pob adran cyn i chi ddatgan.
+notificationTaskList.status.incomplete = Heb ei gwblhau
+notificationTaskList.status.completed = Wedi’i gwblhau
+notificationTaskList.status.cannotStartYet = Methu dechrau eto
+notificationTaskList.returnToHome = Dychwelyd i’r hafan
+notificationTaskList.deleteNotification = Dileu hysbysiad
+
+########################################################
+# CS1.0 - Client State 1: Retrieving your client list  #
+########################################################
+
+loadingClientList.title = Adalw rhestr o’ch cleientiaid
+loadingClientList.heading = Adalw rhestr o’ch cleientiaid
+loadingClientList.paragraph = Arhoswch tra byddwn yn adfer eich cleientiaid awdurdodedig. Dim ond ychydig eiliadau y dylai hyn eu cymryd.
+loadingClientList.warning = Peidiwch ag adfywio’r dudalen hon na defnyddio’r botwm yn ôl.
+
+##########################################################
+# CS2.0 - Client State 2: Could not retrieve client list #
+##########################################################
+
+couldNotRetrieveClientList.title = Ni allem adalw eich rhestr o gleientiaid
+couldNotRetrieveClientList.heading = Ni allem adalw eich rhestr o gleientiaid
+couldNotRetrieveClientList.paragraph = Gallai hyn fod oherwydd y rhesymau canlynol:
+couldNotRetrieveClientList.reason1 = mae problem dros dro gyda’r gwasanaeth
+couldNotRetrieveClientList.reason2 = mae’ch awdurdodiadau yn dal i gael eu prosesu
+couldNotRetrieveClientList.reason3 = nid oes gennych unrhyw gleientiaid awdurdodedig wedi’u cysylltu â’ch cod asiant
+couldNotRetrieveClientList.helpdesk = Os yw’r broblem yn parhau,
+couldNotRetrieveClientList.helpdesk.linkText = cysylltwch â chymorth technegol CThEF (yn agor tab newydd).
+couldNotRetrieveClientList.returnHome = Dychwelyd i’r hafan
+
+###########################################################
+# CS3.0 - Client State 3: You have no authorised clients  #
+###########################################################
+
+noAuthorisedClients.title = Nid oes gennych unrhyw gleientiaid awdurdodedig
+noAuthorisedClients.heading = Nid oes gennych unrhyw gleientiaid awdurdodedig
+noAuthorisedClients.body.1 = Nid oes gennych unrhyw gleientiaid sydd wedi’u hawdurdodi i ddefnyddio’r gwasanaeth NOVA.
+noAuthorisedClients.body.2 = I gyflwyno a rheoli hysbysiadau cerbydau ar ran cleient, mae’n rhaid iddynt eich awdurdodi i weithredu ar eu rhan.
+noAuthorisedClients.whatToDo.heading = Yr hyn y mae angen i chi ei wneud
+noAuthorisedClients.whatToDo.body = Gallwch wneud un o’r canlynol:
+noAuthorisedClients.list.hmrcOnlineAccount = gofyn i’ch cleient eich awdurdodi drwy ei {0}
+noAuthorisedClients.list.hmrcOnlineAccount.link = gyfrif ar-lein CThEF (yn agor tab newydd)
+noAuthorisedClients.list.onlineAgentAuthorisation = cwblhau’r broses {0} ar gyfer y cleient rydych yn gweithredu ar ei ran
+noAuthorisedClients.list.onlineAgentAuthorisation.link = wdurdodi Ar-lein i Asiantau (yn agor tab newydd)
+noAuthorisedClients.timing = Gall gymryd hyd at 5 diwrnod gwaith i awdurdodiadau newydd ymddangos yn eich cyfrif.
+noAuthorisedClients.returnToHome = Dychwelyd i’r hafan
+
+##################################################################
+# IQ1.0 - Initial Question 1.0: Vehicle brought into NI from EU  #
+##################################################################
+
+vehicleFromEu.title = Hysbysu ar gyfer cerbyd sy’n dod i mewn i Ogledd Iwerddon
+vehicleFromEu.heading = A yw’r hysbysiad hwn ar gyfer cerbyd sy’n dod i mewn i Ogledd Iwerddon o wlad yn yr UE?
+vehicleFromEu.caption = Cwestiynau cychwynnol
+vehicleFromEu.paragraph.1 = Os ydych chi’n mewnforio cerbyd i Ogledd Iwerddon o’r tu allan i wlad yn yr UE, mae’n rhaid i chi ddilyn proses wahanol.
+vehicleFromEu.paragraph.2 = Dysgwch sut i hysbysu CThEF amdano ar {0}.
+vehicleFromEu.paragraph.2.linkText = Mewnforio cerbydau i mewn i’r DU (yn agor tab newydd)
+vehicleFromEu.paragraph.3 = Gweler y rhestr o {0}.
+vehicleFromEu.paragraph.3.linkText = wledydd yr UE (yn agor tab newydd)
+vehicleFromEu.error.required = Dewiswch ‘Iawn’ os yw’r hysbysiad hwn ar gyfer cerbyd sy’n dod i mewn i Ogledd Iwerddon o wlad yn yr UE
+# TODO: Welsh translations to be supplied by content team.
+vehicleFromEu.checkYourAnswersLabel = Vehicle brought into Northern Ireland from an EU country
+vehicleFromEu.change.hidden = whether this notification is for a vehicle brought into Northern Ireland from an EU country
+
+##########################################################################
+# IQ1.1 - Initial Question 1.1: Vehicle brought into NI from outside EU  #
+##########################################################################
+
+vehicleOutsideEU.title = Os ydych wedi dod â cherbyd i Ogledd Iwerddon o’r tu allan i wlad yn yr UE
+vehicleOutsideEU.heading = Os ydych wedi dod â cherbyd i Ogledd Iwerddon o’r tu allan i wlad yn yr UE
+vehicleOutsideEU.paragraph.1 = Mae’n rhaid i chi ddilyn proses wahanol.
+vehicleOutsideEU.paragraph.2 = Dysgwch sut i hysbysu CThEF amdano ar {0}.
+
+###############################################################
+# IQ2.0 - Initial Question 2: Business or private individual  #
+###############################################################
+
+businessPrivate.title = A ydych yn fusnes neu’n unigolyn preifat?
+businessPrivate.heading = A ydych yn fusnes neu’n unigolyn preifat?
+businessPrivate.caption = Cwestiynau cychwynnol
+businessPrivate.business = Busnes
+businessPrivate.business.hint = Yn cynnwys busnesau nad ydynt wedi’u cofrestru ar gyfer TAW
+businessPrivate.privateIndividual = Unigolyn preifat
+businessPrivate.checkYourAnswersLabel = A ydych yn fusnes neu’n unigolyn preifat?
+businessPrivate.error.required = Dewiswch os ydych yn fusnes neu’n unigolyn preifat
+businessPrivate.privateIndividual.hint = Yn gweithredu ar eich rhan eich hun neu ar ran unigolyn preifat arall
+# TODO: Welsh translations to be supplied by content team.
+businessPrivate.change.hidden = whether you are a business or private individual
+
+##########################################################
+# OQ1.0 - Organisation Question 1: Vehicle business use  #
+##########################################################
+
+vehicleBusinessUse.no = Nac ydw
+vehicleBusinessUse.title = A ydych wedi dod â cherbyd i’r DU at ddefnydd busnes?
+vehicleBusinessUse.heading = A ydych wedi dod â cherbyd i’r DU at ddefnydd busnes?
+vehicleBusinessUse.caption = Cwestiynau cychwynnol
+vehicleBusinessUse.hint = Dewiswch ‘Ie’ dim ond os yw’r cerbyd yn perthyn i’r busnes
+vehicleBusinessUse.checkYourAnswersLabel = A ydych wedi dod â cherbyd i’r DU at ddefnydd busnes?
+vehicleBusinessUse.error.required = Dewiswch ‘Iawn’ os ydych wedi dod â cherbyd i’r DU at ddefnydd busnes
+vehicleBusinessUse.change.hidden = A ydych wedi dod â cherbyd i’r DU at ddefnydd busnes?
+
+##########################################################
+# AQ1.0 - Agent Question 1: Client vehicle business use  #
+##########################################################
+
+agentVehicleBusinessUse.no = Nac ydw
+agentVehicleBusinessUse.title = A yw eich cleient wedi dod â cherbyd i’r DU at ddefnydd busnes?
+agentVehicleBusinessUse.heading = A yw eich cleient wedi dod â cherbyd i’r DU at ddefnydd busnes?
+agentVehicleBusinessUse.caption = Cwestiynau cychwynnol
+agentVehicleBusinessUse.hint = Dewiswch ‘Ie’ dim ond os yw’r cerbyd yn perthyn i’r busnes
+agentVehicleBusinessUse.checkYourAnswersLabel = A yw eich cleient wedi dod â cherbyd i’r DU at ddefnydd busnes?
+agentVehicleBusinessUse.error.required = Dewiswch ‘Iawn’ os yw eich cleient wedi dod â cherbyd i’r DU at ddefnydd busnes
+# TODO: Welsh translations to be supplied by content team.
+agentVehicleBusinessUse.change.hidden = whether your client has brought a vehicle into the UK for business use
+
+##########################################################################
+# IQ3.0 - Initial Question 3.0: Purchaser or on behalf of the purchaser  #
+##########################################################################
+
+purchaserOrOnBehalf.title = A ydych yn hysbysu fel y prynwr, neu ar ran prynwr?
+purchaserOrOnBehalf.heading = A ydych yn hysbysu fel y prynwr, neu ar ran prynwr?
+purchaserOrOnBehalf.caption = Cwestiynau cychwynnol
+purchaserOrOnBehalf.hint = Y prynwr yw unigolyn preifat neu fusnes a ddaeth â’r cerbyd i’r DU
+purchaserOrOnBehalf.error.required = Dewiswch os ydych yn hysbysu fel y prynwr neu ar ran prynwr
+purchaserOrOnBehalf.radio.purchaser = Fel y prynwr
+purchaserOrOnBehalf.radio.behalfOfPurchaser = Ar ran prynwr
+# TODO: Welsh translations to be supplied by content team.
+purchaserOrOnBehalf.checkYourAnswersLabel = Are you the purchaser or notifying on behalf of a purchaser?
+purchaserOrOnBehalf.change.hidden = whether you are notifying as the purchaser or on behalf of a purchaser
+
+###########################################################################
+# IQ3.1 - Initial Question 3.1: Purchaser business or private individual  #
+###########################################################################
+
+purchaserBusinessOrIndividual.title = Ai busnes neu unigolyn preifat yw’r prynwr rydych yn hysbysu ar ei ran?
+purchaserBusinessOrIndividual.heading = Ai busnes neu unigolyn preifat yw’r prynwr rydych yn hysbysu ar ei ran?
+purchaserBusinessOrIndividual.caption = Cwestiynau cychwynnol
+purchaserBusinessOrIndividual.hint = Ni all y prynwr fod wedi’i gofrestru ar gyfer TAW
+purchaserBusinessOrIndividual.error.required = Dewiswch a yw’r prynwr yn fusnes neu’n unigolyn preifat
+purchaserBusinessOrIndividual.radio.business = Busnes
+purchaserBusinessOrIndividual.radio.privateIndividual = Unigolyn preifat
+# TODO: Welsh translations to be supplied by content team.
+purchaserBusinessOrIndividual.checkYourAnswersLabel = Type of purchaser you’re notifying for
+purchaserBusinessOrIndividual.change.hidden = whether the purchaser you are notifying on behalf of is a business or private individual

@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,19 +12,18 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@this(
-    layout: templates.Layout
-)
+package controllers.utils
 
-@()(implicit request: Request[?], messages: Messages)
+import models.{SupplierNumber, UserAnswers}
+import pages.sections.supplierDetails.SupplierNumberPage
 
-@layout(pageTitle = titleNoForm(messages("loadingClientList.title")), showBackLink = true) {
+object IsSupplierNumberInSession {
 
-    <h1 class="govuk-heading-l">@messages("loadingClientList.heading")</h1>
+  def apply(answers: UserAnswers, supplierNumber: SupplierNumber): Boolean =
+    supplierNumbers(answers).contains(supplierNumber.value)
 
-    <p class="govuk-body">@messages("loadingClientList.paragraph")</p>
-
-    <h2 class="govuk-heading-s">@messages("loadingClientList.warning")</h2>
+  private def supplierNumbers(answers: UserAnswers): Set[Int] =
+    answers.get(SupplierNumberPage).toSet
 }
