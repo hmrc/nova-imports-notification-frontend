@@ -136,3 +136,8 @@ GET         /supplier-business-or-private-individual                controllers.
 POST        /supplier-business-or-private-individual                controllers.SupplierBusinessOrIndividualController.onSubmit(mode: Mode = NormalMode)
 GET         /supplier-business-or-private-individual/change         controllers.SupplierBusinessOrIndividualController.onPageLoad(mode: Mode = CheckMode)
 POST        /supplier-business-or-private-individual/change         controllers.SupplierBusinessOrIndividualController.onSubmit(mode: Mode = CheckMode)
+
+GET         /is-supplier-address-in-uk                              controllers.IsSupplierAddressInTheUKController.onPageLoad(mode: Mode = NormalMode)
+POST        /is-supplier-address-in-uk                              controllers.IsSupplierAddressInTheUKController.onSubmit(mode: Mode = NormalMode)
+GET         /is-supplier-address-in-uk/change                       controllers.IsSupplierAddressInTheUKController.onPageLoad(mode: Mode = CheckMode)
+POST        /is-supplier-address-in-uk/change                       controllers.IsSupplierAddressInTheUKController.onSubmit(mode: Mode = CheckMode)

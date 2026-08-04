@@ -26,7 +26,7 @@ import pages.sections.notifierDetails.{BusinessNamePage, EmailAddressPage, NameD
 import pages.sections.notifieraddress.IsYourAddressInTheUkPage
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 import pages.sections.purchaserDetails.{PurchaserBusinessNamePage, PurchaserNamePage}
-import pages.sections.supplierDetails.{SupplierBusinessOrIndividualPage, UsePersonalDetailsAsSupplierPage}
+import pages.sections.supplierDetails.{IsSupplierAddressInTheUkPage, SupplierBusinessOrIndividualPage, UsePersonalDetailsAsSupplierPage}
 
 @Singleton
 class Navigator @Inject() () {
@@ -123,6 +123,13 @@ class Navigator @Inject() () {
         userAnswers.get(IsPurchaserAddressInTheUkPage) match {
           case Some(true)  => routes.LandingPageController.onPageLoad() // TODO: navigate to APA2.0 when built
           case Some(false) => routes.LandingPageController.onPageLoad() // TODO: navigate to APA1.2 when built
+          case _           => routes.JourneyRecoveryController.onPageLoad()
+        }
+    case IsSupplierAddressInTheUkPage =>
+      (userAnswers, _) =>
+        userAnswers.get(IsSupplierAddressInTheUkPage) match {
+          case Some(true)  => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD-S6.0 when built
+          case Some(false) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD-S5.1a when built
           case _           => routes.JourneyRecoveryController.onPageLoad()
         }
     case _ => (_, _) => routes.LandingPageController.onPageLoad()
