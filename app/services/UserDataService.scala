@@ -29,7 +29,7 @@ import repositories.SessionRepository
 import uk.gov.hmrc.http.HeaderCarrier
 import services.UserDataService.*
 import pages.{AgentClientVehicleBusinessUsePage, AgentSelectedClientPage}
-import pages.sections.notifierDetails.{EmailAddressPage, NameDetailsPage, PhoneNumberPage}
+import pages.sections.notifierDetails.{BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 import pages.sections.purchaserDetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 
@@ -66,14 +66,17 @@ class UserDataServiceImpl @Inject() (
           u2 <- storeNotifierDetailsPages(draft, u1, repository)
           u3 <- storeNotifierAddressPages(draft, u2, repository)
           u4 <- storePurchaserDetailsPages(draft, u3, repository)
-        } yield Right(u4)
+          u5 <- u4.get(BusinessOrPrivatePage)
+                  .fold(Future.successful(u4))(businessOrPrivate => repository.setPage(u4, BusinessOrPrivatePage, businessOrPrivate))
+        } yield Right(u5)
     }
 
   def determineAndUpdateStatus(userAnswers: UserAnswers, userContext: UserContext): Map[String, SectionStatus] =
     userContext.userType match {
       case NovaUserType.VatRegisteredOrganisation                                   => orgWithEnrolments(userAnswers)
       case NovaUserType.Agent if userAnswers.get(AgentSelectedClientPage).isDefined => agentWithSelectedClient(userAnswers)
-      case NovaUserType.Agent                                                       => agentWithoutClient(userAnswers)
+      case NovaUserType.Agent if userContext.agentHasVatAgentEnrolment              => agentWithoutClient(userAnswers)
+      case NovaUserType.Agent                                                       => nonVatAgentWithoutClient(userAnswers)
       case _                                                                        => privateIndividual(userAnswers)
     }
 }
@@ -260,11 +263,14 @@ object UserDataService {
     val nameDetails             = answers.get(NameDetailsPage)
     val phoneNumber             = answers.get(PhoneNumberPage)
     val emailAddress            = answers.get(EmailAddressPage)
+    val businessName            = answers.get(BusinessNamePage)
     val expectsName             = answers.get(BusinessOrPrivatePage).contains(BusinessOrPrivateIndividual.PrivateIndividual)
-    val notifierDetailsAllUnset = nameDetails.isEmpty && phoneNumber.isEmpty && emailAddress.isEmpty
+    val expectsBusinessName     = answers.get(BusinessOrPrivatePage).contains(BusinessOrPrivateIndividual.Business)
+    val notifierDetailsAllUnset = nameDetails.isEmpty && phoneNumber.isEmpty && emailAddress.isEmpty && businessName.isEmpty
 
     val notifierDetailsStatus =
-      if phoneNumber.isDefined && emailAddress.isDefined && (nameDetails.isDefined == expectsName) then SectionStatus.Completed
+      if phoneNumber.isDefined && emailAddress.isDefined && (nameDetails.isDefined == expectsName) && (businessName.isDefined == expectsBusinessName)
+      then SectionStatus.Completed
       else if notifierDetailsAllUnset then SectionStatus.NotYetSaved
       else SectionStatus.Incomplete
 
@@ -293,6 +299,30 @@ object UserDataService {
       case (false, false) => SectionStatus.NotYetSaved
       case _              => SectionStatus.Incomplete
     }
+
+    Map(
+      SectionId.Introduction     -> introStatus(answers),
+      SectionId.InitialQuestions -> standardInitialQsStatus(answers),
+      SectionId.NotifierDetails  -> notifierDetailsStatus,
+      SectionId.NotifierAddress  -> SectionStatus.NotYetSaved,
+      SectionId.PurchaserDetails -> purchaserDetailsStatus(answers),
+      SectionId.PurchaserAddress -> purchaserAddressStatus(answers),
+      SectionId.Vehicles         -> SectionStatus.NotYetSaved,
+      SectionId.Declaration      -> SectionStatus.NotYetSaved
+    )
+  }
+
+  def nonVatAgentWithoutClient(answers: UserAnswers): Map[String, SectionStatus] = {
+    val nameDetails             = answers.get(NameDetailsPage)
+    val phoneNumber             = answers.get(PhoneNumberPage)
+    val emailAddress            = answers.get(EmailAddressPage)
+    val expectsName             = answers.get(BusinessOrPrivatePage).contains(BusinessOrPrivateIndividual.PrivateIndividual)
+    val notifierDetailsAllUnset = nameDetails.isEmpty && phoneNumber.isEmpty && emailAddress.isEmpty
+
+    val notifierDetailsStatus =
+      if phoneNumber.isDefined && emailAddress.isDefined && (nameDetails.isDefined == expectsName) then SectionStatus.Completed
+      else if notifierDetailsAllUnset then SectionStatus.NotYetSaved
+      else SectionStatus.Incomplete
 
     Map(
       SectionId.Introduction     -> introStatus(answers),

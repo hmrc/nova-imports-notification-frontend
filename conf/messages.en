@@ -468,7 +468,6 @@ phoneNumber.caption = Add your details
 phoneNumber.paragraph = You must provide at least one contact number.
 phoneNumber.label.phoneNumber = Phone number
 phoneNumber.label.mobileNumber = Mobile number
-phoneNumber.checkYourAnswersLabel = Contact numbers
 phoneNumber.error.required = Enter at least one contact number
 phoneNumber.error.phoneRequired = Enter your phone number
 phoneNumber.error.mobileRequired = Enter your mobile number
@@ -476,6 +475,7 @@ phoneNumber.error.length = Your phone number must be 20 characters or less
 phoneNumber.error.invalid = Enter your phone number in the correct format, like 01632 960 001
 phoneNumber.error.mobileLength = Your mobile number must be 20 characters or less
 phoneNumber.error.mobileInvalid = Enter your mobile number in the correct format, like 07700 900 982 or 44 7700 900 982
+phoneNumber.checkYourAnswersLabel = Contact numbers
 phoneNumber.change.hidden = your contact numbers
 
 ######################################################
