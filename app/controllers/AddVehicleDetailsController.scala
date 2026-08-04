@@ -23,16 +23,18 @@ import forms.AddVehicleDetailsFormProvider
 import models.requests.DataRequest
 
 import javax.inject.Inject
-import models.{AddVehicleDetails, Mode, NovaUserType}
+import models.{AddVehicleDetails, Mode, NovaUserType, UserAnswers}
 import navigation.Navigator
 import pages.AddVehicleDetailsPage
 import pages.sections.initialquestions.VehicleFromEuPage
+import pages.sections.supplierDetails.SupplierNumberPage
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import views.html.AddVehicleDetailsView
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Success, Try}
 
 class AddVehicleDetailsController @Inject() (
   val controllerComponents: MessagesControllerComponents,
@@ -60,7 +62,7 @@ class AddVehicleDetailsController @Inject() (
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, appConfig.multipleVehiclesSpreadsheetsUrl))),
         value =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(AddVehicleDetailsPage, value))
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(AddVehicleDetailsPage, value).flatMap(seedSupplierNumber(value, _)))
             _              <- sessionRepository.set(updatedAnswers)
           } yield Redirect(
             navigator.nextPage(AddVehicleDetailsPage, mode, updatedAnswers, NovaUserType.from(request.affinityGroup, request.enrolments))
@@ -71,9 +73,17 @@ class AddVehicleDetailsController @Inject() (
 
 object AddVehicleDetailsController {
 
-  // Allow user access if IQ1.0 = Yes. User types 7 & 8 (HMRC-NOVRN-AGNT) are
-  // already rejected by StandardIdentifierAction.
+  // Allow user access if IQ1.0 = Yes. User types 7 & 8 (HMRC-NOVRN-AGNT) are rejected by StandardIdentifierAction.
   def guardPredicate(request: DataRequest[?]): Boolean =
     IsDraftIdDefined(request.userAnswers) &&
       request.userAnswers.get(VehicleFromEuPage).contains(true)
+
+  private def seedSupplierNumber(value: AddVehicleDetails, userAnswers: UserAnswers): Try[UserAnswers] =
+    value match {
+      case AddVehicleDetails.BySupplier    => userAnswers.set(SupplierNumberPage, nextSupplierNumber(userAnswers))
+      case AddVehicleDetails.BySpreadsheet => Success(userAnswers)
+    }
+
+  private def nextSupplierNumber(userAnswers: UserAnswers): Int =
+    userAnswers.get(SupplierNumberPage).getOrElse(1)
 }

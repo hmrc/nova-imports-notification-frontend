@@ -17,12 +17,12 @@
 package controllers
 
 import controllers.actions.*
-import controllers.utils.IsDraftIdDefined
+import controllers.utils.{IsDraftIdDefined, IsSupplierNumberInSession}
 import forms.SupplierBusinessOrIndividualFormProvider
 import models.requests.DataRequest
 
 import javax.inject.Inject
-import models.{BusinessOrPrivateIndividual, Mode, NovaUserType}
+import models.{BusinessOrPrivateIndividual, Mode, NovaUserType, SupplierNumber}
 import navigation.Navigator
 import pages.sections.initialquestions.VehicleFromEuPage
 import pages.sections.supplierDetails.SupplierBusinessOrIndividualPage
@@ -47,29 +47,33 @@ class SupplierBusinessOrIndividualController @Inject() (
 
   val form: Form[BusinessOrPrivateIndividual] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate) { implicit request =>
-    Ok(view(form.withDefault(request.userAnswers.get(SupplierBusinessOrIndividualPage)), mode))
-  }
+  def onPageLoad(supplierNumber: SupplierNumber, mode: Mode): Action[AnyContent] =
+    actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierNumber)) { implicit request =>
+      Ok(view(form.withDefault(request.userAnswers.get(SupplierBusinessOrIndividualPage)), supplierNumber, mode))
+    }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate).async { implicit request =>
-    form
-      .bindFromRequest()
-      .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
-        value =>
-          for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(SupplierBusinessOrIndividualPage, value))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(
-            navigator.nextPage(SupplierBusinessOrIndividualPage, mode, updatedAnswers, NovaUserType.from(request.affinityGroup, request.enrolments))
-          )
-      )
-  }
+  def onSubmit(supplierNumber: SupplierNumber, mode: Mode): Action[AnyContent] =
+    actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierNumber)).async { implicit request =>
+      form
+        .bindFromRequest()
+        .fold(
+          formWithErrors => Future.successful(BadRequest(view(formWithErrors, supplierNumber, mode))),
+          value =>
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(SupplierBusinessOrIndividualPage, value))
+              _              <- sessionRepository.set(updatedAnswers)
+            } yield Redirect(
+              navigator.nextPage(SupplierBusinessOrIndividualPage, mode, updatedAnswers, NovaUserType.from(request.affinityGroup, request.enrolments))
+            )
+        )
+    }
 }
 
 object SupplierBusinessOrIndividualController {
 
-  def guardPredicate(request: DataRequest[?]): Boolean =
+  // The supplier number in the URL must be one of the suppliers the user has in session
+  def guardPredicate(supplierNumber: SupplierNumber)(request: DataRequest[?]): Boolean =
     IsDraftIdDefined(request.userAnswers) &&
-      request.userAnswers.get(VehicleFromEuPage).contains(true)
+      request.userAnswers.get(VehicleFromEuPage).contains(true) &&
+      IsSupplierNumberInSession(request.userAnswers, supplierNumber)
 }

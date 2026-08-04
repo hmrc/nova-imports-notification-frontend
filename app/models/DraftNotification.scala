@@ -36,12 +36,13 @@ object DraftNotification {
   implicit val format: OFormat[DraftNotification] = Json.format[DraftNotification]
 
   object SectionId {
-    val Introduction: String       = "introduction"
-    val InitialQuestions: String   = "initialQuestions"
-    val NotifierDetails: String    = "notifierDetails"
-    val NotifierAddress: String    = "notifierAddress"
-    val PurchaserDetails: String   = "purchaserDetails"
-    val PurchaserAddress: String   = "purchaserAddress"
+    val Introduction: String     = "introduction"
+    val InitialQuestions: String = "initialQuestions"
+    val NotifierDetails: String  = "notifierDetails"
+    val NotifierAddress: String  = "notifierAddress"
+    val PurchaserDetails: String = "purchaserDetails"
+    val PurchaserAddress: String = "purchaserAddress"
+    // TODO: TBC sectionsId's for supplier/import/vehicle, importDetails and supplierSelfSupply are not currently read
     val ImportDetails: String      = "importDetails"
     val SupplierSelfSupply: String = "supplierSelfSupply"
     val Vehicles: String           = "vehicles"
