@@ -164,8 +164,14 @@ object NotificationTaskListController {
   private def notifierDetailsStartLink(userContext: UserContext, answers: UserAnswers): String =
     userContext.userType match {
       case NovaUserType.VatRegisteredOrganisation => routes.AboutYourDetailsController.onPageLoad().url
-      case NovaUserType.Agent                     => routes.PhoneNumberController.onPageLoad(NormalMode).url
-      case _                                      =>
+      case NovaUserType.Agent                     =>
+        if (userContext.isVatAgentWithoutClient)
+          routes.PhoneNumberController.onPageLoad(NormalMode).url
+        else if (answers.get(BusinessOrPrivatePage).contains(BusinessOrPrivateIndividual.PrivateIndividual))
+          routes.AddYourNameController.onPageLoad(NormalMode).url
+        else
+          routes.PhoneNumberController.onPageLoad(NormalMode).url
+      case _ =>
         if (answers.get(BusinessOrPrivatePage).contains(BusinessOrPrivateIndividual.PrivateIndividual))
           routes.AddYourNameController.onPageLoad(NormalMode).url
         else

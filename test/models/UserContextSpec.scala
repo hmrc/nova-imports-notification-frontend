@@ -111,6 +111,36 @@ class UserContextSpec extends SpecBase {
       val ctx = UserContext.from(AffinityGroup.Organisation, noEnrolments, emptyUserAnswers)
       ctx.isAgentWithClientNoEnrolments mustBe false
     }
+
+    "marks an agent with an activated HMCE-VAT-AGNT enrolment and no client as isVatAgentWithoutClient" in {
+      val ctx = UserContext.from(AffinityGroup.Agent, activeAgentEnrolment, emptyUserAnswers)
+      ctx.isVatAgentWithoutClient mustBe true
+      ctx.isNonVatAgentWithoutClient mustBe false
+      ctx.agentHasVatAgentEnrolment mustBe true
+    }
+
+    "marks an agent with no enrolments and no client as isNonVatAgentWithoutClient" in {
+      val ctx = UserContext.from(AffinityGroup.Agent, noEnrolments, emptyUserAnswers)
+      ctx.isNonVatAgentWithoutClient mustBe true
+      ctx.isVatAgentWithoutClient mustBe false
+    }
+
+    "does not treat an inactive HMCE-VAT-AGNT enrolment as a VAT agent" in {
+      val ctx = UserContext.from(AffinityGroup.Agent, inactiveAgentEnrolment, emptyUserAnswers)
+      ctx.isNonVatAgentWithoutClient mustBe true
+      ctx.agentHasVatAgentEnrolment mustBe false
+    }
+
+    "does not mark a non-agent as agentHasVatAgentEnrolment" in {
+      val ctx = UserContext.from(AffinityGroup.Organisation, vatEnrolment, emptyUserAnswers)
+      ctx.agentHasVatAgentEnrolment mustBe false
+    }
+
+    "both VAT and non-VAT agent-without-client predicates are false when a client is selected" in {
+      val ctx = UserContext.from(AffinityGroup.Agent, activeAgentEnrolment, answersWith(sampleClient))
+      ctx.isVatAgentWithoutClient mustBe false
+      ctx.isNonVatAgentWithoutClient mustBe false
+    }
   }
 
   "UserContext.agentMustHaveClient predicate" - {

@@ -466,7 +466,6 @@ phoneNumber.caption = Add your details
 phoneNumber.paragraph = You must provide at least one contact number.
 phoneNumber.label.phoneNumber = Phone number
 phoneNumber.label.mobileNumber = Mobile number
-phoneNumber.checkYourAnswersLabel = Contact numbers
 phoneNumber.error.required = Enter at least one contact number
 phoneNumber.error.phoneRequired = Enter your phone number
 phoneNumber.error.mobileRequired = Enter your mobile number
@@ -474,6 +473,7 @@ phoneNumber.error.length = Your phone number must be 20 characters or less
 phoneNumber.error.invalid = Enter your phone number in the correct format, like 01632 960 001
 phoneNumber.error.mobileLength = Your mobile number must be 20 characters or less
 phoneNumber.error.mobileInvalid = Enter your mobile number in the correct format, like 07700 900 982 or 44 7700 900 982
+phoneNumber.checkYourAnswersLabel = Contact numbers
 phoneNumber.change.hidden = your contact numbers
 
 ######################################################
@@ -564,6 +564,7 @@ usePersonalDetailsAsSupplier.bullet.4.linkText = read VAT Notice 728 (opens in n
 usePersonalDetailsAsSupplier.personalDetails = Your personal details are:
 usePersonalDetailsAsSupplier.name = Name
 usePersonalDetailsAsSupplier.address = Address
+usePersonalDetailsAsSupplier.notProvided = Not provided
 usePersonalDetailsAsSupplier.question = Do you want to use your personal details as the supplier details?
 usePersonalDetailsAsSupplier.yes.hint = I meet all the required conditions and I want to use my personal details as the supplier details
 usePersonalDetailsAsSupplier.no.hint = I want to add different supplier details
