@@ -18,7 +18,7 @@ package controllers
 
 import controllers.actions.*
 import controllers.utils.IsDraftIdDefined
-import forms.{IsPurchaserAddressInTheUkFormProvider, IsSupplierAddressInTheUkFormProvider, IsYourAddressInTheUkFormProvider}
+import forms.IsSupplierAddressInTheUkFormProvider
 import models.requests.DataRequest
 import models.{Mode, NovaUserType, PurchaserOrOnBehalf}
 import navigation.Navigator
@@ -44,12 +44,10 @@ class IsSupplierAddressInTheUKController @Inject() (
 
   val form: Form[Boolean] = formProvider()
 
-  // TODO: Keep updating the controller with the correct guard and route methods
-
   // For user types 1,2,3,4,5,6. Defined draftID = yes and IQ1 = yes
   private val guardPredicate: DataRequest[?] => Boolean = request =>
     request.userContext match {
-      case _                  =>
+      case _ =>
         IsDraftIdDefined(request.userAnswers) &&
         request.userAnswers.get(PurchaserOrOnBehalfPage).contains(PurchaserOrOnBehalf.OnBehalfOfPurchaser)
     }
