@@ -87,14 +87,11 @@ class VehicleFromEuViewSpec extends SpecBase with Matchers with BeforeAndAfterAl
       html must include(msgs("vehicleFromEu.paragraph.3.linkText"))
     }
 
-    "must render the radio question as a level-two heading" in {
+    "must render the radio question as a level-two heading inside a medium legend" in {
       val html = render()
-      html must include("""<h2 class="govuk-heading-m">""")
+      html must include("""govuk-fieldset__legend--m""")
+      html must include("""<h2 class="govuk-fieldset__heading">""")
       html must include(msgs("vehicleFromEu.heading"))
-    }
-
-    "must render a visually hidden radio legend" in {
-      render() must include("""govuk-visually-hidden""")
     }
 
     "must render exactly one level-one heading on the page" in {

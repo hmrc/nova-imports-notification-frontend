@@ -23,12 +23,15 @@ final case class UserContext(
   userType: NovaUserType,
   selectedClient: Option[AgentSelectedClient],
   isDeregistered: Boolean,
-  isAgentWithClientNoEnrolments: Boolean
+  isAgentWithClientNoEnrolments: Boolean,
+  agentHasVatAgentEnrolment: Boolean
 ) {
   def isAgent: Boolean                     = userType == NovaUserType.Agent
   def isAgentWithClient: Boolean           = isAgent && selectedClient.isDefined
   def isAgentWithoutClient: Boolean        = isAgent && selectedClient.isEmpty
   def isVatRegisteredOrganisation: Boolean = userType == NovaUserType.VatRegisteredOrganisation
+  def isVatAgentWithoutClient: Boolean     = isAgentWithoutClient && agentHasVatAgentEnrolment
+  def isNonVatAgentWithoutClient: Boolean  = isAgentWithoutClient && !agentHasVatAgentEnrolment
 }
 
 object UserContext {
@@ -40,7 +43,9 @@ object UserContext {
       userType = NovaUserType.from(affinityGroup, enrolments),
       selectedClient = selectedClient,
       isDeregistered = userAnswers.get(IsDeregisteredPage).getOrElse(false),
-      isAgentWithClientNoEnrolments = affinityGroup == AffinityGroup.Agent && selectedClient.isDefined && !enrolments.enrolments.exists(_.isActivated)
+      isAgentWithClientNoEnrolments =
+        affinityGroup == AffinityGroup.Agent && selectedClient.isDefined && !enrolments.enrolments.exists(_.isActivated),
+      agentHasVatAgentEnrolment = affinityGroup == AffinityGroup.Agent && enrolments.getEnrolment("HMCE-VAT-AGNT").exists(_.isActivated)
     )
   }
 

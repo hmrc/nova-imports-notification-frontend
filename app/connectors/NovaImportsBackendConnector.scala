@@ -19,7 +19,7 @@ package connectors
 import com.google.inject.Inject
 import config.FrontendAppConfig
 import models.responses.CreateDraftResponse
-import models.{DraftId, DraftNotification, NotificationSummary}
+import models.{DraftId, DraftNotification, NotificationSummary, TraderInformation}
 import play.api.libs.json.{JsObject, JsSuccess, Json}
 import play.api.libs.ws.writeableOf_JsValue
 import uk.gov.hmrc.http.HttpReads.Implicits.*
@@ -53,6 +53,12 @@ object GetDraftNotificationError {
   final case class UpstreamError(status: Int, message: String) extends GetDraftNotificationError
 }
 
+sealed trait GetTraderInformationError
+object GetTraderInformationError {
+  case object NotFound extends GetTraderInformationError
+  final case class UpstreamError(status: Int, message: String) extends GetTraderInformationError
+}
+
 trait NovaImportsBackendConnector {
 
   def createDraft(clientVrn: Option[String])(implicit hc: HeaderCarrier): Future[Either[CreateDraftError, CreateDraftResponse]]
@@ -64,6 +70,8 @@ trait NovaImportsBackendConnector {
   def updateDraftSection(draftId: DraftId, sectionId: String, body: JsObject)(implicit hc: HeaderCarrier): Future[Either[UpdateSectionError, Long]]
 
   def getDraftNotification(draftId: DraftId)(implicit hc: HeaderCarrier): Future[Either[GetDraftNotificationError, DraftNotification]]
+
+  def getTraderInformation()(implicit hc: HeaderCarrier): Future[Either[GetTraderInformationError, TraderInformation]]
 }
 
 class NovaImportsBackendConnectorImpl @Inject() (
@@ -135,6 +143,25 @@ class NovaImportsBackendConnectorImpl @Inject() (
         response.status match {
           case 200 => Right((response.json \ "versionId").as[Long])
           case 403 => Left(Forbidden)
+          case 404 => Left(NotFound)
+          case s   => Left(UpstreamError(s, response.body))
+        }
+      }
+  }
+
+  override def getTraderInformation()(implicit hc: HeaderCarrier): Future[Either[GetTraderInformationError, TraderInformation]] = {
+    import GetTraderInformationError.*
+
+    httpClient
+      .get(url"${serviceUrl("/trader-information")}")
+      .execute[HttpResponse]
+      .map { response =>
+        response.status match {
+          case 200 =>
+            response.json
+              .validate[TraderInformation]
+              .map(Right(_))
+              .recoverTotal(err => Left(UpstreamError(200, s"Malformed trader information: $err")))
           case 404 => Left(NotFound)
           case s   => Left(UpstreamError(s, response.body))
         }

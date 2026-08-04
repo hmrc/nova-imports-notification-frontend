@@ -27,7 +27,7 @@ import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.*
 import pages.sections.notifierDetails.{BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
-import pages.sections.initialquestions.{BusinessOrPrivatePage, VehicleBusinessUsePage}
+import pages.sections.initialquestions.{BusinessOrPrivatePage, VehicleBusinessUsePage, VehicleFromEuPage}
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -179,7 +179,7 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
         }
       }
 
-      "for an Agent without a selected client who has provided phone and email but no name must return OK" in {
+      "for a VAT agent (HMCE-VAT-AGNT) without a selected client who has provided phone and email but no name must return OK" in {
         given application: Application = applicationForPageLoad(classOf[FakeAgentIdentifierAction], Some(agentWithoutClientAnswers))
 
         running(application) {
@@ -195,6 +195,70 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
           body must include(phone)
           body must include(email)
           body must not include "Smith"
+        }
+      }
+
+      "for a non-VAT agent without a client who answered private individual must return OK with the name row" in {
+        given application: Application =
+          applicationForPageLoad(classOf[FakeAgentNoEnrolmentsIdentifierAction], Some(nonVatAgentPrivateWithNameAnswers))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, yourDetailsCheckYourAnswersRoute)
+
+          val result = route(application, request).value
+          val body   = contentAsString(result)
+
+          status(result) mustEqual OK
+          body must include("Check your answers")
+          body must include("Smith")
+          body must include(phone)
+          body must include(email)
+        }
+      }
+
+      "for a non-VAT agent without a client who answered private individual and has no name must redirect to Unauthorised" in {
+        given application: Application =
+          applicationForPageLoad(classOf[FakeAgentNoEnrolmentsIdentifierAction], Some(nonVatAgentPrivateNoNameAnswers))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, yourDetailsCheckYourAnswersRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+        }
+      }
+
+      "for a non-VAT agent without a client who answered business must return OK with phone and email but no name" in {
+        given application: Application =
+          applicationForPageLoad(classOf[FakeAgentNoEnrolmentsIdentifierAction], Some(nonVatAgentBusinessNoNameAnswers))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, yourDetailsCheckYourAnswersRoute)
+
+          val result = route(application, request).value
+          val body   = contentAsString(result)
+
+          status(result) mustEqual OK
+          body must include("Check your answers")
+          body must include(phone)
+          body must include(email)
+          body must not include "Smith"
+        }
+      }
+
+      "for a non-VAT agent without a client who answered business but has a stray name must redirect to Unauthorised" in {
+        given application: Application =
+          applicationForPageLoad(classOf[FakeAgentNoEnrolmentsIdentifierAction], Some(nonVatAgentBusinessStrayNameAnswers))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, yourDetailsCheckYourAnswersRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
         }
       }
 
@@ -229,6 +293,39 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
 
           status(result) mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+        }
+      }
+
+      "must return OK for a standard user who changed from private individual to business and re-entered their details" in {
+        given application: Application = applicationForPageLoad(classOf[FakeIdentifierAction], Some(changedFromPrivateToBusinessAnswers))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, yourDetailsCheckYourAnswersRoute)
+
+          val result = route(application, request).value
+          val body   = contentAsString(result)
+
+          status(result) mustEqual OK
+          body must include(businessName)
+          body must include(phone)
+          body must include(email)
+        }
+      }
+
+      "must return OK for a standard user who changed from business to private individual and re-entered their details" in {
+        given application: Application = applicationForPageLoad(classOf[FakeIdentifierAction], Some(changedFromBusinessToPrivateAnswers))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, yourDetailsCheckYourAnswersRoute)
+
+          val result = route(application, request).value
+          val body   = contentAsString(result)
+
+          status(result) mustEqual OK
+          body must include("Smith")
+          body must include(phone)
+          body must include(email)
+          body must not include businessName
         }
       }
 
@@ -878,6 +975,138 @@ object YourDetailsCheckYourAnswersControllerSpec {
 
   private val agentWithoutClientAnswers = emptyUserAnswers
     .set(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
+    .success
+    .value
+    .set(PhoneNumberPage, contactNumbers)
+    .success
+    .value
+    .set(EmailAddressPage, email)
+    .success
+    .value
+    .set(DraftIdPage, DraftId("DRAFT-001"))
+    .success
+    .value
+    .set(DraftVersionIdPage, 1L)
+    .success
+    .value
+
+  private val nonVatAgentPrivateWithNameAnswers = emptyUserAnswers
+    .set(VehicleFromEuPage, true)
+    .success
+    .value
+    .set(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
+    .success
+    .value
+    .set(NameDetailsPage, name)
+    .success
+    .value
+    .set(PhoneNumberPage, contactNumbers)
+    .success
+    .value
+    .set(EmailAddressPage, email)
+    .success
+    .value
+    .set(DraftIdPage, DraftId("DRAFT-001"))
+    .success
+    .value
+    .set(DraftVersionIdPage, 1L)
+    .success
+    .value
+
+  private val nonVatAgentPrivateNoNameAnswers = emptyUserAnswers
+    .set(VehicleFromEuPage, true)
+    .success
+    .value
+    .set(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
+    .success
+    .value
+    .set(PhoneNumberPage, contactNumbers)
+    .success
+    .value
+    .set(EmailAddressPage, email)
+    .success
+    .value
+    .set(DraftIdPage, DraftId("DRAFT-001"))
+    .success
+    .value
+    .set(DraftVersionIdPage, 1L)
+    .success
+    .value
+
+  private val nonVatAgentBusinessNoNameAnswers = emptyUserAnswers
+    .set(VehicleFromEuPage, true)
+    .success
+    .value
+    .set(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business)
+    .success
+    .value
+    .set(PhoneNumberPage, contactNumbers)
+    .success
+    .value
+    .set(EmailAddressPage, email)
+    .success
+    .value
+    .set(DraftIdPage, DraftId("DRAFT-001"))
+    .success
+    .value
+    .set(DraftVersionIdPage, 1L)
+    .success
+    .value
+
+  private val nonVatAgentBusinessStrayNameAnswers = emptyUserAnswers
+    .set(VehicleFromEuPage, true)
+    .success
+    .value
+    .set(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business)
+    .success
+    .value
+    .set(NameDetailsPage, name)
+    .success
+    .value
+    .set(PhoneNumberPage, contactNumbers)
+    .success
+    .value
+    .set(EmailAddressPage, email)
+    .success
+    .value
+    .set(DraftIdPage, DraftId("DRAFT-001"))
+    .success
+    .value
+    .set(DraftVersionIdPage, 1L)
+    .success
+    .value
+
+  private val changedFromPrivateToBusinessAnswers = emptyUserAnswers
+    .set(VehicleFromEuPage, true)
+    .success
+    .value
+    .set(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business)
+    .success
+    .value
+    .set(BusinessNamePage, businessName)
+    .success
+    .value
+    .set(PhoneNumberPage, contactNumbers)
+    .success
+    .value
+    .set(EmailAddressPage, email)
+    .success
+    .value
+    .set(DraftIdPage, DraftId("DRAFT-001"))
+    .success
+    .value
+    .set(DraftVersionIdPage, 1L)
+    .success
+    .value
+
+  private val changedFromBusinessToPrivateAnswers = emptyUserAnswers
+    .set(VehicleFromEuPage, true)
+    .success
+    .value
+    .set(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
+    .success
+    .value
+    .set(NameDetailsPage, name)
     .success
     .value
     .set(PhoneNumberPage, contactNumbers)
