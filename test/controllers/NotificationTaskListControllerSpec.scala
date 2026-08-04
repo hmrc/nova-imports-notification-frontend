@@ -83,6 +83,11 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
     .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
     .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
 
+  private val agentAsPurchaserBusiness = baseAnswers
+    .unsafeSet(VehicleFromEuPage, true)
+    .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business)
+    .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
+
   private val agentWithSelectedClient = baseAnswers
     .unsafeSet(VehicleFromEuPage, true)
     .unsafeSet(AgentSelectedClientPage, AgentSelectedClient(vrn = "123456789", name = Some("Client Ltd")))
@@ -392,7 +397,7 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "for an Agent without a client must render OK with the agent name, no Add your address row, the purchaser section, and link Add your details to the contact numbers page" in {
+      "for a VAT agent (HMCE-VAT-AGNT) without a client must render OK with the agent name, no Add your address row, the purchaser section, and link Add your details to the contact numbers page" in {
         given application: Application =
           applicationWith(classOf[FakeAgentIdentifierAction], Some(agentAsPurchaser), stubConnector(summary = Right(agentSummary)))
 
@@ -408,6 +413,44 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
           body must not include "Add your address"
           body must include("About the purchaser")
           body must include(routes.PhoneNumberController.onPageLoad(NormalMode).url)
+        }
+      }
+
+      "for a non-VAT agent without a client who answered private individual links Add your details to the add-your-name page" in {
+        given application: Application =
+          applicationWith(classOf[FakeAgentNoEnrolmentsIdentifierAction], Some(agentAsPurchaser), stubConnector(summary = Right(agentSummary)))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
+
+          val result = route(application, request).value
+          val body   = contentAsString(result)
+
+          status(result) mustEqual OK
+          body must include(routes.AddYourNameController.onPageLoad(NormalMode).url)
+        }
+      }
+
+      "for a non-VAT agent without a client who answered business links Add your details to the contact numbers page" in {
+        given application: Application =
+          applicationWith(
+            classOf[FakeAgentNoEnrolmentsIdentifierAction],
+            Some(agentAsPurchaserBusiness),
+            stubConnector(summary = Right(agentSummary))
+          )
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
+
+          val result = route(application, request).value
+          val body   = contentAsString(result)
+
+          status(result) mustEqual OK
+          body must include(routes.PhoneNumberController.onPageLoad(NormalMode).url)
+          body must not include routes.BusinessNameController.onPageLoad(NormalMode).url
+          body must not include routes.AddYourNameController.onPageLoad(NormalMode).url
         }
       }
 

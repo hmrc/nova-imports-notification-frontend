@@ -54,6 +54,7 @@ class Actions @Inject() (
       .andThen(identifyOgd)
       .andThen(getData)
       .andThen(requireData)
+
   def novaAgentAuthAndGetOptionalData(): ActionBuilder[OptionalDataRequest, AnyContent] =
     actionBuilder
       .andThen(identifyNovaAgent)

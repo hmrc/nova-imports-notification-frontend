@@ -17,24 +17,28 @@
 package services
 
 import base.SpecBase
+import connectors.NovaImportsBackendConnector
 import models.DraftNotification.SectionId
-import models.{Address, BusinessOrPrivateIndividual, ContactNumbers, Country, DraftNotification, DraftNotificationSection, NameDetails, SectionStatus, UserAnswers}
+import models.{Address, BusinessOrPrivateIndividual, ContactNumbers, Country, DraftId, DraftNotification, DraftNotificationSection, NameDetails, SectionStatus, UserAnswers}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
+import org.scalatest.EitherValues
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
-import pages.sections.initialquestions.BusinessOrPrivatePage
-import pages.sections.notifierDetails.{EmailAddressPage, NameDetailsPage, PhoneNumberPage}
+import pages.DraftIdPage
+import pages.sections.initialquestions.{BusinessOrPrivatePage, VehicleBusinessUsePage}
+import pages.sections.notifierDetails.{BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 import pages.sections.notifieraddress.AddressPage
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 import pages.sections.purchaserDetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 import play.api.libs.json.{JsObject, Json, Writes}
 import repositories.SessionRepository
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class UserDataServiceSpec extends SpecBase with MockitoSugar with ScalaFutures {
+class UserDataServiceSpec extends SpecBase with MockitoSugar with ScalaFutures with EitherValues {
 
   // Applies the set for real so we can assert the rehydrated pages, without needing Mongo.
   private def stubSessionRepository(): SessionRepository = {
@@ -135,12 +139,29 @@ class UserDataServiceSpec extends SpecBase with MockitoSugar with ScalaFutures {
       UserDataService.privateIndividual(answers)(SectionId.NotifierDetails) mustBe SectionStatus.Completed
     }
 
-    "must mark the notifier details section Completed for a business with phone and email but no name" in {
+    "must mark the notifier details section Incomplete for a business user with phone and email but no business name" in {
       val answers = emptyUserAnswers
         .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business)
         .unsafeSet(PhoneNumberPage, contactNumbers)
         .unsafeSet(EmailAddressPage, "acme@example.com")
+      UserDataService.privateIndividual(answers)(SectionId.NotifierDetails) mustBe SectionStatus.Incomplete
+    }
+
+    "must mark the notifier details section Completed for a business user with a business name, phone and email" in {
+      val answers = emptyUserAnswers
+        .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business)
+        .unsafeSet(BusinessNamePage, "Acme Trading Ltd")
+        .unsafeSet(PhoneNumberPage, contactNumbers)
+        .unsafeSet(EmailAddressPage, "acme@example.com")
       UserDataService.privateIndividual(answers)(SectionId.NotifierDetails) mustBe SectionStatus.Completed
+    }
+
+    "must mark the notifier details section Incomplete for a private individual with phone and email but no name" in {
+      val answers = emptyUserAnswers
+        .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
+        .unsafeSet(PhoneNumberPage, contactNumbers)
+        .unsafeSet(EmailAddressPage, "jane@example.com")
+      UserDataService.privateIndividual(answers)(SectionId.NotifierDetails) mustBe SectionStatus.Incomplete
     }
 
     "must mark the notifier details section NotYetSaved when name, phone and email are all absent" in {
@@ -183,6 +204,120 @@ class UserDataServiceSpec extends SpecBase with MockitoSugar with ScalaFutures {
 
     "must include the purchaser address section, NotYetSaved when unanswered" in {
       UserDataService.agentWithoutClient(emptyUserAnswers)(SectionId.PurchaserAddress) mustBe SectionStatus.NotYetSaved
+    }
+  }
+
+  "UserDataService.nonVatAgentWithoutClient" - {
+
+    "for a private individual answer, NotifierDetails is Completed only when phone, email and name are present" in {
+      val answers = emptyUserAnswers
+        .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
+        .unsafeSet(PhoneNumberPage, contactNumbers)
+        .unsafeSet(EmailAddressPage, "agent@example.com")
+        .unsafeSet(NameDetailsPage, NameDetails("Mr", "John", "Smith"))
+      UserDataService.nonVatAgentWithoutClient(answers)(SectionId.NotifierDetails) mustBe SectionStatus.Completed
+    }
+
+    "for a private individual answer, NotifierDetails is Incomplete when the name is missing" in {
+      val answers = emptyUserAnswers
+        .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
+        .unsafeSet(PhoneNumberPage, contactNumbers)
+        .unsafeSet(EmailAddressPage, "agent@example.com")
+      UserDataService.nonVatAgentWithoutClient(answers)(SectionId.NotifierDetails) mustBe SectionStatus.Incomplete
+    }
+
+    "for a business answer, NotifierDetails is Completed with phone and email and no name" in {
+      val answers = emptyUserAnswers
+        .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business)
+        .unsafeSet(PhoneNumberPage, contactNumbers)
+        .unsafeSet(EmailAddressPage, "agent@example.com")
+      UserDataService.nonVatAgentWithoutClient(answers)(SectionId.NotifierDetails) mustBe SectionStatus.Completed
+    }
+
+    "for a business answer, NotifierDetails is Incomplete when a stray name is present" in {
+      val answers = emptyUserAnswers
+        .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business)
+        .unsafeSet(PhoneNumberPage, contactNumbers)
+        .unsafeSet(EmailAddressPage, "agent@example.com")
+        .unsafeSet(NameDetailsPage, NameDetails("Mr", "John", "Smith"))
+      UserDataService.nonVatAgentWithoutClient(answers)(SectionId.NotifierDetails) mustBe SectionStatus.Incomplete
+    }
+
+    "NotifierDetails is NotYetSaved when notifier answers are all unset" in {
+      UserDataService.nonVatAgentWithoutClient(emptyUserAnswers)(SectionId.NotifierDetails) mustBe SectionStatus.NotYetSaved
+    }
+
+    "NotifierAddress is NotYetSaved for a non-VAT agent" in {
+      val answers = emptyUserAnswers.unsafeSet(AddressPage, sampleAddress)
+      UserDataService.nonVatAgentWithoutClient(answers)(SectionId.NotifierAddress) mustBe SectionStatus.NotYetSaved
+    }
+  }
+
+  "UserDataService.retrieveAndStoreDraftNotification" - {
+
+    implicit val hc: HeaderCarrier = HeaderCarrier()
+
+    def serviceReturning(draft: DraftNotification): UserDataService = {
+      val connector = mock[NovaImportsBackendConnector]
+      when(connector.getDraftNotification(any())(using any[HeaderCarrier])).thenReturn(Future.successful(Right(draft)))
+      new UserDataServiceImpl(stubSessionRepository(), connector)
+    }
+
+    def draftWithNotifier(section: JsObject): DraftNotification =
+      draftWith(Map(SectionId.NotifierDetails -> DraftNotificationSection(Some(section))))
+
+    val individualNotifier =
+      Json.obj("title" -> "Mr", "firstName" -> "John", "lastName" -> "Smith", "emailAddress" -> "john@example.com", "phoneNumber" -> "01234567890")
+
+    val organisationNotifier =
+      Json.obj("emailAddress" -> "acme@example.com", "phoneNumber" -> "01234567890", "businessName" -> "Acme Trading Ltd")
+
+    "must drop the stale notifier name re-hydrated from the draft when the user is now a business" in {
+      val answers = emptyUserAnswers
+        .unsafeSet(DraftIdPage, DraftId("1"))
+        .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business)
+
+      val result = serviceReturning(draftWithNotifier(individualNotifier)).retrieveAndStoreDraftNotification(DraftId("1"), answers).futureValue.value
+
+      result.get(NameDetailsPage) mustBe None
+      result.get(EmailAddressPage) mustBe Some("john@example.com")
+      result.get(PhoneNumberPage) mustBe Some(contactNumbers)
+    }
+
+    "must drop a stale business name when the user is now a private individual" in {
+      val answers = emptyUserAnswers
+        .unsafeSet(DraftIdPage, DraftId("1"))
+        .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
+        .unsafeSet(BusinessNamePage, "Old Business Ltd")
+
+      val result =
+        serviceReturning(draftWithNotifier(organisationNotifier)).retrieveAndStoreDraftNotification(DraftId("1"), answers).futureValue.value
+
+      result.get(BusinessNamePage) mustBe None
+      result.get(EmailAddressPage) mustBe Some("acme@example.com")
+      result.get(PhoneNumberPage) mustBe Some(contactNumbers)
+    }
+
+    "must keep the notifier name when it is consistent with the initial questions" in {
+      val answers = emptyUserAnswers
+        .unsafeSet(DraftIdPage, DraftId("1"))
+        .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
+
+      val result = serviceReturning(draftWithNotifier(individualNotifier)).retrieveAndStoreDraftNotification(DraftId("1"), answers).futureValue.value
+
+      result.get(NameDetailsPage) mustBe Some(NameDetails("Mr", "John", "Smith"))
+    }
+
+    "must not fail when the user has no business-or-private answer" in {
+      val answers = emptyUserAnswers
+        .unsafeSet(DraftIdPage, DraftId("1"))
+        .unsafeSet(VehicleBusinessUsePage, true)
+
+      val result =
+        serviceReturning(draftWithNotifier(organisationNotifier)).retrieveAndStoreDraftNotification(DraftId("1"), answers).futureValue.value
+
+      result.get(VehicleBusinessUsePage) mustBe Some(true)
+      result.get(EmailAddressPage) mustBe Some("acme@example.com")
     }
   }
 }

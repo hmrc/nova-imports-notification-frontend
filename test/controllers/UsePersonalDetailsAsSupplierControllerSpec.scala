@@ -19,15 +19,16 @@ package controllers
 import base.SpecBase
 import com.google.inject.name.Names
 import config.FrontendAppConfig
+import connectors.{GetTraderInformationError, NovaImportsBackendConnector}
 import controllers.actions.*
 import forms.UsePersonalDetailsAsSupplierFormProvider
-import models.{AddVehicleDetails, Address, Country, DraftId, NameDetails, NormalMode, PurchaserOrOnBehalf, UserAnswers}
+import models.{AddVehicleDetails, Address, Country, DraftId, NameDetails, NormalMode, PurchaserOrOnBehalf, TraderInformation, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{never, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.{AddVehicleDetailsPage, DraftIdPage}
-import pages.sections.initialquestions.{PurchaserOrOnBehalfPage, VehicleFromEuPage}
+import pages.sections.initialquestions.{PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
 import pages.sections.notifieraddress.AddressPage
 import pages.sections.notifierDetails.NameDetailsPage
 import pages.sections.supplierDetails.UsePersonalDetailsAsSupplierPage
@@ -81,6 +82,22 @@ class UsePersonalDetailsAsSupplierControllerSpec extends SpecBase with MockitoSu
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
       )
 
+  private val traderInformation: TraderInformation = TraderInformation(
+    traderName = Some("ABC LTD"),
+    tradingName = Some("ABC Trading"),
+    addressLine1 = Some("1 High Street"),
+    addressLine2 = Some("Testtown"),
+    addressLine3 = None,
+    addressLine4 = None,
+    postcode = Some("TF3 4ER")
+  )
+
+  private def connectorReturning(result: Either[GetTraderInformationError, TraderInformation]): NovaImportsBackendConnector = {
+    val connector = mock[NovaImportsBackendConnector]
+    when(connector.getTraderInformation()(any())) thenReturn Future.successful(result)
+    connector
+  }
+
   private def vatTraderApplicationBuilder(userAnswers: Option[UserAnswers]): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .overrides(
@@ -105,7 +122,7 @@ class UsePersonalDetailsAsSupplierControllerSpec extends SpecBase with MockitoSu
         val view            = application.injector.instanceOf[UsePersonalDetailsAsSupplierView]
         val appConfig       = application.injector.instanceOf[FrontendAppConfig]
         val msgs            = messages(application)
-        val personalDetails = SupplierPersonalDetailsSummary.summaryList(answersSatisfyingGuard)(msgs)
+        val personalDetails = SupplierPersonalDetailsSummary.fromSession(answersSatisfyingGuard)(msgs)
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode, personalDetails, appConfig.vatNotice728Url)(request, msgs).toString
@@ -123,7 +140,7 @@ class UsePersonalDetailsAsSupplierControllerSpec extends SpecBase with MockitoSu
         val view            = application.injector.instanceOf[UsePersonalDetailsAsSupplierView]
         val appConfig       = application.injector.instanceOf[FrontendAppConfig]
         val msgs            = messages(application)
-        val personalDetails = SupplierPersonalDetailsSummary.summaryList(userAnswers)(msgs)
+        val personalDetails = SupplierPersonalDetailsSummary.fromSession(userAnswers)(msgs)
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form.fill(true), NormalMode, personalDetails, appConfig.vatNotice728Url)(request, msgs).toString
@@ -179,7 +196,7 @@ class UsePersonalDetailsAsSupplierControllerSpec extends SpecBase with MockitoSu
         val view            = application.injector.instanceOf[UsePersonalDetailsAsSupplierView]
         val appConfig       = application.injector.instanceOf[FrontendAppConfig]
         val msgs            = messages(application)
-        val personalDetails = SupplierPersonalDetailsSummary.summaryList(answersSatisfyingGuard)(msgs)
+        val personalDetails = SupplierPersonalDetailsSummary.fromSession(answersSatisfyingGuard)(msgs)
         val result          = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
@@ -210,6 +227,143 @@ class UsePersonalDetailsAsSupplierControllerSpec extends SpecBase with MockitoSu
         val result  = route(application, request).value
 
         status(result) mustEqual OK
+      }
+    }
+
+    "for a VAT-registered organisation who answered OQ1.0 Yes" - {
+
+      val answers = vatTraderAnswersSatisfyingGuard.unsafeSet(VehicleBusinessUsePage, true)
+
+      "must render the name and address from the RDS trader record" in {
+
+        val application = vatTraderApplicationBuilder(Some(answers))
+          .overrides(bind[NovaImportsBackendConnector].toInstance(connectorReturning(Right(traderInformation))))
+          .build()
+
+        running(application) {
+          val request = FakeRequest(GET, usePersonalDetailsAsSupplierRoute)
+          val result  = route(application, request).value
+
+          status(result) mustEqual OK
+          contentAsString(result) must include("ABC LTD")
+          contentAsString(result) must include("1 High Street")
+          contentAsString(result) must include("TF3 4ER")
+          contentAsString(result) must not include "Not provided"
+        }
+      }
+
+      "must render 'Not provided' when the vrn has no trader record" in {
+
+        val application = vatTraderApplicationBuilder(Some(answers))
+          .overrides(bind[NovaImportsBackendConnector].toInstance(connectorReturning(Left(GetTraderInformationError.NotFound))))
+          .build()
+
+        running(application) {
+          val request = FakeRequest(GET, usePersonalDetailsAsSupplierRoute)
+          val result  = route(application, request).value
+
+          status(result) mustEqual OK
+          contentAsString(result) must include("Not provided")
+        }
+      }
+
+      "must render 'Not provided' when the trader lookup throws" in {
+
+        val connector = mock[NovaImportsBackendConnector]
+        when(connector.getTraderInformation()(any())) thenReturn Future.failed(new RuntimeException("connection reset"))
+
+        val application = vatTraderApplicationBuilder(Some(answers))
+          .overrides(bind[NovaImportsBackendConnector].toInstance(connector))
+          .build()
+
+        running(application) {
+          val request = FakeRequest(GET, usePersonalDetailsAsSupplierRoute)
+          val result  = route(application, request).value
+
+          status(result) mustEqual OK
+          contentAsString(result) must include("Not provided")
+        }
+      }
+
+      "must ignore any stale personal details left in the session" in {
+
+        val staleAnswers = answers
+          .unsafeSet(NameDetailsPage, NameDetails("Mr", "John", "Smith"))
+          .unsafeSet(AddressPage, Address(Seq("1 Session Street"), Some("AB1 2CD"), Country("GB", "United Kingdom")))
+
+        val application = vatTraderApplicationBuilder(Some(staleAnswers))
+          .overrides(bind[NovaImportsBackendConnector].toInstance(connectorReturning(Right(traderInformation))))
+          .build()
+
+        running(application) {
+          val request = FakeRequest(GET, usePersonalDetailsAsSupplierRoute)
+          val result  = route(application, request).value
+
+          status(result) mustEqual OK
+          contentAsString(result) must include("ABC LTD")
+          contentAsString(result) must not include "Mr John Smith"
+          contentAsString(result) must not include "1 Session Street"
+        }
+      }
+
+      "must render the trader record on a Bad Request" in {
+
+        val application = vatTraderApplicationBuilder(Some(answers))
+          .overrides(bind[NovaImportsBackendConnector].toInstance(connectorReturning(Right(traderInformation))))
+          .build()
+
+        running(application) {
+          val request = FakeRequest(POST, usePersonalDetailsAsSupplierSubmitRoute).withFormUrlEncodedBody(("value", ""))
+          val result  = route(application, request).value
+
+          status(result) mustEqual BAD_REQUEST
+          contentAsString(result) must include("ABC LTD")
+        }
+      }
+    }
+
+    "for a VAT-registered organisation who answered OQ1.0 No" - {
+
+      val answers = vatTraderAnswersSatisfyingGuard
+        .unsafeSet(VehicleBusinessUsePage, false)
+        .unsafeSet(NameDetailsPage, NameDetails("Mr", "John", "Smith"))
+        .unsafeSet(AddressPage, Address(Seq("1 Session Street"), Some("AB1 2CD"), Country("GB", "United Kingdom")))
+
+      "must render the name and address from the session, without looking up the trader record" in {
+
+        val connector = mock[NovaImportsBackendConnector]
+
+        val application = vatTraderApplicationBuilder(Some(answers))
+          .overrides(bind[NovaImportsBackendConnector].toInstance(connector))
+          .build()
+
+        running(application) {
+          val request = FakeRequest(GET, usePersonalDetailsAsSupplierRoute)
+          val result  = route(application, request).value
+
+          status(result) mustEqual OK
+          contentAsString(result) must include("Mr John Smith")
+          contentAsString(result) must include("1 Session Street")
+          verify(connector, never).getTraderInformation()(any())
+        }
+      }
+
+      "must render 'Not provided' when the session details have not been captured yet" in {
+
+        val connector = mock[NovaImportsBackendConnector]
+
+        val application = vatTraderApplicationBuilder(Some(vatTraderAnswersSatisfyingGuard.unsafeSet(VehicleBusinessUsePage, false)))
+          .overrides(bind[NovaImportsBackendConnector].toInstance(connector))
+          .build()
+
+        running(application) {
+          val request = FakeRequest(GET, usePersonalDetailsAsSupplierRoute)
+          val result  = route(application, request).value
+
+          status(result) mustEqual OK
+          contentAsString(result) must include("Not provided")
+          verify(connector, never).getTraderInformation()(any())
+        }
       }
     }
 

@@ -55,17 +55,24 @@ class InitialQuestionsCheckYourAnswersController @Inject() (
 
   def onSubmit: Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate).async { implicit request =>
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-    val ctx                        = UserContext.from(request.affinityGroup, request.enrolments, request.userAnswers)
-    val clientVrn                  = if (ctx.isAgentWithClient) request.userAnswers.get(AgentSelectedClientPage).map(_.vrn) else None
 
-    backendConnector.createDraft(clientVrn).flatMap {
-      case Left(value)                                    => Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
-      case Right(CreateDraftResponse(draftId, versionId)) =>
-        for {
-          answersWithDraft   <- sessionRepository.setPage(request.userAnswers, DraftIdPage, DraftId(draftId))
-          answersWithVersion <- sessionRepository.setPage(answersWithDraft, DraftVersionIdPage, versionId)
-          result             <- updateIntroductionSection(request, DraftId(draftId), answersWithVersion, backendConnector, sessionRepository)
-        } yield result
+    request.userAnswers.get(DraftIdPage) match {
+      case Some(existingDraftId) =>
+        updateIntroductionSection(request, existingDraftId, request.userAnswers, backendConnector, sessionRepository)
+
+      case None =>
+        val ctx       = UserContext.from(request.affinityGroup, request.enrolments, request.userAnswers)
+        val clientVrn = if (ctx.isAgentWithClient) request.userAnswers.get(AgentSelectedClientPage).map(_.vrn) else None
+
+        backendConnector.createDraft(clientVrn).flatMap {
+          case Left(_)                                        => Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+          case Right(CreateDraftResponse(draftId, versionId)) =>
+            for {
+              answersWithDraft   <- sessionRepository.setPage(request.userAnswers, DraftIdPage, DraftId(draftId))
+              answersWithVersion <- sessionRepository.setPage(answersWithDraft, DraftVersionIdPage, versionId)
+              result             <- updateIntroductionSection(request, DraftId(draftId), answersWithVersion, backendConnector, sessionRepository)
+            } yield result
+        }
     }
   }
 }

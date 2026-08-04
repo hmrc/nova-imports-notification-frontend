@@ -98,7 +98,8 @@ object YourDetailsCheckYourAnswersController {
     IsDraftIdDefined(answers) && (userContext match {
       case ctx if ctx.isAgentWithClientNoEnrolments => agentWithClientNoEnrolmentsAnswersComplete(answers)
       case ctx if ctx.isVatRegisteredOrganisation   => vatRegisteredOrgAnswersComplete(answers)
-      case ctx if ctx.isAgentWithoutClient          => agentWithoutClientAnswersComplete(answers)
+      case ctx if ctx.isVatAgentWithoutClient       => agentWithoutClientAnswersComplete(answers)
+      case ctx if ctx.isAgentWithoutClient          => nonVatAgentWithoutClientAnswersComplete(answers)
       case ctx if ctx.isAgentWithClient             => agentWithClientAnswersComplete(answers)
       case _                                        => standardUserAnswersComplete(answers)
     })
@@ -123,6 +124,11 @@ object YourDetailsCheckYourAnswersController {
   private def agentWithoutClientAnswersComplete(answers: UserAnswers): Boolean =
     answers.get(PhoneNumberPage).isDefined &&
       answers.get(EmailAddressPage).isDefined
+
+  private def nonVatAgentWithoutClientAnswersComplete(answers: UserAnswers): Boolean =
+    answers.get(PhoneNumberPage).isDefined &&
+      answers.get(EmailAddressPage).isDefined &&
+      (answers.get(NameDetailsPage).isDefined == answers.get(BusinessOrPrivatePage).contains(BusinessOrPrivateIndividual.PrivateIndividual))
 
   private def agentWithClientAnswersComplete(answers: UserAnswers): Boolean =
     answers.get(PhoneNumberPage).isDefined &&
