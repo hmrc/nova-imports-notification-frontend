@@ -22,16 +22,9 @@
 
 @layout(pageTitle = titleNoForm(messages("loadingClientList.title")), showBackLink = true) {
 
-    <div class="govuk-grid-row">
-        <div class="govuk-grid-column-two-thirds">
+    <h1 class="govuk-heading-l">@messages("loadingClientList.heading")</h1>
 
-            <h1 class="govuk-heading-l">@messages("loadingClientList.heading")</h1>
-
-            <p class="govuk-body">@messages("loadingClientList.paragraph")</p>
-
-        </div>
-    </div>
+    <p class="govuk-body">@messages("loadingClientList.paragraph")</p>
 
     <h2 class="govuk-heading-s">@messages("loadingClientList.warning")</h2>
-
 }
