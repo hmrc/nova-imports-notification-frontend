@@ -232,6 +232,59 @@ purchaserDetailsCheckYourAnswers.caption = Add purchaser details
 purchaserDetailsCheckYourAnswers.title = Check your answers - Purchaser’s details
 purchaserDetailsCheckYourAnswers.heading = Check your answers
 
+######################################################
+# ERR2.0 - Error message - System error              #
+######################################################
+
+journeyRecovery.startAgain.title = Mae’n ddrwg gennym – mae problem gyda’r gwasanaeth hwn
+journeyRecovery.startAgain.heading = Mae’n ddrwg gennym – mae problem gyda’r gwasanaeth hwn
+journeyRecovery.startAgain.paragraph.1 = Rhowch gynnig arall arni yn nes ymlaen.
+journeyRecovery.startAgain.paragraph.2 = Os oes gennych unrhyw gwestiynau,
+journeyRecovery.startAgain.link.text = cysylltwch â chymorth technegol CThEF (yn agor tab newydd).
+
+# TODO: Welsh translations to be supplied by content team.
+signedOut.title = For your security, we signed you out
+signedOut.heading = For your security, we signed you out
+signedOut.guidance = We did not save your answers.
+
+######################################################
+# ERR1.0 - Error message - Unauthorised Access       #
+######################################################
+
+unauthorised.title = Nid oes gennych ganiatâd i gyrraedd y dudalen hon
+unauthorised.heading = Nid oes gennych ganiatâd i gyrraedd y dudalen hon
+unauthorised.paragraph.1 =  Fe geisioch chi gael mynediad at ran o’r gwasanaeth hwn nad oes gennych awdurdod i’w defnyddio.
+unauthorised.paragraph.2 = Os yw hyn yn anghywir,
+unauthorised.link.text = cysylltwch â chymorth technegol CThEF (yn agor tab newydd).
+unauthorised.returnHome = Dychwelyd i’r hafan
+
+##########################################################################
+# NTL3.0 - Notification task list for VAT-registered organisation (4/5)  #
+##########################################################################
+
+notificationTaskList.title = Creu hysbysiad cerbyd
+notificationTaskList.heading = Creu hysbysiad cerbyd
+notificationTaskList.vrn.caption = Rhif cofrestru TAW: GB{0}
+notificationTaskList.aboutYou.heading = Amdanoch chi
+notificationTaskList.aboutYou.addYourDetails = Ychwanegu eich manylion chi
+notificationTaskList.aboutYou.addYourAddress = Ychwanegwch eich cyfeiriad
+
+# TODO: Welsh translations to be supplied by content team.
+notificationTaskList.aboutThePurchaser.heading = About the purchaser
+notificationTaskList.aboutThePurchaser.addPurchaserDetails = Add purchaser details
+notificationTaskList.aboutThePurchaser.addPurchaserAddress = Add purchaser address
+
+notificationTaskList.aboutTheVehicles.heading = Ynglŷn â’r cerbydau
+notificationTaskList.aboutTheVehicles.addVehicleDetails = Ychwanegwch fanylion cerbyd
+notificationTaskList.declaration.heading = Datganiad
+notificationTaskList.declaration.readDeclaration = Darllen y datganiad
+notificationTaskList.declaration.hint = Mae’n rhaid i chi gwblhau pob adran cyn i chi ddatgan.
+notificationTaskList.status.incomplete = Heb ei gwblhau
+notificationTaskList.status.completed = Wedi’i gwblhau
+notificationTaskList.status.cannotStartYet = Methu dechrau eto
+notificationTaskList.returnToHome = Dychwelyd i’r hafan
+notificationTaskList.deleteNotification = Dileu hysbysiad
+
 ########################################################
 # CS1.0 - Client State 1: Retrieving your client list  #
 ########################################################
