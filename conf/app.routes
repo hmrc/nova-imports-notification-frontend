@@ -137,7 +137,7 @@ POST        /supplier/:supplierNumber/supplier-business-or-private-individual   
 GET         /supplier/:supplierNumber/supplier-business-or-private-individual/change     controllers.SupplierBusinessOrIndividualController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = CheckMode)
 POST        /supplier/:supplierNumber/supplier-business-or-private-individual/change     controllers.SupplierBusinessOrIndividualController.onSubmit(supplierNumber: SupplierNumber, mode: Mode = CheckMode)
 
-GET         /is-supplier-address-in-uk                                                   controllers.IsSupplierAddressInTheUKController.onPageLoad(mode: Mode = NormalMode)
-POST        /is-supplier-address-in-uk                                                   controllers.IsSupplierAddressInTheUKController.onSubmit(mode: Mode = NormalMode)
-GET         /is-supplier-address-in-uk/change                                            controllers.IsSupplierAddressInTheUKController.onPageLoad(mode: Mode = CheckMode)
-POST        /is-supplier-address-in-uk/change                                            controllers.IsSupplierAddressInTheUKController.onSubmit(mode: Mode = CheckMode)
+GET         /supplier/:supplierNumber/is-supplier-address-in-uk                          controllers.IsSupplierAddressInTheUKController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = NormalMode)
+POST        /supplier/:supplierNumber/is-supplier-address-in-uk                          controllers.IsSupplierAddressInTheUKController.onSubmit(supplierNumber: SupplierNumber, mode: Mode = NormalMode)
+GET         /supplier/:supplierNumber/is-supplier-address-in-uk/change                   controllers.IsSupplierAddressInTheUKController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = CheckMode)
+POST        /supplier/:supplierNumber/is-supplier-address-in-uk/change                   controllers.IsSupplierAddressInTheUKController.onSubmit(supplierNumber: SupplierNumber, mode: Mode = CheckMode)

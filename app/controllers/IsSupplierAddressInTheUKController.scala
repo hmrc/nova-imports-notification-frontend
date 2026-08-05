@@ -17,12 +17,12 @@
 package controllers
 
 import controllers.actions.*
-import controllers.utils.IsDraftIdDefined
+import controllers.utils.{IsDraftIdDefined, IsSupplierNumberInSession}
 import forms.IsSupplierAddressInTheUkFormProvider
 import models.requests.DataRequest
-import models.{Mode, NovaUserType, PurchaserOrOnBehalf}
+import models.{Mode, NovaUserType, SupplierNumber}
 import navigation.Navigator
-import pages.sections.initialquestions.PurchaserOrOnBehalfPage
+import pages.sections.initialquestions.VehicleFromEuPage
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -42,32 +42,39 @@ class IsSupplierAddressInTheUKController @Inject() (
 )(implicit ec: ExecutionContext)
     extends BaseController {
 
+  import IsSupplierAddressInTheUKController.*
+
   val form: Form[Boolean] = formProvider()
 
-  // For user types 1,2,3,4,5,6. Defined draftID = yes and IQ1 = yes
-  private val guardPredicate: DataRequest[?] => Boolean = request =>
-    request.userContext match {
-      case _ =>
-        IsDraftIdDefined(request.userAnswers) &&
-        request.userAnswers.get(PurchaserOrOnBehalfPage).contains(PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+  def onPageLoad(supplierNumber: SupplierNumber, mode: Mode): Action[AnyContent] =
+    actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierNumber)) { implicit request =>
+      Ok(view(form.withDefault(request.userAnswers.get(IsPurchaserAddressInTheUkPage)), supplierNumber, mode))
     }
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate) { implicit request =>
-    Ok(view(form.withDefault(request.userAnswers.get(IsPurchaserAddressInTheUkPage)), mode))
-  }
+  def onSubmit(supplierNumber: SupplierNumber, mode: Mode): Action[AnyContent] =
+    actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierNumber)).async { implicit request =>
+      form
+        .bindFromRequest()
+        .fold(
+          formWithErrors => Future.successful(BadRequest(view(formWithErrors, supplierNumber, mode))),
+          value =>
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(IsPurchaserAddressInTheUkPage, value))
+              _              <- sessionRepository.set(updatedAnswers)
+            } yield Redirect(
+              navigator.nextPage(IsPurchaserAddressInTheUkPage, mode, updatedAnswers, NovaUserType.from(request.affinityGroup, request.enrolments))
+            )
+        )
+    }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate).async { implicit request =>
-    form
-      .bindFromRequest()
-      .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
-        value =>
-          for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(IsPurchaserAddressInTheUkPage, value))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(
-            navigator.nextPage(IsPurchaserAddressInTheUkPage, mode, updatedAnswers, NovaUserType.from(request.affinityGroup, request.enrolments))
-          )
-      )
-  }
+}
+
+object IsSupplierAddressInTheUKController {
+
+  // The supplier number in the URL must be one of the suppliers the user has in session
+  def guardPredicate(supplierNumber: SupplierNumber)(request: DataRequest[?]): Boolean =
+    // For user types 1,2,3,4,5,6. Defined draftID = yes and IQ1 = yes
+    IsDraftIdDefined(request.userAnswers) &&
+      request.userAnswers.get(VehicleFromEuPage).contains(true) &&
+      IsSupplierNumberInSession(request.userAnswers, supplierNumber)
 }
