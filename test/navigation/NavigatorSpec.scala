@@ -23,7 +23,7 @@ import models.*
 import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
 import pages.sections.notifierDetails.{BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 import pages.sections.purchaserDetails.{PurchaserBusinessNamePage, PurchaserNamePage}
-import pages.sections.supplierDetails.{SupplierBusinessOrIndividualPage, SupplierNumberPage, UsePersonalDetailsAsSupplierPage}
+import pages.sections.supplierDetails.{IsSupplierAddressInTheUkPage, SupplierBusinessOrIndividualPage, SupplierNumberPage, UsePersonalDetailsAsSupplierPage}
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 
 class NavigatorSpec extends SpecBase {
@@ -316,6 +316,49 @@ class NavigatorSpec extends SpecBase {
       "must go from UsePersonalDetailsAsSupplierPage AVD-S1.0 to JourneyRecovery when no answer is found" in {
         navigator.nextPage(
           UsePersonalDetailsAsSupplierPage,
+          NormalMode,
+          userAnswers,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from IsSupplierAddressInTheUKPage AVD-S5.0 to SelectTheSuppliersCountryOrTerritory AVD-S5.1a when No is selected" in {
+        val ua = userAnswers
+          .set(IsSupplierAddressInTheUkPage, false)
+          .success
+          .value
+          .set(SupplierNumberPage, 2)
+          .success
+          .value
+        // TODO: navigate to AVD-S5.1a when implemented
+        navigator.nextPage(
+          IsSupplierAddressInTheUkPage,
+          NormalMode,
+          ua,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.IsSupplierAddressInTheUKController.onPageLoad(SupplierNumber(2), NormalMode)
+      }
+
+      "must go from IsSupplierAddressInTheUKPage AVD-S5.0 to FindTheSuppliersAddress AVD-S6.0 when Yes is selected" in {
+        val ua = userAnswers
+          .set(IsSupplierAddressInTheUkPage, true)
+          .success
+          .value
+          .set(SupplierNumberPage, 2)
+          .success
+          .value
+        // TODO: navigate to AVD-S6.1a when implemented
+        navigator.nextPage(
+          IsSupplierAddressInTheUkPage,
+          NormalMode,
+          ua,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.IsSupplierAddressInTheUKController.onPageLoad(SupplierNumber(2), NormalMode)
+      }
+
+      "must go from IsSupplierAddressInTheUkPage AVD-S5.0 to JourneyRecovery when no answer is found" in {
+        navigator.nextPage(
+          IsSupplierAddressInTheUkPage,
           NormalMode,
           userAnswers,
           NovaUserType.VatRegisteredOrganisation
