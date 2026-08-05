@@ -251,6 +251,19 @@ class NovaImportsBackendConnectorISpec
       connector.updateDraftSection(draftId, sectionId, body).futureValue mustEqual Right(3L)
     }
 
+    "escapes slashes in a supplierNumber section Id so backend handles as a single section id" in {
+      val supplierSectionId = "supplier/1/details"
+      val supplierUrl       = s"/nova-imports/draft-notifications/${draftId.value}/sections/supplier%2F1%2Fdetails"
+
+      wireMockServer.stubFor(
+        put(urlEqualTo(supplierUrl))
+          .withRequestBody(equalToJson(body.toString))
+          .willReturn(aResponse().withStatus(200).withBody("""{"versionId":4}"""))
+      )
+
+      connector.updateDraftSection(draftId, supplierSectionId, body).futureValue mustEqual Right(4L)
+    }
+
     "returns Forbidden on 403" in {
       wireMockServer.stubFor(
         put(urlEqualTo(url))

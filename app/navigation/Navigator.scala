@@ -26,7 +26,7 @@ import pages.sections.notifierDetails.{BusinessNamePage, EmailAddressPage, NameD
 import pages.sections.notifieraddress.IsYourAddressInTheUkPage
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 import pages.sections.purchaserDetails.{PurchaserBusinessNamePage, PurchaserNamePage}
-import pages.sections.supplierDetails.{IsSupplierAddressInTheUkPage, SupplierBusinessOrIndividualPage, UsePersonalDetailsAsSupplierPage}
+import pages.sections.supplierDetails.{IsSupplierAddressInTheUkPage, SupplierBusinessOrIndividualPage, SupplierNumberPage, UsePersonalDetailsAsSupplierPage}
 
 @Singleton
 class Navigator @Inject() () {
@@ -94,8 +94,10 @@ class Navigator @Inject() () {
       (userAnswers, _) =>
         userAnswers.get(UsePersonalDetailsAsSupplierPage) match {
           case Some(true)  => routes.LandingPageController.onPageLoad() // TODO: navigate to CYA3.0 when built
-          case Some(false) => routes.SupplierBusinessOrIndividualController.onPageLoad(NormalMode)
-          case _           => routes.JourneyRecoveryController.onPageLoad()
+          case Some(false) =>
+            routes.SupplierBusinessOrIndividualController
+              .onPageLoad(SupplierNumber(userAnswers.get(SupplierNumberPage).getOrElse(1)), NormalMode)
+          case _ => routes.JourneyRecoveryController.onPageLoad()
         }
     case IsYourAddressInTheUkPage =>
       (userAnswers, _) =>

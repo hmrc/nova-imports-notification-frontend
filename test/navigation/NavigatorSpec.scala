@@ -23,7 +23,7 @@ import models.*
 import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
 import pages.sections.notifierDetails.{BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 import pages.sections.purchaserDetails.{PurchaserBusinessNamePage, PurchaserNamePage}
-import pages.sections.supplierDetails.{SupplierBusinessOrIndividualPage, UsePersonalDetailsAsSupplierPage}
+import pages.sections.supplierDetails.{SupplierBusinessOrIndividualPage, SupplierNumberPage, UsePersonalDetailsAsSupplierPage}
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 
 class NavigatorSpec extends SpecBase {
@@ -298,13 +298,19 @@ class NavigatorSpec extends SpecBase {
       }
 
       "must go from UsePersonalDetailsAsSupplierPage AVD-S1.0 to SupplierBusinessOrIndividual AVD-S2.0 when No is selected" in {
-        val ua = userAnswers.set(UsePersonalDetailsAsSupplierPage, false).success.value
+        val ua = userAnswers
+          .set(UsePersonalDetailsAsSupplierPage, false)
+          .success
+          .value
+          .set(SupplierNumberPage, 2)
+          .success
+          .value
         navigator.nextPage(
           UsePersonalDetailsAsSupplierPage,
           NormalMode,
           ua,
           NovaUserType.VatRegisteredOrganisation
-        ) mustBe routes.SupplierBusinessOrIndividualController.onPageLoad(NormalMode)
+        ) mustBe routes.SupplierBusinessOrIndividualController.onPageLoad(SupplierNumber(2), NormalMode)
       }
 
       "must go from UsePersonalDetailsAsSupplierPage AVD-S1.0 to JourneyRecovery when no answer is found" in {
