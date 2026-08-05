@@ -76,6 +76,18 @@ addressChanged.body = This could be because of invalid characters or some lines 
 addressChanged.checkHeading = Check the updated address
 addressChanged.changeAddress = Change address
 
+###################################################################
+# APA3.0 - Add purchaser address 3.0: We've changed the purchaser's address #
+###################################################################
+# TODO: Welsh translations to be supplied by content team.
+
+purchaserAddressChanged.title = We’ve changed the purchaser’s address
+purchaserAddressChanged.caption = Add purchaser address
+purchaserAddressChanged.heading = We’ve changed the purchaser’s address
+purchaserAddressChanged.body = This could be because of invalid characters or some lines are too long.
+purchaserAddressChanged.checkHeading = Check the updated address
+purchaserAddressChanged.changeAddress = Change address
+
 ###########################################################
 # Address lookup (ALF) journey labels                     #
 ###########################################################
