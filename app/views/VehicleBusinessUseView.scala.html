@@ -37,9 +37,21 @@
         <span class="govuk-caption-l">@messages("vehicleBusinessUse.caption")</span>
 
         @govukRadios(
-            RadiosViewModel.yesNo(
-                field = form("value"),
-                legend = LegendViewModel(messages("vehicleBusinessUse.heading")).asPageHeading(LegendSize.Large)
+            RadiosViewModel(
+                field  = form("value"),
+                legend = LegendViewModel(messages("vehicleBusinessUse.heading")).asPageHeading(LegendSize.Large),
+                items  = Seq(
+                    RadioItem(
+                        id      = Some(form("value").id),
+                        value   = Some("true"),
+                        content = Text(messages("site.yes"))
+                    ),
+                    RadioItem(
+                        id      = Some(s"${form("value").id}-no"),
+                        value   = Some("false"),
+                        content = Text(messages("vehicleBusinessUse.no"))
+                    )
+                )
             )
             .withHint(HintViewModel(Text(messages("vehicleBusinessUse.hint"))))
         )

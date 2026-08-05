@@ -214,6 +214,7 @@ businessPrivate.change.hidden = whether you are a business or private individual
 # OQ1.0 - Organisation Question 1: Vehicle business use  #
 ##########################################################
 
+vehicleBusinessUse.no = No
 vehicleBusinessUse.title = Have you brought a vehicle into the UK for business use?
 vehicleBusinessUse.heading = Have you brought a vehicle into the UK for business use?
 vehicleBusinessUse.caption = Initial questions
@@ -226,6 +227,7 @@ vehicleBusinessUse.change.hidden = Have you brought a vehicle into the UK for bu
 # AQ1.0 - Agent Question 1: Client vehicle business use  #
 ##########################################################
 
+agentVehicleBusinessUse.no = No
 agentVehicleBusinessUse.title = Has your client brought a vehicle into the UK for business use?
 agentVehicleBusinessUse.heading = Has your client brought a vehicle into the UK for business use?
 agentVehicleBusinessUse.caption = Initial questions
@@ -318,7 +320,7 @@ noAuthorisedClients.whatToDo.heading = What you need to do
 noAuthorisedClients.whatToDo.body = You can either:
 noAuthorisedClients.list.hmrcOnlineAccount = ask your client to authorise you through their {0}
 noAuthorisedClients.list.hmrcOnlineAccount.link = HMRC online account (opens in new tab)
-noAuthorisedClients.list.onlineAgentAuthorisation = complete the {0} process for the client you''re acting on behalf of
+noAuthorisedClients.list.onlineAgentAuthorisation = complete the {0} process for the client you’re acting on behalf of
 noAuthorisedClients.list.onlineAgentAuthorisation.link = Online Agent Authorisation (opens in new tab)
 noAuthorisedClients.timing = It can take up to 5 working days for new authorisations to appear in your account.
 noAuthorisedClients.returnToHome = Return to home
@@ -397,9 +399,9 @@ purchaserName.change.hidden = the purchaser’s name
 isYourAddressInTheUk.title = Is your address in the UK?
 isYourAddressInTheUk.heading = Is your address in the UK?
 isYourAddressInTheUk.caption = Add your address
-isYourAddressInTheUk.checkYourAnswersLabel = Is your address in the UK
 isYourAddressInTheUk.error.required = Select yes if your address is in the UK
 isYourAddressInTheUk.change.hidden = whether your address is in the UK
+isYourAddressInTheUk.checkYourAnswersLabel = Is your address in the UK
 
 ##################################################################
 # APA1.0 - Add purchaser address: Is the purchaser's address in the UK #
@@ -477,7 +479,6 @@ phoneNumber.caption = Add your details
 phoneNumber.paragraph = You must provide at least one contact number.
 phoneNumber.label.phoneNumber = Phone number
 phoneNumber.label.mobileNumber = Mobile number
-phoneNumber.checkYourAnswersLabel = Contact numbers
 phoneNumber.error.required = Enter at least one contact number
 phoneNumber.error.phoneRequired = Enter your phone number
 phoneNumber.error.mobileRequired = Enter your mobile number
@@ -485,6 +486,7 @@ phoneNumber.error.length = Your phone number must be 20 characters or less
 phoneNumber.error.invalid = Enter your phone number in the correct format, like 01632 960 001
 phoneNumber.error.mobileLength = Your mobile number must be 20 characters or less
 phoneNumber.error.mobileInvalid = Enter your mobile number in the correct format, like 07700 900 982 or 44 7700 900 982
+phoneNumber.checkYourAnswersLabel = Contact numbers
 phoneNumber.change.hidden = your contact numbers
 
 ######################################################

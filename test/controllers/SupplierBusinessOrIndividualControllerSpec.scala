@@ -18,14 +18,15 @@ package controllers
 
 import base.SpecBase
 import forms.SupplierBusinessOrIndividualFormProvider
-import models.{BusinessOrPrivateIndividual, DraftId, NormalMode, UserAnswers}
+import models.{BusinessOrPrivateIndividual, CheckMode, DraftId, NormalMode, SupplierNumber, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.DraftIdPage
 import pages.sections.initialquestions.VehicleFromEuPage
-import pages.sections.supplierDetails.SupplierBusinessOrIndividualPage
+import pages.sections.supplierDetails.{SupplierBusinessOrIndividualPage, SupplierNumberPage}
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -42,7 +43,7 @@ class SupplierBusinessOrIndividualControllerSpec extends SpecBase with MockitoSu
   val formProvider = new SupplierBusinessOrIndividualFormProvider()
   val form         = formProvider()
 
-  lazy val supplierBusinessOrIndividualRoute = routes.SupplierBusinessOrIndividualController.onPageLoad(NormalMode).url
+  lazy val supplierBusinessOrIndividualRoute = routes.SupplierBusinessOrIndividualController.onPageLoad(SupplierNumber(1), NormalMode).url
 
   val userAnswersWithGuardData: UserAnswers = emptyUserAnswers
     .set(DraftIdPage, DraftId("DRAFT-001"))
@@ -51,6 +52,31 @@ class SupplierBusinessOrIndividualControllerSpec extends SpecBase with MockitoSu
     .set(VehicleFromEuPage, true)
     .success
     .value
+    .set(SupplierNumberPage, 1)
+    .success
+    .value
+
+  private def applicationWithMockRepository(userAnswers: UserAnswers): (play.api.Application, SessionRepository) = {
+
+    val mockSessionRepository = mock[SessionRepository]
+    when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+    val application =
+      applicationBuilder(userAnswers = Some(userAnswers))
+        .overrides(
+          bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+          bind[SessionRepository].toInstance(mockSessionRepository)
+        )
+        .build()
+
+    (application, mockSessionRepository)
+  }
+
+  private def savedAnswers(mockSessionRepository: SessionRepository): UserAnswers = {
+    val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
+    verify(mockSessionRepository).set(captor.capture())
+    captor.getValue
+  }
 
   "SupplierBusinessOrIndividualController" - {
 
@@ -66,7 +92,7 @@ class SupplierBusinessOrIndividualControllerSpec extends SpecBase with MockitoSu
         val view = application.injector.instanceOf[SupplierBusinessOrIndividualView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, SupplierNumber(1), NormalMode)(request, messages(application)).toString
       }
     }
 
@@ -87,7 +113,7 @@ class SupplierBusinessOrIndividualControllerSpec extends SpecBase with MockitoSu
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(BusinessOrPrivateIndividual.Business), NormalMode)(
+        contentAsString(result) mustEqual view(form.fill(BusinessOrPrivateIndividual.Business), SupplierNumber(1), NormalMode)(
           request,
           messages(application)
         ).toString
@@ -96,17 +122,7 @@ class SupplierBusinessOrIndividualControllerSpec extends SpecBase with MockitoSu
 
     "must redirect to the next page when valid data is submitted" in {
 
-      val mockSessionRepository = mock[SessionRepository]
-
-      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
-
-      val application =
-        applicationBuilder(userAnswers = Some(userAnswersWithGuardData))
-          .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-            bind[SessionRepository].toInstance(mockSessionRepository)
-          )
-          .build()
+      val (application, _) = applicationWithMockRepository(userAnswersWithGuardData)
 
       running(application) {
         val request =
@@ -117,6 +133,26 @@ class SupplierBusinessOrIndividualControllerSpec extends SpecBase with MockitoSu
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
+      }
+    }
+
+    "must keep the same supplier number when the user returns to change their answer" in {
+
+      val answersForSupplierThree              = userAnswersWithGuardData.set(SupplierNumberPage, 3).success.value
+      val (application, mockSessionRepository) = applicationWithMockRepository(answersForSupplierThree)
+
+      running(application) {
+        val request =
+          FakeRequest(POST, routes.SupplierBusinessOrIndividualController.onSubmit(SupplierNumber(3), CheckMode).url)
+            .withFormUrlEncodedBody(("value", BusinessOrPrivateIndividual.Business.toString))
+
+        val result = route(application, request).value
+        status(result) mustEqual SEE_OTHER
+
+        val answers = savedAnswers(mockSessionRepository)
+
+        answers.get(SupplierNumberPage) mustEqual Some(3)
+        answers.get(SupplierBusinessOrIndividualPage) mustEqual Some(BusinessOrPrivateIndividual.Business)
       }
     }
 
@@ -136,7 +172,7 @@ class SupplierBusinessOrIndividualControllerSpec extends SpecBase with MockitoSu
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, SupplierNumber(1), NormalMode)(request, messages(application)).toString
       }
     }
 
@@ -218,6 +254,58 @@ class SupplierBusinessOrIndividualControllerSpec extends SpecBase with MockitoSu
         val request =
           FakeRequest(POST, supplierBusinessOrIndividualRoute)
             .withFormUrlEncodedBody(("value", BusinessOrPrivateIndividual.Business.toString))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Unauthorised for a GET if the supplier number in the URL is not one of the user's suppliers" in {
+
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithGuardData)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, routes.SupplierBusinessOrIndividualController.onPageLoad(SupplierNumber(2), NormalMode).url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Unauthorised for a POST if the supplier number in the URL is not one of the user's suppliers" in {
+
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithGuardData)).build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, routes.SupplierBusinessOrIndividualController.onSubmit(SupplierNumber(2), NormalMode).url)
+            .withFormUrlEncodedBody(("value", BusinessOrPrivateIndividual.Business.toString))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Unauthorised for a GET if there is no supplier number in session" in {
+
+      val answersWithoutSupplierNumber = emptyUserAnswers
+        .set(DraftIdPage, DraftId("DRAFT-001"))
+        .success
+        .value
+        .set(VehicleFromEuPage, true)
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(answersWithoutSupplierNumber)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, supplierBusinessOrIndividualRoute)
 
         val result = route(application, request).value
 

@@ -18,7 +18,7 @@ package views
 
 import base.SpecBase
 import forms.SupplierBusinessOrIndividualFormProvider
-import models.NormalMode
+import models.{NormalMode, SupplierNumber}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.must.Matchers
 import play.api.Application
@@ -49,45 +49,45 @@ class SupplierBusinessOrIndividualViewSpec extends SpecBase with Matchers with B
   "SupplierBusinessOrIndividualView" - {
 
     "must render the correct heading" in {
-      val html: String = view(form, NormalMode)(request, msgs).toString
+      val html: String = view(form, SupplierNumber(1), NormalMode)(request, msgs).toString
 
       html must include(msgs("supplierBusinessOrIndividual.heading"))
     }
 
     "must render the correct page title" in {
-      val html: String = view(form, NormalMode)(request, msgs).toString
+      val html: String = view(form, SupplierNumber(1), NormalMode)(request, msgs).toString
 
       html must include(msgs("supplierBusinessOrIndividual.title"))
     }
 
     "must render the correct page caption" in {
-      val html: String = view(form, NormalMode)(request, msgs).toString
+      val html: String = view(form, SupplierNumber(1), NormalMode)(request, msgs).toString
 
       html must include("govuk-caption-l")
       html must include(msgs("supplierBusinessOrIndividual.caption"))
     }
 
     "must render the hint text" in {
-      val html: String = view(form, NormalMode)(request, msgs).toString
+      val html: String = view(form, SupplierNumber(1), NormalMode)(request, msgs).toString
 
       html must include(msgs("supplierBusinessOrIndividual.hint"))
     }
 
     "must render the business radio option" in {
-      val html: String = view(form, NormalMode)(request, msgs).toString
+      val html: String = view(form, SupplierNumber(1), NormalMode)(request, msgs).toString
 
       html must include(msgs("supplierBusinessOrIndividual.radio.business"))
     }
 
     "must render the private individual radio option" in {
-      val html: String = view(form, NormalMode)(request, msgs).toString
+      val html: String = view(form, SupplierNumber(1), NormalMode)(request, msgs).toString
 
       html must include(msgs("supplierBusinessOrIndividual.radio.privateIndividual"))
     }
 
     "must render the error summary when the form has errors" in {
       val boundForm    = form.bind(Map("value" -> ""))
-      val html: String = view(boundForm, NormalMode)(request, msgs).toString
+      val html: String = view(boundForm, SupplierNumber(1), NormalMode)(request, msgs).toString
 
       html must include(msgs("supplierBusinessOrIndividual.error.required"))
     }
