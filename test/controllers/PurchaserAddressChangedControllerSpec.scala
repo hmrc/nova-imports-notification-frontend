@@ -136,7 +136,7 @@ class PurchaserAddressChangedControllerSpec extends SpecBase with MockitoSugar {
         .set(DraftIdPage, draftId)
         .success
         .value
-      val application  = agentApplicationWith(Some(agentAnswers))
+      val application = agentApplicationWith(Some(agentAnswers))
 
       running(application) {
         val request = FakeRequest(GET, onPageLoadRoute)
