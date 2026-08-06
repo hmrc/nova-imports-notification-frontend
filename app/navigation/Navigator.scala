@@ -170,7 +170,7 @@ class Navigator @Inject() () {
       (_, _) => routes.YourDetailsCheckYourAnswersController.onPageLoad()
     case PurchaserBusinessNamePage =>
       (_, _) => routes.PurchaserDetailsCheckYourAnswersController.onPageLoad()
-    case SupplierBusinessOrIndividualPage =>
+    case SupplierBusinessOrIndividualPage | IsSupplierAddressInTheUkPage =>
       (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD-S9.0 CYA when built
     case _ =>
       (_, _) => routes.LandingPageController.onPageLoad()
