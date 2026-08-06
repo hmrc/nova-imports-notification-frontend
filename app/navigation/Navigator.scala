@@ -26,7 +26,7 @@ import pages.sections.notifierDetails.{BusinessNamePage, EmailAddressPage, NameD
 import pages.sections.notifieraddress.IsYourAddressInTheUkPage
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 import pages.sections.purchaserDetails.{PurchaserBusinessNamePage, PurchaserNamePage}
-import pages.sections.supplierDetails.{SupplierBusinessOrIndividualPage, SupplierNumberPage, UsePersonalDetailsAsSupplierPage}
+import pages.sections.supplierDetails.{SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierNumberPage, UsePersonalDetailsAsSupplierPage}
 
 @Singleton
 class Navigator @Inject() () {
@@ -116,10 +116,13 @@ class Navigator @Inject() () {
           case Some(BusinessOrPrivateIndividual.Business) =>
             routes.LandingPageController.onPageLoad() // TODO: navigate to AVD-S3.0 when built
           case Some(BusinessOrPrivateIndividual.PrivateIndividual) =>
-            routes.JourneyRecoveryController.onPageLoad() // TODO: navigate to AVD-S4.0 when built
+            routes.SupplierNameController
+              .onPageLoad(SupplierNumber(userAnswers.get(SupplierNumberPage).getOrElse(1)), NormalMode)
           case _ =>
             routes.JourneyRecoveryController.onPageLoad()
         }
+    case SupplierNamePage =>
+      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD-S5.0 when built
     case IsPurchaserAddressInTheUkPage =>
       (userAnswers, _) =>
         userAnswers.get(IsPurchaserAddressInTheUkPage) match {
@@ -163,7 +166,7 @@ class Navigator @Inject() () {
       (_, _) => routes.YourDetailsCheckYourAnswersController.onPageLoad()
     case PurchaserBusinessNamePage =>
       (_, _) => routes.PurchaserDetailsCheckYourAnswersController.onPageLoad()
-    case SupplierBusinessOrIndividualPage =>
+    case SupplierBusinessOrIndividualPage | SupplierNamePage =>
       (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD-S9.0 CYA when built
     case _ =>
       (_, _) => routes.LandingPageController.onPageLoad()

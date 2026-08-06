@@ -16,23 +16,13 @@
 
 package pages.sections.supplierDetails
 
-import models.{BusinessOrPrivateIndividual, UserAnswers}
+import models.NameDetails
 import pages.QuestionPage
 import play.api.libs.json.JsPath
 
-import scala.util.Try
-
-case object SupplierBusinessOrIndividualPage extends QuestionPage[BusinessOrPrivateIndividual] {
+case object SupplierNamePage extends QuestionPage[NameDetails] {
 
   override def path: JsPath = JsPath \ "supplier-details" \ toString
 
-  override def toString: String = "supplierBusinessOrIndividual"
-
-  // Changing the supplier type clears any name entered for the other type.
-  // TODO: also remove the supplier business name when AVD-S3.0 is built.
-  override def cleanup(value: Option[BusinessOrPrivateIndividual], userAnswers: UserAnswers): Try[UserAnswers] =
-    value match {
-      case Some(BusinessOrPrivateIndividual.Business) => userAnswers.remove(SupplierNamePage)
-      case _                                          => super.cleanup(value, userAnswers)
-    }
+  override def toString: String = "supplierName"
 }

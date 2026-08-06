@@ -454,3 +454,26 @@ purchaserBusinessOrIndividual.radio.privateIndividual = Unigolyn preifat
 # TODO: Welsh translations to be supplied by content team.
 purchaserBusinessOrIndividual.checkYourAnswersLabel = Type of purchaser you’re notifying for
 purchaserBusinessOrIndividual.change.hidden = whether the purchaser you are notifying on behalf of is a business or private individual
+
+###########################################################################################
+# AVD-S4.0 - Add vehicle details - Supplier 4.0: Supplier name                            #
+###########################################################################################
+# TODO: Welsh translations to be supplied by content team.
+
+supplierName.title = What is the supplier’s name?
+supplierName.caption = Add vehicle details
+supplierName.heading = What is the supplier’s name?
+supplierName.titleField = Title
+supplierName.titleField.error.format = Enter the supplier’s title in the correct format
+supplierName.titleField.error.length = The supplier’s title must be 20 characters or less
+supplierName.titleField.error.required = Enter the supplier’s title
+supplierName.firstName = First name
+supplierName.firstName.error.format = Enter the supplier’s first name in the correct format
+supplierName.firstName.error.length = The supplier’s first name must be 100 characters or less
+supplierName.firstName.error.required = Enter the supplier’s first name
+supplierName.lastName = Last name
+supplierName.lastName.error.format = Enter the supplier’s last name in the correct format
+supplierName.lastName.error.length = The supplier’s last name must be 100 characters or less
+supplierName.lastName.error.required = Enter the supplier’s last name
+supplierName.checkYourAnswersLabel = Supplier’s name
+supplierName.change.hidden = the supplier’s name
