@@ -108,7 +108,8 @@ class IsSupplierAddressInTheUkControllerSpec extends SpecBase with MockitoSugar 
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form.fill(true), SupplierNumber(1), NormalMode)(
-          request, messages(application)
+          request,
+          messages(application)
         ).toString
       }
     }
