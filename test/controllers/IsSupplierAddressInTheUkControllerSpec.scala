@@ -108,8 +108,7 @@ class IsSupplierAddressInTheUkControllerSpec extends SpecBase with MockitoSugar 
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form.fill(true), SupplierNumber(1), NormalMode)(
-          request,
-          messages(application)
+          request, messages(application)
         ).toString
       }
     }
@@ -146,7 +145,7 @@ class IsSupplierAddressInTheUkControllerSpec extends SpecBase with MockitoSugar 
         val answers = savedAnswers(mockSessionRepository)
 
         answers.get(SupplierNumberPage) mustEqual Some(3)
-        answers.get(IsSupplierAddressInTheUkPage) mustEqual Some("true")
+        answers.get(IsSupplierAddressInTheUkPage) mustEqual Some(true)
       }
     }
 

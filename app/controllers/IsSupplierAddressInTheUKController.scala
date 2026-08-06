@@ -23,7 +23,7 @@ import models.requests.DataRequest
 import models.{Mode, NovaUserType, SupplierNumber}
 import navigation.Navigator
 import pages.sections.initialquestions.VehicleFromEuPage
-import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
+import pages.sections.supplierDetails.IsSupplierAddressInTheUkPage
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -48,7 +48,7 @@ class IsSupplierAddressInTheUKController @Inject() (
 
   def onPageLoad(supplierNumber: SupplierNumber, mode: Mode): Action[AnyContent] =
     actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierNumber)) { implicit request =>
-      Ok(view(form.withDefault(request.userAnswers.get(IsPurchaserAddressInTheUkPage)), supplierNumber, mode))
+      Ok(view(form.withDefault(request.userAnswers.get(IsSupplierAddressInTheUkPage)), supplierNumber, mode))
     }
 
   def onSubmit(supplierNumber: SupplierNumber, mode: Mode): Action[AnyContent] =
@@ -59,10 +59,10 @@ class IsSupplierAddressInTheUKController @Inject() (
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, supplierNumber, mode))),
           value =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(IsPurchaserAddressInTheUkPage, value))
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(IsSupplierAddressInTheUkPage, value))
               _              <- sessionRepository.set(updatedAnswers)
             } yield Redirect(
-              navigator.nextPage(IsPurchaserAddressInTheUkPage, mode, updatedAnswers, NovaUserType.from(request.affinityGroup, request.enrolments))
+              navigator.nextPage(IsSupplierAddressInTheUkPage, mode, updatedAnswers, NovaUserType.from(request.affinityGroup, request.enrolments))
             )
         )
     }

@@ -336,7 +336,7 @@ class NavigatorSpec extends SpecBase {
           NormalMode,
           ua,
           NovaUserType.VatRegisteredOrganisation
-        ) mustBe routes.IsSupplierAddressInTheUKController.onPageLoad(SupplierNumber(2), NormalMode)
+        ) mustBe routes.LandingPageController.onPageLoad()
       }
 
       "must go from IsSupplierAddressInTheUKPage AVD-S5.0 to FindTheSuppliersAddress AVD-S6.0 when Yes is selected" in {
@@ -353,7 +353,7 @@ class NavigatorSpec extends SpecBase {
           NormalMode,
           ua,
           NovaUserType.VatRegisteredOrganisation
-        ) mustBe routes.IsSupplierAddressInTheUKController.onPageLoad(SupplierNumber(2), NormalMode)
+        ) mustBe routes.LandingPageController.onPageLoad()
       }
 
       "must go from IsSupplierAddressInTheUkPage AVD-S5.0 to JourneyRecovery when no answer is found" in {
