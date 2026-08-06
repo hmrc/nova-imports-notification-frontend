@@ -62,33 +62,50 @@ beforeYouContinueOrg.multiple.body.3 = you need for the type of vehicles you’v
 ######################################################
 # TODO: Welsh translations to be supplied by content team.
 
-landingPage.private.title = Notification of Vehicle Arrivals (NOVA)
-landingPage.private.heading = Notification of Vehicle Arrivals (NOVA)
-landingPage.private.body = Use the NOVA service to submit and manage notifications for vehicles brought into the UK.
-landingPage.private.create.link = Create a new notification
-landingPage.private.create.body = Start and submit a new notification
-landingPage.private.update.link = Update a submitted notification
-landingPage.private.update.body = Make changes to a notification you’ve already submitted
-landingPage.private.saved.heading = Manage a saved notification
-landingPage.private.saved.body.empty = You do not have a saved notification
-landingPage.private.saved.body.has = View, continue or delete a notification you’ve started but not yet submitted
+landingPage.private.title = Hysbysiad o Gerbydau’n Cyrraedd (NOVA)
+landingPage.private.heading = Hysbysiad o Gerbydau’n Cyrraedd (NOVA)
+landingPage.private.body = Defnyddiwch wasanaeth NOVA i gyflwyno a rheoli hysbysiadau ar gyfer cerbydau sy’n cael eu mewnforio i’r DU.
+landingPage.private.create.link = Creu hysbysiad newydd
+landingPage.private.create.body = Dechrau a chyflwyno hysbysiad newydd
+landingPage.private.update.link = Diweddaru hysbysiad sydd eisoes wedi’i gyflwyno
+landingPage.private.update.body = Gwneud newidiadau i hysbysiad rydych eisoes wedi’i gyflwyno
+landingPage.private.saved.heading = Rheoli hysbysiad sydd wedi’i gadw
+landingPage.private.saved.body.empty = Nid oes gennych hysbysiad wedi’i gadw
+landingPage.private.saved.body.has = Gweld, parhau neu ddileu hysbysiad rydych wedi’i ddechrau ond heb ei gyflwyno eto
 
 ######################################################
 # LP2.0 - Landing page for Organisations                       #
 ######################################################
 # TODO: Welsh translations to be supplied by content team.
 
-landingPage.organisation.title = Notification of Vehicle Arrivals (NOVA)
-landingPage.organisation.heading = Notification of Vehicle Arrivals (NOVA)
+landingPage.organisation.title = Hysbysiad o Gerbydau’n Cyrraedd (NOVA)
+landingPage.organisation.heading = Hysbysiad o Gerbydau’n Cyrraedd (NOVA)
 landingPage.organisation.vrn.caption = VAT registration number: GB{0}
-landingPage.organisation.body = Use the NOVA service to submit and manage notifications for vehicles brought into the UK.
-landingPage.organisation.create.link = Create a new notification
-landingPage.organisation.create.body = Start and submit a new notification
-landingPage.organisation.update.link = Update a submitted notification
-landingPage.organisation.update.body = Make changes to a notification you’ve already submitted
-landingPage.organisation.saved.heading = Manage a saved notification
-landingPage.organisation.saved.body.empty = You do not have a saved notification
-landingPage.organisation.saved.body.has = View, continue or delete a notification you’ve started but not yet submitted
+landingPage.organisation.body = Defnyddiwch wasanaeth NOVA i gyflwyno a rheoli hysbysiadau ar gyfer cerbydau sy’n cael eu mewnforio i’r DU.
+landingPage.organisation.create.link = Creu hysbysiad newydd
+landingPage.organisation.create.body = Dechrau a chyflwyno hysbysiad newydd
+landingPage.organisation.update.link = Diweddaru hysbysiad sydd eisoes wedi’i gyflwyno
+landingPage.organisation.update.body = Gwneud newidiadau i hysbysiad rydych eisoes wedi’i gyflwyno
+landingPage.organisation.saved.heading = Rheoli hysbysiad sydd wedi’i gadw
+landingPage.organisation.saved.body.empty = Nid oes gennych hysbysiad wedi’i gadw
+landingPage.organisation.saved.body.has = Gweld, parhau neu ddileu hysbysiad rydych wedi’i ddechrau ond heb ei gyflwyno eto
+
+################################################################
+# LP3.0 - Landing page for Agent with no selected client       #
+################################################################
+
+landingPage.agent.title = Hysbysiad o Gerbydau’n Cyrraedd (NOVA)
+landingPage.agent.heading = Hysbysiad o Gerbydau’n Cyrraedd (NOVA)
+landingPage.agent.body = Defnyddiwch wasanaeth NOVA i gyflwyno a rheoli hysbysiadau ar gyfer cerbydau sy’n cael eu mewnforio i’r DU.
+landingPage.agent.create.link = Creu hysbysiad newydd
+landingPage.agent.create.body = Dechrau a chyflwyno hysbysiad newydd
+landingPage.agent.update.link = Diweddaru hysbysiad sydd eisoes wedi’i gyflwyno
+landingPage.agent.update.body = Gwneud newidiadau i hysbysiad rydych eisoes wedi’i gyflwyno
+landingPage.agent.saved.heading = Rheoli hysbysiad sydd wedi’i gadw
+landingPage.agent.saved.body.empty = Nid oes gennych hysbysiad wedi’i gadw
+landingPage.agent.saved.body.has = Gweld, parhau neu ddileu hysbysiad rydych wedi’i ddechrau ond heb ei gyflwyno eto
+landingPage.agent.clients.link = Rheoli eich cleientiaid
+landingPage.agent.clients.body = Gweld, chwilio, dileu neu ddewis cleient i weithredu ar ei ran
 
 ######################################################
 # AYA1.0 - Add Your Address: Is your address in the UK #
