@@ -26,7 +26,7 @@ import pages.sections.notifierDetails.{BusinessNamePage, EmailAddressPage, NameD
 import pages.sections.notifieraddress.IsYourAddressInTheUkPage
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 import pages.sections.purchaserDetails.{PurchaserBusinessNamePage, PurchaserNamePage}
-import pages.sections.supplierDetails.{SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierNumberPage, UsePersonalDetailsAsSupplierPage}
+import pages.sections.supplierDetails.{IsSupplierVatRegisteredPage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierNumberPage, UsePersonalDetailsAsSupplierPage}
 
 @Singleton
 class Navigator @Inject() () {
@@ -130,6 +130,13 @@ class Navigator @Inject() () {
           case Some(false) => routes.LandingPageController.onPageLoad() // TODO: navigate to APA1.2 when built
           case _           => routes.JourneyRecoveryController.onPageLoad()
         }
+    case IsSupplierVatRegisteredPage =>
+      (userAnswers, userType) =>
+        userAnswers.get(IsSupplierVatRegisteredPage) match {
+          case Some(true) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD-S8.1 when built
+          case Some(false) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD-S9 when built (page variant depends on if individual or organisation)
+          case _ => routes.JourneyRecoveryController.onPageLoad()
+        }
     case _ => (_, _) => routes.LandingPageController.onPageLoad()
   }
 
@@ -166,7 +173,7 @@ class Navigator @Inject() () {
       (_, _) => routes.YourDetailsCheckYourAnswersController.onPageLoad()
     case PurchaserBusinessNamePage =>
       (_, _) => routes.PurchaserDetailsCheckYourAnswersController.onPageLoad()
-    case SupplierBusinessOrIndividualPage | SupplierNamePage =>
+    case SupplierBusinessOrIndividualPage | SupplierNamePage | IsSupplierVatRegisteredPage =>
       (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD-S9.0 CYA when built
     case _ =>
       (_, _) => routes.LandingPageController.onPageLoad()
