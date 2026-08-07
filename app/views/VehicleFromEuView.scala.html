@@ -41,11 +41,17 @@
 
         <p class="govuk-body">@messages("vehicleFromEu.paragraph.1")</p>
 
-        <p class="govuk-body">@Html(messages("vehicleFromEu.paragraph.2",
-            hmrcNewTabLink(LinkViewModel(messages("vehicleFromEu.paragraph.2.linkText"), importingVehiclesIntoTheUKUrl))))</p>
+        <p class="govuk-body">@messages("vehicleFromEu.paragraph.2")
+            <a href="@importingVehiclesIntoTheUKUrl" class="govuk-link" rel="noreferrer noopener" target="_blank">
+                @messages("vehicleFromEu.paragraph.2.linkText")
+            </a>
+        </p>
 
-        <p class="govuk-body">@Html(messages("vehicleFromEu.paragraph.3",
-            hmrcNewTabLink(LinkViewModel(messages("vehicleFromEu.paragraph.3.linkText"), euCountriesUrl))))</p>
+        <p class="govuk-body">@messages("vehicleFromEu.paragraph.3")
+            <a href="@euCountriesUrl" class="govuk-link" rel="noreferrer noopener" target="_blank">
+                @messages("vehicleFromEu.paragraph.3.linkText")
+            </a>
+        </p>
 
         @govukRadios(
             RadiosViewModel.yesNo(
