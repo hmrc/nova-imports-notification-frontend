@@ -191,10 +191,8 @@ addYourName.lastName = Enw olaf
 addYourName.lastName.error.format = Nodwch eich cyfenw yn y fformat cywir
 addYourName.lastName.error.length = Mae’n rhaid i’ch enw olaf fod yn 100 o gymeriadau neu lai
 addYourName.lastName.error.required = Nodwch eich enw olaf
-
-# TODO: Welsh translations to be supplied by content team.
-addYourName.checkYourAnswersLabel = Name
-addYourName.change.hidden = your name
+addYourName.checkYourAnswersLabel = Enw
+addYourName.change.hidden = eich enw
 
 ######################################################
 # AYD1.2 - Add your details 1.2: Phone number        #
@@ -213,10 +211,8 @@ phoneNumber.error.length = Mae’n rhaid i’ch rhif ffôn fod yn 20 o gymeriada
 phoneNumber.error.invalid = Nodwch eich rhif ffôn yn y fformat cywir, fel 01632 960 001
 phoneNumber.error.mobileLength = Mae’n rhaid i’ch rhif ffôn symudol fod yn 20 o gymeriadau neu lai
 phoneNumber.error.mobileInvalid = Nodwch eich rhif ffôn yn y fformat cywir, fel 07700 900 982 neu 44 7700 900 982
-
-# TODO: Welsh translations to be supplied by content team.
-phoneNumber.checkYourAnswersLabel = Contact numbers
-phoneNumber.change.hidden = your contact numbers
+phoneNumber.checkYourAnswersLabel = Rhifau cyswllt
+phoneNumber.change.hidden = eich rhifau ffôn cyswllt
 
 ######################################################
 # AYD1.3 - Add your details: email address           #
@@ -229,10 +225,15 @@ emailAddress.hint = Byddwn yn defnyddio hyn i anfon cadarnhad o’ch hysbysiad a
 emailAddress.error.required = Nodwch eich cyfeiriad e-bost
 emailAddress.error.length = Mae’n rhaid i’ch cyfeiriad e-bost fod yn 70 o gymeriadau neu lai
 emailAddress.error.invalid = Nodwch eich cyfeiriad e-bost yn y fformat cywir, er enghraifft enw@enghraifft.com
+emailAddress.checkYourAnswersLabel = Cyfeiriad e-bost
+emailAddress.change.hidden = eich cyfeiriad e-bost
 
-# TODO: Welsh translations to be supplied by content team.
-emailAddress.checkYourAnswersLabel = Email address
-emailAddress.change.hidden = your email address
+######################################################
+# AYD1.4 - Add your details - Business name                #
+######################################################
+
+businessName.checkYourAnswersLabel = Business name
+businessName.change.hidden = your business name
 
 ######################################################
 # ERR3.0 - Error message - Page not found            #
@@ -362,9 +363,8 @@ vehicleFromEu.paragraph.2.linkText = Mewnforio cerbydau i mewn i’r DU
 vehicleFromEu.paragraph.3 = Gweler y rhestr o {0}.
 vehicleFromEu.paragraph.3.linkText = wledydd yr UE
 vehicleFromEu.error.required = Dewiswch ‘Iawn’ os yw’r hysbysiad hwn ar gyfer cerbyd sy’n dod i mewn i Ogledd Iwerddon o wlad yn yr UE
-# TODO: Welsh translations to be supplied by content team.
-vehicleFromEu.checkYourAnswersLabel = Vehicle brought into Northern Ireland from an EU country
-vehicleFromEu.change.hidden = whether this notification is for a vehicle brought into Northern Ireland from an EU country
+vehicleFromEu.checkYourAnswersLabel = Cerbyd sy’n dod i mewn i Ogledd Iwerddon o wlad yn yr UE
+vehicleFromEu.change.hidden = A yw’r hysbysiad hwn ar gyfer cerbyd sy’n dod i mewn i Ogledd Iwerddon o wlad yn yr UE
 
 ##########################################################################
 # IQ1.1 - Initial Question 1.1: Vehicle brought into NI from outside EU  #
@@ -388,8 +388,7 @@ businessPrivate.privateIndividual = Unigolyn preifat
 businessPrivate.checkYourAnswersLabel = A ydych yn fusnes neu’n unigolyn preifat?
 businessPrivate.error.required = Dewiswch os ydych yn fusnes neu’n unigolyn preifat
 businessPrivate.privateIndividual.hint = Yn gweithredu ar eich rhan eich hun neu ar ran unigolyn preifat arall
-# TODO: Welsh translations to be supplied by content team.
-businessPrivate.change.hidden = whether you are a business or private individual
+businessPrivate.change.hidden = Os ydych yn fusnes neu’n unigolyn preifat
 
 ##########################################################
 # OQ1.0 - Organisation Question 1: Vehicle business use  #
@@ -415,8 +414,7 @@ agentVehicleBusinessUse.caption = Cwestiynau cychwynnol
 agentVehicleBusinessUse.hint = Dewiswch ‘Ie’ dim ond os yw’r cerbyd yn perthyn i’r busnes
 agentVehicleBusinessUse.checkYourAnswersLabel = A yw eich cleient wedi dod â cherbyd i’r DU at ddefnydd busnes?
 agentVehicleBusinessUse.error.required = Dewiswch ‘Iawn’ os yw eich cleient wedi dod â cherbyd i’r DU at ddefnydd busnes
-# TODO: Welsh translations to be supplied by content team.
-agentVehicleBusinessUse.change.hidden = whether your client has brought a vehicle into the UK for business use
+agentVehicleBusinessUse.change.hidden = Os yw’ch cleient wedi dod â cherbyd i’r DU at ddefnydd busnes?
 
 ##########################################################################
 # IQ3.0 - Initial Question 3.0: Purchaser or on behalf of the purchaser  #
@@ -429,9 +427,8 @@ purchaserOrOnBehalf.hint = Y prynwr yw unigolyn preifat neu fusnes a ddaeth â�
 purchaserOrOnBehalf.error.required = Dewiswch os ydych yn hysbysu fel y prynwr neu ar ran prynwr
 purchaserOrOnBehalf.radio.purchaser = Fel y prynwr
 purchaserOrOnBehalf.radio.behalfOfPurchaser = Ar ran prynwr
-# TODO: Welsh translations to be supplied by content team.
-purchaserOrOnBehalf.checkYourAnswersLabel = Are you the purchaser or notifying on behalf of a purchaser?
-purchaserOrOnBehalf.change.hidden = whether you are notifying as the purchaser or on behalf of a purchaser
+purchaserOrOnBehalf.checkYourAnswersLabel = Ai chi yw’r prynwr neu’n hysbysu ar ran prynwr?
+purchaserOrOnBehalf.change.hidden = Os ydych yn hysbysu fel y prynwr neu ar ran prynwr
 
 ###########################################################################
 # IQ3.1 - Initial Question 3.1: Purchaser business or private individual  #
@@ -444,9 +441,8 @@ purchaserBusinessOrIndividual.hint = Ni all y prynwr fod wedi’i gofrestru ar g
 purchaserBusinessOrIndividual.error.required = Dewiswch a yw’r prynwr yn fusnes neu’n unigolyn preifat
 purchaserBusinessOrIndividual.radio.business = Busnes
 purchaserBusinessOrIndividual.radio.privateIndividual = Unigolyn preifat
-# TODO: Welsh translations to be supplied by content team.
-purchaserBusinessOrIndividual.checkYourAnswersLabel = Type of purchaser you’re notifying for
-purchaserBusinessOrIndividual.change.hidden = whether the purchaser you are notifying on behalf of is a business or private individual
+purchaserBusinessOrIndividual.checkYourAnswersLabel = Math o brynwr rydych yn hysbysu ar ei ran
+purchaserBusinessOrIndividual.change.hidden = P’un a yw’r prynwr rydych yn hysbysu ar ei ran yn fusnes neu’n unigolyn preifat
 
 ###########################################################################################
 # AVD-S4.0 - Add vehicle details - Supplier 4.0: Supplier name                            #
@@ -470,3 +466,20 @@ supplierName.lastName.error.length = The supplier’s last name must be 100 char
 supplierName.lastName.error.required = Enter the supplier’s last name
 supplierName.checkYourAnswersLabel = Supplier’s name
 supplierName.change.hidden = the supplier’s name
+
+
+######################################################
+# CYA1.0 - Check your answers 1 - Initial questions  #
+######################################################
+
+initialQuestionsCheckYourAnswers.caption = Cwestiynau cychwynnol
+initialQuestionsCheckYourAnswers.heading = Gwiriwch eich atebion
+initialQuestionsCheckYourAnswers.title = Check your answers - Initial questions
+
+######################################################
+# CYA2.0 - Check your answers 2 - Your details       #
+######################################################
+
+yourDetailsCheckYourAnswers.caption = Ychwanegu eich manylion chi
+yourDetailsCheckYourAnswers.heading = Gwiriwch eich atebion
+yourDetailsCheckYourAnswers.title = Check your answers - your details
