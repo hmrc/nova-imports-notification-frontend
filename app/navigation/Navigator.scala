@@ -122,7 +122,8 @@ class Navigator @Inject() () {
             routes.JourneyRecoveryController.onPageLoad()
         }
     case SupplierNamePage =>
-      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD-S5.0 when built
+      (userAnswers, _) => routes.IsSupplierAddressInTheUKController
+        .onPageLoad(SupplierNumber(userAnswers.get(SupplierNumberPage).getOrElse(1)), NormalMode)
     case IsPurchaserAddressInTheUkPage =>
       (userAnswers, _) =>
         userAnswers.get(IsPurchaserAddressInTheUkPage) match {

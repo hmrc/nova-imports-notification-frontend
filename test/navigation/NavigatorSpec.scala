@@ -412,13 +412,12 @@ class NavigatorSpec extends SpecBase {
       }
 
       "must go from SupplierNamePage AVD-S4.0 to LandingPage" in {
-        // TODO: navigate to AVD-S5.0 when implemented
         navigator.nextPage(
           SupplierNamePage,
           NormalMode,
           userAnswers,
           NovaUserType.VatRegisteredOrganisation
-        ) mustBe routes.LandingPageController.onPageLoad()
+        ) mustBe routes.IsSupplierAddressInTheUKController.onPageLoad(SupplierNumber(1), NormalMode)
       }
 
       "must go from SupplierBusinessOrIndividualPage AVD-S2.0 to JourneyRecovery when no answer is found" in {
