@@ -21,7 +21,7 @@
     govukSummaryList: GovukSummaryList,
     govukRadios: GovukRadios,
     govukButton: GovukButton,
-    hmrcNewTabLink: HmrcNewTabLink
+    hmrcNewTabLinkHelper: HmrcNewTabLinkHelper
 )
 
 @(form: Form[_], mode: Mode, personalDetails: SummaryList, vatNotice728Url: String)(implicit request: Request[_], messages: Messages)
@@ -50,7 +50,7 @@
             <li>@messages("usePersonalDetailsAsSupplier.bullet.1")</li>
             <li>@messages("usePersonalDetailsAsSupplier.bullet.2")</li>
             <li>@messages("usePersonalDetailsAsSupplier.bullet.3")</li>
-            <li>@messages("usePersonalDetailsAsSupplier.bullet.4") @hmrcNewTabLink(LinkViewModel(messages("usePersonalDetailsAsSupplier.bullet.4.linkText"), vatNotice728Url))</li>
+            <li>@messages("usePersonalDetailsAsSupplier.bullet.4") @hmrcNewTabLinkHelper(LinkViewModel(messages("usePersonalDetailsAsSupplier.bullet.4.linkText"), vatNotice728Url))</li>
         </ul>
 
         <p class="govuk-body">@messages("usePersonalDetailsAsSupplier.personalDetails")</p>

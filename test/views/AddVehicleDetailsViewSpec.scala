@@ -25,7 +25,7 @@ import play.api.Application
 import play.api.i18n.Messages
 import play.api.mvc.Request
 import play.api.test.FakeRequest
-import uk.gov.hmrc.hmrcfrontend.views.html.components.HmrcNewTabLink
+import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcNewTabLinkHelper
 import viewmodels.govuk.all.LinkViewModel
 import views.html.AddVehicleDetailsView
 
@@ -38,8 +38,8 @@ class AddVehicleDetailsViewSpec extends SpecBase with Matchers with BeforeAndAft
   implicit val request: Request[?] = FakeRequest()
   implicit val msgs: Messages      = messages(app)
 
-  val view: AddVehicleDetailsView    = app.injector.instanceOf[AddVehicleDetailsView]
-  val hmrcNewTabLink: HmrcNewTabLink = app.injector.instanceOf[HmrcNewTabLink]
+  val view: AddVehicleDetailsView                = app.injector.instanceOf[AddVehicleDetailsView]
+  val hmrcNewTabLinkHelper: HmrcNewTabLinkHelper = app.injector.instanceOf[HmrcNewTabLinkHelper]
 
   override def afterAll(): Unit = {
     Await.result(app.stop(), 10.seconds)
@@ -92,7 +92,7 @@ class AddVehicleDetailsViewSpec extends SpecBase with Matchers with BeforeAndAft
       val html: String = view(form, NormalMode, spreadsheetUrl)(request, msgs).toString
 
       val expectedLink =
-        hmrcNewTabLink(LinkViewModel(msgs("addVehicleDetails.inset.findSpreadsheet.linkText"), spreadsheetUrl))
+        hmrcNewTabLinkHelper(LinkViewModel(msgs("addVehicleDetails.inset.findSpreadsheet.linkText"), spreadsheetUrl))
 
       html must include("govuk-inset-text")
       html must include(msgs("addVehicleDetails.inset.paragraph.1", expectedLink))

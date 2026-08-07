@@ -16,7 +16,7 @@
 
 package viewmodels.govuk
 
-import uk.gov.hmrc.hmrcfrontend.views.viewmodels.newtablink.NewTabLink
+import uk.gov.hmrc.hmrcfrontend.views.viewmodels.newtablinkhelper.NewTabLinkHelper
 
 object link extends LinkFluency
 
@@ -24,7 +24,7 @@ trait LinkFluency {
 
   object LinkViewModel {
 
-    def apply(text: String, href: String): NewTabLink =
-      NewTabLink(text = text, href = Some(href))
+    def apply(text: String, href: String): NewTabLinkHelper =
+      NewTabLinkHelper(text = text, href = Some(href))
   }
 }
