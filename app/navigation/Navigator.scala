@@ -122,8 +122,9 @@ class Navigator @Inject() () {
             routes.JourneyRecoveryController.onPageLoad()
         }
     case SupplierNamePage =>
-      (userAnswers, _) => routes.IsSupplierAddressInTheUKController
-        .onPageLoad(SupplierNumber(userAnswers.get(SupplierNumberPage).getOrElse(1)), NormalMode)
+      (userAnswers, _) =>
+        routes.IsSupplierAddressInTheUKController
+          .onPageLoad(SupplierNumber(userAnswers.get(SupplierNumberPage).getOrElse(1)), NormalMode)
     case IsPurchaserAddressInTheUkPage =>
       (userAnswers, _) =>
         userAnswers.get(IsPurchaserAddressInTheUkPage) match {
