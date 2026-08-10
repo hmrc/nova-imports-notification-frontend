@@ -609,7 +609,7 @@ supplierName.checkYourAnswersLabel = Supplier’s name
 supplierName.change.hidden = the supplier’s name
 
 ##########################################################################
-# AVD-S5.0 - Add vehicle details - Supplier 8.0: Supplier VAT Registered #
+# AVD-S8.0 - Add vehicle details - Supplier 8.0: Supplier VAT Registered #
 ##########################################################################
 
 isSupplierVatRegistered.title = Is the supplier VAT registered?
