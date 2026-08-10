@@ -49,64 +49,92 @@ class PurchaserNameViewSpec extends SpecBase with Matchers with BeforeAndAfterAl
   "PurchaserNameView" - {
 
     "must render the page title" in {
-      val html: String = view(form, NormalMode)(request, msgs).toString
+      val html: String = view(form, NormalMode, purchaserIsUser = true)(request, msgs).toString
 
       html must include(msgs("purchaserName.title"))
     }
 
     "must render the caption" in {
-      val html: String = view(form, NormalMode)(request, msgs).toString
+      val html: String = view(form, NormalMode, purchaserIsUser = true)(request, msgs).toString
 
       html must include("govuk-caption-l")
       html must include(msgs("purchaserName.caption"))
     }
 
     "must render the heading" in {
-      val html: String = view(form, NormalMode)(request, msgs).toString
+      val html: String = view(form, NormalMode, purchaserIsUser = true)(request, msgs).toString
 
       html must include(msgs("purchaserName.heading"))
     }
 
     "must render the titleField" in {
-      val html: String = view(form, NormalMode)(request, msgs).toString
+      val html: String = view(form, NormalMode, purchaserIsUser = true)(request, msgs).toString
 
       html must include(msgs("purchaserName.titleField"))
     }
 
     "must render the firstName" in {
-      val html: String = view(form, NormalMode)(request, msgs).toString
+      val html: String = view(form, NormalMode, purchaserIsUser = true)(request, msgs).toString
 
       html must include(msgs("purchaserName.firstName"))
     }
 
     "must render the lastName" in {
-      val html: String = view(form, NormalMode)(request, msgs).toString
+      val html: String = view(form, NormalMode, purchaserIsUser = true)(request, msgs).toString
 
       html must include(msgs("purchaserName.lastName"))
     }
 
     "must render the Continue button" in {
-      val html: String = view(form, NormalMode)(request, msgs).toString
+      val html: String = view(form, NormalMode, purchaserIsUser = true)(request, msgs).toString
 
       html must include(msgs("site.continue"))
     }
 
+    "must offer name autocomplete when the user is the purchaser" in {
+      val html: String = view(form, NormalMode, purchaserIsUser = true)(request, msgs).toString
+
+      html must include("""autocomplete="honorific-prefix"""")
+      html must include("""autocomplete="given-name"""")
+      html must include("""autocomplete="family-name"""")
+    }
+
+    "must not offer name autocomplete when notifying on behalf of a purchaser" in {
+      val html: String = view(form, NormalMode, purchaserIsUser = false)(request, msgs).toString
+
+      html must not include """autocomplete="honorific-prefix""""
+      html must not include """autocomplete="given-name""""
+      html must not include """autocomplete="family-name""""
+    }
+
+    "must disable form autocomplete when notifying on behalf of a purchaser" in {
+      val html: String = view(form, NormalMode, purchaserIsUser = false)(request, msgs).toString.toLowerCase
+
+      html must include("""autocomplete="off"""")
+    }
+
+    "must enable form autocomplete when the user is the purchaser" in {
+      val html: String = view(form, NormalMode, purchaserIsUser = true)(request, msgs).toString.toLowerCase
+
+      html must include("""autocomplete="on"""")
+    }
+
     "must render the error summary when the form has errors" in {
       val boundForm    = form.bind(Map("title" -> "", "firstName" -> "", "lastName" -> ""))
-      val html: String = view(boundForm, NormalMode)(request, msgs).toString
+      val html: String = view(boundForm, NormalMode, purchaserIsUser = true)(request, msgs).toString
 
       html must include("govuk-error-summary")
       html must include(msgs("purchaserName.titleField.error.required"))
     }
 
     "must render the same content via the render method" in {
-      val html: String = view.render(form, NormalMode, request, msgs).toString
+      val html: String = view.render(form, NormalMode, true, request, msgs).toString
 
       html must include(msgs("purchaserName.heading"))
     }
 
     "must render the same content via the f method" in {
-      val html: String = view.f(form, NormalMode)(request, msgs).toString
+      val html: String = view.f(form, NormalMode, true)(request, msgs).toString
 
       html must include(msgs("purchaserName.heading"))
     }

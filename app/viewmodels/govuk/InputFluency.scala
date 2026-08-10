@@ -80,6 +80,9 @@ trait InputFluency {
     def withAutocomplete(value: String): Input =
       input.copy(autocomplete = Some(value))
 
+    def withAutocompleteWhen(collectsUsersOwnDetails: Boolean, value: String): Input =
+      if collectsUsersOwnDetails then withAutocomplete(value) else input
+
     def withPattern(pattern: String): Input =
       input.copy(pattern = Some(pattern))
 

@@ -65,15 +65,18 @@ class PurchaserNameController @Inject() (
       case _                                   => false
     }
 
+  private def purchaserIsUser(request: DataRequest[?]): Boolean =
+    request.userAnswers.get(PurchaserOrOnBehalfPage).contains(PurchaserOrOnBehalf.Purchaser)
+
   def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate(mode)) { implicit request =>
-    Ok(view(form.withDefault(request.userAnswers.get(PurchaserNamePage)), mode))
+    Ok(view(form.withDefault(request.userAnswers.get(PurchaserNamePage)), mode, purchaserIsUser(request)))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate(mode)).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, purchaserIsUser(request)))),
         purchaserName =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(PurchaserNamePage, purchaserName))

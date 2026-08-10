@@ -91,7 +91,7 @@ class PurchaserNameControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[PurchaserNameView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode, purchaserIsUser = false)(request, messages(application)).toString
       }
     }
 
@@ -134,7 +134,7 @@ class PurchaserNameControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(answer), NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill(answer), NormalMode, purchaserIsUser = false)(request, messages(application)).toString
       }
     }
 
@@ -217,7 +217,7 @@ class PurchaserNameControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, NormalMode, purchaserIsUser = false)(request, messages(application)).toString
       }
     }
 
@@ -330,6 +330,38 @@ class PurchaserNameControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
+      }
+    }
+
+    "must offer name autocomplete when the user is the purchaser" in {
+
+      val userAnswers = emptyUserAnswers
+        .unsafeSet(pages.DraftIdPage, DraftId("DRAFT-001"))
+        .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
+
+      val application = agentApplicationBuilder(Some(userAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, purchaserNameRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        contentAsString(result) must include("""autocomplete="given-name"""")
+      }
+    }
+
+    "must not offer name autocomplete when notifying on behalf of a purchaser" in {
+
+      val application = applicationBuilder(userAnswers = Some(requiredPreviousAnswers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, purchaserNameRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual OK
+        contentAsString(result) must not include """autocomplete="given-name""""
       }
     }
 
