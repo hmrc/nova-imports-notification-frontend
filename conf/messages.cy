@@ -24,13 +24,6 @@ date.error.month = Mis
 date.error.year = Blwyddyn
 
 
-vehicleBusinessUse.title = Have you brought a vehicle into the UK for business use?
-vehicleBusinessUse.heading = Have you brought a vehicle into the UK for business use?
-vehicleBusinessUse.hint = Select ‘Yes’ only if the vehicle belongs to the business
-vehicleBusinessUse.checkYourAnswersLabel = Vehicle brought into the UK for business use
-vehicleBusinessUse.error.required = Select yes if you brought a vehicle into the UK for business use
-vehicleBusinessUse.change.hidden = vehicle brought into the UK for business use
-
 ######################################################
 # BY2.0 - Before you continue - Organisation and Agent  #
 ######################################################
@@ -62,33 +55,49 @@ beforeYouContinueOrg.multiple.body.3 = you need for the type of vehicles you’v
 ######################################################
 # TODO: Welsh translations to be supplied by content team.
 
-landingPage.private.title = Notification of Vehicle Arrivals (NOVA)
-landingPage.private.heading = Notification of Vehicle Arrivals (NOVA)
-landingPage.private.body = Use the NOVA service to submit and manage notifications for vehicles brought into the UK.
-landingPage.private.create.link = Create a new notification
-landingPage.private.create.body = Start and submit a new notification
-landingPage.private.update.link = Update a submitted notification
-landingPage.private.update.body = Make changes to a notification you’ve already submitted
-landingPage.private.saved.heading = Manage a saved notification
-landingPage.private.saved.body.empty = You do not have a saved notification
-landingPage.private.saved.body.has = View, continue or delete a notification you’ve started but not yet submitted
+landingPage.private.title = Hysbysiad o Gerbydau’n Cyrraedd (NOVA)
+landingPage.private.heading = Hysbysiad o Gerbydau’n Cyrraedd (NOVA)
+landingPage.private.body = Defnyddiwch wasanaeth NOVA i gyflwyno a rheoli hysbysiadau ar gyfer cerbydau sy’n cael eu mewnforio i’r DU.
+landingPage.private.create.link = Creu hysbysiad newydd
+landingPage.private.create.body = Dechrau a chyflwyno hysbysiad newydd
+landingPage.private.update.link = Diweddaru hysbysiad sydd eisoes wedi’i gyflwyno
+landingPage.private.update.body = Gwneud newidiadau i hysbysiad rydych eisoes wedi’i gyflwyno
+landingPage.private.saved.heading = Rheoli hysbysiad sydd wedi’i gadw
+landingPage.private.saved.body.empty = Nid oes gennych hysbysiad wedi’i gadw
+landingPage.private.saved.body.has = Gweld, parhau neu ddileu hysbysiad rydych wedi’i ddechrau ond heb ei gyflwyno eto
 
 ######################################################
 # LP2.0 - Landing page for Organisations                       #
 ######################################################
-# TODO: Welsh translations to be supplied by content team.
 
-landingPage.organisation.title = Notification of Vehicle Arrivals (NOVA)
-landingPage.organisation.heading = Notification of Vehicle Arrivals (NOVA)
-landingPage.organisation.vrn.caption = VAT registration number: GB{0}
-landingPage.organisation.body = Use the NOVA service to submit and manage notifications for vehicles brought into the UK.
-landingPage.organisation.create.link = Create a new notification
-landingPage.organisation.create.body = Start and submit a new notification
-landingPage.organisation.update.link = Update a submitted notification
-landingPage.organisation.update.body = Make changes to a notification you’ve already submitted
-landingPage.organisation.saved.heading = Manage a saved notification
-landingPage.organisation.saved.body.empty = You do not have a saved notification
-landingPage.organisation.saved.body.has = View, continue or delete a notification you’ve started but not yet submitted
+landingPage.organisation.title = Hysbysiad o Gerbydau’n Cyrraedd (NOVA)
+landingPage.organisation.heading = Hysbysiad o Gerbydau’n Cyrraedd (NOVA)
+landingPage.organisation.vrn.caption = Rhif cofrestru TAW: GB{0}
+landingPage.organisation.body = Defnyddiwch wasanaeth NOVA i gyflwyno a rheoli hysbysiadau ar gyfer cerbydau sy’n cael eu mewnforio i’r DU.
+landingPage.organisation.create.link = Creu hysbysiad newydd
+landingPage.organisation.create.body = Dechrau a chyflwyno hysbysiad newydd
+landingPage.organisation.update.link = Diweddaru hysbysiad sydd eisoes wedi’i gyflwyno
+landingPage.organisation.update.body = Gwneud newidiadau i hysbysiad rydych eisoes wedi’i gyflwyno
+landingPage.organisation.saved.heading = Rheoli hysbysiad sydd wedi’i gadw
+landingPage.organisation.saved.body.empty = Nid oes gennych hysbysiad wedi’i gadw
+landingPage.organisation.saved.body.has = Gweld, parhau neu ddileu hysbysiad rydych wedi’i ddechrau ond heb ei gyflwyno eto
+
+################################################################
+# LP3.0 - Landing page for Agent with no selected client       #
+################################################################
+
+landingPage.agent.title = Hysbysiad o Gerbydau’n Cyrraedd (NOVA)
+landingPage.agent.heading = Hysbysiad o Gerbydau’n Cyrraedd (NOVA)
+landingPage.agent.body = Defnyddiwch wasanaeth NOVA i gyflwyno a rheoli hysbysiadau ar gyfer cerbydau sy’n cael eu mewnforio i’r DU.
+landingPage.agent.create.link = Creu hysbysiad newydd
+landingPage.agent.create.body = Dechrau a chyflwyno hysbysiad newydd
+landingPage.agent.update.link = Diweddaru hysbysiad sydd eisoes wedi’i gyflwyno
+landingPage.agent.update.body = Gwneud newidiadau i hysbysiad rydych eisoes wedi’i gyflwyno
+landingPage.agent.saved.heading = Rheoli hysbysiad sydd wedi’i gadw
+landingPage.agent.saved.body.empty = Nid oes gennych hysbysiad wedi’i gadw
+landingPage.agent.saved.body.has = Gweld, parhau neu ddileu hysbysiad rydych wedi’i ddechrau ond heb ei gyflwyno eto
+landingPage.agent.clients.link = Rheoli eich cleientiaid
+landingPage.agent.clients.body = Gweld, chwilio, dileu neu ddewis cleient i weithredu ar ei ran
 
 ######################################################
 # AYA1.0 - Add Your Address: Is your address in the UK #
@@ -193,10 +202,8 @@ addYourName.lastName = Enw olaf
 addYourName.lastName.error.format = Nodwch eich cyfenw yn y fformat cywir
 addYourName.lastName.error.length = Mae’n rhaid i’ch enw olaf fod yn 100 o gymeriadau neu lai
 addYourName.lastName.error.required = Nodwch eich enw olaf
-
-# TODO: Welsh translations to be supplied by content team.
-addYourName.checkYourAnswersLabel = Name
-addYourName.change.hidden = your name
+addYourName.checkYourAnswersLabel = Enw
+addYourName.change.hidden = eich enw
 
 ######################################################
 # AYD1.2 - Add your details 1.2: Phone number        #
@@ -215,10 +222,8 @@ phoneNumber.error.length = Mae’n rhaid i’ch rhif ffôn fod yn 20 o gymeriada
 phoneNumber.error.invalid = Nodwch eich rhif ffôn yn y fformat cywir, fel 01632 960 001
 phoneNumber.error.mobileLength = Mae’n rhaid i’ch rhif ffôn symudol fod yn 20 o gymeriadau neu lai
 phoneNumber.error.mobileInvalid = Nodwch eich rhif ffôn yn y fformat cywir, fel 07700 900 982 neu 44 7700 900 982
-
-# TODO: Welsh translations to be supplied by content team.
-phoneNumber.checkYourAnswersLabel = Contact numbers
-phoneNumber.change.hidden = your contact numbers
+phoneNumber.checkYourAnswersLabel = Rhifau cyswllt
+phoneNumber.change.hidden = eich rhifau ffôn cyswllt
 
 ######################################################
 # AYD1.3 - Add your details: email address           #
@@ -231,10 +236,15 @@ emailAddress.hint = Byddwn yn defnyddio hyn i anfon cadarnhad o’ch hysbysiad a
 emailAddress.error.required = Nodwch eich cyfeiriad e-bost
 emailAddress.error.length = Mae’n rhaid i’ch cyfeiriad e-bost fod yn 70 o gymeriadau neu lai
 emailAddress.error.invalid = Nodwch eich cyfeiriad e-bost yn y fformat cywir, er enghraifft enw@enghraifft.com
+emailAddress.checkYourAnswersLabel = Cyfeiriad e-bost
+emailAddress.change.hidden = eich cyfeiriad e-bost
 
-# TODO: Welsh translations to be supplied by content team.
-emailAddress.checkYourAnswersLabel = Email address
-emailAddress.change.hidden = your email address
+######################################################
+# AYD1.4 - Add your details - Business name                #
+######################################################
+
+businessName.checkYourAnswersLabel = Business name
+businessName.change.hidden = your business name
 
 ######################################################
 # ERR3.0 - Error message - Page not found            #
@@ -360,13 +370,12 @@ vehicleFromEu.heading = A yw’r hysbysiad hwn ar gyfer cerbyd sy’n dod i mewn
 vehicleFromEu.caption = Cwestiynau cychwynnol
 vehicleFromEu.paragraph.1 = Os ydych chi’n mewnforio cerbyd i Ogledd Iwerddon o’r tu allan i wlad yn yr UE, mae’n rhaid i chi ddilyn proses wahanol.
 vehicleFromEu.paragraph.2 = Dysgwch sut i hysbysu CThEF amdano ar {0}.
-vehicleFromEu.paragraph.2.linkText = Mewnforio cerbydau i mewn i’r DU (yn agor tab newydd)
+vehicleFromEu.paragraph.2.linkText = Mewnforio cerbydau i mewn i’r DU
 vehicleFromEu.paragraph.3 = Gweler y rhestr o {0}.
-vehicleFromEu.paragraph.3.linkText = wledydd yr UE (yn agor tab newydd)
+vehicleFromEu.paragraph.3.linkText = wledydd yr UE
 vehicleFromEu.error.required = Dewiswch ‘Iawn’ os yw’r hysbysiad hwn ar gyfer cerbyd sy’n dod i mewn i Ogledd Iwerddon o wlad yn yr UE
-# TODO: Welsh translations to be supplied by content team.
-vehicleFromEu.checkYourAnswersLabel = Vehicle brought into Northern Ireland from an EU country
-vehicleFromEu.change.hidden = whether this notification is for a vehicle brought into Northern Ireland from an EU country
+vehicleFromEu.checkYourAnswersLabel = Cerbyd sy’n dod i mewn i Ogledd Iwerddon o wlad yn yr UE
+vehicleFromEu.change.hidden = A yw’r hysbysiad hwn ar gyfer cerbyd sy’n dod i mewn i Ogledd Iwerddon o wlad yn yr UE
 
 ##########################################################################
 # IQ1.1 - Initial Question 1.1: Vehicle brought into NI from outside EU  #
@@ -390,8 +399,7 @@ businessPrivate.privateIndividual = Unigolyn preifat
 businessPrivate.checkYourAnswersLabel = A ydych yn fusnes neu’n unigolyn preifat?
 businessPrivate.error.required = Dewiswch os ydych yn fusnes neu’n unigolyn preifat
 businessPrivate.privateIndividual.hint = Yn gweithredu ar eich rhan eich hun neu ar ran unigolyn preifat arall
-# TODO: Welsh translations to be supplied by content team.
-businessPrivate.change.hidden = whether you are a business or private individual
+businessPrivate.change.hidden = Os ydych yn fusnes neu’n unigolyn preifat
 
 ##########################################################
 # OQ1.0 - Organisation Question 1: Vehicle business use  #
@@ -417,8 +425,7 @@ agentVehicleBusinessUse.caption = Cwestiynau cychwynnol
 agentVehicleBusinessUse.hint = Dewiswch ‘Ie’ dim ond os yw’r cerbyd yn perthyn i’r busnes
 agentVehicleBusinessUse.checkYourAnswersLabel = A yw eich cleient wedi dod â cherbyd i’r DU at ddefnydd busnes?
 agentVehicleBusinessUse.error.required = Dewiswch ‘Iawn’ os yw eich cleient wedi dod â cherbyd i’r DU at ddefnydd busnes
-# TODO: Welsh translations to be supplied by content team.
-agentVehicleBusinessUse.change.hidden = whether your client has brought a vehicle into the UK for business use
+agentVehicleBusinessUse.change.hidden = Os yw’ch cleient wedi dod â cherbyd i’r DU at ddefnydd busnes?
 
 ##########################################################################
 # IQ3.0 - Initial Question 3.0: Purchaser or on behalf of the purchaser  #
@@ -431,9 +438,8 @@ purchaserOrOnBehalf.hint = Y prynwr yw unigolyn preifat neu fusnes a ddaeth â�
 purchaserOrOnBehalf.error.required = Dewiswch os ydych yn hysbysu fel y prynwr neu ar ran prynwr
 purchaserOrOnBehalf.radio.purchaser = Fel y prynwr
 purchaserOrOnBehalf.radio.behalfOfPurchaser = Ar ran prynwr
-# TODO: Welsh translations to be supplied by content team.
-purchaserOrOnBehalf.checkYourAnswersLabel = Are you the purchaser or notifying on behalf of a purchaser?
-purchaserOrOnBehalf.change.hidden = whether you are notifying as the purchaser or on behalf of a purchaser
+purchaserOrOnBehalf.checkYourAnswersLabel = Ai chi yw’r prynwr neu’n hysbysu ar ran prynwr?
+purchaserOrOnBehalf.change.hidden = Os ydych yn hysbysu fel y prynwr neu ar ran prynwr
 
 ###########################################################################
 # IQ3.1 - Initial Question 3.1: Purchaser business or private individual  #
@@ -446,6 +452,45 @@ purchaserBusinessOrIndividual.hint = Ni all y prynwr fod wedi’i gofrestru ar g
 purchaserBusinessOrIndividual.error.required = Dewiswch a yw’r prynwr yn fusnes neu’n unigolyn preifat
 purchaserBusinessOrIndividual.radio.business = Busnes
 purchaserBusinessOrIndividual.radio.privateIndividual = Unigolyn preifat
+purchaserBusinessOrIndividual.checkYourAnswersLabel = Math o brynwr rydych yn hysbysu ar ei ran
+purchaserBusinessOrIndividual.change.hidden = P’un a yw’r prynwr rydych yn hysbysu ar ei ran yn fusnes neu’n unigolyn preifat
+
+###########################################################################################
+# AVD-S4.0 - Add vehicle details - Supplier 4.0: Supplier name                            #
+###########################################################################################
 # TODO: Welsh translations to be supplied by content team.
-purchaserBusinessOrIndividual.checkYourAnswersLabel = Type of purchaser you’re notifying for
-purchaserBusinessOrIndividual.change.hidden = whether the purchaser you are notifying on behalf of is a business or private individual
+
+supplierName.title = What is the supplier’s name?
+supplierName.caption = Add vehicle details
+supplierName.heading = What is the supplier’s name?
+supplierName.titleField = Title
+supplierName.titleField.error.format = Enter the supplier’s title in the correct format
+supplierName.titleField.error.length = The supplier’s title must be 20 characters or less
+supplierName.titleField.error.required = Enter the supplier’s title
+supplierName.firstName = First name
+supplierName.firstName.error.format = Enter the supplier’s first name in the correct format
+supplierName.firstName.error.length = The supplier’s first name must be 100 characters or less
+supplierName.firstName.error.required = Enter the supplier’s first name
+supplierName.lastName = Last name
+supplierName.lastName.error.format = Enter the supplier’s last name in the correct format
+supplierName.lastName.error.length = The supplier’s last name must be 100 characters or less
+supplierName.lastName.error.required = Enter the supplier’s last name
+supplierName.checkYourAnswersLabel = Supplier’s name
+supplierName.change.hidden = the supplier’s name
+
+
+######################################################
+# CYA1.0 - Check your answers 1 - Initial questions  #
+######################################################
+
+initialQuestionsCheckYourAnswers.caption = Cwestiynau cychwynnol
+initialQuestionsCheckYourAnswers.heading = Gwiriwch eich atebion
+initialQuestionsCheckYourAnswers.title = Check your answers - Initial questions
+
+######################################################
+# CYA2.0 - Check your answers 2 - Your details       #
+######################################################
+
+yourDetailsCheckYourAnswers.caption = Ychwanegu eich manylion chi
+yourDetailsCheckYourAnswers.heading = Gwiriwch eich atebion
+yourDetailsCheckYourAnswers.title = Check your answers - your details

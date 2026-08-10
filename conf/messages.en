@@ -132,9 +132,9 @@ vehicleFromEu.heading = Is this notification for a vehicle brought into Northern
 vehicleFromEu.caption = Initial questions
 vehicleFromEu.paragraph.1 = If you import a vehicle into Northern Ireland from outside an EU country, you must follow a different process.
 vehicleFromEu.paragraph.2 = Find out how to notify HMRC about it on {0}.
-vehicleFromEu.paragraph.2.linkText = Importing vehicles into the UK (opens in new tab)
+vehicleFromEu.paragraph.2.linkText = Importing vehicles into the UK
 vehicleFromEu.paragraph.3 = See the list of {0}.
-vehicleFromEu.paragraph.3.linkText = EU countries (opens in new tab)
+vehicleFromEu.paragraph.3.linkText = EU countries
 vehicleFromEu.checkYourAnswersLabel = Vehicle brought into Northern Ireland from an EU country
 vehicleFromEu.error.required = Select yes if this notification is for a vehicle brought into Northern Ireland from an EU country
 vehicleFromEu.change.hidden = whether this notification is for a vehicle brought into Northern Ireland from an EU country
@@ -541,7 +541,7 @@ addVehicleDetails.radio.bySupplier.hint = Provide the supplier details first, th
 addVehicleDetails.radio.bySpreadsheet = Upload a vehicle spreadsheet
 addVehicleDetails.radio.bySpreadsheet.hint = Use the spreadsheet option to add details for more than one vehicle of the same type at the same time
 addVehicleDetails.inset.paragraph.1 = If you’re uploading a spreadsheet, you must use the correct one for the same type of vehicles. {0} you must download and use.
-addVehicleDetails.inset.findSpreadsheet.linkText = Find the spreadsheet (opens in new tab)
+addVehicleDetails.inset.findSpreadsheet.linkText = Find the spreadsheet
 addVehicleDetails.error.required = Select how you want to add vehicle details
 
 ######################################################
@@ -573,7 +573,7 @@ usePersonalDetailsAsSupplier.bullet.1 = be VAT registered in the UK
 usePersonalDetailsAsSupplier.bullet.2 = have bought and used a road vehicle for your business activity in another EU country where you’re also VAT registered
 usePersonalDetailsAsSupplier.bullet.3 = have brought the road vehicle to the UK, and it belongs to the same business
 usePersonalDetailsAsSupplier.bullet.4 = not have bought a new means of transport,
-usePersonalDetailsAsSupplier.bullet.4.linkText = read VAT Notice 728 (opens in new tab)
+usePersonalDetailsAsSupplier.bullet.4.linkText = read VAT Notice 728
 usePersonalDetailsAsSupplier.personalDetails = Your personal details are:
 usePersonalDetailsAsSupplier.name = Name
 usePersonalDetailsAsSupplier.address = Address
@@ -596,3 +596,25 @@ supplierBusinessOrIndividual.error.required = Select if the supplier is a busine
 supplierBusinessOrIndividual.change.hidden = Is the supplier a business or private individual?
 supplierBusinessOrIndividual.radio.business = Business
 supplierBusinessOrIndividual.radio.privateIndividual = Private individual
+
+###########################################################################################
+# AVD-S4.0 - Add vehicle details - Supplier 4.0: Supplier name                            #
+###########################################################################################
+
+supplierName.title = What is the supplier’s name?
+supplierName.caption = Add vehicle details
+supplierName.heading = What is the supplier’s name?
+supplierName.titleField = Title
+supplierName.titleField.error.format = Enter the supplier’s title in the correct format
+supplierName.titleField.error.length = The supplier’s title must be 20 characters or less
+supplierName.titleField.error.required = Enter the supplier’s title
+supplierName.firstName = First name
+supplierName.firstName.error.format = Enter the supplier’s first name in the correct format
+supplierName.firstName.error.length = The supplier’s first name must be 100 characters or less
+supplierName.firstName.error.required = Enter the supplier’s first name
+supplierName.lastName = Last name
+supplierName.lastName.error.format = Enter the supplier’s last name in the correct format
+supplierName.lastName.error.length = The supplier’s last name must be 100 characters or less
+supplierName.lastName.error.required = Enter the supplier’s last name
+supplierName.checkYourAnswersLabel = Supplier’s name
+supplierName.change.hidden = the supplier’s name
