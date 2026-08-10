@@ -69,11 +69,10 @@ landingPage.private.saved.body.has = Gweld, parhau neu ddileu hysbysiad rydych w
 ######################################################
 # LP2.0 - Landing page for Organisations                       #
 ######################################################
-# TODO: Welsh translations to be supplied by content team.
 
 landingPage.organisation.title = Hysbysiad o Gerbydau’n Cyrraedd (NOVA)
 landingPage.organisation.heading = Hysbysiad o Gerbydau’n Cyrraedd (NOVA)
-landingPage.organisation.vrn.caption = VAT registration number: GB{0}
+landingPage.organisation.vrn.caption = Rhif cofrestru TAW: GB{0}
 landingPage.organisation.body = Defnyddiwch wasanaeth NOVA i gyflwyno a rheoli hysbysiadau ar gyfer cerbydau sy’n cael eu mewnforio i’r DU.
 landingPage.organisation.create.link = Creu hysbysiad newydd
 landingPage.organisation.create.body = Dechrau a chyflwyno hysbysiad newydd
