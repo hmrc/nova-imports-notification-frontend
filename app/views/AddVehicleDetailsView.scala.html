@@ -24,7 +24,7 @@
     govukRadios: GovukRadios,
     govukInsetText: GovukInsetText,
     govukButton: GovukButton,
-    hmrcNewTabLink: HmrcNewTabLink
+    hmrcNewTabLinkHelper: HmrcNewTabLinkHelper
 )
 
 @(form: Form[_], mode: Mode, spreadsheetUrl: String)(implicit request: Request[_], messages: Messages)
@@ -68,7 +68,7 @@
 
         @govukInsetText(InsetTextViewModel(
             messages("addVehicleDetails.inset.paragraph.1",
-                hmrcNewTabLink(LinkViewModel(messages("addVehicleDetails.inset.findSpreadsheet.linkText"), spreadsheetUrl)))
+                hmrcNewTabLinkHelper(LinkViewModel(messages("addVehicleDetails.inset.findSpreadsheet.linkText"), spreadsheetUrl)))
         ))
 
         @govukButton(

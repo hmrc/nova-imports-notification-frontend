@@ -22,7 +22,7 @@
     govukErrorSummary: GovukErrorSummary,
     govukRadios: GovukRadios,
     govukButton: GovukButton,
-    hmrcNewTabLink: HmrcNewTabLink
+    hmrcNewTabLinkHelper: HmrcNewTabLinkHelper
 )
 
 @(form: Form[_], mode: Mode, importingVehiclesIntoTheUKUrl: String, euCountriesUrl: String)(implicit request: Request[_], messages: Messages)
@@ -42,10 +42,10 @@
         <p class="govuk-body">@messages("vehicleFromEu.paragraph.1")</p>
 
         <p class="govuk-body">@Html(messages("vehicleFromEu.paragraph.2",
-            hmrcNewTabLink(LinkViewModel(messages("vehicleFromEu.paragraph.2.linkText"), importingVehiclesIntoTheUKUrl))))</p>
+            hmrcNewTabLinkHelper(LinkViewModel(messages("vehicleFromEu.paragraph.2.linkText"), importingVehiclesIntoTheUKUrl))))</p>
 
         <p class="govuk-body">@Html(messages("vehicleFromEu.paragraph.3",
-            hmrcNewTabLink(LinkViewModel(messages("vehicleFromEu.paragraph.3.linkText"), euCountriesUrl))))</p>
+            hmrcNewTabLinkHelper(LinkViewModel(messages("vehicleFromEu.paragraph.3.linkText"), euCountriesUrl))))</p>
 
         @govukRadios(
             RadiosViewModel.yesNo(
