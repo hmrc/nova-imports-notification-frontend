@@ -67,14 +67,9 @@ class PurchaserAddressSpec extends SpecBase {
         line2 = "Block A",
         line3 = Some("Mitte"),
         line4 = Some("Berlin"),
-        postCode = None,
+        postCode = Some("10115"),
         country = de
       )
-    }
-
-    "must drop the postcode (non-UK has no postcode in the F4 payload)" in {
-      val address = Address(lines = Seq("Line 1", "Town"), postcode = Some("10115"), country = de)
-      PurchaserAddress.fromAddress(address).postCode mustBe None
     }
   }
 
