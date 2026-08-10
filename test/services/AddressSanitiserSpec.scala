@@ -43,6 +43,11 @@ class AddressSanitiserSpec extends SpecBase {
       AddressSanitiser.sanitise(address).lines.head mustBe "12 High Street "
     }
 
+    "must strip a trailing disallowed character without leaving a gap" in {
+      val address = Address(lines = Seq("12 High Street$", "Reading"), postcode = None, country = germany)
+      AddressSanitiser.sanitise(address).lines.head mustBe "12 High Street"
+    }
+
     "must truncate address lines that exceed 35 characters" in {
       val longLine = "a" * 40
       val address  = Address(lines = Seq(longLine, "Town"), postcode = None, country = germany)
@@ -59,9 +64,25 @@ class AddressSanitiserSpec extends SpecBase {
       AddressSanitiser.sanitise(address).postcode mustBe None
     }
 
-    "must leave country untouched" in {
+    "must leave an already-clean country name unchanged" in {
       val address = Address(lines = Seq("Line 1"), postcode = None, country = germany)
       AddressSanitiser.sanitise(address).country mustBe germany
+    }
+
+    "must strip disallowed characters from the country name" in {
+      val address = Address(lines = Seq("Line 1"), postcode = None, country = Country("FR", "Fran£ce!"))
+      AddressSanitiser.sanitise(address).country.name mustBe "France"
+    }
+
+    "must truncate a country name that exceeds 18 characters" in {
+      val longName = "a" * 25
+      val address  = Address(lines = Seq("Line 1"), postcode = None, country = Country("XX", longName))
+      AddressSanitiser.sanitise(address).country.name mustBe "a" * 18
+    }
+
+    "must leave the country code untouched" in {
+      val address = Address(lines = Seq("Line 1"), postcode = None, country = Country("DE", "Fran£ce!"))
+      AddressSanitiser.sanitise(address).country.code mustBe "DE"
     }
   }
 }

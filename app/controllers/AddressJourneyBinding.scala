@@ -17,11 +17,13 @@
 package controllers
 
 import controllers.utils.{IsDraftIdDefined, IsSupplierNumberInSession}
-import models.draftsections.{NotifierAddress, SupplierAddress}
+import models.draftsections.{NotifierAddress, PurchaserAddress, SupplierAddress}
 import models.requests.DataRequest
-import models.{Address, AddressJourney, NormalMode, SupplierNumber}
+import models.{Address, AddressJourney, NormalMode, PurchaserOrOnBehalf, SupplierNumber}
 import pages.QuestionPage
+import pages.sections.initialquestions.PurchaserOrOnBehalfPage
 import pages.sections.notifieraddress.{AddressJourneyIdPage, AddressPage}
+import pages.sections.purchaseraddress.{PurchaserAddressJourneyIdPage, PurchaserAddressPage}
 import pages.sections.supplierDetails.IsSupplierAddressInTheUkPage
 import pages.sections.supplieraddress.{SupplierAddressJourneyIdPage, SupplierAddressPage}
 import play.api.libs.json.{JsObject, Json}
@@ -47,6 +49,7 @@ object AddressJourneyBinding {
   def apply(journey: AddressJourney): AddressJourneyBinding = journey match {
     case AddressJourney.Notifier         => notifier
     case AddressJourney.Supplier(number) => supplier(number)
+    case AddressJourney.Purchaser        => purchaser
   }
 
   private val notifier: AddressJourneyBinding = AddressJourneyBinding(
@@ -78,5 +81,25 @@ object AddressJourneyBinding {
     changeAddressLink = routes.AddressChangedController.supplierOnChangeAddress(number),
     restartAt = routes.IsSupplierAddressInTheUKController.onPageLoad(number, NormalMode),
     messageKeyPrefix = "supplierAddressChanged"
+  )
+
+  private val purchaser: AddressJourneyBinding = AddressJourneyBinding(
+    addressPage = PurchaserAddressPage,
+    journeyIdPage = PurchaserAddressJourneyIdPage,
+    sectionId = "purchaser-address",
+    payload = address => Json.toJson(PurchaserAddress.fromAddress(address)).as[JsObject],
+    guard = request =>
+      request.userContext match {
+        case ctx if ctx.isAgent => IsDraftIdDefined(request.userAnswers)
+        case _                  =>
+          IsDraftIdDefined(request.userAnswers) &&
+          request.userAnswers.get(PurchaserOrOnBehalfPage).contains(PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+      },
+    onComplete = routes.NotificationTaskListController.onPageLoad(),
+    addressChangedPage = routes.AddressChangedController.purchaserOnPageLoad(),
+    addressChangedSubmit = routes.AddressChangedController.purchaserOnSubmit(),
+    changeAddressLink = routes.AddressChangedController.purchaserOnChangeAddress(),
+    restartAt = routes.IsPurchaserAddressInTheUkController.onPageLoad(NormalMode),
+    messageKeyPrefix = "purchaserAddressChanged"
   )
 }

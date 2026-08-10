@@ -412,6 +412,18 @@ isPurchaserAddressInTheUk.heading = Is the purchaser’s address in the UK?
 isPurchaserAddressInTheUk.caption = Add purchaser address
 isPurchaserAddressInTheUk.error.required = Select yes if the purchaser’s address is in the UK
 
+##################################################################
+# APA2.0 - Add purchaser address 2.0: We've changed their address #
+##################################################################
+
+purchaserAddressChanged.title = We’ve changed the purchaser’s address
+purchaserAddressChanged.caption = Add purchaser address
+purchaserAddressChanged.heading = We’ve changed the purchaser’s address
+purchaserAddressChanged.body = This could be because of invalid characters or some lines are too long.
+purchaserAddressChanged.checkHeading = Check the updated address
+purchaserAddressChanged.changeAddress = Change address
+purchaserAddressChanged.saveAndContinue = Save and continue
+
 ###########################################################
 # AYA3.0 - Add your address 3.0: We've changed your address #
 ###########################################################
@@ -467,6 +479,8 @@ addressLookup.error.line1Length = Address line 1 must be 35 characters or less
 addressLookup.error.line2Length = Address line 2 must be 35 characters or less
 addressLookup.error.line3Length = Address line 3 must be 35 characters or less
 addressLookup.error.townLength = Address line 4 must be 35 characters or less
+addressLookup.error.line1Required = Enter address line 1, typically the building and street
+addressLookup.error.line2Required = Enter address line 2
 addressLookup.error.townRequired = Enter address line 4
 addressLookup.error.countryRequired = Enter a country
 addressLookup.error.countryPickerRequired = Select country or territory of your address

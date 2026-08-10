@@ -23,16 +23,18 @@ import scala.util.matching.Regex
 object AddressSanitiser {
 
   private val lineMaxLength     = 35
+  private val countryMaxLength  = 18
   private val postcodeMaxLength = 10
 
   private val disallowedInLine: Regex     = """[^a-zA-Z0-9 ,/&'"-]""".r
+  private val disallowedInCountry: Regex  = "[^a-zA-Z0-9 ]".r
   private val disallowedInPostcode: Regex = "[^a-zA-Z0-9 ]".r
 
   def sanitise(address: Address): Address =
     Address(
       lines = address.lines.map(clean(_, disallowedInLine, lineMaxLength)).filter(_.nonEmpty),
       postcode = address.postcode.map(clean(_, disallowedInPostcode, postcodeMaxLength)),
-      country = address.country
+      country = address.country.copy(name = clean(address.country.name, disallowedInCountry, countryMaxLength))
     )
 
   private def clean(value: String, disallowed: Regex, maxLength: Int): String =

@@ -111,6 +111,12 @@ GET         /address-changed/change-address                                     
 
 GET         /add-address/address-lookup-callback                                         controllers.AddressLookupCallbackController.callback(id: Option[String] ?= None)
 
+GET         /add-purchaser-address/address-lookup-callback                               controllers.AddressLookupCallbackController.purchaserCallback(id: Option[String] ?= None)
+
+GET         /purchaser-address-changed                                                   controllers.AddressChangedController.purchaserOnPageLoad()
+POST        /purchaser-address-changed                                                   controllers.AddressChangedController.purchaserOnSubmit()
+GET         /purchaser-address-changed/change-address                                    controllers.AddressChangedController.purchaserOnChangeAddress()
+
 GET         /email-address                                                               controllers.EmailAddressController.onPageLoad(mode: Mode = NormalMode)
 POST        /email-address                                                               controllers.EmailAddressController.onSubmit(mode: Mode = NormalMode)
 GET         /email-address/change                                                        controllers.EmailAddressController.onPageLoad(mode: Mode = CheckMode)

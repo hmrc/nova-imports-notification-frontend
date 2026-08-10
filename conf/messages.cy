@@ -112,6 +112,18 @@ isYourAddressInTheUk.error.required = Dewiswch ‘Iawn’ os yw’ch cyfeiriad y
 isYourAddressInTheUk.change.hidden = whether your address is in the UK
 isYourAddressInTheUk.checkYourAnswersLabel = Is your address in the UK
 
+##################################################################
+# APA2.0 - Add purchaser address 2.0: We've changed their address #
+##################################################################
+
+purchaserAddressChanged.title = We’ve changed the purchaser’s address
+purchaserAddressChanged.caption = Add purchaser address
+purchaserAddressChanged.heading = We’ve changed the purchaser’s address
+purchaserAddressChanged.body = Gallai hyn fod oherwydd nodau annilys neu fod rhai llinellau’n rhy hir.
+purchaserAddressChanged.checkHeading = Gwiriwch y cyfeiriad wedi’i ddiweddaru
+purchaserAddressChanged.changeAddress = Newid y cyfeiriad
+purchaserAddressChanged.saveAndContinue = Cadw a pharhau
+
 ###########################################################
 # AYA3.0 - Add your address 3.0: We've changed your address #
 ###########################################################
@@ -136,6 +148,15 @@ supplierAddressChanged.body = This could be because of invalid characters or som
 supplierAddressChanged.checkHeading = Check the updated address
 supplierAddressChanged.changeAddress = Change address
 supplierAddressChanged.saveAndContinue = Confirm address
+
+##################################################################
+# APA1.0 - Add purchaser address: Is the purchaser's address in the UK #
+##################################################################
+
+isPurchaserAddressInTheUk.title = Is the purchaser’s address in the UK?
+isPurchaserAddressInTheUk.heading = Is the purchaser’s address in the UK?
+isPurchaserAddressInTheUk.caption = Add purchaser address
+isPurchaserAddressInTheUk.error.required = Select yes if the purchaser’s address is in the UK
 
 ###########################################################
 # Address lookup (ALF) journey labels                     #
@@ -171,6 +192,8 @@ addressLookup.error.line1Length = Address line 1 must be 35 characters or less
 addressLookup.error.line2Length = Address line 2 must be 35 characters or less
 addressLookup.error.line3Length = Address line 3 must be 35 characters or less
 addressLookup.error.townLength = Address line 4 must be 35 characters or less
+addressLookup.error.line1Required = Enter address line 1, typically the building and street
+addressLookup.error.line2Required = Enter address line 2
 addressLookup.error.townRequired = Enter address line 4
 addressLookup.error.countryRequired = Enter a country
 addressLookup.error.countryPickerRequired = Select country or territory of your address
