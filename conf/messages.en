@@ -587,6 +587,18 @@ supplierBusinessOrIndividual.radio.business = Business
 supplierBusinessOrIndividual.radio.privateIndividual = Private individual
 
 ###########################################################################################
+# AVD-S7.0 - Add vehicle details - Supplier 7.0: We've changed the supplier's address      #
+###########################################################################################
+
+supplierAddressChanged.title = We’ve changed the supplier’s address
+supplierAddressChanged.caption = Add vehicle details
+supplierAddressChanged.heading = We’ve changed the supplier’s address
+supplierAddressChanged.body = This could be because of invalid characters or some lines are too long.
+supplierAddressChanged.checkHeading = Check the updated address
+supplierAddressChanged.changeAddress = Change address
+supplierAddressChanged.confirmAddress = Confirm address
+
+###########################################################################################
 # AVD-S4.0 - Add vehicle details - Supplier 4.0: Supplier name                            #
 ###########################################################################################
 
