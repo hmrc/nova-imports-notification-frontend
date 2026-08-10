@@ -87,6 +87,12 @@ class VehicleFromEuViewSpec extends SpecBase with Matchers with BeforeAndAfterAl
       html must include(msgs("vehicleFromEu.paragraph.3.linkText"))
     }
 
+    "must place the full stop immediately after each link, with no space inside the link" in {
+      val html = render()
+      html must include(s"""href="$importingUrl">${msgs("vehicleFromEu.paragraph.2.linkText")} (opens in new tab)</a>.""")
+      html must include(s"""href="$euCountriesUrl">${msgs("vehicleFromEu.paragraph.3.linkText")} (opens in new tab)</a>.""")
+    }
+
     "must render the radio question as a level-two heading inside a medium legend" in {
       val html = render()
       html must include("""govuk-fieldset__legend--m""")
