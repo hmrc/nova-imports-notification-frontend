@@ -28,7 +28,7 @@
 
 @layout(pageTitle = title(form, messages("isSupplierVatRegistered.title"))) {
 
-    @formHelper(action = routes.IsSupplierVATRegisteredController.onSubmit(supplierNumber, mode), Symbol("autoComplete") -> "off") {
+    @formHelper(action = routes.IsSupplierVatRegisteredController.onSubmit(supplierNumber, mode), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))

@@ -32,7 +32,7 @@ import views.html.IsSupplierVatRegisteredView
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class IsSupplierVATRegisteredController @Inject() (
+class IsSupplierVatRegisteredController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   sessionRepository: SessionRepository,
   navigator: Navigator,
@@ -42,7 +42,7 @@ class IsSupplierVATRegisteredController @Inject() (
 )(implicit ec: ExecutionContext)
     extends BaseController {
 
-  import IsSupplierAddressInTheUKController.*
+  import IsSupplierVatRegisteredController.*
 
   val form: Form[Boolean] = formProvider()
 
@@ -69,7 +69,7 @@ class IsSupplierVATRegisteredController @Inject() (
 
 }
 
-object IsSupplierAddressInTheUKController {
+object IsSupplierVatRegisteredController {
 
   // The supplier number in the URL must be one of the suppliers the user has in session
   def guardPredicate(supplierNumber: SupplierNumber)(request: DataRequest[?]): Boolean =

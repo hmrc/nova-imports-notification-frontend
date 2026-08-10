@@ -131,10 +131,11 @@ class Navigator @Inject() () {
           case _           => routes.JourneyRecoveryController.onPageLoad()
         }
     case IsSupplierVatRegisteredPage =>
-      (userAnswers, userType) =>
+      (userAnswers, _) =>
         userAnswers.get(IsSupplierVatRegisteredPage) match {
-          case Some(true) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD-S8.1 when built
-          case Some(false) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD-S9 when built (page variant depends on if individual or organisation)
+          case Some(true)  => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD-S8.1 when built
+          case Some(false) =>
+            routes.LandingPageController.onPageLoad() // TODO: navigate to AVD-S9 when built (page variant depends on if individual or organisation)
           case _ => routes.JourneyRecoveryController.onPageLoad()
         }
     case _ => (_, _) => routes.LandingPageController.onPageLoad()

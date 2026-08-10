@@ -142,7 +142,7 @@ POST        /supplier/:supplierNumber/supplier-name                             
 GET         /supplier/:supplierNumber/supplier-name/change                               controllers.SupplierNameController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = CheckMode)
 POST        /supplier/:supplierNumber/supplier-name/change                               controllers.SupplierNameController.onSubmit(supplierNumber: SupplierNumber, mode: Mode = CheckMode)
 
-GET         /supplier/:supplierNumber/is-supplier-vat-registered                         controllers.IsSupplierVATRegisteredController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = NormalMode)
-POST        /supplier/:supplierNumber/is-supplier-vat-registered                         controllers.IsSupplierVATRegisteredController.onSubmit(supplierNumber: SupplierNumber, mode: Mode = NormalMode)
-GET         /supplier/:supplierNumber/is-supplier-vat-registered/change                  controllers.IsSupplierVATRegisteredController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = CheckMode)
-POST        /supplier/:supplierNumber/is-supplier-vat-registered/change                  controllers.IsSupplierVATRegisteredController.onSubmit(supplierNumber: SupplierNumber, mode: Mode = CheckMode)
+GET         /supplier/:supplierNumber/is-supplier-vat-registered                         controllers.IsSupplierVatRegisteredController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = NormalMode)
+POST        /supplier/:supplierNumber/is-supplier-vat-registered                         controllers.IsSupplierVatRegisteredController.onSubmit(supplierNumber: SupplierNumber, mode: Mode = NormalMode)
+GET         /supplier/:supplierNumber/is-supplier-vat-registered/change                  controllers.IsSupplierVatRegisteredController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = CheckMode)
+POST        /supplier/:supplierNumber/is-supplier-vat-registered/change                  controllers.IsSupplierVatRegisteredController.onSubmit(supplierNumber: SupplierNumber, mode: Mode = CheckMode)
