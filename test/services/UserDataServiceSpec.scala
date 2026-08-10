@@ -119,7 +119,7 @@ class UserDataServiceSpec extends SpecBase with MockitoSugar with ScalaFutures w
       UserDataService.privateIndividual(answers)(SectionId.PurchaserAddress) mustBe SectionStatus.Completed
     }
 
-    "must mark the purchaser address section Incomplete when the in-UK question is answered but no address is stored" in {
+    "must mark the purchaser address section Incomplete when the in-UK question is answered but no address is stored yet" in {
       val answers = emptyUserAnswers.unsafeSet(IsPurchaserAddressInTheUkPage, true)
       UserDataService.privateIndividual(answers)(SectionId.PurchaserAddress) mustBe SectionStatus.Incomplete
     }
