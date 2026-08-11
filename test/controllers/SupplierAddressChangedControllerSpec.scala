@@ -96,7 +96,7 @@ class SupplierAddressChangedControllerSpec extends SpecBase {
 
     "must redirect to Unauthorised for a GET when the vehicle is not brought into NI from the EU" in {
       val answersNotFromEu = answersSatisfyingGuard.set(VehicleFromEuPage, false).success.value
-      val application       = applicationBuilder(userAnswers = Some(answersNotFromEu)).build()
+      val application      = applicationBuilder(userAnswers = Some(answersNotFromEu)).build()
 
       running(application) {
         val request = FakeRequest(GET, onPageLoadRoute)
