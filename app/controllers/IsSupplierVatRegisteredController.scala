@@ -73,7 +73,6 @@ object IsSupplierVatRegisteredController {
 
   // The supplier number in the URL must be one of the suppliers the user has in session
   def guardPredicate(supplierNumber: SupplierNumber)(request: DataRequest[?]): Boolean =
-    // For user types 1,2,3,4,5,6. Defined draftID = yes and IQ1 = yes
     IsDraftIdDefined(request.userAnswers) &&
       request.userAnswers.get(VehicleFromEuPage).contains(true) &&
       IsSupplierNumberInSession(request.userAnswers, supplierNumber)
