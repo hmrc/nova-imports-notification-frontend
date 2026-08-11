@@ -91,6 +91,21 @@ class SupplierNameViewSpec extends SpecBase with Matchers with BeforeAndAfterAll
       html must include(msgs("site.continue"))
     }
 
+    "must switch autocomplete off on each name field" in {
+      val html: String = view(form, SupplierNumber(1), NormalMode)(request, msgs).toString
+      val attribute    = """autocomplete="off""""
+
+      html.sliding(attribute.length).count(_ == attribute) mustBe 3
+    }
+
+    "must leave the form itself without an autocomplete attribute" in {
+      val html: String = view(form, SupplierNumber(1), NormalMode)(request, msgs).toString.toLowerCase
+      val formTag      = html.split(">").filter(_.contains("<form")).mkString
+
+      formTag must include("<form")
+      formTag must not include "autocomplete"
+    }
+
     "must post to the supplier number given in the URL" in {
       val html: String = view(form, SupplierNumber(3), NormalMode)(request, msgs).toString
 
