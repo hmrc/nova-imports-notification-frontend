@@ -16,23 +16,12 @@
 
 package pages.sections.supplierDetails
 
-import models.{BusinessOrPrivateIndividual, UserAnswers}
 import pages.QuestionPage
 import play.api.libs.json.JsPath
 
-import scala.util.Try
-
-case object SupplierBusinessOrIndividualPage extends QuestionPage[BusinessOrPrivateIndividual] {
+case object SupplierBusinessNamePage extends QuestionPage[String] {
 
   override def path: JsPath = JsPath \ "supplier-details" \ toString
 
-  override def toString: String = "supplierBusinessOrIndividual"
-
-  // Changing the supplier type clears any name entered for the other type.
-  override def cleanup(value: Option[BusinessOrPrivateIndividual], userAnswers: UserAnswers): Try[UserAnswers] =
-    value match {
-      case Some(BusinessOrPrivateIndividual.Business)          => userAnswers.remove(SupplierNamePage)
-      case Some(BusinessOrPrivateIndividual.PrivateIndividual) => userAnswers.remove(SupplierBusinessNamePage)
-      case _                                                   => super.cleanup(value, userAnswers)
-    }
+  override def toString: String = "supplierBusinessName"
 }
