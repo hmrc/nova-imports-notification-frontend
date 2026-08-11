@@ -23,7 +23,7 @@ import models.*
 import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
 import pages.sections.notifierDetails.{BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 import pages.sections.purchaserDetails.{PurchaserBusinessNamePage, PurchaserNamePage}
-import pages.sections.supplierDetails.{IsSupplierVatRegisteredPage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierNumberPage, UsePersonalDetailsAsSupplierPage}
+import pages.sections.supplierDetails.{IsSupplierAddressInTheUkPage, IsSupplierVatRegisteredPage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierNumberPage, UsePersonalDetailsAsSupplierPage}
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 
 class NavigatorSpec extends SpecBase {
@@ -322,6 +322,49 @@ class NavigatorSpec extends SpecBase {
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
 
+      "must go from IsSupplierAddressInTheUKPage AVD-S5.0 to SelectTheSuppliersCountryOrTerritory AVD-S5.1a when No is selected" in {
+        val ua = userAnswers
+          .set(IsSupplierAddressInTheUkPage, false)
+          .success
+          .value
+          .set(SupplierNumberPage, 2)
+          .success
+          .value
+        // TODO: navigate to AVD-S5.1a when implemented
+        navigator.nextPage(
+          IsSupplierAddressInTheUkPage,
+          NormalMode,
+          ua,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from IsSupplierAddressInTheUKPage AVD-S5.0 to FindTheSuppliersAddress AVD-S6.0 when Yes is selected" in {
+        val ua = userAnswers
+          .set(IsSupplierAddressInTheUkPage, true)
+          .success
+          .value
+          .set(SupplierNumberPage, 2)
+          .success
+          .value
+        // TODO: navigate to AVD-S6.1a when implemented
+        navigator.nextPage(
+          IsSupplierAddressInTheUkPage,
+          NormalMode,
+          ua,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from IsSupplierAddressInTheUkPage AVD-S5.0 to JourneyRecovery when no answer is found" in {
+        navigator.nextPage(
+          IsSupplierAddressInTheUkPage,
+          NormalMode,
+          userAnswers,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
       "must go from IsSupplierVatRegisteredPage AVD-S8.0 to CheckSupplierDetails AVD-S9 when No is selected" in {
         val ua = userAnswers
           .set(IsSupplierVatRegisteredPage, false)
@@ -412,13 +455,12 @@ class NavigatorSpec extends SpecBase {
       }
 
       "must go from SupplierNamePage AVD-S4.0 to LandingPage" in {
-        // TODO: navigate to AVD-S5.0 when implemented
         navigator.nextPage(
           SupplierNamePage,
           NormalMode,
           userAnswers,
           NovaUserType.VatRegisteredOrganisation
-        ) mustBe routes.LandingPageController.onPageLoad()
+        ) mustBe routes.IsSupplierAddressInTheUKController.onPageLoad(SupplierNumber(1), NormalMode)
       }
 
       "must go from SupplierBusinessOrIndividualPage AVD-S2.0 to JourneyRecovery when no answer is found" in {

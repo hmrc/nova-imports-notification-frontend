@@ -608,6 +608,15 @@ supplierName.lastName.error.required = Enter the supplier’s last name
 supplierName.checkYourAnswersLabel = Supplier’s name
 supplierName.change.hidden = the supplier’s name
 
+#############################################################################
+# AVD-S5.0 - Add vehicle details - Supplier 5.0: Supplier address in the UK #
+#############################################################################
+
+isSupplierAddressInUK.title = Is the supplier’s address in the UK?
+isSupplierAddressInUK.heading = Is the supplier’s address in the UK?
+isSupplierAddressInUK.caption = Add vehicle details
+isSupplierAddressInUK.error.required = Select yes if the supplier’s address is in the UK
+
 ##########################################################################
 # AVD-S8.0 - Add vehicle details - Supplier 8.0: Supplier VAT Registered #
 ##########################################################################
