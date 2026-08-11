@@ -616,3 +616,12 @@ isSupplierAddressInUK.title = Is the supplier’s address in the UK?
 isSupplierAddressInUK.heading = Is the supplier’s address in the UK?
 isSupplierAddressInUK.caption = Add vehicle details
 isSupplierAddressInUK.error.required = Select yes if the supplier’s address is in the UK
+
+##########################################################################
+# AVD-S8.0 - Add vehicle details - Supplier 8.0: Supplier VAT Registered #
+##########################################################################
+
+isSupplierVatRegistered.title = Is the supplier VAT registered?
+isSupplierVatRegistered.heading = Is the supplier VAT registered?
+isSupplierVatRegistered.caption = Add vehicle details
+isSupplierVatRegistered.error.required = Select yes if the supplier is VAT registered
