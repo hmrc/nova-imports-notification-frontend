@@ -44,15 +44,9 @@
 
     <h2 class="govuk-heading-m">@messages("supplierAddressChanged.checkHeading")</h2>
 
-    <div class="govuk-body">
-        @for(line <- address.lines) {
-            <p class="govuk-!-margin-bottom-0">@line</p>
-        }
-        @address.postcode.map { postcode =>
-            <p class="govuk-!-margin-bottom-0">@postcode</p>
-        }
-        <p class="govuk-!-margin-bottom-0">@address.country.name</p>
-    </div>
+    @defining(address.lines ++ address.postcode.toSeq :+ address.country.name) { addressLines =>
+        <p class="govuk-body">@for((line, index) <- addressLines.zipWithIndex) {@if(index > 0){<br>}@line}</p>
+    }
 
     <p class="govuk-body">
         <a href="@changeAddressUrl" class="govuk-link">@messages("supplierAddressChanged.changeAddress")</a>
