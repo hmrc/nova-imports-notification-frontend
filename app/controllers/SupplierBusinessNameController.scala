@@ -18,37 +18,38 @@ package controllers
 
 import controllers.actions.*
 import controllers.utils.{IsDraftIdDefined, IsSupplierNumberInSession}
-import forms.IsSupplierAddressInTheUkFormProvider
+import forms.SupplierBusinessNameFormProvider
 import models.requests.DataRequest
-import models.{Mode, NovaUserType, SupplierNumber}
+
+import javax.inject.Inject
+import models.{BusinessOrPrivateIndividual, Mode, NovaUserType, SupplierNumber}
 import navigation.Navigator
 import pages.sections.initialquestions.VehicleFromEuPage
-import pages.sections.supplierDetails.IsSupplierAddressInTheUkPage
+import pages.sections.supplierDetails.{SupplierBusinessNamePage, SupplierBusinessOrIndividualPage}
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
-import views.html.IsSupplierAddressInTheUkView
+import views.html.SupplierBusinessNameView
 
-import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class IsSupplierAddressInTheUKController @Inject() (
+class SupplierBusinessNameController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   sessionRepository: SessionRepository,
   navigator: Navigator,
   actions: Actions,
-  formProvider: IsSupplierAddressInTheUkFormProvider,
-  view: IsSupplierAddressInTheUkView
+  formProvider: SupplierBusinessNameFormProvider,
+  view: SupplierBusinessNameView
 )(implicit ec: ExecutionContext)
     extends BaseController {
 
-  import IsSupplierAddressInTheUKController.*
+  import SupplierBusinessNameController.*
 
-  val form: Form[Boolean] = formProvider()
+  val form: Form[String] = formProvider()
 
   def onPageLoad(supplierNumber: SupplierNumber, mode: Mode): Action[AnyContent] =
     actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierNumber)) { implicit request =>
-      Ok(view(form.withDefault(request.userAnswers.get(IsSupplierAddressInTheUkPage)), supplierNumber, mode))
+      Ok(view(form.withDefault(request.userAnswers.get(SupplierBusinessNamePage)), supplierNumber, mode))
     }
 
   def onSubmit(supplierNumber: SupplierNumber, mode: Mode): Action[AnyContent] =
@@ -57,23 +58,22 @@ class IsSupplierAddressInTheUKController @Inject() (
         .bindFromRequest()
         .fold(
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, supplierNumber, mode))),
-          value =>
+          supplierBusinessName =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(IsSupplierAddressInTheUkPage, value))
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(SupplierBusinessNamePage, supplierBusinessName))
               _              <- sessionRepository.set(updatedAnswers)
             } yield Redirect(
-              navigator.nextPage(IsSupplierAddressInTheUkPage, mode, updatedAnswers, NovaUserType.from(request.affinityGroup, request.enrolments))
+              navigator.nextPage(SupplierBusinessNamePage, mode, updatedAnswers, NovaUserType.fromRequest)
             )
         )
     }
-
 }
 
-object IsSupplierAddressInTheUKController {
+object SupplierBusinessNameController {
 
-  // The supplier number in the URL must be one of the suppliers the user has in session
   def guardPredicate(supplierNumber: SupplierNumber)(request: DataRequest[?]): Boolean =
     IsDraftIdDefined(request.userAnswers) &&
       request.userAnswers.get(VehicleFromEuPage).contains(true) &&
+      request.userAnswers.get(SupplierBusinessOrIndividualPage).contains(BusinessOrPrivateIndividual.Business) &&
       IsSupplierNumberInSession(request.userAnswers, supplierNumber)
 }

@@ -18,7 +18,7 @@ package pages
 
 import base.SpecBase
 import models.{BusinessOrPrivateIndividual, NameDetails}
-import pages.sections.supplierDetails.{SupplierBusinessOrIndividualPage, SupplierNamePage}
+import pages.sections.supplierDetails.{SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage}
 
 class SupplierBusinessOrIndividualPageSpec extends SpecBase {
 
@@ -48,6 +48,24 @@ class SupplierBusinessOrIndividualPageSpec extends SpecBase {
         val result = userAnswers.set(SupplierBusinessOrIndividualPage, BusinessOrPrivateIndividual.PrivateIndividual).success.value
 
         result.get(SupplierNamePage) mustBe Some(supplierName)
+      }
+
+      "must remove the supplier business name when the type is changed to Private individual" in {
+        val userAnswers = emptyUserAnswers
+          .unsafeSet(SupplierBusinessOrIndividualPage, BusinessOrPrivateIndividual.Business)
+          .unsafeSet(SupplierBusinessNamePage, "Acme Trading Co Ltd")
+
+        val result = userAnswers.unsafeSet(SupplierBusinessOrIndividualPage, BusinessOrPrivateIndividual.PrivateIndividual)
+
+        result.get(SupplierBusinessNamePage) mustBe None
+      }
+
+      "must keep the supplier business name when the type is set to Business" in {
+        val userAnswers = emptyUserAnswers.unsafeSet(SupplierBusinessNamePage, "Acme Trading Co Ltd")
+
+        val result = userAnswers.unsafeSet(SupplierBusinessOrIndividualPage, BusinessOrPrivateIndividual.Business)
+
+        result.get(SupplierBusinessNamePage) mustBe Some("Acme Trading Co Ltd")
       }
     }
 

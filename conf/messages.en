@@ -587,6 +587,17 @@ supplierBusinessOrIndividual.radio.business = Business
 supplierBusinessOrIndividual.radio.privateIndividual = Private individual
 
 ###########################################################################################
+# AVD-S3.0 - Add vehicle details - Supplier 3.0: Supplier business name                   #
+###########################################################################################
+
+supplierBusinessName.title = What is the supplier’s business name?
+supplierBusinessName.heading = What is the supplier’s business name?
+supplierBusinessName.caption = Add vehicle details
+supplierBusinessName.error.required = Enter the supplier’s business name
+supplierBusinessName.error.length = The supplier’s business name must be 160 characters or less
+supplierBusinessName.error.invalid = Enter the supplier’s business name in the correct format
+
+###########################################################################################
 # AVD-S7.0 - Add vehicle details - Supplier 7.0: We've changed the supplier's address      #
 ###########################################################################################
 
@@ -628,3 +639,12 @@ isSupplierAddressInUK.title = Is the supplier’s address in the UK?
 isSupplierAddressInUK.heading = Is the supplier’s address in the UK?
 isSupplierAddressInUK.caption = Add vehicle details
 isSupplierAddressInUK.error.required = Select yes if the supplier’s address is in the UK
+
+##########################################################################
+# AVD-S8.0 - Add vehicle details - Supplier 8.0: Supplier VAT Registered #
+##########################################################################
+
+isSupplierVatRegistered.title = Is the supplier VAT registered?
+isSupplierVatRegistered.heading = Is the supplier VAT registered?
+isSupplierVatRegistered.caption = Add vehicle details
+isSupplierVatRegistered.error.required = Select yes if the supplier is VAT registered
