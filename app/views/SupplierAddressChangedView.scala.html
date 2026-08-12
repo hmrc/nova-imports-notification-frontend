@@ -42,7 +42,7 @@
 
     <p class="govuk-body">@messages("supplierAddressChanged.body")</p>
 
-    <h2 class="govuk-heading-m">@messages("supplierAddressChanged.checkHeading")</h2>
+    <h2 class="govuk-heading-s">@messages("supplierAddressChanged.checkHeading")</h2>
 
     @defining(address.lines ++ address.postcode.toSeq :+ address.country.name) { addressLines =>
         <p class="govuk-body">@for((line, index) <- addressLines.zipWithIndex) {@if(index > 0){<br>}@line}</p>
