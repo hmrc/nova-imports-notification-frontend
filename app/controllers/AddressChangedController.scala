@@ -18,13 +18,11 @@ package controllers
 
 import connectors.NovaImportsBackendConnector
 import controllers.actions.*
-import models.NormalMode
-import models.draftsections.NotifierAddress
 import models.requests.DataRequest
-import pages.sections.notifieraddress.{AddressJourneyIdPage, AddressPage}
+import models.{AddressJourney, SupplierNumber}
 import pages.{DraftIdPage, DraftVersionIdPage}
 import play.api.Logging
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import uk.gov.hmrc.http.HeaderCarrier
@@ -44,41 +42,67 @@ class AddressChangedController @Inject() (
     extends BaseController
     with Logging {
 
-  private val dataGuard: DataRequest[?] => Boolean =
-    request => !request.userContext.isAgent && request.userAnswers.get(AddressPage).isDefined
+  def onPageLoad(): Action[AnyContent]      = handlePageLoad(AddressJourney.Notifier)
+  def onChangeAddress(): Action[AnyContent] = handleChangeAddress(AddressJourney.Notifier)
+  def onSubmit(): Action[AnyContent]        = handleSubmit(AddressJourney.Notifier)
 
-  def onPageLoad(): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(dataGuard) { implicit request =>
-    request.userAnswers.get(AddressPage) match {
-      case Some(address) => Ok(view(address))
-      case None          => Redirect(routes.JourneyRecoveryController.onPageLoad())
+  def supplierOnPageLoad(supplierNumber: SupplierNumber): Action[AnyContent] =
+    handlePageLoad(AddressJourney.Supplier(supplierNumber))
+
+  def supplierOnChangeAddress(supplierNumber: SupplierNumber): Action[AnyContent] =
+    handleChangeAddress(AddressJourney.Supplier(supplierNumber))
+
+  def supplierOnSubmit(supplierNumber: SupplierNumber): Action[AnyContent] =
+    handleSubmit(AddressJourney.Supplier(supplierNumber))
+
+  private def dataGuard(binding: AddressJourneyBinding): DataRequest[?] => Boolean =
+    request => binding.guard(request) && request.userAnswers.get(binding.addressPage).isDefined
+
+  private def handlePageLoad(journey: AddressJourney): Action[AnyContent] = {
+    val binding = AddressJourneyBinding(journey)
+
+    actions.authAndGetDataWithUserTypeGuard(dataGuard(binding)) { implicit request =>
+      request.userAnswers.get(binding.addressPage) match {
+        case Some(address) =>
+          Ok(view(address, binding.messageKeyPrefix, binding.changeAddressLink, binding.addressChangedSubmit))
+        case None => Redirect(routes.JourneyRecoveryController.onPageLoad())
+      }
     }
   }
 
-  def onChangeAddress(): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(dataGuard).async { implicit request =>
-    for {
-      cleared <- Future.fromTry(request.userAnswers.remove(AddressPage).flatMap(_.remove(AddressJourneyIdPage)))
-      _       <- sessionRepository.set(cleared)
-    } yield Redirect(routes.IsYourAddressInTheUkController.onPageLoad(NormalMode))
+  private def handleChangeAddress(journey: AddressJourney): Action[AnyContent] = {
+    val binding = AddressJourneyBinding(journey)
+
+    actions.authAndGetDataWithUserTypeGuard(dataGuard(binding)).async { implicit request =>
+      for {
+        cleared <- Future.fromTry(request.userAnswers.remove(binding.addressPage).flatMap(_.remove(binding.journeyIdPage)))
+        _       <- sessionRepository.set(cleared)
+      } yield Redirect(binding.restartAt)
+    }
   }
 
-  def onSubmit(): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(dataGuard).async { implicit request =>
-    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-    lazy val versionId             = request.userAnswers.get(DraftVersionIdPage).getOrElse(0L)
+  private def handleSubmit(journey: AddressJourney): Action[AnyContent] = {
+    val binding = AddressJourneyBinding(journey)
 
-    (request.userAnswers.get(AddressPage), request.userAnswers.get(DraftIdPage)) match {
-      case (Some(address), Some(draftId)) =>
-        val body = Json.toJson(NotifierAddress.fromAddress(address)).as[JsObject] + ("versionId", Json.toJson(versionId))
-        backendConnector.updateDraftSection(draftId, "notifier-address", body).map {
-          case Right(vId) =>
-            sessionRepository.setPage(request.userAnswers, DraftVersionIdPage, vId)
-            Redirect(routes.NotificationTaskListController.onPageLoad())
-          case Left(error) =>
-            logger.warn(s"Failed to update notifier-address section for draftId ${draftId.value}: $error")
-            Redirect(routes.JourneyRecoveryController.onPageLoad())
-        }
-      case _ =>
-        logger.warn("Missing AddressPage or DraftIdPage when submitting AYA3.0")
-        Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+    actions.authAndGetDataWithUserTypeGuard(dataGuard(binding)).async { implicit request =>
+      implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+      lazy val versionId             = request.userAnswers.get(DraftVersionIdPage).getOrElse(0L)
+
+      (request.userAnswers.get(binding.addressPage), request.userAnswers.get(DraftIdPage)) match {
+        case (Some(address), Some(draftId)) =>
+          val body = binding.payload(address) + ("versionId", Json.toJson(versionId))
+          backendConnector.updateDraftSection(draftId, binding.sectionId, body).map {
+            case Right(vId) =>
+              sessionRepository.setPage(request.userAnswers, DraftVersionIdPage, vId)
+              Redirect(binding.onComplete)
+            case Left(error) =>
+              logger.warn(s"Failed to update ${binding.sectionId} section for draftId ${draftId.value}: $error")
+              Redirect(routes.JourneyRecoveryController.onPageLoad())
+          }
+        case _ =>
+          logger.warn(s"Missing ${binding.addressPage} or DraftIdPage when submitting the address-changed page")
+          Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+      }
     }
   }
 }

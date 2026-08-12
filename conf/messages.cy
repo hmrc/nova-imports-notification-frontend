@@ -122,6 +122,20 @@ addressChanged.heading = Rydym wedi newid eich cyfeiriad
 addressChanged.body = Gallai hyn fod oherwydd nodau annilys neu fod rhai llinellau’n rhy hir.
 addressChanged.checkHeading = Gwiriwch y cyfeiriad wedi’i ddiweddaru
 addressChanged.changeAddress = Newid y cyfeiriad
+addressChanged.saveAndContinue = Cadw a pharhau
+
+##########################################################################
+# AVD-S7.0 - Add vehicle details: We've changed the supplier's address   #
+##########################################################################
+
+# TODO: Welsh translations to be supplied by content team.
+supplierAddressChanged.title = We’ve changed the supplier’s address
+supplierAddressChanged.caption = Add vehicle details
+supplierAddressChanged.heading = We’ve changed the supplier’s address
+supplierAddressChanged.body = This could be because of invalid characters or some lines are too long.
+supplierAddressChanged.checkHeading = Check the updated address
+supplierAddressChanged.changeAddress = Change address
+supplierAddressChanged.saveAndContinue = Confirm address
 
 ###########################################################
 # Address lookup (ALF) journey labels                     #
@@ -150,6 +164,7 @@ addressLookup.edit.townLabel = Cyfeiriad – llinell 4
 addressLookup.edit.countryLabel = Gwlad
 addressLookup.confirm.title = Adolygu a chadarnhau’ch cyfeiriad
 addressLookup.confirm.heading = Adolygu a chadarnhau’ch cyfeiriad
+addressLookup.confirm.submitLabel = Cadw a pharhau
 
 # TODO: Welsh translations to be supplied by content team.
 addressLookup.error.line1Length = Address line 1 must be 35 characters or less
@@ -159,7 +174,31 @@ addressLookup.error.townLength = Address line 4 must be 35 characters or less
 addressLookup.error.townRequired = Enter address line 4
 addressLookup.error.countryRequired = Enter a country
 addressLookup.error.countryPickerRequired = Select country or territory of your address
+addressLookup.countryPicker.title = Dewiswch eich gwlad neu diriogaeth
+addressLookup.countryPicker.heading = Dewiswch eich gwlad neu diriogaeth
 addressLookup.countryPicker.countryLabel = Select country or territory
+
+###############################################################################
+# Address lookup (ALF) labels for the supplier journey (AVD-S5.1a - AVD-S6.3) #
+###############################################################################
+
+# TODO: Welsh translations to be supplied by content team.
+addressLookup.supplier.uk.lookup.title = Find the supplier’s address
+addressLookup.supplier.uk.lookup.heading = Find the supplier’s address
+addressLookup.supplier.uk.select.title = Choose the supplier’s address
+addressLookup.supplier.uk.select.heading = Choose the supplier’s address
+addressLookup.supplier.uk.select.proposalListLabel = Select the supplier’s address
+addressLookup.supplier.uk.edit.title = Enter the supplier’s address
+addressLookup.supplier.uk.edit.heading = Enter the supplier’s address
+addressLookup.supplier.nonUk.edit.title = Enter the supplier’s address
+addressLookup.supplier.nonUk.edit.heading = Enter the supplier’s address
+addressLookup.supplier.confirm.title = Review and confirm the supplier’s address
+addressLookup.supplier.confirm.heading = Review and confirm the supplier’s address
+addressLookup.supplier.confirm.submitLabel = Confirm address
+addressLookup.supplier.countryPicker.title = Enter the country or territory of the supplier’s address
+addressLookup.supplier.countryPicker.heading = Enter the country or territory of the supplier’s address
+addressLookup.supplier.countryPicker.countryLabel = Country or territory
+addressLookup.supplier.error.countryPickerRequired = Enter the country or territory of the supplier’s address
 
 ######################################################
 # AYD1.0 - Add Your Details 1: Guidance page         #

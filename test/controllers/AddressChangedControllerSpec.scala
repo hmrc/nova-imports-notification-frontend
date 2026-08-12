@@ -18,14 +18,16 @@ package controllers
 
 import base.SpecBase
 import connectors.{NovaImportsBackendConnector, UpdateSectionError}
-import models.draftsections.NotifierAddress
-import models.{Address, Country, DraftId, NormalMode, UserAnswers}
+import models.draftsections.{NotifierAddress, SupplierAddress}
+import models.{Address, Country, DraftId, NormalMode, SupplierNumber, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.{DraftIdPage, DraftVersionIdPage}
 import pages.sections.notifieraddress.{AddressJourneyIdPage, AddressPage}
+import pages.sections.supplierDetails.{IsSupplierAddressInTheUkPage, SupplierNumberPage}
+import pages.sections.supplieraddress.{SupplierAddressJourneyIdPage, SupplierAddressPage}
 import play.api.Application
 import play.api.inject.bind
 import play.api.libs.json.{JsObject, Json}
@@ -98,7 +100,12 @@ class AddressChangedControllerSpec extends SpecBase with MockitoSugar {
         val view    = application.injector.instanceOf[AddressChangedView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(address)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(
+          address,
+          "addressChanged",
+          routes.AddressChangedController.onChangeAddress(),
+          routes.AddressChangedController.onSubmit()
+        )(request, messages(application)).toString
       }
     }
 
@@ -114,7 +121,7 @@ class AddressChangedControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must call F4 with the stored address and redirect to the next section on submit" in {
+    "must save the stored address and redirect to the next section on submit" in {
       val backendConnector = stubBackendConnector()
       val application      = applicationWith(backendConnector = backendConnector)
 
@@ -131,7 +138,7 @@ class AddressChangedControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to Journey Recovery on submit when F4 fails" in {
+    "must redirect to Journey Recovery on submit when saving fails" in {
       val backendConnector = stubBackendConnector(Left(UpdateSectionError.UpstreamError(503, "downstream")))
       val application      = applicationWith(backendConnector = backendConnector)
 
@@ -160,7 +167,7 @@ class AddressChangedControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must clear the stored address and journey id from the session and redirect to AYA1.0 on change address" in {
+    "must clear the stored address and journey id from the session on change address" in {
       val answersWithJourneyId = answersWithAddressAndDraft
         .set(AddressJourneyIdPage, "journey-123")
         .success
@@ -189,6 +196,107 @@ class AddressChangedControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request = FakeRequest(GET, onChangeAddressRoute)
         val result  = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+  }
+
+  "AddressChanged Controller with Supplier" - {
+
+    val supplierNumber = SupplierNumber(1)
+
+    lazy val supplierPageLoadRoute      = routes.AddressChangedController.supplierOnPageLoad(supplierNumber).url
+    lazy val supplierSubmitRoute        = routes.AddressChangedController.supplierOnSubmit(supplierNumber).url
+    lazy val supplierChangeAddressRoute = routes.AddressChangedController.supplierOnChangeAddress(supplierNumber).url
+
+    val supplierAnswers: UserAnswers =
+      emptyUserAnswers
+        .set(SupplierAddressPage, address)
+        .success
+        .value
+        .set(IsSupplierAddressInTheUkPage, true)
+        .success
+        .value
+        .set(SupplierNumberPage, 1)
+        .success
+        .value
+        .set(DraftIdPage, draftId)
+        .success
+        .value
+        .set(DraftVersionIdPage, 0L)
+        .success
+        .value
+
+    "must render the supplier copy and post to the supplier routes" in {
+      val application = applicationWith(userAnswers = Some(supplierAnswers))
+
+      running(application) {
+        val request = FakeRequest(GET, supplierPageLoadRoute)
+        val result  = route(application, request).value
+        val view    = application.injector.instanceOf[AddressChangedView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(
+          address,
+          "supplierAddressChanged",
+          routes.AddressChangedController.supplierOnChangeAddress(supplierNumber),
+          routes.AddressChangedController.supplierOnSubmit(supplierNumber)
+        )(request, messages(application)).toString
+      }
+    }
+
+    "must save to the supplier-address draft section on submit" in {
+      val backendConnector = stubBackendConnector()
+      val application      = applicationWith(userAnswers = Some(supplierAnswers), backendConnector = backendConnector)
+
+      running(application) {
+        val result = route(application, FakeRequest(POST, supplierSubmitRoute)).value
+
+        status(result) mustEqual SEE_OTHER
+
+        val body = ArgumentCaptor.forClass(classOf[JsObject])
+        verify(backendConnector).updateDraftSection(eqTo(draftId), eqTo("supplier-address"), body.capture())(any[HeaderCarrier])
+        body.getValue mustBe Json.toJson(SupplierAddress.fromAddress(address)).as[JsObject] + ("versionId", Json.toJson(0L))
+      }
+    }
+
+    "must clear only the supplier address on change address" in {
+      val sessionRepository = stubSessionRepository()
+      val application       = applicationWith(userAnswers = Some(supplierAnswers), sessionRepository = sessionRepository)
+
+      running(application) {
+        val result = route(application, FakeRequest(GET, supplierChangeAddressRoute)).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.IsSupplierAddressInTheUKController.onPageLoad(supplierNumber, NormalMode).url
+
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
+        verify(sessionRepository).set(captor.capture())
+        captor.getValue.get(SupplierAddressPage) mustBe None
+        captor.getValue.get(SupplierAddressJourneyIdPage) mustBe None
+      }
+    }
+
+    "must redirect to Unauthorised when the supplier number is not one held in session" in {
+      val application = applicationWith(userAnswers = Some(supplierAnswers))
+
+      running(application) {
+        val route9 = routes.AddressChangedController.supplierOnPageLoad(SupplierNumber(9)).url
+        val result = route(application, FakeRequest(GET, route9)).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Unauthorised when no supplier address has been stored" in {
+      val answers     = supplierAnswers.remove(SupplierAddressPage).success.value
+      val application = applicationWith(userAnswers = Some(answers))
+
+      running(application) {
+        val result = route(application, FakeRequest(GET, supplierPageLoadRoute)).value
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url

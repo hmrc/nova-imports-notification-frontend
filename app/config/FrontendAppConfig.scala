@@ -17,6 +17,7 @@
 package config
 
 import com.google.inject.{Inject, Singleton}
+import models.AddressJourney
 import play.api.Configuration
 import play.api.i18n.Lang
 import play.api.mvc.RequestHeader
@@ -56,7 +57,13 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val addressLookupFrontendBaseUrl: String =
     configuration.get[Service]("microservice.services.address-lookup-frontend").baseUrl
 
-  val addressLookupCallbackUrl: String = s"$host/nova-imports${controllers.routes.AddressLookupCallbackController.callback(None).url}"
+  def addressLookupCallbackUrl(journey: AddressJourney): String = {
+    val path = journey match {
+      case AddressJourney.Notifier         => controllers.routes.AddressLookupCallbackController.callback(None).url
+      case AddressJourney.Supplier(number) => controllers.routes.AddressLookupCallbackController.supplierCallback(number, None).url
+    }
+    s"$host$path"
+  }
 
   val addressLookupFrontendConfirmPath: String => String = (journeyId: String) => {
     val addressHost = if host.contains("localhost") then "http://localhost:9028" else host

@@ -19,6 +19,7 @@ package services
 import com.google.inject.Inject
 import config.FrontendAppConfig
 import connectors.{AddressLookupConnector, AddressLookupError}
+import models.AddressJourney
 import play.api.i18n.{Lang, Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -282,8 +283,47 @@ class AddressLookupService @Inject() (
     "ZW"
   )
 
-  def initJourney(ukMode: Boolean, callbackUrl: String)(implicit hc: HeaderCarrier): Future[Either[AddressLookupError, String]] = {
-    val config = if (ukMode) ukJourneyConfig(callbackUrl) else nonUkJourneyConfig(callbackUrl)
+  // AVD-S5.1a: the EU plus the United Kingdom.
+  // TODO DTR-5976: GB is queried with the BA — ALF routes it back into the UK journey, contradicting the "No" answer.
+  private val supplierAllowedCountryCodes: Seq[String] = Seq(
+    "AT",
+    "BE",
+    "BG",
+    "HR",
+    "CY",
+    "CZ",
+    "DK",
+    "EE",
+    "FI",
+    "FR",
+    "DE",
+    "GR",
+    "HU",
+    "IE",
+    "IT",
+    "LV",
+    "LT",
+    "LU",
+    "MT",
+    "NL",
+    "PL",
+    "PT",
+    "RO",
+    "SK",
+    "SI",
+    "ES",
+    "SE",
+    "GB"
+  )
+
+  private def allowedCountryCodesFor(journey: AddressJourney): Seq[String] = journey match {
+    case AddressJourney.Notifier    => notifierAllowedCountryCodes
+    case AddressJourney.Supplier(_) => supplierAllowedCountryCodes
+  }
+
+  def initJourney(journey: AddressJourney, ukMode: Boolean)(implicit hc: HeaderCarrier): Future[Either[AddressLookupError, String]] = {
+    val callbackUrl = appConfig.addressLookupCallbackUrl(journey)
+    val config      = if (ukMode) ukJourneyConfig(journey, callbackUrl) else nonUkJourneyConfig(journey, callbackUrl)
     connector.initJourney(config)
   }
 
@@ -303,7 +343,7 @@ class AddressLookupService @Inject() (
     "manualAddressEntryConfig" -> manualAddressEntryConfig
   )
 
-  private def ukJourneyConfig(callbackUrl: String): JsObject =
+  private def ukJourneyConfig(journey: AddressJourney, callbackUrl: String): JsObject =
     Json.obj(
       "version" -> 2,
       "options" -> (commonOptions(callbackUrl) ++ Json.obj(
@@ -311,21 +351,21 @@ class AddressLookupService @Inject() (
         "selectPageConfig" -> Json.obj("showSearchAgainLink" -> false, "showNoneOfTheseOption" -> true)
       )),
       "labels" -> Json.obj(
-        "en" -> labelsFor(Lang("en"), uk = true),
-        "cy" -> labelsFor(Lang("cy"), uk = true)
+        "en" -> labelsFor(journey, Lang("en"), uk = true),
+        "cy" -> labelsFor(journey, Lang("cy"), uk = true)
       )
     )
 
-  private def nonUkJourneyConfig(callbackUrl: String): JsObject =
+  private def nonUkJourneyConfig(journey: AddressJourney, callbackUrl: String): JsObject =
     Json.obj(
       "version" -> 2,
       "options" -> (commonOptions(callbackUrl) ++ Json.obj(
         "ukMode"              -> false,
-        "allowedCountryCodes" -> notifierAllowedCountryCodes
+        "allowedCountryCodes" -> allowedCountryCodesFor(journey)
       )),
       "labels" -> Json.obj(
-        "en" -> labelsFor(Lang("en"), uk = false),
-        "cy" -> labelsFor(Lang("cy"), uk = false)
+        "en" -> labelsFor(journey, Lang("en"), uk = false),
+        "cy" -> labelsFor(journey, Lang("cy"), uk = false)
       )
     )
 
@@ -355,53 +395,61 @@ class AddressLookupService @Inject() (
     )
   }
 
-  private def labelsFor(lang: Lang, uk: Boolean): JsObject = {
+  // A journey only defines its own label keys where the copy differs; everything else falls back to the shared key.
+  private def label(journey: AddressJourney, key: String)(implicit messages: Messages): String = {
+    val scoped = s"addressLookup.${journey.keySegment}.$key"
+    if (messages.isDefinedAt(scoped)) messages(scoped) else messages(s"addressLookup.$key")
+  }
+
+  private def labelsFor(journey: AddressJourney, lang: Lang, uk: Boolean): JsObject = {
     implicit val messages: Messages = messagesApi.preferred(Seq(lang))
+
+    def alf(key: String): String = label(journey, key)
 
     val appLevelLabels = Json.obj("navTitle" -> messages("service.name"))
 
     val editPageLabels = Json.obj(
-      "title"         -> messages(if (uk) "addressLookup.uk.edit.title" else "addressLookup.nonUk.edit.title"),
-      "heading"       -> messages(if (uk) "addressLookup.uk.edit.heading" else "addressLookup.nonUk.edit.heading"),
-      "line1Label"    -> messages("addressLookup.edit.line1Label"),
-      "line2Label"    -> messages("addressLookup.edit.line2Label"),
-      "line3Label"    -> messages("addressLookup.edit.line3Label"),
-      "townLabel"     -> messages("addressLookup.edit.townLabel"),
-      "postcodeLabel" -> messages(if (uk) "addressLookup.uk.edit.postcodeLabel" else "addressLookup.nonUk.edit.postcodeLabel"),
-      "countryLabel"  -> messages("addressLookup.edit.countryLabel"),
+      "title"         -> alf(if (uk) "uk.edit.title" else "nonUk.edit.title"),
+      "heading"       -> alf(if (uk) "uk.edit.heading" else "nonUk.edit.heading"),
+      "line1Label"    -> alf("edit.line1Label"),
+      "line2Label"    -> alf("edit.line2Label"),
+      "line3Label"    -> alf("edit.line3Label"),
+      "townLabel"     -> alf("edit.townLabel"),
+      "postcodeLabel" -> alf(if (uk) "uk.edit.postcodeLabel" else "nonUk.edit.postcodeLabel"),
+      "countryLabel"  -> alf("edit.countryLabel"),
       "submitLabel"   -> messages("site.continue")
     )
 
     val confirmPageLabels = Json.obj(
-      "title"       -> messages("addressLookup.confirm.title"),
-      "heading"     -> messages("addressLookup.confirm.heading"),
-      "submitLabel" -> messages("site.saveAndContinue")
+      "title"       -> alf("confirm.title"),
+      "heading"     -> alf("confirm.heading"),
+      "submitLabel" -> alf("confirm.submitLabel")
     )
 
     val otherLabels =
       if (uk)
-        Json.obj("editPage.town.error" -> messages("addressLookup.error.townRequired"))
+        Json.obj("editPage.town.error" -> alf("error.townRequired"))
       else
         Json.obj(
-          "editPage.town.error"                            -> messages("addressLookup.error.townRequired"),
-          "constants.editPageCountryErrorMessage"          -> messages("addressLookup.error.countryRequired"),
-          "constants.countryPickerPageCountryErrorMessage" -> messages("addressLookup.error.countryPickerRequired")
+          "editPage.town.error"                            -> alf("error.townRequired"),
+          "constants.editPageCountryErrorMessage"          -> alf("error.countryRequired"),
+          "constants.countryPickerPageCountryErrorMessage" -> alf("error.countryPickerRequired")
         )
 
     if (uk) {
       val lookupPageLabels = Json.obj(
-        "title"                 -> messages("addressLookup.uk.lookup.title"),
-        "heading"               -> messages("addressLookup.uk.lookup.heading"),
-        "postcodeLabel"         -> messages("addressLookup.uk.lookup.postcodeLabel"),
-        "submitLabel"           -> messages("addressLookup.uk.lookup.submitLabel"),
-        "manualAddressLinkText" -> messages("addressLookup.uk.lookup.manualAddressLinkText")
+        "title"                 -> alf("uk.lookup.title"),
+        "heading"               -> alf("uk.lookup.heading"),
+        "postcodeLabel"         -> alf("uk.lookup.postcodeLabel"),
+        "submitLabel"           -> alf("uk.lookup.submitLabel"),
+        "manualAddressLinkText" -> alf("uk.lookup.manualAddressLinkText")
       )
       val selectPageLabels = Json.obj(
-        "title"               -> messages("addressLookup.uk.select.title"),
-        "heading"             -> messages("addressLookup.uk.select.heading"),
-        "proposalListLabel"   -> messages("addressLookup.uk.select.proposalListLabel"),
+        "title"               -> alf("uk.select.title"),
+        "heading"             -> alf("uk.select.heading"),
+        "proposalListLabel"   -> alf("uk.select.proposalListLabel"),
         "submitLabel"         -> messages("site.continue"),
-        "editAddressLinkText" -> messages("addressLookup.uk.select.editAddressLinkText")
+        "editAddressLinkText" -> alf("uk.select.editAddressLinkText")
       )
       Json.obj(
         "appLevelLabels"    -> appLevelLabels,
@@ -412,11 +460,13 @@ class AddressLookupService @Inject() (
         "otherLabels"       -> otherLabels
       )
     } else {
-      // AYA1.1a country picker (ALF): the H1 already reads "Select your country or territory",
-      // so the dropdown's own label is visually redundant. Hide it visually but keep it as the
-      // accessible name for the <select> (targetID="countryCode") to avoid an empty accessible name.
+      // AYA1.1a / AVD-S5.1a country picker (ALF): the H1 already names the country question, so the dropdown's own
+      // label is visually redundant. Hide it visually but keep it as the accessible name for the <select>
+      // (targetID="countryCode") to avoid an empty accessible name.
       val countryPickerLabels = Json.obj(
-        "countryLabel" -> s"""<span class="govuk-visually-hidden">${messages("addressLookup.countryPicker.countryLabel")}</span>"""
+        "title"        -> alf("countryPicker.title"),
+        "heading"      -> alf("countryPicker.heading"),
+        "countryLabel" -> s"""<span class="govuk-visually-hidden">${alf("countryPicker.countryLabel")}</span>"""
       )
 
       Json.obj(

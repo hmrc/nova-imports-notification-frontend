@@ -18,14 +18,16 @@ package controllers
 
 import base.SpecBase
 import connectors.{AddressLookupConnector, AddressLookupError, NovaImportsBackendConnector, UpdateSectionError}
-import models.draftsections.NotifierAddress
-import models.{Address, Country, DraftId, UserAnswers}
+import models.draftsections.{NotifierAddress, SupplierAddress}
+import models.{Address, Country, DraftId, SupplierNumber, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.DraftIdPage
 import pages.sections.notifieraddress.{AddressJourneyIdPage, AddressPage}
+import pages.sections.supplierDetails.{IsSupplierAddressInTheUkPage, SupplierNumberPage}
+import pages.sections.supplieraddress.{SupplierAddressJourneyIdPage, SupplierAddressPage}
 import play.api.Application
 import play.api.inject.bind
 import play.api.libs.json.{JsObject, Json}
@@ -107,7 +109,7 @@ class AddressLookupCallbackControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must save the address, call F4, and redirect to the next section when no sanitising is needed" in {
+    "must save the address and redirect to the next section when no sanitising is needed" in {
       val backendConnector  = stubBackendConnector()
       val sessionRepository = stubSessionRepository()
       val app               = applicationWith(backendConnector = backendConnector, sessionRepository = sessionRepository)
@@ -183,7 +185,7 @@ class AddressLookupCallbackControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to JourneyRecovery when F4 fails" in {
+    "must redirect to JourneyRecovery when saving the section fails" in {
       val app = applicationWith(backendConnector = stubBackendConnector(Left(UpdateSectionError.UpstreamError(503, "downstream"))))
 
       running(app) {
@@ -213,6 +215,108 @@ class AddressLookupCallbackControllerSpec extends SpecBase with MockitoSugar {
 
       running(app) {
         val result = route(app, FakeRequest(GET, callbackOk)).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+  }
+
+  "AddressLookupCallbackController, returning from a supplier journey" - {
+
+    val supplierNumber = SupplierNumber(1)
+
+    lazy val supplierCallbackOk = routes.AddressLookupCallbackController.supplierCallback(supplierNumber, Some(journeyId)).url
+
+    val supplierAnswers: UserAnswers =
+      emptyUserAnswers
+        .set(DraftIdPage, draftId)
+        .success
+        .value
+        .set(IsSupplierAddressInTheUkPage, true)
+        .success
+        .value
+        .set(SupplierNumberPage, 1)
+        .success
+        .value
+
+    "must store the address against the supplier, not the notifier" in {
+      val sessionRepository = stubSessionRepository(supplierAnswers)
+      val app               = applicationWith(userAnswers = Some(supplierAnswers), sessionRepository = sessionRepository)
+
+      running(app) {
+        val result = route(app, FakeRequest(GET, supplierCallbackOk)).value
+
+        status(result) mustEqual SEE_OTHER
+
+        val answers = ArgumentCaptor.forClass(classOf[UserAnswers])
+        verify(sessionRepository).set(answers.capture())
+        answers.getValue.get(SupplierAddressPage) mustBe Some(cleanAddress)
+        answers.getValue.get(AddressPage) mustBe None
+      }
+    }
+
+    "must save to the supplier-address draft section, not notifier-address" in {
+      val backendConnector = stubBackendConnector()
+      val app              = applicationWith(
+        userAnswers = Some(supplierAnswers),
+        backendConnector = backendConnector,
+        sessionRepository = stubSessionRepository(supplierAnswers)
+      )
+
+      running(app) {
+        route(app, FakeRequest(GET, supplierCallbackOk)).value.futureValue
+
+        val body = ArgumentCaptor.forClass(classOf[JsObject])
+        verify(backendConnector).updateDraftSection(eqTo(draftId), eqTo("supplier-address"), body.capture())(any[HeaderCarrier])
+        body.getValue mustBe Json.toJson(SupplierAddress.fromAddress(cleanAddress)).as[JsObject] + ("versionId", Json.toJson(0L))
+      }
+    }
+
+    "must route a truncated supplier address to the supplier address-changed page, not the notifier's" in {
+      val app = applicationWith(
+        userAnswers = Some(supplierAnswers),
+        alfConnector = stubAlfConnector(Right(dirtyAddress)),
+        sessionRepository = stubSessionRepository(supplierAnswers)
+      )
+
+      running(app) {
+        val result = route(app, FakeRequest(GET, supplierCallbackOk)).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.AddressChangedController.supplierOnPageLoad(supplierNumber).url
+      }
+    }
+
+    "must store the ALF journey id against the supplier section" in {
+      val sessionRepository = stubSessionRepository(supplierAnswers)
+      val app               = applicationWith(userAnswers = Some(supplierAnswers), sessionRepository = sessionRepository)
+
+      running(app) {
+        route(app, FakeRequest(GET, supplierCallbackOk)).value.futureValue
+
+        verify(sessionRepository).setPage(any(), eqTo(SupplierAddressJourneyIdPage), eqTo(journeyId))(any())
+      }
+    }
+
+    "must redirect to Unauthorised when the supplier number is not one held in session" in {
+      val app = applicationWith(userAnswers = Some(supplierAnswers), sessionRepository = stubSessionRepository(supplierAnswers))
+
+      running(app) {
+        val route9 = routes.AddressLookupCallbackController.supplierCallback(SupplierNumber(9), Some(journeyId)).url
+        val result = route(app, FakeRequest(GET, route9)).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Unauthorised when the supplier address-in-UK question is unanswered" in {
+      val answers = supplierAnswers.remove(IsSupplierAddressInTheUkPage).success.value
+      val app     = applicationWith(userAnswers = Some(answers), sessionRepository = stubSessionRepository(answers))
+
+      running(app) {
+        val result = route(app, FakeRequest(GET, supplierCallbackOk)).value
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
