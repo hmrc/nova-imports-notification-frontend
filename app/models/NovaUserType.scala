@@ -16,6 +16,7 @@
 
 package models
 
+import models.requests.DataRequest
 import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments}
 
 enum NovaUserType {
@@ -26,6 +27,9 @@ enum NovaUserType {
 }
 
 object NovaUserType {
+
+  def fromRequest(using request: DataRequest[?]): NovaUserType =
+    from(request.affinityGroup, request.enrolments)
 
   def from(affinityGroup: AffinityGroup, enrolments: Enrolments): NovaUserType =
     affinityGroup match {
