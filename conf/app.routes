@@ -142,6 +142,11 @@ POST        /supplier/:supplierNumber/supplier-name                             
 GET         /supplier/:supplierNumber/supplier-name/change                               controllers.SupplierNameController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = CheckMode)
 POST        /supplier/:supplierNumber/supplier-name/change                               controllers.SupplierNameController.onSubmit(supplierNumber: SupplierNumber, mode: Mode = CheckMode)
 
+GET         /supplier/:supplierNumber/supplier-business-name                             controllers.SupplierBusinessNameController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = NormalMode)
+POST        /supplier/:supplierNumber/supplier-business-name                             controllers.SupplierBusinessNameController.onSubmit(supplierNumber: SupplierNumber, mode: Mode = NormalMode)
+GET         /supplier/:supplierNumber/supplier-business-name/change                      controllers.SupplierBusinessNameController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = CheckMode)
+POST        /supplier/:supplierNumber/supplier-business-name/change                      controllers.SupplierBusinessNameController.onSubmit(supplierNumber: SupplierNumber, mode: Mode = CheckMode)
+
 GET         /supplier/:supplierNumber/is-supplier-address-in-uk                          controllers.IsSupplierAddressInTheUKController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = NormalMode)
 POST        /supplier/:supplierNumber/is-supplier-address-in-uk                          controllers.IsSupplierAddressInTheUKController.onSubmit(supplierNumber: SupplierNumber, mode: Mode = NormalMode)
 GET         /supplier/:supplierNumber/is-supplier-address-in-uk/change                   controllers.IsSupplierAddressInTheUKController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = CheckMode)

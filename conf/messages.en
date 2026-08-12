@@ -587,6 +587,17 @@ supplierBusinessOrIndividual.radio.business = Business
 supplierBusinessOrIndividual.radio.privateIndividual = Private individual
 
 ###########################################################################################
+# AVD-S3.0 - Add vehicle details - Supplier 3.0: Supplier business name                   #
+###########################################################################################
+
+supplierBusinessName.title = What is the supplier’s business name?
+supplierBusinessName.heading = What is the supplier’s business name?
+supplierBusinessName.caption = Add vehicle details
+supplierBusinessName.error.required = Enter the supplier’s business name
+supplierBusinessName.error.length = The supplier’s business name must be 160 characters or less
+supplierBusinessName.error.invalid = Enter the supplier’s business name in the correct format
+
+###########################################################################################
 # AVD-S4.0 - Add vehicle details - Supplier 4.0: Supplier name                            #
 ###########################################################################################
 
