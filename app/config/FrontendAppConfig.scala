@@ -65,11 +65,6 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
     s"$host$path"
   }
 
-  val addressLookupFrontendConfirmPath: String => String = (journeyId: String) => {
-    val addressHost = if host.contains("localhost") then "http://localhost:9028" else host
-    s"$addressHost/lookup-address/$journeyId/confirm"
-  }
-
   val languageTranslationEnabled: Boolean =
     configuration.get[Boolean]("features.welsh-translation")
 
