@@ -24,6 +24,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
+import models.{AddressJourney, SupplierNumber}
 import play.api.libs.json.JsObject
 import play.api.test.Helpers.stubMessagesApi
 import uk.gov.hmrc.http.HeaderCarrier
@@ -33,16 +34,23 @@ import scala.concurrent.Future
 class AddressLookupServiceSpec extends SpecBase with MockitoSugar with ScalaFutures {
 
   private val callbackUrl                = "http://localhost:10300/nova-imports/add-address/address-lookup-callback"
+  private val supplierCallbackUrl        = "http://localhost:10300/nova-imports/supplier/1/address-lookup-callback"
+  private val supplierJourney            = AddressJourney.Supplier(SupplierNumber(1))
   private implicit val hc: HeaderCarrier = HeaderCarrier()
 
   private val appConfig: FrontendAppConfig = {
     val m = mock[FrontendAppConfig]
     when(m.signOutUrl).thenReturn("/test/sign-out")
+    when(m.addressLookupCallbackUrl(AddressJourney.Notifier)).thenReturn(callbackUrl)
+    when(m.addressLookupCallbackUrl(supplierJourney)).thenReturn(supplierCallbackUrl)
     m
   }
 
-  private def newService(connector: AddressLookupConnector): AddressLookupService =
-    new AddressLookupService(connector, stubMessagesApi(), appConfig)
+  private def newService(
+    connector: AddressLookupConnector,
+    messages: Map[String, Map[String, String]] = Map.empty
+  ): AddressLookupService =
+    new AddressLookupService(connector, stubMessagesApi(messages), appConfig)
 
   private def captureConfig(connector: AddressLookupConnector): JsObject = {
     val captor = ArgumentCaptor.forClass(classOf[JsObject])
@@ -56,7 +64,7 @@ class AddressLookupServiceSpec extends SpecBase with MockitoSugar with ScalaFutu
       val connector = mock[AddressLookupConnector]
       when(connector.initJourney(any[JsObject])(any[HeaderCarrier])).thenReturn(Future.successful(Right("http://alf/journey/abc")))
 
-      val result = newService(connector).initJourney(ukMode = true, callbackUrl).futureValue
+      val result = newService(connector).initJourney(AddressJourney.Notifier, ukMode = true).futureValue
       result mustBe Right("http://alf/journey/abc")
     }
 
@@ -65,7 +73,7 @@ class AddressLookupServiceSpec extends SpecBase with MockitoSugar with ScalaFutu
       val err       = AddressLookupError.UpstreamError(500, "boom")
       when(connector.initJourney(any[JsObject])(any[HeaderCarrier])).thenReturn(Future.successful(Left(err)))
 
-      newService(connector).initJourney(ukMode = false, callbackUrl).futureValue mustBe Left(err)
+      newService(connector).initJourney(AddressJourney.Notifier, ukMode = false).futureValue mustBe Left(err)
     }
 
     "for UK mode" - {
@@ -73,7 +81,7 @@ class AddressLookupServiceSpec extends SpecBase with MockitoSugar with ScalaFutu
       def buildUkConfig: JsObject = {
         val connector = mock[AddressLookupConnector]
         when(connector.initJourney(any[JsObject])(any[HeaderCarrier])).thenReturn(Future.successful(Right("url")))
-        newService(connector).initJourney(ukMode = true, callbackUrl).futureValue
+        newService(connector).initJourney(AddressJourney.Notifier, ukMode = true).futureValue
         captureConfig(connector)
       }
 
@@ -157,7 +165,7 @@ class AddressLookupServiceSpec extends SpecBase with MockitoSugar with ScalaFutu
       def buildNonUkConfig: JsObject = {
         val connector = mock[AddressLookupConnector]
         when(connector.initJourney(any[JsObject])(any[HeaderCarrier])).thenReturn(Future.successful(Right("url")))
-        newService(connector).initJourney(ukMode = false, callbackUrl).futureValue
+        newService(connector).initJourney(AddressJourney.Notifier, ukMode = false).futureValue
         captureConfig(connector)
       }
 
@@ -210,14 +218,71 @@ class AddressLookupServiceSpec extends SpecBase with MockitoSugar with ScalaFutu
         (otherEn \ "constants.editPageCountryErrorMessage").asOpt[String] mustBe defined
       }
 
-      "must override the country picker error message via otherLabels (AYA1.1a)" in {
+      "must override the country picker error message via otherLabels" in {
         val otherEn = buildNonUkConfig \ "labels" \ "en" \ "otherLabels"
         (otherEn \ "constants.countryPickerPageCountryErrorMessage").asOpt[String] mustBe defined
       }
 
-      "must visually hide the country picker label while keeping an accessible name (AYA1.1a)" in {
+      "must visually hide the country picker label while keeping an accessible name" in {
         val countryLabel = (buildNonUkConfig \ "labels" \ "en" \ "countryPickerLabels" \ "countryLabel").as[String]
         countryLabel must include("govuk-visually-hidden")
+      }
+    }
+
+    "for the supplier journey" - {
+
+      def buildSupplierConfig(ukMode: Boolean, messages: Map[String, Map[String, String]] = Map.empty): JsObject = {
+        val connector = mock[AddressLookupConnector]
+        when(connector.initJourney(any[JsObject])(any[HeaderCarrier])).thenReturn(Future.successful(Right("url")))
+        newService(connector, messages).initJourney(supplierJourney, ukMode).futureValue
+        captureConfig(connector)
+      }
+
+      "must return the user to the supplier callback, not the notifier one" in {
+        (buildSupplierConfig(ukMode = true) \ "options" \ "continueUrl").as[String] mustBe supplierCallbackUrl
+        (buildSupplierConfig(ukMode = false) \ "options" \ "continueUrl").as[String] mustBe supplierCallbackUrl
+      }
+
+      "must restrict the country list to the EU plus the United Kingdom" in {
+        val codes = (buildSupplierConfig(ukMode = false) \ "options" \ "allowedCountryCodes").as[Seq[String]]
+        codes must contain allOf ("AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR")
+        codes must contain allOf ("HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK")
+        codes must contain allOf ("SI", "ES", "SE", "GB")
+        codes must not contain "US"
+        codes must not contain "EL"
+        codes.size mustBe 28
+      }
+
+      "must prefer a supplier-scoped label over the shared one" in {
+        val messages = Map(
+          "en" -> Map(
+            "addressLookup.uk.edit.title"          -> "Enter your address",
+            "addressLookup.supplier.uk.edit.title" -> "Enter the supplier’s address"
+          )
+        )
+        val labels = buildSupplierConfig(ukMode = true, messages) \ "labels" \ "en" \ "editPageLabels"
+        (labels \ "title").as[String] mustBe "Enter the supplier’s address"
+      }
+
+      "must fall back to the shared label where the supplier copy is the same" in {
+        val messages = Map("en" -> Map("addressLookup.edit.line1Label" -> "Address line 1"))
+        val labels   = buildSupplierConfig(ukMode = true, messages) \ "labels" \ "en" \ "editPageLabels"
+        (labels \ "line1Label").as[String] mustBe "Address line 1"
+      }
+
+      "must leave the notifier on the shared label when a supplier override exists" in {
+        val messages = Map(
+          "en" -> Map(
+            "addressLookup.uk.edit.title"          -> "Enter your address",
+            "addressLookup.supplier.uk.edit.title" -> "Enter the supplier’s address"
+          )
+        )
+        val connector = mock[AddressLookupConnector]
+        when(connector.initJourney(any[JsObject])(any[HeaderCarrier])).thenReturn(Future.successful(Right("url")))
+        newService(connector, messages).initJourney(AddressJourney.Notifier, ukMode = true).futureValue
+
+        val labels = captureConfig(connector) \ "labels" \ "en" \ "editPageLabels"
+        (labels \ "title").as[String] mustBe "Enter your address"
       }
     }
   }

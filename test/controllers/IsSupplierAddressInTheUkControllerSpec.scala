@@ -17,28 +17,35 @@
 package controllers
 
 import base.SpecBase
+import connectors.AddressLookupError
 import forms.IsSupplierAddressInTheUkFormProvider
-import models.{CheckMode, DraftId, Mode, NormalMode, SupplierNumber, UserAnswers}
-import navigation.{FakeNavigator, Navigator}
+import models.{AddressJourney, CheckMode, DraftId, Mode, NormalMode, SupplierNumber, UserAnswers}
 import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.DraftIdPage
 import pages.sections.initialquestions.VehicleFromEuPage
 import pages.sections.supplierDetails.{IsSupplierAddressInTheUkPage, SupplierNumberPage}
 import play.api.inject.bind
-import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
+import services.AddressLookupService
+import uk.gov.hmrc.http.HeaderCarrier
 import views.html.IsSupplierAddressInTheUkView
 
 import scala.concurrent.Future
 
 class IsSupplierAddressInTheUkControllerSpec extends SpecBase with MockitoSugar {
 
-  private def onwardRoute = Call("GET", "/foo")
+  private def stubAlfService(result: Either[AddressLookupError, String] = Right(journeyUrl)): AddressLookupService = {
+    val m = mock[AddressLookupService]
+    when(m.initJourney(any[AddressJourney], any[Boolean])(any[HeaderCarrier])).thenReturn(Future.successful(result))
+    m
+  }
+
+  private val journeyUrl = "http://localhost:9028/lookup-address/abc123/lookup"
 
   private val formProvider = new IsSupplierAddressInTheUkFormProvider()
   private val form         = formProvider()
@@ -58,7 +65,10 @@ class IsSupplierAddressInTheUkControllerSpec extends SpecBase with MockitoSugar 
     .success
     .value
 
-  private def applicationWithMockRepository(userAnswers: UserAnswers): (play.api.Application, SessionRepository) = {
+  private def applicationWithMockRepository(
+    userAnswers: UserAnswers,
+    alfService: AddressLookupService = stubAlfService()
+  ): (play.api.Application, SessionRepository) = {
 
     val mockSessionRepository = mock[SessionRepository]
     when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
@@ -66,7 +76,7 @@ class IsSupplierAddressInTheUkControllerSpec extends SpecBase with MockitoSugar 
     val application =
       applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(
-          bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+          bind[AddressLookupService].toInstance(alfService),
           bind[SessionRepository].toInstance(mockSessionRepository)
         )
         .build()
@@ -114,9 +124,10 @@ class IsSupplierAddressInTheUkControllerSpec extends SpecBase with MockitoSugar 
       }
     }
 
-    "must redirect to the next page when valid data is submitted" in {
+    "must start the supplier UK ALF journey and redirect to it when Yes is submitted" in {
 
-      val (application, _) = applicationWithMockRepository(userAnswersWithGuardData)
+      val alfService       = stubAlfService()
+      val (application, _) = applicationWithMockRepository(userAnswersWithGuardData, alfService)
 
       running(application) {
         val request =
@@ -126,7 +137,43 @@ class IsSupplierAddressInTheUkControllerSpec extends SpecBase with MockitoSugar 
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRoute.url
+        redirectLocation(result).value mustEqual journeyUrl
+        verify(alfService).initJourney(eqTo(AddressJourney.Supplier(SupplierNumber(1))), eqTo(true))(any[HeaderCarrier])
+      }
+    }
+
+    "must start the supplier non-UK ALF journey when No is submitted" in {
+
+      val alfService       = stubAlfService()
+      val (application, _) = applicationWithMockRepository(userAnswersWithGuardData, alfService)
+
+      running(application) {
+        val request =
+          FakeRequest(POST, isSupplierAddressInTheUkSubmitRoute(SupplierNumber(1)))
+            .withFormUrlEncodedBody("value" -> "false")
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual journeyUrl
+        verify(alfService).initJourney(eqTo(AddressJourney.Supplier(SupplierNumber(1))), eqTo(false))(any[HeaderCarrier])
+      }
+    }
+
+    "must redirect to Journey Recovery when the ALF init fails" in {
+
+      val alfService       = stubAlfService(Left(AddressLookupError.UpstreamError(500, "boom")))
+      val (application, _) = applicationWithMockRepository(userAnswersWithGuardData, alfService)
+
+      running(application) {
+        val request =
+          FakeRequest(POST, isSupplierAddressInTheUkSubmitRoute(SupplierNumber(1)))
+            .withFormUrlEncodedBody("value" -> "true")
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
 
