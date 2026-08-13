@@ -78,5 +78,4 @@ object SupplierVatRegistrationDetailsController {
       request.userAnswers.get(VehicleFromEuPage).contains(true) &&
       request.userAnswers.get(IsSupplierVatRegisteredPage).contains(true) &&
       IsSupplierNumberInSession(request.userAnswers, supplierNumber)
-
 }
