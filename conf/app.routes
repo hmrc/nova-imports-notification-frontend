@@ -156,3 +156,8 @@ GET         /supplier/:supplierNumber/is-supplier-vat-registered                
 POST        /supplier/:supplierNumber/is-supplier-vat-registered                         controllers.IsSupplierVatRegisteredController.onSubmit(supplierNumber: SupplierNumber, mode: Mode = NormalMode)
 GET         /supplier/:supplierNumber/is-supplier-vat-registered/change                  controllers.IsSupplierVatRegisteredController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = CheckMode)
 POST        /supplier/:supplierNumber/is-supplier-vat-registered/change                  controllers.IsSupplierVatRegisteredController.onSubmit(supplierNumber: SupplierNumber, mode: Mode = CheckMode)
+
+GET         /supplier/:supplierNumber/supplier-vat-registration-details                         controllers.SupplierVatRegistrationDetailsController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = NormalMode)
+POST        /supplier/:supplierNumber/supplier-vat-registration-details                         controllers.SupplierVatRegistrationDetailsController.onSubmit(supplierNumber: SupplierNumber, mode: Mode = NormalMode)
+GET         /supplier/:supplierNumber/supplier-vat-registration-details/change                  controllers.SupplierVatRegistrationDetailsController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = CheckMode)
+POST        /supplier/:supplierNumber/supplier-vat-registration-details/change                  controllers.SupplierVatRegistrationDetailsController.onSubmit(supplierNumber: SupplierNumber, mode: Mode = CheckMode)

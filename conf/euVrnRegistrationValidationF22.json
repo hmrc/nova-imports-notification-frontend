@@ -1,0 +1,16 @@
+{
+  "euVrnRegistrationValidationList": [
+    {
+      "code": "AT",
+      "name-en": "Austria",
+      "name-cy": "Awstria",
+      "regex-vrn-validation": "U[0-9]{8}"
+    },
+    {
+      "code": "BE",
+      "name-en": "Belgium",
+      "name-cy": "Gwlad Belg",
+      "regex-vrn-validation": "0[0-9]{9}"
+    }
+  ]
+}
