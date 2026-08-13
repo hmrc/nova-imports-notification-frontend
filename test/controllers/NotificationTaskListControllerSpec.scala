@@ -21,7 +21,7 @@ import com.google.inject.name.Names
 import connectors.{GetDraftNotificationError, GetNotificationSummaryError, NovaImportsBackendConnector}
 import controllers.actions.*
 import models.NormalMode
-import models.{AgentSelectedClient, BusinessOrPrivateIndividual, ContactNumbers, DraftId, DraftNotification, DraftNotificationSection, NotificationSummary, PurchaserBusinessOrIndividual, PurchaserOrOnBehalf, UserAnswers}
+import models.{Address, AgentSelectedClient, BusinessOrPrivateIndividual, ContactNumbers, Country, DraftId, DraftNotification, DraftNotificationSection, NotificationSummary, PurchaserBusinessOrIndividual, PurchaserOrOnBehalf, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{never, verify, when}
@@ -29,6 +29,7 @@ import org.scalatestplus.mockito.MockitoSugar
 import pages.{AgentSelectedClientPage, DraftIdPage, IsDeregisteredPage, NotificationTaskListPage}
 import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
 import pages.sections.notifierDetails.PhoneNumberPage
+import pages.sections.notifieraddress.AddressPage
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -270,6 +271,26 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
           status(result) mustEqual OK
           body must include("Add your address")
           body must include(routes.IsYourAddressInTheUkController.onPageLoad(NormalMode).url)
+        }
+      }
+
+      "must link the 'Add your address' row to CYA3.0 once the address has been saved and is complete" in {
+        val answersWithAddress = answersPrivateUse
+          .unsafeSet(AddressPage, Address(Seq("12 High Street", "Reading"), Some("RE12 9GC"), Country("GB", "United Kingdom")))
+
+        given application: Application =
+          applicationWith(classOf[FakeVatTraderIdentifierAction], Some(answersWithAddress))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
+
+          val result = route(application, request).value
+          val body   = contentAsString(result)
+
+          status(result) mustEqual OK
+          body must include("Add your address")
+          body must include(routes.YourAddressCheckYourAnswersController.onPageLoad().url)
         }
       }
 

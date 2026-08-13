@@ -33,7 +33,6 @@ object NotifierAddress {
   implicit val format: Format[NotifierAddress] = Json.format[NotifierAddress]
 
   def fromAddress(address: Address): NotifierAddress = {
-    val isUk  = address.country.code == "GB"
     val lines = address.lines.toIndexedSeq
 
     NotifierAddress(
@@ -41,7 +40,7 @@ object NotifierAddress {
       line2 = lines.lift(1).getOrElse(""),
       line3 = lines.lift(2),
       line4 = lines.lift(3),
-      postCode = if (isUk) address.postcode else None,
+      postCode = address.postcode,
       country = address.country
     )
   }

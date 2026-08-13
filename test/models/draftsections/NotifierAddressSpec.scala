@@ -74,14 +74,14 @@ class NotifierAddressSpec extends SpecBase {
         line2 = "Block A",
         line3 = Some("Mitte"),
         line4 = Some("Berlin"),
-        postCode = None,
+        postCode = Some("10115"),
         country = de
       )
     }
 
-    "must drop the postcode (non-UK has no postcode in the F4 payload)" in {
+    "must keep in the postcode for all addresses, both UK and overseas" in {
       val address = Address(lines = Seq("Line 1", "Town"), postcode = Some("10115"), country = de)
-      NotifierAddress.fromAddress(address).postCode mustBe None
+      NotifierAddress.fromAddress(address).postCode mustBe Some("10115")
     }
 
     "must leave line3 None when ALF returns fewer than three lines" in {
