@@ -55,6 +55,10 @@ class AddressChangedController @Inject() (
   def supplierOnSubmit(supplierNumber: SupplierNumber): Action[AnyContent] =
     handleSubmit(AddressJourney.Supplier(supplierNumber))
 
+  def purchaserOnPageLoad(): Action[AnyContent]      = handlePageLoad(AddressJourney.Purchaser)
+  def purchaserOnChangeAddress(): Action[AnyContent] = handleChangeAddress(AddressJourney.Purchaser)
+  def purchaserOnSubmit(): Action[AnyContent]        = handleSubmit(AddressJourney.Purchaser)
+
   private def dataGuard(binding: AddressJourneyBinding): DataRequest[?] => Boolean =
     request => binding.guard(request) && request.userAnswers.get(binding.addressPage).isDefined
 

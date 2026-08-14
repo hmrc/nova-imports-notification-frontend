@@ -319,6 +319,7 @@ class AddressLookupService @Inject() (
   private def allowedCountryCodesFor(journey: AddressJourney): Seq[String] = journey match {
     case AddressJourney.Notifier    => notifierAllowedCountryCodes
     case AddressJourney.Supplier(_) => supplierAllowedCountryCodes
+    case AddressJourney.Purchaser   => notifierAllowedCountryCodes
   }
 
   def initJourney(journey: AddressJourney, ukMode: Boolean)(implicit hc: HeaderCarrier): Future[Either[AddressLookupError, String]] = {
@@ -426,12 +427,17 @@ class AddressLookupService @Inject() (
       "submitLabel" -> alf("confirm.submitLabel")
     )
 
+    val mandatoryFieldErrorLabels = Json.obj(
+      "editPage.line1.error" -> alf("error.line1Required"),
+      "editPage.line2.error" -> alf("error.line2Required"),
+      "editPage.town.error"  -> alf("error.townRequired")
+    )
+
     val otherLabels =
       if (uk)
-        Json.obj("editPage.town.error" -> alf("error.townRequired"))
+        mandatoryFieldErrorLabels
       else
-        Json.obj(
-          "editPage.town.error"                            -> alf("error.townRequired"),
+        mandatoryFieldErrorLabels ++ Json.obj(
           "constants.editPageCountryErrorMessage"          -> alf("error.countryRequired"),
           "constants.countryPickerPageCountryErrorMessage" -> alf("error.countryPickerRequired")
         )

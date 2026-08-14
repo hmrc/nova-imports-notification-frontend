@@ -20,6 +20,7 @@ import com.google.inject.{ImplementedBy, Inject, Singleton}
 import connectors.{GetDraftNotificationError, NovaImportsBackendConnector}
 import models.*
 import models.DraftNotification.SectionId
+import models.SectionStatus.Incomplete
 import models.draftsections.*
 import pages.sections.introduction.*
 import pages.sections.initialquestions.*
@@ -31,7 +32,7 @@ import services.UserDataService.*
 import pages.{AgentClientVehicleBusinessUsePage, AgentSelectedClientPage}
 import pages.sections.notifierDetails.{BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 import pages.sections.purchaserDetails.{PurchaserBusinessNamePage, PurchaserNamePage}
-import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
+import pages.sections.purchaseraddress.{IsPurchaserAddressInTheUkPage, PurchaserAddressPage}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -361,7 +362,8 @@ object UserDataService {
     else SectionStatus.NotYetSaved
 
   private def purchaserAddressStatus(answers: UserAnswers): SectionStatus =
-    if answers.get(IsPurchaserAddressInTheUkPage).isDefined then SectionStatus.Incomplete
+    if answers.get(PurchaserAddressPage).isDefined then SectionStatus.Completed
+    else if answers.get(IsPurchaserAddressInTheUkPage).isDefined then SectionStatus.Incomplete
     else SectionStatus.NotYetSaved
 
 }

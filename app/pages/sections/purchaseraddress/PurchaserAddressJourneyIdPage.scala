@@ -14,24 +14,14 @@
  * limitations under the License.
  */
 
-package models
+package pages.sections.purchaseraddress
 
-sealed trait AddressJourney {
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-  def keySegment: String
-}
+case object PurchaserAddressJourneyIdPage extends QuestionPage[String] {
 
-object AddressJourney {
+  override def path: JsPath = JsPath \ "purchaser-address" \ toString
 
-  case object Notifier extends AddressJourney {
-    override val keySegment: String = "notifier"
-  }
-
-  final case class Supplier(number: SupplierNumber) extends AddressJourney {
-    override val keySegment: String = "supplier"
-  }
-
-  case object Purchaser extends AddressJourney {
-    override val keySegment: String = "purchaser"
-  }
+  override def toString: String = "addressJourneyId"
 }
