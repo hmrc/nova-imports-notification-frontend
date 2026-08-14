@@ -30,7 +30,7 @@
     autocompleteJavascript: HmrcAccessibleAutocompleteJavascript
 )
 
-@(euCountriesVrnValidationList: Seq[CountryVrnValidation], form: Form[?], supplierNumber: SupplierNumber, mode: Mode)(implicit request: Request[?], messages: Messages)
+@(euCountriesVrnValidationList: Seq[CountryVrnValidation], isLangWelsh: Boolean, form: Form[?], supplierNumber: SupplierNumber, mode: Mode)(implicit request: Request[?], messages: Messages)
 
 @layout(
     pageTitle = title(form, messages("supplierVatRegistrationDetails.title")),
@@ -55,7 +55,7 @@
                 name = "countryCode",
                 label = Label(content = HtmlContent(messages("supplierVatRegistrationDetails.label.country"))),
                 errorMessage = form("countryCode").error.map(fe => ErrorMessage(content = HtmlContent(messages(fe.message)))),
-                items = CountryFinderViewHelper.countriesToSelectItems(euCountriesVrnValidationList, form)
+                items = CountryFinderViewHelper.countriesToSelectItems(euCountriesVrnValidationList, isLangWelsh, form)
             ).asAccessibleAutocomplete().withFormField(form("countryCode"))
         )
 

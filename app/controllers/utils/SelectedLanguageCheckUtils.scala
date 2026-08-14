@@ -16,13 +16,11 @@
 
 package controllers.utils
 
-import play.api.data.Form
+import models.requests.DataRequest
+import play.api.mvc.AnyContent
 
-object RelocateError {
-  def relocateError[T](form: Form[T], fromKey: String, toKey: String): Form[T] = {
-    form.copy(errors = form.errors.map {
-      case err if err.key == fromKey => err.copy(key = toKey)
-      case err                       => err
-    })
+object SelectedLanguageCheckUtils {
+  def isWelshLanguageSelected(implicit request: DataRequest[AnyContent]) = {
+    request.cookies.exists(kv => kv.name == "PLAY_LANG" && kv.value == "cy")
   }
 }

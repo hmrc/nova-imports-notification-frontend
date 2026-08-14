@@ -19,6 +19,7 @@ package controllers
 import config.FrontendAppConfig
 import controllers.actions.*
 import controllers.utils.RelocateError.*
+import controllers.utils.SelectedLanguageCheckUtils.*
 import controllers.utils.{IsDraftIdDefined, IsSupplierNumberInSession, RelocateError}
 import forms.SupplierVatRegistrationDetailsFormProvider
 import models.requests.DataRequest
@@ -47,12 +48,19 @@ class SupplierVatRegistrationDetailsController @Inject() (
 
   import SupplierVatRegistrationDetailsController.*
 
-
   val form: Form[VatNumberDetails] = formProvider(appConfig.vrnValidationList)
 
   def onPageLoad(supplierNumber: SupplierNumber, mode: Mode): Action[AnyContent] =
     actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierNumber)) { implicit request =>
-      Ok(view(appConfig.vrnValidationList, form.withDefault(request.userAnswers.get(SupplierVatRegistrationNumberPage)), supplierNumber, mode))
+      Ok(
+        view(
+          appConfig.vrnValidationList,
+          isWelshLanguageSelected,
+          form.withDefault(request.userAnswers.get(SupplierVatRegistrationNumberPage)),
+          supplierNumber,
+          mode
+        )
+      )
     }
 
   def onSubmit(supplierNumber: SupplierNumber, mode: Mode): Action[AnyContent] =
@@ -60,8 +68,7 @@ class SupplierVatRegistrationDetailsController @Inject() (
       relocateError(form.bindFromRequest(), "", "vatNumber")
         .fold(
           formWithErrors =>
-            Future.successful(BadRequest(view(appConfig.vrnValidationList, formWithErrors, supplierNumber, mode)))
-          ,
+            Future.successful(BadRequest(view(appConfig.vrnValidationList, isWelshLanguageSelected, formWithErrors, supplierNumber, mode))),
           supplierVatNumberDetails =>
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(SupplierVatRegistrationNumberPage, supplierVatNumberDetails))
