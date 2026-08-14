@@ -144,6 +144,11 @@ GET         /use-personal-details-as-supplier                                   
 GET         /use-personal-details-as-supplier/change                                     controllers.UsePersonalDetailsAsSupplierController.onPageLoad(mode: Mode = CheckMode)
 POST        /use-personal-details-as-supplier/change                                     controllers.UsePersonalDetailsAsSupplierController.onSubmit(mode: Mode = CheckMode)
 
+POST        /use-purchaser-details-as-supplier                                            controllers.UsePurchaserDetailsAsSupplierController.onSubmit(mode: Mode = NormalMode)
+GET         /use-purchaser-details-as-supplier                                            controllers.UsePurchaserDetailsAsSupplierController.onPageLoad(mode: Mode = NormalMode)
+GET         /use-purchaser-details-as-supplier/change                                     controllers.UsePurchaserDetailsAsSupplierController.onPageLoad(mode: Mode = CheckMode)
+POST        /use-purchaser-details-as-supplier/change                                     controllers.UsePurchaserDetailsAsSupplierController.onSubmit(mode: Mode = CheckMode)
+
 GET         /supplier/:supplierNumber/supplier-business-or-private-individual            controllers.SupplierBusinessOrIndividualController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = NormalMode)
 POST        /supplier/:supplierNumber/supplier-business-or-private-individual            controllers.SupplierBusinessOrIndividualController.onSubmit(supplierNumber: SupplierNumber, mode: Mode = NormalMode)
 GET         /supplier/:supplierNumber/supplier-business-or-private-individual/change     controllers.SupplierBusinessOrIndividualController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = CheckMode)

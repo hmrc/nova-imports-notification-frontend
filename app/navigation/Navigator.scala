@@ -26,7 +26,7 @@ import pages.sections.notifierDetails.{BusinessNamePage, EmailAddressPage, NameD
 import pages.sections.notifieraddress.IsYourAddressInTheUkPage
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 import pages.sections.purchaserDetails.{PurchaserBusinessNamePage, PurchaserNamePage}
-import pages.sections.supplierDetails.{IsSupplierAddressInTheUkPage, IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierNumberPage, UsePersonalDetailsAsSupplierPage}
+import pages.sections.supplierDetails.{IsSupplierAddressInTheUkPage, IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierNumberPage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
 
 @Singleton
 class Navigator @Inject() () {
@@ -83,9 +83,15 @@ class Navigator @Inject() () {
     case PurchaserBusinessOrIndividualPage =>
       (_, _) => routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
     case AddVehicleDetailsPage =>
-      (userAnswers, _) =>
+      (userAnswers, userType) =>
         userAnswers.get(AddVehicleDetailsPage) match {
-          case Some(AddVehicleDetails.BySupplier)    => routes.UsePersonalDetailsAsSupplierController.onPageLoad(NormalMode)
+          case Some(AddVehicleDetails.BySupplier) =>
+            val onBehalfOfPurchaser = userAnswers.get(PurchaserOrOnBehalfPage).contains(PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+            val agentWithoutClient  = userType == NovaUserType.Agent && userAnswers.get(AgentSelectedClientPage).isEmpty
+            if (userType != NovaUserType.VatRegisteredOrganisation && (onBehalfOfPurchaser || agentWithoutClient))
+              routes.UsePurchaserDetailsAsSupplierController.onPageLoad(NormalMode)
+            else
+              routes.UsePersonalDetailsAsSupplierController.onPageLoad(NormalMode)
           case Some(AddVehicleDetails.BySpreadsheet) =>
             routes.LandingPageController.onPageLoad() // TODO: navigate to spreadsheet upload flow when built
           case _ => routes.JourneyRecoveryController.onPageLoad()
@@ -93,6 +99,15 @@ class Navigator @Inject() () {
     case UsePersonalDetailsAsSupplierPage =>
       (userAnswers, _) =>
         userAnswers.get(UsePersonalDetailsAsSupplierPage) match {
+          case Some(true)  => routes.LandingPageController.onPageLoad() // TODO: navigate to CYA3.0 when built
+          case Some(false) =>
+            routes.SupplierBusinessOrIndividualController
+              .onPageLoad(SupplierNumber(userAnswers.get(SupplierNumberPage).getOrElse(1)), NormalMode)
+          case _ => routes.JourneyRecoveryController.onPageLoad()
+        }
+    case UsePurchaserDetailsAsSupplierPage =>
+      (userAnswers, _) =>
+        userAnswers.get(UsePurchaserDetailsAsSupplierPage) match {
           case Some(true)  => routes.LandingPageController.onPageLoad() // TODO: navigate to CYA3.0 when built
           case Some(false) =>
             routes.SupplierBusinessOrIndividualController

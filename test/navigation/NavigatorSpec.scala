@@ -23,7 +23,7 @@ import models.*
 import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
 import pages.sections.notifierDetails.{BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 import pages.sections.purchaserDetails.{PurchaserBusinessNamePage, PurchaserNamePage}
-import pages.sections.supplierDetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierNumberPage, UsePersonalDetailsAsSupplierPage}
+import pages.sections.supplierDetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierNumberPage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 
 class NavigatorSpec extends SpecBase {
@@ -286,6 +286,49 @@ class NavigatorSpec extends SpecBase {
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
 
+      "must go from AddVehicleDetailsPage AVD1.0 to UsePurchaserDetailsAsSupplier AVD-S1.1 when BySupplier is selected by a non-agent who bought on behalf of the purchaser" in {
+        val ua = userAnswers
+          .set(AddVehicleDetailsPage, AddVehicleDetails.BySupplier)
+          .success
+          .value
+          .set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+          .success
+          .value
+        navigator.nextPage(
+          AddVehicleDetailsPage,
+          NormalMode,
+          ua,
+          NovaUserType.PrivateIndividual
+        ) mustBe routes.UsePurchaserDetailsAsSupplierController.onPageLoad(NormalMode)
+      }
+
+      "must go from AddVehicleDetailsPage AVD1.0 to UsePurchaserDetailsAsSupplier AVD-S1.1 when BySupplier is selected by an agent without a selected client" in {
+        val ua = userAnswers.set(AddVehicleDetailsPage, AddVehicleDetails.BySupplier).success.value
+        navigator.nextPage(
+          AddVehicleDetailsPage,
+          NormalMode,
+          ua,
+          NovaUserType.Agent
+        ) mustBe routes.UsePurchaserDetailsAsSupplierController.onPageLoad(NormalMode)
+      }
+
+      "must go from AddVehicleDetailsPage AVD1.0 to UsePersonalDetailsAsSupplier AVD-S1.0 when BySupplier is selected by an agent with a selected client" in {
+        val sampleClient = AgentSelectedClient(vrn = "GB123456789", name = Some("Acme Ltd"))
+        val ua           = userAnswers
+          .set(AddVehicleDetailsPage, AddVehicleDetails.BySupplier)
+          .success
+          .value
+          .set(AgentSelectedClientPage, sampleClient)
+          .success
+          .value
+        navigator.nextPage(
+          AddVehicleDetailsPage,
+          NormalMode,
+          ua,
+          NovaUserType.Agent
+        ) mustBe routes.UsePersonalDetailsAsSupplierController.onPageLoad(NormalMode)
+      }
+
       "must go from UsePersonalDetailsAsSupplierPage AVD-S1.0 to LandingPage when Yes is selected" in {
         // TODO: navigate to CYA3.0 when implemented
         val ua = userAnswers.set(UsePersonalDetailsAsSupplierPage, true).success.value
@@ -319,6 +362,42 @@ class NavigatorSpec extends SpecBase {
           NormalMode,
           userAnswers,
           NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from UsePurchaserDetailsAsSupplierPage AVD-S1.1 to LandingPage when Yes is selected" in {
+        // TODO: navigate to CYA3.0 when implemented
+        val ua = userAnswers.set(UsePurchaserDetailsAsSupplierPage, true).success.value
+        navigator.nextPage(
+          UsePurchaserDetailsAsSupplierPage,
+          NormalMode,
+          ua,
+          NovaUserType.PrivateIndividual
+        ) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from UsePurchaserDetailsAsSupplierPage AVD-S1.1 to SupplierBusinessOrIndividual AVD-S2.0 when No is selected" in {
+        val ua = userAnswers
+          .set(UsePurchaserDetailsAsSupplierPage, false)
+          .success
+          .value
+          .set(SupplierNumberPage, 2)
+          .success
+          .value
+        navigator.nextPage(
+          UsePurchaserDetailsAsSupplierPage,
+          NormalMode,
+          ua,
+          NovaUserType.PrivateIndividual
+        ) mustBe routes.SupplierBusinessOrIndividualController.onPageLoad(SupplierNumber(2), NormalMode)
+      }
+
+      "must go from UsePurchaserDetailsAsSupplierPage AVD-S1.1 to JourneyRecovery when no answer is found" in {
+        navigator.nextPage(
+          UsePurchaserDetailsAsSupplierPage,
+          NormalMode,
+          userAnswers,
+          NovaUserType.PrivateIndividual
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
 
