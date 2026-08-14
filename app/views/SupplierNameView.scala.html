@@ -38,7 +38,7 @@
     <span class="govuk-caption-l">@messages("supplierName.caption")</span>
     <h1 class="govuk-heading-l">@messages("supplierName.heading")</h1>
 
-    @* No autocomplete: these are a third party's details, not the user's own *@
+    @* autocomplete="off" on each field: these are a third party's details, not the user's own *@
     @formHelper(action = routes.SupplierNameController.onSubmit(supplierNumber, mode), Symbol("autoComplete") -> "off") {
 
         @govukInput(
@@ -46,6 +46,7 @@
                 field = form("title"),
                 label = LabelViewModel(messages("supplierName.titleField"))
             ).withCssClass("govuk-input--width-4")
+             .withAutocomplete("off")
         )
 
         @govukInput(
@@ -53,6 +54,7 @@
                 field = form("firstName"),
                 label = LabelViewModel(messages("supplierName.firstName"))
             ).withCssClass("govuk-input--width-20")
+             .withAutocomplete("off")
         )
 
         @govukInput(
@@ -60,6 +62,7 @@
                 field = form("lastName"),
                 label = LabelViewModel(messages("supplierName.lastName"))
             ).withCssClass("govuk-input--width-20")
+             .withAutocomplete("off")
         )
 
         @govukButton(ButtonViewModel(messages("site.continue")))
