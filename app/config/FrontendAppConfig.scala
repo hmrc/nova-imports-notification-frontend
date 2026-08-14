@@ -77,7 +77,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
 
   val cacheTtl: Long = configuration.get[Int]("mongodb.timeToLiveInSeconds")
 
-  val vrnValidationList: Seq[CountryVrnValidation]               = loadVrnValidationList()
+  lazy val vrnValidationList: Seq[CountryVrnValidation]          = loadVrnValidationList()
   private def loadVrnValidationList(): Seq[CountryVrnValidation] = {
     configuration.get[Seq[Configuration]]("euVrnRegistrationValidationList").map { config =>
       CountryVrnValidation(

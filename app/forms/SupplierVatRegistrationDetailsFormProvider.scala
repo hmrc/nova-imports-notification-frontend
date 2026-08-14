@@ -18,30 +18,24 @@ package forms
 
 import forms.mappings.Mappings
 import models.{CountryVrnValidation, VatNumberDetails}
+import play.api.Logging
 import play.api.data.Form
 import play.api.data.Forms.mapping
 import play.api.data.validation.{Constraint, Invalid, Valid}
 
 import javax.inject.Inject
 
-class SupplierVatRegistrationDetailsFormProvider @Inject() extends Mappings {
-
-  private val countryRegex   = "^[A-Za-z\\-' ]{1,100}$" //TODO: Still use?
-  private val vatNumberRegex = "^[A-Za-z0-9\\-' ]{1,100}$" // TODO: Make dependant on the country
-
-  // TODO: Validate the country is one of the valid values in the list
-  // TODO: Use the entry in the list to get the regex
+class SupplierVatRegistrationDetailsFormProvider @Inject() extends Mappings with Logging {
 
   def apply(countryVrnValidationList: Seq[CountryVrnValidation]): Form[VatNumberDetails] = Form(
     mapping(
-      "countryName" -> text("supplierVatRegistrationDetails.country.error.required"),
-      "vatNumber"   -> text("supplierName.firstName.error.required")
-    )(VatNumberDetails.apply)(v => Some((v.countryName, v.vatNumber))).verifying(
+      "countryCode" -> text("supplierVatRegistrationDetails.country.error.required"),
+      "vatNumber"   -> text("supplierVatRegistrationDetails.vatNumber.error.required")
+    )(VatNumberDetails.apply)(v => Some((v.countryCode, v.vatNumber))).verifying(
+      // Validate the Vat Number matches the regex for the country provided.
+      // This error is applied to the root of the form and so need to be relocated in the controller to show on the vatNumber field.
       Constraint[VatNumberDetails]("euCountryVrnRegex") { data =>
-        val countryVrnValidationOpt = countryVrnValidationList.find(countryVrnValidation =>
-          countryVrnValidation.nameEN == data.countryName || countryVrnValidation.nameCY == data.countryName
-        )
-
+        val countryVrnValidationOpt = countryVrnValidationList.find(countryVrnValidation => countryVrnValidation.code == data.countryCode)
         countryVrnValidationOpt match {
           case Some(countryVrnValidation) =>
             if (data.vatNumber.matches(countryVrnValidation.vrnValidationRegex)) {
@@ -49,9 +43,6 @@ class SupplierVatRegistrationDetailsFormProvider @Inject() extends Mappings {
             } else {
               Invalid("supplierVatRegistrationDetails.vatNumber.error.format", countryVrnValidationOpt.map(_.vrnValidationRegex).getOrElse(""))
             }
-
-          // tODO: Also validate for vatNumber missing:  supplierVatRegistrationDetails.country.error.required
-
           case None =>
             Invalid("supplierVatRegistrationDetails.country.error.required", countryVrnValidationOpt.map(_.vrnValidationRegex).getOrElse(""))
         }

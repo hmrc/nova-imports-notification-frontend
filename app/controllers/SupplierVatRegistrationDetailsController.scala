@@ -18,7 +18,8 @@ package controllers
 
 import config.FrontendAppConfig
 import controllers.actions.*
-import controllers.utils.{IsDraftIdDefined, IsSupplierNumberInSession}
+import controllers.utils.RelocateError.*
+import controllers.utils.{IsDraftIdDefined, IsSupplierNumberInSession, RelocateError}
 import forms.SupplierVatRegistrationDetailsFormProvider
 import models.requests.DataRequest
 import models.{Mode, NovaUserType, SupplierNumber, VatNumberDetails}
@@ -46,6 +47,7 @@ class SupplierVatRegistrationDetailsController @Inject() (
 
   import SupplierVatRegistrationDetailsController.*
 
+
   val form: Form[VatNumberDetails] = formProvider(appConfig.vrnValidationList)
 
   def onPageLoad(supplierNumber: SupplierNumber, mode: Mode): Action[AnyContent] =
@@ -55,10 +57,11 @@ class SupplierVatRegistrationDetailsController @Inject() (
 
   def onSubmit(supplierNumber: SupplierNumber, mode: Mode): Action[AnyContent] =
     actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierNumber)).async { implicit request =>
-      form
-        .bindFromRequest()
+      relocateError(form.bindFromRequest(), "", "vatNumber")
         .fold(
-          formWithErrors => Future.successful(BadRequest(view(appConfig.vrnValidationList, formWithErrors, supplierNumber, mode))),
+          formWithErrors =>
+            Future.successful(BadRequest(view(appConfig.vrnValidationList, formWithErrors, supplierNumber, mode)))
+          ,
           supplierVatNumberDetails =>
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(SupplierVatRegistrationNumberPage, supplierVatNumberDetails))

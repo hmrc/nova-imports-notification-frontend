@@ -54,9 +54,9 @@
                 id = "countryCode",
                 name = "countryCode",
                 label = Label(content = HtmlContent(messages("supplierVatRegistrationDetails.label.country"))),
-                errorMessage = form("countryCode").error.map(fe => ErrorMessage(content = HtmlContent(fe.message), visuallyHiddenText = Some(messages("constants.error")))),
+                errorMessage = form("countryCode").error.map(fe => ErrorMessage(content = HtmlContent(messages(fe.message)))),
                 items = CountryFinderViewHelper.countriesToSelectItems(euCountriesVrnValidationList, form)
-            ).asAccessibleAutocomplete().withFormField(form("countryName"))
+            ).asAccessibleAutocomplete().withFormField(form("countryCode"))
         )
 
         @govukInput(

@@ -19,7 +19,7 @@ package models
 import play.api.libs.json.{Json, OFormat}
 
 final case class VatNumberDetails(
-  countryName: String,
+  countryCode: String,
   vatNumber: String
 )
 
