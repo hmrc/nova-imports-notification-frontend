@@ -20,6 +20,7 @@ import com.google.inject.{ImplementedBy, Inject, Singleton}
 import connectors.{GetDraftNotificationError, NovaImportsBackendConnector}
 import models.*
 import models.DraftNotification.SectionId
+import models.SectionStatus.Incomplete
 import models.draftsections.*
 import pages.sections.introduction.*
 import pages.sections.initialquestions.*

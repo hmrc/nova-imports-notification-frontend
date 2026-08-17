@@ -17,7 +17,6 @@
 package controllers
 
 import com.google.inject.Inject
-import config.FrontendAppConfig
 import controllers.actions.Actions
 import controllers.utils.IsDraftIdDefined
 import models.DraftNotification.SectionId
@@ -25,7 +24,6 @@ import models.requests.DataRequest
 import models.{BusinessOrPrivateIndividual, NormalMode, NotificationSummary, NovaUserType, PurchaserBusinessOrIndividual, PurchaserOrOnBehalf, SectionStatus, UserAnswers, UserContext}
 import pages.{DraftIdPage, NotificationTaskListPage}
 import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
-import pages.sections.notifieraddress.AddressJourneyIdPage
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
@@ -43,7 +41,7 @@ class NotificationTaskListController @Inject() (
   userDataService: UserDataService,
   sessionRepository: SessionRepository,
   view: NotificationTaskListView
-)(implicit ec: ExecutionContext, appConfig: FrontendAppConfig)
+)(implicit ec: ExecutionContext)
     extends BaseController
     with Logging {
 
@@ -134,18 +132,15 @@ object NotificationTaskListController {
       case NovaUserType.VatRegisteredOrganisation => false
     }
 
-  def determineSectionLink(sections: Map[String, SectionStatus], userAnswers: UserAnswers, userContext: UserContext)(implicit
-    appConfig: FrontendAppConfig
-  ): Map[String, String] =
+  def determineSectionLink(sections: Map[String, SectionStatus], userAnswers: UserAnswers, userContext: UserContext): Map[String, String] =
     sections.flatMap {
       case (section @ SectionId.NotifierDetails, status) =>
         if (status == SectionStatus.Completed) Map(section -> routes.YourDetailsCheckYourAnswersController.onPageLoad().url)
         else Map(section                                   -> notifierDetailsStartLink(userContext, userAnswers))
 
       case (section @ SectionId.NotifierAddress, status) =>
-        userAnswers.get(AddressJourneyIdPage) match
-          case Some(journeyId) if status == SectionStatus.Completed => Map(section -> appConfig.addressLookupFrontendConfirmPath(journeyId))
-          case _ => Map(section -> routes.IsYourAddressInTheUkController.onPageLoad(NormalMode).url)
+        if (status == SectionStatus.Completed) Map(section -> routes.YourAddressCheckYourAnswersController.onPageLoad().url)
+        else Map(section                                   -> routes.IsYourAddressInTheUkController.onPageLoad(NormalMode).url)
 
       case (section @ SectionId.PurchaserDetails, status) =>
         if (status == SectionStatus.Completed) Map(section -> routes.PurchaserDetailsCheckYourAnswersController.onPageLoad().url)

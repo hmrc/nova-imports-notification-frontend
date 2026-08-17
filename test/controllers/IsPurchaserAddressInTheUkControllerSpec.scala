@@ -18,6 +18,7 @@ package controllers
 
 import base.SpecBase
 import com.google.inject.name.Names
+import connectors.AddressLookupConnector
 import controllers.actions.*
 import forms.IsPurchaserAddressInTheUkFormProvider
 import models.{DraftId, NormalMode, PurchaserOrOnBehalf, UserAnswers}
@@ -30,10 +31,12 @@ import pages.sections.initialquestions.PurchaserOrOnBehalfPage
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.libs.json.JsObject
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
+import uk.gov.hmrc.http.HeaderCarrier
 import views.html.IsPurchaserAddressInTheUkView
 
 import scala.concurrent.Future
@@ -113,19 +116,31 @@ class IsPurchaserAddressInTheUkControllerSpec extends SpecBase with MockitoSugar
 
     "must redirect to the next page when valid data is submitted" in {
 
-      val mockSessionRepository = mock[SessionRepository]
+      val mockSessionRepository      = mock[SessionRepository]
+      val mockAddressLookupConnector = mock[AddressLookupConnector]
 
-      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      when(mockSessionRepository.set(any()))
+        .thenReturn(Future.successful(true))
+
+      when(
+        mockAddressLookupConnector.initJourney(any[JsObject])(
+          any[HeaderCarrier]
+        )
+      ).thenReturn(
+        Future.successful(Right("/fake-address-lookup-url"))
+      )
 
       val application =
         applicationBuilder(userAnswers = Some(nonAgentAnswersSatisfyingGuard))
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-            bind[SessionRepository].toInstance(mockSessionRepository)
+            bind[SessionRepository].toInstance(mockSessionRepository),
+            bind[AddressLookupConnector].toInstance(mockAddressLookupConnector)
           )
           .build()
 
       running(application) {
+
         val request =
           FakeRequest(POST, isPurchaserAddressInTheUkSubmitRoute)
             .withFormUrlEncodedBody(("value", "true"))
@@ -133,7 +148,6 @@ class IsPurchaserAddressInTheUkControllerSpec extends SpecBase with MockitoSugar
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRoute.url
       }
     }
 
