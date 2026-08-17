@@ -109,7 +109,7 @@ GET         /address-changed                                                    
 POST        /address-changed                                                             controllers.AddressChangedController.onSubmit()
 GET         /address-changed/change-address                                              controllers.AddressChangedController.onChangeAddress()
 
-GET         /add-address/address-lookup-callback                                         controllers.AddressLookupCallbackController.callback(id: Option[String] ?= None)
+GET         /add-address/address-lookup-callback                    controllers.AddressLookupCallbackController.callback(id: Option[String] ?= None)
 
 GET         /add-purchaser-address/address-lookup-callback                               controllers.AddressLookupCallbackController.purchaserCallback(id: Option[String] ?= None)
 
