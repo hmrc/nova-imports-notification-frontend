@@ -662,6 +662,18 @@ supplierBusinessName.error.length = The supplier’s business name must be 160 c
 supplierBusinessName.error.invalid = Enter the supplier’s business name in the correct format
 
 ###########################################################################################
+# AVD-S7.0 - Add vehicle details - Supplier 7.0: We've changed the supplier's address      #
+###########################################################################################
+
+supplierAddressChanged.title = We’ve changed the supplier’s address
+supplierAddressChanged.caption = Add vehicle details
+supplierAddressChanged.heading = We’ve changed the supplier’s address
+supplierAddressChanged.body = This could be because of invalid characters or some lines are too long.
+supplierAddressChanged.checkHeading = Check the updated address
+supplierAddressChanged.changeAddress = Change address
+supplierAddressChanged.confirmAddress = Confirm address
+
+###########################################################################################
 # AVD-S4.0 - Add vehicle details - Supplier 4.0: Supplier name                            #
 ###########################################################################################
 
