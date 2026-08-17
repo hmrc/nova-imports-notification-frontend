@@ -26,7 +26,7 @@ import pages.sections.notifierDetails.{BusinessNamePage, EmailAddressPage, NameD
 import pages.sections.notifieraddress.IsYourAddressInTheUkPage
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 import pages.sections.purchaserDetails.{PurchaserBusinessNamePage, PurchaserNamePage}
-import pages.sections.supplierDetails.{IsSupplierAddressInTheUkPage, IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierNumberPage, UsePersonalDetailsAsSupplierPage}
+import pages.sections.supplierDetails.{IsSupplierAddressInTheUkPage, IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierNumberPage, SupplierVatRegistrationNumberPage, UsePersonalDetailsAsSupplierPage}
 
 @Singleton
 class Navigator @Inject() () {
@@ -150,6 +150,13 @@ class Navigator @Inject() () {
             routes.LandingPageController.onPageLoad() // TODO: navigate to AVD-S9 when built (page variant depends on if individual or organisation)
           case _ => routes.JourneyRecoveryController.onPageLoad()
         }
+    case SupplierVatRegistrationNumberPage =>
+      (userAnswers, _) =>
+        userAnswers.get(SupplierVatRegistrationNumberPage) match {
+          case Some(vatNumberDetails) =>
+            routes.LandingPageController.onPageLoad() // TODO: navigate to AVD-S9 when built (page variant depends on if individual or organisation)
+          case _ => routes.JourneyRecoveryController.onPageLoad()
+        }
     case _ => (_, _) => routes.LandingPageController.onPageLoad()
   }
 
@@ -187,7 +194,7 @@ class Navigator @Inject() () {
     case PurchaserBusinessNamePage =>
       (_, _) => routes.PurchaserDetailsCheckYourAnswersController.onPageLoad()
     case SupplierBusinessOrIndividualPage | SupplierNamePage | SupplierBusinessNamePage | IsSupplierAddressInTheUkPage |
-        IsSupplierVatRegisteredPage =>
+        IsSupplierVatRegisteredPage | SupplierVatRegistrationNumberPage =>
 
       (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD-S9.0 CYA when built
     case _ =>
