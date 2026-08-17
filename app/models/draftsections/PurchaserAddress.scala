@@ -19,7 +19,7 @@ package models.draftsections
 import models.{Address, Country}
 import play.api.libs.json.{Format, Json}
 
-final case class NotifierAddress(
+final case class PurchaserAddress(
   line1: String,
   line2: String,
   line3: Option[String],
@@ -28,19 +28,20 @@ final case class NotifierAddress(
   country: Country
 )
 
-object NotifierAddress {
+object PurchaserAddress {
 
-  implicit val format: Format[NotifierAddress] = Json.format[NotifierAddress]
+  implicit val format: Format[PurchaserAddress] = Json.format[PurchaserAddress]
 
-  def fromAddress(address: Address): NotifierAddress = {
+  def fromAddress(address: Address): PurchaserAddress = {
+    val isUk  = address.country.code == "GB"
     val lines = address.lines.toIndexedSeq
 
-    NotifierAddress(
+    PurchaserAddress(
       line1 = lines.lift(0).getOrElse(""),
       line2 = lines.lift(1).getOrElse(""),
       line3 = lines.lift(2),
       line4 = lines.lift(3),
-      postCode = address.postcode,
+      postCode = if (isUk) address.postcode else None,
       country = address.country
     )
   }

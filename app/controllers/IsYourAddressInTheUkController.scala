@@ -16,12 +16,11 @@
 
 package controllers
 
-import config.FrontendAppConfig
 import controllers.actions.*
 import controllers.utils.IsDraftIdDefined
 import forms.IsYourAddressInTheUkFormProvider
-import models.Mode
 import models.requests.DataRequest
+import models.{AddressJourney, Mode}
 import pages.NotificationTaskListPage
 import pages.sections.initialquestions.VehicleBusinessUsePage
 import pages.sections.notifieraddress.IsYourAddressInTheUkPage
@@ -44,7 +43,7 @@ class IsYourAddressInTheUkController @Inject() (
   formProvider: IsYourAddressInTheUkFormProvider,
   view: IsYourAddressInTheUkView,
   addressLookupService: AddressLookupService
-)(implicit ec: ExecutionContext, appConfig: FrontendAppConfig)
+)(implicit ec: ExecutionContext)
     extends BaseController
     with Logging {
 
@@ -76,7 +75,7 @@ class IsYourAddressInTheUkController @Inject() (
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(IsYourAddressInTheUkPage, ukMode))
             _              <- sessionRepository.set(updatedAnswers)
-            initResult     <- addressLookupService.initJourney(ukMode, appConfig.addressLookupCallbackUrl)
+            initResult     <- addressLookupService.initJourney(AddressJourney.Notifier, ukMode)
           } yield initResult match {
             case Right(journeyUrl) =>
               Redirect(journeyUrl)

@@ -20,13 +20,16 @@ import controllers.actions.*
 import controllers.utils.{IsDraftIdDefined, IsSupplierNumberInSession}
 import forms.IsSupplierAddressInTheUkFormProvider
 import models.requests.DataRequest
-import models.{Mode, NovaUserType, SupplierNumber}
-import navigation.Navigator
+import models.{AddressJourney, Mode, SupplierNumber}
 import pages.sections.initialquestions.VehicleFromEuPage
 import pages.sections.supplierDetails.IsSupplierAddressInTheUkPage
+import play.api.Logging
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
+import services.AddressLookupService
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import views.html.IsSupplierAddressInTheUkView
 
 import javax.inject.Inject
@@ -35,12 +38,13 @@ import scala.concurrent.{ExecutionContext, Future}
 class IsSupplierAddressInTheUKController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   sessionRepository: SessionRepository,
-  navigator: Navigator,
   actions: Actions,
   formProvider: IsSupplierAddressInTheUkFormProvider,
-  view: IsSupplierAddressInTheUkView
+  view: IsSupplierAddressInTheUkView,
+  addressLookupService: AddressLookupService
 )(implicit ec: ExecutionContext)
-    extends BaseController {
+    extends BaseController
+    with Logging {
 
   import IsSupplierAddressInTheUKController.*
 
@@ -53,17 +57,26 @@ class IsSupplierAddressInTheUKController @Inject() (
 
   def onSubmit(supplierNumber: SupplierNumber, mode: Mode): Action[AnyContent] =
     actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierNumber)).async { implicit request =>
+      implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+
+      val journey = AddressJourney.Supplier(supplierNumber)
+
       form
         .bindFromRequest()
         .fold(
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, supplierNumber, mode))),
-          value =>
+          ukMode =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(IsSupplierAddressInTheUkPage, value))
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(IsSupplierAddressInTheUkPage, ukMode))
               _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(
-              navigator.nextPage(IsSupplierAddressInTheUkPage, mode, updatedAnswers, NovaUserType.from(request.affinityGroup, request.enrolments))
-            )
+              initResult     <- addressLookupService.initJourney(journey, ukMode)
+            } yield initResult match {
+              case Right(journeyUrl) =>
+                Redirect(journeyUrl)
+              case Left(error) =>
+                logger.warn(s"Failed to init supplier ALF journey (ukMode=$ukMode): $error")
+                Redirect(routes.JourneyRecoveryController.onPageLoad())
+            }
         )
     }
 

@@ -19,21 +19,21 @@ package models.draftsections
 import base.SpecBase
 import models.{Address, Country}
 
-class NotifierAddressSpec extends SpecBase {
+class PurchaserAddressSpec extends SpecBase {
 
   private val gb = Country("GB", "United Kingdom")
   private val de = Country("DE", "Germany")
 
-  "NotifierAddress.fromAddress (UK)" - {
+  "PurchaserAddress.fromAddress (UK)" - {
 
-    "must map ALF lines verbatim to line1..line4 and keep postcode" in {
+    "must map lines verbatim to line1..line4 and keep postcode" in {
       val address = Address(
         lines = Seq("12 High Street", "Apartment 5", "Mayfair", "Reading"),
         postcode = Some("RE12 9GC"),
         country = gb
       )
 
-      NotifierAddress.fromAddress(address) mustBe NotifierAddress(
+      PurchaserAddress.fromAddress(address) mustBe PurchaserAddress(
         line1 = "12 High Street",
         line2 = "Apartment 5",
         line3 = Some("Mayfair"),
@@ -43,62 +43,46 @@ class NotifierAddressSpec extends SpecBase {
       )
     }
 
-    "must leave line4 None when ALF returns fewer than four lines" in {
+    "must leave line4 None when fewer than four lines are supplied" in {
       val address = Address(lines = Seq("12 High Street", "Reading"), postcode = Some("RE12 9GC"), country = gb)
-      val result  = NotifierAddress.fromAddress(address)
+      val result  = PurchaserAddress.fromAddress(address)
       result.line1 mustBe "12 High Street"
       result.line2 mustBe "Reading"
       result.line3 mustBe None
       result.line4 mustBe None
     }
-
-    "must NOT put the country code in line4" in {
-      val address = Address(lines = Seq("Sole line"), postcode = Some("AA1 1AA"), country = gb)
-      val result  = NotifierAddress.fromAddress(address)
-      result.line4 mustBe None
-      result.country.code mustBe "GB"
-    }
   }
 
-  "NotifierAddress.fromAddress (non-UK)" - {
+  "PurchaserAddress.fromAddress (non-UK)" - {
 
-    "must map ALF lines verbatim to line1..line4" in {
+    "must map lines verbatim to line1..line4" in {
       val address = Address(
         lines = Seq("Musterstrasse 12", "Block A", "Mitte", "Berlin"),
         postcode = Some("10115"),
         country = de
       )
 
-      NotifierAddress.fromAddress(address) mustBe NotifierAddress(
+      PurchaserAddress.fromAddress(address) mustBe PurchaserAddress(
         line1 = "Musterstrasse 12",
         line2 = "Block A",
         line3 = Some("Mitte"),
         line4 = Some("Berlin"),
-        postCode = Some("10115"),
+        postCode = None,
         country = de
       )
     }
 
-    "must keep in the postcode for all addresses, both UK and overseas" in {
+    "must drop the postcode (non-UK has no postcode in the F4 payload)" in {
       val address = Address(lines = Seq("Line 1", "Town"), postcode = Some("10115"), country = de)
-      NotifierAddress.fromAddress(address).postCode mustBe Some("10115")
-    }
-
-    "must leave line3 None when ALF returns fewer than three lines" in {
-      val address = Address(lines = Seq("Musterstrasse 12", "Berlin"), postcode = None, country = de)
-      val result  = NotifierAddress.fromAddress(address)
-      result.line1 mustBe "Musterstrasse 12"
-      result.line2 mustBe "Berlin"
-      result.line3 mustBe None
-      result.line4 mustBe None
+      PurchaserAddress.fromAddress(address).postCode mustBe None
     }
   }
 
-  "NotifierAddress.fromAddress" - {
+  "PurchaserAddress.fromAddress" - {
 
     "must include the country object in the body" in {
       val address = Address(lines = Seq("Musterstrasse 12", "Berlin"), postcode = Some("10115"), country = de)
-      val json    = play.api.libs.json.Json.toJson(NotifierAddress.fromAddress(address))
+      val json    = play.api.libs.json.Json.toJson(PurchaserAddress.fromAddress(address))
       (json \ "country" \ "code").as[String] mustBe "DE"
       (json \ "country" \ "name").as[String] mustBe "Germany"
     }

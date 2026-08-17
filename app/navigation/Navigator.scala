@@ -133,13 +133,6 @@ class Navigator @Inject() () {
           case Some(false) => routes.LandingPageController.onPageLoad() // TODO: navigate to APA1.2 when built
           case _           => routes.JourneyRecoveryController.onPageLoad()
         }
-    case IsSupplierAddressInTheUkPage =>
-      (userAnswers, _) =>
-        userAnswers.get(IsSupplierAddressInTheUkPage) match {
-          case Some(true)  => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD-S6.0 when built
-          case Some(false) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD-S5.1a when built
-          case _           => routes.JourneyRecoveryController.onPageLoad()
-        }
     case IsSupplierVatRegisteredPage =>
       (userAnswers, _) =>
         userAnswers.get(IsSupplierVatRegisteredPage) match {

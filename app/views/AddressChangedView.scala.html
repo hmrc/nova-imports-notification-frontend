@@ -14,7 +14,6 @@
  * limitations under the License.
  *@
 
-@import controllers.routes
 @import models.Address
 
 @this(
@@ -23,35 +22,29 @@
     govukButton: GovukButton
 )
 
-@(address: Address)(implicit request: Request[?], messages: Messages)
+@(address: Address, keyPrefix: String, changeAddressLink: Call, submitCall: Call)(implicit request: Request[?], messages: Messages)
 
 @layout(
-    pageTitle = titleNoForm(messages("addressChanged.title")),
+    pageTitle = titleNoForm(messages(s"$keyPrefix.title")),
     showBackLink = true
 ) {
 
-    <span class="govuk-caption-l">@messages("addressChanged.caption")</span>
-    <h1 class="govuk-heading-l">@messages("addressChanged.heading")</h1>
+    <span class="govuk-caption-l">@messages(s"$keyPrefix.caption")</span>
+    <h1 class="govuk-heading-l">@messages(s"$keyPrefix.heading")</h1>
 
-    <p class="govuk-body">@messages("addressChanged.body")</p>
+    <p class="govuk-body">@messages(s"$keyPrefix.body")</p>
 
-    <h2 class="govuk-heading-m">@messages("addressChanged.checkHeading")</h2>
+    <h2 class="govuk-heading-s">@messages(s"$keyPrefix.checkHeading")</h2>
 
-    <div class="govuk-body">
-        @for(line <- address.lines) {
-            <p class="govuk-!-margin-bottom-0">@line</p>
-        }
-        @address.postcode.map { postcode =>
-            <p class="govuk-!-margin-bottom-0">@postcode</p>
-        }
-        <p class="govuk-!-margin-bottom-0">@address.country.name</p>
-    </div>
+    @defining(address.lines ++ (if(address.country.code == "GB") address.postcode.toSeq else Seq(address.country.name))) { addressLines =>
+        <p class="govuk-body">@for((line, index) <- addressLines.zipWithIndex) {@if(index > 0){<br>}@line}</p>
+    }
 
     <p class="govuk-body">
-        <a href="@routes.AddressChangedController.onChangeAddress()" class="govuk-link">@messages("addressChanged.changeAddress")</a>
+        <a href="@changeAddressLink" class="govuk-link">@messages(s"$keyPrefix.changeAddress")</a>
     </p>
 
-    @formHelper(action = routes.AddressChangedController.onSubmit()) {
-        @govukButton(ButtonViewModel(messages("site.saveAndContinue")))
+    @formHelper(action = submitCall) {
+        @govukButton(ButtonViewModel(messages(s"$keyPrefix.saveAndContinue")))
     }
 }

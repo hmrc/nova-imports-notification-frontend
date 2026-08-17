@@ -20,14 +20,17 @@ import controllers.actions.*
 import controllers.utils.IsDraftIdDefined
 import forms.IsPurchaserAddressInTheUkFormProvider
 import javax.inject.Inject
-import models.{Mode, NovaUserType, PurchaserOrOnBehalf}
+import models.{AddressJourney, Mode, PurchaserOrOnBehalf}
 import models.requests.DataRequest
-import navigation.Navigator
 import pages.sections.initialquestions.PurchaserOrOnBehalfPage
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
+import play.api.Logging
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
+import services.AddressLookupService
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import views.html.IsPurchaserAddressInTheUkView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -35,12 +38,13 @@ import scala.concurrent.{ExecutionContext, Future}
 class IsPurchaserAddressInTheUkController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   sessionRepository: SessionRepository,
-  navigator: Navigator,
   actions: Actions,
   formProvider: IsPurchaserAddressInTheUkFormProvider,
-  view: IsPurchaserAddressInTheUkView
+  view: IsPurchaserAddressInTheUkView,
+  addressLookupService: AddressLookupService
 )(implicit ec: ExecutionContext)
-    extends BaseController {
+    extends BaseController
+    with Logging {
 
   val form: Form[Boolean] = formProvider()
 
@@ -57,17 +61,23 @@ class IsPurchaserAddressInTheUkController @Inject() (
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate).async { implicit request =>
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
     form
       .bindFromRequest()
       .fold(
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
-        value =>
+        ukMode =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(IsPurchaserAddressInTheUkPage, value))
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(IsPurchaserAddressInTheUkPage, ukMode))
             _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(
-            navigator.nextPage(IsPurchaserAddressInTheUkPage, mode, updatedAnswers, NovaUserType.from(request.affinityGroup, request.enrolments))
-          )
+            initResult     <- addressLookupService.initJourney(AddressJourney.Purchaser, ukMode)
+          } yield initResult match {
+            case Right(journeyUrl) =>
+              Redirect(journeyUrl)
+            case Left(error) =>
+              logger.warn(s"Failed to init ALF journey (ukMode=$ukMode): $error")
+              Redirect(routes.JourneyRecoveryController.onPageLoad())
+          }
       )
   }
 }
