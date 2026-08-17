@@ -153,10 +153,10 @@ POST        /supplier/:supplierNumber/supplier-business-name                    
 GET         /supplier/:supplierNumber/supplier-business-name/change                      controllers.supplierdetails.SupplierBusinessNameController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = CheckMode)
 POST        /supplier/:supplierNumber/supplier-business-name/change                      controllers.supplierdetails.SupplierBusinessNameController.onSubmit(supplierNumber: SupplierNumber, mode: Mode = CheckMode)
 
-GET         /supplier/:supplierNumber/is-supplier-address-in-uk                          controllers.supplierdetails.IsSupplierAddressInTheUKController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = NormalMode)
-POST        /supplier/:supplierNumber/is-supplier-address-in-uk                          controllers.supplierdetails.IsSupplierAddressInTheUKController.onSubmit(supplierNumber: SupplierNumber, mode: Mode = NormalMode)
-GET         /supplier/:supplierNumber/is-supplier-address-in-uk/change                   controllers.supplierdetails.IsSupplierAddressInTheUKController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = CheckMode)
-POST        /supplier/:supplierNumber/is-supplier-address-in-uk/change                   controllers.supplierdetails.IsSupplierAddressInTheUKController.onSubmit(supplierNumber: SupplierNumber, mode: Mode = CheckMode)
+GET         /supplier/:supplierNumber/is-supplier-address-in-uk                          controllers.supplieraddress.IsSupplierAddressInTheUKController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = NormalMode)
+POST        /supplier/:supplierNumber/is-supplier-address-in-uk                          controllers.supplieraddress.IsSupplierAddressInTheUKController.onSubmit(supplierNumber: SupplierNumber, mode: Mode = NormalMode)
+GET         /supplier/:supplierNumber/is-supplier-address-in-uk/change                   controllers.supplieraddress.IsSupplierAddressInTheUKController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = CheckMode)
+POST        /supplier/:supplierNumber/is-supplier-address-in-uk/change                   controllers.supplieraddress.IsSupplierAddressInTheUKController.onSubmit(supplierNumber: SupplierNumber, mode: Mode = CheckMode)
 
 GET         /supplier/:supplierNumber/is-supplier-vat-registered                         controllers.supplierdetails.IsSupplierVatRegisteredController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = NormalMode)
 POST        /supplier/:supplierNumber/is-supplier-vat-registered                         controllers.supplierdetails.IsSupplierVatRegisteredController.onSubmit(supplierNumber: SupplierNumber, mode: Mode = NormalMode)

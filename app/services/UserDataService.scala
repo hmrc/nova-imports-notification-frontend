@@ -20,7 +20,6 @@ import com.google.inject.{ImplementedBy, Inject, Singleton}
 import connectors.{GetDraftNotificationError, NovaImportsBackendConnector}
 import models.*
 import models.DraftNotification.SectionId
-import models.SectionStatus.Incomplete
 import models.draftsections.*
 import pages.sections.introduction.*
 import pages.sections.initialquestions.*
@@ -29,7 +28,7 @@ import play.api.libs.json.*
 import repositories.SessionRepository
 import uk.gov.hmrc.http.HeaderCarrier
 import services.UserDataService.*
-import pages.{AgentClientVehicleBusinessUsePage, AgentSelectedClientPage}
+import pages.AgentSelectedClientPage
 import pages.sections.notifierdetails.{BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 import pages.sections.purchaseraddress.{IsPurchaserAddressInTheUkPage, PurchaserAddressPage}

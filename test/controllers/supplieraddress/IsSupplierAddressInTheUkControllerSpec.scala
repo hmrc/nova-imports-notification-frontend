@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package controllers.supplierdetails
+package controllers.supplieraddress
 
 import base.SpecBase
 import connectors.AddressLookupError
-import controllers.{routes, supplierdetails}
+import controllers.{routes, supplieraddress}
 import forms.IsSupplierAddressInTheUkFormProvider
 import models.{AddressJourney, CheckMode, DraftId, Mode, NormalMode, SupplierNumber, UserAnswers}
 import org.mockito.ArgumentCaptor
@@ -27,7 +27,8 @@ import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.DraftIdPage
 import pages.sections.initialquestions.VehicleFromEuPage
-import pages.sections.supplierdetails.{IsSupplierAddressInTheUkPage, SupplierNumberPage}
+import pages.sections.supplierdetails.SupplierNumberPage
+import pages.sections.supplieraddress.IsSupplierAddressInTheUkPage
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -52,9 +53,9 @@ class IsSupplierAddressInTheUkControllerSpec extends SpecBase with MockitoSugar 
   private val form         = formProvider()
 
   private lazy val isSupplierAddressInTheUkRoute =
-    supplierdetails.routes.IsSupplierAddressInTheUKController.onPageLoad(SupplierNumber(1), NormalMode).url
+    supplieraddress.routes.IsSupplierAddressInTheUKController.onPageLoad(SupplierNumber(1), NormalMode).url
   private def isSupplierAddressInTheUkSubmitRoute(supplierNumber: SupplierNumber, mode: Mode = NormalMode) =
-    supplierdetails.routes.IsSupplierAddressInTheUKController.onSubmit(supplierNumber, mode).url
+    supplieraddress.routes.IsSupplierAddressInTheUKController.onSubmit(supplierNumber, mode).url
 
   private val userAnswersWithGuardData: UserAnswers = emptyUserAnswers
     .set(DraftIdPage, DraftId("DRAFT-001"))

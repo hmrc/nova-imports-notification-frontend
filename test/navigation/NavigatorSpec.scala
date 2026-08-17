@@ -17,7 +17,7 @@
 package navigation
 
 import base.SpecBase
-import controllers.{initialquestions, notifierdetails, purchaserdetails, routes, supplierdetails}
+import controllers.{initialquestions, notifierdetails, purchaserdetails, routes, supplieraddress, supplierdetails}
 import pages.*
 import models.*
 import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
@@ -494,7 +494,7 @@ class NavigatorSpec extends SpecBase {
           NormalMode,
           userAnswers,
           NovaUserType.VatRegisteredOrganisation
-        ) mustBe supplierdetails.routes.IsSupplierAddressInTheUKController.onPageLoad(SupplierNumber(1), NormalMode)
+        ) mustBe supplieraddress.routes.IsSupplierAddressInTheUKController.onPageLoad(SupplierNumber(1), NormalMode)
       }
 
       "must go from SupplierBusinessNamePage to the supplier address page" in {
@@ -503,7 +503,7 @@ class NavigatorSpec extends SpecBase {
           NormalMode,
           userAnswers,
           NovaUserType.VatRegisteredOrganisation
-        ) mustBe supplierdetails.routes.IsSupplierAddressInTheUKController.onPageLoad(SupplierNumber(1), NormalMode)
+        ) mustBe supplieraddress.routes.IsSupplierAddressInTheUKController.onPageLoad(SupplierNumber(1), NormalMode)
       }
 
       "must go from SupplierBusinessNamePage to the supplier address page for the supplier number in session" in {
@@ -513,7 +513,7 @@ class NavigatorSpec extends SpecBase {
           NormalMode,
           ua,
           NovaUserType.VatRegisteredOrganisation
-        ) mustBe supplierdetails.routes.IsSupplierAddressInTheUKController.onPageLoad(SupplierNumber(3), NormalMode)
+        ) mustBe supplieraddress.routes.IsSupplierAddressInTheUKController.onPageLoad(SupplierNumber(3), NormalMode)
       }
 
       "must go from SupplierBusinessOrIndividualPage AVD-S2.0 to JourneyRecovery when no answer is found" in {

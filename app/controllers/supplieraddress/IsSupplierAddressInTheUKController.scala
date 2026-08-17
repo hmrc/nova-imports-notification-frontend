@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers.supplierdetails
+package controllers.supplieraddress
 
 import controllers.{BaseController, routes}
 import controllers.actions.*
@@ -23,7 +23,7 @@ import forms.IsSupplierAddressInTheUkFormProvider
 import models.requests.DataRequest
 import models.{AddressJourney, Mode, SupplierNumber}
 import pages.sections.initialquestions.VehicleFromEuPage
-import pages.sections.supplierdetails.IsSupplierAddressInTheUkPage
+import pages.sections.supplieraddress.IsSupplierAddressInTheUkPage
 import play.api.Logging
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}

@@ -18,7 +18,7 @@ package navigation
 
 import javax.inject.{Inject, Singleton}
 import play.api.mvc.Call
-import controllers.{initialquestions, notifierdetails, purchaserdetails, routes, supplierdetails}
+import controllers.{initialquestions, notifierdetails, purchaserdetails, routes, supplieraddress, supplierdetails}
 import pages.*
 import models.*
 import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
@@ -27,7 +27,8 @@ import pages.sections.vehicledetails.AddVehicleDetailsPage
 import pages.sections.notifieraddress.IsYourAddressInTheUkPage
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
-import pages.sections.supplierdetails.{IsSupplierAddressInTheUkPage, IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierNumberPage, UsePersonalDetailsAsSupplierPage}
+import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierNumberPage, UsePersonalDetailsAsSupplierPage}
+import pages.sections.supplieraddress.IsSupplierAddressInTheUkPage
 
 @Singleton
 class Navigator @Inject() () {
@@ -125,7 +126,7 @@ class Navigator @Inject() () {
         }
     case SupplierNamePage | SupplierBusinessNamePage =>
       (userAnswers, _) =>
-        supplierdetails.routes.IsSupplierAddressInTheUKController
+        supplieraddress.routes.IsSupplierAddressInTheUKController
           .onPageLoad(SupplierNumber(userAnswers.get(SupplierNumberPage).getOrElse(1)), NormalMode)
     case IsPurchaserAddressInTheUkPage =>
       (userAnswers, _) =>

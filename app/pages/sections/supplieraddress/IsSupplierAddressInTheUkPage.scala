@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package pages.sections.supplierdetails
+package pages.sections.supplieraddress
 
 import pages.QuestionPage
 import play.api.libs.json.JsPath
 
 case object IsSupplierAddressInTheUkPage extends QuestionPage[Boolean] {
 
+  // TODO: This supplier-details will get updated with supplier and vehicle FE session schema changes
   override def path: JsPath = JsPath \ "supplier-details" \ toString
 
   override def toString: String = "isSupplierAddressInTheUk"
