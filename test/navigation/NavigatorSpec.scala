@@ -286,6 +286,37 @@ class NavigatorSpec extends SpecBase {
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
 
+      "must go from AddImportVehicleDetailsPage AVD1.1 to LandingPage when ByImportEntryNumber is selected" in {
+        // TODO: navigate to the import entry number flow when built
+        val ua = userAnswers.set(AddImportVehicleDetailsPage, AddImportVehicleDetails.ByImportEntryNumber).success.value
+        navigator.nextPage(
+          AddImportVehicleDetailsPage,
+          NormalMode,
+          ua,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from AddImportVehicleDetailsPage AVD1.1 to LandingPage when BySpreadsheet is selected" in {
+        // TODO: navigate to spreadsheet upload flow when built
+        val ua = userAnswers.set(AddImportVehicleDetailsPage, AddImportVehicleDetails.BySpreadsheet).success.value
+        navigator.nextPage(
+          AddImportVehicleDetailsPage,
+          NormalMode,
+          ua,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from AddImportVehicleDetailsPage AVD1.1 to JourneyRecovery when no answer is found" in {
+        navigator.nextPage(
+          AddImportVehicleDetailsPage,
+          NormalMode,
+          userAnswers,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
       "must go from UsePersonalDetailsAsSupplierPage AVD-S1.0 to LandingPage when Yes is selected" in {
         // TODO: navigate to CYA3.0 when implemented
         val ua = userAnswers.set(UsePersonalDetailsAsSupplierPage, true).success.value

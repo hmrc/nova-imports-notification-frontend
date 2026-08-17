@@ -121,6 +121,11 @@ POST        /vehicles-brought-from-eu                                           
 GET         /vehicles-brought-from-eu/change                                             controllers.AddVehicleDetailsController.onPageLoad(mode: Mode = CheckMode)
 POST        /vehicles-brought-from-eu/change                                             controllers.AddVehicleDetailsController.onSubmit(mode: Mode = CheckMode)
 
+GET         /vehicles-brought-from-outside-uk-or-eu                                      controllers.AddImportVehicleDetailsController.onPageLoad(mode: Mode = NormalMode)
+POST        /vehicles-brought-from-outside-uk-or-eu                                      controllers.AddImportVehicleDetailsController.onSubmit(mode: Mode = NormalMode)
+GET         /vehicles-brought-from-outside-uk-or-eu/change                               controllers.AddImportVehicleDetailsController.onPageLoad(mode: Mode = CheckMode)
+POST        /vehicles-brought-from-outside-uk-or-eu/change                               controllers.AddImportVehicleDetailsController.onSubmit(mode: Mode = CheckMode)
+
 GET         /check-answers/your-details                                                  controllers.YourDetailsCheckYourAnswersController.onPageLoad()
 POST        /check-answers/your-details                                                  controllers.YourDetailsCheckYourAnswersController.onSubmit()
 

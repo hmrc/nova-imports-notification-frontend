@@ -90,6 +90,16 @@ class Navigator @Inject() () {
             routes.LandingPageController.onPageLoad() // TODO: navigate to spreadsheet upload flow when built
           case _ => routes.JourneyRecoveryController.onPageLoad()
         }
+    case AddImportVehicleDetailsPage =>
+      (userAnswers, _) =>
+        userAnswers.get(AddImportVehicleDetailsPage) match {
+          // AVD1.1 continue navigation is TBC - both options land on a placeholder until those screens are built.
+          case Some(AddImportVehicleDetails.ByImportEntryNumber) =>
+            routes.LandingPageController.onPageLoad() // TODO: navigate to the import entry number flow when built
+          case Some(AddImportVehicleDetails.BySpreadsheet) =>
+            routes.LandingPageController.onPageLoad() // TODO: navigate to spreadsheet upload flow when built
+          case _ => routes.JourneyRecoveryController.onPageLoad()
+        }
     case UsePersonalDetailsAsSupplierPage =>
       (userAnswers, _) =>
         userAnswers.get(UsePersonalDetailsAsSupplierPage) match {
