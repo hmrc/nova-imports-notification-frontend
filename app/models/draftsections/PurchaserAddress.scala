@@ -33,6 +33,7 @@ object PurchaserAddress {
   implicit val format: Format[PurchaserAddress] = Json.format[PurchaserAddress]
 
   def fromAddress(address: Address): PurchaserAddress = {
+    val isUk  = address.country.code == "GB"
     val lines = address.lines.toIndexedSeq
 
     PurchaserAddress(
@@ -40,7 +41,7 @@ object PurchaserAddress {
       line2 = lines.lift(1).getOrElse(""),
       line3 = lines.lift(2),
       line4 = lines.lift(3),
-      postCode = address.postcode,
+      postCode = if (isUk) address.postcode else None,
       country = address.country
     )
   }

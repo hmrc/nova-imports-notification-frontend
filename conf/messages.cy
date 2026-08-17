@@ -158,6 +158,18 @@ isPurchaserAddressInTheUk.heading = Is the purchaser’s address in the UK?
 isPurchaserAddressInTheUk.caption = Add purchaser address
 isPurchaserAddressInTheUk.error.required = Select yes if the purchaser’s address is in the UK
 
+###################################################################
+# APA3.0 - Add purchaser address 3.0: We've changed the purchaser's address #
+###################################################################
+# TODO: Welsh translations to be supplied by content team.
+
+purchaserAddressChanged.title = We’ve changed the purchaser’s address
+purchaserAddressChanged.caption = Add purchaser address
+purchaserAddressChanged.heading = We’ve changed the purchaser’s address
+purchaserAddressChanged.body = This could be because of invalid characters or some lines are too long.
+purchaserAddressChanged.checkHeading = Check the updated address
+purchaserAddressChanged.changeAddress = Change address
+
 ###########################################################
 # Address lookup (ALF) journey labels                     #
 ###########################################################
