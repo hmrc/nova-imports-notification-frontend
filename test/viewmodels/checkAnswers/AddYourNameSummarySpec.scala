@@ -17,9 +17,9 @@
 package viewmodels.checkAnswers
 
 import base.SpecBase
-import controllers.routes
+import controllers.notifierdetails.routes
 import models.{CheckMode, NameDetails, UserAnswers}
-import pages.sections.notifierDetails.NameDetailsPage
+import pages.sections.notifierdetails.NameDetailsPage
 import play.api.Application
 import play.api.i18n.Messages
 

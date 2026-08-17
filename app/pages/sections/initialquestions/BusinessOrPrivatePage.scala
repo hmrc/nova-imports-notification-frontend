@@ -18,7 +18,7 @@ package pages.sections.initialquestions
 
 import models.{BusinessOrPrivateIndividual, UserAnswers}
 import pages.QuestionPage
-import pages.sections.notifierDetails.{BusinessNamePage, NameDetailsPage}
+import pages.sections.notifierdetails.{BusinessNamePage, NameDetailsPage}
 import play.api.libs.json.JsPath
 
 import scala.util.Try

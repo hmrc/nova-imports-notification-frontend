@@ -16,7 +16,7 @@
 
 package viewmodels.checkAnswers
 
-import controllers.routes
+import controllers.initialquestions.routes
 import models.{CheckMode, PurchaserOrOnBehalf, UserAnswers}
 import pages.sections.initialquestions.PurchaserOrOnBehalfPage
 import play.api.i18n.Messages

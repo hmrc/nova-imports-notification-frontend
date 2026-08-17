@@ -28,7 +28,7 @@ import pages.{DraftIdPage, DraftVersionIdPage}
 import pages.sections.initialquestions.PurchaserOrOnBehalfPage
 import pages.sections.notifieraddress.{AddressJourneyIdPage, AddressPage}
 import pages.sections.purchaseraddress.{PurchaserAddressJourneyIdPage, PurchaserAddressPage}
-import pages.sections.supplierDetails.{IsSupplierAddressInTheUkPage, SupplierNumberPage}
+import pages.sections.supplierdetails.{IsSupplierAddressInTheUkPage, SupplierNumberPage}
 import pages.sections.supplieraddress.{SupplierAddressJourneyIdPage, SupplierAddressPage}
 import play.api.Application
 import play.api.inject.bind
@@ -183,7 +183,7 @@ class AddressChangedControllerSpec extends SpecBase with MockitoSugar {
         val result  = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.IsYourAddressInTheUkController.onPageLoad(NormalMode).url
+        redirectLocation(result).value mustEqual notifieraddress.routes.IsYourAddressInTheUkController.onPageLoad(NormalMode).url
 
         val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(sessionRepository).set(captor.capture())
@@ -272,7 +272,7 @@ class AddressChangedControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, FakeRequest(GET, supplierChangeAddressRoute)).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.IsSupplierAddressInTheUKController.onPageLoad(supplierNumber, NormalMode).url
+        redirectLocation(result).value mustEqual supplierdetails.routes.IsSupplierAddressInTheUKController.onPageLoad(supplierNumber, NormalMode).url
 
         val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(sessionRepository).set(captor.capture())

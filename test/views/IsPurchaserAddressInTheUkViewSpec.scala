@@ -95,7 +95,7 @@ class IsPurchaserAddressInTheUkViewSpec extends SpecBase with Matchers with Befo
     "must post to the IsPurchaserAddressInTheUk submit URL" in {
       val html: String = view(form, NormalMode)(request, msgs).toString
 
-      html must include(s"""action="${controllers.routes.IsPurchaserAddressInTheUkController.onSubmit(NormalMode).url}"""")
+      html must include(s"""action="${controllers.purchaseraddress.routes.IsPurchaserAddressInTheUkController.onSubmit(NormalMode).url}"""")
     }
 
     "must render the same content via the render method" in {

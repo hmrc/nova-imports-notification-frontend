@@ -17,7 +17,7 @@
 package pages
 
 import base.SpecBase
-import pages.sections.purchaserDetails.PurchaserBusinessNamePage
+import pages.sections.purchaserdetails.PurchaserBusinessNamePage
 
 class PurchaserBusinessNamePageSpec extends SpecBase {
 

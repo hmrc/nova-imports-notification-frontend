@@ -20,7 +20,7 @@ import base.SpecBase
 import models.{NameDetails, UserAnswers, UserContext}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.must.Matchers
-import pages.sections.purchaserDetails.{PurchaserBusinessNamePage, PurchaserNamePage}
+import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 import play.api.Application
 import play.api.i18n.Messages
 import play.api.mvc.Request

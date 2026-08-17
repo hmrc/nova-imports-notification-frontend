@@ -16,9 +16,9 @@
 
 package viewmodels.checkAnswers
 
-import controllers.routes
+import controllers.initialquestions.routes
 import models.{CheckMode, UserAnswers}
-import pages.AgentClientVehicleBusinessUsePage
+import pages.sections.initialquestions.AgentClientVehicleBusinessUsePage
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*

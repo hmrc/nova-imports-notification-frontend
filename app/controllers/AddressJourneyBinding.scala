@@ -24,7 +24,7 @@ import pages.QuestionPage
 import pages.sections.initialquestions.PurchaserOrOnBehalfPage
 import pages.sections.notifieraddress.{AddressJourneyIdPage, AddressPage}
 import pages.sections.purchaseraddress.{PurchaserAddressJourneyIdPage, PurchaserAddressPage}
-import pages.sections.supplierDetails.IsSupplierAddressInTheUkPage
+import pages.sections.supplierdetails.IsSupplierAddressInTheUkPage
 import pages.sections.supplieraddress.{SupplierAddressJourneyIdPage, SupplierAddressPage}
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
@@ -62,7 +62,7 @@ object AddressJourneyBinding {
     addressChangedPage = routes.AddressChangedController.onPageLoad(),
     addressChangedSubmit = routes.AddressChangedController.onSubmit(),
     changeAddressLink = routes.AddressChangedController.onChangeAddress(),
-    restartAt = routes.IsYourAddressInTheUkController.onPageLoad(NormalMode),
+    restartAt = notifieraddress.routes.IsYourAddressInTheUkController.onPageLoad(NormalMode),
     messageKeyPrefix = "addressChanged"
   )
 
@@ -79,7 +79,7 @@ object AddressJourneyBinding {
     addressChangedPage = routes.AddressChangedController.supplierOnPageLoad(number),
     addressChangedSubmit = routes.AddressChangedController.supplierOnSubmit(number),
     changeAddressLink = routes.AddressChangedController.supplierOnChangeAddress(number),
-    restartAt = routes.IsSupplierAddressInTheUKController.onPageLoad(number, NormalMode),
+    restartAt = supplierdetails.routes.IsSupplierAddressInTheUKController.onPageLoad(number, NormalMode),
     messageKeyPrefix = "supplierAddressChanged"
   )
 

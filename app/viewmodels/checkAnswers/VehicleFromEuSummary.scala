@@ -16,7 +16,7 @@
 
 package viewmodels.checkAnswers
 
-import controllers.routes
+import controllers.initialquestions.routes
 import models.{CheckMode, UserAnswers}
 import pages.sections.initialquestions.VehicleFromEuPage
 import play.api.i18n.Messages

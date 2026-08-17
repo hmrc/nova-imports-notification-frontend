@@ -30,8 +30,8 @@ import repositories.SessionRepository
 import uk.gov.hmrc.http.HeaderCarrier
 import services.UserDataService.*
 import pages.{AgentClientVehicleBusinessUsePage, AgentSelectedClientPage}
-import pages.sections.notifierDetails.{BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
-import pages.sections.purchaserDetails.{PurchaserBusinessNamePage, PurchaserNamePage}
+import pages.sections.notifierdetails.{BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
+import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 import pages.sections.purchaseraddress.{IsPurchaserAddressInTheUkPage, PurchaserAddressPage}
 
 import scala.concurrent.{ExecutionContext, Future}

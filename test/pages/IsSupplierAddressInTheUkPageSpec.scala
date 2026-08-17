@@ -17,7 +17,7 @@
 package pages
 
 import base.SpecBase
-import pages.sections.supplierDetails.IsSupplierAddressInTheUkPage
+import pages.sections.supplierdetails.IsSupplierAddressInTheUkPage
 
 class IsSupplierAddressInTheUkPageSpec extends SpecBase {
 

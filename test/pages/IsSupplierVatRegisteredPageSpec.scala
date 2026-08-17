@@ -17,7 +17,7 @@
 package pages
 
 import base.SpecBase
-import pages.sections.supplierDetails.IsSupplierVatRegisteredPage
+import pages.sections.supplierdetails.IsSupplierVatRegisteredPage
 
 class IsSupplierVatRegisteredPageSpec extends SpecBase {
 
