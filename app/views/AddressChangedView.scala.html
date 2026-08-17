@@ -36,18 +36,9 @@
 
     <h2 class="govuk-heading-s">@messages(s"$keyPrefix.checkHeading")</h2>
 
-    <div class="govuk-body">
-        @for(line <- address.lines) {
-            <p class="govuk-!-margin-bottom-0">@line</p>
-        }
-        @if(address.country.code == "GB") {
-            @address.postcode.map { postcode =>
-                <p class="govuk-!-margin-bottom-0">@postcode</p>
-            }
-        } else {
-            <p class="govuk-!-margin-bottom-0">@address.country.name</p>
-        }
-    </div>
+    @defining(address.lines ++ (if(address.country.code == "GB") address.postcode.toSeq else Seq(address.country.name))) { addressLines =>
+        <p class="govuk-body">@for((line, index) <- addressLines.zipWithIndex) {@if(index > 0){<br>}@line}</p>
+    }
 
     <p class="govuk-body">
         <a href="@changeAddressLink" class="govuk-link">@messages(s"$keyPrefix.changeAddress")</a>
