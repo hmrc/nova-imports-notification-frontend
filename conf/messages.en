@@ -412,6 +412,18 @@ isPurchaserAddressInTheUk.heading = Is the purchaser’s address in the UK?
 isPurchaserAddressInTheUk.caption = Add purchaser address
 isPurchaserAddressInTheUk.error.required = Select yes if the purchaser’s address is in the UK
 
+##################################################################
+# APA2.0 - Add purchaser address 2.0: We've changed their address #
+##################################################################
+
+purchaserAddressChanged.title = We’ve changed the purchaser’s address
+purchaserAddressChanged.caption = Add purchaser address
+purchaserAddressChanged.heading = We’ve changed the purchaser’s address
+purchaserAddressChanged.body = This could be because of invalid characters or some lines are too long.
+purchaserAddressChanged.checkHeading = Check the updated address
+purchaserAddressChanged.changeAddress = Change address
+purchaserAddressChanged.saveAndContinue = Save and continue
+
 ###########################################################
 # AYA3.0 - Add your address 3.0: We've changed your address #
 ###########################################################
@@ -422,6 +434,19 @@ addressChanged.heading = We’ve changed your address
 addressChanged.body = This could be because of invalid characters or some lines are too long.
 addressChanged.checkHeading = Check the updated address
 addressChanged.changeAddress = Change address
+addressChanged.saveAndContinue = Save and continue
+
+##########################################################################
+# AVD-S7.0 - Add vehicle details: We've changed the supplier's address   #
+##########################################################################
+
+supplierAddressChanged.title = We’ve changed the supplier’s address
+supplierAddressChanged.caption = Add vehicle details
+supplierAddressChanged.heading = We’ve changed the supplier’s address
+supplierAddressChanged.body = This could be because of invalid characters or some lines are too long.
+supplierAddressChanged.checkHeading = Check the updated address
+supplierAddressChanged.changeAddress = Change address
+supplierAddressChanged.saveAndContinue = Confirm address
 
 ###########################################################
 # Address lookup (ALF) journey labels                     #
@@ -449,14 +474,42 @@ addressLookup.edit.townLabel = Address line 4
 addressLookup.edit.countryLabel = Country
 addressLookup.confirm.title = Review and confirm your address
 addressLookup.confirm.heading = Review and confirm your address
+addressLookup.confirm.submitLabel = Save and continue
 addressLookup.error.line1Length = Address line 1 must be 35 characters or less
 addressLookup.error.line2Length = Address line 2 must be 35 characters or less
 addressLookup.error.line3Length = Address line 3 must be 35 characters or less
 addressLookup.error.townLength = Address line 4 must be 35 characters or less
+addressLookup.error.line1Required = Enter address line 1, typically the building and street
+addressLookup.error.line2Required = Enter address line 2
 addressLookup.error.townRequired = Enter address line 4
 addressLookup.error.countryRequired = Enter a country
 addressLookup.error.countryPickerRequired = Select country or territory of your address
+# Same wording as ALF's defaults, declared here so the copy is ours to change and translate
+addressLookup.countryPicker.title = Select your country or territory
+addressLookup.countryPicker.heading = Select your country or territory
 addressLookup.countryPicker.countryLabel = Select country or territory
+
+###############################################################################
+# Address lookup (ALF) labels for the supplier journey (AVD-S5.1a - AVD-S6.3) #
+# Only the keys whose copy differs from the shared labels above               #
+###############################################################################
+
+addressLookup.supplier.uk.lookup.title = Find the supplier’s address
+addressLookup.supplier.uk.lookup.heading = Find the supplier’s address
+addressLookup.supplier.uk.select.title = Choose the supplier’s address
+addressLookup.supplier.uk.select.heading = Choose the supplier’s address
+addressLookup.supplier.uk.select.proposalListLabel = Select the supplier’s address
+addressLookup.supplier.uk.edit.title = Enter the supplier’s address
+addressLookup.supplier.uk.edit.heading = Enter the supplier’s address
+addressLookup.supplier.nonUk.edit.title = Enter the supplier’s address
+addressLookup.supplier.nonUk.edit.heading = Enter the supplier’s address
+addressLookup.supplier.confirm.title = Review and confirm the supplier’s address
+addressLookup.supplier.confirm.heading = Review and confirm the supplier’s address
+addressLookup.supplier.confirm.submitLabel = Confirm address
+addressLookup.supplier.countryPicker.title = Enter the country or territory of the supplier’s address
+addressLookup.supplier.countryPicker.heading = Enter the country or territory of the supplier’s address
+addressLookup.supplier.countryPicker.countryLabel = Country or territory
+addressLookup.supplier.error.countryPickerRequired = Enter the country or territory of the supplier’s address
 
 ######################################################
 # AYD1.2 - Add your details 1.2: Phone number        #
@@ -648,3 +701,13 @@ isSupplierVatRegistered.title = Is the supplier VAT registered?
 isSupplierVatRegistered.heading = Is the supplier VAT registered?
 isSupplierVatRegistered.caption = Add vehicle details
 isSupplierVatRegistered.error.required = Select yes if the supplier is VAT registered
+
+######################################################
+# CYA3.0 - Check your answers 3.0 - Your address     #
+######################################################
+
+yourAddressCheckYourAnswers.caption = Add your address
+yourAddressCheckYourAnswers.title = Check your answers - your address
+yourAddressCheckYourAnswers.heading = Check your answers
+yourAddressCheckYourAnswers.change.hidden = your address
+yourAddressCheckYourAnswers.checkYourAnswersLabel = Address
