@@ -18,7 +18,7 @@ package views
 
 import base.SpecBase
 import controllers.routes
-import models.{Address, Country, NormalMode, SupplierNumber}
+import models.{Address, Country, SupplierNumber}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.must.Matchers
 import play.api.Application
