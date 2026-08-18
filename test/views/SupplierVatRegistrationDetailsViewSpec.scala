@@ -44,7 +44,7 @@ class SupplierVatRegistrationDetailsViewSpec extends SpecBase with Matchers with
     super.afterAll()
   }
 
-  val appConfig = app.injector.instanceOf[FrontendAppConfig]
+  val appConfig    = app.injector.instanceOf[FrontendAppConfig]
   val formProvider = new SupplierVatRegistrationDetailsFormProvider()
   val form         = formProvider(appConfig.vrnValidationList)
 

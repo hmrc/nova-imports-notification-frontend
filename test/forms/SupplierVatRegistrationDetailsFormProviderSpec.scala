@@ -27,10 +27,10 @@ class SupplierVatRegistrationDetailsFormProviderSpec extends StringFieldBehaviou
   val requiredFirstKey = "supplierVatRegistrationDetails.vatNumber.error.required"
   val formatFirstKey   = "supplierVatRegistrationDetails.vatNumber.error.format"
 
-  val countryRegex = "[A-HJ-NP-Z0-9]{1}[A-HJ-NP-Z0-9]{1}[0-9]{9}"
-  val countryCode = "FR"
+  val countryRegex          = "[A-HJ-NP-Z0-9]{1}[A-HJ-NP-Z0-9]{1}[0-9]{9}"
+  val countryCode           = "FR"
   val testCountryValidation = CountryVrnValidation(countryCode, "France", "France", countryRegex)
-  val form = new SupplierVatRegistrationDetailsFormProvider()(Seq(testCountryValidation))
+  val form                  = new SupplierVatRegistrationDetailsFormProvider()(Seq(testCountryValidation))
 
   ".countryCode" - {
     val fieldName = "countryCode"
@@ -52,7 +52,7 @@ class SupplierVatRegistrationDetailsFormProviderSpec extends StringFieldBehaviou
     )
 
     "must not bind strings with invalid formats for given country" in {
-      val invalid      = Seq("A123", "AA1234567891", "A123456789")
+      val invalid   = Seq("A123", "AA1234567891", "A123456789")
       val rootField = ""
 
       invalid.foreach { value =>
@@ -62,7 +62,7 @@ class SupplierVatRegistrationDetailsFormProviderSpec extends StringFieldBehaviou
     }
 
     "must bind strings with valid formats for given country" in {
-      val invalid      = Seq("AA123456789", "HJ123456789", "X9123456789")
+      val invalid   = Seq("AA123456789", "HJ123456789", "X9123456789")
       val rootField = ""
 
       invalid.foreach { value =>

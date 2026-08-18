@@ -364,7 +364,6 @@ class NavigatorSpec extends SpecBase {
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
 
-
       "must go from SupplierVatRegistrationNumberPage AVD-S8.1 to CheckSupplierDetails AVD-S9 when continue is pressed" in {
         val ua = userAnswers
           .set(SupplierVatRegistrationNumberPage, VatNumberDetails("FR", "AA123456789"))

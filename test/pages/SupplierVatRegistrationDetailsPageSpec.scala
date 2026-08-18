@@ -23,7 +23,7 @@ import pages.sections.supplierDetails.SupplierVatRegistrationNumberPage
 class SupplierVatRegistrationDetailsPageSpec extends SpecBase {
 
   private val supplierName = VatNumberDetails("FR", "AA123456789")
-  
+
   "SupplierVatRegistrationDetailsPage" - {
 
     "must store the answer at the supplier-details path" in {
