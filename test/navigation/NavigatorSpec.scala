@@ -17,13 +17,14 @@
 package navigation
 
 import base.SpecBase
-import controllers.routes
+import controllers.{initialquestions, notifierdetails, purchaserdetails, routes, supplieraddress, supplierdetails}
 import pages.*
 import models.*
-import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
-import pages.sections.notifierDetails.{BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
-import pages.sections.purchaserDetails.{PurchaserBusinessNamePage, PurchaserNamePage}
-import pages.sections.supplierDetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierNumberPage, UsePersonalDetailsAsSupplierPage}
+import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
+import pages.sections.notifierdetails.{AboutYourDetailsPage, BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
+import pages.sections.vehicledetails.AddVehicleDetailsPage
+import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
+import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierNumberPage, UsePersonalDetailsAsSupplierPage}
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 
 class NavigatorSpec extends SpecBase {
@@ -44,14 +45,24 @@ class NavigatorSpec extends SpecBase {
 
         "must go from VehicleFromEuPage to BusinessPrivateController when Yes is selected" in {
           val ua = userAnswers.set(VehicleFromEuPage, true).success.value
-          navigator.nextPage(VehicleFromEuPage, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.BusinessPrivateController.onPageLoad(
+          navigator.nextPage(
+            VehicleFromEuPage,
+            NormalMode,
+            ua,
+            NovaUserType.PrivateIndividual
+          ) mustBe initialquestions.routes.BusinessPrivateController.onPageLoad(
             NormalMode
           )
         }
 
         "must go from VehicleFromEuPage to VehicleOutsideEUController when No is selected" in {
           val ua = userAnswers.set(VehicleFromEuPage, false).success.value
-          navigator.nextPage(VehicleFromEuPage, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.VehicleOutsideEUController.onPageLoad()
+          navigator.nextPage(
+            VehicleFromEuPage,
+            NormalMode,
+            ua,
+            NovaUserType.PrivateIndividual
+          ) mustBe initialquestions.routes.VehicleOutsideEUController.onPageLoad()
         }
 
         "must go from VehicleFromEuPage to JourneyRecovery when no answer is found" in {
@@ -64,13 +75,23 @@ class NavigatorSpec extends SpecBase {
 
         "must go from VehicleFromEuPage to VehicleBusinessUseController when Yes is selected" in {
           val ua = userAnswers.set(VehicleFromEuPage, true).success.value
-          navigator.nextPage(VehicleFromEuPage, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.VehicleBusinessUseController
+          navigator.nextPage(
+            VehicleFromEuPage,
+            NormalMode,
+            ua,
+            NovaUserType.VatRegisteredOrganisation
+          ) mustBe initialquestions.routes.VehicleBusinessUseController
             .onPageLoad(NormalMode)
         }
 
         "must go from VehicleFromEuPage to VehicleBusinessUseController when No is selected" in {
           val ua = userAnswers.set(VehicleFromEuPage, false).success.value
-          navigator.nextPage(VehicleFromEuPage, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.VehicleBusinessUseController
+          navigator.nextPage(
+            VehicleFromEuPage,
+            NormalMode,
+            ua,
+            NovaUserType.VatRegisteredOrganisation
+          ) mustBe initialquestions.routes.VehicleBusinessUseController
             .onPageLoad(NormalMode)
         }
 
@@ -85,25 +106,40 @@ class NavigatorSpec extends SpecBase {
 
         "must go from AboutYourDetailsPage to PhoneNumberController (AYD1.2) when OQ1.0 was answered yes" in {
           val ua = userAnswers.set(VehicleBusinessUsePage, true).success.value
-          navigator.nextPage(AboutYourDetailsPage, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.PhoneNumberController
+          navigator.nextPage(
+            AboutYourDetailsPage,
+            NormalMode,
+            ua,
+            NovaUserType.VatRegisteredOrganisation
+          ) mustBe notifierdetails.routes.PhoneNumberController
             .onPageLoad(NormalMode)
         }
 
         "must go from AboutYourDetailsPage to correct next screen AddYourNamePage when OQ1.0 was answered no" in {
           val ua = userAnswers.set(VehicleBusinessUsePage, false).success.value
-          navigator.nextPage(AboutYourDetailsPage, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.AddYourNameController
+          navigator.nextPage(
+            AboutYourDetailsPage,
+            NormalMode,
+            ua,
+            NovaUserType.VatRegisteredOrganisation
+          ) mustBe notifierdetails.routes.AddYourNameController
             .onPageLoad(NormalMode)
         }
 
         "must go from AddYourNamePage to PhoneNumberController (AYD1.2)" in {
           val ua = userAnswers.set(NameDetailsPage, NameDetails("Mr", "John", "Smith")).success.value
-          navigator.nextPage(NameDetailsPage, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.PhoneNumberController
+          navigator.nextPage(
+            NameDetailsPage,
+            NormalMode,
+            ua,
+            NovaUserType.VatRegisteredOrganisation
+          ) mustBe notifierdetails.routes.PhoneNumberController
             .onPageLoad(NormalMode)
         }
 
         "must go from BusinessNamePage (AYD1.4) to PhoneNumberController (AYD1.2)" in {
           val ua = userAnswers.set(BusinessNamePage, "Acme Trading Co Ltd").success.value
-          navigator.nextPage(BusinessNamePage, NormalMode, ua, NovaUserType.NonVatOrganisation) mustBe routes.PhoneNumberController
+          navigator.nextPage(BusinessNamePage, NormalMode, ua, NovaUserType.NonVatOrganisation) mustBe notifierdetails.routes.PhoneNumberController
             .onPageLoad(NormalMode)
         }
 
@@ -114,7 +150,7 @@ class NavigatorSpec extends SpecBase {
             NormalMode,
             ua,
             NovaUserType.PrivateIndividual
-          ) mustBe routes.PurchaserDetailsCheckYourAnswersController
+          ) mustBe purchaserdetails.routes.PurchaserDetailsCheckYourAnswersController
             .onPageLoad()
         }
 
@@ -137,13 +173,13 @@ class NavigatorSpec extends SpecBase {
 
         "must go from VehicleFromEuPage to AgentVehicleBusinessUseController when Yes is selected" in {
           val ua = answersWithClient.set(VehicleFromEuPage, true).success.value
-          navigator.nextPage(VehicleFromEuPage, NormalMode, ua, NovaUserType.Agent) mustBe routes.AgentVehicleBusinessUseController
+          navigator.nextPage(VehicleFromEuPage, NormalMode, ua, NovaUserType.Agent) mustBe initialquestions.routes.AgentVehicleBusinessUseController
             .onPageLoad(NormalMode)
         }
 
         "must go from VehicleFromEuPage to AgentVehicleBusinessUseController when No is selected" in {
           val ua = answersWithClient.set(VehicleFromEuPage, false).success.value
-          navigator.nextPage(VehicleFromEuPage, NormalMode, ua, NovaUserType.Agent) mustBe routes.AgentVehicleBusinessUseController
+          navigator.nextPage(VehicleFromEuPage, NormalMode, ua, NovaUserType.Agent) mustBe initialquestions.routes.AgentVehicleBusinessUseController
             .onPageLoad(NormalMode)
         }
 
@@ -157,12 +193,18 @@ class NavigatorSpec extends SpecBase {
 
         "must go from VehicleFromEuPage to BusinessPrivateController when Yes is selected" in {
           val ua = userAnswers.set(VehicleFromEuPage, true).success.value
-          navigator.nextPage(VehicleFromEuPage, NormalMode, ua, NovaUserType.Agent) mustBe routes.BusinessPrivateController.onPageLoad(NormalMode)
+          navigator.nextPage(
+            VehicleFromEuPage,
+            NormalMode,
+            ua,
+            NovaUserType.Agent
+          ) mustBe initialquestions.routes.BusinessPrivateController.onPageLoad(NormalMode)
         }
 
         "must go from VehicleFromEuPage to VehicleOutsideEUController when No is selected" in {
           val ua = userAnswers.set(VehicleFromEuPage, false).success.value
-          navigator.nextPage(VehicleFromEuPage, NormalMode, ua, NovaUserType.Agent) mustBe routes.VehicleOutsideEUController.onPageLoad()
+          navigator.nextPage(VehicleFromEuPage, NormalMode, ua, NovaUserType.Agent) mustBe initialquestions.routes.VehicleOutsideEUController
+            .onPageLoad()
         }
       }
 
@@ -170,14 +212,24 @@ class NavigatorSpec extends SpecBase {
 
         "must go from VehicleFromEuPage to BusinessPrivateController when Yes is selected" in {
           val ua = userAnswers.set(VehicleFromEuPage, true).success.value
-          navigator.nextPage(VehicleFromEuPage, NormalMode, ua, NovaUserType.NonVatOrganisation) mustBe routes.BusinessPrivateController.onPageLoad(
+          navigator.nextPage(
+            VehicleFromEuPage,
+            NormalMode,
+            ua,
+            NovaUserType.NonVatOrganisation
+          ) mustBe initialquestions.routes.BusinessPrivateController.onPageLoad(
             NormalMode
           )
         }
 
         "must go from VehicleFromEuPage to VehicleOutsideEUController when No is selected" in {
           val ua = userAnswers.set(VehicleFromEuPage, false).success.value
-          navigator.nextPage(VehicleFromEuPage, NormalMode, ua, NovaUserType.NonVatOrganisation) mustBe routes.VehicleOutsideEUController
+          navigator.nextPage(
+            VehicleFromEuPage,
+            NormalMode,
+            ua,
+            NovaUserType.NonVatOrganisation
+          ) mustBe initialquestions.routes.VehicleOutsideEUController
             .onPageLoad()
         }
       }
@@ -188,7 +240,7 @@ class NavigatorSpec extends SpecBase {
           NormalMode,
           userAnswers,
           NovaUserType.VatRegisteredOrganisation
-        ) mustBe routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
+        ) mustBe initialquestions.routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
       }
 
       "must go from AgentVehicleBusinessUsePage AQ1.0 to InitialQuestionsCheckYourAnswersController" in {
@@ -197,11 +249,16 @@ class NavigatorSpec extends SpecBase {
           NormalMode,
           userAnswers,
           NovaUserType.Agent
-        ) mustBe routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
+        ) mustBe initialquestions.routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
       }
 
       "must go from BusinessPrivatePage IQ2.0 to PurchaserOrOnBehalfController" in {
-        navigator.nextPage(BusinessOrPrivatePage, NormalMode, userAnswers, NovaUserType.PrivateIndividual) mustBe routes.PurchaserOrOnBehalfController
+        navigator.nextPage(
+          BusinessOrPrivatePage,
+          NormalMode,
+          userAnswers,
+          NovaUserType.PrivateIndividual
+        ) mustBe initialquestions.routes.PurchaserOrOnBehalfController
           .onPageLoad(NormalMode)
       }
 
@@ -212,7 +269,7 @@ class NavigatorSpec extends SpecBase {
           NormalMode,
           ua,
           NovaUserType.PrivateIndividual
-        ) mustBe routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
+        ) mustBe initialquestions.routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
       }
 
       "must go from PurchaserOrOnBehalfPage to PurchaserBusinessOrIndividualController when OnBehalfOfPurchaser is selected" in {
@@ -222,7 +279,7 @@ class NavigatorSpec extends SpecBase {
           NormalMode,
           ua,
           NovaUserType.PrivateIndividual
-        ) mustBe routes.PurchaserBusinessOrIndividualController.onPageLoad(NormalMode)
+        ) mustBe initialquestions.routes.PurchaserBusinessOrIndividualController.onPageLoad(NormalMode)
       }
 
       "must go from PurchaserOrOnBehalfPage to JourneyRecovery when no answer is found" in {
@@ -237,12 +294,17 @@ class NavigatorSpec extends SpecBase {
           NormalMode,
           ua,
           NovaUserType.PrivateIndividual
-        ) mustBe routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
+        ) mustBe initialquestions.routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
       }
 
       "must go from PhoneNumberPage to EmailAddressController (AYD1.3)" in {
         val ua = userAnswers.set(PhoneNumberPage, ContactNumbers(Some("01632 960 001"), None)).success.value
-        navigator.nextPage(PhoneNumberPage, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.EmailAddressController
+        navigator.nextPage(
+          PhoneNumberPage,
+          NormalMode,
+          ua,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe notifierdetails.routes.EmailAddressController
           .onPageLoad(NormalMode)
       }
 
@@ -252,7 +314,7 @@ class NavigatorSpec extends SpecBase {
           NormalMode,
           userAnswers,
           NovaUserType.PrivateIndividual
-        ) mustBe routes.YourDetailsCheckYourAnswersController
+        ) mustBe notifierdetails.routes.YourDetailsCheckYourAnswersController
           .onPageLoad()
       }
 
@@ -263,7 +325,7 @@ class NavigatorSpec extends SpecBase {
           NormalMode,
           ua,
           NovaUserType.VatRegisteredOrganisation
-        ) mustBe routes.UsePersonalDetailsAsSupplierController.onPageLoad(NormalMode)
+        ) mustBe supplierdetails.routes.UsePersonalDetailsAsSupplierController.onPageLoad(NormalMode)
       }
 
       "must go from AddVehicleDetailsPage AVD1.0 to LandingPage when BySpreadsheet is selected" in {
@@ -310,7 +372,7 @@ class NavigatorSpec extends SpecBase {
           NormalMode,
           ua,
           NovaUserType.VatRegisteredOrganisation
-        ) mustBe routes.SupplierBusinessOrIndividualController.onPageLoad(SupplierNumber(2), NormalMode)
+        ) mustBe supplierdetails.routes.SupplierBusinessOrIndividualController.onPageLoad(SupplierNumber(2), NormalMode)
       }
 
       "must go from UsePersonalDetailsAsSupplierPage AVD-S1.0 to JourneyRecovery when no answer is found" in {
@@ -371,7 +433,7 @@ class NavigatorSpec extends SpecBase {
           NormalMode,
           userAnswers,
           NovaUserType.PrivateIndividual
-        ) mustBe routes.PurchaserDetailsCheckYourAnswersController.onPageLoad()
+        ) mustBe purchaserdetails.routes.PurchaserDetailsCheckYourAnswersController.onPageLoad()
       }
 
       "must go from SupplierBusinessOrIndividualPage to the supplier business name page when Business is selected" in {
@@ -387,7 +449,7 @@ class NavigatorSpec extends SpecBase {
           NormalMode,
           ua,
           NovaUserType.VatRegisteredOrganisation
-        ) mustBe routes.SupplierBusinessNameController.onPageLoad(SupplierNumber(2), NormalMode)
+        ) mustBe supplierdetails.routes.SupplierBusinessNameController.onPageLoad(SupplierNumber(2), NormalMode)
       }
 
       "must go from SupplierBusinessOrIndividualPage to the supplier business name page for supplier 1 when no supplier number is in session" in {
@@ -397,7 +459,7 @@ class NavigatorSpec extends SpecBase {
           NormalMode,
           ua,
           NovaUserType.VatRegisteredOrganisation
-        ) mustBe routes.SupplierBusinessNameController.onPageLoad(SupplierNumber(1), NormalMode)
+        ) mustBe supplierdetails.routes.SupplierBusinessNameController.onPageLoad(SupplierNumber(1), NormalMode)
       }
 
       "must go from SupplierBusinessOrIndividualPage AVD-S2.0 to SupplierName AVD-S4.0 when PrivateIndividual is selected" in {
@@ -413,7 +475,7 @@ class NavigatorSpec extends SpecBase {
           NormalMode,
           ua,
           NovaUserType.VatRegisteredOrganisation
-        ) mustBe routes.SupplierNameController.onPageLoad(SupplierNumber(2), NormalMode)
+        ) mustBe supplierdetails.routes.SupplierNameController.onPageLoad(SupplierNumber(2), NormalMode)
       }
 
       "must go from SupplierBusinessOrIndividualPage AVD-S2.0 to SupplierName AVD-S4.0 for supplier 1 when no supplier number is in session" in {
@@ -423,7 +485,7 @@ class NavigatorSpec extends SpecBase {
           NormalMode,
           ua,
           NovaUserType.VatRegisteredOrganisation
-        ) mustBe routes.SupplierNameController.onPageLoad(SupplierNumber(1), NormalMode)
+        ) mustBe supplierdetails.routes.SupplierNameController.onPageLoad(SupplierNumber(1), NormalMode)
       }
 
       "must go from SupplierNamePage AVD-S4.0 to LandingPage" in {
@@ -432,7 +494,7 @@ class NavigatorSpec extends SpecBase {
           NormalMode,
           userAnswers,
           NovaUserType.VatRegisteredOrganisation
-        ) mustBe routes.IsSupplierAddressInTheUKController.onPageLoad(SupplierNumber(1), NormalMode)
+        ) mustBe supplieraddress.routes.IsSupplierAddressInTheUKController.onPageLoad(SupplierNumber(1), NormalMode)
       }
 
       "must go from SupplierBusinessNamePage to the supplier address page" in {
@@ -441,7 +503,7 @@ class NavigatorSpec extends SpecBase {
           NormalMode,
           userAnswers,
           NovaUserType.VatRegisteredOrganisation
-        ) mustBe routes.IsSupplierAddressInTheUKController.onPageLoad(SupplierNumber(1), NormalMode)
+        ) mustBe supplieraddress.routes.IsSupplierAddressInTheUKController.onPageLoad(SupplierNumber(1), NormalMode)
       }
 
       "must go from SupplierBusinessNamePage to the supplier address page for the supplier number in session" in {
@@ -451,7 +513,7 @@ class NavigatorSpec extends SpecBase {
           NormalMode,
           ua,
           NovaUserType.VatRegisteredOrganisation
-        ) mustBe routes.IsSupplierAddressInTheUKController.onPageLoad(SupplierNumber(3), NormalMode)
+        ) mustBe supplieraddress.routes.IsSupplierAddressInTheUKController.onPageLoad(SupplierNumber(3), NormalMode)
       }
 
       "must go from SupplierBusinessOrIndividualPage AVD-S2.0 to JourneyRecovery when no answer is found" in {
@@ -506,7 +568,7 @@ class NavigatorSpec extends SpecBase {
           CheckMode,
           userAnswers,
           NovaUserType.Agent
-        ) mustBe routes.InitialQuestionsCheckYourAnswersController
+        ) mustBe initialquestions.routes.InitialQuestionsCheckYourAnswersController
           .onPageLoad()
       }
 
@@ -517,7 +579,7 @@ class NavigatorSpec extends SpecBase {
           CheckMode,
           ua,
           NovaUserType.PrivateIndividual
-        ) mustBe routes.VehicleOutsideEUController.onPageLoad()
+        ) mustBe initialquestions.routes.VehicleOutsideEUController.onPageLoad()
       }
 
       "must go from VehicleFromEuPage to VehicleOutsideEUController when No is selected for NonVatOrganisation" in {
@@ -527,7 +589,7 @@ class NavigatorSpec extends SpecBase {
           CheckMode,
           ua,
           NovaUserType.NonVatOrganisation
-        ) mustBe routes.VehicleOutsideEUController.onPageLoad()
+        ) mustBe initialquestions.routes.VehicleOutsideEUController.onPageLoad()
       }
 
       "must go from BusinessPrivatePage to InitialQuestionsCheckYourAnswers" in {
@@ -536,7 +598,7 @@ class NavigatorSpec extends SpecBase {
           CheckMode,
           userAnswers,
           NovaUserType.PrivateIndividual
-        ) mustBe routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
+        ) mustBe initialquestions.routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
       }
 
       "must go from PurchaserOrOnBehalfPage IQ3.0 to InitialQuestionsCheckYourAnswersController when Purchaser is selected" in {
@@ -546,7 +608,7 @@ class NavigatorSpec extends SpecBase {
           CheckMode,
           ua,
           NovaUserType.PrivateIndividual
-        ) mustBe routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
+        ) mustBe initialquestions.routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
       }
 
       "must go from PurchaserOrOnBehalfPage IQ3.0 to PurchaserBusinessOrIndividualController IQ3.1 in CheckMode when OnBehalfOfPurchaser is selected" in {
@@ -556,7 +618,7 @@ class NavigatorSpec extends SpecBase {
           CheckMode,
           ua,
           NovaUserType.PrivateIndividual
-        ) mustBe routes.PurchaserBusinessOrIndividualController.onPageLoad(CheckMode)
+        ) mustBe initialquestions.routes.PurchaserBusinessOrIndividualController.onPageLoad(CheckMode)
       }
 
       "must go from PurchaserOrOnBehalfPage IQ3.0 to JourneyRecovery when no answer is found" in {
@@ -574,7 +636,7 @@ class NavigatorSpec extends SpecBase {
           CheckMode,
           userAnswers,
           NovaUserType.PrivateIndividual
-        ) mustBe routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
+        ) mustBe initialquestions.routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
       }
 
       "must go from SupplierBusinessOrIndividualPage AVD-S2.0 to LandingPage" in {
@@ -612,7 +674,7 @@ class NavigatorSpec extends SpecBase {
           CheckMode,
           userAnswers,
           NovaUserType.VatRegisteredOrganisation
-        ) mustBe routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
+        ) mustBe initialquestions.routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
       }
 
       "must go from AgentVehicleBusinessUsePage AQ1.0 to InitialQuestionsCheckYourAnswers" in {
@@ -621,24 +683,39 @@ class NavigatorSpec extends SpecBase {
           CheckMode,
           userAnswers,
           NovaUserType.Agent
-        ) mustBe routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
+        ) mustBe initialquestions.routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
       }
 
       "must go from AddYourNamePage to YourDetailsCheckYourAnswersController in CheckMode" in {
         val ua = userAnswers.set(NameDetailsPage, NameDetails("Mr", "John", "Smith")).success.value
-        navigator.nextPage(NameDetailsPage, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.YourDetailsCheckYourAnswersController
+        navigator.nextPage(
+          NameDetailsPage,
+          CheckMode,
+          ua,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe notifierdetails.routes.YourDetailsCheckYourAnswersController
           .onPageLoad()
       }
 
       "must go from BusinessNamePage (AYD1.4) to YourDetailsCheckYourAnswersController in CheckMode" in {
         val ua = userAnswers.set(BusinessNamePage, "Acme Trading Co Ltd").success.value
-        navigator.nextPage(BusinessNamePage, CheckMode, ua, NovaUserType.NonVatOrganisation) mustBe routes.YourDetailsCheckYourAnswersController
+        navigator.nextPage(
+          BusinessNamePage,
+          CheckMode,
+          ua,
+          NovaUserType.NonVatOrganisation
+        ) mustBe notifierdetails.routes.YourDetailsCheckYourAnswersController
           .onPageLoad()
       }
 
       "must go from PurchaserNamePage (APD1.0) to the purchaser details check your answers page (CYA4.0) in CheckMode" in {
         val ua = userAnswers.set(PurchaserNamePage, NameDetails("Mr", "John", "Smith")).success.value
-        navigator.nextPage(PurchaserNamePage, CheckMode, ua, NovaUserType.PrivateIndividual) mustBe routes.PurchaserDetailsCheckYourAnswersController
+        navigator.nextPage(
+          PurchaserNamePage,
+          CheckMode,
+          ua,
+          NovaUserType.PrivateIndividual
+        ) mustBe purchaserdetails.routes.PurchaserDetailsCheckYourAnswersController
           .onPageLoad()
       }
 
@@ -648,13 +725,18 @@ class NavigatorSpec extends SpecBase {
           CheckMode,
           userAnswers,
           NovaUserType.PrivateIndividual
-        ) mustBe routes.YourDetailsCheckYourAnswersController
+        ) mustBe notifierdetails.routes.YourDetailsCheckYourAnswersController
           .onPageLoad()
       }
 
       "must go from PhoneNumberPage to YourDetailsCheckYourAnswersController in CheckMode" in {
         val ua = userAnswers.set(PhoneNumberPage, ContactNumbers(Some("01632 960 001"), None)).success.value
-        navigator.nextPage(PhoneNumberPage, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.YourDetailsCheckYourAnswersController
+        navigator.nextPage(
+          PhoneNumberPage,
+          CheckMode,
+          ua,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe notifierdetails.routes.YourDetailsCheckYourAnswersController
           .onPageLoad()
       }
 
@@ -664,7 +746,7 @@ class NavigatorSpec extends SpecBase {
           CheckMode,
           userAnswers,
           NovaUserType.PrivateIndividual
-        ) mustBe routes.PurchaserDetailsCheckYourAnswersController.onPageLoad()
+        ) mustBe purchaserdetails.routes.PurchaserDetailsCheckYourAnswersController.onPageLoad()
       }
     }
   }

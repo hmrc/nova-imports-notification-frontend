@@ -20,7 +20,7 @@ import base.SpecBase
 import models.{Address, Country, NameDetails, TraderInformation}
 import org.scalatest.BeforeAndAfterAll
 import pages.sections.notifieraddress.AddressPage
-import pages.sections.notifierDetails.{BusinessNamePage, NameDetailsPage}
+import pages.sections.notifierdetails.{BusinessNamePage, NameDetailsPage}
 import play.api.Application
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow

@@ -1,0 +1,75 @@
+/*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package controllers.initialquestions
+
+import config.FrontendAppConfig
+import controllers.BaseController
+import controllers.actions.*
+import forms.VehicleFromEuFormProvider
+import javax.inject.Inject
+import models.{Mode, NovaUserType}
+import navigation.Navigator
+import pages.sections.initialquestions.VehicleFromEuPage
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.SessionRepository
+import views.html.VehicleFromEuView
+
+import scala.concurrent.{ExecutionContext, Future}
+
+class VehicleFromEuController @Inject() (
+  val controllerComponents: MessagesControllerComponents,
+  sessionRepository: SessionRepository,
+  navigator: Navigator,
+  actions: Actions,
+  formProvider: VehicleFromEuFormProvider,
+  appConfig: FrontendAppConfig,
+  view: VehicleFromEuView
+)(implicit ec: ExecutionContext)
+    extends BaseController {
+
+  val form = formProvider()
+
+  def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetData() { implicit request =>
+    Ok(
+      view(
+        form.withDefault(request.userAnswers.get(VehicleFromEuPage)),
+        mode,
+        appConfig.importingVehiclesIntoTheUKUrl,
+        appConfig.euCountriesUrl
+      )
+    )
+  }
+
+  def onSubmit(mode: Mode): Action[AnyContent] = actions.authAndGetData().async { implicit request =>
+
+    form
+      .bindFromRequest()
+      .fold(
+        formWithErrors =>
+          Future.successful(
+            BadRequest(
+              view(formWithErrors, mode, appConfig.importingVehiclesIntoTheUKUrl, appConfig.euCountriesUrl)
+            )
+          ),
+        value =>
+          for {
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(VehicleFromEuPage, value))
+            _              <- sessionRepository.set(updatedAnswers)
+          } yield Redirect(navigator.nextPage(VehicleFromEuPage, mode, updatedAnswers, NovaUserType.from(request.affinityGroup, request.enrolments)))
+      )
+  }
+}

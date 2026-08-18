@@ -17,7 +17,7 @@
 package pages
 
 import base.SpecBase
-import pages.sections.supplierDetails.UsePersonalDetailsAsSupplierPage
+import pages.sections.supplierdetails.UsePersonalDetailsAsSupplierPage
 
 class UsePersonalDetailsAsSupplierPageSpec extends SpecBase {
 

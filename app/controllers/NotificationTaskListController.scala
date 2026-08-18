@@ -135,41 +135,41 @@ object NotificationTaskListController {
   def determineSectionLink(sections: Map[String, SectionStatus], userAnswers: UserAnswers, userContext: UserContext): Map[String, String] =
     sections.flatMap {
       case (section @ SectionId.NotifierDetails, status) =>
-        if (status == SectionStatus.Completed) Map(section -> routes.YourDetailsCheckYourAnswersController.onPageLoad().url)
+        if (status == SectionStatus.Completed) Map(section -> notifierdetails.routes.YourDetailsCheckYourAnswersController.onPageLoad().url)
         else Map(section                                   -> notifierDetailsStartLink(userContext, userAnswers))
 
       case (section @ SectionId.NotifierAddress, status) =>
-        if (status == SectionStatus.Completed) Map(section -> routes.YourAddressCheckYourAnswersController.onPageLoad().url)
-        else Map(section                                   -> routes.IsYourAddressInTheUkController.onPageLoad(NormalMode).url)
+        if (status == SectionStatus.Completed) Map(section -> notifieraddress.routes.YourAddressCheckYourAnswersController.onPageLoad().url)
+        else Map(section                                   -> notifieraddress.routes.IsYourAddressInTheUkController.onPageLoad(NormalMode).url)
 
       case (section @ SectionId.PurchaserDetails, status) =>
-        if (status == SectionStatus.Completed) Map(section -> routes.PurchaserDetailsCheckYourAnswersController.onPageLoad().url)
+        if (status == SectionStatus.Completed) Map(section -> purchaserdetails.routes.PurchaserDetailsCheckYourAnswersController.onPageLoad().url)
         else if (userAnswers.get(PurchaserBusinessOrIndividualPage).contains(PurchaserBusinessOrIndividual.NonVatRegisteredBusiness))
-          Map(section    -> routes.PurchaserBusinessNameController.onPageLoad(NormalMode).url)
-        else Map(section -> routes.PurchaserNameController.onPageLoad(NormalMode).url)
+          Map(section    -> purchaserdetails.routes.PurchaserBusinessNameController.onPageLoad(NormalMode).url)
+        else Map(section -> purchaserdetails.routes.PurchaserNameController.onPageLoad(NormalMode).url)
 
       case (section @ SectionId.PurchaserAddress, _) =>
-        Map(section -> routes.IsPurchaserAddressInTheUkController.onPageLoad(NormalMode).url)
+        Map(section -> purchaseraddress.routes.IsPurchaserAddressInTheUkController.onPageLoad(NormalMode).url)
 
-      case (section @ SectionId.Vehicles, _) => Map(section -> routes.AddVehicleDetailsController.onPageLoad(NormalMode).url)
+      case (section @ SectionId.Vehicles, _) => Map(section -> vehicledetails.routes.AddVehicleDetailsController.onPageLoad(NormalMode).url)
 
       case _ => Map.empty[String, String]
     }
 
   private def notifierDetailsStartLink(userContext: UserContext, answers: UserAnswers): String =
     userContext.userType match {
-      case NovaUserType.VatRegisteredOrganisation => routes.AboutYourDetailsController.onPageLoad().url
+      case NovaUserType.VatRegisteredOrganisation => notifierdetails.routes.AboutYourDetailsController.onPageLoad().url
       case NovaUserType.Agent                     =>
         if (userContext.isVatAgentWithoutClient)
-          routes.PhoneNumberController.onPageLoad(NormalMode).url
+          notifierdetails.routes.PhoneNumberController.onPageLoad(NormalMode).url
         else if (answers.get(BusinessOrPrivatePage).contains(BusinessOrPrivateIndividual.PrivateIndividual))
-          routes.AddYourNameController.onPageLoad(NormalMode).url
+          notifierdetails.routes.AddYourNameController.onPageLoad(NormalMode).url
         else
-          routes.PhoneNumberController.onPageLoad(NormalMode).url
+          notifierdetails.routes.PhoneNumberController.onPageLoad(NormalMode).url
       case _ =>
         if (answers.get(BusinessOrPrivatePage).contains(BusinessOrPrivateIndividual.PrivateIndividual))
-          routes.AddYourNameController.onPageLoad(NormalMode).url
+          notifierdetails.routes.AddYourNameController.onPageLoad(NormalMode).url
         else
-          routes.BusinessNameController.onPageLoad(NormalMode).url
+          notifierdetails.routes.BusinessNameController.onPageLoad(NormalMode).url
     }
 }

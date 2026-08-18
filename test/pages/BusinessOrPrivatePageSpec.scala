@@ -19,7 +19,7 @@ package pages
 import base.SpecBase
 import models.{BusinessOrPrivateIndividual, ContactNumbers, NameDetails}
 import pages.sections.initialquestions.BusinessOrPrivatePage
-import pages.sections.notifierDetails.{BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
+import pages.sections.notifierdetails.{BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 
 class BusinessOrPrivatePageSpec extends SpecBase {
 

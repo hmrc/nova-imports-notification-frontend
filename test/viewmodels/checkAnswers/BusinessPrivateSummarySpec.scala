@@ -17,7 +17,7 @@
 package viewmodels.checkAnswers
 
 import base.SpecBase
-import controllers.routes
+import controllers.initialquestions.routes
 import models.{BusinessOrPrivateIndividual, CheckMode, UserAnswers}
 import pages.sections.initialquestions.BusinessOrPrivatePage
 import play.api.Application

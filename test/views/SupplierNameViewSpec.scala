@@ -102,7 +102,7 @@ class SupplierNameViewSpec extends SpecBase with Matchers with BeforeAndAfterAll
     "must post to the supplier number given in the URL" in {
       val html: String = view(form, SupplierNumber(3), NormalMode)(request, msgs).toString
 
-      html must include(controllers.routes.SupplierNameController.onSubmit(SupplierNumber(3), NormalMode).url)
+      html must include(controllers.supplierdetails.routes.SupplierNameController.onSubmit(SupplierNumber(3), NormalMode).url)
     }
 
     "must render the error summary when the form has errors" in {
