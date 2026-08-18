@@ -566,3 +566,13 @@ initialQuestionsCheckYourAnswers.title = Check your answers - Initial questions
 yourDetailsCheckYourAnswers.caption = Ychwanegu eich manylion chi
 yourDetailsCheckYourAnswers.heading = Gwiriwch eich atebion
 yourDetailsCheckYourAnswers.title = Check your answers - your details
+
+######################################################
+# CYA3.0 - Check your answers 3.0 - Your address     #
+######################################################
+
+yourAddressCheckYourAnswers.caption = Ychwanegwch eich cyfeiriad
+yourAddressCheckYourAnswers.title = Gwiriwch eich atebion - eich cyfeiriad
+yourAddressCheckYourAnswers.heading = Gwiriwch eich atebion
+yourAddressCheckYourAnswers.change.hidden = eich cyfeiriad
+yourAddressCheckYourAnswers.checkYourAnswersLabel = Cyfeiriad
