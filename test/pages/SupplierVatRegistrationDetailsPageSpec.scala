@@ -18,7 +18,7 @@ package pages
 
 import base.SpecBase
 import models.VatNumberDetails
-import pages.sections.supplierDetails.SupplierVatRegistrationNumberPage
+import pages.sections.supplierdetails.SupplierVatRegistrationNumberPage
 
 class SupplierVatRegistrationDetailsPageSpec extends SpecBase {
 

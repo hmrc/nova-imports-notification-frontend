@@ -27,7 +27,7 @@ import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.DraftIdPage
 import pages.sections.initialquestions.VehicleFromEuPage
-import pages.sections.supplierDetails.{IsSupplierVatRegisteredPage, SupplierNumberPage, SupplierVatRegistrationNumberPage}
+import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierNumberPage, SupplierVatRegistrationNumberPage}
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
