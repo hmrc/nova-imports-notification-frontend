@@ -19,7 +19,7 @@ package viewmodels.govuk
 import play.api.data.Form
 import play.api.i18n.Messages
 import play.twirl.api.Html
-import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.{CheckboxItem, Checkboxes}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.{CheckboxBehaviour, CheckboxItem, Checkboxes}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Content
 import uk.gov.hmrc.govukfrontend.views.viewmodels.fieldset.{Fieldset, Legend}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
@@ -65,6 +65,9 @@ trait CheckboxFluency {
 
     def describedBy(value: String): Checkboxes =
       checkboxes.copy(describedBy = Some(value))
+
+    def withHint(hint: Hint): Checkboxes =
+      checkboxes.copy(hint = Some(hint))
   }
 
   object CheckboxItemViewModel {
@@ -75,10 +78,12 @@ trait CheckboxFluency {
       index: Int,
       value: String
     ): CheckboxItem =
+      // One name for the whole group so the exclusive behaviour can find its siblings.
+      // Play expands a [] suffix back into value[0], value[1]... when it binds.
       CheckboxItem(
         content = content,
         id = Some(s"${fieldId}_$index"),
-        name = Some(s"$fieldId[$index]"),
+        name = Some(s"$fieldId[]"),
         value = value
       )
   }
@@ -99,5 +104,8 @@ trait CheckboxFluency {
 
     def withAttribute(attribute: (String, String)): CheckboxItem =
       item.copy(attributes = item.attributes + attribute)
+
+    def withBehaviour(behaviour: CheckboxBehaviour): CheckboxItem =
+      item.copy(behaviour = Some(behaviour))
   }
 }
