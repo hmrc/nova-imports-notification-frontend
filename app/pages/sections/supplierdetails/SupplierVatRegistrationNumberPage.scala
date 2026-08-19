@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package pages.sections.supplierDetails
+package pages.sections.supplierdetails
 
 import models.VatNumberDetails
 import pages.QuestionPage

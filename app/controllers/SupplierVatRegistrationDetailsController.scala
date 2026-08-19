@@ -26,7 +26,7 @@ import models.requests.DataRequest
 import models.{Mode, NovaUserType, SupplierNumber, VatNumberDetails}
 import navigation.Navigator
 import pages.sections.initialquestions.VehicleFromEuPage
-import pages.sections.supplierDetails.{IsSupplierVatRegisteredPage, SupplierVatRegistrationNumberPage}
+import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierVatRegistrationNumberPage}
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
