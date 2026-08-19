@@ -17,7 +17,7 @@
 package views
 
 import base.SpecBase
-import controllers.routes
+import controllers.notifieraddress.routes
 import models.{Address, Country, UserAnswers}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.must.Matchers

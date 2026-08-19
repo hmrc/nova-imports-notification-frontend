@@ -367,7 +367,7 @@ class LandingPageControllerSpec extends SpecBase with MockitoSugar {
           body must include("You do not have a saved notification")
           body must include("Manage your clients")
           body must include(startUrl)
-          body must include(routes.LoadingClientListController.onPageLoad().url)
+          body must include(clientselection.routes.LoadingClientListController.onPageLoad().url)
           body must not include "View, continue or delete a notification"
         }
       }

@@ -18,15 +18,17 @@ package navigation
 
 import javax.inject.{Inject, Singleton}
 import play.api.mvc.Call
-import controllers.routes
+import controllers.{initialquestions, notifierdetails, purchaserdetails, routes, supplieraddress, supplierdetails}
 import pages.*
 import models.*
-import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
-import pages.sections.notifierDetails.{BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
+import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
+import pages.sections.notifierdetails.{AboutYourDetailsPage, BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
+import pages.sections.vehicledetails.AddVehicleDetailsPage
 import pages.sections.notifieraddress.IsYourAddressInTheUkPage
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
-import pages.sections.purchaserDetails.{PurchaserBusinessNamePage, PurchaserNamePage}
-import pages.sections.supplierDetails.{IsSupplierAddressInTheUkPage, IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierNumberPage, SupplierVatRegistrationNumberPage, UsePersonalDetailsAsSupplierPage}
+import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
+import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierNumberPage, SupplierVatRegistrationNumberPage, UsePersonalDetailsAsSupplierPage}
+import pages.sections.supplieraddress.IsSupplierAddressInTheUkPage
 
 @Singleton
 class Navigator @Inject() () {
@@ -37,55 +39,55 @@ class Navigator @Inject() () {
         userType match {
           case NovaUserType.VatRegisteredOrganisation =>
             userAnswers.get(VehicleFromEuPage) match {
-              case Some(_) => routes.VehicleBusinessUseController.onPageLoad(NormalMode)
+              case Some(_) => initialquestions.routes.VehicleBusinessUseController.onPageLoad(NormalMode)
               case _       => routes.JourneyRecoveryController.onPageLoad()
             }
           case NovaUserType.Agent if userAnswers.get(AgentSelectedClientPage).isDefined =>
             userAnswers.get(VehicleFromEuPage) match {
-              case Some(_) => routes.AgentVehicleBusinessUseController.onPageLoad(NormalMode)
+              case Some(_) => initialquestions.routes.AgentVehicleBusinessUseController.onPageLoad(NormalMode)
               case _       => routes.JourneyRecoveryController.onPageLoad()
             }
           case _ =>
             userAnswers.get(VehicleFromEuPage) match {
-              case Some(true)  => routes.BusinessPrivateController.onPageLoad(NormalMode)
-              case Some(false) => routes.VehicleOutsideEUController.onPageLoad()
+              case Some(true)  => initialquestions.routes.BusinessPrivateController.onPageLoad(NormalMode)
+              case Some(false) => initialquestions.routes.VehicleOutsideEUController.onPageLoad()
               case _           => routes.JourneyRecoveryController.onPageLoad()
             }
         }
     case AboutYourDetailsPage =>
       (userAnswers, _) =>
         userAnswers.get(VehicleBusinessUsePage) match {
-          case Some(true)  => routes.PhoneNumberController.onPageLoad(NormalMode)
-          case Some(false) => routes.AddYourNameController.onPageLoad(NormalMode)
+          case Some(true)  => notifierdetails.routes.PhoneNumberController.onPageLoad(NormalMode)
+          case Some(false) => notifierdetails.routes.AddYourNameController.onPageLoad(NormalMode)
           case _           => routes.JourneyRecoveryController.onPageLoad()
         }
     case NameDetailsPage =>
-      (_, _) => routes.PhoneNumberController.onPageLoad(NormalMode)
+      (_, _) => notifierdetails.routes.PhoneNumberController.onPageLoad(NormalMode)
     case BusinessNamePage =>
-      (_, _) => routes.PhoneNumberController.onPageLoad(NormalMode)
+      (_, _) => notifierdetails.routes.PhoneNumberController.onPageLoad(NormalMode)
     case PurchaserNamePage =>
-      (_, _) => routes.PurchaserDetailsCheckYourAnswersController.onPageLoad()
+      (_, _) => purchaserdetails.routes.PurchaserDetailsCheckYourAnswersController.onPageLoad()
     case PhoneNumberPage =>
-      (_, _) => routes.EmailAddressController.onPageLoad(NormalMode)
+      (_, _) => notifierdetails.routes.EmailAddressController.onPageLoad(NormalMode)
     case VehicleBusinessUsePage =>
-      (_, _) => routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
+      (_, _) => initialquestions.routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
     case AgentClientVehicleBusinessUsePage =>
-      (_, _) => routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
+      (_, _) => initialquestions.routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
     case PurchaserOrOnBehalfPage =>
       (userAnswers, _) =>
         userAnswers.get(PurchaserOrOnBehalfPage) match {
-          case Some(PurchaserOrOnBehalf.Purchaser)           => routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
-          case Some(PurchaserOrOnBehalf.OnBehalfOfPurchaser) => routes.PurchaserBusinessOrIndividualController.onPageLoad(NormalMode)
+          case Some(PurchaserOrOnBehalf.Purchaser)           => initialquestions.routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
+          case Some(PurchaserOrOnBehalf.OnBehalfOfPurchaser) => initialquestions.routes.PurchaserBusinessOrIndividualController.onPageLoad(NormalMode)
           case _                                             => routes.JourneyRecoveryController.onPageLoad()
         }
     case BusinessOrPrivatePage =>
-      (_, _) => routes.PurchaserOrOnBehalfController.onPageLoad(NormalMode)
+      (_, _) => initialquestions.routes.PurchaserOrOnBehalfController.onPageLoad(NormalMode)
     case PurchaserBusinessOrIndividualPage =>
-      (_, _) => routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
+      (_, _) => initialquestions.routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
     case AddVehicleDetailsPage =>
       (userAnswers, _) =>
         userAnswers.get(AddVehicleDetailsPage) match {
-          case Some(AddVehicleDetails.BySupplier)    => routes.UsePersonalDetailsAsSupplierController.onPageLoad(NormalMode)
+          case Some(AddVehicleDetails.BySupplier)    => supplierdetails.routes.UsePersonalDetailsAsSupplierController.onPageLoad(NormalMode)
           case Some(AddVehicleDetails.BySpreadsheet) =>
             routes.LandingPageController.onPageLoad() // TODO: navigate to spreadsheet upload flow when built
           case _ => routes.JourneyRecoveryController.onPageLoad()
@@ -95,7 +97,7 @@ class Navigator @Inject() () {
         userAnswers.get(UsePersonalDetailsAsSupplierPage) match {
           case Some(true)  => routes.LandingPageController.onPageLoad() // TODO: navigate to CYA3.0 when built
           case Some(false) =>
-            routes.SupplierBusinessOrIndividualController
+            supplierdetails.routes.SupplierBusinessOrIndividualController
               .onPageLoad(SupplierNumber(userAnswers.get(SupplierNumberPage).getOrElse(1)), NormalMode)
           case _ => routes.JourneyRecoveryController.onPageLoad()
         }
@@ -107,24 +109,24 @@ class Navigator @Inject() () {
           case _           => routes.JourneyRecoveryController.onPageLoad()
         }
     case EmailAddressPage =>
-      (_, _) => routes.YourDetailsCheckYourAnswersController.onPageLoad()
+      (_, _) => notifierdetails.routes.YourDetailsCheckYourAnswersController.onPageLoad()
     case PurchaserBusinessNamePage =>
-      (_, _) => routes.PurchaserDetailsCheckYourAnswersController.onPageLoad()
+      (_, _) => purchaserdetails.routes.PurchaserDetailsCheckYourAnswersController.onPageLoad()
     case SupplierBusinessOrIndividualPage =>
       (userAnswers, _) =>
         userAnswers.get(SupplierBusinessOrIndividualPage) match {
           case Some(BusinessOrPrivateIndividual.Business) =>
-            routes.SupplierBusinessNameController
+            supplierdetails.routes.SupplierBusinessNameController
               .onPageLoad(SupplierNumber(userAnswers.get(SupplierNumberPage).getOrElse(1)), NormalMode)
           case Some(BusinessOrPrivateIndividual.PrivateIndividual) =>
-            routes.SupplierNameController
+            supplierdetails.routes.SupplierNameController
               .onPageLoad(SupplierNumber(userAnswers.get(SupplierNumberPage).getOrElse(1)), NormalMode)
           case _ =>
             routes.JourneyRecoveryController.onPageLoad()
         }
     case SupplierNamePage | SupplierBusinessNamePage =>
       (userAnswers, _) =>
-        routes.IsSupplierAddressInTheUKController
+        supplieraddress.routes.IsSupplierAddressInTheUKController
           .onPageLoad(SupplierNumber(userAnswers.get(SupplierNumberPage).getOrElse(1)), NormalMode)
     case IsPurchaserAddressInTheUkPage =>
       (userAnswers, _) =>
@@ -159,35 +161,35 @@ class Navigator @Inject() () {
         userType match {
           case NovaUserType.PrivateIndividual | NovaUserType.NonVatOrganisation =>
             userAnswers.get(VehicleFromEuPage) match {
-              case Some(false) => routes.VehicleOutsideEUController.onPageLoad()
-              case Some(true)  => routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
+              case Some(false) => initialquestions.routes.VehicleOutsideEUController.onPageLoad()
+              case Some(true)  => initialquestions.routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
               case _           => routes.JourneyRecoveryController.onPageLoad()
             }
-          case _ => routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
+          case _ => initialquestions.routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
         }
     case VehicleBusinessUsePage | AgentClientVehicleBusinessUsePage | BusinessOrPrivatePage | PurchaserBusinessOrIndividualPage =>
-      (_, _) => routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
+      (_, _) => initialquestions.routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
     case PurchaserOrOnBehalfPage =>
       (userAnswers, _) =>
         userAnswers.get(PurchaserOrOnBehalfPage) match {
-          case Some(PurchaserOrOnBehalf.Purchaser)           => routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
-          case Some(PurchaserOrOnBehalf.OnBehalfOfPurchaser) => routes.PurchaserBusinessOrIndividualController.onPageLoad(CheckMode)
+          case Some(PurchaserOrOnBehalf.Purchaser)           => initialquestions.routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
+          case Some(PurchaserOrOnBehalf.OnBehalfOfPurchaser) => initialquestions.routes.PurchaserBusinessOrIndividualController.onPageLoad(CheckMode)
           case _                                             => routes.JourneyRecoveryController.onPageLoad()
         }
     case NameDetailsPage =>
-      (_, _) => routes.YourDetailsCheckYourAnswersController.onPageLoad()
+      (_, _) => notifierdetails.routes.YourDetailsCheckYourAnswersController.onPageLoad()
     case BusinessNamePage =>
-      (_, _) => routes.YourDetailsCheckYourAnswersController.onPageLoad()
+      (_, _) => notifierdetails.routes.YourDetailsCheckYourAnswersController.onPageLoad()
     case PurchaserNamePage =>
-      (_, _) => routes.PurchaserDetailsCheckYourAnswersController.onPageLoad()
+      (_, _) => purchaserdetails.routes.PurchaserDetailsCheckYourAnswersController.onPageLoad()
     case PhoneNumberPage =>
-      (_, _) => routes.YourDetailsCheckYourAnswersController.onPageLoad()
+      (_, _) => notifierdetails.routes.YourDetailsCheckYourAnswersController.onPageLoad()
     case EmailAddressPage =>
-      (_, _) => routes.YourDetailsCheckYourAnswersController.onPageLoad()
+      (_, _) => notifierdetails.routes.YourDetailsCheckYourAnswersController.onPageLoad()
     case PurchaserBusinessNamePage =>
-      (_, _) => routes.PurchaserDetailsCheckYourAnswersController.onPageLoad()
-    case SupplierBusinessOrIndividualPage | SupplierNamePage | SupplierBusinessNamePage | IsSupplierAddressInTheUkPage | IsSupplierVatRegisteredPage |
-        SupplierVatRegistrationNumberPage =>
+      (_, _) => purchaserdetails.routes.PurchaserDetailsCheckYourAnswersController.onPageLoad()
+    case SupplierBusinessOrIndividualPage | SupplierNamePage | SupplierBusinessNamePage | IsSupplierAddressInTheUkPage |
+        IsSupplierVatRegisteredPage | SupplierVatRegistrationNumberPage =>
 
       (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD-S9.0 CYA when built
     case _ =>

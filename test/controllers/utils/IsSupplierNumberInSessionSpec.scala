@@ -19,7 +19,7 @@ package controllers.utils
 import models.{SupplierNumber, UserAnswers}
 import base.SpecBase
 import org.scalatest.matchers.must.Matchers
-import pages.sections.supplierDetails.SupplierNumberPage
+import pages.sections.supplierdetails.SupplierNumberPage
 
 class IsSupplierNumberInSessionSpec extends SpecBase with Matchers {
 

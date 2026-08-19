@@ -17,7 +17,7 @@
 package views
 
 import base.SpecBase
-import controllers.routes
+import controllers.{notifieraddress, notifierdetails, purchaseraddress, purchaserdetails, routes, vehicledetails}
 import models.{DraftNotification, NormalMode, SectionStatus}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.must.Matchers
@@ -54,11 +54,11 @@ class NotificationTaskListViewSpec extends SpecBase with Matchers with BeforeAnd
   )
 
   private val sectionLinks: Map[String, String] = Map(
-    DraftNotification.SectionId.NotifierDetails  -> routes.AboutYourDetailsController.onPageLoad().url,
-    DraftNotification.SectionId.NotifierAddress  -> routes.IsYourAddressInTheUkController.onPageLoad(NormalMode).url,
-    DraftNotification.SectionId.PurchaserDetails -> routes.PurchaserNameController.onPageLoad(NormalMode).url,
-    DraftNotification.SectionId.PurchaserAddress -> routes.IsPurchaserAddressInTheUkController.onPageLoad(NormalMode).url,
-    DraftNotification.SectionId.Vehicles         -> routes.AddVehicleDetailsController.onPageLoad(NormalMode).url,
+    DraftNotification.SectionId.NotifierDetails  -> notifierdetails.routes.AboutYourDetailsController.onPageLoad().url,
+    DraftNotification.SectionId.NotifierAddress  -> notifieraddress.routes.IsYourAddressInTheUkController.onPageLoad(NormalMode).url,
+    DraftNotification.SectionId.PurchaserDetails -> purchaserdetails.routes.PurchaserNameController.onPageLoad(NormalMode).url,
+    DraftNotification.SectionId.PurchaserAddress -> purchaseraddress.routes.IsPurchaserAddressInTheUkController.onPageLoad(NormalMode).url,
+    DraftNotification.SectionId.Vehicles         -> vehicledetails.routes.AddVehicleDetailsController.onPageLoad(NormalMode).url,
     DraftNotification.SectionId.Declaration      -> "/some-url"
   )
 
@@ -86,7 +86,7 @@ class NotificationTaskListViewSpec extends SpecBase with Matchers with BeforeAnd
       val html: String = view(traderName, vrn, allNotYetSaved, showAddYourAddress = false, showAboutThePurchaser = false, sectionLinks).toString
       html must include(msgs("notificationTaskList.aboutYou.heading"))
       html must include(msgs("notificationTaskList.aboutYou.addYourDetails"))
-      html must include(routes.AboutYourDetailsController.onPageLoad().url)
+      html must include(notifierdetails.routes.AboutYourDetailsController.onPageLoad().url)
     }
 
     "must omit the Add your address row when showAddYourAddress is false" in {
@@ -97,14 +97,14 @@ class NotificationTaskListViewSpec extends SpecBase with Matchers with BeforeAnd
     "must render the Add your address row linking to AYA1.0 when showAddYourAddress is true" in {
       val html: String = view(traderName, vrn, allNotYetSaved, showAddYourAddress = true, showAboutThePurchaser = false, sectionLinks).toString
       html must include(msgs("notificationTaskList.aboutYou.addYourAddress"))
-      html must include(routes.IsYourAddressInTheUkController.onPageLoad(NormalMode).url)
+      html must include(notifieraddress.routes.IsYourAddressInTheUkController.onPageLoad(NormalMode).url)
     }
 
     "must render the About the vehicles section with the Add vehicle details task linking to AVD1.0" in {
       val html: String = view(traderName, vrn, allNotYetSaved, showAddYourAddress = false, showAboutThePurchaser = false, sectionLinks).toString
       html must include(msgs("notificationTaskList.aboutTheVehicles.heading"))
       html must include(msgs("notificationTaskList.aboutTheVehicles.addVehicleDetails"))
-      html must include(routes.AddVehicleDetailsController.onPageLoad(NormalMode).url)
+      html must include(vehicledetails.routes.AddVehicleDetailsController.onPageLoad(NormalMode).url)
     }
 
     "must render the Declaration section with Cannot start yet status and the hint" in {
@@ -154,8 +154,8 @@ class NotificationTaskListViewSpec extends SpecBase with Matchers with BeforeAnd
       html must include(msgs("notificationTaskList.aboutThePurchaser.heading"))
       html must include(msgs("notificationTaskList.aboutThePurchaser.addPurchaserDetails"))
       html must include(msgs("notificationTaskList.aboutThePurchaser.addPurchaserAddress"))
-      html must include(routes.PurchaserNameController.onPageLoad(NormalMode).url)
-      html must include(routes.IsPurchaserAddressInTheUkController.onPageLoad(NormalMode).url)
+      html must include(purchaserdetails.routes.PurchaserNameController.onPageLoad(NormalMode).url)
+      html must include(purchaseraddress.routes.IsPurchaserAddressInTheUkController.onPageLoad(NormalMode).url)
     }
 
     "must render the same content via the render method" in {

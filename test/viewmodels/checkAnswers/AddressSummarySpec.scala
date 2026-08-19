@@ -17,7 +17,7 @@
 package viewmodels.checkAnswers
 
 import base.SpecBase
-import controllers.routes
+import controllers.notifieraddress.routes
 import models.{Address, Country, UserAnswers}
 import pages.sections.notifieraddress.AddressPage
 import play.api.Application

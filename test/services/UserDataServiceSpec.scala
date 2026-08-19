@@ -27,10 +27,10 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import pages.DraftIdPage
 import pages.sections.initialquestions.{BusinessOrPrivatePage, VehicleBusinessUsePage}
-import pages.sections.notifierDetails.{BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
+import pages.sections.notifierdetails.{BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 import pages.sections.notifieraddress.AddressPage
 import pages.sections.purchaseraddress.{IsPurchaserAddressInTheUkPage, PurchaserAddressPage}
-import pages.sections.purchaserDetails.{PurchaserBusinessNamePage, PurchaserNamePage}
+import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 import play.api.libs.json.{JsObject, Json, Writes}
 import repositories.SessionRepository
 import uk.gov.hmrc.http.HeaderCarrier

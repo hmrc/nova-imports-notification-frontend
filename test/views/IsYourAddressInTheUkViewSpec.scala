@@ -95,7 +95,7 @@ class IsYourAddressInTheUkViewSpec extends SpecBase with Matchers with BeforeAnd
     "must post to the IsYourAddressInTheUk submit URL" in {
       val html: String = view(form, NormalMode)(request, msgs).toString
 
-      html must include(s"""action="${controllers.routes.IsYourAddressInTheUkController.onSubmit(NormalMode).url}"""")
+      html must include(s"""action="${controllers.notifieraddress.routes.IsYourAddressInTheUkController.onSubmit(NormalMode).url}"""")
     }
 
     "must render the same content via the render method" in {

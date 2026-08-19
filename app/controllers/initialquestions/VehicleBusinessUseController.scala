@@ -1,0 +1,65 @@
+/*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package controllers.initialquestions
+
+import controllers.BaseController
+import controllers.actions.*
+import forms.VehicleBusinessUseFormProvider
+import javax.inject.Inject
+import models.{Mode, NovaUserType, UserAnswers}
+import navigation.Navigator
+import pages.sections.initialquestions.{VehicleBusinessUsePage, VehicleFromEuPage}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.SessionRepository
+import views.html.VehicleBusinessUseView
+
+import scala.concurrent.{ExecutionContext, Future}
+
+class VehicleBusinessUseController @Inject() (
+  val controllerComponents: MessagesControllerComponents,
+  sessionRepository: SessionRepository,
+  navigator: Navigator,
+  actions: Actions,
+  formProvider: VehicleBusinessUseFormProvider,
+  view: VehicleBusinessUseView
+)(implicit ec: ExecutionContext)
+    extends BaseController {
+
+  val form = formProvider()
+
+  private val guardPredicate: UserAnswers => Boolean =
+    _.get(VehicleFromEuPage).isDefined
+
+  def onPageLoad(mode: Mode): Action[AnyContent] = actions.vatTraderAuthAndGetDataWithGuard(guardPredicate) { implicit request =>
+    Ok(view(form.withDefault(request.userAnswers.get(VehicleBusinessUsePage)), mode))
+  }
+
+  def onSubmit(mode: Mode): Action[AnyContent] = actions.vatTraderAuthAndGetDataWithGuard(guardPredicate).async { implicit request =>
+    form
+      .bindFromRequest()
+      .fold(
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
+        value =>
+          for {
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(VehicleBusinessUsePage, value))
+            _              <- sessionRepository.set(updatedAnswers)
+          } yield Redirect(
+            navigator.nextPage(VehicleBusinessUsePage, mode, updatedAnswers, NovaUserType.from(request.affinityGroup, request.enrolments))
+          )
+      )
+  }
+}

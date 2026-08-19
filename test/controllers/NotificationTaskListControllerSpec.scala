@@ -28,7 +28,7 @@ import org.mockito.Mockito.{never, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.{AgentSelectedClientPage, DraftIdPage, IsDeregisteredPage, NotificationTaskListPage}
 import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
-import pages.sections.notifierDetails.PhoneNumberPage
+import pages.sections.notifierdetails.PhoneNumberPage
 import pages.sections.notifieraddress.AddressPage
 import play.api.Application
 import play.api.inject.bind
@@ -270,7 +270,7 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual OK
           body must include("Add your address")
-          body must include(routes.IsYourAddressInTheUkController.onPageLoad(NormalMode).url)
+          body must include(notifieraddress.routes.IsYourAddressInTheUkController.onPageLoad(NormalMode).url)
         }
       }
 
@@ -290,7 +290,7 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual OK
           body must include("Add your address")
-          body must include(routes.YourAddressCheckYourAnswersController.onPageLoad().url)
+          body must include(notifieraddress.routes.YourAddressCheckYourAnswersController.onPageLoad().url)
         }
       }
 
@@ -306,7 +306,7 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
           val body   = contentAsString(result)
 
           status(result) mustEqual OK
-          body must include(routes.AboutYourDetailsController.onPageLoad().url)
+          body must include(notifierdetails.routes.AboutYourDetailsController.onPageLoad().url)
           body must include(routes.LandingPageController.onPageLoad().url)
         }
       }
@@ -345,7 +345,7 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
           body must include("Harbourview Limited")
           body must include("Add your address")
           body must not include "About the purchaser"
-          body must include(routes.AddYourNameController.onPageLoad(NormalMode).url)
+          body must include(notifierdetails.routes.AddYourNameController.onPageLoad(NormalMode).url)
         }
       }
 
@@ -378,7 +378,7 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
           val body   = contentAsString(result)
 
           status(result) mustEqual OK
-          body must include(routes.BusinessNameController.onPageLoad(NormalMode).url)
+          body must include(notifierdetails.routes.BusinessNameController.onPageLoad(NormalMode).url)
         }
       }
 
@@ -397,8 +397,8 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
           body must include("About the purchaser")
           body must include("Add purchaser details")
           body must include("Add purchaser address")
-          body must include(routes.PurchaserNameController.onPageLoad(NormalMode).url)
-          body must include(routes.IsPurchaserAddressInTheUkController.onPageLoad(NormalMode).url)
+          body must include(purchaserdetails.routes.PurchaserNameController.onPageLoad(NormalMode).url)
+          body must include(purchaseraddress.routes.IsPurchaserAddressInTheUkController.onPageLoad(NormalMode).url)
         }
       }
 
@@ -414,7 +414,7 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
           val body   = contentAsString(result)
 
           status(result) mustEqual OK
-          body must include(routes.PurchaserBusinessNameController.onPageLoad(NormalMode).url)
+          body must include(purchaserdetails.routes.PurchaserBusinessNameController.onPageLoad(NormalMode).url)
         }
       }
 
@@ -433,7 +433,7 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
           body must include("ABC Consultancy")
           body must not include "Add your address"
           body must include("About the purchaser")
-          body must include(routes.PhoneNumberController.onPageLoad(NormalMode).url)
+          body must include(notifierdetails.routes.PhoneNumberController.onPageLoad(NormalMode).url)
         }
       }
 
@@ -449,7 +449,7 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
           val body   = contentAsString(result)
 
           status(result) mustEqual OK
-          body must include(routes.AddYourNameController.onPageLoad(NormalMode).url)
+          body must include(notifierdetails.routes.AddYourNameController.onPageLoad(NormalMode).url)
         }
       }
 
@@ -469,9 +469,9 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
           val body   = contentAsString(result)
 
           status(result) mustEqual OK
-          body must include(routes.PhoneNumberController.onPageLoad(NormalMode).url)
-          body must not include routes.BusinessNameController.onPageLoad(NormalMode).url
-          body must not include routes.AddYourNameController.onPageLoad(NormalMode).url
+          body must include(notifierdetails.routes.PhoneNumberController.onPageLoad(NormalMode).url)
+          body must not include notifierdetails.routes.BusinessNameController.onPageLoad(NormalMode).url
+          body must not include notifierdetails.routes.AddYourNameController.onPageLoad(NormalMode).url
         }
       }
 
@@ -487,7 +487,7 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
           val body   = contentAsString(result)
 
           status(result) mustEqual OK
-          body must include(routes.PurchaserNameController.onPageLoad(NormalMode).url)
+          body must include(purchaserdetails.routes.PurchaserNameController.onPageLoad(NormalMode).url)
         }
       }
 

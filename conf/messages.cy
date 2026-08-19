@@ -112,18 +112,6 @@ isYourAddressInTheUk.error.required = Dewiswch ‘Iawn’ os yw’ch cyfeiriad y
 isYourAddressInTheUk.change.hidden = whether your address is in the UK
 isYourAddressInTheUk.checkYourAnswersLabel = Is your address in the UK
 
-##################################################################
-# APA2.0 - Add purchaser address 2.0: We've changed their address #
-##################################################################
-
-purchaserAddressChanged.title = We’ve changed the purchaser’s address
-purchaserAddressChanged.caption = Add purchaser address
-purchaserAddressChanged.heading = We’ve changed the purchaser’s address
-purchaserAddressChanged.body = Gallai hyn fod oherwydd nodau annilys neu fod rhai llinellau’n rhy hir.
-purchaserAddressChanged.checkHeading = Gwiriwch y cyfeiriad wedi’i ddiweddaru
-purchaserAddressChanged.changeAddress = Newid y cyfeiriad
-purchaserAddressChanged.saveAndContinue = Cadw a pharhau
-
 ###########################################################
 # AYA3.0 - Add your address 3.0: We've changed your address #
 ###########################################################
@@ -158,17 +146,17 @@ isPurchaserAddressInTheUk.heading = Is the purchaser’s address in the UK?
 isPurchaserAddressInTheUk.caption = Add purchaser address
 isPurchaserAddressInTheUk.error.required = Select yes if the purchaser’s address is in the UK
 
-###################################################################
-# APA3.0 - Add purchaser address 3.0: We've changed the purchaser's address #
-###################################################################
-# TODO: Welsh translations to be supplied by content team.
+##################################################################
+# APA2.0 - Add purchaser address 2.0: We've changed their address #
+##################################################################
 
 purchaserAddressChanged.title = We’ve changed the purchaser’s address
 purchaserAddressChanged.caption = Add purchaser address
 purchaserAddressChanged.heading = We’ve changed the purchaser’s address
-purchaserAddressChanged.body = This could be because of invalid characters or some lines are too long.
-purchaserAddressChanged.checkHeading = Check the updated address
-purchaserAddressChanged.changeAddress = Change address
+purchaserAddressChanged.body = Gallai hyn fod oherwydd nodau annilys neu fod rhai llinellau’n rhy hir
+purchaserAddressChanged.checkHeading = Gwiriwch y cyfeiriad wedi’i ddiweddaru
+purchaserAddressChanged.changeAddress = Newid y cyfeiriad
+purchaserAddressChanged.saveAndContinue = Cadw a pharhau
 
 ###########################################################
 # Address lookup (ALF) journey labels                     #
@@ -234,6 +222,28 @@ addressLookup.supplier.countryPicker.title = Enter the country or territory of t
 addressLookup.supplier.countryPicker.heading = Enter the country or territory of the supplier’s address
 addressLookup.supplier.countryPicker.countryLabel = Country or territory
 addressLookup.supplier.error.countryPickerRequired = Enter the country or territory of the supplier’s address
+
+###############################################################################
+# Address lookup (ALF) labels for the purchaser journey (APA1.1a - APA2.3) #
+# Only the keys whose copy differs from the shared labels above               #
+###############################################################################
+
+addressLookup.purchaser.uk.lookup.title = Find the purchaser’s address
+addressLookup.purchaser.uk.lookup.heading = Find the purchaser’s address
+addressLookup.purchaser.uk.select.title = Choose the purchaser’s address
+addressLookup.purchaser.uk.select.heading = Choose the purchaser’s address
+addressLookup.purchaser.uk.select.proposalListLabel = Select the purchaser’s address
+addressLookup.purchaser.uk.edit.title = Enter the purchaser’s address
+addressLookup.purchaser.uk.edit.heading = Enter the purchaser’s address
+addressLookup.purchaser.nonUk.edit.title = Enter the purchaser’s address
+addressLookup.purchaser.nonUk.edit.heading = Enter the purchaser’s address
+addressLookup.purchaser.confirm.title = Review and confirm the purchaser’s address
+addressLookup.purchaser.confirm.heading = Review and confirm the purchaser’s address
+addressLookup.purchaser.confirm.submitLabel = Confirm address
+addressLookup.purchaser.countryPicker.title = Enter the country or territory of the purchaser’s address
+addressLookup.purchaser.countryPicker.heading = Enter the country or territory of the purchaser’s address
+addressLookup.purchaser.countryPicker.countryLabel = Country or territory
+addressLookup.purchaser.error.countryPickerRequired = Enter the country or territory of the purchaser’s address
 
 ######################################################
 # AYD1.0 - Add Your Details 1: Guidance page         #
@@ -556,3 +566,13 @@ initialQuestionsCheckYourAnswers.title = Check your answers - Initial questions
 yourDetailsCheckYourAnswers.caption = Ychwanegu eich manylion chi
 yourDetailsCheckYourAnswers.heading = Gwiriwch eich atebion
 yourDetailsCheckYourAnswers.title = Check your answers - your details
+
+######################################################
+# CYA3.0 - Check your answers 3.0 - Your address     #
+######################################################
+
+yourAddressCheckYourAnswers.caption = Ychwanegwch eich cyfeiriad
+yourAddressCheckYourAnswers.title = Gwiriwch eich atebion - eich cyfeiriad
+yourAddressCheckYourAnswers.heading = Gwiriwch eich atebion
+yourAddressCheckYourAnswers.change.hidden = eich cyfeiriad
+yourAddressCheckYourAnswers.checkYourAnswersLabel = Cyfeiriad

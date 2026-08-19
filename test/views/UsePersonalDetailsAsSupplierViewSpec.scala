@@ -23,7 +23,7 @@ import models.{Address, Country, NormalMode, UserAnswers}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.must.Matchers
 import pages.sections.notifieraddress.AddressPage
-import pages.sections.notifierDetails.BusinessNamePage
+import pages.sections.notifierdetails.BusinessNamePage
 import play.api.Application
 import play.api.i18n.Messages
 import play.api.mvc.Request
@@ -139,7 +139,7 @@ class UsePersonalDetailsAsSupplierViewSpec extends SpecBase with Matchers with B
     "must post to the UsePersonalDetailsAsSupplier submit URL" in {
       val html: String = view(form, NormalMode, personalDetails, vatNotice728Url)(request, msgs).toString
 
-      html must include(s"""action="${controllers.routes.UsePersonalDetailsAsSupplierController.onSubmit(NormalMode).url}"""")
+      html must include(s"""action="${controllers.supplierdetails.routes.UsePersonalDetailsAsSupplierController.onSubmit(NormalMode).url}"""")
     }
 
     "must render the same content via the render method" in {

@@ -17,9 +17,9 @@
 package viewmodels.checkAnswers
 
 import base.SpecBase
-import controllers.routes
+import controllers.supplierdetails.routes
 import models.{CheckMode, NameDetails, SupplierNumber, UserAnswers}
-import pages.sections.supplierDetails.{SupplierNamePage, SupplierNumberPage}
+import pages.sections.supplierdetails.{SupplierNamePage, SupplierNumberPage}
 import play.api.Application
 import play.api.i18n.Messages
 

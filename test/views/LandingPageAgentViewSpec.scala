@@ -124,7 +124,7 @@ class LandingPageAgentViewSpec extends SpecBase with Matchers with BeforeAndAfte
 
       html must include(msgs("landingPage.agent.clients.link"))
       html must include(msgs("landingPage.agent.clients.body"))
-      html must include(controllers.routes.LoadingClientListController.onPageLoad().url)
+      html must include(controllers.clientselection.routes.LoadingClientListController.onPageLoad().url)
     }
 
     "must render the same content via the render method" in {
@@ -143,12 +143,4 @@ class LandingPageAgentViewSpec extends SpecBase with Matchers with BeforeAndAfte
       view.ref mustBe view
     }
   }
-
-//  trait Setup {
-//    val app: Application             = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-//    implicit val request: Request[?] = FakeRequest()
-//    implicit val msgs: Messages      = messages(app)
-//
-//    val view: LandingPageAgentView = app.injector.instanceOf[LandingPageAgentView]
-//  }
 }

@@ -85,7 +85,7 @@ class BeforeYouContinueViewSpec extends SpecBase with Matchers with BeforeAndAft
 
     "must submit the Continue button to the BeforeYouContinue onSubmit action so the session is reset" in {
       val html: String = view().toString
-      html must include(s"""action="${controllers.routes.BeforeYouContinueController.onSubmit().url}"""")
+      html must include(s"""action="${controllers.introduction.routes.BeforeYouContinueController.onSubmit().url}"""")
       html must include("""method="POST"""")
     }
 
