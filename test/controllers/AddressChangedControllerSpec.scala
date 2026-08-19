@@ -18,16 +18,18 @@ package controllers
 
 import base.SpecBase
 import connectors.{NovaImportsBackendConnector, UpdateSectionError}
-import models.draftsections.{NotifierAddress, SupplierAddress}
-import models.{Address, Country, DraftId, NormalMode, SupplierNumber, UserAnswers}
+import models.draftsections.{NotifierAddress, PurchaserAddress, SupplierAddress}
+import models.{Address, Country, DraftId, NormalMode, PurchaserOrOnBehalf, SupplierNumber, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.{DraftIdPage, DraftVersionIdPage}
+import pages.sections.initialquestions.PurchaserOrOnBehalfPage
 import pages.sections.notifieraddress.{AddressJourneyIdPage, AddressPage}
-import pages.sections.supplierDetails.{IsSupplierAddressInTheUkPage, SupplierNumberPage}
-import pages.sections.supplieraddress.{SupplierAddressJourneyIdPage, SupplierAddressPage}
+import pages.sections.purchaseraddress.{PurchaserAddressJourneyIdPage, PurchaserAddressPage}
+import pages.sections.supplierdetails.SupplierNumberPage
+import pages.sections.supplieraddress.{IsSupplierAddressInTheUkPage, SupplierAddressJourneyIdPage, SupplierAddressPage}
 import play.api.Application
 import play.api.inject.bind
 import play.api.libs.json.{JsObject, Json}
@@ -181,7 +183,7 @@ class AddressChangedControllerSpec extends SpecBase with MockitoSugar {
         val result  = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.IsYourAddressInTheUkController.onPageLoad(NormalMode).url
+        redirectLocation(result).value mustEqual notifieraddress.routes.IsYourAddressInTheUkController.onPageLoad(NormalMode).url
 
         val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(sessionRepository).set(captor.capture())
@@ -270,7 +272,7 @@ class AddressChangedControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, FakeRequest(GET, supplierChangeAddressRoute)).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.IsSupplierAddressInTheUKController.onPageLoad(supplierNumber, NormalMode).url
+        redirectLocation(result).value mustEqual supplieraddress.routes.IsSupplierAddressInTheUKController.onPageLoad(supplierNumber, NormalMode).url
 
         val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(sessionRepository).set(captor.capture())
@@ -297,6 +299,102 @@ class AddressChangedControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val result = route(application, FakeRequest(GET, supplierPageLoadRoute)).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+  }
+
+  "AddressChanged Controller with Purchaser" - {
+
+    lazy val purchaserPageLoadRoute      = routes.AddressChangedController.purchaserOnPageLoad().url
+    lazy val purchaserSubmitRoute        = routes.AddressChangedController.purchaserOnSubmit().url
+    lazy val purchaserChangeAddressRoute = routes.AddressChangedController.purchaserOnChangeAddress().url
+
+    val purchaserAnswers: UserAnswers =
+      emptyUserAnswers
+        .set(PurchaserAddressPage, address)
+        .success
+        .value
+        .set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+        .success
+        .value
+        .set(DraftIdPage, draftId)
+        .success
+        .value
+        .set(DraftVersionIdPage, 0L)
+        .success
+        .value
+
+    "must render the purchaser copy and post to the purchaser routes" in {
+      val application = applicationWith(userAnswers = Some(purchaserAnswers))
+
+      running(application) {
+        val request = FakeRequest(GET, purchaserPageLoadRoute)
+        val result  = route(application, request).value
+        val view    = application.injector.instanceOf[AddressChangedView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(
+          address,
+          "purchaserAddressChanged",
+          routes.AddressChangedController.purchaserOnChangeAddress(),
+          routes.AddressChangedController.purchaserOnSubmit()
+        )(request, messages(application)).toString
+      }
+    }
+
+    "must save to the purchaser-address draft section on submit" in {
+      val backendConnector = stubBackendConnector()
+      val application      = applicationWith(userAnswers = Some(purchaserAnswers), backendConnector = backendConnector)
+
+      running(application) {
+        val result = route(application, FakeRequest(POST, purchaserSubmitRoute)).value
+
+        status(result) mustEqual SEE_OTHER
+
+        val body = ArgumentCaptor.forClass(classOf[JsObject])
+        verify(backendConnector).updateDraftSection(eqTo(draftId), eqTo("purchaser-address"), body.capture())(any[HeaderCarrier])
+        body.getValue mustBe Json.toJson(PurchaserAddress.fromAddress(address)).as[JsObject] + ("versionId", Json.toJson(0L))
+      }
+    }
+
+    "must clear only the purchaser address on change address" in {
+      val sessionRepository = stubSessionRepository()
+      val application       = applicationWith(userAnswers = Some(purchaserAnswers), sessionRepository = sessionRepository)
+
+      running(application) {
+        val result = route(application, FakeRequest(GET, purchaserChangeAddressRoute)).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual purchaseraddress.routes.IsPurchaserAddressInTheUkController.onPageLoad(NormalMode).url
+
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
+        verify(sessionRepository).set(captor.capture())
+        captor.getValue.get(PurchaserAddressPage) mustBe None
+        captor.getValue.get(PurchaserAddressJourneyIdPage) mustBe None
+      }
+    }
+
+    "must redirect to Unauthorised when a non-agent has not answered on behalf of the purchaser" in {
+      val answers     = purchaserAnswers.remove(PurchaserOrOnBehalfPage).success.value
+      val application = applicationWith(userAnswers = Some(answers))
+
+      running(application) {
+        val result = route(application, FakeRequest(GET, purchaserPageLoadRoute)).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Unauthorised when no purchaser address has been stored" in {
+      val answers     = purchaserAnswers.remove(PurchaserAddressPage).success.value
+      val application = applicationWith(userAnswers = Some(answers))
+
+      running(application) {
+        val result = route(application, FakeRequest(GET, purchaserPageLoadRoute)).value
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url

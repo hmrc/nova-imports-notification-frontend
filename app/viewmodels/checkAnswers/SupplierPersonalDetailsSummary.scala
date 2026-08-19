@@ -17,7 +17,7 @@
 package viewmodels.checkAnswers
 
 import models.{Country, NameDetails, TraderInformation, UserAnswers}
-import pages.sections.notifierDetails.{BusinessNamePage, NameDetailsPage}
+import pages.sections.notifierdetails.{BusinessNamePage, NameDetailsPage}
 import pages.sections.notifieraddress.AddressPage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat

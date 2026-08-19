@@ -28,10 +28,10 @@ import play.api.libs.json.*
 import repositories.SessionRepository
 import uk.gov.hmrc.http.HeaderCarrier
 import services.UserDataService.*
-import pages.{AgentClientVehicleBusinessUsePage, AgentSelectedClientPage}
-import pages.sections.notifierDetails.{BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
-import pages.sections.purchaserDetails.{PurchaserBusinessNamePage, PurchaserNamePage}
-import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
+import pages.AgentSelectedClientPage
+import pages.sections.notifierdetails.{BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
+import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
+import pages.sections.purchaseraddress.{IsPurchaserAddressInTheUkPage, PurchaserAddressPage}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -361,7 +361,8 @@ object UserDataService {
     else SectionStatus.NotYetSaved
 
   private def purchaserAddressStatus(answers: UserAnswers): SectionStatus =
-    if answers.get(IsPurchaserAddressInTheUkPage).isDefined then SectionStatus.Incomplete
+    if answers.get(PurchaserAddressPage).isDefined then SectionStatus.Completed
+    else if answers.get(IsPurchaserAddressInTheUkPage).isDefined then SectionStatus.Incomplete
     else SectionStatus.NotYetSaved
 
 }

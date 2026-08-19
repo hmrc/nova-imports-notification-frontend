@@ -30,4 +30,8 @@ object AddressJourney {
   final case class Supplier(number: SupplierNumber) extends AddressJourney {
     override val keySegment: String = "supplier"
   }
+
+  case object Purchaser extends AddressJourney {
+    override val keySegment: String = "purchaser"
+  }
 }

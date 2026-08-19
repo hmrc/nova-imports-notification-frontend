@@ -1,0 +1,28 @@
+/*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package pages.sections.supplieraddress
+
+import pages.QuestionPage
+import play.api.libs.json.JsPath
+
+case object IsSupplierAddressInTheUkPage extends QuestionPage[Boolean] {
+
+  // TODO: This supplier-details will get updated with supplier and vehicle FE session schema changes
+  override def path: JsPath = JsPath \ "supplier-details" \ toString
+
+  override def toString: String = "isSupplierAddressInTheUk"
+}

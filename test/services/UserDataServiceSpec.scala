@@ -27,10 +27,10 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import pages.DraftIdPage
 import pages.sections.initialquestions.{BusinessOrPrivatePage, VehicleBusinessUsePage}
-import pages.sections.notifierDetails.{BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
+import pages.sections.notifierdetails.{BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 import pages.sections.notifieraddress.AddressPage
-import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
-import pages.sections.purchaserDetails.{PurchaserBusinessNamePage, PurchaserNamePage}
+import pages.sections.purchaseraddress.{IsPurchaserAddressInTheUkPage, PurchaserAddressPage}
+import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 import play.api.libs.json.{JsObject, Json, Writes}
 import repositories.SessionRepository
 import uk.gov.hmrc.http.HeaderCarrier
@@ -112,7 +112,14 @@ class UserDataServiceSpec extends SpecBase with MockitoSugar with ScalaFutures w
       UserDataService.privateIndividual(emptyUserAnswers)(SectionId.PurchaserDetails) mustBe SectionStatus.NotYetSaved
     }
 
-    "must mark the purchaser address section Incomplete when the in-UK question is answered" in {
+    "must mark the purchaser address section Completed when a purchaser address is stored" in {
+      val answers = emptyUserAnswers
+        .unsafeSet(IsPurchaserAddressInTheUkPage, true)
+        .unsafeSet(PurchaserAddressPage, sampleAddress)
+      UserDataService.privateIndividual(answers)(SectionId.PurchaserAddress) mustBe SectionStatus.Completed
+    }
+
+    "must mark the purchaser address section Incomplete when the in-UK question is answered but no address is stored" in {
       val answers = emptyUserAnswers.unsafeSet(IsPurchaserAddressInTheUkPage, true)
       UserDataService.privateIndividual(answers)(SectionId.PurchaserAddress) mustBe SectionStatus.Incomplete
     }

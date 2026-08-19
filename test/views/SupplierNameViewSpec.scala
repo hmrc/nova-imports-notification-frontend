@@ -91,10 +91,18 @@ class SupplierNameViewSpec extends SpecBase with Matchers with BeforeAndAfterAll
       html must include(msgs("site.continue"))
     }
 
+    "must switch off autocomplete on each input itself" in {
+      val html: String = view(form, SupplierNumber(1), NormalMode)(request, msgs).toString.replaceAll("\\s+", " ")
+
+      html must include("""name="title" type="text" autocomplete="off"""")
+      html must include("""name="firstName" type="text" autocomplete="off"""")
+      html must include("""name="lastName" type="text" autocomplete="off"""")
+    }
+
     "must post to the supplier number given in the URL" in {
       val html: String = view(form, SupplierNumber(3), NormalMode)(request, msgs).toString
 
-      html must include(controllers.routes.SupplierNameController.onSubmit(SupplierNumber(3), NormalMode).url)
+      html must include(controllers.supplierdetails.routes.SupplierNameController.onSubmit(SupplierNumber(3), NormalMode).url)
     }
 
     "must render the error summary when the form has errors" in {

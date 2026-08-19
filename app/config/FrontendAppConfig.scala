@@ -61,6 +61,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
     val path = journey match {
       case AddressJourney.Notifier         => controllers.routes.AddressLookupCallbackController.callback(None).url
       case AddressJourney.Supplier(number) => controllers.routes.AddressLookupCallbackController.supplierCallback(number, None).url
+      case AddressJourney.Purchaser        => controllers.routes.AddressLookupCallbackController.purchaserCallback(None).url
     }
     s"$host$path"
   }

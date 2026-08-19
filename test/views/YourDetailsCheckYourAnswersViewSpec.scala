@@ -20,7 +20,7 @@ import base.SpecBase
 import models.{ContactNumbers, NameDetails, UserAnswers, UserContext}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.must.Matchers
-import pages.sections.notifierDetails.{EmailAddressPage, NameDetailsPage, PhoneNumberPage}
+import pages.sections.notifierdetails.{EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 import play.api.Application
 import play.api.i18n.Messages
 import play.api.mvc.Request

@@ -25,7 +25,7 @@ import play.api.Logging
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
-import services.AddressSanitiser
+import services.{AddressSanitiser, AddressValidator}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
@@ -46,6 +46,9 @@ class AddressLookupCallbackController @Inject() (
 
   def supplierCallback(supplierNumber: SupplierNumber, id: Option[String]): Action[AnyContent] =
     handleCallback(AddressJourney.Supplier(supplierNumber), id)
+
+  def purchaserCallback(id: Option[String]): Action[AnyContent] =
+    handleCallback(AddressJourney.Purchaser, id)
 
   private def handleCallback(journey: AddressJourney, id: Option[String]): Action[AnyContent] = {
     val binding = AddressJourneyBinding(journey)
@@ -79,7 +82,7 @@ class AddressLookupCallbackController @Inject() (
       case Right(address) =>
         val sanitised = AddressSanitiser.sanitise(address)
 
-        if (!mandatoryFieldsPopulated(sanitised)) {
+        if (!AddressValidator.hasMandatoryFields(sanitised)) {
           logger.warn(s"Sanitiser stripped mandatory address fields to empty for journey $journeyId")
           Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
         } else {
@@ -97,9 +100,6 @@ class AddressLookupCallbackController @Inject() (
         }
     }
   }
-
-  private def mandatoryFieldsPopulated(address: Address): Boolean =
-    address.lines.lift(0).exists(_.trim.nonEmpty) && address.lines.lift(1).exists(_.trim.nonEmpty)
 
   private def saveViaF4(binding: AddressJourneyBinding, address: Address, userAnswers: UserAnswers)(implicit
     hc: HeaderCarrier

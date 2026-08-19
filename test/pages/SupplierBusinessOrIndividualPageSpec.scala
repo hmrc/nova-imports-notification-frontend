@@ -18,7 +18,7 @@ package pages
 
 import base.SpecBase
 import models.{BusinessOrPrivateIndividual, NameDetails}
-import pages.sections.supplierDetails.{SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage}
+import pages.sections.supplierdetails.{SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage}
 
 class SupplierBusinessOrIndividualPageSpec extends SpecBase {
 

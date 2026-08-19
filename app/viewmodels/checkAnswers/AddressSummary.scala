@@ -16,7 +16,7 @@
 
 package viewmodels.checkAnswers
 
-import controllers.routes
+import controllers.notifieraddress.routes
 import models.UserAnswers
 import pages.sections.notifieraddress.AddressPage
 import play.api.i18n.Messages

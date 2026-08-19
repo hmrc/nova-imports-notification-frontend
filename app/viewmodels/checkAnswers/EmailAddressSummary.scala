@@ -16,9 +16,9 @@
 
 package viewmodels.checkAnswers
 
-import controllers.routes
+import controllers.notifierdetails.routes
 import models.{CheckMode, UserAnswers}
-import pages.sections.notifierDetails.EmailAddressPage
+import pages.sections.notifierdetails.EmailAddressPage
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow

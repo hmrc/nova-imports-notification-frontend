@@ -76,6 +76,12 @@ class SupplierBusinessNameViewSpec extends SpecBase with Matchers with BeforeAnd
       html must not include "govuk-input--width"
     }
 
+    "must switch off autocomplete on the input itself" in {
+      val html = view(form, SupplierNumber(1), NormalMode)(request, msgs).toString.replaceAll("\\s+", " ")
+
+      html must include("""name="value" type="text" autocomplete="off"""")
+    }
+
     "must render the Continue button" in {
       val html: String = view(form, SupplierNumber(1), NormalMode)(request, msgs).toString
 
@@ -85,7 +91,7 @@ class SupplierBusinessNameViewSpec extends SpecBase with Matchers with BeforeAnd
     "must post to the supplier number given in the URL" in {
       val html: String = view(form, SupplierNumber(3), NormalMode)(request, msgs).toString
 
-      html must include(controllers.routes.SupplierBusinessNameController.onSubmit(SupplierNumber(3), NormalMode).url)
+      html must include(controllers.supplierdetails.routes.SupplierBusinessNameController.onSubmit(SupplierNumber(3), NormalMode).url)
     }
 
     "must render the error summary when the form has errors" in {

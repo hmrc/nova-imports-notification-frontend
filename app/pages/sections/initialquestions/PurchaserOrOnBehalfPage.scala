@@ -18,7 +18,7 @@ package pages.sections.initialquestions
 
 import models.{PurchaserOrOnBehalf, UserAnswers}
 import pages.QuestionPage
-import pages.sections.purchaserDetails.{PurchaserBusinessNamePage, PurchaserNamePage}
+import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 import play.api.libs.json.JsPath
 
 import scala.util.Try

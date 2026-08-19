@@ -16,9 +16,9 @@
 
 package viewmodels.checkAnswers
 
-import controllers.routes
+import controllers.supplierdetails.routes
 import models.{BusinessOrPrivateIndividual, CheckMode, SupplierNumber, UserAnswers}
-import pages.sections.supplierDetails.{SupplierBusinessOrIndividualPage, SupplierNumberPage}
+import pages.sections.supplierdetails.{SupplierBusinessOrIndividualPage, SupplierNumberPage}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*

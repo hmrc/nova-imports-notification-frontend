@@ -113,7 +113,7 @@ class AddressLookupServiceSpec extends SpecBase with MockitoSugar with ScalaFutu
         (buildUkConfig \ "options" \ "allowedCountryCodes").toOption mustBe None
       }
 
-      "must mandate addressLine1 and line2 at the ALF UI level (line2 enforced at the FE callback guard so postcode lookup with 3-section addresses isn't blocked)" in {
+      "must mandate addressLine1 and line2 at the ALF UI level (town and postcode stay optional)" in {
         val mf = buildUkConfig \ "options" \ "manualAddressEntryConfig" \ "mandatoryFields"
         (mf \ "addressLine1").as[Boolean] mustBe true
         (mf \ "addressLine2").as[Boolean] mustBe true
@@ -148,9 +148,10 @@ class AddressLookupServiceSpec extends SpecBase with MockitoSugar with ScalaFutu
           (maxLen \ lang \ field).asOpt[String] mustBe defined
       }
 
-      "must override editPage.town.error via otherLabels and not override country" in {
+      "must override editPage.line1.error, line2.error and town.error via otherLabels and not override country" in {
         val otherEn = buildUkConfig \ "labels" \ "en" \ "otherLabels"
-        (otherEn \ "editPage.town.error").asOpt[String] mustBe defined
+        (otherEn \ "editPage.line1.error").asOpt[String] mustBe defined
+        (otherEn \ "editPage.line2.error").asOpt[String] mustBe defined
         (otherEn \ "constants.editPageCountryErrorMessage").toOption mustBe None
       }
 
@@ -180,7 +181,7 @@ class AddressLookupServiceSpec extends SpecBase with MockitoSugar with ScalaFutu
         codes.size must be > 200
       }
 
-      "must mandate addressLine1 and line2 at the ALF UI level (line2 enforced at the FE callback guard for consistency with the UK flow)" in {
+      "must mandate addressLine1 and line2 at the ALF UI level (town and postcode stay optional; country is always required by ALF itself in non-UK mode)" in {
         val mf = buildNonUkConfig \ "options" \ "manualAddressEntryConfig" \ "mandatoryFields"
         (mf \ "addressLine1").as[Boolean] mustBe true
         (mf \ "addressLine2").as[Boolean] mustBe true
@@ -212,9 +213,10 @@ class AddressLookupServiceSpec extends SpecBase with MockitoSugar with ScalaFutu
           (maxLen \ lang \ field).asOpt[String] mustBe defined
       }
 
-      "must override editPage.town.error and editPageCountryErrorMessage via otherLabels" in {
+      "must override editPage.line1.error, line2.error, town.error and editPageCountryErrorMessage via otherLabels" in {
         val otherEn = buildNonUkConfig \ "labels" \ "en" \ "otherLabels"
-        (otherEn \ "editPage.town.error").asOpt[String] mustBe defined
+        (otherEn \ "editPage.line1.error").asOpt[String] mustBe defined
+        (otherEn \ "editPage.line2.error").asOpt[String] mustBe defined
         (otherEn \ "constants.editPageCountryErrorMessage").asOpt[String] mustBe defined
       }
 

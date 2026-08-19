@@ -17,7 +17,7 @@
 package controllers.utils
 
 import models.{SupplierNumber, UserAnswers}
-import pages.sections.supplierDetails.SupplierNumberPage
+import pages.sections.supplierdetails.SupplierNumberPage
 
 object IsSupplierNumberInSession {
 

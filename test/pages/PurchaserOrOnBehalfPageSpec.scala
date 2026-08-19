@@ -19,7 +19,7 @@ package pages
 import base.SpecBase
 import models.{NameDetails, PurchaserBusinessOrIndividual, PurchaserOrOnBehalf}
 import pages.sections.initialquestions.{PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage}
-import pages.sections.purchaserDetails.{PurchaserBusinessNamePage, PurchaserNamePage}
+import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 
 class PurchaserOrOnBehalfPageSpec extends SpecBase {
 

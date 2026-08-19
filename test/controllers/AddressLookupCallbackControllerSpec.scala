@@ -18,16 +18,18 @@ package controllers
 
 import base.SpecBase
 import connectors.{AddressLookupConnector, AddressLookupError, NovaImportsBackendConnector, UpdateSectionError}
-import models.draftsections.{NotifierAddress, SupplierAddress}
-import models.{Address, Country, DraftId, SupplierNumber, UserAnswers}
+import models.draftsections.{NotifierAddress, PurchaserAddress, SupplierAddress}
+import models.{Address, Country, DraftId, PurchaserOrOnBehalf, SupplierNumber, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.DraftIdPage
+import pages.sections.initialquestions.PurchaserOrOnBehalfPage
 import pages.sections.notifieraddress.{AddressJourneyIdPage, AddressPage}
-import pages.sections.supplierDetails.{IsSupplierAddressInTheUkPage, SupplierNumberPage}
-import pages.sections.supplieraddress.{SupplierAddressJourneyIdPage, SupplierAddressPage}
+import pages.sections.purchaseraddress.{PurchaserAddressJourneyIdPage, PurchaserAddressPage}
+import pages.sections.supplierdetails.SupplierNumberPage
+import pages.sections.supplieraddress.{IsSupplierAddressInTheUkPage, SupplierAddressJourneyIdPage, SupplierAddressPage}
 import play.api.Application
 import play.api.inject.bind
 import play.api.libs.json.{JsObject, Json}
@@ -317,6 +319,105 @@ class AddressLookupCallbackControllerSpec extends SpecBase with MockitoSugar {
 
       running(app) {
         val result = route(app, FakeRequest(GET, supplierCallbackOk)).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+  }
+
+  "AddressLookupCallbackController, returning from a purchaser journey" - {
+
+    lazy val purchaserCallbackOk = routes.AddressLookupCallbackController.purchaserCallback(Some(journeyId)).url
+
+    val purchaserAnswers: UserAnswers =
+      emptyUserAnswers
+        .set(DraftIdPage, draftId)
+        .success
+        .value
+        .set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+        .success
+        .value
+
+    "must store the address against the purchaser, not the notifier" in {
+      val sessionRepository = stubSessionRepository(purchaserAnswers)
+      val app               = applicationWith(userAnswers = Some(purchaserAnswers), sessionRepository = sessionRepository)
+
+      running(app) {
+        val result = route(app, FakeRequest(GET, purchaserCallbackOk)).value
+
+        status(result) mustEqual SEE_OTHER
+
+        val answers = ArgumentCaptor.forClass(classOf[UserAnswers])
+        verify(sessionRepository).set(answers.capture())
+        answers.getValue.get(PurchaserAddressPage) mustBe Some(cleanAddress)
+        answers.getValue.get(AddressPage) mustBe None
+      }
+    }
+
+    "must save to the purchaser-address draft section, not notifier-address" in {
+      val backendConnector = stubBackendConnector()
+      val app              = applicationWith(
+        userAnswers = Some(purchaserAnswers),
+        backendConnector = backendConnector,
+        sessionRepository = stubSessionRepository(purchaserAnswers)
+      )
+
+      running(app) {
+        route(app, FakeRequest(GET, purchaserCallbackOk)).value.futureValue
+
+        val body = ArgumentCaptor.forClass(classOf[JsObject])
+        verify(backendConnector).updateDraftSection(eqTo(draftId), eqTo("purchaser-address"), body.capture())(any[HeaderCarrier])
+        body.getValue mustBe Json.toJson(PurchaserAddress.fromAddress(cleanAddress)).as[JsObject] + ("versionId", Json.toJson(0L))
+      }
+    }
+
+    "must route a truncated purchaser address to the purchaser address-changed page, not the notifier's" in {
+      val app = applicationWith(
+        userAnswers = Some(purchaserAnswers),
+        alfConnector = stubAlfConnector(Right(dirtyAddress)),
+        sessionRepository = stubSessionRepository(purchaserAnswers)
+      )
+
+      running(app) {
+        val result = route(app, FakeRequest(GET, purchaserCallbackOk)).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.AddressChangedController.purchaserOnPageLoad().url
+      }
+    }
+
+    "must store the ALF journey id against the purchaser section" in {
+      val sessionRepository = stubSessionRepository(purchaserAnswers)
+      val app               = applicationWith(userAnswers = Some(purchaserAnswers), sessionRepository = sessionRepository)
+
+      running(app) {
+        route(app, FakeRequest(GET, purchaserCallbackOk)).value.futureValue
+
+        verify(sessionRepository).setPage(any(), eqTo(PurchaserAddressJourneyIdPage), eqTo(journeyId))(any())
+      }
+    }
+
+    "must redirect to Unauthorised when the guard fails because no draft has been created" in {
+      val app = applicationWith(
+        userAnswers = Some(emptyUserAnswers),
+        sessionRepository = stubSessionRepository(emptyUserAnswers)
+      )
+
+      running(app) {
+        val result = route(app, FakeRequest(GET, purchaserCallbackOk)).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Unauthorised when a non-agent has not answered on behalf of the purchaser" in {
+      val answers = purchaserAnswers.remove(PurchaserOrOnBehalfPage).success.value
+      val app     = applicationWith(userAnswers = Some(answers), sessionRepository = stubSessionRepository(answers))
+
+      running(app) {
+        val result = route(app, FakeRequest(GET, purchaserCallbackOk)).value
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url

@@ -141,7 +141,7 @@ class PhoneNumberViewSpec extends SpecBase with Matchers with BeforeAndAfterAll 
     "must post to the PhoneNumber submit URL" in {
       val html: String = view(form, NormalMode)(request, msgs).toString
 
-      html must include(s"""action="${controllers.routes.PhoneNumberController.onSubmit(NormalMode).url}"""")
+      html must include(s"""action="${controllers.notifierdetails.routes.PhoneNumberController.onSubmit(NormalMode).url}"""")
     }
 
     "must render the same content via the render method" in {
