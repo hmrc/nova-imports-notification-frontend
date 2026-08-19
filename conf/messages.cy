@@ -576,3 +576,18 @@ yourAddressCheckYourAnswers.title = Gwiriwch eich atebion - eich cyfeiriad
 yourAddressCheckYourAnswers.heading = Gwiriwch eich atebion
 yourAddressCheckYourAnswers.change.hidden = eich cyfeiriad
 yourAddressCheckYourAnswers.checkYourAnswersLabel = Cyfeiriad
+
+#####################################################################
+# AVD3.0 - Add vehicle details 3.0: Which vehicle dates do you have #
+#####################################################################
+# TODO: Welsh translations to be supplied by content team.
+
+vehicleDates.title = Which dates do you have for the vehicle?
+vehicleDates.heading = Which dates do you have for the vehicle?
+vehicleDates.caption = Add vehicle details
+vehicleDates.hint = Select all that apply
+vehicleDates.error.required = Select if you have the purchase invoice date, date of availability and date of first registration, or if you do not have any of these dates
+vehicleDates.checkbox.purchaseInvoiceDate = Purchase invoice date
+vehicleDates.checkbox.availabilityAndFirstRegistration = Date the vehicle was made available and date of first registration
+vehicleDates.or = or
+vehicleDates.checkbox.noDates = No, I do not have any of these dates
