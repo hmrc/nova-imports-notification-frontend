@@ -17,6 +17,7 @@
 package models
 
 import base.SpecBase
+import pages.sections.initialquestions.VehicleBusinessUsePage
 import pages.{AgentSelectedClientPage, IsDeregisteredPage}
 import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolment, EnrolmentIdentifier, Enrolments}
 
@@ -140,6 +141,28 @@ class UserContextSpec extends SpecBase {
       val ctx = UserContext.from(AffinityGroup.Agent, activeAgentEnrolment, answersWith(sampleClient))
       ctx.isVatAgentWithoutClient mustBe false
       ctx.isNonVatAgentWithoutClient mustBe false
+    }
+  }
+
+  "UserContext.usesTraderDetails" - {
+
+    "is true for a VAT-registered organisation importing for business use" in {
+      val answers = emptyUserAnswers.unsafeSet(VehicleBusinessUsePage, true)
+      UserContext.from(AffinityGroup.Organisation, vatEnrolment, answers).usesTraderDetails mustBe true
+    }
+
+    "is false for a VAT-registered organisation not importing for business use" in {
+      val answers = emptyUserAnswers.unsafeSet(VehicleBusinessUsePage, false)
+      UserContext.from(AffinityGroup.Organisation, vatEnrolment, answers).usesTraderDetails mustBe false
+    }
+
+    "is false for a VAT-registered organisation that has not answered whether it is for business use" in {
+      UserContext.from(AffinityGroup.Organisation, vatEnrolment, emptyUserAnswers).usesTraderDetails mustBe false
+    }
+
+    "is false for a private individual, even when importing for business use" in {
+      val answers = emptyUserAnswers.unsafeSet(VehicleBusinessUsePage, true)
+      UserContext.from(AffinityGroup.Individual, noEnrolments, answers).usesTraderDetails mustBe false
     }
   }
 

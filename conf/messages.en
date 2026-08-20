@@ -778,3 +778,21 @@ yourAddressCheckYourAnswers.title = Check your answers - your address
 yourAddressCheckYourAnswers.heading = Check your answers
 yourAddressCheckYourAnswers.change.hidden = your address
 yourAddressCheckYourAnswers.checkYourAnswersLabel = Address
+
+###############################################################################
+# AVD2.0 - Add vehicle details 2.0: Vehicles bought from [supplierName]       #
+###############################################################################
+
+vehiclesBoughtFromSupplier.title = Vehicles bought from this supplier
+vehiclesBoughtFromSupplier.caption = Add vehicle details
+vehiclesBoughtFromSupplier.heading = Vehicles bought from {0}
+vehiclesBoughtFromSupplier.heading.noSupplierName = Vehicles bought from this supplier
+vehiclesBoughtFromSupplier.paragraph.1 = Add one vehicle at a time.
+vehiclesBoughtFromSupplier.paragraph.2 = For each vehicle, you must provide either the:
+vehiclesBoughtFromSupplier.bullet.1 = purchase invoice date
+vehiclesBoughtFromSupplier.bullet.2 = date the vehicle was made available to you and the date it was first registered for road use
+vehiclesBoughtFromSupplier.inset.paragraph.1 = If you cannot provide any of these dates, You cannot continue this notification online. You need to {0}.
+vehiclesBoughtFromSupplier.inset.contactPersonalTransportUnit.linkText = contact HMRC Personal Transport Unit
+vehiclesBoughtFromSupplier.whereToFindDates.heading = Where to find these dates
+vehiclesBoughtFromSupplier.whereToFindDates.paragraph.1 = You can usually find the date of first registration in the vehicle log book. You can find the invoice date on the purchase invoice.
+vehiclesBoughtFromSupplier.addVehicle = Add vehicle

@@ -16,6 +16,7 @@
 
 package models
 
+import pages.sections.initialquestions.VehicleBusinessUsePage
 import pages.{AgentSelectedClientPage, IsDeregisteredPage}
 import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments}
 
@@ -24,7 +25,8 @@ final case class UserContext(
   selectedClient: Option[AgentSelectedClient],
   isDeregistered: Boolean,
   isAgentWithClientNoEnrolments: Boolean,
-  agentHasVatAgentEnrolment: Boolean
+  agentHasVatAgentEnrolment: Boolean,
+  isForBusinessUse: Boolean
 ) {
   def isAgent: Boolean                     = userType == NovaUserType.Agent
   def isAgentWithClient: Boolean           = isAgent && selectedClient.isDefined
@@ -32,6 +34,8 @@ final case class UserContext(
   def isVatRegisteredOrganisation: Boolean = userType == NovaUserType.VatRegisteredOrganisation
   def isVatAgentWithoutClient: Boolean     = isAgentWithoutClient && agentHasVatAgentEnrolment
   def isNonVatAgentWithoutClient: Boolean  = isAgentWithoutClient && !agentHasVatAgentEnrolment
+
+  def usesTraderDetails: Boolean = isVatRegisteredOrganisation && isForBusinessUse
 }
 
 object UserContext {
@@ -45,7 +49,8 @@ object UserContext {
       isDeregistered = userAnswers.get(IsDeregisteredPage).getOrElse(false),
       isAgentWithClientNoEnrolments =
         affinityGroup == AffinityGroup.Agent && selectedClient.isDefined && !enrolments.enrolments.exists(_.isActivated),
-      agentHasVatAgentEnrolment = affinityGroup == AffinityGroup.Agent && enrolments.getEnrolment("HMCE-VAT-AGNT").exists(_.isActivated)
+      agentHasVatAgentEnrolment = affinityGroup == AffinityGroup.Agent && enrolments.getEnrolment("HMCE-VAT-AGNT").exists(_.isActivated),
+      isForBusinessUse = userAnswers.get(VehicleBusinessUsePage).getOrElse(false)
     )
   }
 

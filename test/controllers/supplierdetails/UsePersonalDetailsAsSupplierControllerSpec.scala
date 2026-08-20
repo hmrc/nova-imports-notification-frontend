@@ -100,18 +100,6 @@ class UsePersonalDetailsAsSupplierControllerSpec extends SpecBase with MockitoSu
     connector
   }
 
-  private def vatTraderApplicationBuilder(userAnswers: Option[UserAnswers]): GuiceApplicationBuilder =
-    new GuiceApplicationBuilder()
-      .overrides(
-        bind[DataRequiredAction].to[DataRequiredActionImpl],
-        bind[IdentifierAction].to[FakeVatTraderIdentifierAction],
-        bind[IdentifierAction].qualifiedWith(Names.named("standard")).to[FakeVatTraderIdentifierAction],
-        bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeVatTraderIdentifierAction],
-        bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeAgentIdentifierAction],
-        bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
-        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
-      )
-
   "UsePersonalDetailsAsSupplierController" - {
 
     "must return OK and the correct view for a GET when the guard passes (non-agent who chose add by supplier)" in {
@@ -222,7 +210,7 @@ class UsePersonalDetailsAsSupplierControllerSpec extends SpecBase with MockitoSu
 
     "must return OK for a VAT-registered organisation (types 4/5) that has no IQ3 answer and no personal details in the session" in {
 
-      val application = vatTraderApplicationBuilder(Some(vatTraderAnswersSatisfyingGuard)).build()
+      val application = applicationBuilderWithVatTrader(Some(vatTraderAnswersSatisfyingGuard)).build()
 
       running(application) {
         val request = FakeRequest(GET, usePersonalDetailsAsSupplierRoute)
@@ -238,7 +226,7 @@ class UsePersonalDetailsAsSupplierControllerSpec extends SpecBase with MockitoSu
 
       "must render the name and address from the RDS trader record" in {
 
-        val application = vatTraderApplicationBuilder(Some(answers))
+        val application = applicationBuilderWithVatTrader(Some(answers))
           .overrides(bind[NovaImportsBackendConnector].toInstance(connectorReturning(Right(traderInformation))))
           .build()
 
@@ -256,7 +244,7 @@ class UsePersonalDetailsAsSupplierControllerSpec extends SpecBase with MockitoSu
 
       "must render 'Not provided' when the vrn has no trader record" in {
 
-        val application = vatTraderApplicationBuilder(Some(answers))
+        val application = applicationBuilderWithVatTrader(Some(answers))
           .overrides(bind[NovaImportsBackendConnector].toInstance(connectorReturning(Left(GetTraderInformationError.NotFound))))
           .build()
 
@@ -274,7 +262,7 @@ class UsePersonalDetailsAsSupplierControllerSpec extends SpecBase with MockitoSu
         val connector = mock[NovaImportsBackendConnector]
         when(connector.getTraderInformation()(any())) thenReturn Future.failed(new RuntimeException("connection reset"))
 
-        val application = vatTraderApplicationBuilder(Some(answers))
+        val application = applicationBuilderWithVatTrader(Some(answers))
           .overrides(bind[NovaImportsBackendConnector].toInstance(connector))
           .build()
 
@@ -293,7 +281,7 @@ class UsePersonalDetailsAsSupplierControllerSpec extends SpecBase with MockitoSu
           .unsafeSet(NameDetailsPage, NameDetails("Mr", "John", "Smith"))
           .unsafeSet(AddressPage, Address(Seq("1 Session Street"), Some("AB1 2CD"), Country("GB", "United Kingdom")))
 
-        val application = vatTraderApplicationBuilder(Some(staleAnswers))
+        val application = applicationBuilderWithVatTrader(Some(staleAnswers))
           .overrides(bind[NovaImportsBackendConnector].toInstance(connectorReturning(Right(traderInformation))))
           .build()
 
@@ -310,7 +298,7 @@ class UsePersonalDetailsAsSupplierControllerSpec extends SpecBase with MockitoSu
 
       "must render the trader record on a Bad Request" in {
 
-        val application = vatTraderApplicationBuilder(Some(answers))
+        val application = applicationBuilderWithVatTrader(Some(answers))
           .overrides(bind[NovaImportsBackendConnector].toInstance(connectorReturning(Right(traderInformation))))
           .build()
 
@@ -335,7 +323,7 @@ class UsePersonalDetailsAsSupplierControllerSpec extends SpecBase with MockitoSu
 
         val connector = mock[NovaImportsBackendConnector]
 
-        val application = vatTraderApplicationBuilder(Some(answers))
+        val application = applicationBuilderWithVatTrader(Some(answers))
           .overrides(bind[NovaImportsBackendConnector].toInstance(connector))
           .build()
 
@@ -354,7 +342,7 @@ class UsePersonalDetailsAsSupplierControllerSpec extends SpecBase with MockitoSu
 
         val connector = mock[NovaImportsBackendConnector]
 
-        val application = vatTraderApplicationBuilder(Some(vatTraderAnswersSatisfyingGuard.unsafeSet(VehicleBusinessUsePage, false)))
+        val application = applicationBuilderWithVatTrader(Some(vatTraderAnswersSatisfyingGuard.unsafeSet(VehicleBusinessUsePage, false)))
           .overrides(bind[NovaImportsBackendConnector].toInstance(connector))
           .build()
 
