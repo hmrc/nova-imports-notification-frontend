@@ -22,7 +22,7 @@ import pages.*
 import models.*
 import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
 import pages.sections.notifierdetails.{AboutYourDetailsPage, BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
-import pages.sections.vehicledetails.AddVehicleDetailsPage
+import pages.sections.vehicledetails.{AddImportVehicleDetailsPage, AddVehicleDetailsPage}
 import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierNumberPage, UsePersonalDetailsAsSupplierPage}
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
@@ -343,6 +343,37 @@ class NavigatorSpec extends SpecBase {
       "must go from AddVehicleDetailsPage AVD1.0 to JourneyRecovery when no answer is found" in {
         navigator.nextPage(
           AddVehicleDetailsPage,
+          NormalMode,
+          userAnswers,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from AddImportVehicleDetailsPage AVD1.1 to LandingPage when ByImportEntryNumber is selected" in {
+        // TODO: navigate to the import entry number flow when built
+        val ua = userAnswers.set(AddImportVehicleDetailsPage, AddImportVehicleDetails.ByImportEntryNumber).success.value
+        navigator.nextPage(
+          AddImportVehicleDetailsPage,
+          NormalMode,
+          ua,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from AddImportVehicleDetailsPage AVD1.1 to LandingPage when BySpreadsheet is selected" in {
+        // TODO: navigate to spreadsheet upload flow when built
+        val ua = userAnswers.set(AddImportVehicleDetailsPage, AddImportVehicleDetails.BySpreadsheet).success.value
+        navigator.nextPage(
+          AddImportVehicleDetailsPage,
+          NormalMode,
+          ua,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from AddImportVehicleDetailsPage AVD1.1 to JourneyRecovery when no answer is found" in {
+        navigator.nextPage(
+          AddImportVehicleDetailsPage,
           NormalMode,
           userAnswers,
           NovaUserType.VatRegisteredOrganisation

@@ -619,6 +619,26 @@ addVehicleDetails.inset.paragraph.1 = If you’re uploading a spreadsheet, you m
 addVehicleDetails.inset.findSpreadsheet.linkText = Find the spreadsheet
 addVehicleDetails.error.required = Select how you want to add vehicle details
 
+##################################################################################################
+# AVD1.1 - Add vehicle details 1.1: Vehicles brought from outside both the UK and the EU          #
+##################################################################################################
+
+addImportVehicleDetails.title = Vehicles brought from outside both the UK and the EU
+addImportVehicleDetails.heading = Vehicles brought from outside both the UK and the EU
+addImportVehicleDetails.caption = Add vehicle details
+addImportVehicleDetails.paragraph.1 = You must provide details of all vehicles imported from outside:
+addImportVehicleDetails.bullet.1 = the UK into Great Britain
+addImportVehicleDetails.bullet.2 = an EU country into Northern Ireland
+addImportVehicleDetails.paragraph.2 = You can add details of up to 100 vehicles in one notification.
+addImportVehicleDetails.method.heading = How do you want to add vehicle details?
+addImportVehicleDetails.radio.byImportEntryNumber = Add by import entry number
+addImportVehicleDetails.radio.byImportEntryNumber.hint = Provide the import entry number details first, then add the vehicles from that import
+addImportVehicleDetails.radio.bySpreadsheet = Upload a vehicle spreadsheet
+addImportVehicleDetails.radio.bySpreadsheet.hint = Use the spreadsheet option to add details for more than one vehicle of the same type at the same time
+addImportVehicleDetails.inset.paragraph.1 = If you’re uploading a spreadsheet, you must use the correct one for the same type of vehicles. {0} you must download and use.
+addImportVehicleDetails.inset.findSpreadsheet.linkText = Find the spreadsheet
+addImportVehicleDetails.error.required = Select how you want to add vehicle details
+
 ######################################################
 # CYA2.0 - Check your answers 2 - Your details       #
 ######################################################

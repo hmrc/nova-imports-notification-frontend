@@ -23,7 +23,7 @@ import pages.*
 import models.*
 import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
 import pages.sections.notifierdetails.{AboutYourDetailsPage, BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
-import pages.sections.vehicledetails.AddVehicleDetailsPage
+import pages.sections.vehicledetails.{AddImportVehicleDetailsPage, AddVehicleDetailsPage}
 import pages.sections.notifieraddress.IsYourAddressInTheUkPage
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
@@ -90,6 +90,16 @@ class Navigator @Inject() () {
         userAnswers.get(AddVehicleDetailsPage) match {
           case Some(AddVehicleDetails.BySupplier)    => supplierdetails.routes.UsePersonalDetailsAsSupplierController.onPageLoad(NormalMode)
           case Some(AddVehicleDetails.BySpreadsheet) =>
+            routes.LandingPageController.onPageLoad() // TODO: navigate to spreadsheet upload flow when built
+          case _ => routes.JourneyRecoveryController.onPageLoad()
+        }
+    case AddImportVehicleDetailsPage =>
+      (userAnswers, _) =>
+        userAnswers.get(AddImportVehicleDetailsPage) match {
+          // AVD1.1 continue navigation is TBC - both options land on a placeholder until those screens are built.
+          case Some(AddImportVehicleDetails.ByImportEntryNumber) =>
+            routes.LandingPageController.onPageLoad() // TODO: navigate to the import entry number flow when built
+          case Some(AddImportVehicleDetails.BySpreadsheet) =>
             routes.LandingPageController.onPageLoad() // TODO: navigate to spreadsheet upload flow when built
           case _ => routes.JourneyRecoveryController.onPageLoad()
         }
