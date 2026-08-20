@@ -47,7 +47,7 @@
     <p class="govuk-body">@messages("supplierVatRegistrationDetails.paragraph.2")</p>
 
 
-    @formHelper(action = routes.SupplierVatRegistrationDetailsController.onSubmit(supplierNumber, mode)) {
+    @formHelper(action = supplierdetails.routes.SupplierVatRegistrationDetailsController.onSubmit(supplierNumber, mode)) {
 
         @govukSelect(
             Select(

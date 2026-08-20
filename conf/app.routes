@@ -163,10 +163,10 @@ POST        /supplier/:supplierNumber/is-supplier-vat-registered                
 GET         /supplier/:supplierNumber/is-supplier-vat-registered/change                  controllers.supplierdetails.IsSupplierVatRegisteredController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = CheckMode)
 POST        /supplier/:supplierNumber/is-supplier-vat-registered/change                  controllers.supplierdetails.IsSupplierVatRegisteredController.onSubmit(supplierNumber: SupplierNumber, mode: Mode = CheckMode)
 
-GET         /supplier/:supplierNumber/supplier-vat-registration-details                         controllers.SupplierVatRegistrationDetailsController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = NormalMode)
-POST        /supplier/:supplierNumber/supplier-vat-registration-details                         controllers.SupplierVatRegistrationDetailsController.onSubmit(supplierNumber: SupplierNumber, mode: Mode = NormalMode)
-GET         /supplier/:supplierNumber/supplier-vat-registration-details/change                  controllers.SupplierVatRegistrationDetailsController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = CheckMode)
-POST        /supplier/:supplierNumber/supplier-vat-registration-details/change                  controllers.SupplierVatRegistrationDetailsController.onSubmit(supplierNumber: SupplierNumber, mode: Mode = CheckMode)
+GET         /supplier/:supplierNumber/supplier-vat-registration-details                  controllers.supplierdetails.SupplierVatRegistrationDetailsController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = NormalMode)
+POST        /supplier/:supplierNumber/supplier-vat-registration-details                  controllers.supplierdetails.SupplierVatRegistrationDetailsController.onSubmit(supplierNumber: SupplierNumber, mode: Mode = NormalMode)
+GET         /supplier/:supplierNumber/supplier-vat-registration-details/change           controllers.supplierdetails.SupplierVatRegistrationDetailsController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = CheckMode)
+POST        /supplier/:supplierNumber/supplier-vat-registration-details/change           controllers.supplierdetails.SupplierVatRegistrationDetailsController.onSubmit(supplierNumber: SupplierNumber, mode: Mode = CheckMode)
 
 GET         /supplier/:supplierNumber/address-lookup-callback                            controllers.AddressLookupCallbackController.supplierCallback(supplierNumber: SupplierNumber, id: Option[String] ?= None)
 

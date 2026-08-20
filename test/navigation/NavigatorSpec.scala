@@ -414,7 +414,7 @@ class NavigatorSpec extends SpecBase {
           NormalMode,
           ua,
           NovaUserType.VatRegisteredOrganisation
-        ) mustBe routes.SupplierVatRegistrationDetailsController.onPageLoad(SupplierNumber(2), NormalMode)
+        ) mustBe supplierdetails.routes.SupplierVatRegistrationDetailsController.onPageLoad(SupplierNumber(2), NormalMode)
       }
 
       "must go from IsSupplierVatRegisteredPage AVD-S8.0 to JourneyRecovery when no answer is found" in {

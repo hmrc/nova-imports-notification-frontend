@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.supplierdetails
 
 import config.FrontendAppConfig
 import controllers.actions.*
 import controllers.utils.RelocateError.*
 import controllers.utils.SelectedLanguageCheckUtils.*
 import controllers.utils.{IsDraftIdDefined, IsSupplierNumberInSession, RelocateError}
+import controllers.BaseController
 import forms.SupplierVatRegistrationDetailsFormProvider
 import models.requests.DataRequest
 import models.{Mode, NovaUserType, SupplierNumber, VatNumberDetails}

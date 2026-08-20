@@ -139,7 +139,7 @@ class Navigator @Inject() () {
       (userAnswers, _) =>
         userAnswers.get(IsSupplierVatRegisteredPage) match {
           case Some(true) =>
-            routes.SupplierVatRegistrationDetailsController
+            supplierdetails.routes.SupplierVatRegistrationDetailsController
               .onPageLoad(SupplierNumber(userAnswers.get(SupplierNumberPage).getOrElse(1)), NormalMode)
           case Some(false) =>
             routes.LandingPageController.onPageLoad() // TODO: navigate to AVD-S9 when built (page variant depends on if individual or organisation)

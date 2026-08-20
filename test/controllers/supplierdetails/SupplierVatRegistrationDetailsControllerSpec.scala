@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.supplierdetails
 
 import base.SpecBase
 import config.FrontendAppConfig
+import controllers.{routes, supplierdetails}
 import forms.SupplierVatRegistrationDetailsFormProvider
 import models.{CheckMode, DraftId, Mode, NormalMode, SupplierNumber, UserAnswers, VatNumberDetails}
 import navigation.{FakeNavigator, Navigator}
@@ -48,9 +49,9 @@ class SupplierVatRegistrationDetailsControllerSpec extends SpecBase with Mockito
   private val form                  = formProvider(appConfig.vrnValidationList)
   private val validVatNumberDetails = VatNumberDetails("FR", "AB123456789")
 
-  private lazy val supplierVatRegistrationDetailsRoute = routes.SupplierVatRegistrationDetailsController.onPageLoad(SupplierNumber(1), NormalMode).url
+  private lazy val supplierVatRegistrationDetailsRoute = supplierdetails.routes.SupplierVatRegistrationDetailsController.onPageLoad(SupplierNumber(1), NormalMode).url
   private def supplierVatRegistrationDetailsSubmitRoute(supplierNumber: SupplierNumber, mode: Mode = NormalMode) =
-    routes.SupplierVatRegistrationDetailsController.onSubmit(supplierNumber, mode).url
+    supplierdetails.routes.SupplierVatRegistrationDetailsController.onSubmit(supplierNumber, mode).url
 
   private val userAnswersWithGuardData: UserAnswers = emptyUserAnswers
     .set(DraftIdPage, DraftId("DRAFT-001"))
