@@ -21,7 +21,7 @@
     {
       "code": "CY",
       "name-en": "Cyprus",
-      "name-cy": "Bwlgaria",
+      "name-cy": "Cyprus",
       "regex-vrn-validation": "[0-9]{8}[A-Z]{1}"
     },
     {

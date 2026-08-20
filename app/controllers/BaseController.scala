@@ -16,14 +16,20 @@
 
 package controllers
 
+import models.requests.DataRequest
 import play.api.i18n.I18nSupport
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import play.api.data.Form
+import play.api.mvc.AnyContent
 
 trait BaseController extends FrontendBaseController with I18nSupport {
 
   extension [A](form: Form[A]) {
     def withDefault(optValue: Option[A]): Form[A] =
       optValue.map(form.fill).getOrElse(form)
+  }
+
+  def isWelshLanguageSelected(implicit request: DataRequest[AnyContent]) = {
+    request.cookies.exists(kv => kv.name == "PLAY_LANG" && kv.value == "cy")
   }
 }
