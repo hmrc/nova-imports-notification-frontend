@@ -1,0 +1,75 @@
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import controllers.vehicledetails.routes
+@import models.{SupplierNumber, VehicleDates, VehicleNumber}
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.checkboxes.{CheckboxItem, ExclusiveCheckbox}
+@import viewmodels.LegendSize
+
+@this(
+    layout: templates.Layout,
+    formHelper: FormWithCSRF,
+    govukErrorSummary: GovukErrorSummary,
+    govukCheckboxes: GovukCheckboxes,
+    govukButton: GovukButton
+)
+
+@(form: Form[_], supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode)(implicit request: Request[_], messages: Messages)
+
+@layout(pageTitle = title(form, messages("vehicleDates.title"))) {
+
+    @formHelper(action = routes.VehicleDatesController.onSubmit(supplierNumber, vehicleNumber, mode), Symbol("autoComplete") -> "off") {
+
+        @if(form.errors.nonEmpty) {
+            @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map("value" -> "value_0")))
+        }
+
+        <span class="govuk-caption-l">@messages("vehicleDates.caption")</span>
+
+        @govukCheckboxes(
+            CheckboxesViewModel(
+                form   = form,
+                name   = "value",
+                legend = LegendViewModel(messages("vehicleDates.heading")).asPageHeading(LegendSize.Large),
+                items  = Seq(
+                    CheckboxItemViewModel(
+                        content = Text(messages("vehicleDates.checkbox.purchaseInvoiceDate")),
+                        fieldId = "value",
+                        index   = 0,
+                        value   = VehicleDates.PurchaseInvoiceDate.toString
+                    ),
+                    CheckboxItemViewModel(
+                        content = Text(messages("vehicleDates.checkbox.availabilityAndFirstRegistration")),
+                        fieldId = "value",
+                        index   = 1,
+                        value   = VehicleDates.AvailabilityAndFirstRegistration.toString
+                    ),
+                    CheckboxItem(divider = Some(messages("vehicleDates.or"))),
+                    CheckboxItemViewModel(
+                        content = Text(messages("vehicleDates.checkbox.noDates")),
+                        fieldId = "value",
+                        index   = 2,
+                        value   = VehicleDates.NoDates.toString
+                    ).withBehaviour(ExclusiveCheckbox)
+                )
+            ).withHint(HintViewModel(Text(messages("vehicleDates.hint"))))
+        )
+
+        @govukButton(
+            ButtonViewModel(messages("site.continue"))
+        )
+    }
+}
