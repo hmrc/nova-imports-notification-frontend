@@ -49,7 +49,8 @@ class SupplierVatRegistrationDetailsControllerSpec extends SpecBase with Mockito
   private val form                  = formProvider(appConfig.vrnValidationList)
   private val validVatNumberDetails = VatNumberDetails("FR", "AB123456789")
 
-  private lazy val supplierVatRegistrationDetailsRoute = supplierdetails.routes.SupplierVatRegistrationDetailsController.onPageLoad(SupplierNumber(1), NormalMode).url
+  private lazy val supplierVatRegistrationDetailsRoute =
+    supplierdetails.routes.SupplierVatRegistrationDetailsController.onPageLoad(SupplierNumber(1), NormalMode).url
   private def supplierVatRegistrationDetailsSubmitRoute(supplierNumber: SupplierNumber, mode: Mode = NormalMode) =
     supplierdetails.routes.SupplierVatRegistrationDetailsController.onSubmit(supplierNumber, mode).url
 
