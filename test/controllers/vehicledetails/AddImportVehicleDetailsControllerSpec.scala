@@ -14,19 +14,21 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.vehicledetails
 
 import base.SpecBase
 import com.google.inject.name.Names
 import config.FrontendAppConfig
 import controllers.actions.*
+import controllers.{routes, vehicledetails}
 import forms.AddImportVehicleDetailsFormProvider
 import models.{AddImportVehicleDetails, DraftId, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{AddImportVehicleDetailsPage, DraftIdPage}
+import pages.DraftIdPage
+import pages.sections.vehicledetails.AddImportVehicleDetailsPage
 import pages.sections.initialquestions.VehicleFromEuPage
 import play.api.Application
 import play.api.inject.bind
@@ -46,8 +48,8 @@ class AddImportVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
   private val formProvider = new AddImportVehicleDetailsFormProvider()
   private val form         = formProvider()
 
-  private lazy val onPageLoadRoute = routes.AddImportVehicleDetailsController.onPageLoad(NormalMode).url
-  private lazy val onSubmitRoute   = routes.AddImportVehicleDetailsController.onSubmit(NormalMode).url
+  private lazy val onPageLoadRoute = vehicledetails.routes.AddImportVehicleDetailsController.onPageLoad(NormalMode).url
+  private lazy val onSubmitRoute   = vehicledetails.routes.AddImportVehicleDetailsController.onSubmit(NormalMode).url
 
   // Guard: draft created + IQ1.0 answered No. Access user type is set via the "standard" identifier binding.
   private val answersSatisfyingGuard: UserAnswers = emptyUserAnswers

@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package pages
+package pages.sections.vehicledetails
 
 import models.AddImportVehicleDetails
+import pages.QuestionPage
 import play.api.libs.json.JsPath
 
 case object AddImportVehicleDetailsPage extends QuestionPage[AddImportVehicleDetails] {

@@ -94,7 +94,7 @@ class AddImportVehicleDetailsViewSpec extends SpecBase with Matchers with Before
 
     "must post to the submit URL" in {
       view(form, NormalMode, spreadsheetUrl)(request, msgs).toString must include(
-        s"""action="${controllers.routes.AddImportVehicleDetailsController.onSubmit(NormalMode).url}""""
+        s"""action="${controllers.vehicledetails.routes.AddImportVehicleDetailsController.onSubmit(NormalMode).url}""""
       )
     }
 

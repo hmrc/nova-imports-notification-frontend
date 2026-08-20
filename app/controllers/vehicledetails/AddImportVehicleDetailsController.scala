@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.vehicledetails
 
 import config.FrontendAppConfig
+import controllers.BaseController
 import controllers.actions.*
 import controllers.utils.IsDraftIdDefined
 import forms.AddImportVehicleDetailsFormProvider
@@ -25,7 +26,7 @@ import models.requests.DataRequest
 import javax.inject.Inject
 import models.{AddImportVehicleDetails, Mode, NovaUserType}
 import navigation.Navigator
-import pages.AddImportVehicleDetailsPage
+import pages.sections.vehicledetails.AddImportVehicleDetailsPage
 import pages.sections.initialquestions.VehicleFromEuPage
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
