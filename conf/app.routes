@@ -122,6 +122,11 @@ POST        /email-address                                                      
 GET         /email-address/change                                                        controllers.notifierdetails.EmailAddressController.onPageLoad(mode: Mode = CheckMode)
 POST        /email-address/change                                                        controllers.notifierdetails.EmailAddressController.onSubmit(mode: Mode = CheckMode)
 
+GET         /vehicles-brought-from-outside-uk-or-eu                                      controllers.vehicledetails.AddImportVehicleDetailsController.onPageLoad(mode: Mode = NormalMode)
+POST        /vehicles-brought-from-outside-uk-or-eu                                      controllers.vehicledetails.AddImportVehicleDetailsController.onSubmit(mode: Mode = NormalMode)
+GET         /vehicles-brought-from-outside-uk-or-eu/change                               controllers.vehicledetails.AddImportVehicleDetailsController.onPageLoad(mode: Mode = CheckMode)
+POST        /vehicles-brought-from-outside-uk-or-eu/change                               controllers.vehicledetails.AddImportVehicleDetailsController.onSubmit(mode: Mode = CheckMode)
+
 GET         /vehicles-brought-from-eu                                                    controllers.vehicledetails.AddVehicleDetailsController.onPageLoad(mode: Mode = NormalMode)
 POST        /vehicles-brought-from-eu                                                    controllers.vehicledetails.AddVehicleDetailsController.onSubmit(mode: Mode = NormalMode)
 GET         /vehicles-brought-from-eu/change                                             controllers.vehicledetails.AddVehicleDetailsController.onPageLoad(mode: Mode = CheckMode)
