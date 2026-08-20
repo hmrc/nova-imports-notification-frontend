@@ -29,6 +29,7 @@ import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierNumberPage, SupplierVatRegistrationNumberPage, UsePersonalDetailsAsSupplierPage}
 import pages.sections.supplieraddress.IsSupplierAddressInTheUkPage
+import pages.sections.vehicledetails.VehicleDatesPage
 
 @Singleton
 class Navigator @Inject() () {
@@ -152,6 +153,17 @@ class Navigator @Inject() () {
             routes.LandingPageController.onPageLoad() // TODO: navigate to AVD-S9 when built (page variant depends on if individual or organisation)
           case _ => routes.JourneyRecoveryController.onPageLoad()
         }
+    case VehicleDatesPage =>
+      (userAnswers, _) =>
+        userAnswers.get(VehicleDatesPage) match {
+          case Some(dates) if dates.contains(VehicleDates.PurchaseInvoiceDate) =>
+            routes.LandingPageController.onPageLoad() // TODO: navigate to AVD4.0 when built
+          case Some(dates) if dates.contains(VehicleDates.AvailabilityAndFirstRegistration) =>
+            routes.LandingPageController.onPageLoad() // TODO: navigate to AVD5.0 when built
+          case Some(dates) if dates.contains(VehicleDates.NoDates) =>
+            routes.LandingPageController.onPageLoad() // TODO: navigate to AVD3.1 when built
+          case _ => routes.JourneyRecoveryController.onPageLoad()
+        }
     case _ => (_, _) => routes.LandingPageController.onPageLoad()
   }
 
@@ -192,6 +204,8 @@ class Navigator @Inject() () {
         SupplierVatRegistrationNumberPage =>
 
       (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD-S9.0 CYA when built
+    case VehicleDatesPage =>
+      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to the vehicle details CYA when built
     case _ =>
       (_, _) => routes.LandingPageController.onPageLoad()
   }
