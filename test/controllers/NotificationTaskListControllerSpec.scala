@@ -30,6 +30,7 @@ import pages.{AgentSelectedClientPage, DraftIdPage, IsDeregisteredPage, Notifica
 import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
 import pages.sections.notifierdetails.PhoneNumberPage
 import pages.sections.notifieraddress.AddressPage
+import pages.sections.purchaseraddress.PurchaserAddressPage
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -291,6 +292,26 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
           status(result) mustEqual OK
           body must include("Add your address")
           body must include(notifieraddress.routes.YourAddressCheckYourAnswersController.onPageLoad().url)
+        }
+      }
+
+      "must link the 'Add purchaser address' row to CYA5.0 once the purchaser's address has been saved and is complete" in {
+        val answersWithAddress = individualOnBehalfPrivatePurchaser
+          .unsafeSet(PurchaserAddressPage, Address(Seq("12 High Street", "Reading"), Some("RE12 9GC"), Country("GB", "United Kingdom")))
+
+        given application: Application =
+          applicationWith(classOf[FakeIdentifierAction], Some(answersWithAddress))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
+
+          val result = route(application, request).value
+          val body   = contentAsString(result)
+
+          status(result) mustEqual OK
+          body must include("Add purchaser address")
+          body must include(purchaseraddress.routes.PurchaserAddressCheckYourAnswersController.onPageLoad().url)
         }
       }
 

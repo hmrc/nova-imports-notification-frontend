@@ -148,8 +148,9 @@ object NotificationTaskListController {
           Map(section    -> purchaserdetails.routes.PurchaserBusinessNameController.onPageLoad(NormalMode).url)
         else Map(section -> purchaserdetails.routes.PurchaserNameController.onPageLoad(NormalMode).url)
 
-      case (section @ SectionId.PurchaserAddress, _) =>
-        Map(section -> purchaseraddress.routes.IsPurchaserAddressInTheUkController.onPageLoad(NormalMode).url)
+      case (section @ SectionId.PurchaserAddress, status) =>
+        if (status == SectionStatus.Completed) Map(section -> purchaseraddress.routes.PurchaserAddressCheckYourAnswersController.onPageLoad().url)
+        else Map(section                                   -> purchaseraddress.routes.IsPurchaserAddressInTheUkController.onPageLoad(NormalMode).url)
 
       case (section @ SectionId.Vehicles, _) => Map(section -> vehicledetails.routes.AddVehicleDetailsController.onPageLoad(NormalMode).url)
 

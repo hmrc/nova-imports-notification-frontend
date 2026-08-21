@@ -158,6 +158,16 @@ purchaserAddressChanged.checkHeading = Gwiriwch y cyfeiriad wedi’i ddiweddaru
 purchaserAddressChanged.changeAddress = Newid y cyfeiriad
 purchaserAddressChanged.saveAndContinue = Cadw a pharhau
 
+#######################################################
+# CYA5.0 - Check your answers 5.0 - Purchaser address #
+#######################################################
+# TODO: Welsh translations to be supplied by content team.
+purchaserAddressCheckYourAnswers.caption = Add purchaser address
+purchaserAddressCheckYourAnswers.title = Check your answers - purchaser address
+purchaserAddressCheckYourAnswers.heading = Check your answers
+purchaserAddressCheckYourAnswers.change.hidden = purchaser’s address
+purchaserAddressCheckYourAnswers.checkYourAnswersLabel = Purchaser’s address
+
 ###########################################################
 # Address lookup (ALF) journey labels                     #
 ###########################################################
