@@ -264,6 +264,19 @@ class AddressChangedControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
+    "must redirect to AVD-S8.0 is the supplier VAT registered after saving the supplier address" in {
+      val application = applicationWith(userAnswers = Some(supplierAnswers), backendConnector = stubBackendConnector())
+
+      running(application) {
+        val result = route(application, FakeRequest(POST, supplierSubmitRoute)).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual supplierdetails.routes.IsSupplierVatRegisteredController
+          .onPageLoad(supplierNumber, NormalMode)
+          .url
+      }
+    }
+
     "must clear only the supplier address on change address" in {
       val sessionRepository = stubSessionRepository()
       val application       = applicationWith(userAnswers = Some(supplierAnswers), sessionRepository = sessionRepository)

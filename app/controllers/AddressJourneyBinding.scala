@@ -76,7 +76,7 @@ object AddressJourneyBinding {
       IsDraftIdDefined(request.userAnswers) &&
         request.userAnswers.get(IsSupplierAddressInTheUkPage(number)).isDefined &&
         supplierService.numberExists(request.userAnswers, number),
-    onComplete = routes.LandingPageController.onPageLoad(), // TODO: navigate to AVD-S8.0 when built (DTR-6200)
+    onComplete = supplierdetails.routes.IsSupplierVatRegisteredController.onPageLoad(number, NormalMode),
     addressChangedPage = routes.AddressChangedController.supplierOnPageLoad(number),
     addressChangedSubmit = routes.AddressChangedController.supplierOnSubmit(number),
     changeAddressLink = routes.AddressChangedController.supplierOnChangeAddress(number),
