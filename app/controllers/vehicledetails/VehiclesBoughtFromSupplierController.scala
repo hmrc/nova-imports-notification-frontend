@@ -23,7 +23,7 @@ import controllers.actions.*
 import controllers.utils.IsDraftIdDefined
 import controllers.vehicledetails.VehiclesBoughtFromSupplierController.*
 import models.requests.DataRequest
-import models.{BusinessOrPrivateIndividual, NormalMode, SupplierNumber, VehicleNumber}
+import models.{BusinessOrPrivateIndividual, NormalMode, SupplierNumber}
 import pages.sections.initialquestions.{BusinessOrPrivatePage, VehicleFromEuPage}
 import pages.sections.notifierdetails.{BusinessNamePage, NameDetailsPage}
 import pages.sections.supplierdetails.{SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, UsePersonalDetailsAsSupplierPage}
