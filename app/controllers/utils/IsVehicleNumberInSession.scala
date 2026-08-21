@@ -21,7 +21,7 @@ import pages.sections.vehicledetails.VehicleNumberPage
 
 object IsVehicleNumberInSession {
 
-  // AVD2.0 will allocate vehicle numbers, until then only the first vehicle exists
+  // Nothing allocates vehicle numbers yet, so only the first vehicle exists
   def apply(answers: UserAnswers, vehicleNumber: VehicleNumber): Boolean =
     answers.get(VehicleNumberPage).getOrElse(1) == vehicleNumber.value
 }

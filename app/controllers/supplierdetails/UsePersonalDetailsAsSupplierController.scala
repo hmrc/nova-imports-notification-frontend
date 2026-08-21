@@ -25,7 +25,7 @@ import forms.UsePersonalDetailsAsSupplierFormProvider
 import models.requests.DataRequest
 import models.{AddVehicleDetails, Mode, NovaUserType, PurchaserOrOnBehalf, TraderInformation}
 import navigation.Navigator
-import pages.sections.initialquestions.{PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
+import pages.sections.initialquestions.{PurchaserOrOnBehalfPage, VehicleFromEuPage}
 import pages.sections.vehicledetails.AddVehicleDetailsPage
 import pages.sections.supplierdetails.UsePersonalDetailsAsSupplierPage
 import play.api.Logging
@@ -103,7 +103,7 @@ class UsePersonalDetailsAsSupplierController @Inject() (
   }
 
   private def personalDetails(implicit request: DataRequest[?], messages: Messages): Future[SummaryList] =
-    if (usesTraderDetails(request))
+    if (request.userContext.usesTraderDetails)
       traderInformation(HeaderCarrierConverter.fromRequestAndSession(request, request.session))
         .map(SupplierPersonalDetailsSummary.fromTraderInformation)
     else
@@ -138,8 +138,4 @@ object UsePersonalDetailsAsSupplierController {
     (request.userContext.isVatRegisteredOrganisation ||
       answers.get(PurchaserOrOnBehalfPage).contains(PurchaserOrOnBehalf.Purchaser))
   }
-
-  def usesTraderDetails(request: DataRequest[?]): Boolean =
-    request.userContext.isVatRegisteredOrganisation &&
-      request.userAnswers.get(VehicleBusinessUsePage).contains(true)
 }
