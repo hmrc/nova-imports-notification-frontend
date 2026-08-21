@@ -102,7 +102,7 @@ class SupplierVatRegistrationDetailsControllerSpec extends SpecBase with Mockito
         val view    = application.injector.instanceOf[SupplierVatRegistrationDetailsView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(appConfig.vrnValidationList, false, form, SupplierNumber(1), NormalMode)(
+        contentAsString(result) mustEqual view(appConfig.vrnValidationList, form, SupplierNumber(1), NormalMode)(
           request,
           messages(application)
         ).toString
@@ -120,7 +120,7 @@ class SupplierVatRegistrationDetailsControllerSpec extends SpecBase with Mockito
         val view    = application.injector.instanceOf[SupplierVatRegistrationDetailsView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(appConfig.vrnValidationList, false, form.fill(validVatNumberDetails), SupplierNumber(1), NormalMode)(
+        contentAsString(result) mustEqual view(appConfig.vrnValidationList, form.fill(validVatNumberDetails), SupplierNumber(1), NormalMode)(
           request,
           messages(application)
         ).toString
@@ -183,7 +183,7 @@ class SupplierVatRegistrationDetailsControllerSpec extends SpecBase with Mockito
         val result    = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(appConfig.vrnValidationList, false, boundForm, SupplierNumber(1), NormalMode)(
+        contentAsString(result) mustEqual view(appConfig.vrnValidationList, boundForm, SupplierNumber(1), NormalMode)(
           request,
           messages(application)
         ).toString

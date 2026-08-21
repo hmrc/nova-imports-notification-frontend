@@ -31,11 +31,11 @@ object CountryFinderViewHelper {
       attributes = Map("id" -> countryCode)
     )
 
-  def countriesToSelectItems(euCountriesVrnValidationList: Seq[CountryVrnValidation], isLangWelsh: Boolean, form: Form[?])(implicit
+  def countriesToSelectItems(euCountriesVrnValidationList: Seq[CountryVrnValidation], form: Form[?])(implicit
     messages: Messages
   ): Seq[SelectItem] = {
     SelectItem() +: euCountriesVrnValidationList.map(euCountriesVrnValidation =>
-      countryToSelectItem(euCountriesVrnValidation.code, euCountriesVrnValidation.getLocalisedName(isLangWelsh))
+      countryToSelectItem(euCountriesVrnValidation.code, messages(s"country.${euCountriesVrnValidation.code}"))
     )
   }
 

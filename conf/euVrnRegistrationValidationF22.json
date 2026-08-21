@@ -2,158 +2,106 @@
   "euVrnRegistrationValidationList": [
     {
       "code": "AT",
-      "name-en": "Austria",
-      "name-cy": "Awstria",
       "regex-vrn-validation": "U[0-9]{8}"
     },
     {
       "code": "BE",
-      "name-en": "Belgium",
-      "name-cy": "Gwlad Belg",
       "regex-vrn-validation": "0[0-9]{9}"
     },
     {
       "code": "BG",
-      "name-en": "Bulgaria",
-      "name-cy": "Bwlgaria",
       "regex-vrn-validation": "[0-9]{9,10}"
     },
     {
       "code": "CY",
-      "name-en": "Cyprus",
-      "name-cy": "Cyprus",
       "regex-vrn-validation": "[0-9]{8}[A-Z]{1}"
     },
     {
       "code": "CZ",
-      "name-en": "Czechia",
-      "name-cy": "Tsiecia",
       "regex-vrn-validation": "[0-9]{8,10}"
     },
     {
       "code": "DE",
-      "name-en": "Germany",
-      "name-cy": "Yr Almaen",
       "regex-vrn-validation": "[0-9]{9}"
     },
     {
       "code": "DK",
-      "name-en": "Denmark",
-      "name-cy": "Denmarc",
       "regex-vrn-validation": "[0-9]{8}"
     },
     {
       "code": "EE",
-      "name-en": "Estonia",
-      "name-cy": "Estonia",
       "regex-vrn-validation": "[0-9]{9}"
     },
     {
       "code": "EL",
-      "name-en": "Greece",
-      "name-cy": "Gwlad Groeg",
       "regex-vrn-validation": "[0-9]{9}"
     },
     {
       "code": "ES",
-      "name-en": "Spain",
-      "name-cy": "Sbaen",
       "regex-vrn-validation": "[A-Z]{1}[0-9]{8}|[0-9]{8}[A-Z]{1}|[A-Z]{1}[0-9]{7}[A-Z]{1}"
     },
     {
       "code": "FI",
-      "name-en": "Finland",
-      "name-cy": "Y Ffindir",
       "regex-vrn-validation": "[0-9]{8}"
     },
     {
       "code": "FR",
-      "name-en": "France",
-      "name-cy": "Ffrainc",
       "regex-vrn-validation": "[A-HJ-NP-Z0-9]{1}[A-HJ-NP-Z0-9]{1}[0-9]{9}"
     },
     {
       "code": "HU",
-      "name-en": "Hungary",
-      "name-cy": "Hwngari",
       "regex-vrn-validation": "[0-9]{8}"
     },
     {
       "code": "IE",
-      "name-en": "Ireland",
-      "name-cy": "Iwerddon",
       "regex-vrn-validation": "[0-9]{7}[A-Z]{1}|[0-9]{1}[A-Z]{1}[0-9]{5}[A-Z]{1}|[0-9]{7}[A-Z]{2}"
     },
     {
       "code": "IT",
-      "name-en": "Italy",
-      "name-cy": "Yr Eidal",
       "regex-vrn-validation": "[0-9]{11}"
     },
     {
       "code": "LT",
-      "name-en": "Lithuania",
-      "name-cy": "Lithwania",
       "regex-vrn-validation": "[0-9]{9}|[0-9]{12}"
     },
     {
       "code": "LU",
-      "name-en": "Luxembourg",
-      "name-cy": "Lwcsembwrg",
       "regex-vrn-validation": "[0-9]{8}"
     },
     {
       "code": "LV",
-      "name-en": "Latvia",
-      "name-cy": "Latfia",
       "regex-vrn-validation": "[0-9]{11}"
     },
     {
       "code": "MT",
-      "name-en": "Malta",
-      "name-cy": "Malta",
       "regex-vrn-validation": "[0-9]{8}"
     },
     {
       "code": "NL",
-      "name-en": "Netherlands",
-      "name-cy": "Yr Iseldiroedd",
       "regex-vrn-validation": "[0-9]{9}B[0-9]{2}"
     },
     {
       "code": "PL",
-      "name-en": "Poland",
-      "name-cy": "Gwlad Pwyl",
       "regex-vrn-validation": "[0-9]{10}"
     },
     {
       "code": "PT",
-      "name-en": "Portugal",
-      "name-cy": "Portiwgal",
       "regex-vrn-validation": "[0-9]{9}"
     },
     {
       "code": "RO",
-      "name-en": "Romania",
-      "name-cy": "Rwmania",
       "regex-vrn-validation": "[0-9]{2,10}"
     },
     {
       "code": "SE",
-      "name-en": "Sweden",
-      "name-cy": "Sweden",
       "regex-vrn-validation": "[0-9]{12}"
     },
     {
       "code": "SI",
-      "name-en": "Slovenia",
-      "name-cy": "Slofenia",
       "regex-vrn-validation": "[0-9]{8}"
     },
     {
       "code": "SK",
-      "name-en": "Slovakia",
-      "name-cy": "Slofacia",
       "regex-vrn-validation": "[0-9]{10}"
     }
   ]

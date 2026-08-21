@@ -20,7 +20,7 @@ import forms.mappings.Mappings
 import models.{CountryVrnValidation, VatNumberDetails}
 import play.api.data.Form
 import play.api.data.Forms.mapping
-import play.api.data.validation.{Constraint, Invalid, Valid}
+import play.api.data.validation.Constraint
 
 import javax.inject.Inject
 
@@ -28,25 +28,15 @@ class SupplierVatRegistrationDetailsFormProvider @Inject() extends Mappings {
 
   def apply(countryVrnValidationList: Seq[CountryVrnValidation]): Form[VatNumberDetails] = Form(
     mapping(
-      "countryCode" -> text("supplierVatRegistrationDetails.country.error.required"),
-      "vatNumber"   -> text("supplierVatRegistrationDetails.vatNumber.error.required")
-    )(VatNumberDetails.apply)(v => Some((v.countryCode, v.vatNumber))).verifying(
-      // Validate the Vat Number matches the regex for the country provided.
-      // This error is applied to the root of the form and so need to be relocated in the controller to show on the vatNumber field.
-      Constraint[VatNumberDetails]("euCountryVrnRegex") { data =>
-        val countryVrnValidationOpt = countryVrnValidationList.find(countryVrnValidation => countryVrnValidation.code == data.countryCode)
-        countryVrnValidationOpt match {
-          case Some(countryVrnValidation) =>
-            if (data.vatNumber.matches(countryVrnValidation.vrnValidationRegex)) {
-              Valid
-            } else {
-              Invalid("supplierVatRegistrationDetails.vatNumber.error.format", countryVrnValidationOpt.map(_.vrnValidationRegex).getOrElse(""))
-            }
-          case None =>
-            Invalid("supplierVatRegistrationDetails.country.error.required", countryVrnValidationOpt.map(_.vrnValidationRegex).getOrElse(""))
-        }
-      }
-    )
+      "countryCode" -> text("supplierVatRegistrationDetails.country.error.required")
+        .verifying(validCountryCode("supplierVatRegistrationDetails.country.error.required", countryVrnValidationList.map(_.code))),
+      "vatNumber" -> vatNumber(
+        "countryCode",
+        countryVrnValidationList,
+        "supplierVatRegistrationDetails.vatNumber.error.required",
+        "supplierVatRegistrationDetails.vatNumber.error.format"
+      )
+    )(VatNumberDetails.apply)(v => Some((v.countryCode, v.vatNumber)))
   )
 
 }

@@ -105,4 +105,15 @@ trait Constraints {
       case _ =>
         Invalid(errorKey)
     }
+
+  protected def stringIsValidOption(errorKey: String, validOptionList: Seq[String]): Constraint[String] =
+    Constraint {
+      case str if validOptionList.contains(str) =>
+        Valid
+      case _ =>
+        Invalid(errorKey)
+    }
+  protected def validCountryCode(errorKey: String, validCountryCodeList: Seq[String]): Constraint[String] =
+    stringIsValidOption(errorKey, validCountryCodeList)
+
 }

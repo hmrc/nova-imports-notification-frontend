@@ -23,6 +23,37 @@ date.error.day = Diwrnod
 date.error.month = Mis
 date.error.year = Blwyddyn
 
+####################
+# EU Country Names #
+####################
+
+country.AT = Awstria
+country.BE = Gwlad Belg
+country.BG = Bwlgaria
+country.CY = Cyprus
+country.CZ = Tsiecia
+country.DE = Yr Almaen
+country.DK = Denmarc
+country.EE = Estonia
+country.EL = Gwlad Groeg
+country.ES = Sbaen
+country.FI = Y Ffindir
+country.FR = Ffrainc
+country.HU = Hwngari
+country.IE = Iwerddon
+country.IT = Yr Eidal
+country.LT = Lithwania
+country.LU = Lwcsembwrg
+country.LV = Latfia
+country.MT = Malta
+country.NL = Yr Iseldiroedd
+country.PL = Gwlad Pwyl
+country.PT = Portiwgal
+country.RO = Rwmania
+country.SE = Sweden
+country.SI = Slofenia
+country.SK = Slofacia
+
 
 ######################################################
 # BY2.0 - Before you continue - Organisation and Agent  #
@@ -613,3 +644,27 @@ addImportVehicleDetails.radio.bySpreadsheet.hint = Use the spreadsheet option to
 addImportVehicleDetails.inset.paragraph.1 = If you’re uploading a spreadsheet, you must use the correct one for the same type of vehicles. {0} you must download and use.
 addImportVehicleDetails.inset.findSpreadsheet.linkText = Find the spreadsheet
 addImportVehicleDetails.error.required = Select how you want to add vehicle details
+
+##########################################################################
+# AVD-S8.0 - Add vehicle details - Supplier 8.0: Supplier VAT Registered #
+##########################################################################
+# TODO: Welsh translations to be supplied by content team.
+isSupplierVatRegistered.title = Is the supplier VAT registered?
+isSupplierVatRegistered.heading = Is the supplier VAT registered?
+isSupplierVatRegistered.caption = Add vehicle details
+isSupplierVatRegistered.error.required = Select yes if the supplier is VAT registered
+
+####################################################################################
+# AVD-S8.1 - Add vehicle details - Supplier 8.1: Supplier VAT Registration Details #
+####################################################################################
+# TODO: Welsh translations to be supplied by content team.
+supplierVatRegistrationDetails.title = Enter the supplier’s VAT registration details
+supplierVatRegistrationDetails.heading = Enter the supplier’s VAT registration details
+supplierVatRegistrationDetails.caption = Add vehicle details
+supplierVatRegistrationDetails.paragraph.1 = You must provide the country where the supplier is VAT registered and the VAT registration number. You can find these details on the supplier’s invoice.
+supplierVatRegistrationDetails.paragraph.2 = The VAT registration number is usually numbers only, sometimes with a 2‑letter country code at the start. For example, 123456789 or DE123456789.
+supplierVatRegistrationDetails.label.country = Country of VAT registration
+supplierVatRegistrationDetails.label.vatNumber = VAT registration number
+supplierVatRegistrationDetails.country.error.required = Enter the country where the supplier is VAT registered
+supplierVatRegistrationDetails.vatNumber.error.required = Enter the supplier’s VAT registration number
+supplierVatRegistrationDetails.vatNumber.error.format = Enter the supplier’s VAT registration number in the correct format for the selected country

@@ -32,6 +32,39 @@ journeyRecovery.continue.title = Sorry, there is a problem with the service
 journeyRecovery.continue.heading = Sorry, there is a problem with the service
 journeyRecovery.continue.guidance = [Add content to explain how to proceed.]
 
+
+####################
+# EU Country Names #
+####################
+
+country.AT = Austria
+country.BE = Belgium
+country.BG = Bulgaria
+country.CY = Cyprus
+country.CZ = Czechia
+country.DE = Germany
+country.DK = Denmark
+country.EE = Estonia
+country.EL = Greece
+country.ES = Spain
+country.FI = Finland
+country.FR = France
+country.HU = Hungary
+country.IE = Ireland
+country.IT = Italy
+country.LT = Lithuania
+country.LU = Luxembourg
+country.LV = Latvia
+country.MT = Malta
+country.NL = Netherlands
+country.PL = Poland
+country.PT = Portugal
+country.RO = Romania
+country.SE = Sweden
+country.SI = Slovenia
+country.SK = Slovakia
+
+
 ######################################################
 # ERR2.0 - Error message - System error              #
 ######################################################
@@ -763,10 +796,10 @@ supplierVatRegistrationDetails.title = Enter the supplier’s VAT registration d
 supplierVatRegistrationDetails.heading = Enter the supplier’s VAT registration details
 supplierVatRegistrationDetails.caption = Add vehicle details
 supplierVatRegistrationDetails.paragraph.1 = You must provide the country where the supplier is VAT registered and the VAT registration number. You can find these details on the supplier’s invoice.
-supplierVatRegistrationDetails.paragraph.2 = The VAT registration number is usually numbers only, sometimes with a 2‑letter country code at the start. For example, 123456789 or DE123456789.
 supplierVatRegistrationDetails.label.country = Country of VAT registration
 supplierVatRegistrationDetails.label.vatNumber = VAT registration number
-supplierVatRegistrationDetails.country.error.required = Select the country where the supplier is VAT registered
+supplierVatRegistrationDetails.hint.vatNumber = Enter as shown on the supplier’s invoice. Do not include the 2-letter country code at the start
+supplierVatRegistrationDetails.country.error.required = Enter the country where the supplier is VAT registered
 supplierVatRegistrationDetails.vatNumber.error.required = Enter the supplier’s VAT registration number
 supplierVatRegistrationDetails.vatNumber.error.format = Enter the supplier’s VAT registration number in the correct format for the selected country
 

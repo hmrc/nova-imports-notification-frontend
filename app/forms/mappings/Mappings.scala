@@ -16,7 +16,7 @@
 
 package forms.mappings
 
-import models.Enumerable
+import models.{CountryVrnValidation, Enumerable}
 import play.api.data.FieldMapping
 import play.api.data.Forms.of
 import play.api.i18n.Messages
@@ -63,4 +63,12 @@ trait Mappings extends Formatters with Constraints {
     args: Seq[String] = Seq.empty
   ): FieldMapping[BigDecimal] =
     of(currencyFormatter(requiredKey, invalidNumeric, nonNumericKey, args))
+
+  protected def vatNumber(
+    countryCodeKey: String,
+    countryVrnValidationList: Seq[CountryVrnValidation],
+    requiredKey: String,
+    formatKey: String
+  ): FieldMapping[String] =
+    of(vatNumberFormatter(countryCodeKey, countryVrnValidationList, requiredKey, formatKey))
 }

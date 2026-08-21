@@ -18,9 +18,7 @@ package models
 
 import play.api.libs.json.{Json, OFormat}
 
-final case class CountryVrnValidation(code: String, nameEN: String, nameCY: String, vrnValidationRegex: String) {
-  def getLocalisedName(isWelsh: Boolean): String = if (isWelsh) nameCY else nameEN
-}
+final case class CountryVrnValidation(code: String, vrnValidationRegex: String)
 
 object CountryVrnValidation {
   implicit val format: OFormat[CountryVrnValidation] = Json.format[CountryVrnValidation]

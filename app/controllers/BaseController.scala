@@ -29,7 +29,4 @@ trait BaseController extends FrontendBaseController with I18nSupport {
       optValue.map(form.fill).getOrElse(form)
   }
 
-  def isWelshLanguageSelected(implicit request: DataRequest[AnyContent]) = {
-    request.cookies.exists(kv => kv.name == "PLAY_LANG" && kv.value == "cy")
-  }
 }

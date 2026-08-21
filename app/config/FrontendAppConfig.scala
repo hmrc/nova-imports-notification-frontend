@@ -85,8 +85,6 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
     configuration.get[Seq[Configuration]]("euVrnRegistrationValidationList").map { config =>
       CountryVrnValidation(
         code = config.get[String]("code"),
-        nameEN = config.get[String]("name-en"),
-        nameCY = config.get[String]("name-cy"),
         vrnValidationRegex = config.get[String]("regex-vrn-validation")
       )
     }

@@ -18,8 +18,7 @@ package controllers.supplierdetails
 
 import config.FrontendAppConfig
 import controllers.actions.*
-import controllers.utils.RelocateError.*
-import controllers.utils.{IsDraftIdDefined, IsSupplierNumberInSession, RelocateError}
+import controllers.utils.{IsDraftIdDefined, IsSupplierNumberInSession}
 import controllers.BaseController
 import forms.SupplierVatRegistrationDetailsFormProvider
 import models.requests.DataRequest
@@ -55,7 +54,6 @@ class SupplierVatRegistrationDetailsController @Inject() (
       Ok(
         view(
           appConfig.vrnValidationList,
-          isWelshLanguageSelected,
           form.withDefault(request.userAnswers.get(SupplierVatRegistrationNumberPage)),
           supplierNumber,
           mode
@@ -65,10 +63,10 @@ class SupplierVatRegistrationDetailsController @Inject() (
 
   def onSubmit(supplierNumber: SupplierNumber, mode: Mode): Action[AnyContent] =
     actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierNumber)).async { implicit request =>
-      relocateError(form.bindFromRequest(), "", "vatNumber")
+      form
+        .bindFromRequest()
         .fold(
-          formWithErrors =>
-            Future.successful(BadRequest(view(appConfig.vrnValidationList, isWelshLanguageSelected, formWithErrors, supplierNumber, mode))),
+          formWithErrors => Future.successful(BadRequest(view(appConfig.vrnValidationList, formWithErrors, supplierNumber, mode))),
           supplierVatNumberDetails =>
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(SupplierVatRegistrationNumberPage, supplierVatNumberDetails))
