@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-package pages.sections.supplierdetails
+package queries
 
-import models.{NameDetails, SupplierNumber}
-import pages.QuestionPage
-import play.api.libs.json.JsPath
+import play.api.libs.json.{JsObject, JsPath}
 
-final case class SupplierNamePage(supplierNumber: SupplierNumber) extends QuestionPage[NameDetails] {
+// The whole suppliers map, keyed by supplier number
+case object AllSuppliersQuery extends Gettable[Map[String, JsObject]] with Settable[Map[String, JsObject]] {
 
-  override def path: JsPath = JsPath \ "suppliers" \ supplierNumber.value.toString \ "details" \ toString
-
-  override def toString: String = "supplierName"
+  override def path: JsPath = JsPath \ "suppliers"
 }

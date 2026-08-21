@@ -17,16 +17,17 @@
 package pages
 
 import base.SpecBase
+import models.SupplierNumber
 import pages.sections.supplierdetails.SupplierBusinessNamePage
 
 class SupplierBusinessNamePageSpec extends SpecBase {
 
   "SupplierBusinessNamePage" - {
 
-    "must store the business name at the supplier-details path" in {
-      val answers = emptyUserAnswers.unsafeSet(SupplierBusinessNamePage, "Acme Trading Co Ltd")
+    "must store the business name under the supplier it belongs to" in {
+      val answers = emptyUserAnswers.unsafeSet(SupplierBusinessNamePage(SupplierNumber(2)), "Acme Trading Co Ltd")
 
-      (answers.data \ "supplier-details" \ "supplierBusinessName").as[String] mustBe "Acme Trading Co Ltd"
+      (answers.data \ "suppliers" \ "2" \ "details" \ "supplierBusinessName").as[String] mustBe "Acme Trading Co Ltd"
     }
   }
 }

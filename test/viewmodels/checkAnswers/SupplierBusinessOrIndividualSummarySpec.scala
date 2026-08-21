@@ -19,7 +19,7 @@ package viewmodels.checkAnswers
 import base.SpecBase
 import controllers.supplierdetails.routes
 import models.{BusinessOrPrivateIndividual, CheckMode, SupplierNumber, UserAnswers}
-import pages.sections.supplierdetails.{SupplierBusinessOrIndividualPage, SupplierNumberPage}
+import pages.sections.supplierdetails.SupplierBusinessOrIndividualPage
 import play.api.Application
 import play.api.i18n.Messages
 
@@ -33,15 +33,9 @@ class SupplierBusinessOrIndividualSummarySpec extends SpecBase {
     "must return a summary row with the correct value when the answer is Business" in {
 
       val userAnswers =
-        UserAnswers(userAnswersId)
-          .set(SupplierBusinessOrIndividualPage, BusinessOrPrivateIndividual.Business)
-          .success
-          .value
-          .set(SupplierNumberPage, 2)
-          .success
-          .value
+        UserAnswers(userAnswersId).unsafeSet(SupplierBusinessOrIndividualPage(SupplierNumber(2)), BusinessOrPrivateIndividual.Business)
 
-      val result = SupplierBusinessOrIndividualSummary.row(userAnswers).value
+      val result = SupplierBusinessOrIndividualSummary.row(userAnswers, SupplierNumber(2)).value
 
       result.key.content.asHtml.toString   must include(msgs("supplierBusinessOrIndividual.checkYourAnswersLabel"))
       result.value.content.asHtml.toString must include(msgs("supplierBusinessOrIndividual.radio.business"))
@@ -50,15 +44,11 @@ class SupplierBusinessOrIndividualSummarySpec extends SpecBase {
 
     "must return a summary row with the correct value when the answer is PrivateIndividual" in {
 
-      val userAnswers = UserAnswers(userAnswersId)
-        .set(SupplierBusinessOrIndividualPage, BusinessOrPrivateIndividual.PrivateIndividual)
-        .success
-        .value
-        .set(SupplierNumberPage, 4)
-        .success
-        .value
+      val userAnswers =
+        UserAnswers(userAnswersId)
+          .unsafeSet(SupplierBusinessOrIndividualPage(SupplierNumber(4)), BusinessOrPrivateIndividual.PrivateIndividual)
 
-      val result = SupplierBusinessOrIndividualSummary.row(userAnswers).value
+      val result = SupplierBusinessOrIndividualSummary.row(userAnswers, SupplierNumber(4)).value
 
       result.key.content.asHtml.toString   must include(msgs("supplierBusinessOrIndividual.checkYourAnswersLabel"))
       result.value.content.asHtml.toString must include(msgs("supplierBusinessOrIndividual.radio.privateIndividual"))
@@ -69,7 +59,7 @@ class SupplierBusinessOrIndividualSummarySpec extends SpecBase {
 
       val userAnswers = UserAnswers(userAnswersId)
 
-      SupplierBusinessOrIndividualSummary.row(userAnswers) mustBe None
+      SupplierBusinessOrIndividualSummary.row(userAnswers, SupplierNumber(1)) mustBe None
     }
   }
 }

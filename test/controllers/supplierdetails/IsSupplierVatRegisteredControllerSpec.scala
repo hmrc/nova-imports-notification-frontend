@@ -19,7 +19,7 @@ package controllers.supplierdetails
 import base.SpecBase
 import controllers.{routes, supplierdetails}
 import forms.IsSupplierVatRegisteredFormProvider
-import models.{CheckMode, DraftId, Mode, NormalMode, SupplierNumber, UserAnswers}
+import models.{DraftId, Mode, NormalMode, SupplierNumber, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
@@ -27,7 +27,9 @@ import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.DraftIdPage
 import pages.sections.initialquestions.VehicleFromEuPage
-import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierNumberPage}
+import pages.sections.supplierdetails.IsSupplierVatRegisteredPage
+import play.api.libs.json.Json
+import queries.AllSuppliersQuery
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -56,7 +58,7 @@ class IsSupplierVatRegisteredControllerSpec extends SpecBase with MockitoSugar {
     .set(VehicleFromEuPage, true)
     .success
     .value
-    .set(SupplierNumberPage, 1)
+    .set(AllSuppliersQuery, Map("1" -> Json.obj()))
     .success
     .value
 
@@ -100,7 +102,7 @@ class IsSupplierVatRegisteredControllerSpec extends SpecBase with MockitoSugar {
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = userAnswersWithGuardData.set(IsSupplierVatRegisteredPage, true).success.value
+      val userAnswers = userAnswersWithGuardData.set(IsSupplierVatRegisteredPage(SupplierNumber(1)), true).success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
@@ -132,14 +134,14 @@ class IsSupplierVatRegisteredControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must keep the same supplier number when the user returns to change their answer" in {
+    "must save the answer matching that of the supplier number in the URL" in {
 
-      val answersForSupplierThree              = userAnswersWithGuardData.set(SupplierNumberPage, 3).success.value
+      val answersForSupplierThree              = userAnswersWithGuardData.set(AllSuppliersQuery, Map("3" -> Json.obj())).success.value
       val (application, mockSessionRepository) = applicationWithMockRepository(answersForSupplierThree)
 
       running(application) {
         val request =
-          FakeRequest(POST, isSupplierVatRegisteredSubmitRoute(SupplierNumber(3), CheckMode))
+          FakeRequest(POST, isSupplierVatRegisteredSubmitRoute(SupplierNumber(3)))
             .withFormUrlEncodedBody("value" -> "true")
 
         val result = route(application, request).value
@@ -147,8 +149,7 @@ class IsSupplierVatRegisteredControllerSpec extends SpecBase with MockitoSugar {
 
         val answers = savedAnswers(mockSessionRepository)
 
-        answers.get(SupplierNumberPage) mustEqual Some(3)
-        answers.get(IsSupplierVatRegisteredPage) mustEqual Some(true)
+        answers.get(IsSupplierVatRegisteredPage(SupplierNumber(3))) mustEqual Some(true)
       }
     }
 

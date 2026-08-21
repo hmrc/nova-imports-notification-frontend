@@ -19,23 +19,23 @@ package controllers.vehicledetails
 import config.FrontendAppConfig
 import controllers.BaseController
 import controllers.actions.*
+import controllers.supplierdetails
 import controllers.utils.IsDraftIdDefined
 import forms.AddVehicleDetailsFormProvider
 import models.requests.DataRequest
 
 import javax.inject.Inject
-import models.{AddVehicleDetails, Mode, NovaUserType, UserAnswers}
+import models.{AddVehicleDetails, Mode, NormalMode, NovaUserType}
 import navigation.Navigator
 import pages.sections.initialquestions.VehicleFromEuPage
 import pages.sections.vehicledetails.AddVehicleDetailsPage
-import pages.sections.supplierdetails.SupplierNumberPage
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
+import services.SupplierService
 import views.html.AddVehicleDetailsView
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Success, Try}
 
 class AddVehicleDetailsController @Inject() (
   val controllerComponents: MessagesControllerComponents,
@@ -43,6 +43,7 @@ class AddVehicleDetailsController @Inject() (
   navigator: Navigator,
   actions: Actions,
   formProvider: AddVehicleDetailsFormProvider,
+  supplierService: SupplierService,
   view: AddVehicleDetailsView,
   appConfig: FrontendAppConfig
 )(implicit ec: ExecutionContext)
@@ -61,13 +62,22 @@ class AddVehicleDetailsController @Inject() (
       .bindFromRequest()
       .fold(
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, appConfig.multipleVehiclesSpreadsheetsUrl))),
-        value =>
-          for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(AddVehicleDetailsPage, value).flatMap(seedSupplierNumber(value, _)))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(
-            navigator.nextPage(AddVehicleDetailsPage, mode, updatedAnswers, NovaUserType.from(request.affinityGroup, request.enrolments))
-          )
+        {
+          // choosing to add by supplier sets up a new supplier collection in the session ready for next question
+          case AddVehicleDetails.BySupplier =>
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(AddVehicleDetailsPage, AddVehicleDetails.BySupplier))
+              supplierNumber <- supplierService.add(updatedAnswers)
+            } yield Redirect(supplierdetails.routes.UsePersonalDetailsAsSupplierController.onPageLoad(supplierNumber, NormalMode))
+
+          case value =>
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(AddVehicleDetailsPage, value))
+              _              <- sessionRepository.set(updatedAnswers)
+            } yield Redirect(
+              navigator.nextPage(AddVehicleDetailsPage, mode, updatedAnswers, NovaUserType.from(request.affinityGroup, request.enrolments))
+            )
+        }
       )
   }
 }
@@ -78,13 +88,4 @@ object AddVehicleDetailsController {
   def guardPredicate(request: DataRequest[?]): Boolean =
     IsDraftIdDefined(request.userAnswers) &&
       request.userAnswers.get(VehicleFromEuPage).contains(true)
-
-  private def seedSupplierNumber(value: AddVehicleDetails, userAnswers: UserAnswers): Try[UserAnswers] =
-    value match {
-      case AddVehicleDetails.BySupplier    => userAnswers.set(SupplierNumberPage, nextSupplierNumber(userAnswers))
-      case AddVehicleDetails.BySpreadsheet => Success(userAnswers)
-    }
-
-  private def nextSupplierNumber(userAnswers: UserAnswers): Int =
-    userAnswers.get(SupplierNumberPage).getOrElse(1)
 }

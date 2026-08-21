@@ -19,7 +19,7 @@ package controllers.supplierdetails
 import base.SpecBase
 import controllers.{routes, supplierdetails}
 import forms.SupplierBusinessOrIndividualFormProvider
-import models.{BusinessOrPrivateIndividual, CheckMode, DraftId, NormalMode, SupplierNumber, UserAnswers}
+import models.{BusinessOrPrivateIndividual, DraftId, NormalMode, SupplierNumber, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
@@ -27,7 +27,9 @@ import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.DraftIdPage
 import pages.sections.initialquestions.VehicleFromEuPage
-import pages.sections.supplierdetails.{SupplierBusinessOrIndividualPage, SupplierNumberPage}
+import pages.sections.supplierdetails.SupplierBusinessOrIndividualPage
+import play.api.libs.json.Json
+import queries.AllSuppliersQuery
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -54,7 +56,7 @@ class SupplierBusinessOrIndividualControllerSpec extends SpecBase with MockitoSu
     .set(VehicleFromEuPage, true)
     .success
     .value
-    .set(SupplierNumberPage, 1)
+    .set(AllSuppliersQuery, Map("1" -> Json.obj()))
     .success
     .value
 
@@ -101,7 +103,7 @@ class SupplierBusinessOrIndividualControllerSpec extends SpecBase with MockitoSu
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
       val userAnswers = userAnswersWithGuardData
-        .set(SupplierBusinessOrIndividualPage, BusinessOrPrivateIndividual.Business)
+        .set(SupplierBusinessOrIndividualPage(SupplierNumber(1)), BusinessOrPrivateIndividual.Business)
         .success
         .value
 
@@ -138,14 +140,14 @@ class SupplierBusinessOrIndividualControllerSpec extends SpecBase with MockitoSu
       }
     }
 
-    "must keep the same supplier number when the user returns to change their answer" in {
+    "must save the answer matching that of the supplier number in the URL" in {
 
-      val answersForSupplierThree              = userAnswersWithGuardData.set(SupplierNumberPage, 3).success.value
+      val answersForSupplierThree              = userAnswersWithGuardData.set(AllSuppliersQuery, Map("3" -> Json.obj())).success.value
       val (application, mockSessionRepository) = applicationWithMockRepository(answersForSupplierThree)
 
       running(application) {
         val request =
-          FakeRequest(POST, supplierdetails.routes.SupplierBusinessOrIndividualController.onSubmit(SupplierNumber(3), CheckMode).url)
+          FakeRequest(POST, supplierdetails.routes.SupplierBusinessOrIndividualController.onSubmit(SupplierNumber(3), NormalMode).url)
             .withFormUrlEncodedBody(("value", BusinessOrPrivateIndividual.Business.toString))
 
         val result = route(application, request).value
@@ -153,8 +155,7 @@ class SupplierBusinessOrIndividualControllerSpec extends SpecBase with MockitoSu
 
         val answers = savedAnswers(mockSessionRepository)
 
-        answers.get(SupplierNumberPage) mustEqual Some(3)
-        answers.get(SupplierBusinessOrIndividualPage) mustEqual Some(BusinessOrPrivateIndividual.Business)
+        answers.get(SupplierBusinessOrIndividualPage(SupplierNumber(3))) mustEqual Some(BusinessOrPrivateIndividual.Business)
       }
     }
 

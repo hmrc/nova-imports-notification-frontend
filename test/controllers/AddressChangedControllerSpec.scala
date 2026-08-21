@@ -28,7 +28,7 @@ import pages.{DraftIdPage, DraftVersionIdPage}
 import pages.sections.initialquestions.PurchaserOrOnBehalfPage
 import pages.sections.notifieraddress.{AddressJourneyIdPage, AddressPage}
 import pages.sections.purchaseraddress.{PurchaserAddressJourneyIdPage, PurchaserAddressPage}
-import pages.sections.supplierdetails.SupplierNumberPage
+import queries.AllSuppliersQuery
 import pages.sections.supplieraddress.{IsSupplierAddressInTheUkPage, SupplierAddressJourneyIdPage, SupplierAddressPage}
 import play.api.Application
 import play.api.inject.bind
@@ -215,13 +215,13 @@ class AddressChangedControllerSpec extends SpecBase with MockitoSugar {
 
     val supplierAnswers: UserAnswers =
       emptyUserAnswers
-        .set(SupplierAddressPage, address)
+        .set(AllSuppliersQuery, Map("1" -> Json.obj()))
         .success
         .value
-        .set(IsSupplierAddressInTheUkPage, true)
+        .set(SupplierAddressPage(supplierNumber), address)
         .success
         .value
-        .set(SupplierNumberPage, 1)
+        .set(IsSupplierAddressInTheUkPage(supplierNumber), true)
         .success
         .value
         .set(DraftIdPage, draftId)
@@ -249,7 +249,7 @@ class AddressChangedControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must save to the supplier-address draft section on submit" in {
+    "must save to the correct supplier's draft section on submit" in {
       val backendConnector = stubBackendConnector()
       val application      = applicationWith(userAnswers = Some(supplierAnswers), backendConnector = backendConnector)
 
@@ -259,7 +259,7 @@ class AddressChangedControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual SEE_OTHER
 
         val body = ArgumentCaptor.forClass(classOf[JsObject])
-        verify(backendConnector).updateDraftSection(eqTo(draftId), eqTo("supplier-address"), body.capture())(any[HeaderCarrier])
+        verify(backendConnector).updateDraftSection(eqTo(draftId), eqTo("supplier/1/details"), body.capture())(any[HeaderCarrier])
         body.getValue mustBe Json.toJson(SupplierAddress.fromAddress(address)).as[JsObject] + ("versionId", Json.toJson(0L))
       }
     }
@@ -276,8 +276,8 @@ class AddressChangedControllerSpec extends SpecBase with MockitoSugar {
 
         val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(sessionRepository).set(captor.capture())
-        captor.getValue.get(SupplierAddressPage) mustBe None
-        captor.getValue.get(SupplierAddressJourneyIdPage) mustBe None
+        captor.getValue.get(SupplierAddressPage(supplierNumber)) mustBe None
+        captor.getValue.get(SupplierAddressJourneyIdPage(supplierNumber)) mustBe None
       }
     }
 
@@ -294,7 +294,7 @@ class AddressChangedControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to Unauthorised when no supplier address has been stored" in {
-      val answers     = supplierAnswers.remove(SupplierAddressPage).success.value
+      val answers     = supplierAnswers.remove(SupplierAddressPage(supplierNumber)).success.value
       val application = applicationWith(userAnswers = Some(answers))
 
       running(application) {

@@ -16,7 +16,7 @@
 
 package controllers
 
-import controllers.utils.{IsDraftIdDefined, IsSupplierNumberInSession}
+import controllers.utils.IsDraftIdDefined
 import models.draftsections.{NotifierAddress, PurchaserAddress, SupplierAddress}
 import models.requests.DataRequest
 import models.{Address, AddressJourney, NormalMode, PurchaserOrOnBehalf, SupplierNumber}
@@ -28,6 +28,7 @@ import pages.sections.supplieraddress.IsSupplierAddressInTheUkPage
 import pages.sections.supplieraddress.{SupplierAddressJourneyIdPage, SupplierAddressPage}
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
+import services.SupplierService
 
 // common class to avoid duplication
 final case class AddressJourneyBinding(
@@ -46,9 +47,9 @@ final case class AddressJourneyBinding(
 
 object AddressJourneyBinding {
 
-  def apply(journey: AddressJourney): AddressJourneyBinding = journey match {
+  def apply(journey: AddressJourney, supplierService: SupplierService): AddressJourneyBinding = journey match {
     case AddressJourney.Notifier         => notifier
-    case AddressJourney.Supplier(number) => supplier(number)
+    case AddressJourney.Supplier(number) => supplier(number, supplierService)
     case AddressJourney.Purchaser        => purchaser
   }
 
@@ -66,15 +67,15 @@ object AddressJourneyBinding {
     messageKeyPrefix = "addressChanged"
   )
 
-  private def supplier(number: SupplierNumber): AddressJourneyBinding = AddressJourneyBinding(
-    addressPage = SupplierAddressPage,
-    journeyIdPage = SupplierAddressJourneyIdPage,
-    sectionId = "supplier-address",
+  private def supplier(number: SupplierNumber, supplierService: SupplierService): AddressJourneyBinding = AddressJourneyBinding(
+    addressPage = SupplierAddressPage(number),
+    journeyIdPage = SupplierAddressJourneyIdPage(number),
+    sectionId = s"supplier/${number.value}/details",
     payload = address => Json.toJson(SupplierAddress.fromAddress(address)).as[JsObject],
     guard = request =>
       IsDraftIdDefined(request.userAnswers) &&
-        request.userAnswers.get(IsSupplierAddressInTheUkPage).isDefined &&
-        IsSupplierNumberInSession(request.userAnswers, number),
+        request.userAnswers.get(IsSupplierAddressInTheUkPage(number)).isDefined &&
+        supplierService.numberExists(request.userAnswers, number),
     onComplete = routes.LandingPageController.onPageLoad(), // TODO: navigate to AVD-S8.0 when built (DTR-6200)
     addressChangedPage = routes.AddressChangedController.supplierOnPageLoad(number),
     addressChangedSubmit = routes.AddressChangedController.supplierOnSubmit(number),

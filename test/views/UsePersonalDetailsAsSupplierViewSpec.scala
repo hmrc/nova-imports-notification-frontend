@@ -19,7 +19,7 @@ package views
 import base.SpecBase
 import config.FrontendAppConfig
 import forms.UsePersonalDetailsAsSupplierFormProvider
-import models.{Address, Country, NormalMode, UserAnswers}
+import models.{Address, Country, NormalMode, SupplierNumber, UserAnswers}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.must.Matchers
 import pages.sections.notifieraddress.AddressPage
@@ -59,29 +59,31 @@ class UsePersonalDetailsAsSupplierViewSpec extends SpecBase with Matchers with B
   val formProvider = new UsePersonalDetailsAsSupplierFormProvider()
   val form         = formProvider()
 
+  private val supplierNumber = SupplierNumber(1)
+
   "UsePersonalDetailsAsSupplierView" - {
 
     "must render the correct heading" in {
-      val html: String = view(form, NormalMode, personalDetails, vatNotice728Url)(request, msgs).toString
+      val html: String = view(form, supplierNumber, NormalMode, personalDetails, vatNotice728Url)(request, msgs).toString
 
       html must include(msgs("usePersonalDetailsAsSupplier.heading"))
     }
 
     "must render the correct page title" in {
-      val html: String = view(form, NormalMode, personalDetails, vatNotice728Url)(request, msgs).toString
+      val html: String = view(form, supplierNumber, NormalMode, personalDetails, vatNotice728Url)(request, msgs).toString
 
       html must include(msgs("usePersonalDetailsAsSupplier.title"))
     }
 
     "must render the 'Add vehicle details' caption" in {
-      val html: String = view(form, NormalMode, personalDetails, vatNotice728Url)(request, msgs).toString
+      val html: String = view(form, supplierNumber, NormalMode, personalDetails, vatNotice728Url)(request, msgs).toString
 
       html must include("govuk-caption-l")
       html must include(msgs("usePersonalDetailsAsSupplier.caption"))
     }
 
     "must render the self-supply guidance paragraphs and bullet list" in {
-      val html: String = view(form, NormalMode, personalDetails, vatNotice728Url)(request, msgs).toString
+      val html: String = view(form, supplierNumber, NormalMode, personalDetails, vatNotice728Url)(request, msgs).toString
 
       html must include(msgs("usePersonalDetailsAsSupplier.paragraph.1"))
       html must include(msgs("usePersonalDetailsAsSupplier.paragraph.2"))
@@ -91,14 +93,14 @@ class UsePersonalDetailsAsSupplierViewSpec extends SpecBase with Matchers with B
     }
 
     "must render the VAT Notice 728 link to GOV.UK" in {
-      val html: String = view(form, NormalMode, personalDetails, vatNotice728Url)(request, msgs).toString
+      val html: String = view(form, supplierNumber, NormalMode, personalDetails, vatNotice728Url)(request, msgs).toString
 
       html must include(msgs("usePersonalDetailsAsSupplier.bullet.4.linkText"))
       html must include(vatNotice728Url)
     }
 
     "must render the notifier's personal details (name and address) from the session" in {
-      val html: String = view(form, NormalMode, personalDetails, vatNotice728Url)(request, msgs).toString
+      val html: String = view(form, supplierNumber, NormalMode, personalDetails, vatNotice728Url)(request, msgs).toString
 
       html must include(msgs("usePersonalDetailsAsSupplier.personalDetails"))
       html must include(msgs("usePersonalDetailsAsSupplier.name"))
@@ -109,7 +111,7 @@ class UsePersonalDetailsAsSupplierViewSpec extends SpecBase with Matchers with B
     }
 
     "must render the radio question and both option hints" in {
-      val html: String = view(form, NormalMode, personalDetails, vatNotice728Url)(request, msgs).toString
+      val html: String = view(form, supplierNumber, NormalMode, personalDetails, vatNotice728Url)(request, msgs).toString
 
       html must include(msgs("usePersonalDetailsAsSupplier.question"))
       html must include(msgs("usePersonalDetailsAsSupplier.yes.hint"))
@@ -117,39 +119,41 @@ class UsePersonalDetailsAsSupplierViewSpec extends SpecBase with Matchers with B
     }
 
     "must render the Yes and No radio options" in {
-      val html: String = view(form, NormalMode, personalDetails, vatNotice728Url)(request, msgs).toString
+      val html: String = view(form, supplierNumber, NormalMode, personalDetails, vatNotice728Url)(request, msgs).toString
 
       html must include(msgs("site.yes"))
       html must include(msgs("site.no"))
     }
 
     "must render the Continue button" in {
-      val html: String = view(form, NormalMode, personalDetails, vatNotice728Url)(request, msgs).toString
+      val html: String = view(form, supplierNumber, NormalMode, personalDetails, vatNotice728Url)(request, msgs).toString
 
       html must include(msgs("site.continue"))
     }
 
     "must render the error summary when the form has errors" in {
       val boundForm    = form.bind(Map("value" -> ""))
-      val html: String = view(boundForm, NormalMode, personalDetails, vatNotice728Url)(request, msgs).toString
+      val html: String = view(boundForm, supplierNumber, NormalMode, personalDetails, vatNotice728Url)(request, msgs).toString
 
       html must include(msgs("usePersonalDetailsAsSupplier.error.required"))
     }
 
     "must post to the UsePersonalDetailsAsSupplier submit URL" in {
-      val html: String = view(form, NormalMode, personalDetails, vatNotice728Url)(request, msgs).toString
+      val html: String = view(form, supplierNumber, NormalMode, personalDetails, vatNotice728Url)(request, msgs).toString
 
-      html must include(s"""action="${controllers.supplierdetails.routes.UsePersonalDetailsAsSupplierController.onSubmit(NormalMode).url}"""")
+      html must include(
+        s"""action="${controllers.supplierdetails.routes.UsePersonalDetailsAsSupplierController.onSubmit(supplierNumber, NormalMode).url}""""
+      )
     }
 
     "must render the same content via the render method" in {
-      val html: String = view.render(form, NormalMode, personalDetails, vatNotice728Url, request, msgs).toString
+      val html: String = view.render(form, supplierNumber, NormalMode, personalDetails, vatNotice728Url, request, msgs).toString
 
       html must include(msgs("usePersonalDetailsAsSupplier.heading"))
     }
 
     "must render the same content via the f method" in {
-      val html: String = view.f(form, NormalMode, personalDetails, vatNotice728Url)(request, msgs).toString
+      val html: String = view.f(form, supplierNumber, NormalMode, personalDetails, vatNotice728Url)(request, msgs).toString
 
       html must include(msgs("usePersonalDetailsAsSupplier.heading"))
     }

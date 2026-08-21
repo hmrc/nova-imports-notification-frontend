@@ -23,7 +23,7 @@ import controllers.actions.*
 import controllers.utils.IsDraftIdDefined
 import forms.UsePersonalDetailsAsSupplierFormProvider
 import models.requests.DataRequest
-import models.{AddVehicleDetails, Mode, NovaUserType, PurchaserOrOnBehalf, TraderInformation}
+import models.{AddVehicleDetails, Mode, NovaUserType, PurchaserOrOnBehalf, SupplierNumber, TraderInformation}
 import navigation.Navigator
 import pages.sections.initialquestions.{PurchaserOrOnBehalfPage, VehicleFromEuPage}
 import pages.sections.vehicledetails.AddVehicleDetailsPage
@@ -33,6 +33,7 @@ import play.api.data.Form
 import play.api.i18n.Messages
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
+import services.SupplierService
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
@@ -49,6 +50,7 @@ class UsePersonalDetailsAsSupplierController @Inject() (
   navigator: Navigator,
   actions: Actions,
   formProvider: UsePersonalDetailsAsSupplierFormProvider,
+  supplierService: SupplierService,
   view: UsePersonalDetailsAsSupplierView,
   connector: NovaImportsBackendConnector,
   appConfig: FrontendAppConfig
@@ -62,13 +64,15 @@ class UsePersonalDetailsAsSupplierController @Inject() (
 
   // The user can reach this page before completing "Add your details"/"Add your address". Any missing
   // personal details render as "Not provided"; the user can continue or choose "No" to add them later.
-  private val authenticate = actions.authAndGetDataWithUserTypeGuard(guardPredicate)
+  private def authenticate(supplierNumber: SupplierNumber) =
+    actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierService, supplierNumber))
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = authenticate.async { implicit request =>
+  def onPageLoad(supplierNumber: SupplierNumber, mode: Mode): Action[AnyContent] = authenticate(supplierNumber).async { implicit request =>
     personalDetails.map { details =>
       Ok(
         view(
-          form.withDefault(request.userAnswers.get(UsePersonalDetailsAsSupplierPage)),
+          form.withDefault(request.userAnswers.get(UsePersonalDetailsAsSupplierPage(supplierNumber))),
+          supplierNumber,
           mode,
           details,
           appConfig.vatNotice728Url
@@ -77,7 +81,7 @@ class UsePersonalDetailsAsSupplierController @Inject() (
     }
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = authenticate.async { implicit request =>
+  def onSubmit(supplierNumber: SupplierNumber, mode: Mode): Action[AnyContent] = authenticate(supplierNumber).async { implicit request =>
     form
       .bindFromRequest()
       .fold(
@@ -86,6 +90,7 @@ class UsePersonalDetailsAsSupplierController @Inject() (
             BadRequest(
               view(
                 formWithErrors,
+                supplierNumber,
                 mode,
                 details,
                 appConfig.vatNotice728Url
@@ -94,10 +99,15 @@ class UsePersonalDetailsAsSupplierController @Inject() (
           },
         value =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(UsePersonalDetailsAsSupplierPage, value))
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(UsePersonalDetailsAsSupplierPage(supplierNumber), value))
             _              <- sessionRepository.set(updatedAnswers)
           } yield Redirect(
-            navigator.nextPage(UsePersonalDetailsAsSupplierPage, mode, updatedAnswers, NovaUserType.from(request.affinityGroup, request.enrolments))
+            navigator.nextPage(
+              UsePersonalDetailsAsSupplierPage(supplierNumber),
+              mode,
+              updatedAnswers,
+              NovaUserType.from(request.affinityGroup, request.enrolments)
+            )
           )
       )
   }
@@ -129,12 +139,13 @@ object UsePersonalDetailsAsSupplierController {
 
   // Access is limited to user types 1, 2, 4 & 5: agents (3 & 6) blocked here, OGD agents (7 & 8)
   // rejected upstream; types 1 & 2 also need IQ3 = As the purchaser, else they belong on AVD-S1.1.
-  def guardPredicate(request: DataRequest[?]): Boolean = {
+  def guardPredicate(supplierService: SupplierService, supplierNumber: SupplierNumber)(request: DataRequest[?]): Boolean = {
     val answers = request.userAnswers
     !request.userContext.isAgent &&
     IsDraftIdDefined(answers) &&
     answers.get(AddVehicleDetailsPage).contains(AddVehicleDetails.BySupplier) &&
     answers.get(VehicleFromEuPage).contains(true) &&
+    supplierService.numberExists(answers, supplierNumber) &&
     (request.userContext.isVatRegisteredOrganisation ||
       answers.get(PurchaserOrOnBehalfPage).contains(PurchaserOrOnBehalf.Purchaser))
   }

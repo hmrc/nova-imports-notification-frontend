@@ -27,7 +27,9 @@ import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.DraftIdPage
 import pages.sections.initialquestions.VehicleFromEuPage
-import pages.sections.supplierdetails.{SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNumberPage}
+import pages.sections.supplierdetails.{SupplierBusinessNamePage, SupplierBusinessOrIndividualPage}
+import play.api.libs.json.Json
+import queries.AllSuppliersQuery
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -49,11 +51,13 @@ class SupplierBusinessNameControllerSpec extends SpecBase with MockitoSugar {
 
   val validName = "Acme Trading Co Ltd"
 
+  private val supplierOne = SupplierNumber(1)
+
   private val requiredAnswers: UserAnswers = emptyUserAnswers
     .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
     .unsafeSet(VehicleFromEuPage, true)
-    .unsafeSet(SupplierBusinessOrIndividualPage, BusinessOrPrivateIndividual.Business)
-    .unsafeSet(SupplierNumberPage, 1)
+    .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj()))
+    .unsafeSet(SupplierBusinessOrIndividualPage(supplierOne), BusinessOrPrivateIndividual.Business)
 
   private def applicationWithMockRepository(userAnswers: UserAnswers): (play.api.Application, SessionRepository) = {
 
@@ -97,7 +101,8 @@ class SupplierBusinessNameControllerSpec extends SpecBase with MockitoSugar {
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val application = applicationBuilder(userAnswers = Some(requiredAnswers.unsafeSet(SupplierBusinessNamePage, validName))).build()
+      val application =
+        applicationBuilder(userAnswers = Some(requiredAnswers.unsafeSet(SupplierBusinessNamePage(supplierOne), validName))).build()
 
       running(application) {
         val request = FakeRequest(GET, supplierBusinessNameRoute)
@@ -126,16 +131,22 @@ class SupplierBusinessNameControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
 
-        savedAnswers(mockSessionRepository).get(SupplierBusinessNamePage) mustEqual Some(validName)
+        savedAnswers(mockSessionRepository).get(SupplierBusinessNamePage(supplierOne)) mustEqual Some(validName)
       }
     }
 
-    "must keep the same supplier number when the user returns to change their answer" in {
+    "must save the answer matching that of the supplier number in the URL" in {
 
-      val (application, mockSessionRepository) = applicationWithMockRepository(requiredAnswers.unsafeSet(SupplierNumberPage, 3))
+      val supplierThree = SupplierNumber(3)
+
+      val answersForThirdSupplier = requiredAnswers
+        .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj(), "3" -> Json.obj()))
+        .unsafeSet(SupplierBusinessOrIndividualPage(supplierThree), BusinessOrPrivateIndividual.Business)
+
+      val (application, mockSessionRepository) = applicationWithMockRepository(answersForThirdSupplier)
 
       running(application) {
-        val request = FakeRequest(POST, supplierdetails.routes.SupplierBusinessNameController.onSubmit(SupplierNumber(3), CheckMode).url)
+        val request = FakeRequest(POST, supplierdetails.routes.SupplierBusinessNameController.onSubmit(supplierThree, NormalMode).url)
           .withFormUrlEncodedBody(("value", validName))
 
         val result = route(application, request).value
@@ -143,8 +154,7 @@ class SupplierBusinessNameControllerSpec extends SpecBase with MockitoSugar {
 
         val answers = savedAnswers(mockSessionRepository)
 
-        answers.get(SupplierNumberPage) mustEqual Some(3)
-        answers.get(SupplierBusinessNamePage) mustEqual Some(validName)
+        answers.get(SupplierBusinessNamePage(supplierThree)) mustEqual Some(validName)
       }
     }
 
@@ -239,8 +249,8 @@ class SupplierBusinessNameControllerSpec extends SpecBase with MockitoSugar {
 
       val answersWithoutDraftId = emptyUserAnswers
         .unsafeSet(VehicleFromEuPage, true)
-        .unsafeSet(SupplierBusinessOrIndividualPage, BusinessOrPrivateIndividual.Business)
-        .unsafeSet(SupplierNumberPage, 1)
+        .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj()))
+        .unsafeSet(SupplierBusinessOrIndividualPage(supplierOne), BusinessOrPrivateIndividual.Business)
 
       val application = applicationBuilder(userAnswers = Some(answersWithoutDraftId)).build()
 
@@ -258,8 +268,8 @@ class SupplierBusinessNameControllerSpec extends SpecBase with MockitoSugar {
 
       val answersWithoutDraftId = emptyUserAnswers
         .unsafeSet(VehicleFromEuPage, true)
-        .unsafeSet(SupplierBusinessOrIndividualPage, BusinessOrPrivateIndividual.Business)
-        .unsafeSet(SupplierNumberPage, 1)
+        .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj()))
+        .unsafeSet(SupplierBusinessOrIndividualPage(supplierOne), BusinessOrPrivateIndividual.Business)
 
       val application = applicationBuilder(userAnswers = Some(answersWithoutDraftId)).build()
 
@@ -290,7 +300,7 @@ class SupplierBusinessNameControllerSpec extends SpecBase with MockitoSugar {
     "must redirect to Unauthorised for a GET if the supplier is a private individual" in {
 
       val answersForPrivateIndividual =
-        requiredAnswers.unsafeSet(SupplierBusinessOrIndividualPage, BusinessOrPrivateIndividual.PrivateIndividual)
+        requiredAnswers.unsafeSet(SupplierBusinessOrIndividualPage(supplierOne), BusinessOrPrivateIndividual.PrivateIndividual)
 
       val application = applicationBuilder(userAnswers = Some(answersForPrivateIndividual)).build()
 
@@ -307,7 +317,7 @@ class SupplierBusinessNameControllerSpec extends SpecBase with MockitoSugar {
     "must redirect to Unauthorised for a POST if the supplier is a private individual" in {
 
       val answersForPrivateIndividual =
-        requiredAnswers.unsafeSet(SupplierBusinessOrIndividualPage, BusinessOrPrivateIndividual.PrivateIndividual)
+        requiredAnswers.unsafeSet(SupplierBusinessOrIndividualPage(supplierOne), BusinessOrPrivateIndividual.PrivateIndividual)
 
       val application = applicationBuilder(userAnswers = Some(answersForPrivateIndividual)).build()
 
@@ -326,7 +336,7 @@ class SupplierBusinessNameControllerSpec extends SpecBase with MockitoSugar {
       val answersWithoutSupplierType = emptyUserAnswers
         .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
         .unsafeSet(VehicleFromEuPage, true)
-        .unsafeSet(SupplierNumberPage, 1)
+        .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj()))
 
       val application = applicationBuilder(userAnswers = Some(answersWithoutSupplierType)).build()
 
@@ -369,14 +379,13 @@ class SupplierBusinessNameControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to Unauthorised for a GET if there is no supplier number in session" in {
+    "must redirect to Unauthorised for a GET if the user has no suppliers" in {
 
-      val answersWithoutSupplierNumber = emptyUserAnswers
+      val answersWithoutSuppliers = emptyUserAnswers
         .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
         .unsafeSet(VehicleFromEuPage, true)
-        .unsafeSet(SupplierBusinessOrIndividualPage, BusinessOrPrivateIndividual.Business)
 
-      val application = applicationBuilder(userAnswers = Some(answersWithoutSupplierNumber)).build()
+      val application = applicationBuilder(userAnswers = Some(answersWithoutSuppliers)).build()
 
       running(application) {
         val request = FakeRequest(GET, supplierBusinessNameRoute)

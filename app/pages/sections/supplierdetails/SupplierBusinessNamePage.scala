@@ -16,12 +16,13 @@
 
 package pages.sections.supplierdetails
 
+import models.SupplierNumber
 import pages.QuestionPage
 import play.api.libs.json.JsPath
 
-case object SupplierBusinessNamePage extends QuestionPage[String] {
+final case class SupplierBusinessNamePage(supplierNumber: SupplierNumber) extends QuestionPage[String] {
 
-  override def path: JsPath = JsPath \ "supplier-details" \ toString
+  override def path: JsPath = JsPath \ "suppliers" \ supplierNumber.value.toString \ "details" \ toString
 
   override def toString: String = "supplierBusinessName"
 }
