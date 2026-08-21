@@ -192,4 +192,31 @@ class VehicleServiceSpec extends SpecBase with MockitoSugar {
       newService(mock[SessionRepository]).numberExists(emptyUserAnswers, VehicleNumber(1)) mustBe false
     }
   }
+
+  "VehicleService.belongsToSupplier" - {
+
+    "must return true for a vehicle bought from that supplier" in {
+      val answers = emptyUserAnswers.unsafeSet(AllVehiclesQuery, Map("1" -> Json.obj("supplierNumber" -> 2)))
+
+      newService(mock[SessionRepository]).belongsToSupplier(answers, VehicleNumber(1), SupplierNumber(2)) mustBe true
+    }
+
+    "must return false for a vehicle bought from a different supplier" in {
+      val answers = emptyUserAnswers.unsafeSet(AllVehiclesQuery, Map("1" -> Json.obj("supplierNumber" -> 2)))
+
+      newService(mock[SessionRepository]).belongsToSupplier(answers, VehicleNumber(1), SupplierNumber(3)) mustBe false
+    }
+
+    "must return false for a vehicle that does not exist" in {
+      val answers = emptyUserAnswers.unsafeSet(AllVehiclesQuery, Map("1" -> Json.obj("supplierNumber" -> 2)))
+
+      newService(mock[SessionRepository]).belongsToSupplier(answers, VehicleNumber(9), SupplierNumber(2)) mustBe false
+    }
+
+    "must return false for a vehicle that belongs to an import" in {
+      val answers = emptyUserAnswers.unsafeSet(AllVehiclesQuery, Map("1" -> Json.obj("importNumber" -> 2)))
+
+      newService(mock[SessionRepository]).belongsToSupplier(answers, VehicleNumber(1), SupplierNumber(2)) mustBe false
+    }
+  }
 }

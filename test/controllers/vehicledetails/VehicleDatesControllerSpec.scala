@@ -27,9 +27,10 @@ import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.DraftIdPage
 import pages.sections.initialquestions.VehicleFromEuPage
-import pages.sections.supplierdetails.SupplierNumberPage
-import pages.sections.vehicledetails.{VehicleDatesPage, VehicleNumberPage}
+import pages.sections.vehicledetails.VehicleDatesPage
 import play.api.inject.bind
+import play.api.libs.json.Json
+import queries.{AllSuppliersQuery, AllVehiclesQuery}
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -57,7 +58,10 @@ class VehicleDatesControllerSpec extends SpecBase with MockitoSugar {
     .set(VehicleFromEuPage, true)
     .success
     .value
-    .set(SupplierNumberPage, 1)
+    .set(AllSuppliersQuery, Map("1" -> Json.obj()))
+    .success
+    .value
+    .set(AllVehiclesQuery, Map("1" -> Json.obj("supplierNumber" -> 1)))
     .success
     .value
 
@@ -106,7 +110,7 @@ class VehicleDatesControllerSpec extends SpecBase with MockitoSugar {
       val answer = Set(VehicleDates.PurchaseInvoiceDate)
 
       val userAnswers = userAnswersWithGuardData
-        .set(VehicleDatesPage, answer)
+        .set(VehicleDatesPage(vehicleNumber), answer)
         .success
         .value
 
@@ -158,7 +162,7 @@ class VehicleDatesControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
 
-        savedAnswers(mockSessionRepository).get(VehicleDatesPage) mustEqual Some(
+        savedAnswers(mockSessionRepository).get(VehicleDatesPage(vehicleNumber)) mustEqual Some(
           Set(VehicleDates.PurchaseInvoiceDate, VehicleDates.AvailabilityAndFirstRegistration)
         )
       }
@@ -317,7 +321,7 @@ class VehicleDatesControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to Unauthorised for a GET if the vehicle number in the URL is not the vehicle the user is working on" in {
+    "must redirect to Unauthorised for a GET if the vehicle number in the URL is not one of the user's vehicles" in {
 
       val application = applicationBuilder(userAnswers = Some(userAnswersWithGuardData)).build()
 
@@ -331,7 +335,7 @@ class VehicleDatesControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to Unauthorised for a POST if the vehicle number in the URL is not the vehicle the user is working on" in {
+    "must redirect to Unauthorised for a POST if the vehicle number in the URL is not one of the user's vehicles" in {
 
       val application = applicationBuilder(userAnswers = Some(userAnswersWithGuardData)).build()
 
@@ -347,11 +351,36 @@ class VehicleDatesControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must use the vehicle number held in session when one is present" in {
+    "must redirect to Unauthorised for a GET if the vehicle in the URL belongs to a different supplier" in {
 
-      val answersForVehicleThree = userAnswersWithGuardData.set(VehicleNumberPage, 3).success.value
+      val answers = userAnswersWithGuardData
+        .set(AllSuppliersQuery, Map("1" -> Json.obj(), "2" -> Json.obj()))
+        .success
+        .value
+        .set(AllVehiclesQuery, Map("1" -> Json.obj("supplierNumber" -> 2)))
+        .success
+        .value
 
-      val application = applicationBuilder(userAnswers = Some(answersForVehicleThree)).build()
+      val application = applicationBuilder(userAnswers = Some(answers)).build()
+
+      running(application) {
+        val request = FakeRequest(GET, vehicledetails.routes.VehicleDatesController.onPageLoad(supplierNumber, vehicleNumber, NormalMode).url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+
+    "must return OK for a GET on vehicle 3 when the supplier has vehicles 1 and 3 in session" in {
+
+      val answers = userAnswersWithGuardData
+        .set(AllVehiclesQuery, Map("1" -> Json.obj("supplierNumber" -> 1), "3" -> Json.obj("supplierNumber" -> 1)))
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(answers)).build()
 
       running(application) {
         val request = FakeRequest(GET, vehicledetails.routes.VehicleDatesController.onPageLoad(supplierNumber, VehicleNumber(3), NormalMode).url)

@@ -34,6 +34,8 @@ trait VehicleService {
 
   def numberExists(answers: UserAnswers, vehicleNumber: VehicleNumber): Boolean
 
+  def belongsToSupplier(answers: UserAnswers, vehicleNumber: VehicleNumber, supplierNumber: SupplierNumber): Boolean
+
   def delete(answers: UserAnswers, vehicleNumber: VehicleNumber): Future[UserAnswers]
 
   // these removeFors don't save. delete calls them to remove a supplier or import with its vehicles in one write
@@ -60,6 +62,11 @@ class VehicleServiceImpl @Inject() (
 
   def numberExists(answers: UserAnswers, vehicleNumber: VehicleNumber): Boolean =
     allVehicles(answers).contains(vehicleNumber.value.toString)
+
+  def belongsToSupplier(answers: UserAnswers, vehicleNumber: VehicleNumber, supplierNumber: SupplierNumber): Boolean =
+    allVehicles(answers)
+      .get(vehicleNumber.value.toString)
+      .exists(vehicle => (vehicle \ "supplierNumber").asOpt[Int].contains(supplierNumber.value))
 
   def delete(answers: UserAnswers, vehicleNumber: VehicleNumber): Future[UserAnswers] =
     save(answers, allVehicles(answers) - vehicleNumber.value.toString)

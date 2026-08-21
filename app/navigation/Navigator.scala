@@ -93,8 +93,6 @@ class Navigator @Inject() () {
             routes.LandingPageController.onPageLoad() // TODO: navigate to spreadsheet upload flow when built
           case _ => routes.JourneyRecoveryController.onPageLoad()
         }
-    case page: UsePersonalDetailsAsSupplierPage =>
-      // TODO: FIX THIS BELOW AFTER MERGE
     case AddImportVehicleDetailsPage =>
       (userAnswers, _) =>
         userAnswers.get(AddImportVehicleDetailsPage) match {
@@ -105,7 +103,7 @@ class Navigator @Inject() () {
             routes.LandingPageController.onPageLoad() // TODO: navigate to spreadsheet upload flow when built
           case _ => routes.JourneyRecoveryController.onPageLoad()
         }
-    case UsePersonalDetailsAsSupplierPage =>
+    case page: UsePersonalDetailsAsSupplierPage =>
       (userAnswers, _) =>
         userAnswers.get(page) match {
           case Some(true)  => routes.LandingPageController.onPageLoad() // TODO: navigate to CYA3.0 when built
@@ -157,9 +155,9 @@ class Navigator @Inject() () {
             routes.LandingPageController.onPageLoad() // TODO: navigate to AVD-S9 when built (page variant depends on if individual or organisation)
           case _ => routes.JourneyRecoveryController.onPageLoad()
         }
-    case VehicleDatesPage =>
+    case page: VehicleDatesPage =>
       (userAnswers, _) =>
-        userAnswers.get(VehicleDatesPage) match {
+        userAnswers.get(page) match {
           case Some(dates) if dates.contains(VehicleDates.PurchaseInvoiceDate) =>
             routes.LandingPageController.onPageLoad() // TODO: navigate to AVD4.0 when built
           case Some(dates) if dates.contains(VehicleDates.AvailabilityAndFirstRegistration) =>
@@ -207,7 +205,7 @@ class Navigator @Inject() () {
     case _: SupplierNamePage | _: IsSupplierAddressInTheUkPage | _: IsSupplierVatRegisteredPage | _: SupplierBusinessNamePage |
         _: SupplierBusinessOrIndividualPage =>
       (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD-S9.0 CYA when built
-    case VehicleDatesPage =>
+    case _: VehicleDatesPage =>
       (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to the vehicle details CYA when built
     case _ =>
       (_, _) => routes.LandingPageController.onPageLoad()

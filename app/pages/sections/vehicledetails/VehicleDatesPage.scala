@@ -16,13 +16,13 @@
 
 package pages.sections.vehicledetails
 
-import models.VehicleDates
+import models.{VehicleDates, VehicleNumber}
 import pages.QuestionPage
 import play.api.libs.json.JsPath
 
-case object VehicleDatesPage extends QuestionPage[Set[VehicleDates]] {
+final case class VehicleDatesPage(vehicleNumber: VehicleNumber) extends QuestionPage[Set[VehicleDates]] {
 
-  override def path: JsPath = JsPath \ "vehicle-details" \ toString
+  override def path: JsPath = JsPath \ "vehicles" \ vehicleNumber.value.toString \ "details" \ toString
 
   override def toString: String = "vehicleDates"
 }
