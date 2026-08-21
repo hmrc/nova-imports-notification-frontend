@@ -78,6 +78,13 @@ class VehicleDatesViewSpec extends SpecBase with Matchers with BeforeAndAfterAll
       render() must include(msgs("vehicleDates.checkbox.availabilityAndFirstRegistration"))
     }
 
+    "must list the date of availability checkbox before the purchase invoice date" in {
+      val html = render()
+
+      html.indexOf(msgs("vehicleDates.checkbox.availabilityAndFirstRegistration")) must be <
+        html.indexOf(msgs("vehicleDates.checkbox.purchaseInvoiceDate"))
+    }
+
     "must render the no dates checkbox after an or divider" in {
       val html = render()
 
