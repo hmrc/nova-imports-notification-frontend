@@ -315,7 +315,7 @@ purchaserBusinessName.change.hidden = the purchaser’s business name
 ######################################################
 
 initialQuestionsCheckYourAnswers.caption = Initial questions
-initialQuestionsCheckYourAnswers.title = Check your answers - Initial questions
+initialQuestionsCheckYourAnswers.title = Check your answers - Initial questions - Notification of Vehicle Arrivals - GOV.UK
 initialQuestionsCheckYourAnswers.heading = Check your answers
 
 ########################################################
@@ -687,7 +687,7 @@ addImportVehicleDetails.error.required = Select how you want to add vehicle deta
 ######################################################
 
 yourDetailsCheckYourAnswers.caption = Add your details
-yourDetailsCheckYourAnswers.title = Check your answers - your details
+yourDetailsCheckYourAnswers.title = Check your answers - your details - Notification of Vehicle Arrivals - GOV.UK
 yourDetailsCheckYourAnswers.heading = Check your answers
 
 ######################################################
