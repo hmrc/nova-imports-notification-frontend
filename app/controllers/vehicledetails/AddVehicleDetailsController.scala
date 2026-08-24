@@ -25,9 +25,9 @@ import forms.AddVehicleDetailsFormProvider
 import models.requests.DataRequest
 
 import javax.inject.Inject
-import models.{AddVehicleDetails, Mode, NormalMode, NovaUserType}
+import models.{AddVehicleDetails, Mode, NormalMode, NovaUserType, PurchaserOrOnBehalf}
 import navigation.Navigator
-import pages.sections.initialquestions.VehicleFromEuPage
+import pages.sections.initialquestions.{PurchaserOrOnBehalfPage, VehicleFromEuPage}
 import pages.sections.vehicledetails.AddVehicleDetailsPage
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -68,7 +68,17 @@ class AddVehicleDetailsController @Inject() (
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(AddVehicleDetailsPage, AddVehicleDetails.BySupplier))
               supplierNumber <- supplierService.add(updatedAnswers)
-            } yield Redirect(supplierdetails.routes.UsePersonalDetailsAsSupplierController.onPageLoad(supplierNumber, NormalMode))
+            } yield
+              // non-VAT-registered users who bought on behalf of the purchaser (or an agent without a
+              // selected client) supply the purchaser's details as the supplier; everyone else supplies their own
+              if (
+                !request.userContext.isVatRegisteredOrganisation &&
+                (updatedAnswers.get(PurchaserOrOnBehalfPage).contains(PurchaserOrOnBehalf.OnBehalfOfPurchaser) ||
+                  request.userContext.isAgentWithoutClient)
+              )
+                Redirect(supplierdetails.routes.UsePurchaserDetailsAsSupplierController.onPageLoad(supplierNumber, NormalMode))
+              else
+                Redirect(supplierdetails.routes.UsePersonalDetailsAsSupplierController.onPageLoad(supplierNumber, NormalMode))
 
           case value =>
             for {
