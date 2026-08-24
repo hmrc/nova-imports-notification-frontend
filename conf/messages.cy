@@ -196,7 +196,8 @@ addressLookup.error.line1Required = Enter address line 1, typically the building
 addressLookup.error.line2Required = Enter address line 2
 addressLookup.error.townRequired = Enter address line 4
 addressLookup.error.countryRequired = Enter a country
-addressLookup.error.countryPickerRequired = Select country or territory of your address
+# TODO: Welsh translation to be supplied by content team (AYA1.1a content update - "Enter" wording).
+addressLookup.error.countryPickerRequired = Enter the country or territory of your address
 addressLookup.countryPicker.title = Dewiswch eich gwlad neu diriogaeth
 addressLookup.countryPicker.heading = Dewiswch eich gwlad neu diriogaeth
 addressLookup.countryPicker.countryLabel = Select country or territory
