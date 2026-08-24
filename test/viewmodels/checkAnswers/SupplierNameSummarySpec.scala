@@ -19,7 +19,7 @@ package viewmodels.checkAnswers
 import base.SpecBase
 import controllers.supplierdetails.routes
 import models.{CheckMode, NameDetails, SupplierNumber, UserAnswers}
-import pages.sections.supplierdetails.{SupplierNamePage, SupplierNumberPage}
+import pages.sections.supplierdetails.SupplierNamePage
 import play.api.Application
 import play.api.i18n.Messages
 
@@ -31,9 +31,10 @@ class SupplierNameSummarySpec extends SpecBase {
   "SupplierNameSummary" - {
 
     "must return a summary with the name parts stacked on separate lines and a single change link" in {
-      val userAnswers = UserAnswers(userAnswersId).set(SupplierNamePage, NameDetails("Mr", "John", "Smith")).success.value
+      val userAnswers =
+        UserAnswers(userAnswersId).set(SupplierNamePage(SupplierNumber(1)), NameDetails("Mr", "John", "Smith")).success.value
 
-      val result = SupplierNameSummary.row(userAnswers).value
+      val result = SupplierNameSummary.row(userAnswers, SupplierNumber(1)).value
       val value  = result.value.content.asHtml.toString
 
       result.key.content.asHtml.toString must include(msgs("supplierName.checkYourAnswersLabel"))
@@ -41,22 +42,17 @@ class SupplierNameSummarySpec extends SpecBase {
       result.actions.value.items.head.href mustBe routes.SupplierNameController.onPageLoad(SupplierNumber(1), CheckMode).url
     }
 
-    "must link the change action to the supplier number held in session" in {
-      val userAnswers = UserAnswers(userAnswersId)
-        .set(SupplierNamePage, NameDetails("Mr", "John", "Smith"))
-        .success
-        .value
-        .set(SupplierNumberPage, 3)
-        .success
-        .value
+    "must link the Change action to AVD-S4.0 in CheckMode for supplier 3" in {
+      val userAnswers =
+        UserAnswers(userAnswersId).set(SupplierNamePage(SupplierNumber(3)), NameDetails("Mr", "John", "Smith")).success.value
 
-      val result = SupplierNameSummary.row(userAnswers).value
+      val result = SupplierNameSummary.row(userAnswers, SupplierNumber(3)).value
 
       result.actions.value.items.head.href mustBe routes.SupplierNameController.onPageLoad(SupplierNumber(3), CheckMode).url
     }
 
     "must return None when the answer is not present" in {
-      SupplierNameSummary.row(UserAnswers(userAnswersId)) mustBe None
+      SupplierNameSummary.row(UserAnswers(userAnswersId), SupplierNumber(1)) mustBe None
     }
   }
 }

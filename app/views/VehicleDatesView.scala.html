@@ -46,16 +46,16 @@
                 legend = LegendViewModel(messages("vehicleDates.heading")).asPageHeading(LegendSize.Large),
                 items  = Seq(
                     CheckboxItemViewModel(
-                        content = Text(messages("vehicleDates.checkbox.purchaseInvoiceDate")),
-                        fieldId = "value",
-                        index   = 0,
-                        value   = VehicleDates.PurchaseInvoiceDate.toString
-                    ),
-                    CheckboxItemViewModel(
                         content = Text(messages("vehicleDates.checkbox.availabilityAndFirstRegistration")),
                         fieldId = "value",
-                        index   = 1,
+                        index   = 0,
                         value   = VehicleDates.AvailabilityAndFirstRegistration.toString
+                    ),
+                    CheckboxItemViewModel(
+                        content = Text(messages("vehicleDates.checkbox.purchaseInvoiceDate")),
+                        fieldId = "value",
+                        index   = 1,
+                        value   = VehicleDates.PurchaseInvoiceDate.toString
                     ),
                     CheckboxItem(divider = Some(messages("vehicleDates.or"))),
                     CheckboxItemViewModel(

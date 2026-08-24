@@ -189,6 +189,16 @@ purchaserAddressChanged.checkHeading = Gwiriwch y cyfeiriad wedi’i ddiweddaru
 purchaserAddressChanged.changeAddress = Newid y cyfeiriad
 purchaserAddressChanged.saveAndContinue = Cadw a pharhau
 
+#######################################################
+# CYA5.0 - Check your answers 5.0 - Purchaser address #
+#######################################################
+# TODO: Welsh translations to be supplied by content team.
+purchaserAddressCheckYourAnswers.caption = Add purchaser address
+purchaserAddressCheckYourAnswers.title = Check your answers - purchaser address
+purchaserAddressCheckYourAnswers.heading = Check your answers
+purchaserAddressCheckYourAnswers.change.hidden = purchaser’s address
+purchaserAddressCheckYourAnswers.checkYourAnswersLabel = Purchaser’s address
+
 ###########################################################
 # Address lookup (ALF) journey labels                     #
 ###########################################################
@@ -617,7 +627,7 @@ vehicleDates.title = Which dates do you have for the vehicle?
 vehicleDates.heading = Which dates do you have for the vehicle?
 vehicleDates.caption = Add vehicle details
 vehicleDates.hint = Select all that apply
-vehicleDates.error.required = Select if you have the purchase invoice date, date of availability and date of first registration, or if you do not have any of these dates
+vehicleDates.error.required = Select if you have the date the vehicle was made available and date of first registration, purchase invoice date or none of these dates
 vehicleDates.checkbox.purchaseInvoiceDate = Purchase invoice date
 vehicleDates.checkbox.availabilityAndFirstRegistration = Date the vehicle was made available and date of first registration
 vehicleDates.or = or

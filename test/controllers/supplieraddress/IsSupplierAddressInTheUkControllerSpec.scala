@@ -20,16 +20,17 @@ import base.SpecBase
 import connectors.AddressLookupError
 import controllers.{routes, supplieraddress}
 import forms.IsSupplierAddressInTheUkFormProvider
-import models.{AddressJourney, CheckMode, DraftId, Mode, NormalMode, SupplierNumber, UserAnswers}
+import models.{AddressJourney, DraftId, Mode, NormalMode, SupplierNumber, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.DraftIdPage
 import pages.sections.initialquestions.VehicleFromEuPage
-import pages.sections.supplierdetails.SupplierNumberPage
 import pages.sections.supplieraddress.IsSupplierAddressInTheUkPage
 import play.api.inject.bind
+import play.api.libs.json.Json
+import queries.AllSuppliersQuery
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
@@ -64,7 +65,7 @@ class IsSupplierAddressInTheUkControllerSpec extends SpecBase with MockitoSugar 
     .set(VehicleFromEuPage, true)
     .success
     .value
-    .set(SupplierNumberPage, 1)
+    .set(AllSuppliersQuery, Map("1" -> Json.obj()))
     .success
     .value
 
@@ -111,7 +112,7 @@ class IsSupplierAddressInTheUkControllerSpec extends SpecBase with MockitoSugar 
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = userAnswersWithGuardData.set(IsSupplierAddressInTheUkPage, true).success.value
+      val userAnswers = userAnswersWithGuardData.set(IsSupplierAddressInTheUkPage(SupplierNumber(1)), true).success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
@@ -180,14 +181,14 @@ class IsSupplierAddressInTheUkControllerSpec extends SpecBase with MockitoSugar 
       }
     }
 
-    "must keep the same supplier number when the user returns to change their answer" in {
+    "must save the answer matching that of the supplier number in the URL" in {
 
-      val answersForSupplierThree              = userAnswersWithGuardData.set(SupplierNumberPage, 3).success.value
+      val answersForSupplierThree              = userAnswersWithGuardData.set(AllSuppliersQuery, Map("3" -> Json.obj())).success.value
       val (application, mockSessionRepository) = applicationWithMockRepository(answersForSupplierThree)
 
       running(application) {
         val request =
-          FakeRequest(POST, isSupplierAddressInTheUkSubmitRoute(SupplierNumber(3), CheckMode))
+          FakeRequest(POST, isSupplierAddressInTheUkSubmitRoute(SupplierNumber(3)))
             .withFormUrlEncodedBody("value" -> "true")
 
         val result = route(application, request).value
@@ -195,8 +196,7 @@ class IsSupplierAddressInTheUkControllerSpec extends SpecBase with MockitoSugar 
 
         val answers = savedAnswers(mockSessionRepository)
 
-        answers.get(SupplierNumberPage) mustEqual Some(3)
-        answers.get(IsSupplierAddressInTheUkPage) mustEqual Some(true)
+        answers.get(IsSupplierAddressInTheUkPage(SupplierNumber(3))) mustEqual Some(true)
       }
     }
 

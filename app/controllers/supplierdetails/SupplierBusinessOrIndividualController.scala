@@ -18,7 +18,7 @@ package controllers.supplierdetails
 
 import controllers.BaseController
 import controllers.actions.*
-import controllers.utils.{IsDraftIdDefined, IsSupplierNumberInSession}
+import controllers.utils.IsDraftIdDefined
 import forms.SupplierBusinessOrIndividualFormProvider
 import models.requests.DataRequest
 
@@ -30,6 +30,7 @@ import pages.sections.supplierdetails.SupplierBusinessOrIndividualPage
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
+import services.SupplierService
 import views.html.SupplierBusinessOrIndividualView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -40,6 +41,7 @@ class SupplierBusinessOrIndividualController @Inject() (
   navigator: Navigator,
   actions: Actions,
   formProvider: SupplierBusinessOrIndividualFormProvider,
+  supplierService: SupplierService,
   view: SupplierBusinessOrIndividualView
 )(implicit ec: ExecutionContext)
     extends BaseController {
@@ -49,22 +51,27 @@ class SupplierBusinessOrIndividualController @Inject() (
   val form: Form[BusinessOrPrivateIndividual] = formProvider()
 
   def onPageLoad(supplierNumber: SupplierNumber, mode: Mode): Action[AnyContent] =
-    actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierNumber)) { implicit request =>
-      Ok(view(form.withDefault(request.userAnswers.get(SupplierBusinessOrIndividualPage)), supplierNumber, mode))
+    actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierService, supplierNumber)) { implicit request =>
+      Ok(view(form.withDefault(request.userAnswers.get(SupplierBusinessOrIndividualPage(supplierNumber))), supplierNumber, mode))
     }
 
   def onSubmit(supplierNumber: SupplierNumber, mode: Mode): Action[AnyContent] =
-    actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierNumber)).async { implicit request =>
+    actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierService, supplierNumber)).async { implicit request =>
       form
         .bindFromRequest()
         .fold(
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, supplierNumber, mode))),
           value =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(SupplierBusinessOrIndividualPage, value))
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(SupplierBusinessOrIndividualPage(supplierNumber), value))
               _              <- sessionRepository.set(updatedAnswers)
             } yield Redirect(
-              navigator.nextPage(SupplierBusinessOrIndividualPage, mode, updatedAnswers, NovaUserType.from(request.affinityGroup, request.enrolments))
+              navigator.nextPage(
+                SupplierBusinessOrIndividualPage(supplierNumber),
+                mode,
+                updatedAnswers,
+                NovaUserType.from(request.affinityGroup, request.enrolments)
+              )
             )
         )
     }
@@ -73,8 +80,8 @@ class SupplierBusinessOrIndividualController @Inject() (
 object SupplierBusinessOrIndividualController {
 
   // The supplier number in the URL must be one of the suppliers the user has in session
-  def guardPredicate(supplierNumber: SupplierNumber)(request: DataRequest[?]): Boolean =
+  def guardPredicate(supplierService: SupplierService, supplierNumber: SupplierNumber)(request: DataRequest[?]): Boolean =
     IsDraftIdDefined(request.userAnswers) &&
       request.userAnswers.get(VehicleFromEuPage).contains(true) &&
-      IsSupplierNumberInSession(request.userAnswers, supplierNumber)
+      supplierService.numberExists(request.userAnswers, supplierNumber)
 }

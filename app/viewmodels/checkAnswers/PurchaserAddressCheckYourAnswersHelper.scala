@@ -14,14 +14,20 @@
  * limitations under the License.
  */
 
-package pages.sections.vehicledetails
+package viewmodels.checkAnswers
 
-import pages.QuestionPage
-import play.api.libs.json.JsPath
+import models.UserAnswers
+import play.api.i18n.Messages
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
+import viewmodels.govuk.summarylist.*
 
-case object VehicleNumberPage extends QuestionPage[Int] {
+object PurchaserAddressCheckYourAnswersHelper {
 
-  override def path: JsPath = JsPath \ "vehicle-details" \ toString
+  def buildSummaryList(answers: UserAnswers)(implicit messages: Messages): SummaryList =
+    SummaryListViewModel(rows = buildRows(answers))
 
-  override def toString: String = "vehicleNumber"
+  private def buildRows(answers: UserAnswers)(implicit messages: Messages) =
+    Seq(
+      PurchaserAddressSummary.row(answers)
+    ).flatten
 }

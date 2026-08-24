@@ -18,7 +18,7 @@ package controllers.supplierdetails
 
 import controllers.BaseController
 import controllers.actions.*
-import controllers.utils.{IsDraftIdDefined, IsSupplierNumberInSession}
+import controllers.utils.IsDraftIdDefined
 import forms.SupplierBusinessNameFormProvider
 import models.requests.DataRequest
 
@@ -30,6 +30,7 @@ import pages.sections.supplierdetails.{SupplierBusinessNamePage, SupplierBusines
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
+import services.SupplierService
 import views.html.SupplierBusinessNameView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -40,6 +41,7 @@ class SupplierBusinessNameController @Inject() (
   navigator: Navigator,
   actions: Actions,
   formProvider: SupplierBusinessNameFormProvider,
+  supplierService: SupplierService,
   view: SupplierBusinessNameView
 )(implicit ec: ExecutionContext)
     extends BaseController {
@@ -49,22 +51,22 @@ class SupplierBusinessNameController @Inject() (
   val form: Form[String] = formProvider()
 
   def onPageLoad(supplierNumber: SupplierNumber, mode: Mode): Action[AnyContent] =
-    actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierNumber)) { implicit request =>
-      Ok(view(form.withDefault(request.userAnswers.get(SupplierBusinessNamePage)), supplierNumber, mode))
+    actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierService, supplierNumber)) { implicit request =>
+      Ok(view(form.withDefault(request.userAnswers.get(SupplierBusinessNamePage(supplierNumber))), supplierNumber, mode))
     }
 
   def onSubmit(supplierNumber: SupplierNumber, mode: Mode): Action[AnyContent] =
-    actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierNumber)).async { implicit request =>
+    actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierService, supplierNumber)).async { implicit request =>
       form
         .bindFromRequest()
         .fold(
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, supplierNumber, mode))),
           supplierBusinessName =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(SupplierBusinessNamePage, supplierBusinessName))
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(SupplierBusinessNamePage(supplierNumber), supplierBusinessName))
               _              <- sessionRepository.set(updatedAnswers)
             } yield Redirect(
-              navigator.nextPage(SupplierBusinessNamePage, mode, updatedAnswers, NovaUserType.fromRequest)
+              navigator.nextPage(SupplierBusinessNamePage(supplierNumber), mode, updatedAnswers, NovaUserType.fromRequest)
             )
         )
     }
@@ -72,9 +74,9 @@ class SupplierBusinessNameController @Inject() (
 
 object SupplierBusinessNameController {
 
-  def guardPredicate(supplierNumber: SupplierNumber)(request: DataRequest[?]): Boolean =
+  def guardPredicate(supplierService: SupplierService, supplierNumber: SupplierNumber)(request: DataRequest[?]): Boolean =
     IsDraftIdDefined(request.userAnswers) &&
       request.userAnswers.get(VehicleFromEuPage).contains(true) &&
-      request.userAnswers.get(SupplierBusinessOrIndividualPage).contains(BusinessOrPrivateIndividual.Business) &&
-      IsSupplierNumberInSession(request.userAnswers, supplierNumber)
+      request.userAnswers.get(SupplierBusinessOrIndividualPage(supplierNumber)).contains(BusinessOrPrivateIndividual.Business) &&
+      supplierService.numberExists(request.userAnswers, supplierNumber)
 }

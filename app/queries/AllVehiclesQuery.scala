@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package controllers.utils
+package queries
 
-import models.{UserAnswers, VehicleNumber}
-import pages.sections.vehicledetails.VehicleNumberPage
+import play.api.libs.json.{JsObject, JsPath}
 
-object IsVehicleNumberInSession {
+// The whole vehicles map, keyed by vehicle number
+case object AllVehiclesQuery extends Gettable[Map[String, JsObject]] with Settable[Map[String, JsObject]] {
 
-  // Nothing allocates vehicle numbers yet, so only the first vehicle exists
-  def apply(answers: UserAnswers, vehicleNumber: VehicleNumber): Boolean =
-    answers.get(VehicleNumberPage).getOrElse(1) == vehicleNumber.value
+  override def path: JsPath = JsPath \ "vehicles"
 }

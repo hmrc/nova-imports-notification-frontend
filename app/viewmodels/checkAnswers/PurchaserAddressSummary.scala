@@ -16,9 +16,9 @@
 
 package viewmodels.checkAnswers
 
-import controllers.supplierdetails.routes
-import models.{CheckMode, SupplierNumber, UserAnswers}
-import pages.sections.supplierdetails.SupplierNamePage
+import controllers.purchaseraddress.routes
+import models.UserAnswers
+import pages.sections.purchaseraddress.PurchaserAddressPage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
@@ -26,21 +26,24 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 
-object SupplierNameSummary {
+object PurchaserAddressSummary {
 
-  def row(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(SupplierNamePage(supplierNumber)).map { name =>
+  def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
+    answers.get(PurchaserAddressPage).map { address =>
 
-      val value = Seq(name.title, name.firstName, name.lastName)
-        .map(part => HtmlFormat.escape(part).body)
+      val countryLine = if (address.country.code == "GB") None else Some(address.country.name)
+
+      val value = (address.lines ++ address.postcode.toSeq ++ countryLine)
+        .filter(_.nonEmpty)
+        .map(line => HtmlFormat.escape(line).body)
         .mkString("<br>")
 
       SummaryListRowViewModel(
-        key = "supplierName.checkYourAnswersLabel",
+        key = "purchaserAddressCheckYourAnswers.checkYourAnswersLabel",
         value = ValueViewModel(HtmlContent(value)),
         actions = Seq(
-          ActionItemViewModel("site.change", routes.SupplierNameController.onPageLoad(supplierNumber, CheckMode).url)
-            .withVisuallyHiddenText(messages("supplierName.change.hidden"))
+          ActionItemViewModel("site.change", routes.PurchaserAddressCheckYourAnswersController.onChangeAddress().url)
+            .withVisuallyHiddenText(messages("purchaserAddressCheckYourAnswers.change.hidden"))
         )
       )
     }
