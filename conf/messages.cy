@@ -30,6 +30,7 @@ date.error.year = Blwyddyn
 country.AT = Awstria
 country.BE = Gwlad Belg
 country.BG = Bwlgaria
+country.HR = Croatia
 country.CY = Cyprus
 country.CZ = Tsiecia
 country.DE = Yr Almaen

@@ -13,6 +13,10 @@
       "regex-vrn-validation": "[0-9]{9,10}"
     },
     {
+      "code": "HR",
+      "regex-vrn-validation": "[0-9]{11}"
+    },
+    {
       "code": "CY",
       "regex-vrn-validation": "[0-9]{8}[A-Z]{1}"
     },
