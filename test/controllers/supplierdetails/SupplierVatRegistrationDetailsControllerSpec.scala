@@ -29,6 +29,7 @@ import org.scalatestplus.mockito.MockitoSugar
 import pages.DraftIdPage
 import pages.sections.initialquestions.VehicleFromEuPage
 import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierVatRegistrationNumberPage}
+import play.api.data.Form
 import play.api.inject.bind
 import play.api.libs.json.Json
 import queries.AllSuppliersQuery
@@ -46,9 +47,6 @@ class SupplierVatRegistrationDetailsControllerSpec extends SpecBase with Mockito
 
   private val formProvider = new SupplierVatRegistrationDetailsFormProvider()
 
-  val application                   = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
-  val appConfig                     = application.injector.instanceOf[FrontendAppConfig]
-  private val form                  = formProvider(appConfig.vrnValidationList)
   private val validVatNumberDetails = VatNumberDetails("FR", "AB123456789")
 
   private lazy val supplierVatRegistrationDetailsRoute =
@@ -69,6 +67,11 @@ class SupplierVatRegistrationDetailsControllerSpec extends SpecBase with Mockito
     .set(IsSupplierVatRegisteredPage(SupplierNumber(1)), true)
     .success
     .value
+
+  private def buildAppConfigAndForm(application: play.api.Application): (FrontendAppConfig, Form[VatNumberDetails]) = {
+    val appConfig = application.injector.instanceOf[FrontendAppConfig]
+    (appConfig, formProvider(appConfig.vrnValidationList))
+  }
 
   private def applicationWithMockRepository(userAnswers: UserAnswers): (play.api.Application, SessionRepository) = {
 
@@ -96,7 +99,8 @@ class SupplierVatRegistrationDetailsControllerSpec extends SpecBase with Mockito
 
     "must return OK and the correct view for a GET when guard passes" in {
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithGuardData)).build()
+      val application       = applicationBuilder(userAnswers = Some(userAnswersWithGuardData)).build()
+      val (appConfig, form) = buildAppConfigAndForm(application)
 
       running(application) {
         val request = FakeRequest(GET, supplierVatRegistrationDetailsRoute)
@@ -113,8 +117,9 @@ class SupplierVatRegistrationDetailsControllerSpec extends SpecBase with Mockito
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = userAnswersWithGuardData.set(SupplierVatRegistrationNumberPage(SupplierNumber(1)), validVatNumberDetails).success.value
-      val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+      val userAnswers       = userAnswersWithGuardData.set(SupplierVatRegistrationNumberPage(SupplierNumber(1)), validVatNumberDetails).success.value
+      val application       = applicationBuilder(userAnswers = Some(userAnswers)).build()
+      val (appConfig, form) = buildAppConfigAndForm(application)
 
       running(application) {
         val request = FakeRequest(GET, supplierVatRegistrationDetailsRoute)
@@ -150,7 +155,19 @@ class SupplierVatRegistrationDetailsControllerSpec extends SpecBase with Mockito
 
     "must save the answer matching that of the supplier number in the URL" in {
 
-      val answersForSupplierThree              = userAnswersWithGuardData.unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj(), "3" -> Json.obj()))
+      val answersForSupplierThree = emptyUserAnswers
+        .set(DraftIdPage, DraftId("DRAFT-001"))
+        .success
+        .value
+        .set(VehicleFromEuPage, true)
+        .success
+        .value
+        .set(AllSuppliersQuery, Map("3" -> Json.obj()))
+        .success
+        .value
+        .set(IsSupplierVatRegisteredPage(SupplierNumber(3)), true)
+        .success
+        .value
       val (application, mockSessionRepository) = applicationWithMockRepository(answersForSupplierThree)
 
       running(application) {
@@ -166,13 +183,14 @@ class SupplierVatRegistrationDetailsControllerSpec extends SpecBase with Mockito
 
         val answers = savedAnswers(mockSessionRepository)
 
-        answers.get(SupplierVatRegistrationNumberPage(SupplierNumber(3))) mustEqual Some(validVatNumberDetails.vatNumber)
+        answers.get(SupplierVatRegistrationNumberPage(SupplierNumber(3))) mustEqual Some(validVatNumberDetails)
       }
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithGuardData)).build()
+      val application       = applicationBuilder(userAnswers = Some(userAnswersWithGuardData)).build()
+      val (appConfig, form) = buildAppConfigAndForm(application)
 
       running(application) {
         val request =
