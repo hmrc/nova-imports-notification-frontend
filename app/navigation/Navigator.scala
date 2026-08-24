@@ -27,7 +27,7 @@ import pages.sections.vehicledetails.{AddImportVehicleDetailsPage, AddVehicleDet
 import pages.sections.notifieraddress.IsYourAddressInTheUkPage
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
-import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierVatRegistrationNumberPage, UsePersonalDetailsAsSupplierPage}
+import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierVatRegistrationNumberPage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
 import pages.sections.supplieraddress.IsSupplierAddressInTheUkPage
 import pages.sections.vehicledetails.VehicleDatesPage
 
@@ -86,7 +86,7 @@ class Navigator @Inject() () {
     case PurchaserBusinessOrIndividualPage =>
       (_, _) => initialquestions.routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
     case AddVehicleDetailsPage =>
-      // adding by supplier is routed by the controller with initial supplierNumber set up
+      // adding by supplier is routed by the controller with the newly allocated supplierNumber set up
       (userAnswers, _) =>
         userAnswers.get(AddVehicleDetailsPage) match {
           case Some(AddVehicleDetails.BySpreadsheet) =>
@@ -104,6 +104,14 @@ class Navigator @Inject() () {
           case _ => routes.JourneyRecoveryController.onPageLoad()
         }
     case page: UsePersonalDetailsAsSupplierPage =>
+      (userAnswers, _) =>
+        userAnswers.get(page) match {
+          case Some(true)  => routes.LandingPageController.onPageLoad() // TODO: navigate to CYA3.0 when built
+          case Some(false) =>
+            supplierdetails.routes.SupplierBusinessOrIndividualController.onPageLoad(page.supplierNumber, NormalMode)
+          case _ => routes.JourneyRecoveryController.onPageLoad()
+        }
+    case page: UsePurchaserDetailsAsSupplierPage =>
       (userAnswers, _) =>
         userAnswers.get(page) match {
           case Some(true)  => routes.LandingPageController.onPageLoad() // TODO: navigate to CYA3.0 when built

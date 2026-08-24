@@ -22,7 +22,7 @@ import config.FrontendAppConfig
 import controllers.actions.*
 import controllers.{routes, supplierdetails, vehicledetails}
 import forms.AddVehicleDetailsFormProvider
-import models.{AddVehicleDetails, DraftId, NormalMode, SupplierNumber, UserAnswers}
+import models.{AddVehicleDetails, AgentSelectedClient, DraftId, NormalMode, PurchaserOrOnBehalf, SupplierNumber, UserAnswers}
 import play.api.libs.json.Json
 import queries.AllSuppliersQuery
 import navigation.{FakeNavigator, Navigator}
@@ -30,8 +30,9 @@ import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
+import pages.AgentSelectedClientPage
 import pages.DraftIdPage
-import pages.sections.initialquestions.VehicleFromEuPage
+import pages.sections.initialquestions.{PurchaserOrOnBehalfPage, VehicleFromEuPage}
 import pages.sections.vehicledetails.AddVehicleDetailsPage
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -79,14 +80,30 @@ class AddVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
       )
       .build()
 
-  private def applicationWithMockRepository(userAnswers: UserAnswers): (play.api.Application, SessionRepository) = {
+  private def agentApplicationBuilder(userAnswers: UserAnswers): GuiceApplicationBuilder =
+    new GuiceApplicationBuilder()
+      .overrides(
+        bind[DataRequiredAction].to[DataRequiredActionImpl],
+        bind[IdentifierAction].to[FakeAgentIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("standard")).to[FakeAgentIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeAgentIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
+        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(Some(userAnswers)))
+      )
+
+  private def applicationWithMockRepository(
+    userAnswers: UserAnswers,
+    builder: Option[GuiceApplicationBuilder] = None
+  ): (play.api.Application, SessionRepository) = {
 
     val mockSessionRepository = mock[SessionRepository]
     when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
     when(mockSessionRepository.setPage(any(), any(), any())(any())) thenReturn Future.successful(userAnswers)
 
     val application =
-      applicationBuilder(userAnswers = Some(userAnswers))
+      builder
+        .getOrElse(applicationBuilder(userAnswers = Some(userAnswers)))
         .overrides(
           bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
           bind[SessionRepository].toInstance(mockSessionRepository)
@@ -202,6 +219,78 @@ class AddVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual
           supplierdetails.routes.UsePersonalDetailsAsSupplierController.onPageLoad(SupplierNumber(2), NormalMode).url
+      }
+    }
+
+    "must add supplier 1 and send a non-VAT-registered user who bought on behalf of the purchaser to UsePurchaserDetailsAsSupplierController" in {
+
+      val answers          = userAnswersWithIQ1Yes.set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser).success.value
+      val (application, _) = applicationWithMockRepository(answers)
+
+      running(application) {
+        val request =
+          FakeRequest(POST, addVehicleDetailsRoute)
+            .withFormUrlEncodedBody(("value", AddVehicleDetails.BySupplier.toString))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual
+          supplierdetails.routes.UsePurchaserDetailsAsSupplierController.onPageLoad(SupplierNumber(1), NormalMode).url
+      }
+    }
+
+    "must add supplier 1 and send an agent without a selected client to UsePurchaserDetailsAsSupplierController" in {
+
+      val (application, _) = applicationWithMockRepository(userAnswersWithIQ1Yes, Some(agentApplicationBuilder(userAnswersWithIQ1Yes)))
+
+      running(application) {
+        val request =
+          FakeRequest(POST, addVehicleDetailsRoute)
+            .withFormUrlEncodedBody(("value", AddVehicleDetails.BySupplier.toString))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual
+          supplierdetails.routes.UsePurchaserDetailsAsSupplierController.onPageLoad(SupplierNumber(1), NormalMode).url
+      }
+    }
+
+    "must add supplier 1 and send an agent with a selected client to UsePersonalDetailsAsSupplierController" in {
+
+      val sampleClient     = AgentSelectedClient(vrn = "GB123456789", name = Some("Acme Ltd"))
+      val answers          = userAnswersWithIQ1Yes.set(AgentSelectedClientPage, sampleClient).success.value
+      val (application, _) = applicationWithMockRepository(answers, Some(agentApplicationBuilder(answers)))
+
+      running(application) {
+        val request =
+          FakeRequest(POST, addVehicleDetailsRoute)
+            .withFormUrlEncodedBody(("value", AddVehicleDetails.BySupplier.toString))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual
+          supplierdetails.routes.UsePersonalDetailsAsSupplierController.onPageLoad(SupplierNumber(1), NormalMode).url
+      }
+    }
+
+    "must add supplier 1 and send a VAT-registered organisation who bought on behalf of the purchaser to UsePersonalDetailsAsSupplierController" in {
+
+      val answers          = userAnswersWithIQ1Yes.set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser).success.value
+      val (application, _) = applicationWithMockRepository(answers, Some(applicationBuilderWithVatTrader(Some(answers))))
+
+      running(application) {
+        val request =
+          FakeRequest(POST, addVehicleDetailsRoute)
+            .withFormUrlEncodedBody(("value", AddVehicleDetails.BySupplier.toString))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual
+          supplierdetails.routes.UsePersonalDetailsAsSupplierController.onPageLoad(SupplierNumber(1), NormalMode).url
       }
     }
 

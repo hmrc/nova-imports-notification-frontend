@@ -143,6 +143,11 @@ GET         /supplier/:supplierNumber/use-personal-details-as-supplier          
 GET         /supplier/:supplierNumber/use-personal-details-as-supplier/change            controllers.supplierdetails.UsePersonalDetailsAsSupplierController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = CheckMode)
 POST        /supplier/:supplierNumber/use-personal-details-as-supplier/change            controllers.supplierdetails.UsePersonalDetailsAsSupplierController.onSubmit(supplierNumber: SupplierNumber, mode: Mode = CheckMode)
 
+POST        /supplier/:supplierNumber/use-purchaser-details-as-supplier                  controllers.supplierdetails.UsePurchaserDetailsAsSupplierController.onSubmit(supplierNumber: SupplierNumber, mode: Mode = NormalMode)
+GET         /supplier/:supplierNumber/use-purchaser-details-as-supplier                  controllers.supplierdetails.UsePurchaserDetailsAsSupplierController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = NormalMode)
+GET         /supplier/:supplierNumber/use-purchaser-details-as-supplier/change           controllers.supplierdetails.UsePurchaserDetailsAsSupplierController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = CheckMode)
+POST        /supplier/:supplierNumber/use-purchaser-details-as-supplier/change           controllers.supplierdetails.UsePurchaserDetailsAsSupplierController.onSubmit(supplierNumber: SupplierNumber, mode: Mode = CheckMode)
+
 GET         /supplier/:supplierNumber/supplier-business-or-private-individual            controllers.supplierdetails.SupplierBusinessOrIndividualController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = NormalMode)
 POST        /supplier/:supplierNumber/supplier-business-or-private-individual            controllers.supplierdetails.SupplierBusinessOrIndividualController.onSubmit(supplierNumber: SupplierNumber, mode: Mode = NormalMode)
 GET         /supplier/:supplierNumber/supplier-business-or-private-individual/change     controllers.supplierdetails.SupplierBusinessOrIndividualController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = CheckMode)
