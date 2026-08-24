@@ -40,6 +40,7 @@ journeyRecovery.continue.guidance = [Add content to explain how to proceed.]
 country.AT = Austria
 country.BE = Belgium
 country.BG = Bulgaria
+country.HR = Croatia
 country.CY = Cyprus
 country.CZ = Czechia
 country.DE = Germany
