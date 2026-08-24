@@ -567,7 +567,7 @@ supplierName.change.hidden = the supplier’s name
 
 initialQuestionsCheckYourAnswers.caption = Cwestiynau cychwynnol
 initialQuestionsCheckYourAnswers.heading = Gwiriwch eich atebion
-initialQuestionsCheckYourAnswers.title = Check your answers - Initial questions
+initialQuestionsCheckYourAnswers.title = Gwiriwch eich atebion - Cwestiynau cychwynnol - Hysbysiad o Gerbydau’n Cyrraedd - GOV.UK
 
 ######################################################
 # CYA2.0 - Check your answers 2 - Your details       #
@@ -575,7 +575,7 @@ initialQuestionsCheckYourAnswers.title = Check your answers - Initial questions
 
 yourDetailsCheckYourAnswers.caption = Ychwanegu eich manylion chi
 yourDetailsCheckYourAnswers.heading = Gwiriwch eich atebion
-yourDetailsCheckYourAnswers.title = Check your answers - your details
+yourDetailsCheckYourAnswers.title = Gwirio’ch atebion - Eich manylion - Hysbysiad o Gerbydau’n Cyrraedd - GOV.UK
 
 ######################################################
 # CYA3.0 - Check your answers 3.0 - Your address     #
