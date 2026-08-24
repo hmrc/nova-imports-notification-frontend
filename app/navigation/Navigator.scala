@@ -27,7 +27,7 @@ import pages.sections.vehicledetails.{AddImportVehicleDetailsPage, AddVehicleDet
 import pages.sections.notifieraddress.IsYourAddressInTheUkPage
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
-import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierNumberPage, UsePersonalDetailsAsSupplierPage}
+import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, UsePersonalDetailsAsSupplierPage}
 import pages.sections.supplieraddress.IsSupplierAddressInTheUkPage
 import pages.sections.vehicledetails.VehicleDatesPage
 
@@ -86,9 +86,9 @@ class Navigator @Inject() () {
     case PurchaserBusinessOrIndividualPage =>
       (_, _) => initialquestions.routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
     case AddVehicleDetailsPage =>
+      // adding by supplier is routed by the controller with initial supplierNumber set up
       (userAnswers, _) =>
         userAnswers.get(AddVehicleDetailsPage) match {
-          case Some(AddVehicleDetails.BySupplier)    => supplierdetails.routes.UsePersonalDetailsAsSupplierController.onPageLoad(NormalMode)
           case Some(AddVehicleDetails.BySpreadsheet) =>
             routes.LandingPageController.onPageLoad() // TODO: navigate to spreadsheet upload flow when built
           case _ => routes.JourneyRecoveryController.onPageLoad()
@@ -103,13 +103,12 @@ class Navigator @Inject() () {
             routes.LandingPageController.onPageLoad() // TODO: navigate to spreadsheet upload flow when built
           case _ => routes.JourneyRecoveryController.onPageLoad()
         }
-    case UsePersonalDetailsAsSupplierPage =>
+    case page: UsePersonalDetailsAsSupplierPage =>
       (userAnswers, _) =>
-        userAnswers.get(UsePersonalDetailsAsSupplierPage) match {
+        userAnswers.get(page) match {
           case Some(true)  => routes.LandingPageController.onPageLoad() // TODO: navigate to CYA3.0 when built
           case Some(false) =>
-            supplierdetails.routes.SupplierBusinessOrIndividualController
-              .onPageLoad(SupplierNumber(userAnswers.get(SupplierNumberPage).getOrElse(1)), NormalMode)
+            supplierdetails.routes.SupplierBusinessOrIndividualController.onPageLoad(page.supplierNumber, NormalMode)
           case _ => routes.JourneyRecoveryController.onPageLoad()
         }
     case IsYourAddressInTheUkPage =>
@@ -123,22 +122,24 @@ class Navigator @Inject() () {
       (_, _) => notifierdetails.routes.YourDetailsCheckYourAnswersController.onPageLoad()
     case PurchaserBusinessNamePage =>
       (_, _) => purchaserdetails.routes.PurchaserDetailsCheckYourAnswersController.onPageLoad()
-    case SupplierBusinessOrIndividualPage =>
+    case page: SupplierBusinessOrIndividualPage =>
       (userAnswers, _) =>
-        userAnswers.get(SupplierBusinessOrIndividualPage) match {
+        userAnswers.get(page) match {
           case Some(BusinessOrPrivateIndividual.Business) =>
-            supplierdetails.routes.SupplierBusinessNameController
-              .onPageLoad(SupplierNumber(userAnswers.get(SupplierNumberPage).getOrElse(1)), NormalMode)
+            supplierdetails.routes.SupplierBusinessNameController.onPageLoad(page.supplierNumber, NormalMode)
           case Some(BusinessOrPrivateIndividual.PrivateIndividual) =>
-            supplierdetails.routes.SupplierNameController
-              .onPageLoad(SupplierNumber(userAnswers.get(SupplierNumberPage).getOrElse(1)), NormalMode)
+            supplierdetails.routes.SupplierNameController.onPageLoad(page.supplierNumber, NormalMode)
           case _ =>
             routes.JourneyRecoveryController.onPageLoad()
         }
-    case SupplierNamePage | SupplierBusinessNamePage =>
-      (userAnswers, _) =>
+    case page: SupplierNamePage =>
+      (_, _) =>
         supplieraddress.routes.IsSupplierAddressInTheUKController
-          .onPageLoad(SupplierNumber(userAnswers.get(SupplierNumberPage).getOrElse(1)), NormalMode)
+          .onPageLoad(page.supplierNumber, NormalMode)
+    case page: SupplierBusinessNamePage =>
+      (_, _) =>
+        supplieraddress.routes.IsSupplierAddressInTheUKController
+          .onPageLoad(page.supplierNumber, NormalMode)
     case IsPurchaserAddressInTheUkPage =>
       (userAnswers, _) =>
         userAnswers.get(IsPurchaserAddressInTheUkPage) match {
@@ -146,17 +147,17 @@ class Navigator @Inject() () {
           case Some(false) => routes.LandingPageController.onPageLoad() // TODO: navigate to APA1.2 when built
           case _           => routes.JourneyRecoveryController.onPageLoad()
         }
-    case IsSupplierVatRegisteredPage =>
+    case page: IsSupplierVatRegisteredPage =>
       (userAnswers, _) =>
-        userAnswers.get(IsSupplierVatRegisteredPage) match {
+        userAnswers.get(page) match {
           case Some(true)  => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD-S8.1 when built
           case Some(false) =>
             routes.LandingPageController.onPageLoad() // TODO: navigate to AVD-S9 when built (page variant depends on if individual or organisation)
           case _ => routes.JourneyRecoveryController.onPageLoad()
         }
-    case VehicleDatesPage =>
+    case page: VehicleDatesPage =>
       (userAnswers, _) =>
-        userAnswers.get(VehicleDatesPage) match {
+        userAnswers.get(page) match {
           case Some(dates) if dates.contains(VehicleDates.PurchaseInvoiceDate) =>
             routes.LandingPageController.onPageLoad() // TODO: navigate to AVD4.0 when built
           case Some(dates) if dates.contains(VehicleDates.AvailabilityAndFirstRegistration) =>
@@ -201,11 +202,10 @@ class Navigator @Inject() () {
       (_, _) => notifierdetails.routes.YourDetailsCheckYourAnswersController.onPageLoad()
     case PurchaserBusinessNamePage =>
       (_, _) => purchaserdetails.routes.PurchaserDetailsCheckYourAnswersController.onPageLoad()
-    case SupplierBusinessOrIndividualPage | SupplierNamePage | SupplierBusinessNamePage | IsSupplierAddressInTheUkPage |
-        IsSupplierVatRegisteredPage =>
-
+    case _: SupplierNamePage | _: IsSupplierAddressInTheUkPage | _: IsSupplierVatRegisteredPage | _: SupplierBusinessNamePage |
+        _: SupplierBusinessOrIndividualPage =>
       (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD-S9.0 CYA when built
-    case VehicleDatesPage =>
+    case _: VehicleDatesPage =>
       (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to the vehicle details CYA when built
     case _ =>
       (_, _) => routes.LandingPageController.onPageLoad()

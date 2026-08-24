@@ -16,13 +16,13 @@
 
 package pages.sections.supplieraddress
 
+import models.SupplierNumber
 import pages.QuestionPage
 import play.api.libs.json.JsPath
 
-case object IsSupplierAddressInTheUkPage extends QuestionPage[Boolean] {
+final case class IsSupplierAddressInTheUkPage(supplierNumber: SupplierNumber) extends QuestionPage[Boolean] {
 
-  // TODO: This supplier-details will get updated with supplier and vehicle FE session schema changes
-  override def path: JsPath = JsPath \ "supplier-details" \ toString
+  override def path: JsPath = JsPath \ "suppliers" \ supplierNumber.value.toString \ toString
 
   override def toString: String = "isSupplierAddressInTheUk"
 }

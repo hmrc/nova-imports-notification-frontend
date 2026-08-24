@@ -28,7 +28,7 @@ import pages.DraftIdPage
 import pages.sections.initialquestions.PurchaserOrOnBehalfPage
 import pages.sections.notifieraddress.{AddressJourneyIdPage, AddressPage}
 import pages.sections.purchaseraddress.{PurchaserAddressJourneyIdPage, PurchaserAddressPage}
-import pages.sections.supplierdetails.SupplierNumberPage
+import queries.AllSuppliersQuery
 import pages.sections.supplieraddress.{IsSupplierAddressInTheUkPage, SupplierAddressJourneyIdPage, SupplierAddressPage}
 import play.api.Application
 import play.api.inject.bind
@@ -235,10 +235,10 @@ class AddressLookupCallbackControllerSpec extends SpecBase with MockitoSugar {
         .set(DraftIdPage, draftId)
         .success
         .value
-        .set(IsSupplierAddressInTheUkPage, true)
+        .set(AllSuppliersQuery, Map("1" -> Json.obj()))
         .success
         .value
-        .set(SupplierNumberPage, 1)
+        .set(IsSupplierAddressInTheUkPage(supplierNumber), true)
         .success
         .value
 
@@ -253,12 +253,12 @@ class AddressLookupCallbackControllerSpec extends SpecBase with MockitoSugar {
 
         val answers = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(sessionRepository).set(answers.capture())
-        answers.getValue.get(SupplierAddressPage) mustBe Some(cleanAddress)
+        answers.getValue.get(SupplierAddressPage(supplierNumber)) mustBe Some(cleanAddress)
         answers.getValue.get(AddressPage) mustBe None
       }
     }
 
-    "must save to the supplier-address draft section, not notifier-address" in {
+    "must save to the supplier's own draft section, not notifier-address" in {
       val backendConnector = stubBackendConnector()
       val app              = applicationWith(
         userAnswers = Some(supplierAnswers),
@@ -270,7 +270,7 @@ class AddressLookupCallbackControllerSpec extends SpecBase with MockitoSugar {
         route(app, FakeRequest(GET, supplierCallbackOk)).value.futureValue
 
         val body = ArgumentCaptor.forClass(classOf[JsObject])
-        verify(backendConnector).updateDraftSection(eqTo(draftId), eqTo("supplier-address"), body.capture())(any[HeaderCarrier])
+        verify(backendConnector).updateDraftSection(eqTo(draftId), eqTo("supplier/1/details"), body.capture())(any[HeaderCarrier])
         body.getValue mustBe Json.toJson(SupplierAddress.fromAddress(cleanAddress)).as[JsObject] + ("versionId", Json.toJson(0L))
       }
     }
@@ -297,7 +297,7 @@ class AddressLookupCallbackControllerSpec extends SpecBase with MockitoSugar {
       running(app) {
         route(app, FakeRequest(GET, supplierCallbackOk)).value.futureValue
 
-        verify(sessionRepository).setPage(any(), eqTo(SupplierAddressJourneyIdPage), eqTo(journeyId))(any())
+        verify(sessionRepository).setPage(any(), eqTo(SupplierAddressJourneyIdPage(supplierNumber)), eqTo(journeyId))(any())
       }
     }
 
@@ -314,7 +314,7 @@ class AddressLookupCallbackControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to Unauthorised when the supplier address-in-UK question is unanswered" in {
-      val answers = supplierAnswers.remove(IsSupplierAddressInTheUkPage).success.value
+      val answers = supplierAnswers.remove(IsSupplierAddressInTheUkPage(supplierNumber)).success.value
       val app     = applicationWith(userAnswers = Some(answers), sessionRepository = stubSessionRepository(answers))
 
       running(app) {

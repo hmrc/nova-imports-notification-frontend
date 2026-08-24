@@ -14,16 +14,12 @@
  * limitations under the License.
  */
 
-package controllers.utils
+package queries
 
-import models.{SupplierNumber, UserAnswers}
-import pages.sections.supplierdetails.SupplierNumberPage
+import play.api.libs.json.{JsObject, JsPath}
 
-object IsSupplierNumberInSession {
+// The whole suppliers map, keyed by supplier number
+case object AllSuppliersQuery extends Gettable[Map[String, JsObject]] with Settable[Map[String, JsObject]] {
 
-  def apply(answers: UserAnswers, supplierNumber: SupplierNumber): Boolean =
-    supplierNumbers(answers).contains(supplierNumber.value)
-
-  private def supplierNumbers(answers: UserAnswers): Set[Int] =
-    answers.get(SupplierNumberPage).toSet
+  override def path: JsPath = JsPath \ "suppliers"
 }

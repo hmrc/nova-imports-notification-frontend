@@ -18,7 +18,7 @@ package controllers.vehicledetails
 
 import controllers.BaseController
 import controllers.actions.*
-import controllers.utils.{IsDraftIdDefined, IsSupplierNumberInSession, IsVehicleNumberInSession}
+import controllers.utils.IsDraftIdDefined
 import forms.VehicleDatesFormProvider
 import models.requests.DataRequest
 
@@ -30,6 +30,7 @@ import pages.sections.vehicledetails.VehicleDatesPage
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
+import services.{SupplierService, VehicleService}
 import views.html.VehicleDatesView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -40,6 +41,8 @@ class VehicleDatesController @Inject() (
   navigator: Navigator,
   actions: Actions,
   formProvider: VehicleDatesFormProvider,
+  supplierService: SupplierService,
+  vehicleService: VehicleService,
   view: VehicleDatesView
 )(implicit ec: ExecutionContext)
     extends BaseController {
@@ -49,22 +52,27 @@ class VehicleDatesController @Inject() (
   val form: Form[Set[VehicleDates]] = formProvider()
 
   def onPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode): Action[AnyContent] =
-    actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierNumber, vehicleNumber)) { implicit request =>
-      Ok(view(form.withDefault(request.userAnswers.get(VehicleDatesPage)), supplierNumber, vehicleNumber, mode))
+    actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierService, vehicleService, supplierNumber, vehicleNumber)) { implicit request =>
+      Ok(view(form.withDefault(request.userAnswers.get(VehicleDatesPage(vehicleNumber))), supplierNumber, vehicleNumber, mode))
     }
 
   def onSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode): Action[AnyContent] =
-    actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierNumber, vehicleNumber)).async { implicit request =>
+    actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierService, vehicleService, supplierNumber, vehicleNumber)).async { implicit request =>
       form
         .bindFromRequest()
         .fold(
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, supplierNumber, vehicleNumber, mode))),
           value =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(VehicleDatesPage, value))
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(VehicleDatesPage(vehicleNumber), value))
               _              <- sessionRepository.set(updatedAnswers)
             } yield Redirect(
-              navigator.nextPage(VehicleDatesPage, mode, updatedAnswers, NovaUserType.from(request.affinityGroup, request.enrolments))
+              navigator.nextPage(
+                VehicleDatesPage(vehicleNumber),
+                mode,
+                updatedAnswers,
+                NovaUserType.from(request.affinityGroup, request.enrolments)
+              )
             )
         )
     }
@@ -72,9 +80,15 @@ class VehicleDatesController @Inject() (
 
 object VehicleDatesController {
 
-  def guardPredicate(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber)(request: DataRequest[?]): Boolean =
+  // The numbers in the URL must match a session supplier and a vehicle that belongs to that supplier
+  def guardPredicate(
+    supplierService: SupplierService,
+    vehicleService: VehicleService,
+    supplierNumber: SupplierNumber,
+    vehicleNumber: VehicleNumber
+  )(request: DataRequest[?]): Boolean =
     IsDraftIdDefined(request.userAnswers) &&
       request.userAnswers.get(VehicleFromEuPage).contains(true) &&
-      IsSupplierNumberInSession(request.userAnswers, supplierNumber) &&
-      IsVehicleNumberInSession(request.userAnswers, vehicleNumber)
+      supplierService.numberExists(request.userAnswers, supplierNumber) &&
+      vehicleService.belongsToSupplier(request.userAnswers, vehicleNumber, supplierNumber)
 }

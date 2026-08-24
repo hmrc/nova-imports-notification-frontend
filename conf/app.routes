@@ -138,10 +138,10 @@ POST        /check-answers/your-details                                         
 GET         /check-answers/purchaser-details                                             controllers.purchaserdetails.PurchaserDetailsCheckYourAnswersController.onPageLoad()
 POST        /check-answers/purchaser-details                                             controllers.purchaserdetails.PurchaserDetailsCheckYourAnswersController.onSubmit()
 
-POST        /use-personal-details-as-supplier                                            controllers.supplierdetails.UsePersonalDetailsAsSupplierController.onSubmit(mode: Mode = NormalMode)
-GET         /use-personal-details-as-supplier                                            controllers.supplierdetails.UsePersonalDetailsAsSupplierController.onPageLoad(mode: Mode = NormalMode)
-GET         /use-personal-details-as-supplier/change                                     controllers.supplierdetails.UsePersonalDetailsAsSupplierController.onPageLoad(mode: Mode = CheckMode)
-POST        /use-personal-details-as-supplier/change                                     controllers.supplierdetails.UsePersonalDetailsAsSupplierController.onSubmit(mode: Mode = CheckMode)
+POST        /supplier/:supplierNumber/use-personal-details-as-supplier                   controllers.supplierdetails.UsePersonalDetailsAsSupplierController.onSubmit(supplierNumber: SupplierNumber, mode: Mode = NormalMode)
+GET         /supplier/:supplierNumber/use-personal-details-as-supplier                   controllers.supplierdetails.UsePersonalDetailsAsSupplierController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = NormalMode)
+GET         /supplier/:supplierNumber/use-personal-details-as-supplier/change            controllers.supplierdetails.UsePersonalDetailsAsSupplierController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = CheckMode)
+POST        /supplier/:supplierNumber/use-personal-details-as-supplier/change            controllers.supplierdetails.UsePersonalDetailsAsSupplierController.onSubmit(supplierNumber: SupplierNumber, mode: Mode = CheckMode)
 
 GET         /supplier/:supplierNumber/supplier-business-or-private-individual            controllers.supplierdetails.SupplierBusinessOrIndividualController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = NormalMode)
 POST        /supplier/:supplierNumber/supplier-business-or-private-individual            controllers.supplierdetails.SupplierBusinessOrIndividualController.onSubmit(supplierNumber: SupplierNumber, mode: Mode = NormalMode)

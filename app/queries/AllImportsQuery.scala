@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package pages.sections.vehicledetails
+package queries
 
-import pages.QuestionPage
-import play.api.libs.json.JsPath
+import play.api.libs.json.{JsObject, JsPath}
 
-case object VehicleNumberPage extends QuestionPage[Int] {
+// The whole imports map, keyed by import number
+case object AllImportsQuery extends Gettable[Map[String, JsObject]] with Settable[Map[String, JsObject]] {
 
-  override def path: JsPath = JsPath \ "vehicle-details" \ toString
-
-  override def toString: String = "vehicleNumber"
+  override def path: JsPath = JsPath \ "imports"
 }

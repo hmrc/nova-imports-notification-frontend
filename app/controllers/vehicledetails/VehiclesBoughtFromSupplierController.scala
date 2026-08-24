@@ -20,16 +20,16 @@ import config.FrontendAppConfig
 import connectors.NovaImportsBackendConnector
 import controllers.BaseController
 import controllers.actions.*
-import controllers.utils.{IsDraftIdDefined, IsSupplierNumberInSession}
+import controllers.utils.IsDraftIdDefined
 import controllers.vehicledetails.VehiclesBoughtFromSupplierController.*
 import models.requests.DataRequest
-import models.{BusinessOrPrivateIndividual, NormalMode, SupplierNumber, VehicleNumber}
+import models.{BusinessOrPrivateIndividual, NormalMode, SupplierNumber}
 import pages.sections.initialquestions.{BusinessOrPrivatePage, VehicleFromEuPage}
 import pages.sections.notifierdetails.{BusinessNamePage, NameDetailsPage}
 import pages.sections.supplierdetails.{SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, UsePersonalDetailsAsSupplierPage}
-import pages.sections.vehicledetails.VehicleNumberPage
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.{SupplierService, VehicleService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import views.html.VehiclesBoughtFromSupplierView
@@ -43,33 +43,35 @@ class VehiclesBoughtFromSupplierController @Inject() (
   actions: Actions,
   view: VehiclesBoughtFromSupplierView,
   connector: NovaImportsBackendConnector,
+  supplierService: SupplierService,
+  vehicleService: VehicleService,
   appConfig: FrontendAppConfig
 )(implicit ec: ExecutionContext)
     extends BaseController
     with Logging {
 
   def onPageLoad(supplierNumber: SupplierNumber): Action[AnyContent] =
-    actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierNumber)).async { implicit request =>
-      supplierName.map { name =>
+    actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierService, supplierNumber)).async { implicit request =>
+      supplierName(supplierNumber).map { name =>
         Ok(
           view(name, supplierNumber, appConfig.personalTransportUnitUrl)
         )
       }
     }
 
+  // sets up a new vehicle collection in session, it carries the supplierNumber it was bought from in the current URL
   def onSubmit(supplierNumber: SupplierNumber): Action[AnyContent] =
-    actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierNumber)) { implicit request =>
-      Redirect(
-        routes.VehicleDatesController
-          .onPageLoad(supplierNumber, VehicleNumber(request.userAnswers.get(VehicleNumberPage).getOrElse(1)), NormalMode)
-      )
+    actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierService, supplierNumber)).async { implicit request =>
+      vehicleService.addForSupplier(request.userAnswers, supplierNumber).map { vehicleNumber =>
+        Redirect(routes.VehicleDatesController.onPageLoad(supplierNumber, vehicleNumber, NormalMode))
+      }
     }
 
-  private def supplierName(implicit request: DataRequest[?]): Future[Option[String]] =
-    request.userAnswers.get(UsePersonalDetailsAsSupplierPage) match {
+  private def supplierName(supplierNumber: SupplierNumber)(implicit request: DataRequest[?]): Future[Option[String]] =
+    request.userAnswers.get(UsePersonalDetailsAsSupplierPage(supplierNumber)) match {
       case Some(true) if request.userContext.usesTraderDetails => traderName
       case Some(true)                                          => Future.successful(notifierName)
-      case _                                                   => Future.successful(enteredSupplierName)
+      case _                                                   => Future.successful(enteredSupplierName(supplierNumber))
     }
 
   private def notifierName(implicit request: DataRequest[?]): Option[String] =
@@ -82,11 +84,12 @@ class VehiclesBoughtFromSupplierController @Inject() (
         case None                                                => None
       }
 
-  private def enteredSupplierName(implicit request: DataRequest[?]): Option[String] =
-    request.userAnswers.get(SupplierBusinessOrIndividualPage) match {
-      case Some(BusinessOrPrivateIndividual.Business)          => request.userAnswers.get(SupplierBusinessNamePage)
-      case Some(BusinessOrPrivateIndividual.PrivateIndividual) => request.userAnswers.get(SupplierNamePage).map(_.displayName)
-      case None                                                => None
+  private def enteredSupplierName(supplierNumber: SupplierNumber)(implicit request: DataRequest[?]): Option[String] =
+    request.userAnswers.get(SupplierBusinessOrIndividualPage(supplierNumber)) match {
+      case Some(BusinessOrPrivateIndividual.Business)          => request.userAnswers.get(SupplierBusinessNamePage(supplierNumber))
+      case Some(BusinessOrPrivateIndividual.PrivateIndividual) =>
+        request.userAnswers.get(SupplierNamePage(supplierNumber)).map(_.displayName)
+      case None => None
     }
 
   private def traderName(implicit request: DataRequest[?]): Future[Option[String]] = {
@@ -109,8 +112,9 @@ class VehiclesBoughtFromSupplierController @Inject() (
 
 object VehiclesBoughtFromSupplierController {
 
-  def guardPredicate(supplierNumber: SupplierNumber)(request: DataRequest[?]): Boolean =
+  // The supplier number in the URL must be one of the suppliers the user has in session
+  def guardPredicate(supplierService: SupplierService, supplierNumber: SupplierNumber)(request: DataRequest[?]): Boolean =
     IsDraftIdDefined(request.userAnswers) &&
       request.userAnswers.get(VehicleFromEuPage).contains(true) &&
-      IsSupplierNumberInSession(request.userAnswers, supplierNumber)
+      supplierService.numberExists(request.userAnswers, supplierNumber)
 }

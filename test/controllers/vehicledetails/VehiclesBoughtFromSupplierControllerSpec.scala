@@ -21,17 +21,19 @@ import config.FrontendAppConfig
 import connectors.{GetTraderInformationError, NovaImportsBackendConnector}
 import controllers.{routes, vehicledetails}
 import models.{BusinessOrPrivateIndividual, DraftId, NameDetails, NormalMode, SupplierNumber, TraderInformation, UserAnswers, VehicleNumber}
-import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{never, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.DraftIdPage
 import pages.sections.initialquestions.{BusinessOrPrivatePage, VehicleBusinessUsePage, VehicleFromEuPage}
 import pages.sections.notifierdetails.{BusinessNamePage, NameDetailsPage}
-import pages.sections.supplierdetails.{SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierNumberPage, UsePersonalDetailsAsSupplierPage}
-import pages.sections.vehicledetails.VehicleNumberPage
+import pages.sections.supplierdetails.{SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, UsePersonalDetailsAsSupplierPage}
 import play.api.inject.bind
+import play.api.libs.json.Json
+import queries.{AllSuppliersQuery, AllVehiclesQuery}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import repositories.SessionRepository
 import views.html.VehiclesBoughtFromSupplierView
 
 import scala.concurrent.Future
@@ -43,7 +45,7 @@ class VehiclesBoughtFromSupplierControllerSpec extends SpecBase with MockitoSuga
   val userAnswersWithGuardData: UserAnswers = emptyUserAnswers
     .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
     .unsafeSet(VehicleFromEuPage, true)
-    .unsafeSet(SupplierNumberPage, 1)
+    .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj()))
 
   lazy val vehiclesBoughtFromSupplierRoute: String =
     vehicledetails.routes.VehiclesBoughtFromSupplierController.onPageLoad(supplierNumber).url
@@ -58,6 +60,20 @@ class VehiclesBoughtFromSupplierControllerSpec extends SpecBase with MockitoSuga
     postcode = Some("TF3 4ER")
   )
 
+  private def mockSessionRepository(userAnswers: UserAnswers): SessionRepository = {
+    val repo = mock[SessionRepository]
+    when(repo.setPage(any(), any(), any())(any())) thenReturn Future.successful(userAnswers)
+    repo
+  }
+
+  private def applicationWith(userAnswers: UserAnswers, repo: SessionRepository): play.api.Application =
+    applicationBuilder(userAnswers = Some(userAnswers))
+      .overrides(bind[SessionRepository].toInstance(repo))
+      .build()
+
+  private def applicationWithMockRepository(userAnswers: UserAnswers): play.api.Application =
+    applicationWith(userAnswers, mockSessionRepository(userAnswers))
+
   private def connectorReturning(result: Either[GetTraderInformationError, TraderInformation]): NovaImportsBackendConnector = {
     val connector = mock[NovaImportsBackendConnector]
     when(connector.getTraderInformation()(any())) thenReturn Future.successful(result)
@@ -65,7 +81,7 @@ class VehiclesBoughtFromSupplierControllerSpec extends SpecBase with MockitoSuga
   }
 
   private val vatTraderAnswersUsingPersonalDetails: UserAnswers =
-    userAnswersWithGuardData.unsafeSet(UsePersonalDetailsAsSupplierPage, true)
+    userAnswersWithGuardData.unsafeSet(UsePersonalDetailsAsSupplierPage(supplierNumber), true)
 
   "VehiclesBoughtFromSupplierController" - {
 
@@ -87,9 +103,9 @@ class VehiclesBoughtFromSupplierControllerSpec extends SpecBase with MockitoSuga
       }
     }
 
-    "must redirect to the vehicle dates page for a POST" in {
+    "must add vehicle 1 for the supplier and send the user to AVD3.0 for that vehicle" in {
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithGuardData)).build()
+      val application = applicationWithMockRepository(userAnswersWithGuardData)
 
       running(application) {
         val result = route(application, FakeRequest(POST, vehiclesBoughtFromSupplierRoute)).value
@@ -100,17 +116,29 @@ class VehiclesBoughtFromSupplierControllerSpec extends SpecBase with MockitoSuga
       }
     }
 
-    "must use the vehicle number held in session when one is present" in {
+    "must add the next vehicle when the notification already has one" in {
 
-      val answers = userAnswersWithGuardData.unsafeSet(VehicleNumberPage, 3)
-
-      val application = applicationBuilder(userAnswers = Some(answers)).build()
+      val answers     = userAnswersWithGuardData.unsafeSet(AllVehiclesQuery, Map("1" -> Json.obj("supplierNumber" -> 1)))
+      val application = applicationWithMockRepository(answers)
 
       running(application) {
         val result = route(application, FakeRequest(POST, vehiclesBoughtFromSupplierRoute)).value
 
+        status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual
-          vehicledetails.routes.VehicleDatesController.onPageLoad(supplierNumber, VehicleNumber(3), NormalMode).url
+          vehicledetails.routes.VehicleDatesController.onPageLoad(supplierNumber, VehicleNumber(2), NormalMode).url
+      }
+    }
+
+    "must pass the supplier number from URL to addForSupplier so the vehicle is saved with supplierNumber 1" in {
+
+      val repo        = mockSessionRepository(userAnswersWithGuardData)
+      val application = applicationWith(userAnswersWithGuardData, repo)
+
+      running(application) {
+        route(application, FakeRequest(POST, vehiclesBoughtFromSupplierRoute)).value.futureValue
+
+        verify(repo).setPage(any(), eqTo(AllVehiclesQuery), eqTo(Map("1" -> Json.obj("supplierNumber" -> 1))))(any())
       }
     }
 
@@ -118,7 +146,7 @@ class VehiclesBoughtFromSupplierControllerSpec extends SpecBase with MockitoSuga
 
       val answers = emptyUserAnswers
         .unsafeSet(VehicleFromEuPage, true)
-        .unsafeSet(SupplierNumberPage, 1)
+        .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj()))
 
       val application = applicationBuilder(userAnswers = Some(answers)).build()
 
@@ -134,7 +162,7 @@ class VehiclesBoughtFromSupplierControllerSpec extends SpecBase with MockitoSuga
 
       val answers = emptyUserAnswers
         .unsafeSet(VehicleFromEuPage, true)
-        .unsafeSet(SupplierNumberPage, 1)
+        .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj()))
 
       val application = applicationBuilder(userAnswers = Some(answers)).build()
 
@@ -189,9 +217,9 @@ class VehiclesBoughtFromSupplierControllerSpec extends SpecBase with MockitoSuga
     "must render the supplier business name in the heading" in {
 
       val answers = userAnswersWithGuardData
-        .unsafeSet(UsePersonalDetailsAsSupplierPage, false)
-        .unsafeSet(SupplierBusinessOrIndividualPage, BusinessOrPrivateIndividual.Business)
-        .unsafeSet(SupplierBusinessNamePage, "ABC Ltd")
+        .unsafeSet(UsePersonalDetailsAsSupplierPage(supplierNumber), false)
+        .unsafeSet(SupplierBusinessOrIndividualPage(supplierNumber), BusinessOrPrivateIndividual.Business)
+        .unsafeSet(SupplierBusinessNamePage(supplierNumber), "ABC Ltd")
 
       val application = applicationBuilder(userAnswers = Some(answers)).build()
 
@@ -205,9 +233,9 @@ class VehiclesBoughtFromSupplierControllerSpec extends SpecBase with MockitoSuga
     "must render the supplier's own name in the heading" in {
 
       val answers = userAnswersWithGuardData
-        .unsafeSet(UsePersonalDetailsAsSupplierPage, false)
-        .unsafeSet(SupplierBusinessOrIndividualPage, BusinessOrPrivateIndividual.PrivateIndividual)
-        .unsafeSet(SupplierNamePage, NameDetails("Mr", "John", "Smith"))
+        .unsafeSet(UsePersonalDetailsAsSupplierPage(supplierNumber), false)
+        .unsafeSet(SupplierBusinessOrIndividualPage(supplierNumber), BusinessOrPrivateIndividual.PrivateIndividual)
+        .unsafeSet(SupplierNamePage(supplierNumber), NameDetails("Mr", "John", "Smith"))
 
       val application = applicationBuilder(userAnswers = Some(answers)).build()
 
@@ -221,7 +249,7 @@ class VehiclesBoughtFromSupplierControllerSpec extends SpecBase with MockitoSuga
     "must render the notifier's business name in the heading when they use their own details as the supplier for a business" in {
 
       val answers = userAnswersWithGuardData
-        .unsafeSet(UsePersonalDetailsAsSupplierPage, true)
+        .unsafeSet(UsePersonalDetailsAsSupplierPage(supplierNumber), true)
         .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business)
         .unsafeSet(BusinessNamePage, "Acme Trading Co Ltd")
 
@@ -237,7 +265,7 @@ class VehiclesBoughtFromSupplierControllerSpec extends SpecBase with MockitoSuga
     "must render the notifier's own name in the heading when they use their own details as the supplier as a private individual" in {
 
       val answers = userAnswersWithGuardData
-        .unsafeSet(UsePersonalDetailsAsSupplierPage, true)
+        .unsafeSet(UsePersonalDetailsAsSupplierPage(supplierNumber), true)
         .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
         .unsafeSet(NameDetailsPage, NameDetails("Mr", "John", "Smith"))
 
