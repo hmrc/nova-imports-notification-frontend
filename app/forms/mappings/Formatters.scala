@@ -18,7 +18,7 @@ package forms.mappings
 
 import play.api.data.FormError
 import play.api.data.format.Formatter
-import models.Enumerable
+import models.{CountryVrnValidation, Enumerable}
 
 import scala.util.control.Exception.nonFatalCatch
 
@@ -133,4 +133,26 @@ trait Formatters {
       override def unbind(key: String, value: BigDecimal): Map[String, String] =
         baseFormatter.unbind(key, value.toString)
     }
+
+  private[mappings] def vatNumberFormatter(
+    countryCodeKey: String,
+    countryVrnValidationList: Seq[CountryVrnValidation],
+    requiredKey: String,
+    formatKey: String
+  ): Formatter[String] = new Formatter[String] {
+
+    private val baseFormatter = stringFormatter(requiredKey)
+
+    override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], String] =
+      baseFormatter.bind(key, data).flatMap { vatNumber =>
+        data.get(countryCodeKey).flatMap(code => countryVrnValidationList.find(_.code == code)) match {
+          case Some(country) if vatNumber.matches(country.vrnValidationRegex) => Right(vatNumber)
+          case Some(_)                                                        => Left(Seq(FormError(key, formatKey)))
+          case None                                                           => Right(vatNumber)
+        }
+      }
+
+    override def unbind(key: String, value: String): Map[String, String] = Map(key -> value)
+  }
+
 }

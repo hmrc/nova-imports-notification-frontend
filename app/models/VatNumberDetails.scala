@@ -14,19 +14,15 @@
  * limitations under the License.
  */
 
-package controllers
+package models
 
-import models.requests.DataRequest
-import play.api.i18n.I18nSupport
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import play.api.data.Form
-import play.api.mvc.AnyContent
+import play.api.libs.json.{Json, OFormat}
 
-trait BaseController extends FrontendBaseController with I18nSupport {
+final case class VatNumberDetails(
+  countryCode: String,
+  vatNumber: String
+)
 
-  extension [A](form: Form[A]) {
-    def withDefault(optValue: Option[A]): Form[A] =
-      optValue.map(form.fill).getOrElse(form)
-  }
-
+object VatNumberDetails {
+  implicit val format: OFormat[VatNumberDetails] = Json.format[VatNumberDetails]
 }

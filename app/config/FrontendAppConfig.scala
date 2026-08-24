@@ -18,6 +18,7 @@ package config
 
 import com.google.inject.{Inject, Singleton}
 import models.AddressJourney
+import models.CountryVrnValidation
 import play.api.Configuration
 import play.api.i18n.Lang
 import play.api.mvc.RequestHeader
@@ -79,4 +80,15 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val countdown: Int = configuration.get[Int]("timeout-dialog.countdown")
 
   val cacheTtl: Long = configuration.get[Int]("mongodb.timeToLiveInSeconds")
+
+  lazy val vrnValidationList: Seq[CountryVrnValidation]          = loadVrnValidationList()
+  private def loadVrnValidationList(): Seq[CountryVrnValidation] = {
+    configuration.get[Seq[Configuration]]("euVrnRegistrationValidationList").map { config =>
+      CountryVrnValidation(
+        code = config.get[String]("code"),
+        vrnValidationRegex = config.get[String]("regex-vrn-validation")
+      )
+    }
+  }
+
 }

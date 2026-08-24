@@ -32,6 +32,39 @@ journeyRecovery.continue.title = Sorry, there is a problem with the service
 journeyRecovery.continue.heading = Sorry, there is a problem with the service
 journeyRecovery.continue.guidance = [Add content to explain how to proceed.]
 
+
+####################
+# EU Country Names #
+####################
+
+country.AT = Austria
+country.BE = Belgium
+country.BG = Bulgaria
+country.CY = Cyprus
+country.CZ = Czechia
+country.DE = Germany
+country.DK = Denmark
+country.EE = Estonia
+country.EL = Greece
+country.ES = Spain
+country.FI = Finland
+country.FR = France
+country.HU = Hungary
+country.IE = Ireland
+country.IT = Italy
+country.LT = Lithuania
+country.LU = Luxembourg
+country.LV = Latvia
+country.MT = Malta
+country.NL = Netherlands
+country.PL = Poland
+country.PT = Portugal
+country.RO = Romania
+country.SE = Sweden
+country.SI = Slovenia
+country.SK = Slovakia
+
+
 ######################################################
 # ERR2.0 - Error message - System error              #
 ######################################################
@@ -780,6 +813,21 @@ isSupplierVatRegistered.title = Is the supplier VAT registered?
 isSupplierVatRegistered.heading = Is the supplier VAT registered?
 isSupplierVatRegistered.caption = Add vehicle details
 isSupplierVatRegistered.error.required = Select yes if the supplier is VAT registered
+
+####################################################################################
+# AVD-S8.1 - Add vehicle details - Supplier 8.1: Supplier VAT Registration Details #
+####################################################################################
+
+supplierVatRegistrationDetails.title = Enter the supplier’s VAT registration details
+supplierVatRegistrationDetails.heading = Enter the supplier’s VAT registration details
+supplierVatRegistrationDetails.caption = Add vehicle details
+supplierVatRegistrationDetails.paragraph.1 = You must provide the country where the supplier is VAT registered and the VAT registration number. You can find these details on the supplier’s invoice.
+supplierVatRegistrationDetails.label.country = Country of VAT registration
+supplierVatRegistrationDetails.label.vatNumber = VAT registration number
+supplierVatRegistrationDetails.hint.vatNumber = Enter as shown on the supplier’s invoice. Do not include the 2-letter country code at the start
+supplierVatRegistrationDetails.country.error.required = Enter the country where the supplier is VAT registered
+supplierVatRegistrationDetails.vatNumber.error.required = Enter the supplier’s VAT registration number
+supplierVatRegistrationDetails.vatNumber.error.format = Enter the supplier’s VAT registration number in the correct format for the selected country
 
 #####################################################################
 # AVD3.0 - Add vehicle details 3.0: Which vehicle dates do you have #

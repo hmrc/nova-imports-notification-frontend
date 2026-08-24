@@ -14,19 +14,15 @@
  * limitations under the License.
  */
 
-package controllers
+package pages.sections.supplierdetails
 
-import models.requests.DataRequest
-import play.api.i18n.I18nSupport
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import play.api.data.Form
-import play.api.mvc.AnyContent
+import models.{SupplierNumber, VatNumberDetails}
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-trait BaseController extends FrontendBaseController with I18nSupport {
+final case class SupplierVatRegistrationNumberPage(supplierNumber: SupplierNumber) extends QuestionPage[VatNumberDetails] {
 
-  extension [A](form: Form[A]) {
-    def withDefault(optValue: Option[A]): Form[A] =
-      optValue.map(form.fill).getOrElse(form)
-  }
+  override def path: JsPath = JsPath \ "suppliers" \ supplierNumber.value.toString \ "details" \ toString
 
+  override def toString: String = "vatNumber"
 }

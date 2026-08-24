@@ -24,7 +24,7 @@ import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, Busin
 import pages.sections.notifierdetails.{AboutYourDetailsPage, BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 import pages.sections.vehicledetails.{AddImportVehicleDetailsPage, AddVehicleDetailsPage}
 import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
-import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
+import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierVatRegistrationNumberPage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 import pages.sections.vehicledetails.VehicleDatesPage
 
@@ -443,18 +443,37 @@ class NavigatorSpec extends SpecBase {
 
       "must go from IsSupplierVatRegisteredPage AVD-S8.0 to SupplierVatRegistrationDetails AVD-S8.1 when Yes is selected" in {
         val ua = userAnswers.set(IsSupplierVatRegisteredPage(SupplierNumber(2)), true).success.value
-        // TODO: navigate to AVD-S8.1 when implemented
         navigator.nextPage(
           IsSupplierVatRegisteredPage(SupplierNumber(2)),
+          NormalMode,
+          ua,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe supplierdetails.routes.SupplierVatRegistrationDetailsController.onPageLoad(SupplierNumber(2), NormalMode)
+      }
+
+      "must go from IsSupplierVatRegisteredPage AVD-S8.0 to JourneyRecovery when no answer is found" in {
+        navigator.nextPage(
+          IsSupplierVatRegisteredPage(SupplierNumber(1)),
+          NormalMode,
+          userAnswers,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from SupplierVatRegistrationNumberPage AVD-S8.1 to CheckSupplierDetails AVD-S9 when continue is pressed" in {
+        val ua = userAnswers.set(SupplierVatRegistrationNumberPage(SupplierNumber(2)), VatNumberDetails("FR", "AA123456789")).success.value
+        // TODO: navigate to AVD-S9 when implemented
+        navigator.nextPage(
+          SupplierVatRegistrationNumberPage(SupplierNumber(2)),
           NormalMode,
           ua,
           NovaUserType.VatRegisteredOrganisation
         ) mustBe routes.LandingPageController.onPageLoad()
       }
 
-      "must go from IsSupplierVatRegisteredPage AVD-S8.0 to JourneyRecovery when no answer is found" in {
+      "must go from SupplierVatRegistrationNumberPage AVD-S8.1 to JourneyRecovery when no answer is found" in {
         navigator.nextPage(
-          IsSupplierVatRegisteredPage(SupplierNumber(1)),
+          SupplierVatRegistrationNumberPage(SupplierNumber(1)),
           NormalMode,
           userAnswers,
           NovaUserType.VatRegisteredOrganisation
