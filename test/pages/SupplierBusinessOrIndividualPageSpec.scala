@@ -17,12 +17,14 @@
 package pages
 
 import base.SpecBase
-import models.{BusinessOrPrivateIndividual, NameDetails}
+import models.{BusinessOrPrivateIndividual, NameDetails, SupplierNumber}
 import pages.sections.supplierdetails.{SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage}
 
 class SupplierBusinessOrIndividualPageSpec extends SpecBase {
 
   private val supplierName = NameDetails("Mr", "Test", "McTester")
+  private val supplierOne  = SupplierNumber(1)
+  private val supplierTwo  = SupplierNumber(2)
 
   "SupplierBusinessOrIndividualPage" - {
 
@@ -30,49 +32,62 @@ class SupplierBusinessOrIndividualPageSpec extends SpecBase {
 
       "must remove the supplier name (AVD-S4.0) when the type is changed to Business" in {
         val userAnswers = emptyUserAnswers
-          .set(SupplierBusinessOrIndividualPage, BusinessOrPrivateIndividual.PrivateIndividual)
+          .set(SupplierBusinessOrIndividualPage(supplierOne), BusinessOrPrivateIndividual.PrivateIndividual)
           .success
           .value
-          .set(SupplierNamePage, supplierName)
+          .set(SupplierNamePage(supplierOne), supplierName)
           .success
           .value
 
-        val result = userAnswers.set(SupplierBusinessOrIndividualPage, BusinessOrPrivateIndividual.Business).success.value
+        val result = userAnswers.set(SupplierBusinessOrIndividualPage(supplierOne), BusinessOrPrivateIndividual.Business).success.value
 
-        result.get(SupplierNamePage) mustBe None
+        result.get(SupplierNamePage(supplierOne)) mustBe None
       }
 
       "must keep the supplier name when the type is set to Private individual" in {
-        val userAnswers = emptyUserAnswers.set(SupplierNamePage, supplierName).success.value
+        val userAnswers = emptyUserAnswers.set(SupplierNamePage(supplierOne), supplierName).success.value
 
-        val result = userAnswers.set(SupplierBusinessOrIndividualPage, BusinessOrPrivateIndividual.PrivateIndividual).success.value
+        val result =
+          userAnswers.set(SupplierBusinessOrIndividualPage(supplierOne), BusinessOrPrivateIndividual.PrivateIndividual).success.value
 
-        result.get(SupplierNamePage) mustBe Some(supplierName)
+        result.get(SupplierNamePage(supplierOne)) mustBe Some(supplierName)
       }
 
       "must remove the supplier business name when the type is changed to Private individual" in {
         val userAnswers = emptyUserAnswers
-          .unsafeSet(SupplierBusinessOrIndividualPage, BusinessOrPrivateIndividual.Business)
-          .unsafeSet(SupplierBusinessNamePage, "Acme Trading Co Ltd")
+          .unsafeSet(SupplierBusinessOrIndividualPage(supplierOne), BusinessOrPrivateIndividual.Business)
+          .unsafeSet(SupplierBusinessNamePage(supplierOne), "Acme Trading Co Ltd")
 
-        val result = userAnswers.unsafeSet(SupplierBusinessOrIndividualPage, BusinessOrPrivateIndividual.PrivateIndividual)
+        val result = userAnswers.unsafeSet(SupplierBusinessOrIndividualPage(supplierOne), BusinessOrPrivateIndividual.PrivateIndividual)
 
-        result.get(SupplierBusinessNamePage) mustBe None
+        result.get(SupplierBusinessNamePage(supplierOne)) mustBe None
       }
 
       "must keep the supplier business name when the type is set to Business" in {
-        val userAnswers = emptyUserAnswers.unsafeSet(SupplierBusinessNamePage, "Acme Trading Co Ltd")
+        val userAnswers = emptyUserAnswers.unsafeSet(SupplierBusinessNamePage(supplierOne), "Acme Trading Co Ltd")
 
-        val result = userAnswers.unsafeSet(SupplierBusinessOrIndividualPage, BusinessOrPrivateIndividual.Business)
+        val result = userAnswers.unsafeSet(SupplierBusinessOrIndividualPage(supplierOne), BusinessOrPrivateIndividual.Business)
 
-        result.get(SupplierBusinessNamePage) mustBe Some("Acme Trading Co Ltd")
+        result.get(SupplierBusinessNamePage(supplierOne)) mustBe Some("Acme Trading Co Ltd")
+      }
+
+      "must only clear supplier 1's business name when supplier 1 changes to Private individual" in {
+        val userAnswers = emptyUserAnswers
+          .unsafeSet(SupplierBusinessNamePage(supplierOne), "First Ltd")
+          .unsafeSet(SupplierBusinessNamePage(supplierTwo), "Second Ltd")
+
+        val result = userAnswers.unsafeSet(SupplierBusinessOrIndividualPage(supplierOne), BusinessOrPrivateIndividual.PrivateIndividual)
+
+        result.get(SupplierBusinessNamePage(supplierOne)) mustBe None
+        result.get(SupplierBusinessNamePage(supplierTwo)) mustBe Some("Second Ltd")
       }
     }
 
-    "must store the answer under the supplier-details section" in {
-      val answers = emptyUserAnswers.unsafeSet(SupplierBusinessOrIndividualPage, BusinessOrPrivateIndividual.PrivateIndividual)
+    "must store the answer under the supplier it belongs to" in {
+      val answers =
+        emptyUserAnswers.unsafeSet(SupplierBusinessOrIndividualPage(supplierTwo), BusinessOrPrivateIndividual.PrivateIndividual)
 
-      (answers.data \ "supplier-details" \ "supplierBusinessOrIndividual").as[String] mustBe
+      (answers.data \ "suppliers" \ "2" \ "details" \ "supplierBusinessOrIndividual").as[String] mustBe
         BusinessOrPrivateIndividual.PrivateIndividual.toString
     }
   }

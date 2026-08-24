@@ -19,7 +19,7 @@ package controllers.supplierdetails
 import base.SpecBase
 import controllers.{routes, supplierdetails}
 import forms.SupplierNameFormProvider
-import models.{BusinessOrPrivateIndividual, CheckMode, DraftId, NameDetails, NormalMode, SupplierNumber, UserAnswers}
+import models.{BusinessOrPrivateIndividual, DraftId, NameDetails, NormalMode, SupplierNumber, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
@@ -27,7 +27,9 @@ import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.DraftIdPage
 import pages.sections.initialquestions.VehicleFromEuPage
-import pages.sections.supplierdetails.{SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierNumberPage}
+import pages.sections.supplierdetails.{SupplierBusinessOrIndividualPage, SupplierNamePage}
+import play.api.libs.json.Json
+import queries.AllSuppliersQuery
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -52,6 +54,8 @@ class SupplierNameControllerSpec extends SpecBase with MockitoSugar {
 
   val supplierName: NameDetails = NameDetails(validTitle, validFirstName, validLastName)
 
+  private val supplierOne = SupplierNumber(1)
+
   // A user reaches /supplier-name only after answering IQ1 "Yes" and AVD-S2.0 "Private individual"
   private val requiredPreviousAnswers = emptyUserAnswers
     .set(DraftIdPage, DraftId("DRAFT-001"))
@@ -60,10 +64,10 @@ class SupplierNameControllerSpec extends SpecBase with MockitoSugar {
     .set(VehicleFromEuPage, true)
     .success
     .value
-    .set(SupplierBusinessOrIndividualPage, BusinessOrPrivateIndividual.PrivateIndividual)
+    .set(AllSuppliersQuery, Map("1" -> Json.obj()))
     .success
     .value
-    .set(SupplierNumberPage, 1)
+    .set(SupplierBusinessOrIndividualPage(supplierOne), BusinessOrPrivateIndividual.PrivateIndividual)
     .success
     .value
 
@@ -109,7 +113,7 @@ class SupplierNameControllerSpec extends SpecBase with MockitoSugar {
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = requiredPreviousAnswers.set(SupplierNamePage, supplierName).success.value
+      val userAnswers = requiredPreviousAnswers.set(SupplierNamePage(supplierOne), supplierName).success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
@@ -142,18 +146,25 @@ class SupplierNameControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
 
-        savedAnswers(mockSessionRepository).get(SupplierNamePage) mustEqual Some(supplierName)
+        savedAnswers(mockSessionRepository).get(SupplierNamePage(supplierOne)) mustEqual Some(supplierName)
       }
     }
 
-    "must keep the same supplier number when the user returns to change their answer" in {
+    "must save the answer matching that of the supplier number in the URL" in {
 
-      val answersForSupplierThree              = requiredPreviousAnswers.set(SupplierNumberPage, 3).success.value
+      val answersForSupplierThree = requiredPreviousAnswers
+        .set(AllSuppliersQuery, Map("1" -> Json.obj(), "3" -> Json.obj()))
+        .success
+        .value
+        .set(SupplierBusinessOrIndividualPage(SupplierNumber(3)), BusinessOrPrivateIndividual.PrivateIndividual)
+        .success
+        .value
+
       val (application, mockSessionRepository) = applicationWithMockRepository(answersForSupplierThree)
 
       running(application) {
         val request =
-          FakeRequest(POST, supplierdetails.routes.SupplierNameController.onSubmit(SupplierNumber(3), CheckMode).url)
+          FakeRequest(POST, supplierdetails.routes.SupplierNameController.onSubmit(SupplierNumber(3), NormalMode).url)
             .withFormUrlEncodedBody(("title", validTitle), ("firstName", validFirstName), ("lastName", validLastName))
 
         val result = route(application, request).value
@@ -161,8 +172,7 @@ class SupplierNameControllerSpec extends SpecBase with MockitoSugar {
 
         val answers = savedAnswers(mockSessionRepository)
 
-        answers.get(SupplierNumberPage) mustEqual Some(3)
-        answers.get(SupplierNamePage) mustEqual Some(supplierName)
+        answers.get(SupplierNamePage(SupplierNumber(3))) mustEqual Some(supplierName)
       }
     }
 
@@ -222,10 +232,10 @@ class SupplierNameControllerSpec extends SpecBase with MockitoSugar {
         .set(VehicleFromEuPage, true)
         .success
         .value
-        .set(SupplierBusinessOrIndividualPage, BusinessOrPrivateIndividual.PrivateIndividual)
+        .set(SupplierBusinessOrIndividualPage(supplierOne), BusinessOrPrivateIndividual.PrivateIndividual)
         .success
         .value
-        .set(SupplierNumberPage, 1)
+        .set(AllSuppliersQuery, Map("1" -> Json.obj()))
         .success
         .value
 
@@ -247,10 +257,10 @@ class SupplierNameControllerSpec extends SpecBase with MockitoSugar {
         .set(VehicleFromEuPage, true)
         .success
         .value
-        .set(SupplierBusinessOrIndividualPage, BusinessOrPrivateIndividual.PrivateIndividual)
+        .set(SupplierBusinessOrIndividualPage(supplierOne), BusinessOrPrivateIndividual.PrivateIndividual)
         .success
         .value
-        .set(SupplierNumberPage, 1)
+        .set(AllSuppliersQuery, Map("1" -> Json.obj()))
         .success
         .value
 
@@ -287,7 +297,7 @@ class SupplierNameControllerSpec extends SpecBase with MockitoSugar {
     "must redirect to Unauthorised for a GET if AVD-S2.0 was answered Business" in {
 
       val answersForBusinessSupplier =
-        requiredPreviousAnswers.set(SupplierBusinessOrIndividualPage, BusinessOrPrivateIndividual.Business).success.value
+        requiredPreviousAnswers.set(SupplierBusinessOrIndividualPage(supplierOne), BusinessOrPrivateIndividual.Business).success.value
 
       val application = applicationBuilder(userAnswers = Some(answersForBusinessSupplier)).build()
 
@@ -304,7 +314,7 @@ class SupplierNameControllerSpec extends SpecBase with MockitoSugar {
     "must redirect to Unauthorised for a POST if AVD-S2.0 was answered Business" in {
 
       val answersForBusinessSupplier =
-        requiredPreviousAnswers.set(SupplierBusinessOrIndividualPage, BusinessOrPrivateIndividual.Business).success.value
+        requiredPreviousAnswers.set(SupplierBusinessOrIndividualPage(supplierOne), BusinessOrPrivateIndividual.Business).success.value
 
       val application = applicationBuilder(userAnswers = Some(answersForBusinessSupplier)).build()
 
@@ -329,7 +339,7 @@ class SupplierNameControllerSpec extends SpecBase with MockitoSugar {
         .set(VehicleFromEuPage, true)
         .success
         .value
-        .set(SupplierNumberPage, 1)
+        .set(AllSuppliersQuery, Map("1" -> Json.obj()))
         .success
         .value
 
@@ -375,20 +385,17 @@ class SupplierNameControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to Unauthorised for a GET if there is no supplier number in session" in {
+    "must redirect to Unauthorised for a GET if the user has no suppliers" in {
 
-      val answersWithoutSupplierNumber = emptyUserAnswers
+      val answersWithoutSuppliers = emptyUserAnswers
         .set(DraftIdPage, DraftId("DRAFT-001"))
         .success
         .value
         .set(VehicleFromEuPage, true)
         .success
         .value
-        .set(SupplierBusinessOrIndividualPage, BusinessOrPrivateIndividual.PrivateIndividual)
-        .success
-        .value
 
-      val application = applicationBuilder(userAnswers = Some(answersWithoutSupplierNumber)).build()
+      val application = applicationBuilder(userAnswers = Some(answersWithoutSuppliers)).build()
 
       running(application) {
         val request = FakeRequest(GET, supplierNameRoute)

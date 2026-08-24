@@ -18,7 +18,7 @@ package viewmodels.checkAnswers
 
 import controllers.supplierdetails.routes
 import models.{CheckMode, SupplierNumber, UserAnswers}
-import pages.sections.supplierdetails.{SupplierNamePage, SupplierNumberPage}
+import pages.sections.supplierdetails.SupplierNamePage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
@@ -28,10 +28,8 @@ import viewmodels.implicits.*
 
 object SupplierNameSummary {
 
-  def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(SupplierNamePage).map { name =>
-
-      val supplierNumber = SupplierNumber(answers.get(SupplierNumberPage).getOrElse(1))
+  def row(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages): Option[SummaryListRow] =
+    answers.get(SupplierNamePage(supplierNumber)).map { name =>
 
       val value = Seq(name.title, name.firstName, name.lastName)
         .map(part => HtmlFormat.escape(part).body)

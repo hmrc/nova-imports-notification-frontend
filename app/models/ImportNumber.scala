@@ -18,20 +18,20 @@ package models
 
 import play.api.mvc.PathBindable
 
-// Vehicle number always starts at 1 and runs across the whole notification, not per supplier or import
-final case class VehicleNumber(value: Int)
+// Import number always starts at 1
+final case class ImportNumber(value: Int)
 
-object VehicleNumber {
+object ImportNumber {
 
-  implicit val pathBindable: PathBindable[VehicleNumber] = new PathBindable[VehicleNumber] {
+  implicit val pathBindable: PathBindable[ImportNumber] = new PathBindable[ImportNumber] {
 
-    override def bind(key: String, value: String): Either[String, VehicleNumber] =
+    override def bind(key: String, value: String): Either[String, ImportNumber] =
       PathBindable.bindableInt.bind(key, value).flatMap {
-        case number if number >= 1 => Right(VehicleNumber(number))
-        case number                => Left(s"Vehicle number must be 1 or higher, but was $number")
+        case number if number >= 1 => Right(ImportNumber(number))
+        case number                => Left(s"Import number must be 1 or higher, but was $number")
       }
 
-    override def unbind(key: String, vehicleNumber: VehicleNumber): String =
-      PathBindable.bindableInt.unbind(key, vehicleNumber.value)
+    override def unbind(key: String, importNumber: ImportNumber): String =
+      PathBindable.bindableInt.unbind(key, importNumber.value)
   }
 }

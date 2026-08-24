@@ -25,6 +25,7 @@ import play.api.Logging
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
+import services.SupplierService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import views.html.AddressChangedView
@@ -37,7 +38,8 @@ class AddressChangedController @Inject() (
   sessionRepository: SessionRepository,
   actions: Actions,
   view: AddressChangedView,
-  backendConnector: NovaImportsBackendConnector
+  backendConnector: NovaImportsBackendConnector,
+  supplierService: SupplierService
 )(implicit ec: ExecutionContext)
     extends BaseController
     with Logging {
@@ -63,7 +65,7 @@ class AddressChangedController @Inject() (
     request => binding.guard(request) && request.userAnswers.get(binding.addressPage).isDefined
 
   private def handlePageLoad(journey: AddressJourney): Action[AnyContent] = {
-    val binding = AddressJourneyBinding(journey)
+    val binding = AddressJourneyBinding(journey, supplierService)
 
     actions.authAndGetDataWithUserTypeGuard(dataGuard(binding)) { implicit request =>
       request.userAnswers.get(binding.addressPage) match {
@@ -75,7 +77,7 @@ class AddressChangedController @Inject() (
   }
 
   private def handleChangeAddress(journey: AddressJourney): Action[AnyContent] = {
-    val binding = AddressJourneyBinding(journey)
+    val binding = AddressJourneyBinding(journey, supplierService)
 
     actions.authAndGetDataWithUserTypeGuard(dataGuard(binding)).async { implicit request =>
       for {
@@ -86,7 +88,7 @@ class AddressChangedController @Inject() (
   }
 
   private def handleSubmit(journey: AddressJourney): Action[AnyContent] = {
-    val binding = AddressJourneyBinding(journey)
+    val binding = AddressJourneyBinding(journey, supplierService)
 
     actions.authAndGetDataWithUserTypeGuard(dataGuard(binding)).async { implicit request =>
       implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)

@@ -20,9 +20,11 @@ import base.SpecBase
 import com.google.inject.name.Names
 import config.FrontendAppConfig
 import controllers.actions.*
-import controllers.{routes, vehicledetails}
+import controllers.{routes, supplierdetails, vehicledetails}
 import forms.AddVehicleDetailsFormProvider
-import models.{AddVehicleDetails, DraftId, NormalMode, UserAnswers}
+import models.{AddVehicleDetails, DraftId, NormalMode, SupplierNumber, UserAnswers}
+import play.api.libs.json.Json
+import queries.AllSuppliersQuery
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
@@ -31,7 +33,6 @@ import org.scalatestplus.mockito.MockitoSugar
 import pages.DraftIdPage
 import pages.sections.initialquestions.VehicleFromEuPage
 import pages.sections.vehicledetails.AddVehicleDetailsPage
-import pages.sections.supplierdetails.SupplierNumberPage
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.*
@@ -82,6 +83,7 @@ class AddVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
 
     val mockSessionRepository = mock[SessionRepository]
     when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+    when(mockSessionRepository.setPage(any(), any(), any())(any())) thenReturn Future.successful(userAnswers)
 
     val application =
       applicationBuilder(userAnswers = Some(userAnswers))
@@ -159,7 +161,7 @@ class AddVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
       running(application) {
         val request =
           FakeRequest(POST, addVehicleDetailsRoute)
-            .withFormUrlEncodedBody(("value", AddVehicleDetails.BySupplier.toString))
+            .withFormUrlEncodedBody(("value", AddVehicleDetails.BySpreadsheet.toString))
 
         val result = route(application, request).value
 
@@ -168,9 +170,9 @@ class AddVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must save supplier number 1 when the user chooses to add vehicles by supplier" in {
+    "must add supplier 1 and send the user to that supplier's first screen when they choose to add vehicles by supplier" in {
 
-      val (application, mockSessionRepository) = applicationWithMockRepository(userAnswersWithIQ1Yes)
+      val (application, _) = applicationWithMockRepository(userAnswersWithIQ1Yes)
 
       running(application) {
         val request =
@@ -178,16 +180,17 @@ class AddVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
             .withFormUrlEncodedBody(("value", AddVehicleDetails.BySupplier.toString))
 
         val result = route(application, request).value
-        status(result) mustEqual SEE_OTHER
 
-        savedAnswers(mockSessionRepository).get(SupplierNumberPage) mustEqual Some(1)
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual
+          supplierdetails.routes.UsePersonalDetailsAsSupplierController.onPageLoad(SupplierNumber(1), NormalMode).url
       }
     }
 
-    "must not overwrite supplier number that is already saved when the user chooses to add vehicles by supplier again" in {
+    "must add the next supplier when the user already has one" in {
 
-      val answersWithSupplier                  = userAnswersWithIQ1Yes.set(SupplierNumberPage, 3).success.value
-      val (application, mockSessionRepository) = applicationWithMockRepository(answersWithSupplier)
+      val answersWithSupplier = userAnswersWithIQ1Yes.set(AllSuppliersQuery, Map("1" -> Json.obj())).success.value
+      val (application, _)    = applicationWithMockRepository(answersWithSupplier)
 
       running(application) {
         val request =
@@ -195,9 +198,10 @@ class AddVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
             .withFormUrlEncodedBody(("value", AddVehicleDetails.BySupplier.toString))
 
         val result = route(application, request).value
-        status(result) mustEqual SEE_OTHER
 
-        savedAnswers(mockSessionRepository).get(SupplierNumberPage) mustEqual Some(3)
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual
+          supplierdetails.routes.UsePersonalDetailsAsSupplierController.onPageLoad(SupplierNumber(2), NormalMode).url
       }
     }
 

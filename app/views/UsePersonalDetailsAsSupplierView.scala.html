@@ -26,7 +26,7 @@
     hmrcNewTabLinkHelper: HmrcNewTabLinkHelper
 )
 
-@(form: Form[_], mode: Mode, personalDetails: SummaryList, vatNotice728Url: String)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], supplierNumber: SupplierNumber, mode: Mode, personalDetails: SummaryList, vatNotice728Url: String)(implicit request: Request[_], messages: Messages)
 
 @questionHeading = {
     <h2 class="govuk-fieldset__heading">@messages("usePersonalDetailsAsSupplier.question")</h2>
@@ -34,7 +34,7 @@
 
 @layout(pageTitle = title(form, messages("usePersonalDetailsAsSupplier.title"))) {
 
-    @formHelper(action = routes.UsePersonalDetailsAsSupplierController.onSubmit(mode), Symbol("autoComplete") -> "off") {
+    @formHelper(action = routes.UsePersonalDetailsAsSupplierController.onSubmit(supplierNumber, mode), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))

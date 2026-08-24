@@ -23,7 +23,9 @@ import connectors.{GetTraderInformationError, NovaImportsBackendConnector}
 import controllers.actions.*
 import controllers.{routes, supplierdetails}
 import forms.UsePersonalDetailsAsSupplierFormProvider
-import models.{AddVehicleDetails, Address, Country, DraftId, NameDetails, NormalMode, PurchaserOrOnBehalf, TraderInformation, UserAnswers}
+import models.{AddVehicleDetails, Address, Country, DraftId, NameDetails, NormalMode, PurchaserOrOnBehalf, SupplierNumber, TraderInformation, UserAnswers}
+import play.api.libs.json.Json
+import queries.AllSuppliersQuery
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{never, verify, when}
@@ -52,8 +54,11 @@ class UsePersonalDetailsAsSupplierControllerSpec extends SpecBase with MockitoSu
   val formProvider = new UsePersonalDetailsAsSupplierFormProvider()
   val form         = formProvider()
 
-  lazy val usePersonalDetailsAsSupplierRoute       = supplierdetails.routes.UsePersonalDetailsAsSupplierController.onPageLoad(NormalMode).url
-  lazy val usePersonalDetailsAsSupplierSubmitRoute = supplierdetails.routes.UsePersonalDetailsAsSupplierController.onSubmit(NormalMode).url
+  private val supplierOne = SupplierNumber(1)
+
+  lazy val usePersonalDetailsAsSupplierRoute = supplierdetails.routes.UsePersonalDetailsAsSupplierController.onPageLoad(supplierOne, NormalMode).url
+  lazy val usePersonalDetailsAsSupplierSubmitRoute =
+    supplierdetails.routes.UsePersonalDetailsAsSupplierController.onSubmit(supplierOne, NormalMode).url
 
   // Everything the guard requires for the default Individual (type 1) identity.
   private val answersSatisfyingGuard: UserAnswers =
@@ -61,6 +66,7 @@ class UsePersonalDetailsAsSupplierControllerSpec extends SpecBase with MockitoSu
       .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
       .unsafeSet(AddVehicleDetailsPage, AddVehicleDetails.BySupplier)
       .unsafeSet(VehicleFromEuPage, true)
+      .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj()))
       .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
       .unsafeSet(NameDetailsPage, NameDetails("Mr", "John", "Smith"))
       .unsafeSet(AddressPage, Address(Seq("1 High Street"), Some("AB1 2CD"), Country("GB", "United Kingdom")))
@@ -71,6 +77,7 @@ class UsePersonalDetailsAsSupplierControllerSpec extends SpecBase with MockitoSu
       .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
       .unsafeSet(AddVehicleDetailsPage, AddVehicleDetails.BySupplier)
       .unsafeSet(VehicleFromEuPage, true)
+      .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj()))
 
   private def agentApplicationBuilder(userAnswers: Option[UserAnswers]): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
@@ -115,13 +122,13 @@ class UsePersonalDetailsAsSupplierControllerSpec extends SpecBase with MockitoSu
         val personalDetails = SupplierPersonalDetailsSummary.fromSession(answersSatisfyingGuard)(msgs)
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, personalDetails, appConfig.vatNotice728Url)(request, msgs).toString
+        contentAsString(result) mustEqual view(form, supplierOne, NormalMode, personalDetails, appConfig.vatNotice728Url)(request, msgs).toString
       }
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = answersSatisfyingGuard.unsafeSet(UsePersonalDetailsAsSupplierPage, true)
+      val userAnswers = answersSatisfyingGuard.unsafeSet(UsePersonalDetailsAsSupplierPage(supplierOne), true)
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
@@ -133,7 +140,10 @@ class UsePersonalDetailsAsSupplierControllerSpec extends SpecBase with MockitoSu
         val personalDetails = SupplierPersonalDetailsSummary.fromSession(userAnswers)(msgs)
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(true), NormalMode, personalDetails, appConfig.vatNotice728Url)(request, msgs).toString
+        contentAsString(result) mustEqual view(form.fill(true), supplierOne, NormalMode, personalDetails, appConfig.vatNotice728Url)(
+          request,
+          msgs
+        ).toString
       }
     }
 
@@ -190,7 +200,10 @@ class UsePersonalDetailsAsSupplierControllerSpec extends SpecBase with MockitoSu
         val result          = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode, personalDetails, appConfig.vatNotice728Url)(request, msgs).toString
+        contentAsString(result) mustEqual view(boundForm, supplierOne, NormalMode, personalDetails, appConfig.vatNotice728Url)(
+          request,
+          msgs
+        ).toString
       }
     }
 
@@ -363,6 +376,7 @@ class UsePersonalDetailsAsSupplierControllerSpec extends SpecBase with MockitoSu
         .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
         .unsafeSet(AddVehicleDetailsPage, AddVehicleDetails.BySupplier)
         .unsafeSet(VehicleFromEuPage, true)
+        .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj()))
         .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
       val application = applicationBuilder(userAnswers = Some(answers)).build()
 
@@ -385,6 +399,7 @@ class UsePersonalDetailsAsSupplierControllerSpec extends SpecBase with MockitoSu
         .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
         .unsafeSet(AddVehicleDetailsPage, AddVehicleDetails.BySupplier)
         .unsafeSet(VehicleFromEuPage, true)
+        .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj()))
         .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
       val application = applicationBuilder(userAnswers = Some(answers))
         .overrides(
