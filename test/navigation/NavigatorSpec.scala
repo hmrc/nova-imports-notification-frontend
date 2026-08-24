@@ -434,7 +434,7 @@ class NavigatorSpec extends SpecBase {
         val ua = userAnswers.set(SupplierVatRegistrationNumberPage(SupplierNumber(2)), VatNumberDetails("FR", "AA123456789")).success.value
         // TODO: navigate to AVD-S9 when implemented
         navigator.nextPage(
-          SupplierVatRegistrationNumberPage,
+          SupplierVatRegistrationNumberPage(SupplierNumber(2)),
           NormalMode,
           ua,
           NovaUserType.VatRegisteredOrganisation

@@ -17,6 +17,7 @@
 package pages
 
 import base.SpecBase
+import models.SupplierNumber
 import models.VatNumberDetails
 import pages.sections.supplierdetails.SupplierVatRegistrationNumberPage
 
@@ -26,10 +27,10 @@ class SupplierVatRegistrationDetailsPageSpec extends SpecBase {
 
   "SupplierVatRegistrationDetailsPage" - {
 
-    "must store the answer at the supplier-details path" in {
-      val answers = emptyUserAnswers.unsafeSet(SupplierVatRegistrationNumberPage, supplierName)
+    "must store the answer under the supplier it belongs to" in {
+      val answers = emptyUserAnswers.unsafeSet(SupplierVatRegistrationNumberPage(SupplierNumber(2)), supplierName)
 
-      (answers.data \ "supplier-details" \ "vatNumber").as[VatNumberDetails] mustBe supplierName
+      (answers.data \ "suppliers" \ "2" \ "details" \ "vatNumber").as[VatNumberDetails] mustBe supplierName
     }
   }
 }

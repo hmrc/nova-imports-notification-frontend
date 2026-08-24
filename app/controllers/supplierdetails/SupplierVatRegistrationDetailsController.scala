@@ -18,7 +18,7 @@ package controllers.supplierdetails
 
 import config.FrontendAppConfig
 import controllers.actions.*
-import controllers.utils.{IsDraftIdDefined, IsSupplierNumberInSession}
+import controllers.utils.IsDraftIdDefined
 import controllers.BaseController
 import forms.SupplierVatRegistrationDetailsFormProvider
 import models.requests.DataRequest
@@ -30,7 +30,7 @@ import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import views.html.SupplierVatRegistrationDetailsView
-
+import services.SupplierService
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -41,7 +41,8 @@ class SupplierVatRegistrationDetailsController @Inject() (
   actions: Actions,
   appConfig: FrontendAppConfig,
   formProvider: SupplierVatRegistrationDetailsFormProvider,
-  view: SupplierVatRegistrationDetailsView
+  view: SupplierVatRegistrationDetailsView,
+  supplierService: SupplierService
 )(implicit ec: ExecutionContext)
     extends BaseController {
 
@@ -50,11 +51,11 @@ class SupplierVatRegistrationDetailsController @Inject() (
   val form: Form[VatNumberDetails] = formProvider(appConfig.vrnValidationList)
 
   def onPageLoad(supplierNumber: SupplierNumber, mode: Mode): Action[AnyContent] =
-    actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierNumber)) { implicit request =>
+    actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierService, supplierNumber)) { implicit request =>
       Ok(
         view(
           appConfig.vrnValidationList,
-          form.withDefault(request.userAnswers.get(SupplierVatRegistrationNumberPage)),
+          form.withDefault(request.userAnswers.get(SupplierVatRegistrationNumberPage(supplierNumber))),
           supplierNumber,
           mode
         )
@@ -62,18 +63,23 @@ class SupplierVatRegistrationDetailsController @Inject() (
     }
 
   def onSubmit(supplierNumber: SupplierNumber, mode: Mode): Action[AnyContent] =
-    actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierNumber)).async { implicit request =>
+    actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierService, supplierNumber)).async { implicit request =>
       form
         .bindFromRequest()
         .fold(
           formWithErrors => Future.successful(BadRequest(view(appConfig.vrnValidationList, formWithErrors, supplierNumber, mode))),
           supplierVatNumberDetails =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(SupplierVatRegistrationNumberPage, supplierVatNumberDetails))
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(SupplierVatRegistrationNumberPage(supplierNumber), supplierVatNumberDetails))
               _              <- sessionRepository.set(updatedAnswers)
             } yield Redirect(
               navigator
-                .nextPage(SupplierVatRegistrationNumberPage, mode, updatedAnswers, NovaUserType.from(request.affinityGroup, request.enrolments))
+                .nextPage(
+                  SupplierVatRegistrationNumberPage(supplierNumber),
+                  mode,
+                  updatedAnswers,
+                  NovaUserType.from(request.affinityGroup, request.enrolments)
+                )
             )
         )
     }
@@ -81,9 +87,9 @@ class SupplierVatRegistrationDetailsController @Inject() (
 }
 
 object SupplierVatRegistrationDetailsController {
-  def guardPredicate(supplierNumber: SupplierNumber)(request: DataRequest[?]): Boolean =
+  def guardPredicate(supplierService: SupplierService, supplierNumber: SupplierNumber)(request: DataRequest[?]): Boolean =
     IsDraftIdDefined(request.userAnswers) &&
       request.userAnswers.get(VehicleFromEuPage).contains(true) &&
-      request.userAnswers.get(IsSupplierVatRegisteredPage).contains(true) &&
-      IsSupplierNumberInSession(request.userAnswers, supplierNumber)
+      request.userAnswers.get(IsSupplierVatRegisteredPage(supplierNumber)).contains(true) &&
+      supplierService.numberExists(request.userAnswers, supplierNumber)
 }

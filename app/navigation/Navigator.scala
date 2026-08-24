@@ -150,7 +150,7 @@ class Navigator @Inject() () {
     case page: IsSupplierVatRegisteredPage =>
       (userAnswers, _) =>
         userAnswers.get(page) match {
-          case Some(true)  =>
+          case Some(true) =>
             supplierdetails.routes.SupplierVatRegistrationDetailsController
               .onPageLoad(page.supplierNumber, NormalMode)
           case Some(false) =>

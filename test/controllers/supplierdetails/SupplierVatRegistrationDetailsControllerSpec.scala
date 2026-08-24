@@ -20,7 +20,7 @@ import base.SpecBase
 import config.FrontendAppConfig
 import controllers.{routes, supplierdetails}
 import forms.SupplierVatRegistrationDetailsFormProvider
-import models.{CheckMode, DraftId, Mode, NormalMode, SupplierNumber, UserAnswers, VatNumberDetails}
+import models.{DraftId, Mode, NormalMode, SupplierNumber, UserAnswers, VatNumberDetails}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
@@ -28,8 +28,10 @@ import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.DraftIdPage
 import pages.sections.initialquestions.VehicleFromEuPage
-import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierNumberPage, SupplierVatRegistrationNumberPage}
+import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierVatRegistrationNumberPage}
 import play.api.inject.bind
+import play.api.libs.json.Json
+import queries.AllSuppliersQuery
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -40,7 +42,7 @@ import scala.concurrent.Future
 
 class SupplierVatRegistrationDetailsControllerSpec extends SpecBase with MockitoSugar {
 
-  private def onwardRoute = Call("GET", "/foo")
+  private def onwardRoute: Call = Call("GET", "/foo")
 
   private val formProvider = new SupplierVatRegistrationDetailsFormProvider()
 
@@ -61,10 +63,10 @@ class SupplierVatRegistrationDetailsControllerSpec extends SpecBase with Mockito
     .set(VehicleFromEuPage, true)
     .success
     .value
-    .set(SupplierNumberPage, 1)
+    .set(AllSuppliersQuery, Map("1" -> Json.obj()))
     .success
     .value
-    .set(IsSupplierVatRegisteredPage, true)
+    .set(IsSupplierVatRegisteredPage(SupplierNumber(1)), true)
     .success
     .value
 
@@ -111,7 +113,7 @@ class SupplierVatRegistrationDetailsControllerSpec extends SpecBase with Mockito
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = userAnswersWithGuardData.set(SupplierVatRegistrationNumberPage, validVatNumberDetails).success.value
+      val userAnswers = userAnswersWithGuardData.set(SupplierVatRegistrationNumberPage(SupplierNumber(1)), validVatNumberDetails).success.value
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
@@ -146,14 +148,14 @@ class SupplierVatRegistrationDetailsControllerSpec extends SpecBase with Mockito
       }
     }
 
-    "must keep the same supplier number when the user returns to change their answer" in {
+    "must save the answer matching that of the supplier number in the URL" in {
 
-      val answersForSupplierThree              = userAnswersWithGuardData.set(SupplierNumberPage, 3).success.value
+      val answersForSupplierThree              = userAnswersWithGuardData.unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj(), "3" -> Json.obj()))
       val (application, mockSessionRepository) = applicationWithMockRepository(answersForSupplierThree)
 
       running(application) {
         val request =
-          FakeRequest(POST, supplierVatRegistrationDetailsSubmitRoute(SupplierNumber(3), CheckMode))
+          FakeRequest(POST, supplierVatRegistrationDetailsSubmitRoute(SupplierNumber(3)))
             .withFormUrlEncodedBody(
               ("countryCode", validVatNumberDetails.countryCode),
               ("vatNumber", validVatNumberDetails.vatNumber)
@@ -164,8 +166,7 @@ class SupplierVatRegistrationDetailsControllerSpec extends SpecBase with Mockito
 
         val answers = savedAnswers(mockSessionRepository)
 
-        answers.get(SupplierNumberPage) mustEqual Some(3)
-        answers.get(IsSupplierVatRegisteredPage) mustEqual Some(true)
+        answers.get(SupplierVatRegistrationNumberPage(SupplierNumber(3))) mustEqual Some(validVatNumberDetails.vatNumber)
       }
     }
 
@@ -226,10 +227,10 @@ class SupplierVatRegistrationDetailsControllerSpec extends SpecBase with Mockito
         .set(VehicleFromEuPage, false)
         .success
         .value
-        .set(SupplierNumberPage, 1)
+        .set(AllSuppliersQuery, Map("1" -> Json.obj()))
         .success
         .value
-        .set(IsSupplierVatRegisteredPage, true)
+        .set(IsSupplierVatRegisteredPage(SupplierNumber(1)), true)
         .success
         .value
 
@@ -253,10 +254,10 @@ class SupplierVatRegistrationDetailsControllerSpec extends SpecBase with Mockito
         .set(VehicleFromEuPage, true)
         .success
         .value
-        .set(SupplierNumberPage, 1)
+        .set(AllSuppliersQuery, Map("1" -> Json.obj()))
         .success
         .value
-        .set(IsSupplierVatRegisteredPage, false) // No on AVD-S8.0
+        .set(IsSupplierVatRegisteredPage(SupplierNumber(1)), false) // No on AVD-S8.0
         .success
         .value
 
@@ -327,7 +328,7 @@ class SupplierVatRegistrationDetailsControllerSpec extends SpecBase with Mockito
       }
     }
 
-    "must redirect to Unauthorised for a GET if there is no supplier number in session" in {
+    "must redirect to Unauthorised for a GET if the user has no suppliers" in {
 
       val answersWithoutSupplierNumber = emptyUserAnswers
         .set(DraftIdPage, DraftId("DRAFT-001"))
