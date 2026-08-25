@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-package controllers.utils
+package pages.sections.supplierdetails
 
-import models.{UserAnswers, VehicleNumber}
-import pages.sections.vehicledetails.VehicleNumberPage
+import models.{SupplierNumber, VatNumberDetails}
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-object IsVehicleNumberInSession {
+final case class SupplierVatRegistrationNumberPage(supplierNumber: SupplierNumber) extends QuestionPage[VatNumberDetails] {
 
-  // AVD2.0 will allocate vehicle numbers, until then only the first vehicle exists
-  def apply(answers: UserAnswers, vehicleNumber: VehicleNumber): Boolean =
-    answers.get(VehicleNumberPage).getOrElse(1) == vehicleNumber.value
+  override def path: JsPath = JsPath \ "suppliers" \ supplierNumber.value.toString \ "details" \ toString
+
+  override def toString: String = "vatNumber"
 }

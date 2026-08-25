@@ -16,7 +16,7 @@
 
 package viewmodels.checkAnswers
 
-import models.{Country, NameDetails, TraderInformation, UserAnswers}
+import models.{Country, TraderInformation, UserAnswers}
 import pages.sections.notifierdetails.{BusinessNamePage, NameDetailsPage}
 import pages.sections.notifieraddress.AddressPage
 import play.api.i18n.Messages
@@ -104,10 +104,7 @@ object SupplierPersonalDetailsSummary {
   private def notProvidedText(implicit messages: Messages): String = messages("usePersonalDetailsAsSupplier.notProvided")
 
   private def sessionName(answers: UserAnswers): Option[String] =
-    answers.get(BusinessNamePage).orElse(answers.get(NameDetailsPage).map(formatName))
-
-  private def formatName(name: NameDetails): String =
-    Seq(name.title, name.firstName, name.lastName).filter(_.nonEmpty).mkString(" ")
+    answers.get(BusinessNamePage).orElse(answers.get(NameDetailsPage).map(_.displayName))
 
   private val isoCountryCodes: Set[String] = Locale.getISOCountries.toSet
 

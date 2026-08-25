@@ -51,6 +51,18 @@ trait SpecBase extends AnyFreeSpec with Matchers with TryValues with OptionValue
     baseApplicationBuilder(userAnswers)
       .overrides(bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeAgentIdentifierAction])
 
+  protected def applicationBuilderWithVatTrader(userAnswers: Option[UserAnswers] = None): GuiceApplicationBuilder =
+    new GuiceApplicationBuilder()
+      .overrides(
+        bind[DataRequiredAction].to[DataRequiredActionImpl],
+        bind[IdentifierAction].to[FakeVatTraderIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("standard")).to[FakeVatTraderIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeVatTraderIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeAgentIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
+        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
+      )
+
   private def baseApplicationBuilder(userAnswers: Option[UserAnswers]): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .overrides(

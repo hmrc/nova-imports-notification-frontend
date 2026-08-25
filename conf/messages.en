@@ -32,6 +32,40 @@ journeyRecovery.continue.title = Sorry, there is a problem with the service
 journeyRecovery.continue.heading = Sorry, there is a problem with the service
 journeyRecovery.continue.guidance = [Add content to explain how to proceed.]
 
+
+####################
+# EU Country Names #
+####################
+
+country.AT = Austria
+country.BE = Belgium
+country.BG = Bulgaria
+country.HR = Croatia
+country.CY = Cyprus
+country.CZ = Czechia
+country.DE = Germany
+country.DK = Denmark
+country.EE = Estonia
+country.EL = Greece
+country.ES = Spain
+country.FI = Finland
+country.FR = France
+country.HU = Hungary
+country.IE = Ireland
+country.IT = Italy
+country.LT = Lithuania
+country.LU = Luxembourg
+country.LV = Latvia
+country.MT = Malta
+country.NL = Netherlands
+country.PL = Poland
+country.PT = Portugal
+country.RO = Romania
+country.SE = Sweden
+country.SI = Slovenia
+country.SK = Slovakia
+
+
 ######################################################
 # ERR2.0 - Error message - System error              #
 ######################################################
@@ -282,7 +316,7 @@ purchaserBusinessName.change.hidden = the purchaser’s business name
 ######################################################
 
 initialQuestionsCheckYourAnswers.caption = Initial questions
-initialQuestionsCheckYourAnswers.title = Check your answers - Initial questions
+initialQuestionsCheckYourAnswers.title = Check your answers - Initial questions - Notification of Vehicle Arrivals - GOV.UK
 initialQuestionsCheckYourAnswers.heading = Check your answers
 
 ########################################################
@@ -458,6 +492,16 @@ purchaserAddressChanged.heading = We’ve changed the purchaser’s address
 purchaserAddressChanged.body = This could be because of invalid characters or some lines are too long.
 purchaserAddressChanged.checkHeading = Check the updated address
 purchaserAddressChanged.changeAddress = Change address
+
+#######################################################
+# CYA5.0 - Check your answers 5.0 - Purchaser address #
+#######################################################
+
+purchaserAddressCheckYourAnswers.caption = Add purchaser address
+purchaserAddressCheckYourAnswers.title = Check your answers - purchaser address
+purchaserAddressCheckYourAnswers.heading = Check your answers
+purchaserAddressCheckYourAnswers.change.hidden = purchaser’s address
+purchaserAddressCheckYourAnswers.checkYourAnswersLabel = Purchaser’s address
 
 ###########################################################
 # Address lookup (ALF) journey labels                     #
@@ -644,7 +688,7 @@ addImportVehicleDetails.error.required = Select how you want to add vehicle deta
 ######################################################
 
 yourDetailsCheckYourAnswers.caption = Add your details
-yourDetailsCheckYourAnswers.title = Check your answers - your details
+yourDetailsCheckYourAnswers.title = Check your answers - your details - Notification of Vehicle Arrivals - GOV.UK
 yourDetailsCheckYourAnswers.heading = Check your answers
 
 ######################################################
@@ -679,9 +723,25 @@ usePersonalDetailsAsSupplier.no.hint = I want to add different supplier details
 usePersonalDetailsAsSupplier.error.required = Select yes if you want to use your personal details as the supplier details
 
 ###########################################################################################
-# AVD-S2.0 - Add vehicle details - Supplier 2.0: Supplier business or private individual  #
+# AVD-S1.1 - Add vehicle details - Supplier 1.1: Use purchaser details as supplier details #
 ###########################################################################################
 
+usePurchaserDetailsAsSupplier.title = Use the purchaser details as the supplier details
+usePurchaserDetailsAsSupplier.caption = Add vehicle details
+usePurchaserDetailsAsSupplier.heading = Use the purchaser details as the supplier details
+usePurchaserDetailsAsSupplier.paragraph.1 = If the purchaser is VAT registered, you can use their details as the supplier details.
+usePurchaserDetailsAsSupplier.purchaserDetails = The purchaser’s details are:
+usePurchaserDetailsAsSupplier.name = Name
+usePurchaserDetailsAsSupplier.address = Address
+usePurchaserDetailsAsSupplier.notProvided = Not provided
+usePurchaserDetailsAsSupplier.question = Do you want to use the purchaser details as the supplier details?
+usePurchaserDetailsAsSupplier.yes.hint = The purchaser is VAT registered and I want to use their details as the supplier details
+usePurchaserDetailsAsSupplier.no.hint = I want to add different supplier details
+usePurchaserDetailsAsSupplier.error.required = Select yes if you want to use the purchaser details as the supplier details
+
+###########################################################################################
+# AVD-S2.0 - Add vehicle details - Supplier 2.0: Supplier business or private individual  #
+###########################################################################################
 supplierBusinessOrIndividual.title = Is the supplier a business or private individual?
 supplierBusinessOrIndividual.heading = Is the supplier a business or private individual?
 supplierBusinessOrIndividual.caption = Add vehicle details
@@ -755,6 +815,21 @@ isSupplierVatRegistered.heading = Is the supplier VAT registered?
 isSupplierVatRegistered.caption = Add vehicle details
 isSupplierVatRegistered.error.required = Select yes if the supplier is VAT registered
 
+####################################################################################
+# AVD-S8.1 - Add vehicle details - Supplier 8.1: Supplier VAT Registration Details #
+####################################################################################
+
+supplierVatRegistrationDetails.title = Enter the supplier’s VAT registration details
+supplierVatRegistrationDetails.heading = Enter the supplier’s VAT registration details
+supplierVatRegistrationDetails.caption = Add vehicle details
+supplierVatRegistrationDetails.paragraph.1 = You must provide the country where the supplier is VAT registered and the VAT registration number. You can find these details on the supplier’s invoice.
+supplierVatRegistrationDetails.label.country = Country of VAT registration
+supplierVatRegistrationDetails.label.vatNumber = VAT registration number
+supplierVatRegistrationDetails.hint.vatNumber = Enter as shown on the supplier’s invoice. Do not include the 2-letter country code at the start
+supplierVatRegistrationDetails.country.error.required = Enter the country where the supplier is VAT registered
+supplierVatRegistrationDetails.vatNumber.error.required = Enter the supplier’s VAT registration number
+supplierVatRegistrationDetails.vatNumber.error.format = Enter the supplier’s VAT registration number in the correct format for the selected country
+
 #####################################################################
 # AVD3.0 - Add vehicle details 3.0: Which vehicle dates do you have #
 #####################################################################
@@ -763,7 +838,7 @@ vehicleDates.title = Which dates do you have for the vehicle?
 vehicleDates.heading = Which dates do you have for the vehicle?
 vehicleDates.caption = Add vehicle details
 vehicleDates.hint = Select all that apply
-vehicleDates.error.required = Select if you have the purchase invoice date, date of availability and date of first registration, or if you do not have any of these dates
+vehicleDates.error.required = Select if you have the date the vehicle was made available and date of first registration, purchase invoice date or none of these dates
 vehicleDates.checkbox.purchaseInvoiceDate = Purchase invoice date
 vehicleDates.checkbox.availabilityAndFirstRegistration = Date the vehicle was made available and date of first registration
 vehicleDates.or = or
@@ -778,3 +853,21 @@ yourAddressCheckYourAnswers.title = Check your answers - your address
 yourAddressCheckYourAnswers.heading = Check your answers
 yourAddressCheckYourAnswers.change.hidden = your address
 yourAddressCheckYourAnswers.checkYourAnswersLabel = Address
+
+###############################################################################
+# AVD2.0 - Add vehicle details 2.0: Vehicles bought from [supplierName]       #
+###############################################################################
+
+vehiclesBoughtFromSupplier.title = Vehicles bought from this supplier
+vehiclesBoughtFromSupplier.caption = Add vehicle details
+vehiclesBoughtFromSupplier.heading = Vehicles bought from {0}
+vehiclesBoughtFromSupplier.heading.noSupplierName = Vehicles bought from this supplier
+vehiclesBoughtFromSupplier.paragraph.1 = Add one vehicle at a time.
+vehiclesBoughtFromSupplier.paragraph.2 = For each vehicle, you must provide either the:
+vehiclesBoughtFromSupplier.bullet.1 = purchase invoice date
+vehiclesBoughtFromSupplier.bullet.2 = date the vehicle was made available to you and the date it was first registered for road use
+vehiclesBoughtFromSupplier.inset.paragraph.1 = If you cannot provide any of these dates, You cannot continue this notification online. You need to {0}.
+vehiclesBoughtFromSupplier.inset.contactPersonalTransportUnit.linkText = contact HMRC Personal Transport Unit
+vehiclesBoughtFromSupplier.whereToFindDates.heading = Where to find these dates
+vehiclesBoughtFromSupplier.whereToFindDates.paragraph.1 = You can usually find the date of first registration in the vehicle log book. You can find the invoice date on the purchase invoice.
+vehiclesBoughtFromSupplier.addVehicle = Add vehicle

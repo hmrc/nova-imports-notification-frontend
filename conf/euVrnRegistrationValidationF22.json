@@ -1,0 +1,112 @@
+{
+  "euVrnRegistrationValidationList": [
+    {
+      "code": "AT",
+      "regex-vrn-validation": "U[0-9]{8}"
+    },
+    {
+      "code": "BE",
+      "regex-vrn-validation": "0[0-9]{9}"
+    },
+    {
+      "code": "BG",
+      "regex-vrn-validation": "[0-9]{9,10}"
+    },
+    {
+      "code": "HR",
+      "regex-vrn-validation": "[0-9]{11}"
+    },
+    {
+      "code": "CY",
+      "regex-vrn-validation": "[0-9]{8}[A-Z]{1}"
+    },
+    {
+      "code": "CZ",
+      "regex-vrn-validation": "[0-9]{8,10}"
+    },
+    {
+      "code": "DE",
+      "regex-vrn-validation": "[0-9]{9}"
+    },
+    {
+      "code": "DK",
+      "regex-vrn-validation": "[0-9]{8}"
+    },
+    {
+      "code": "EE",
+      "regex-vrn-validation": "[0-9]{9}"
+    },
+    {
+      "code": "EL",
+      "regex-vrn-validation": "[0-9]{9}"
+    },
+    {
+      "code": "ES",
+      "regex-vrn-validation": "[A-Z]{1}[0-9]{8}|[0-9]{8}[A-Z]{1}|[A-Z]{1}[0-9]{7}[A-Z]{1}"
+    },
+    {
+      "code": "FI",
+      "regex-vrn-validation": "[0-9]{8}"
+    },
+    {
+      "code": "FR",
+      "regex-vrn-validation": "[A-HJ-NP-Z0-9]{1}[A-HJ-NP-Z0-9]{1}[0-9]{9}"
+    },
+    {
+      "code": "HU",
+      "regex-vrn-validation": "[0-9]{8}"
+    },
+    {
+      "code": "IE",
+      "regex-vrn-validation": "[0-9]{7}[A-Z]{1}|[0-9]{1}[A-Z]{1}[0-9]{5}[A-Z]{1}|[0-9]{7}[A-Z]{2}"
+    },
+    {
+      "code": "IT",
+      "regex-vrn-validation": "[0-9]{11}"
+    },
+    {
+      "code": "LT",
+      "regex-vrn-validation": "[0-9]{9}|[0-9]{12}"
+    },
+    {
+      "code": "LU",
+      "regex-vrn-validation": "[0-9]{8}"
+    },
+    {
+      "code": "LV",
+      "regex-vrn-validation": "[0-9]{11}"
+    },
+    {
+      "code": "MT",
+      "regex-vrn-validation": "[0-9]{8}"
+    },
+    {
+      "code": "NL",
+      "regex-vrn-validation": "[0-9]{9}B[0-9]{2}"
+    },
+    {
+      "code": "PL",
+      "regex-vrn-validation": "[0-9]{10}"
+    },
+    {
+      "code": "PT",
+      "regex-vrn-validation": "[0-9]{9}"
+    },
+    {
+      "code": "RO",
+      "regex-vrn-validation": "[0-9]{2,10}"
+    },
+    {
+      "code": "SE",
+      "regex-vrn-validation": "[0-9]{12}"
+    },
+    {
+      "code": "SI",
+      "regex-vrn-validation": "[0-9]{8}"
+    },
+    {
+      "code": "SK",
+      "regex-vrn-validation": "[0-9]{10}"
+    }
+  ]
+}

@@ -18,6 +18,7 @@ package models
 
 import play.api.mvc.PathBindable
 
+// Vehicle number always starts at 1 and runs across the whole notification, not per supplier or import
 final case class VehicleNumber(value: Int)
 
 object VehicleNumber {

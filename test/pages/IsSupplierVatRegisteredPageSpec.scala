@@ -17,16 +17,17 @@
 package pages
 
 import base.SpecBase
+import models.SupplierNumber
 import pages.sections.supplierdetails.IsSupplierVatRegisteredPage
 
 class IsSupplierVatRegisteredPageSpec extends SpecBase {
 
   "IsSupplierVatRegisteredPage" - {
 
-    "must store the answer at the supplier-details path" in {
-      val answers = emptyUserAnswers.unsafeSet(IsSupplierVatRegisteredPage, true)
+    "must store the answer under the supplier it belongs to" in {
+      val answers = emptyUserAnswers.unsafeSet(IsSupplierVatRegisteredPage(SupplierNumber(2)), true)
 
-      (answers.data \ "supplier-details" \ "isSupplierVatRegistered").as[Boolean] mustBe true
+      (answers.data \ "suppliers" \ "2" \ "details" \ "isSupplierVatRegistered").as[Boolean] mustBe true
     }
   }
 }

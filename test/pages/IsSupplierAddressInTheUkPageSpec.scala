@@ -17,16 +17,17 @@
 package pages
 
 import base.SpecBase
+import models.SupplierNumber
 import pages.sections.supplieraddress.IsSupplierAddressInTheUkPage
 
 class IsSupplierAddressInTheUkPageSpec extends SpecBase {
 
   "IsSupplierAddressInTheUkPage" - {
 
-    "must store the answer at the supplier-details path" in {
-      val answers = emptyUserAnswers.unsafeSet(IsSupplierAddressInTheUkPage, true)
+    "must store the answer under the supplier it belongs to" in {
+      val answers = emptyUserAnswers.unsafeSet(IsSupplierAddressInTheUkPage(SupplierNumber(2)), true)
 
-      (answers.data \ "supplier-details" \ "isSupplierAddressInTheUk").as[Boolean] mustBe true
+      (answers.data \ "suppliers" \ "2" \ "isSupplierAddressInTheUk").as[Boolean] mustBe true
     }
   }
 }

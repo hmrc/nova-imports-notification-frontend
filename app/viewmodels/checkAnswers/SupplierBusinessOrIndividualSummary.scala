@@ -18,7 +18,7 @@ package viewmodels.checkAnswers
 
 import controllers.supplierdetails.routes
 import models.{BusinessOrPrivateIndividual, CheckMode, SupplierNumber, UserAnswers}
-import pages.sections.supplierdetails.{SupplierBusinessOrIndividualPage, SupplierNumberPage}
+import pages.sections.supplierdetails.SupplierBusinessOrIndividualPage
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
@@ -26,10 +26,8 @@ import viewmodels.implicits.*
 
 object SupplierBusinessOrIndividualSummary {
 
-  def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(SupplierBusinessOrIndividualPage).map { answer =>
-
-      val supplierNumber = SupplierNumber(answers.get(SupplierNumberPage).getOrElse(1))
+  def row(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages): Option[SummaryListRow] =
+    answers.get(SupplierBusinessOrIndividualPage(supplierNumber)).map { answer =>
 
       val value = answer match {
         case BusinessOrPrivateIndividual.Business          => "supplierBusinessOrIndividual.radio.business"

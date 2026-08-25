@@ -25,7 +25,7 @@ import play.api.Logging
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
-import services.{AddressSanitiser, AddressValidator}
+import services.{AddressSanitiser, AddressValidator, SupplierService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
@@ -36,7 +36,8 @@ class AddressLookupCallbackController @Inject() (
   sessionRepository: SessionRepository,
   actions: Actions,
   addressLookupConnector: AddressLookupConnector,
-  backendConnector: NovaImportsBackendConnector
+  backendConnector: NovaImportsBackendConnector,
+  supplierService: SupplierService
 )(implicit ec: ExecutionContext)
     extends BaseController
     with Logging {
@@ -51,7 +52,7 @@ class AddressLookupCallbackController @Inject() (
     handleCallback(AddressJourney.Purchaser, id)
 
   private def handleCallback(journey: AddressJourney, id: Option[String]): Action[AnyContent] = {
-    val binding = AddressJourneyBinding(journey)
+    val binding = AddressJourneyBinding(journey, supplierService)
 
     actions.authAndGetDataWithUserTypeGuard(binding.guard).async { implicit request =>
       implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)

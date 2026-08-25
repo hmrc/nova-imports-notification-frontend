@@ -22,7 +22,10 @@ final case class NameDetails(
   title: String,
   firstName: String,
   lastName: String
-)
+) {
+
+  def displayName: String = List(title, firstName, lastName).filter(_.nonEmpty).mkString(" ")
+}
 
 object NameDetails {
   implicit val format: OFormat[NameDetails] = Json.format[NameDetails]
