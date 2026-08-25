@@ -59,6 +59,7 @@ class InitialQuestionsCheckYourAnswersViewSpec extends SpecBase with Matchers wi
       val html: String = view(userContext, answers)(request, msgs).toString
 
       html must include(msgs("initialQuestionsCheckYourAnswers.title"))
+      html must include("<title>Check your answers - Initial questions - Notification of Vehicle Arrivals - GOV.UK</title>")
     }
 
     "must render the caption" in {
