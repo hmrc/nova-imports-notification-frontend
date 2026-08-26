@@ -18,7 +18,7 @@ package navigation
 
 import javax.inject.{Inject, Singleton}
 import play.api.mvc.Call
-import controllers.{initialquestions, notifierdetails, purchaserdetails, routes, supplieraddress, supplierdetails}
+import controllers.{initialquestions, notifierdetails, purchaserdetails, routes, supplieraddress, supplierdetails, vehicledetails}
 import pages.*
 import models.*
 import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
@@ -90,7 +90,7 @@ class Navigator @Inject() () {
       (userAnswers, _) =>
         userAnswers.get(AddVehicleDetailsPage) match {
           case Some(AddVehicleDetails.BySpreadsheet) =>
-            routes.LandingPageController.onPageLoad() // TODO: navigate to spreadsheet upload flow when built
+            vehicledetails.routes.UploadVehicleSpreadsheetController.onPageLoad()
           case _ => routes.JourneyRecoveryController.onPageLoad()
         }
     case AddImportVehicleDetailsPage =>
@@ -100,7 +100,7 @@ class Navigator @Inject() () {
           case Some(AddImportVehicleDetails.ByImportEntryNumber) =>
             routes.LandingPageController.onPageLoad() // TODO: navigate to the import entry number flow when built
           case Some(AddImportVehicleDetails.BySpreadsheet) =>
-            routes.LandingPageController.onPageLoad() // TODO: navigate to spreadsheet upload flow when built
+            vehicledetails.routes.UploadVehicleSpreadsheetController.onPageLoad()
           case _ => routes.JourneyRecoveryController.onPageLoad()
         }
     case page: UsePersonalDetailsAsSupplierPage =>

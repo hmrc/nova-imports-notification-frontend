@@ -18,8 +18,8 @@ package connectors
 
 import com.google.inject.Inject
 import config.FrontendAppConfig
-import models.responses.CreateDraftResponse
-import models.{DraftId, DraftNotification, NotificationSummary, TraderInformation}
+import models.responses.{CreateDraftResponse, CreateUploadTrackingResponse}
+import models.{DraftId, DraftNotification, NotificationSummary, SpreadsheetValidationType, TraderInformation}
 import play.api.libs.json.{JsObject, JsSuccess, Json}
 import play.api.libs.ws.writeableOf_JsValue
 import uk.gov.hmrc.http.HttpReads.Implicits.*
@@ -53,6 +53,13 @@ object GetDraftNotificationError {
   final case class UpstreamError(status: Int, message: String) extends GetDraftNotificationError
 }
 
+sealed trait CreateUploadTrackingError
+object CreateUploadTrackingError {
+  case object Forbidden extends CreateUploadTrackingError
+  case object NotFound extends CreateUploadTrackingError
+  final case class UpstreamError(status: Int, message: String) extends CreateUploadTrackingError
+}
+
 sealed trait GetTraderInformationError
 object GetTraderInformationError {
   case object NotFound extends GetTraderInformationError
@@ -72,6 +79,10 @@ trait NovaImportsBackendConnector {
   def getDraftNotification(draftId: DraftId)(implicit hc: HeaderCarrier): Future[Either[GetDraftNotificationError, DraftNotification]]
 
   def getTraderInformation()(implicit hc: HeaderCarrier): Future[Either[GetTraderInformationError, TraderInformation]]
+
+  def createUploadTracking(draftId: DraftId, validationType: SpreadsheetValidationType)(implicit
+    hc: HeaderCarrier
+  ): Future[Either[CreateUploadTrackingError, CreateUploadTrackingResponse]]
 }
 
 class NovaImportsBackendConnectorImpl @Inject() (
@@ -189,4 +200,24 @@ class NovaImportsBackendConnectorImpl @Inject() (
         }
       }
   }
+
+  override def createUploadTracking(draftId: DraftId, validationType: SpreadsheetValidationType)(implicit
+    hc: HeaderCarrier
+  ): Future[Either[CreateUploadTrackingError, CreateUploadTrackingResponse]] =
+    httpClient
+      .post(url"${serviceUrl(s"/draft-notifications/${draftId.value}/create-upload-tracking")}")
+      .withBody(Json.obj("validationType" -> validationType))
+      .execute[HttpResponse]
+      .map { response =>
+        response.status match {
+          case 201 =>
+            response.json
+              .validate[CreateUploadTrackingResponse]
+              .map(Right(_))
+              .recoverTotal(err => Left(CreateUploadTrackingError.UpstreamError(201, s"Malformed create upload tracking response: $err")))
+          case 403 => Left(CreateUploadTrackingError.Forbidden)
+          case 404 => Left(CreateUploadTrackingError.NotFound)
+          case s   => Left(CreateUploadTrackingError.UpstreamError(s, response.body))
+        }
+      }
 }
