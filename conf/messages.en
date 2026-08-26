@@ -7,6 +7,7 @@ site.no = No
 site.yes = Yes
 site.continue = Continue
 site.saveAndContinue = Save and continue
+site.confirmDetails = Confirm details
 site.start = Start now
 site.startAgain = Start again
 site.signIn = Sign in
@@ -762,6 +763,8 @@ supplierBusinessName.caption = Add vehicle details
 supplierBusinessName.error.required = Enter the supplier’s business name
 supplierBusinessName.error.length = The supplier’s business name must be 160 characters or less
 supplierBusinessName.error.invalid = Enter the supplier’s business name in the correct format
+supplierBusinessName.checkYourAnswersLabel = Supplier’s business name
+supplierBusinessName.change.hidden = supplier’s business name
 
 ###########################################################################################
 # AVD-S7.0 - Add vehicle details - Supplier 7.0: We've changed the supplier's address      #
@@ -795,7 +798,7 @@ supplierName.lastName.error.format = Enter the supplier’s last name in the cor
 supplierName.lastName.error.length = The supplier’s last name must be 100 characters or less
 supplierName.lastName.error.required = Enter the supplier’s last name
 supplierName.checkYourAnswersLabel = Supplier’s name
-supplierName.change.hidden = the supplier’s name
+supplierName.change.hidden = supplier’s name
 
 #############################################################################
 # AVD-S5.0 - Add vehicle details - Supplier 5.0: Supplier address in the UK #
@@ -814,6 +817,8 @@ isSupplierVatRegistered.title = Is the supplier VAT registered?
 isSupplierVatRegistered.heading = Is the supplier VAT registered?
 isSupplierVatRegistered.caption = Add vehicle details
 isSupplierVatRegistered.error.required = Select yes if the supplier is VAT registered
+isSupplierVatRegistered.checkYourAnswersLabel = Is the supplier VAT registered?
+isSupplierVatRegistered.change.hidden = whether supplier is VAT registered
 
 ####################################################################################
 # AVD-S8.1 - Add vehicle details - Supplier 8.1: Supplier VAT Registration Details #
@@ -829,6 +834,18 @@ supplierVatRegistrationDetails.hint.vatNumber = Enter as shown on the supplier�
 supplierVatRegistrationDetails.country.error.required = Enter the country where the supplier is VAT registered
 supplierVatRegistrationDetails.vatNumber.error.required = Enter the supplier’s VAT registration number
 supplierVatRegistrationDetails.vatNumber.error.format = Enter the supplier’s VAT registration number in the correct format for the selected country
+supplierVatRegistrationDetails.checkYourAnswersLabel = Supplier’s VAT registration details
+supplierVatRegistrationDetails.change.hidden = supplier’s VAT registration details
+
+######################################################
+# AVD-S9.0 - Check Your Answers 3 - Supplier Details #
+######################################################
+
+supplierDetailsCheckYourAnswers.caption = Add vehicle details
+supplierDetailsCheckYourAnswers.title = Check the supplier details before adding vehicles
+supplierDetailsCheckYourAnswers.heading = Check the supplier details before adding vehicles
+supplierAddressCheckYourAnswers.checkYourAnswersLabel = Supplier’s address
+supplierAddressCheckYourAnswers.change.hidden = supplier’s address
 
 #####################################################################
 # AVD3.0 - Add vehicle details 3.0: Which vehicle dates do you have #

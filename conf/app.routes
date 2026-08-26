@@ -184,6 +184,10 @@ GET         /supplier/:supplierNumber/supplier-address-changed                  
 POST        /supplier/:supplierNumber/supplier-address-changed                           controllers.AddressChangedController.supplierOnSubmit(supplierNumber: SupplierNumber)
 GET         /supplier/:supplierNumber/supplier-address-changed/change-address            controllers.AddressChangedController.supplierOnChangeAddress(supplierNumber: SupplierNumber)
 
+GET         /supplier/:supplierNumber/confirm-supplier-details                           controllers.supplierdetails.SupplierDetailsCheckYourAnswersController.onPageLoad(supplierNumber: SupplierNumber)
+POST        /supplier/:supplierNumber/confirm-supplier-details                           controllers.supplierdetails.SupplierDetailsCheckYourAnswersController.onSubmit(supplierNumber: SupplierNumber)
+GET         /supplier/:supplierNumber/confirm-supplier-details/change-address            controllers.supplierdetails.SupplierDetailsCheckYourAnswersController.onChangeAddress(supplierNumber: SupplierNumber)
+
 GET         /supplier/:supplierNumber/vehicles-bought-from-supplier                      controllers.vehicledetails.VehiclesBoughtFromSupplierController.onPageLoad(supplierNumber: SupplierNumber)
 POST        /supplier/:supplierNumber/vehicles-bought-from-supplier                      controllers.vehicledetails.VehiclesBoughtFromSupplierController.onSubmit(supplierNumber: SupplierNumber)
 
