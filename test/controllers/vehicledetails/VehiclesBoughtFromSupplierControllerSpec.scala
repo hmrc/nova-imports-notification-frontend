@@ -27,7 +27,8 @@ import org.scalatestplus.mockito.MockitoSugar
 import pages.DraftIdPage
 import pages.sections.initialquestions.{BusinessOrPrivatePage, VehicleBusinessUsePage, VehicleFromEuPage}
 import pages.sections.notifierdetails.{BusinessNamePage, NameDetailsPage}
-import pages.sections.supplierdetails.{SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, UsePersonalDetailsAsSupplierPage}
+import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
+import pages.sections.supplierdetails.{SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
 import play.api.inject.bind
 import play.api.libs.json.Json
 import queries.{AllSuppliersQuery, AllVehiclesQuery}
@@ -211,6 +212,36 @@ class VehiclesBoughtFromSupplierControllerSpec extends SpecBase with MockitoSuga
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+
+    "must render the purchaser's name in the heading when using purchaser details as the supplier" in {
+
+      val answers = userAnswersWithGuardData
+        .unsafeSet(UsePurchaserDetailsAsSupplierPage(supplierNumber), true)
+        .unsafeSet(PurchaserNamePage, NameDetails("Mr", "John", "Smith"))
+
+      val application = applicationBuilder(userAnswers = Some(answers)).build()
+
+      running(application) {
+        val result = route(application, FakeRequest(GET, vehiclesBoughtFromSupplierRoute)).value
+
+        contentAsString(result) must include("Vehicles bought from Mr John Smith")
+      }
+    }
+
+    "must render the purchaser's business name in the heading when using purchaser details as the supplier" in {
+
+      val answers = userAnswersWithGuardData
+        .unsafeSet(UsePurchaserDetailsAsSupplierPage(supplierNumber), true)
+        .unsafeSet(PurchaserBusinessNamePage, "ABC Ltd")
+
+      val application = applicationBuilder(userAnswers = Some(answers)).build()
+
+      running(application) {
+        val result = route(application, FakeRequest(GET, vehiclesBoughtFromSupplierRoute)).value
+
+        contentAsString(result) must include("Vehicles bought from ABC Ltd")
       }
     }
 
