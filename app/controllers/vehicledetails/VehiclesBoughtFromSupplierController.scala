@@ -26,7 +26,7 @@ import models.requests.DataRequest
 import models.{BusinessOrPrivateIndividual, NormalMode, SupplierNumber}
 import pages.sections.initialquestions.{BusinessOrPrivatePage, VehicleFromEuPage}
 import pages.sections.notifierdetails.{BusinessNamePage, NameDetailsPage}
-import pages.sections.supplierdetails.{SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, UsePersonalDetailsAsSupplierPage}
+import pages.sections.supplierdetails.{SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{SupplierService, VehicleService}
@@ -68,10 +68,14 @@ class VehiclesBoughtFromSupplierController @Inject() (
     }
 
   private def supplierName(supplierNumber: SupplierNumber)(implicit request: DataRequest[?]): Future[Option[String]] =
-    request.userAnswers.get(UsePersonalDetailsAsSupplierPage(supplierNumber)) match {
-      case Some(true) if request.userContext.usesTraderDetails => traderName
-      case Some(true)                                          => Future.successful(notifierName)
-      case _                                                   => Future.successful(enteredSupplierName(supplierNumber))
+    (
+      request.userAnswers.get(UsePersonalDetailsAsSupplierPage(supplierNumber)),
+      request.userAnswers.get(UsePurchaserDetailsAsSupplierPage(supplierNumber))
+    ) match {
+      case (Some(true), _) if request.userContext.usesTraderDetails => traderName
+      case (Some(true), _)                                          => Future.successful(notifierName)
+      case (_, Some(true))                                          => Future.successful(request.userAnswers.purchaserName)
+      case _                                                        => Future.successful(enteredSupplierName(supplierNumber))
     }
 
   private def notifierName(implicit request: DataRequest[?]): Option[String] =

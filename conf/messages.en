@@ -538,10 +538,10 @@ addressLookup.error.line1Required = Enter address line 1, typically the building
 addressLookup.error.line2Required = Enter address line 2
 addressLookup.error.townRequired = Enter address line 4
 addressLookup.error.countryRequired = Enter a country
-addressLookup.error.countryPickerRequired = Select country or territory of your address
+addressLookup.error.countryPickerRequired = Enter the country or territory of your address
 # Same wording as ALF's defaults, declared here so the copy is ours to change and translate
-addressLookup.countryPicker.title = Select your country or territory
-addressLookup.countryPicker.heading = Select your country or territory
+addressLookup.countryPicker.title = Enter the country or territory of your address
+addressLookup.countryPicker.heading = Enter the country or territory of your address
 addressLookup.countryPicker.countryLabel = Select country or territory
 
 ###############################################################################
