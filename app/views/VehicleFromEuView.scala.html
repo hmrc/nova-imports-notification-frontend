@@ -26,7 +26,7 @@
     hmrcNewTabLinkHelper: HmrcNewTabLinkHelper
 )
 
-@(form: Form[_], mode: Mode, importingVehiclesIntoTheUKUrl: String, euCountriesUrl: String)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode, importingVehiclesIntoTheUKUrl: String, euCountriesUrl: String, showAdditionalGuidance: Boolean)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = title(form, messages("vehicleFromEu.title"))) {
 
@@ -40,10 +40,13 @@
 
         <h1 class="govuk-heading-l">@messages("vehicleFromEu.title")</h1>
 
-        <p class="govuk-body">@messages("vehicleFromEu.paragraph.1")</p>
+        @* Paragraphs 1 and 2 are only shown to private individuals and non-VAT organisations (user types 1 and 2). *@
+        @if(showAdditionalGuidance) {
+            <p class="govuk-body">@messages("vehicleFromEu.paragraph.1")</p>
 
-        <p class="govuk-body">@Html(messages("vehicleFromEu.paragraph.2",
-            hmrcNewTabLinkHelper(LinkViewModel(messages("vehicleFromEu.paragraph.2.linkText"), importingVehiclesIntoTheUKUrl))))</p>
+            <p class="govuk-body">@Html(messages("vehicleFromEu.paragraph.2",
+                hmrcNewTabLinkHelper(LinkViewModel(messages("vehicleFromEu.paragraph.2.linkText"), importingVehiclesIntoTheUKUrl))))</p>
+        }
 
         <p class="govuk-body">@Html(messages("vehicleFromEu.paragraph.3",
             hmrcNewTabLinkHelper(LinkViewModel(messages("vehicleFromEu.paragraph.3.linkText"), euCountriesUrl))))</p>
