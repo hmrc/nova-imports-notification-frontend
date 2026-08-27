@@ -17,7 +17,6 @@
 package viewmodels.checkAnswers
 
 import models.{Country, NameDetails, UserAnswers}
-import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 import pages.sections.purchaseraddress.PurchaserAddressPage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
@@ -39,7 +38,7 @@ object SupplierPurchaserDetailsSummary {
     // A UK address ends with the postcode; a non-UK address ends with the country name.
     val lastPart = address.flatMap(a => if (a.country.code == "GB") a.postcode else Some(countryName(a.country)))
 
-    rows(purchaserName(answers), addressDisplayLines(lines.lift(0), lines.lift(1), lines.lift(2), lines.lift(3), lastPart))
+    rows(answers.purchaserName, addressDisplayLines(lines.lift(0), lines.lift(1), lines.lift(2), lines.lift(3), lastPart))
   }
 
   private def rows(name: Option[String], addressLines: Seq[String])(implicit messages: Messages): Seq[SummaryListRow] =
@@ -87,12 +86,6 @@ object SupplierPurchaserDetailsSummary {
   private def notProvided(implicit messages: Messages): String = HtmlFormat.escape(notProvidedText).body
 
   private def notProvidedText(implicit messages: Messages): String = messages("usePurchaserDetailsAsSupplier.notProvided")
-
-  private def purchaserName(answers: UserAnswers): Option[String] =
-    answers.get(PurchaserBusinessNamePage).orElse(answers.get(PurchaserNamePage).map(formatName))
-
-  private def formatName(name: NameDetails): String =
-    Seq(name.title, name.firstName, name.lastName).filter(_.nonEmpty).mkString(" ")
 
   private val isoCountryCodes: Set[String] = Locale.getISOCountries.toSet
 

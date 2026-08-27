@@ -22,8 +22,8 @@ import controllers.BaseController
 import controllers.actions.Actions
 import controllers.routes
 import controllers.utils.IsDraftIdDefined
-import controllers.vehicledetails.UploadVehicleSpreadsheetController.guardPredicate
-import models.SpreadsheetValidationType
+import controllers.vehicledetails.UploadVehicleSpreadsheetController.{guardPredicate, spreadsheetValidationTypeFor}
+import models.{SpreadsheetValidationType, UserAnswers}
 import models.requests.DataRequest
 import pages.DraftIdPage
 import pages.sections.initialquestions.VehicleFromEuPage
@@ -46,8 +46,8 @@ class UploadVehicleSpreadsheetController @Inject() (
 
   def onPageLoad(): Action[AnyContent] =
     actions.authAndGetDataWithUserTypeGuard(guardPredicate).async { implicit request =>
-      val validationType =
-        if (request.userAnswers.get(VehicleFromEuPage).contains(true)) SpreadsheetValidationType.CarsEu else SpreadsheetValidationType.CarsNonEu
+      // TODO - Will update once spreadsheet selection page is done
+      val validationType = spreadsheetValidationTypeFor(request.userAnswers)
 
       connector.createUploadTracking(request.userAnswers.get(DraftIdPage).get, validationType).map {
         case Right(uploadTracking) =>
@@ -65,4 +65,7 @@ object UploadVehicleSpreadsheetController {
     IsDraftIdDefined(request.userAnswers) &&
       request.userAnswers.get(VehicleFromEuPage).isDefined &&
       (request.userContext.isVatRegisteredOrganisation || request.userContext.isAgentWithClient)
+
+  private def spreadsheetValidationTypeFor(answers: UserAnswers): SpreadsheetValidationType =
+    if (answers.get(VehicleFromEuPage).contains(true)) SpreadsheetValidationType.CarsEu else SpreadsheetValidationType.CarsNonEu
 }
