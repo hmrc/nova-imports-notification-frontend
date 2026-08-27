@@ -17,7 +17,9 @@
 package controllers.initialquestions
 
 import base.SpecBase
+import com.google.inject.name.Names
 import config.FrontendAppConfig
+import controllers.actions.*
 import controllers.{initialquestions, routes}
 import forms.VehicleFromEuFormProvider
 import models.{NormalMode, UserAnswers}
@@ -26,7 +28,9 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import pages.sections.initialquestions.VehicleFromEuPage
+import play.api.Application
 import play.api.inject.bind
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -44,6 +48,19 @@ class VehicleFromEuControllerSpec extends SpecBase with MockitoSugar {
 
   lazy val vehicleFromEuRoute = initialquestions.routes.VehicleFromEuController.onPageLoad(NormalMode).url
 
+  private def applicationWithStandardIdentifier(standardIdentifier: Class[? <: IdentifierAction]): Application =
+    new GuiceApplicationBuilder()
+      .overrides(
+        bind[DataRequiredAction].to[DataRequiredActionImpl],
+        bind[IdentifierAction].to[FakeIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("standard")).to(standardIdentifier),
+        bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
+        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(Some(emptyUserAnswers)))
+      )
+      .build()
+
   "VehicleFromEu Controller" - {
 
     "must return OK and the correct view for a GET" in {
@@ -59,7 +76,7 @@ class VehicleFromEuControllerSpec extends SpecBase with MockitoSugar {
         val appConfig = application.injector.instanceOf[FrontendAppConfig]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode, appConfig.importingVehiclesIntoTheUKUrl, appConfig.euCountriesUrl)(
+        contentAsString(result) mustEqual view(form, NormalMode, appConfig.importingVehiclesIntoTheUKUrl, appConfig.euCountriesUrl, true)(
           request,
           messages(application)
         ).toString
@@ -85,7 +102,8 @@ class VehicleFromEuControllerSpec extends SpecBase with MockitoSugar {
           form.fill(true),
           NormalMode,
           appConfig.importingVehiclesIntoTheUKUrl,
-          appConfig.euCountriesUrl
+          appConfig.euCountriesUrl,
+          true
         )(request, messages(application)).toString
       }
     }
@@ -137,8 +155,50 @@ class VehicleFromEuControllerSpec extends SpecBase with MockitoSugar {
           boundForm,
           NormalMode,
           appConfig.importingVehiclesIntoTheUKUrl,
-          appConfig.euCountriesUrl
+          appConfig.euCountriesUrl,
+          true
         )(request, messages(application)).toString
+      }
+    }
+
+    "must show the first two paragraphs for a private individual (user type 1)" in {
+      val application = applicationWithStandardIdentifier(classOf[FakeIdentifierAction])
+
+      running(application) {
+        val request = FakeRequest(GET, vehicleFromEuRoute)
+        val result  = route(application, request).value
+
+        status(result) mustEqual OK
+        contentAsString(result) must include(messages(application)("vehicleFromEu.paragraph.1"))
+        contentAsString(result) must include(messages(application)("vehicleFromEu.paragraph.2.linkText"))
+      }
+    }
+
+    "must not show the first two paragraphs for a VAT-registered organisation (user type 4/5)" in {
+      val application = applicationWithStandardIdentifier(classOf[FakeVatTraderIdentifierAction])
+
+      running(application) {
+        val request = FakeRequest(GET, vehicleFromEuRoute)
+        val result  = route(application, request).value
+
+        status(result) mustEqual OK
+        contentAsString(result) must not include messages(application)("vehicleFromEu.paragraph.1")
+        contentAsString(result) must not include messages(application)("vehicleFromEu.paragraph.2.linkText")
+        // The EU countries paragraph remains for all user types
+        contentAsString(result) must include(messages(application)("vehicleFromEu.paragraph.3.linkText"))
+      }
+    }
+
+    "must not show the first two paragraphs for an agent (user type 3/6)" in {
+      val application = applicationWithStandardIdentifier(classOf[FakeAgentIdentifierAction])
+
+      running(application) {
+        val request = FakeRequest(GET, vehicleFromEuRoute)
+        val result  = route(application, request).value
+
+        status(result) mustEqual OK
+        contentAsString(result) must not include messages(application)("vehicleFromEu.paragraph.1")
+        contentAsString(result) must not include messages(application)("vehicleFromEu.paragraph.2.linkText")
       }
     }
 
