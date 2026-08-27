@@ -68,6 +68,7 @@ class YourDetailsCheckYourAnswersViewSpec extends SpecBase with Matchers with Be
       val html: String = view(userContext, answers)(request, msgs).toString
 
       html must include(msgs("yourDetailsCheckYourAnswers.title"))
+      html must include("<title>Check your answers - your details - Notification of Vehicle Arrivals - GOV.UK</title>")
     }
 
     "must render the caption" in {
