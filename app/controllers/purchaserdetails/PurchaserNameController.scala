@@ -24,7 +24,7 @@ import forms.PurchaserNameFormProvider
 import models.{CheckMode, Mode, NovaUserType, PurchaserBusinessOrIndividual, PurchaserOrOnBehalf}
 import models.requests.DataRequest
 import navigation.Navigator
-import pages.sections.initialquestions.{PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage}
+import pages.sections.initialquestions.{NotifyingAsPurchaserPage, PurchaserBusinessOrIndividualPage}
 import pages.sections.purchaserdetails.PurchaserNamePage
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -57,7 +57,7 @@ class PurchaserNameController @Inject() (
   }
 
   private def purchaserNameRequiredFor(request: DataRequest[?]): Boolean =
-    request.userAnswers.get(PurchaserOrOnBehalfPage) match {
+    request.userAnswers.get(NotifyingAsPurchaserPage) match {
       case Some(PurchaserOrOnBehalf.OnBehalfOfPurchaser) =>
         request.userAnswers
           .get(PurchaserBusinessOrIndividualPage)

@@ -28,7 +28,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import pages.DraftIdPage
-import pages.sections.initialquestions.PurchaserOrOnBehalfPage
+import pages.sections.initialquestions.NotifyingAsPurchaserPage
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -55,7 +55,7 @@ class IsPurchaserAddressInTheUkControllerSpec extends SpecBase with MockitoSugar
   private val nonAgentAnswersSatisfyingGuard: UserAnswers =
     emptyUserAnswers
       .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
-      .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+      .unsafeSet(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
 
   private val agentAnswersSatisfyingGuard: UserAnswers =
     emptyUserAnswers.unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
@@ -171,7 +171,7 @@ class IsPurchaserAddressInTheUkControllerSpec extends SpecBase with MockitoSugar
 
       val answers = emptyUserAnswers
         .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
-        .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
+        .unsafeSet(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.Purchaser)
       val application = applicationBuilder(userAnswers = Some(answers)).build()
 
       running(application) {
@@ -185,7 +185,7 @@ class IsPurchaserAddressInTheUkControllerSpec extends SpecBase with MockitoSugar
 
     "must redirect to Unauthorised for a non-agent when no draft has been created" in {
 
-      val answers     = emptyUserAnswers.unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+      val answers     = emptyUserAnswers.unsafeSet(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
       val application = applicationBuilder(userAnswers = Some(answers)).build()
 
       running(application) {

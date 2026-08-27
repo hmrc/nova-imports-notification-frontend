@@ -27,7 +27,7 @@ import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.sections.initialquestions.{PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage}
+import pages.sections.initialquestions.{NotifyingAsPurchaserPage, PurchaserBusinessOrIndividualPage}
 import pages.sections.purchaserdetails.PurchaserNamePage
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -59,7 +59,7 @@ class PurchaserNameControllerSpec extends SpecBase with MockitoSugar {
     .set(pages.DraftIdPage, DraftId("DRAFT-001"))
     .success
     .value
-    .set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+    .set(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
     .success
     .value
     .set(PurchaserBusinessOrIndividualPage, PurchaserBusinessOrIndividual.NonVatRegisteredPrivateIndividual)
@@ -102,7 +102,7 @@ class PurchaserNameControllerSpec extends SpecBase with MockitoSugar {
         .set(pages.DraftIdPage, DraftId("DRAFT-001"))
         .success
         .value
-        .set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+        .set(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
         .success
         .value
         .set(PurchaserBusinessOrIndividualPage, PurchaserBusinessOrIndividual.NonVatRegisteredPrivateIndividual)
@@ -244,7 +244,7 @@ class PurchaserNameControllerSpec extends SpecBase with MockitoSugar {
         .set(pages.DraftIdPage, DraftId("DRAFT-001"))
         .success
         .value
-        .set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+        .set(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
         .success
         .value
         .set(PurchaserBusinessOrIndividualPage, PurchaserBusinessOrIndividual.NonVatRegisteredBusiness)
@@ -301,7 +301,7 @@ class PurchaserNameControllerSpec extends SpecBase with MockitoSugar {
         .set(pages.DraftIdPage, DraftId("DRAFT-001"))
         .success
         .value
-        .set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
+        .set(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.Purchaser)
         .success
         .value
 
@@ -321,7 +321,7 @@ class PurchaserNameControllerSpec extends SpecBase with MockitoSugar {
 
       val userAnswers = emptyUserAnswers
         .unsafeSet(pages.DraftIdPage, DraftId("DRAFT-001"))
-        .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
+        .unsafeSet(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.Purchaser)
 
       val application = agentApplicationBuilder(Some(userAnswers)).build()
 
@@ -337,7 +337,7 @@ class PurchaserNameControllerSpec extends SpecBase with MockitoSugar {
     "must redirect to Unauthorised for a GET when no draft is in progress" in {
 
       val answersWithoutDraft = emptyUserAnswers
-        .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+        .unsafeSet(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
         .unsafeSet(PurchaserBusinessOrIndividualPage, PurchaserBusinessOrIndividual.NonVatRegisteredPrivateIndividual)
 
       val application = applicationBuilder(userAnswers = Some(answersWithoutDraft)).build()

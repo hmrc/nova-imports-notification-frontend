@@ -21,7 +21,7 @@ import play.api.mvc.Call
 import controllers.{initialquestions, notifierdetails, purchaserdetails, routes, supplieraddress, supplierdetails}
 import pages.*
 import models.*
-import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
+import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, NotifyingAsPurchaserPage, PurchaserBusinessOrIndividualPage, VehicleBusinessUsePage, VehicleFromEuPage}
 import pages.sections.notifierdetails.{AboutYourDetailsPage, BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 import pages.sections.vehicledetails.{AddImportVehicleDetailsPage, AddVehicleDetailsPage}
 import pages.sections.notifieraddress.IsYourAddressInTheUkPage
@@ -74,9 +74,9 @@ class Navigator @Inject() () {
       (_, _) => initialquestions.routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
     case AgentClientVehicleBusinessUsePage =>
       (_, _) => initialquestions.routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
-    case PurchaserOrOnBehalfPage =>
+    case NotifyingAsPurchaserPage =>
       (userAnswers, _) =>
-        userAnswers.get(PurchaserOrOnBehalfPage) match {
+        userAnswers.get(NotifyingAsPurchaserPage) match {
           case Some(PurchaserOrOnBehalf.Purchaser)           => initialquestions.routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
           case Some(PurchaserOrOnBehalf.OnBehalfOfPurchaser) => initialquestions.routes.PurchaserBusinessOrIndividualController.onPageLoad(NormalMode)
           case _                                             => routes.JourneyRecoveryController.onPageLoad()
@@ -200,9 +200,9 @@ class Navigator @Inject() () {
         }
     case VehicleBusinessUsePage | AgentClientVehicleBusinessUsePage | BusinessOrPrivatePage | PurchaserBusinessOrIndividualPage =>
       (_, _) => initialquestions.routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
-    case PurchaserOrOnBehalfPage =>
+    case NotifyingAsPurchaserPage =>
       (userAnswers, _) =>
-        userAnswers.get(PurchaserOrOnBehalfPage) match {
+        userAnswers.get(NotifyingAsPurchaserPage) match {
           case Some(PurchaserOrOnBehalf.Purchaser)           => initialquestions.routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
           case Some(PurchaserOrOnBehalf.OnBehalfOfPurchaser) => initialquestions.routes.PurchaserBusinessOrIndividualController.onPageLoad(CheckMode)
           case _                                             => routes.JourneyRecoveryController.onPageLoad()

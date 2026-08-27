@@ -26,7 +26,7 @@ import models.requests.DataRequest
 import models.responses.CreateDraftResponse
 import models.{DraftId, NovaUserType, PurchaserOrOnBehalf, UserAnswers, UserContext}
 import pages.*
-import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
+import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, NotifyingAsPurchaserPage, PurchaserBusinessOrIndividualPage, VehicleBusinessUsePage, VehicleFromEuPage}
 import pages.sections.introduction.{AgentActingOnBehalfOfClientPage, AmendSubmittedNotificationPage, IntroductionAcknowledgePage, NotDeregisteredPage}
 import play.api.libs.json.{JsObject, Json}
 import play.api.Logging
@@ -106,7 +106,7 @@ object InitialQuestionsCheckYourAnswersController {
   private def standardUserAnswersComplete(answers: UserAnswers): Boolean =
     answers.get(VehicleFromEuPage).contains(true) &&
       answers.get(BusinessOrPrivatePage).isDefined &&
-      answers.get(PurchaserOrOnBehalfPage).exists {
+      answers.get(NotifyingAsPurchaserPage).exists {
         case PurchaserOrOnBehalf.Purchaser           => true
         case PurchaserOrOnBehalf.OnBehalfOfPurchaser => answers.get(PurchaserBusinessOrIndividualPage).isDefined
       }
@@ -118,7 +118,7 @@ object InitialQuestionsCheckYourAnswersController {
   private def agentWithoutClientAnswersComplete(answers: UserAnswers): Boolean =
     answers.get(VehicleFromEuPage).isDefined &&
       answers.get(BusinessOrPrivatePage).isDefined &&
-      answers.get(PurchaserOrOnBehalfPage).exists {
+      answers.get(NotifyingAsPurchaserPage).exists {
         case PurchaserOrOnBehalf.Purchaser           => true
         case PurchaserOrOnBehalf.OnBehalfOfPurchaser => answers.get(PurchaserBusinessOrIndividualPage).isDefined
       }
@@ -132,32 +132,54 @@ object InitialQuestionsCheckYourAnswersController {
       userContext.userType match {
         case NovaUserType.VatRegisteredOrganisation =>
           InitialQuestions(
-            vehicleFromEuToNi = vehicleFromEuToNi,
+            bringingVehicleNI = vehicleFromEuToNi,
             isForBusinessUse = answers.get(VehicleBusinessUsePage),
-            areYouBusinessOrPrivate = None,
-            notifyingAsPurchaserOrOnBehalf = None,
-            isPurchaserBusinessOrPrivateIndividual = None,
-            agentClientVehicleBusinessUse = None
+            areYouBusinessPrivate = None,
+            notifyingAsPurchaser = None,
+            purchaserBusinessPrivate = None,
+            agentClientVehicleBusinessUse = None,
+            bringingVehicleBusiness = answers.get(VehicleBusinessUsePage),
+            bringingVehicleBusinessNeeded = answers.get(VehicleBusinessUsePage).isDefined,
+            purchaserBusinessPrivateNeeded = false,
+            registered = true
           )
 
         case NovaUserType.Agent if userContext.isAgentWithClient =>
           InitialQuestions(
-            vehicleFromEuToNi = vehicleFromEuToNi,
+            bringingVehicleNI = vehicleFromEuToNi,
             isForBusinessUse = None,
-            areYouBusinessOrPrivate = None,
-            notifyingAsPurchaserOrOnBehalf = None,
-            isPurchaserBusinessOrPrivateIndividual = None,
-            agentClientVehicleBusinessUse = answers.get(AgentClientVehicleBusinessUsePage)
+            areYouBusinessPrivate = None,
+            notifyingAsPurchaser = None,
+            purchaserBusinessPrivate = None,
+            agentClientVehicleBusinessUse = answers.get(AgentClientVehicleBusinessUsePage),
+            bringingVehicleBusiness = answers.get(AgentClientVehicleBusinessUsePage),
+            bringingVehicleBusinessNeeded = answers.get(AgentClientVehicleBusinessUsePage).isDefined,
+            purchaserBusinessPrivateNeeded = false
+          )
+
+        case _ if userContext.isDeregisteredUser =>
+          InitialQuestions(
+            bringingVehicleNI = vehicleFromEuToNi,
+            isForBusinessUse = None,
+            areYouBusinessPrivate = answers.get(BusinessOrPrivatePage),
+            notifyingAsPurchaser = answers.get(NotifyingAsPurchaserPage),
+            purchaserBusinessPrivate = answers.get(PurchaserBusinessOrIndividualPage),
+            agentClientVehicleBusinessUse = None,
+            bringingVehicleBusiness = None,
+            purchaserBusinessPrivateNeeded = false,
+            deregistered = true,
+            registered = true
           )
 
         case _ =>
           InitialQuestions(
-            vehicleFromEuToNi = vehicleFromEuToNi,
+            bringingVehicleNI = vehicleFromEuToNi,
             isForBusinessUse = None,
-            areYouBusinessOrPrivate = answers.get(BusinessOrPrivatePage),
-            notifyingAsPurchaserOrOnBehalf = answers.get(PurchaserOrOnBehalfPage),
-            isPurchaserBusinessOrPrivateIndividual = answers.get(PurchaserBusinessOrIndividualPage),
-            agentClientVehicleBusinessUse = None
+            areYouBusinessPrivate = answers.get(BusinessOrPrivatePage),
+            notifyingAsPurchaser = answers.get(NotifyingAsPurchaserPage),
+            purchaserBusinessPrivate = answers.get(PurchaserBusinessOrIndividualPage),
+            agentClientVehicleBusinessUse = None,
+            bringingVehicleBusiness = None
           )
       }
     }

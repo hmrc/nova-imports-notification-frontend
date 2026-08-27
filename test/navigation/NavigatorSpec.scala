@@ -20,7 +20,7 @@ import base.SpecBase
 import controllers.{initialquestions, notifierdetails, purchaserdetails, routes, supplieraddress, supplierdetails}
 import pages.*
 import models.*
-import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
+import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, NotifyingAsPurchaserPage, PurchaserBusinessOrIndividualPage, VehicleBusinessUsePage, VehicleFromEuPage}
 import pages.sections.notifierdetails.{AboutYourDetailsPage, BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 import pages.sections.vehicledetails.{AddImportVehicleDetailsPage, AddVehicleDetailsPage}
 import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
@@ -264,9 +264,9 @@ class NavigatorSpec extends SpecBase {
       }
 
       "must go from PurchaserOrOnBehalfPage IQ3.0 to InitialQuestionsCheckYourAnswersController when Purchaser is selected" in {
-        val ua = userAnswers.set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser).success.value
+        val ua = userAnswers.set(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.Purchaser).success.value
         navigator.nextPage(
-          PurchaserOrOnBehalfPage,
+          NotifyingAsPurchaserPage,
           NormalMode,
           ua,
           NovaUserType.PrivateIndividual
@@ -274,9 +274,9 @@ class NavigatorSpec extends SpecBase {
       }
 
       "must go from PurchaserOrOnBehalfPage to PurchaserBusinessOrIndividualController when OnBehalfOfPurchaser is selected" in {
-        val ua = userAnswers.set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser).success.value
+        val ua = userAnswers.set(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser).success.value
         navigator.nextPage(
-          PurchaserOrOnBehalfPage,
+          NotifyingAsPurchaserPage,
           NormalMode,
           ua,
           NovaUserType.PrivateIndividual
@@ -284,7 +284,7 @@ class NavigatorSpec extends SpecBase {
       }
 
       "must go from PurchaserOrOnBehalfPage to JourneyRecovery when no answer is found" in {
-        navigator.nextPage(PurchaserOrOnBehalfPage, NormalMode, userAnswers, NovaUserType.PrivateIndividual) mustBe routes.JourneyRecoveryController
+        navigator.nextPage(NotifyingAsPurchaserPage, NormalMode, userAnswers, NovaUserType.PrivateIndividual) mustBe routes.JourneyRecoveryController
           .onPageLoad()
       }
 
@@ -680,9 +680,9 @@ class NavigatorSpec extends SpecBase {
       }
 
       "must go from PurchaserOrOnBehalfPage IQ3.0 to InitialQuestionsCheckYourAnswersController when Purchaser is selected" in {
-        val ua = userAnswers.set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser).success.value
+        val ua = userAnswers.set(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.Purchaser).success.value
         navigator.nextPage(
-          PurchaserOrOnBehalfPage,
+          NotifyingAsPurchaserPage,
           CheckMode,
           ua,
           NovaUserType.PrivateIndividual
@@ -690,9 +690,9 @@ class NavigatorSpec extends SpecBase {
       }
 
       "must go from PurchaserOrOnBehalfPage IQ3.0 to PurchaserBusinessOrIndividualController IQ3.1 in CheckMode when OnBehalfOfPurchaser is selected" in {
-        val ua = userAnswers.set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser).success.value
+        val ua = userAnswers.set(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser).success.value
         navigator.nextPage(
-          PurchaserOrOnBehalfPage,
+          NotifyingAsPurchaserPage,
           CheckMode,
           ua,
           NovaUserType.PrivateIndividual
@@ -701,7 +701,7 @@ class NavigatorSpec extends SpecBase {
 
       "must go from PurchaserOrOnBehalfPage IQ3.0 to JourneyRecovery when no answer is found" in {
         navigator.nextPage(
-          PurchaserOrOnBehalfPage,
+          NotifyingAsPurchaserPage,
           CheckMode,
           userAnswers,
           NovaUserType.PrivateIndividual

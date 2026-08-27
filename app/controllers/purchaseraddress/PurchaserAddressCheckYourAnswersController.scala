@@ -21,7 +21,7 @@ import controllers.utils.IsDraftIdDefined
 import controllers.{BaseController, purchaseraddress, routes}
 import models.{NormalMode, PurchaserOrOnBehalf}
 import models.requests.DataRequest
-import pages.sections.initialquestions.PurchaserOrOnBehalfPage
+import pages.sections.initialquestions.NotifyingAsPurchaserPage
 import pages.sections.purchaseraddress.{PurchaserAddressJourneyIdPage, PurchaserAddressPage}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -63,7 +63,7 @@ object PurchaserAddressCheckYourAnswersController {
       case ctx if ctx.isAgent => IsDraftIdDefined(request.userAnswers)
       case _                  =>
         IsDraftIdDefined(request.userAnswers) &&
-        request.userAnswers.get(PurchaserOrOnBehalfPage).contains(PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+        request.userAnswers.get(NotifyingAsPurchaserPage).contains(PurchaserOrOnBehalf.OnBehalfOfPurchaser)
     }
   }
 

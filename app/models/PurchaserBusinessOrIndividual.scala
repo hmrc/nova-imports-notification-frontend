@@ -17,8 +17,8 @@
 package models
 
 enum PurchaserBusinessOrIndividual(val jsonValue: String) {
-  case NonVatRegisteredBusiness extends PurchaserBusinessOrIndividual("NON_VAT_REG_BUSINESS")
-  case NonVatRegisteredPrivateIndividual extends PurchaserBusinessOrIndividual("PRIVATE_INDIVIDUAL")
+  case NonVatRegisteredBusiness extends PurchaserBusinessOrIndividual("self") // NON_VAT_REG_BUSINESS
+  case NonVatRegisteredPrivateIndividual extends PurchaserBusinessOrIndividual("other") // PRIVATE_INDIVIDUAL
 
   override def toString: String = jsonValue
 }

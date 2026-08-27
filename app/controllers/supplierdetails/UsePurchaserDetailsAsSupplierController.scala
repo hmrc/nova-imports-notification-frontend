@@ -23,7 +23,7 @@ import forms.UsePurchaserDetailsAsSupplierFormProvider
 import models.requests.DataRequest
 import models.{AddVehicleDetails, Mode, NovaUserType, PurchaserOrOnBehalf, SupplierNumber}
 import navigation.Navigator
-import pages.sections.initialquestions.{PurchaserOrOnBehalfPage, VehicleFromEuPage}
+import pages.sections.initialquestions.{NotifyingAsPurchaserPage, VehicleFromEuPage}
 import pages.sections.supplierdetails.UsePurchaserDetailsAsSupplierPage
 import pages.sections.vehicledetails.AddVehicleDetailsPage
 import play.api.data.Form
@@ -101,7 +101,7 @@ object UsePurchaserDetailsAsSupplierController {
     answers.get(VehicleFromEuPage).contains(true) &&
     supplierService.numberExists(answers, supplierNumber) &&
     !request.userContext.isVatRegisteredOrganisation &&
-    (answers.get(PurchaserOrOnBehalfPage).contains(PurchaserOrOnBehalf.OnBehalfOfPurchaser) ||
+    (answers.get(NotifyingAsPurchaserPage).contains(PurchaserOrOnBehalf.OnBehalfOfPurchaser) ||
       request.userContext.isAgentWithoutClient)
   }
 }

@@ -23,7 +23,7 @@ import models.DraftNotification.SectionId
 import models.requests.DataRequest
 import models.{BusinessOrPrivateIndividual, NormalMode, NotificationSummary, NovaUserType, PurchaserBusinessOrIndividual, PurchaserOrOnBehalf, SectionStatus, UserAnswers, UserContext}
 import pages.{DraftIdPage, NotificationTaskListPage}
-import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
+import pages.sections.initialquestions.{BusinessOrPrivatePage, NotifyingAsPurchaserPage, PurchaserBusinessOrIndividualPage, VehicleBusinessUsePage, VehicleFromEuPage}
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
@@ -70,7 +70,7 @@ class NotificationTaskListController @Inject() (
       )
     }
 
-    userDataService.retrieveAndStoreDraftNotification(draftId, request.userAnswers).flatMap {
+    userDataService.retrieveAndStoreDraftNotification(draftId, request.userAnswers, request.userContext).flatMap {
       case Left(error) =>
         logger.warn(s"Failed to retrieve draft notification for draftId ${draftId.value}: $error")
         Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
@@ -112,7 +112,7 @@ object NotificationTaskListController {
   private def standardInitialQuestionsComplete(answers: UserAnswers): Boolean =
     answers.get(VehicleFromEuPage).contains(true) &&
       answers.get(BusinessOrPrivatePage).isDefined &&
-      answers.get(PurchaserOrOnBehalfPage).exists {
+      answers.get(NotifyingAsPurchaserPage).exists {
         case PurchaserOrOnBehalf.Purchaser           => true
         case PurchaserOrOnBehalf.OnBehalfOfPurchaser => answers.get(PurchaserBusinessOrIndividualPage).isDefined
       }
@@ -128,7 +128,7 @@ object NotificationTaskListController {
     userContext.userType match {
       case NovaUserType.Agent                                               => true
       case NovaUserType.PrivateIndividual | NovaUserType.NonVatOrganisation =>
-        answers.get(PurchaserOrOnBehalfPage).contains(PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+        answers.get(NotifyingAsPurchaserPage).contains(PurchaserOrOnBehalf.OnBehalfOfPurchaser)
       case NovaUserType.VatRegisteredOrganisation => false
     }
 

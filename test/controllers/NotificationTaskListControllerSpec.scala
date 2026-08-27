@@ -27,7 +27,7 @@ import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{never, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.{AgentSelectedClientPage, DraftIdPage, NotificationTaskListPage}
-import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
+import pages.sections.initialquestions.{BusinessOrPrivatePage, NotifyingAsPurchaserPage, PurchaserBusinessOrIndividualPage, VehicleBusinessUsePage, VehicleFromEuPage}
 import pages.sections.introduction.NotDeregisteredPage
 import pages.sections.notifierdetails.PhoneNumberPage
 import pages.sections.notifieraddress.AddressPage
@@ -62,34 +62,34 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
   private val individualAsPurchaserPrivate = baseAnswers
     .unsafeSet(VehicleFromEuPage, true)
     .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
-    .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
+    .unsafeSet(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.Purchaser)
 
   private val individualAsPurchaserBusiness = baseAnswers
     .unsafeSet(VehicleFromEuPage, true)
     .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business)
-    .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
+    .unsafeSet(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.Purchaser)
 
   private val individualOnBehalfPrivatePurchaser = baseAnswers
     .unsafeSet(VehicleFromEuPage, true)
     .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
-    .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+    .unsafeSet(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
     .unsafeSet(PurchaserBusinessOrIndividualPage, PurchaserBusinessOrIndividual.NonVatRegisteredPrivateIndividual)
 
   private val individualOnBehalfBusinessPurchaser = baseAnswers
     .unsafeSet(VehicleFromEuPage, true)
     .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
-    .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+    .unsafeSet(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
     .unsafeSet(PurchaserBusinessOrIndividualPage, PurchaserBusinessOrIndividual.NonVatRegisteredBusiness)
 
   private val agentAsPurchaser = baseAnswers
     .unsafeSet(VehicleFromEuPage, true)
     .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
-    .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
+    .unsafeSet(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.Purchaser)
 
   private val agentAsPurchaserBusiness = baseAnswers
     .unsafeSet(VehicleFromEuPage, true)
     .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business)
-    .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
+    .unsafeSet(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.Purchaser)
 
   private val agentWithSelectedClient = baseAnswers
     .unsafeSet(VehicleFromEuPage, true)
@@ -517,7 +517,7 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
         val noDraftId = emptyUserAnswers
           .unsafeSet(VehicleFromEuPage, true)
           .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
-          .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
+          .unsafeSet(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.Purchaser)
         val sessionRepo = stubSessionRepository()
 
         given application: Application =

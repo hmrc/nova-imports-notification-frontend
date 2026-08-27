@@ -23,7 +23,7 @@ import forms.PhoneNumberFormProvider
 import models.requests.DataRequest
 import models.{BusinessOrPrivateIndividual, CheckMode, ContactNumbers, Mode, NovaUserType, PurchaserOrOnBehalf}
 import navigation.Navigator
-import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
+import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, NotifyingAsPurchaserPage, PurchaserBusinessOrIndividualPage, VehicleBusinessUsePage, VehicleFromEuPage}
 import pages.sections.notifierdetails.{AboutYourDetailsPage, NameDetailsPage, PhoneNumberPage}
 import play.api.data.{Form, FormError}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -104,7 +104,7 @@ object PhoneNumberController {
       case ctx if ctx.isAgentWithoutClient =>
         answers.get(VehicleFromEuPage).contains(true) &&
         answers.get(BusinessOrPrivatePage).isDefined &&
-        answers.get(PurchaserOrOnBehalfPage).exists {
+        answers.get(NotifyingAsPurchaserPage).exists {
           case PurchaserOrOnBehalf.Purchaser           => true
           case PurchaserOrOnBehalf.OnBehalfOfPurchaser => answers.get(PurchaserBusinessOrIndividualPage).isDefined
         } &&

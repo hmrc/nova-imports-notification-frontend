@@ -36,6 +36,8 @@ final case class UserContext(
   def isVatAgentWithoutClient: Boolean     = isAgentWithoutClient && agentHasVatAgentEnrolment
   def isNonVatAgentWithoutClient: Boolean  = isAgentWithoutClient && !agentHasVatAgentEnrolment
 
+  def isDeregisteredUser: Boolean = !notDeregistered
+
   def usesTraderDetails: Boolean = isVatRegisteredOrganisation && isForBusinessUse
 }
 

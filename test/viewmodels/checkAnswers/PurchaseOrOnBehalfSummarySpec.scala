@@ -19,7 +19,7 @@ package viewmodels.checkAnswers
 import base.SpecBase
 import controllers.initialquestions.routes
 import models.{CheckMode, PurchaserOrOnBehalf, UserAnswers}
-import pages.sections.initialquestions.PurchaserOrOnBehalfPage
+import pages.sections.initialquestions.NotifyingAsPurchaserPage
 import play.api.Application
 import play.api.i18n.Messages
 
@@ -32,7 +32,7 @@ class PurchaseOrOnBehalfSummarySpec extends SpecBase {
 
     "must return a summary row with the correct value when the answer is Purchaser" in {
 
-      val userAnswers = UserAnswers(userAnswersId).set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser).success.value
+      val userAnswers = UserAnswers(userAnswersId).set(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.Purchaser).success.value
 
       val result = PurchaseOrOnBehalfSummary.row(userAnswers).value
 
@@ -43,7 +43,7 @@ class PurchaseOrOnBehalfSummarySpec extends SpecBase {
 
     "must return a summary row with the correct value when the answer is OnBehalfOfPurchaser" in {
 
-      val userAnswers = UserAnswers(userAnswersId).set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser).success.value
+      val userAnswers = UserAnswers(userAnswersId).set(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser).success.value
 
       val result = PurchaseOrOnBehalfSummary.row(userAnswers).value
 
@@ -54,7 +54,7 @@ class PurchaseOrOnBehalfSummarySpec extends SpecBase {
 
     "must describe the change link with the notifying capacity question in visually hidden text" in {
 
-      val userAnswers = UserAnswers(userAnswersId).set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser).success.value
+      val userAnswers = UserAnswers(userAnswersId).set(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.Purchaser).success.value
 
       val result = PurchaseOrOnBehalfSummary.row(userAnswers).value
 

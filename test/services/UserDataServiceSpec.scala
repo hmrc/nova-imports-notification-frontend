@@ -19,7 +19,7 @@ package services
 import base.SpecBase
 import connectors.NovaImportsBackendConnector
 import models.DraftNotification.SectionId
-import models.{Address, BusinessOrPrivateIndividual, ContactNumbers, Country, DraftId, DraftNotification, DraftNotificationSection, NameDetails, SectionStatus, UserAnswers}
+import models.{Address, BusinessOrPrivateIndividual, ContactNumbers, Country, DraftId, DraftNotification, DraftNotificationSection, NameDetails, NovaUserType, SectionStatus, UserAnswers, UserContext}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.EitherValues
@@ -264,6 +264,15 @@ class UserDataServiceSpec extends SpecBase with MockitoSugar with ScalaFutures w
 
     implicit val hc: HeaderCarrier = HeaderCarrier()
 
+    val testUserContext = UserContext(
+      userType = NovaUserType.PrivateIndividual,
+      selectedClient = None,
+      notDeregistered = true,
+      isAgentWithClientNoEnrolments = false,
+      agentHasVatAgentEnrolment = false,
+      isForBusinessUse = false
+    )
+
     def serviceReturning(draft: DraftNotification): UserDataService = {
       val connector = mock[NovaImportsBackendConnector]
       when(connector.getDraftNotification(any())(using any[HeaderCarrier])).thenReturn(Future.successful(Right(draft)))
@@ -284,7 +293,10 @@ class UserDataServiceSpec extends SpecBase with MockitoSugar with ScalaFutures w
         .unsafeSet(DraftIdPage, DraftId("1"))
         .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business)
 
-      val result = serviceReturning(draftWithNotifier(individualNotifier)).retrieveAndStoreDraftNotification(DraftId("1"), answers).futureValue.value
+      val result = serviceReturning(draftWithNotifier(individualNotifier))
+        .retrieveAndStoreDraftNotification(DraftId("1"), answers, testUserContext)
+        .futureValue
+        .value
 
       result.get(NameDetailsPage) mustBe None
       result.get(EmailAddressPage) mustBe Some("john@example.com")
@@ -298,7 +310,10 @@ class UserDataServiceSpec extends SpecBase with MockitoSugar with ScalaFutures w
         .unsafeSet(BusinessNamePage, "Old Business Ltd")
 
       val result =
-        serviceReturning(draftWithNotifier(organisationNotifier)).retrieveAndStoreDraftNotification(DraftId("1"), answers).futureValue.value
+        serviceReturning(draftWithNotifier(organisationNotifier))
+          .retrieveAndStoreDraftNotification(DraftId("1"), answers, testUserContext)
+          .futureValue
+          .value
 
       result.get(BusinessNamePage) mustBe None
       result.get(EmailAddressPage) mustBe Some("acme@example.com")
@@ -310,7 +325,10 @@ class UserDataServiceSpec extends SpecBase with MockitoSugar with ScalaFutures w
         .unsafeSet(DraftIdPage, DraftId("1"))
         .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
 
-      val result = serviceReturning(draftWithNotifier(individualNotifier)).retrieveAndStoreDraftNotification(DraftId("1"), answers).futureValue.value
+      val result = serviceReturning(draftWithNotifier(individualNotifier))
+        .retrieveAndStoreDraftNotification(DraftId("1"), answers, testUserContext)
+        .futureValue
+        .value
 
       result.get(NameDetailsPage) mustBe Some(NameDetails("Mr", "John", "Smith"))
     }
@@ -321,7 +339,10 @@ class UserDataServiceSpec extends SpecBase with MockitoSugar with ScalaFutures w
         .unsafeSet(VehicleBusinessUsePage, true)
 
       val result =
-        serviceReturning(draftWithNotifier(organisationNotifier)).retrieveAndStoreDraftNotification(DraftId("1"), answers).futureValue.value
+        serviceReturning(draftWithNotifier(organisationNotifier))
+          .retrieveAndStoreDraftNotification(DraftId("1"), answers, testUserContext)
+          .futureValue
+          .value
 
       result.get(VehicleBusinessUsePage) mustBe Some(true)
       result.get(EmailAddressPage) mustBe Some("acme@example.com")

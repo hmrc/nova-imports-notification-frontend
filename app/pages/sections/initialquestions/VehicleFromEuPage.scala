@@ -23,5 +23,5 @@ case object VehicleFromEuPage extends QuestionPage[Boolean] {
 
   override def path: JsPath = JsPath \ "initial-question" \ toString
 
-  override def toString: String = "vehicleFromEu"
+  override def toString: String = "bringingVehicleNI"
 }
