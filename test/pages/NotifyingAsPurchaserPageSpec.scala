@@ -18,10 +18,10 @@ package pages
 
 import base.SpecBase
 import models.{NameDetails, PurchaserBusinessOrIndividual, PurchaserOrOnBehalf}
-import pages.sections.initialquestions.{PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage}
+import pages.sections.initialquestions.{NotifyingAsPurchaserPage, PurchaserBusinessOrIndividualPage}
 import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 
-class PurchaserOrOnBehalfPageSpec extends SpecBase {
+class NotifyingAsPurchaserPageSpec extends SpecBase {
 
   "PurchaserOrOnBehalfPage" - {
 
@@ -29,35 +29,35 @@ class PurchaserOrOnBehalfPageSpec extends SpecBase {
 
       "must remove the answer to IQ3.1 when the answer to IQ3.0 is changed to Purchaser" in {
         val userAnswers = emptyUserAnswers
-          .set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+          .set(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
           .success
           .value
           .set(PurchaserBusinessOrIndividualPage, PurchaserBusinessOrIndividual.NonVatRegisteredBusiness)
           .success
           .value
 
-        val result = userAnswers.set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser).success.value
+        val result = userAnswers.set(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.Purchaser).success.value
 
         result.get(PurchaserBusinessOrIndividualPage) mustBe None
       }
 
       "must not remove the answer to IQ3.1 when the answer to IQ3.0 is OnBehalfOfPurchaser" in {
         val userAnswers = emptyUserAnswers
-          .set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+          .set(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
           .success
           .value
           .set(PurchaserBusinessOrIndividualPage, PurchaserBusinessOrIndividual.NonVatRegisteredBusiness)
           .success
           .value
 
-        val result = userAnswers.set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser).success.value
+        val result = userAnswers.set(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser).success.value
 
         result.get(PurchaserBusinessOrIndividualPage) mustBe Some(PurchaserBusinessOrIndividual.NonVatRegisteredBusiness)
       }
 
       "must remove the purchaser name (APD1.0) when the answer to IQ3.0 is changed to Purchaser" in {
         val userAnswers = emptyUserAnswers
-          .set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+          .set(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
           .success
           .value
           .set(PurchaserBusinessOrIndividualPage, PurchaserBusinessOrIndividual.NonVatRegisteredPrivateIndividual)
@@ -67,7 +67,7 @@ class PurchaserOrOnBehalfPageSpec extends SpecBase {
           .success
           .value
 
-        val result = userAnswers.set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser).success.value
+        val result = userAnswers.set(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.Purchaser).success.value
 
         result.get(PurchaserNamePage) mustBe None
         result.get(PurchaserBusinessOrIndividualPage) mustBe None
@@ -75,7 +75,7 @@ class PurchaserOrOnBehalfPageSpec extends SpecBase {
 
       "must remove the purchaser business name (APD2.0) when the answer to IQ3.0 is changed to Purchaser" in {
         val userAnswers = emptyUserAnswers
-          .set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+          .set(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
           .success
           .value
           .set(PurchaserBusinessOrIndividualPage, PurchaserBusinessOrIndividual.NonVatRegisteredBusiness)
@@ -85,7 +85,7 @@ class PurchaserOrOnBehalfPageSpec extends SpecBase {
           .success
           .value
 
-        val result = userAnswers.set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser).success.value
+        val result = userAnswers.set(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.Purchaser).success.value
 
         result.get(PurchaserBusinessNamePage) mustBe None
         result.get(PurchaserBusinessOrIndividualPage) mustBe None

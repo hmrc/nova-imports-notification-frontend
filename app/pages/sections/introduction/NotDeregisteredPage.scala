@@ -14,17 +14,14 @@
  * limitations under the License.
  */
 
-package models.draftsections
+package pages.sections.introduction
 
-import play.api.libs.json.{Format, Json}
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-final case class Introduction(
-  acknowledged: Boolean,
-  amendSubmittedNotification: Boolean,
-  notDeregistered: Boolean,
-  agentActingOnBehalfOfClient: Boolean
-)
+object NotDeregisteredPage extends QuestionPage[Boolean] {
 
-object Introduction {
-  implicit val format: Format[Introduction] = Json.format[Introduction]
+  override def path: JsPath = JsPath \ "introduction" \ toString
+
+  override def toString: String = "notDeregistered"
 }

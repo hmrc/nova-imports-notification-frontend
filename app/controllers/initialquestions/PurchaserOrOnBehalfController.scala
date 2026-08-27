@@ -22,7 +22,7 @@ import forms.PurchaserOrOnBehalfFormProvider
 import models.{BusinessOrPrivateIndividual, Mode, NovaUserType, PurchaserOrOnBehalf, UserAnswers}
 import javax.inject.Inject
 import navigation.Navigator
-import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserOrOnBehalfPage}
+import pages.sections.initialquestions.{BusinessOrPrivatePage, NotifyingAsPurchaserPage}
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -46,7 +46,7 @@ class PurchaserOrOnBehalfController @Inject() (
   val form: Form[PurchaserOrOnBehalf] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithGuard(guardPredicate) { implicit request =>
-    Ok(view(form.withDefault(request.userAnswers.get(PurchaserOrOnBehalfPage)), mode))
+    Ok(view(form.withDefault(request.userAnswers.get(NotifyingAsPurchaserPage)), mode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithGuard(guardPredicate).async { implicit request =>
@@ -57,10 +57,10 @@ class PurchaserOrOnBehalfController @Inject() (
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode))),
         value =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(PurchaserOrOnBehalfPage, value))
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(NotifyingAsPurchaserPage, value))
             _              <- sessionRepository.set(updatedAnswers)
           } yield Redirect(
-            navigator.nextPage(PurchaserOrOnBehalfPage, mode, updatedAnswers, NovaUserType.from(request.affinityGroup, request.enrolments))
+            navigator.nextPage(NotifyingAsPurchaserPage, mode, updatedAnswers, NovaUserType.from(request.affinityGroup, request.enrolments))
           )
       )
   }

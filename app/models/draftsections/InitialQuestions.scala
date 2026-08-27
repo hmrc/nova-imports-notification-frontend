@@ -20,12 +20,23 @@ import models.{BusinessOrPrivateIndividual, Enumerable, PurchaserBusinessOrIndiv
 import play.api.libs.json.{Format, Json}
 
 final case class InitialQuestions(
-  vehicleFromEuToNi: Boolean,
-  isForBusinessUse: Option[Boolean],
-  areYouBusinessOrPrivate: Option[BusinessOrPrivateIndividual],
-  notifyingAsPurchaserOrOnBehalf: Option[PurchaserOrOnBehalf],
-  isPurchaserBusinessOrPrivateIndividual: Option[PurchaserBusinessOrIndividual],
-  agentClientVehicleBusinessUse: Option[Boolean]
+  bringingVehicleNI: Boolean,
+  isForBusinessUse: Option[
+    Boolean
+  ], // not stored in formp or sent to nova but used to determine bringingVehicleBusinessNeeded for vat registered organisations
+  areYouBusinessPrivate: Option[BusinessOrPrivateIndividual],
+  notifyingAsPurchaser: Option[PurchaserOrOnBehalf],
+  purchaserBusinessPrivate: Option[PurchaserBusinessOrIndividual],
+  agentClientVehicleBusinessUse: Option[
+    Boolean
+  ], // not stored in formp or sent to nova but used to determine bringingVehicleBusinessNeeded for agent with client
+  bringingVehicleBusiness: Option[Boolean],
+  bringingVehicleBusinessNeeded: Boolean = false,
+  purchasingVehiclesEuNeeded: Option[Boolean] = Some(true),
+  purchaserBusinessPrivateNeeded: Boolean = true,
+  sccCustomerFieldNeeded: Boolean = true,
+  deregistered: Boolean = false,
+  registered: Boolean = false
 )
 
 object InitialQuestions extends Enumerable.Implicits {

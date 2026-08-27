@@ -18,7 +18,8 @@ package models
 
 import base.SpecBase
 import pages.sections.initialquestions.VehicleBusinessUsePage
-import pages.{AgentSelectedClientPage, IsDeregisteredPage}
+import pages.sections.introduction.NotDeregisteredPage
+import pages.AgentSelectedClientPage
 import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolment, EnrolmentIdentifier, Enrolments}
 
 class UserContextSpec extends SpecBase {
@@ -77,15 +78,15 @@ class UserContextSpec extends SpecBase {
       ctx.selectedClient must contain(sampleClient)
     }
 
-    "defaults isDeregistered to false when the answer is not present" in {
+    "defaults notDeregistered to true when the answer is not present" in {
       val ctx = UserContext.from(AffinityGroup.Organisation, vatEnrolment, emptyUserAnswers)
-      ctx.isDeregistered mustBe false
+      ctx.notDeregistered mustBe true
     }
 
-    "reads isDeregistered as true when the answer is present and true" in {
-      val answers = emptyUserAnswers.set(IsDeregisteredPage, true).success.value
+    "reads notDeregistered as false when the answer is present and false" in {
+      val answers = emptyUserAnswers.set(NotDeregisteredPage, false).success.value
       val ctx     = UserContext.from(AffinityGroup.Organisation, vatEnrolment, answers)
-      ctx.isDeregistered mustBe true
+      ctx.notDeregistered mustBe false
     }
 
     "marks an Agent with a selected client and no enrolments as isAgentWithClientNoEnrolments" in {
