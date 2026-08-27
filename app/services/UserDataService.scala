@@ -95,7 +95,9 @@ object UserDataService {
         for {
           a1 <- sessionRepository.setPage(answers, IntroductionAcknowledgePage, intro.acknowledged)
           a2 <- sessionRepository.setPage(a1, AmendSubmittedNotificationPage, intro.amendSubmittedNotification)
-        } yield a2
+          a3 <- sessionRepository.setPage(a2, AgentActingOnBehalfOfClientPage, intro.agentActingOnBehalfOfClient)
+          a4 <- sessionRepository.setPage(a3, NotDeregisteredPage, intro.notDeregistered)
+        } yield a4
     }
 
   def storeInitialQuestionsPages(draft: DraftNotification, answers: UserAnswers, sessionRepository: SessionRepository)(implicit

@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package pages
+package pages.sections.introduction
 
+import pages.QuestionPage
 import play.api.libs.json.JsPath
 
-case object IsDeregisteredPage extends QuestionPage[Boolean] {
+object AgentActingOnBehalfOfClientPage extends QuestionPage[Boolean] {
 
-  override def path: JsPath = JsPath \ toString
+  override def path: JsPath = JsPath \ "introduction" \ toString
 
-  override def toString: String = "isDeregistered"
+  override def toString: String = "agentActingOnBehalfOfClient"
 }

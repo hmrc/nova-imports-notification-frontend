@@ -27,7 +27,7 @@ import models.responses.CreateDraftResponse
 import models.{DraftId, NovaUserType, PurchaserOrOnBehalf, UserAnswers, UserContext}
 import pages.*
 import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
-import pages.sections.introduction.{AmendSubmittedNotificationPage, IntroductionAcknowledgePage}
+import pages.sections.introduction.{AgentActingOnBehalfOfClientPage, AmendSubmittedNotificationPage, IntroductionAcknowledgePage, NotDeregisteredPage}
 import play.api.libs.json.{JsObject, Json}
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -171,9 +171,11 @@ object InitialQuestionsCheckYourAnswersController {
   )(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Result] = {
     val versionId = answers.get(DraftVersionIdPage).getOrElse(0L)
     val body      = Json.obj(
-      "acknowledged"               -> answers.get(IntroductionAcknowledgePage).getOrElse(false),
-      "amendSubmittedNotification" -> answers.get(AmendSubmittedNotificationPage).getOrElse(false),
-      "versionId"                  -> versionId
+      "acknowledged"                -> answers.get(IntroductionAcknowledgePage).getOrElse(false),
+      "amendSubmittedNotification"  -> answers.get(AmendSubmittedNotificationPage).getOrElse(false),
+      "agentActingOnBehalfOfClient" -> answers.get(AgentActingOnBehalfOfClientPage).getOrElse(false),
+      "notDeregistered"             -> answers.get(NotDeregisteredPage).getOrElse(true),
+      "versionId"                   -> versionId
     )
     backendConnector.updateDraftSection(draftId, "introduction", body).flatMap {
       case Left(error) =>

@@ -26,8 +26,9 @@ import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{never, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{AgentSelectedClientPage, DraftIdPage, IsDeregisteredPage, NotificationTaskListPage}
+import pages.{AgentSelectedClientPage, DraftIdPage, NotificationTaskListPage}
 import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
+import pages.sections.introduction.NotDeregisteredPage
 import pages.sections.notifierdetails.PhoneNumberPage
 import pages.sections.notifieraddress.AddressPage
 import pages.sections.purchaseraddress.PurchaserAddressPage
@@ -238,7 +239,7 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
             FakeRequest(GET, notificationTaskListRoute)
 
           status(route(application, request).value) mustEqual OK
-          verify(sessionRepo).setPage(any(), eqTo(IsDeregisteredPage), eqTo(true))(any())
+          verify(sessionRepo).setPage(any(), eqTo(NotDeregisteredPage), eqTo(false))(any())
         }
       }
 

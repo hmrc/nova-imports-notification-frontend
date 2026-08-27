@@ -17,13 +17,14 @@
 package models
 
 import pages.sections.initialquestions.VehicleBusinessUsePage
-import pages.{AgentSelectedClientPage, IsDeregisteredPage}
+import pages.AgentSelectedClientPage
+import pages.sections.introduction.NotDeregisteredPage
 import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments}
 
 final case class UserContext(
   userType: NovaUserType,
   selectedClient: Option[AgentSelectedClient],
-  isDeregistered: Boolean,
+  notDeregistered: Boolean,
   isAgentWithClientNoEnrolments: Boolean,
   agentHasVatAgentEnrolment: Boolean,
   isForBusinessUse: Boolean
@@ -46,7 +47,7 @@ object UserContext {
     UserContext(
       userType = NovaUserType.from(affinityGroup, enrolments),
       selectedClient = selectedClient,
-      isDeregistered = userAnswers.get(IsDeregisteredPage).getOrElse(false),
+      notDeregistered = userAnswers.get(NotDeregisteredPage).getOrElse(true),
       isAgentWithClientNoEnrolments =
         affinityGroup == AffinityGroup.Agent && selectedClient.isDefined && !enrolments.enrolments.exists(_.isActivated),
       agentHasVatAgentEnrolment = affinityGroup == AffinityGroup.Agent && enrolments.getEnrolment("HMCE-VAT-AGNT").exists(_.isActivated),
