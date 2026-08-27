@@ -132,6 +132,8 @@ POST        /vehicles-brought-from-eu                                           
 GET         /vehicles-brought-from-eu/change                                             controllers.vehicledetails.AddVehicleDetailsController.onPageLoad(mode: Mode = CheckMode)
 POST        /vehicles-brought-from-eu/change                                             controllers.vehicledetails.AddVehicleDetailsController.onSubmit(mode: Mode = CheckMode)
 
+GET         /upload-vehicle-spreadsheet                                                  controllers.vehicledetails.UploadVehicleSpreadsheetController.onPageLoad()
+
 GET         /check-answers/your-details                                                  controllers.notifierdetails.YourDetailsCheckYourAnswersController.onPageLoad()
 POST        /check-answers/your-details                                                  controllers.notifierdetails.YourDetailsCheckYourAnswersController.onSubmit()
 

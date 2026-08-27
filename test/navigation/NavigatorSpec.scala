@@ -17,7 +17,7 @@
 package navigation
 
 import base.SpecBase
-import controllers.{initialquestions, notifierdetails, purchaserdetails, routes, supplieraddress, supplierdetails}
+import controllers.{initialquestions, notifierdetails, purchaserdetails, routes, supplieraddress, supplierdetails, vehicledetails}
 import pages.*
 import models.*
 import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
@@ -319,15 +319,14 @@ class NavigatorSpec extends SpecBase {
           .onPageLoad()
       }
 
-      "must go from AddVehicleDetailsPage AVD1.0 to LandingPage when BySpreadsheet is selected" in {
-        // TODO: navigate to spreadsheet upload flow when implemented
+      "must go from AddVehicleDetailsPage to the upload vehicle spreadsheet page when the user chose to upload a spreadsheet" in {
         val ua = userAnswers.set(AddVehicleDetailsPage, AddVehicleDetails.BySpreadsheet).success.value
         navigator.nextPage(
           AddVehicleDetailsPage,
           NormalMode,
           ua,
           NovaUserType.VatRegisteredOrganisation
-        ) mustBe routes.LandingPageController.onPageLoad()
+        ) mustBe vehicledetails.routes.UploadVehicleSpreadsheetController.onPageLoad()
       }
 
       "must go from AddVehicleDetailsPage AVD1.0 to JourneyRecovery when no answer is found" in {
@@ -350,15 +349,14 @@ class NavigatorSpec extends SpecBase {
         ) mustBe routes.LandingPageController.onPageLoad()
       }
 
-      "must go from AddImportVehicleDetailsPage AVD1.1 to LandingPage when BySpreadsheet is selected" in {
-        // TODO: navigate to spreadsheet upload flow when built
+      "must go from AddImportVehicleDetailsPage to the upload vehicle spreadsheet page when the user chose to upload a spreadsheet" in {
         val ua = userAnswers.set(AddImportVehicleDetailsPage, AddImportVehicleDetails.BySpreadsheet).success.value
         navigator.nextPage(
           AddImportVehicleDetailsPage,
           NormalMode,
           ua,
           NovaUserType.VatRegisteredOrganisation
-        ) mustBe routes.LandingPageController.onPageLoad()
+        ) mustBe vehicledetails.routes.UploadVehicleSpreadsheetController.onPageLoad()
       }
 
       "must go from AddImportVehicleDetailsPage AVD1.1 to JourneyRecovery when no answer is found" in {
