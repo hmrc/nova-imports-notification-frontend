@@ -111,18 +111,17 @@ object UserDataService {
       case Some(iq) =>
         for {
           a1 <- sessionRepository.setPage(answers, VehicleFromEuPage, iq.bringingVehicleNI)
-          a2 <- iq.isForBusinessUse.fold(Future.successful(a1))(v => sessionRepository.setPage(a1, VehicleBusinessUsePage, v))
-          a3 <- iq.areYouBusinessPrivate.fold(Future.successful(a2))(v => sessionRepository.setPage(a2, BusinessOrPrivatePage, v))
-          a4 <- iq.notifyingAsPurchaser.fold(Future.successful(a3))(v => sessionRepository.setPage(a3, NotifyingAsPurchaserPage, v))
-          a5 <- iq.purchaserBusinessPrivate.fold(Future.successful(a4))(v => sessionRepository.setPage(a4, PurchaserBusinessOrIndividualPage, v))
-          a6 <- {
+          a2 <- iq.areYouBusinessPrivate.fold(Future.successful(a1))(v => sessionRepository.setPage(a1, BusinessOrPrivatePage, v))
+          a3 <- iq.notifyingAsPurchaser.fold(Future.successful(a2))(v => sessionRepository.setPage(a2, NotifyingAsPurchaserPage, v))
+          a4 <- iq.purchaserBusinessPrivate.fold(Future.successful(a3))(v => sessionRepository.setPage(a3, PurchaserBusinessOrIndividualPage, v))
+          a5 <- {
             if userContext.agentHasVatAgentEnrolment then
-              iq.bringingVehicleBusiness.fold(Future.successful(a5))(v => sessionRepository.setPage(a5, AgentClientVehicleBusinessUsePage, v))
+              iq.bringingVehicleBusiness.fold(Future.successful(a4))(v => sessionRepository.setPage(a4, AgentClientVehicleBusinessUsePage, v))
             else if userContext.isVatRegisteredOrganisation then
-              iq.bringingVehicleBusiness.fold(Future.successful(a5))(v => sessionRepository.setPage(a5, VehicleBusinessUsePage, v))
-            else Future.successful(a5)
+              iq.bringingVehicleBusiness.fold(Future.successful(a4))(v => sessionRepository.setPage(a4, VehicleBusinessUsePage, v))
+            else Future.successful(a4)
           }
-        } yield a6
+        } yield a5
     }
 
   def storeNotifierDetailsPages(draft: DraftNotification, answers: UserAnswers, sessionRepository: SessionRepository)(implicit

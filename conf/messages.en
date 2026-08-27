@@ -538,10 +538,10 @@ addressLookup.error.line1Required = Enter address line 1, typically the building
 addressLookup.error.line2Required = Enter address line 2
 addressLookup.error.townRequired = Enter address line 4
 addressLookup.error.countryRequired = Enter a country
-addressLookup.error.countryPickerRequired = Select country or territory of your address
+addressLookup.error.countryPickerRequired = Enter the country or territory of your address
 # Same wording as ALF's defaults, declared here so the copy is ours to change and translate
-addressLookup.countryPicker.title = Select your country or territory
-addressLookup.countryPicker.heading = Select your country or territory
+addressLookup.countryPicker.title = Enter the country or territory of your address
+addressLookup.countryPicker.heading = Enter the country or territory of your address
 addressLookup.countryPicker.countryLabel = Select country or territory
 
 ###############################################################################
@@ -871,3 +871,15 @@ vehiclesBoughtFromSupplier.inset.contactPersonalTransportUnit.linkText = contact
 vehiclesBoughtFromSupplier.whereToFindDates.heading = Where to find these dates
 vehiclesBoughtFromSupplier.whereToFindDates.paragraph.1 = You can usually find the date of first registration in the vehicle log book. You can find the invoice date on the purchase invoice.
 vehiclesBoughtFromSupplier.addVehicle = Add vehicle
+
+##################################################
+# UVS1.0 - Upload a vehicle spreadsheet 1.0      #
+##################################################
+
+uploadVehicleSpreadsheet.title = Upload a vehicle spreadsheet
+uploadVehicleSpreadsheet.heading = Upload a vehicle spreadsheet
+uploadVehicleSpreadsheet.caption = Add vehicle details
+uploadVehicleSpreadsheet.paragraph.1 = Add details for up to 100 vehicles of the same type in one notification. You must {0}.
+uploadVehicleSpreadsheet.useCorrectSpreadsheet.linkText = use the correct spreadsheet
+uploadVehicleSpreadsheet.label = Upload a file
+uploadVehicleSpreadsheet.hint = Must be an OpenDocument Spreadsheet (ODS) file

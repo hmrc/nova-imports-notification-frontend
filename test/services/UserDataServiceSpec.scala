@@ -260,6 +260,65 @@ class UserDataServiceSpec extends SpecBase with MockitoSugar with ScalaFutures w
     }
   }
 
+  "UserDataService.storeInitialQuestionsPages" - {
+
+    val vatOrgContext = UserContext(
+      userType = NovaUserType.VatRegisteredOrganisation,
+      selectedClient = None,
+      notDeregistered = true,
+      isAgentWithClientNoEnrolments = false,
+      agentHasVatAgentEnrolment = false,
+      isForBusinessUse = false
+    )
+
+    def draftWithInitialQuestions(section: JsObject): DraftNotification =
+      draftWith(Map(SectionId.InitialQuestions -> DraftNotificationSection(Some(section))))
+
+    "must restore VehicleBusinessUsePage as false for a VAT-registered organisation whose saved answer was private use" in {
+      val section = Json.obj(
+        "bringingVehicleNI"             -> true,
+        "bringingVehicleBusiness"       -> false,
+        "bringingVehicleBusinessNeeded" -> true,
+        "registered"                    -> true
+      )
+
+      val result = UserDataService
+        .storeInitialQuestionsPages(draftWithInitialQuestions(section), emptyUserAnswers, stubSessionRepository(), vatOrgContext)
+        .futureValue
+
+      result.get(VehicleBusinessUsePage) mustBe Some(false)
+    }
+
+    "must restore VehicleBusinessUsePage as true for a VAT-registered organisation whose saved answer was business use" in {
+      val section = Json.obj(
+        "bringingVehicleNI"             -> true,
+        "bringingVehicleBusiness"       -> true,
+        "bringingVehicleBusinessNeeded" -> true,
+        "registered"                    -> true
+      )
+
+      val result = UserDataService
+        .storeInitialQuestionsPages(draftWithInitialQuestions(section), emptyUserAnswers, stubSessionRepository(), vatOrgContext)
+        .futureValue
+
+      result.get(VehicleBusinessUsePage) mustBe Some(true)
+    }
+
+    "must not derive VehicleBusinessUsePage from bringingVehicleBusinessNeeded alone - that flag only says the question was needed, not what the answer was" in {
+      val section = Json.obj(
+        "bringingVehicleNI"             -> true,
+        "bringingVehicleBusinessNeeded" -> true,
+        "registered"                    -> true
+      )
+
+      val result = UserDataService
+        .storeInitialQuestionsPages(draftWithInitialQuestions(section), emptyUserAnswers, stubSessionRepository(), vatOrgContext)
+        .futureValue
+
+      result.get(VehicleBusinessUsePage) mustBe None
+    }
+  }
+
   "UserDataService.retrieveAndStoreDraftNotification" - {
 
     implicit val hc: HeaderCarrier = HeaderCarrier()
