@@ -32,7 +32,7 @@ import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.AgentSelectedClientPage
 import pages.DraftIdPage
-import pages.sections.initialquestions.{PurchaserOrOnBehalfPage, VehicleFromEuPage}
+import pages.sections.initialquestions.{NotifyingAsPurchaserPage, VehicleFromEuPage}
 import pages.sections.vehicledetails.AddVehicleDetailsPage
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -224,7 +224,7 @@ class AddVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
 
     "must add supplier 1 and send a non-VAT-registered user who bought on behalf of the purchaser to UsePurchaserDetailsAsSupplierController" in {
 
-      val answers          = userAnswersWithIQ1Yes.set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser).success.value
+      val answers          = userAnswersWithIQ1Yes.set(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser).success.value
       val (application, _) = applicationWithMockRepository(answers)
 
       running(application) {
@@ -278,7 +278,7 @@ class AddVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
 
     "must add supplier 1 and send a VAT-registered organisation who bought on behalf of the purchaser to UsePersonalDetailsAsSupplierController" in {
 
-      val answers          = userAnswersWithIQ1Yes.set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser).success.value
+      val answers          = userAnswersWithIQ1Yes.set(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser).success.value
       val (application, _) = applicationWithMockRepository(answers, Some(applicationBuilderWithVatTrader(Some(answers))))
 
       running(application) {

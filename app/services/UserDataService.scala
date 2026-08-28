@@ -38,7 +38,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @ImplementedBy(classOf[UserDataServiceImpl])
 trait UserDataService {
 
-  def retrieveAndStoreDraftNotification(draftId: DraftId, userAnswers: UserAnswers)(implicit
+  def retrieveAndStoreDraftNotification(draftId: DraftId, userAnswers: UserAnswers, userContext: UserContext)(implicit
     hc: HeaderCarrier
   ): Future[Either[GetDraftNotificationError, UserAnswers]]
 
@@ -52,7 +52,7 @@ class UserDataServiceImpl @Inject() (
 )(implicit ec: ExecutionContext)
     extends UserDataService {
 
-  def retrieveAndStoreDraftNotification(draftId: DraftId, userAnswers: UserAnswers)(implicit
+  def retrieveAndStoreDraftNotification(draftId: DraftId, userAnswers: UserAnswers, userContext: UserContext)(implicit
     hc: HeaderCarrier
   ): Future[Either[GetDraftNotificationError, UserAnswers]] =
     backendConnector.getDraftNotification(draftId).flatMap {
@@ -62,7 +62,7 @@ class UserDataServiceImpl @Inject() (
       case Right(draft) =>
         for {
           u0 <- storeIntroductionPages(draft, userAnswers, repository)
-          u1 <- storeInitialQuestionsPages(draft, u0, repository)
+          u1 <- storeInitialQuestionsPages(draft, u0, repository, userContext)
           u2 <- storeNotifierDetailsPages(draft, u1, repository)
           u3 <- storeNotifierAddressPages(draft, u2, repository)
           u4 <- storePurchaserDetailsPages(draft, u3, repository)
@@ -95,11 +95,13 @@ object UserDataService {
         for {
           a1 <- sessionRepository.setPage(answers, IntroductionAcknowledgePage, intro.acknowledged)
           a2 <- sessionRepository.setPage(a1, AmendSubmittedNotificationPage, intro.amendSubmittedNotification)
-        } yield a2
+          a3 <- sessionRepository.setPage(a2, AgentActingOnBehalfOfClientPage, intro.agentActingOnBehalfOfClient)
+          a4 <- sessionRepository.setPage(a3, NotDeregisteredPage, intro.notDeregistered)
+        } yield a4
     }
 
-  def storeInitialQuestionsPages(draft: DraftNotification, answers: UserAnswers, sessionRepository: SessionRepository)(implicit
-    ec: ExecutionContext
+  def storeInitialQuestionsPages(draft: DraftNotification, answers: UserAnswers, sessionRepository: SessionRepository, userContext: UserContext)(
+    implicit ec: ExecutionContext
   ): Future[UserAnswers] =
     draft.sections
       .get(SectionId.InitialQuestions)
@@ -108,15 +110,18 @@ object UserDataService {
       case None     => Future.successful(answers)
       case Some(iq) =>
         for {
-          a1 <- sessionRepository.setPage(answers, VehicleFromEuPage, iq.vehicleFromEuToNi)
-          a2 <- iq.isForBusinessUse.fold(Future.successful(a1))(v => sessionRepository.setPage(a1, VehicleBusinessUsePage, v))
-          a3 <- iq.areYouBusinessOrPrivate.fold(Future.successful(a2))(v => sessionRepository.setPage(a2, BusinessOrPrivatePage, v))
-          a4 <- iq.notifyingAsPurchaserOrOnBehalf.fold(Future.successful(a3))(v => sessionRepository.setPage(a3, PurchaserOrOnBehalfPage, v))
-          a5 <- iq.isPurchaserBusinessOrPrivateIndividual.fold(Future.successful(a4))(v =>
-                  sessionRepository.setPage(a4, PurchaserBusinessOrIndividualPage, v)
-                )
-          a6 <- iq.agentClientVehicleBusinessUse.fold(Future.successful(a5))(v => sessionRepository.setPage(a5, AgentClientVehicleBusinessUsePage, v))
-        } yield a6
+          a1 <- sessionRepository.setPage(answers, VehicleFromEuPage, iq.bringingVehicleNI)
+          a2 <- iq.areYouBusinessPrivate.fold(Future.successful(a1))(v => sessionRepository.setPage(a1, BusinessOrPrivatePage, v))
+          a3 <- iq.notifyingAsPurchaser.fold(Future.successful(a2))(v => sessionRepository.setPage(a2, NotifyingAsPurchaserPage, v))
+          a4 <- iq.purchaserBusinessPrivate.fold(Future.successful(a3))(v => sessionRepository.setPage(a3, PurchaserBusinessOrIndividualPage, v))
+          a5 <- {
+            if userContext.agentHasVatAgentEnrolment then
+              iq.bringingVehicleBusiness.fold(Future.successful(a4))(v => sessionRepository.setPage(a4, AgentClientVehicleBusinessUsePage, v))
+            else if userContext.isVatRegisteredOrganisation then
+              iq.bringingVehicleBusiness.fold(Future.successful(a4))(v => sessionRepository.setPage(a4, VehicleBusinessUsePage, v))
+            else Future.successful(a4)
+          }
+        } yield a5
     }
 
   def storeNotifierDetailsPages(draft: DraftNotification, answers: UserAnswers, sessionRepository: SessionRepository)(implicit
@@ -347,7 +352,7 @@ object UserDataService {
     (
       answers.get(VehicleFromEuPage),
       answers.get(BusinessOrPrivatePage),
-      answers.get(PurchaserOrOnBehalfPage),
+      answers.get(NotifyingAsPurchaserPage),
       answers.get(PurchaserBusinessOrIndividualPage).isDefined
     ) match {
       case (Some(true), Some(_), Some(PurchaserOrOnBehalf.Purchaser), _)              => SectionStatus.Completed

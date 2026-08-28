@@ -698,3 +698,15 @@ supplierVatRegistrationDetails.label.vatNumber = VAT registration number
 supplierVatRegistrationDetails.country.error.required = Enter the country where the supplier is VAT registered
 supplierVatRegistrationDetails.vatNumber.error.required = Enter the supplier’s VAT registration number
 supplierVatRegistrationDetails.vatNumber.error.format = Enter the supplier’s VAT registration number in the correct format for the selected country
+
+##################################################
+# UVS1.0 - Upload a vehicle spreadsheet 1.0      #
+##################################################
+# TODO: Welsh translations to be supplied by content team.
+uploadVehicleSpreadsheet.title = Upload a vehicle spreadsheet
+uploadVehicleSpreadsheet.heading = Upload a vehicle spreadsheet
+uploadVehicleSpreadsheet.caption = Add vehicle details
+uploadVehicleSpreadsheet.paragraph.1 = Add details for up to 100 vehicles of the same type in one notification. You must {0}.
+uploadVehicleSpreadsheet.useCorrectSpreadsheet.linkText = use the correct spreadsheet
+uploadVehicleSpreadsheet.label = Upload a file
+uploadVehicleSpreadsheet.hint = Must be an OpenDocument Spreadsheet (ODS) file

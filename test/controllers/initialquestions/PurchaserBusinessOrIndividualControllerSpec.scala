@@ -24,7 +24,7 @@ import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.sections.initialquestions.{PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage}
+import pages.sections.initialquestions.{NotifyingAsPurchaserPage, PurchaserBusinessOrIndividualPage}
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
@@ -45,7 +45,7 @@ class PurchaserBusinessOrIndividualControllerSpec extends SpecBase with MockitoS
 
   val userAnswersWithGuardData: UserAnswers =
     emptyUserAnswers
-      .set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+      .set(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
       .success
       .value
 
@@ -184,7 +184,7 @@ class PurchaserBusinessOrIndividualControllerSpec extends SpecBase with MockitoS
     "must redirect to Journey Recovery for a GET if guard data has wrong value" in {
 
       val userAnswers = emptyUserAnswers
-        .set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
+        .set(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.Purchaser)
         .success
         .value
 

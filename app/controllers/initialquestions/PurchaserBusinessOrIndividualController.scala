@@ -22,7 +22,7 @@ import forms.PurchaserBusinessOrIndividualFormProvider
 import javax.inject.Inject
 import models.{Mode, NovaUserType, PurchaserBusinessOrIndividual, PurchaserOrOnBehalf, UserAnswers}
 import navigation.Navigator
-import pages.sections.initialquestions.{PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage}
+import pages.sections.initialquestions.{NotifyingAsPurchaserPage, PurchaserBusinessOrIndividualPage}
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -43,7 +43,7 @@ class PurchaserBusinessOrIndividualController @Inject() (
   val form: Form[PurchaserBusinessOrIndividual] = formProvider()
 
   private val guardPredicate: UserAnswers => Boolean =
-    _.get(PurchaserOrOnBehalfPage).contains(PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+    _.get(NotifyingAsPurchaserPage).contains(PurchaserOrOnBehalf.OnBehalfOfPurchaser)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithGuard(guardPredicate) { implicit request =>
     Ok(view(form.withDefault(request.userAnswers.get(PurchaserBusinessOrIndividualPage)), mode))

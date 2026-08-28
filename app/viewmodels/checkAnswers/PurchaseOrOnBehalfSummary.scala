@@ -18,7 +18,7 @@ package viewmodels.checkAnswers
 
 import controllers.initialquestions.routes
 import models.{CheckMode, PurchaserOrOnBehalf, UserAnswers}
-import pages.sections.initialquestions.PurchaserOrOnBehalfPage
+import pages.sections.initialquestions.NotifyingAsPurchaserPage
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
@@ -27,7 +27,7 @@ import viewmodels.implicits.*
 object PurchaseOrOnBehalfSummary {
 
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(PurchaserOrOnBehalfPage).map { answer =>
+    answers.get(NotifyingAsPurchaserPage).map { answer =>
 
       val value = answer match {
         case PurchaserOrOnBehalf.Purchaser           => messages("purchaserOrOnBehalf.radio.purchaser")

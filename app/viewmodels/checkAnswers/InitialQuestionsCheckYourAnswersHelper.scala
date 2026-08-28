@@ -17,7 +17,7 @@
 package viewmodels.checkAnswers
 
 import models.{NovaUserType, PurchaserOrOnBehalf, UserAnswers, UserContext}
-import pages.sections.initialquestions.PurchaserOrOnBehalfPage
+import pages.sections.initialquestions.NotifyingAsPurchaserPage
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import viewmodels.govuk.summarylist.*
@@ -42,7 +42,7 @@ object InitialQuestionsCheckYourAnswersHelper {
         ).flatten
 
       case _ =>
-        val conditionalRow = answers.get(PurchaserOrOnBehalfPage) match {
+        val conditionalRow = answers.get(NotifyingAsPurchaserPage) match {
           case Some(PurchaserOrOnBehalf.OnBehalfOfPurchaser) => PurchaserBusinessOrIndividualSummary.row(answers)
           case _                                             => None
         }

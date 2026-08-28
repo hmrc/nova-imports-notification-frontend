@@ -27,7 +27,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import pages.DraftIdPage
-import pages.sections.initialquestions.{PurchaserOrOnBehalfPage, VehicleFromEuPage}
+import pages.sections.initialquestions.{NotifyingAsPurchaserPage, VehicleFromEuPage}
 import pages.sections.purchaseraddress.PurchaserAddressPage
 import pages.sections.purchaserdetails.PurchaserBusinessNamePage
 import pages.sections.supplierdetails.UsePurchaserDetailsAsSupplierPage
@@ -64,7 +64,7 @@ class UsePurchaserDetailsAsSupplierControllerSpec extends SpecBase with MockitoS
       .unsafeSet(AddVehicleDetailsPage, AddVehicleDetails.BySupplier)
       .unsafeSet(VehicleFromEuPage, true)
       .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj()))
-      .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+      .unsafeSet(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
       .unsafeSet(PurchaserBusinessNamePage, "ABC Ltd")
       .unsafeSet(PurchaserAddressPage, Address(Seq("1 Arundel Mews"), Some("BN11 5RG"), Country("GB", "United Kingdom")))
 
@@ -149,7 +149,7 @@ class UsePurchaserDetailsAsSupplierControllerSpec extends SpecBase with MockitoS
 
     "must redirect to Unauthorised for a VAT-registered organisation (they belong on the personal-details page)" in {
 
-      val answers     = answersSatisfyingGuard.unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
+      val answers     = answersSatisfyingGuard.unsafeSet(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.Purchaser)
       val application = vatTraderApplicationBuilder(Some(answers)).build()
 
       running(application) {
@@ -167,7 +167,7 @@ class UsePurchaserDetailsAsSupplierControllerSpec extends SpecBase with MockitoS
         .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
         .unsafeSet(AddVehicleDetailsPage, AddVehicleDetails.BySupplier)
         .unsafeSet(VehicleFromEuPage, true)
-        .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
+        .unsafeSet(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.Purchaser)
       val application = applicationBuilder(userAnswers = Some(answers)).build()
 
       running(application) {
@@ -227,7 +227,7 @@ class UsePurchaserDetailsAsSupplierControllerSpec extends SpecBase with MockitoS
         .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
         .unsafeSet(AddVehicleDetailsPage, AddVehicleDetails.BySupplier)
         .unsafeSet(VehicleFromEuPage, false)
-        .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+        .unsafeSet(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
       val application = applicationBuilder(userAnswers = Some(answers)).build()
 
       running(application) {

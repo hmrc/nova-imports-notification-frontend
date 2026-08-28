@@ -19,7 +19,7 @@ package services
 import com.google.inject.{ImplementedBy, Inject, Singleton}
 import connectors.{GetNotificationSummaryError, NovaImportsBackendConnector}
 import models.{NotificationSummary, UserAnswers}
-import pages.IsDeregisteredPage
+import pages.sections.introduction.{AgentActingOnBehalfOfClientPage, NotDeregisteredPage}
 import repositories.SessionRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -45,7 +45,14 @@ class NotificationSummaryServiceImpl @Inject() (
   ): Future[Either[GetNotificationSummaryError, (NotificationSummary, UserAnswers)]] =
     backendConnector.getNotificationSummary(clientVrn).flatMap {
       case Right(summary: NotificationSummary.IndividualOrOrganisation) =>
-        sessionRepository.setPage(answers, IsDeregisteredPage, summary.isDeregistered).map(saved => Right((summary, saved)))
+        sessionRepository.setPage(answers, NotDeregisteredPage, !summary.isDeregistered).map(saved => Right((summary, saved)))
+      case Right(summary: NotificationSummary.AgentWithoutClient) =>
+        sessionRepository.setPage(answers, AgentActingOnBehalfOfClientPage, true).map(saved => Right((summary, saved)))
+      case Right(summary: NotificationSummary.AgentWithClient) =>
+        for {
+          a1 <- sessionRepository.setPage(answers, AgentActingOnBehalfOfClientPage, true)
+          a2 <- sessionRepository.setPage(a1, NotDeregisteredPage, !summary.clientIsDeregistered)
+        } yield Right((summary, a2))
       case Right(summary) =>
         Future.successful(Right((summary, answers)))
       case Left(error) =>

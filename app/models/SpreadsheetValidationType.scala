@@ -16,16 +16,13 @@
 
 package models
 
-enum PurchaserBusinessOrIndividual(val jsonValue: String) {
-  case NonVatRegisteredBusiness extends PurchaserBusinessOrIndividual("self") // NON_VAT_REG_BUSINESS
-  case NonVatRegisteredPrivateIndividual extends PurchaserBusinessOrIndividual("other") // PRIVATE_INDIVIDUAL
+import play.api.libs.json.{JsString, Writes}
 
-  override def toString: String = jsonValue
+enum SpreadsheetValidationType {
+  case CarsEu
+  case CarsNonEu
 }
 
-object PurchaserBusinessOrIndividual extends Enumerable.Implicits {
-  given Enumerable[PurchaserBusinessOrIndividual] = Enumerable(
-    NonVatRegisteredBusiness.jsonValue          -> NonVatRegisteredBusiness,
-    NonVatRegisteredPrivateIndividual.jsonValue -> NonVatRegisteredPrivateIndividual
-  )
+object SpreadsheetValidationType {
+  implicit val writes: Writes[SpreadsheetValidationType] = Writes(validationType => JsString(validationType.toString))
 }

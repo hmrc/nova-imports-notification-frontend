@@ -1,0 +1,52 @@
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@this(
+    layout: templates.Layout,
+    govukFileUpload: GovukFileUpload,
+    govukButton: GovukButton,
+    hmrcNewTabLinkHelper: HmrcNewTabLinkHelper
+)
+
+@(uploadUrl: String, fields: Map[String, String], spreadsheetUrl: String)(implicit request: Request[?], messages: Messages)
+
+@layout(pageTitle = titleNoForm(messages("uploadVehicleSpreadsheet.title"))) {
+
+    <span class="govuk-caption-l">@messages("uploadVehicleSpreadsheet.caption")</span>
+
+    <h1 class="govuk-heading-l">@messages("uploadVehicleSpreadsheet.heading")</h1>
+
+    <p class="govuk-body">@Html(messages("uploadVehicleSpreadsheet.paragraph.1",
+        hmrcNewTabLinkHelper(LinkViewModel(messages("uploadVehicleSpreadsheet.useCorrectSpreadsheet.linkText"), spreadsheetUrl))))</p>
+
+    <form method="post" enctype="multipart/form-data" action="@uploadUrl">
+
+        @fields.map { case (fieldName, fieldValue) =>
+            <input type="hidden" name="@fieldName" value="@fieldValue">
+        }
+
+        @govukFileUpload(FileUpload(
+            name = "file",
+            id = "file",
+            label = Label(content = Text(messages("uploadVehicleSpreadsheet.label"))),
+            hint = Some(Hint(content = Text(messages("uploadVehicleSpreadsheet.hint")))),
+            attributes = Map("required" -> "required"),
+            javascript = Some(true)
+        ))
+
+        @govukButton(ButtonViewModel(messages("site.continue")))
+    </form>
+}

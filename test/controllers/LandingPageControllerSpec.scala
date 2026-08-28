@@ -24,7 +24,8 @@ import models.{AgentSelectedClient, NotificationSummary, UserAnswers}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{AgentSelectedClientPage, IsDeregisteredPage}
+import pages.AgentSelectedClientPage
+import pages.sections.introduction.NotDeregisteredPage
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -344,7 +345,7 @@ class LandingPageControllerSpec extends SpecBase with MockitoSugar {
           given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, landingPageRoute)
 
           status(route(application, request).value) mustEqual OK
-          verify(sessionRepo).setPage(any(), eqTo(IsDeregisteredPage), eqTo(true))(any())
+          verify(sessionRepo).setPage(any(), eqTo(NotDeregisteredPage), eqTo(false))(any())
         }
       }
 

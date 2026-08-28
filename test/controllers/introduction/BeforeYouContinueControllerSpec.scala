@@ -27,7 +27,7 @@ import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.AgentSelectedClientPage
-import pages.sections.initialquestions.{PurchaserOrOnBehalfPage, VehicleFromEuPage}
+import pages.sections.initialquestions.{NotifyingAsPurchaserPage, VehicleFromEuPage}
 import pages.sections.introduction.{AmendSubmittedNotificationPage, IntroductionAcknowledgePage}
 import play.api.Application
 import play.api.inject.bind
@@ -92,7 +92,7 @@ class BeforeYouContinueControllerSpec extends SpecBase with MockitoSugar {
       .set(VehicleFromEuPage, true)
       .success
       .value
-      .set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
+      .set(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.Purchaser)
       .success
       .value
       .set(AmendSubmittedNotificationPage, true)
@@ -104,7 +104,7 @@ class BeforeYouContinueControllerSpec extends SpecBase with MockitoSugar {
       .set(VehicleFromEuPage, true)
       .success
       .value
-      .set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
+      .set(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.Purchaser)
       .success
       .value
       .set(AmendSubmittedNotificationPage, true)
@@ -232,7 +232,7 @@ class BeforeYouContinueControllerSpec extends SpecBase with MockitoSugar {
           val capturedAnswers = answersCaptor.getValue
           // answers from the previous session have been cleared
           capturedAnswers.get(VehicleFromEuPage) mustEqual None
-          capturedAnswers.get(PurchaserOrOnBehalfPage) mustEqual None
+          capturedAnswers.get(NotifyingAsPurchaserPage) mustEqual None
           // a new notification must NOT inherit an amendment flag from a previous answers
           capturedAnswers.get(AmendSubmittedNotificationPage) mustEqual None
           capturedAnswers.get(AgentSelectedClientPage) mustEqual None
@@ -260,7 +260,7 @@ class BeforeYouContinueControllerSpec extends SpecBase with MockitoSugar {
           // the agent's selected client is the only thing preserved into the new session
           capturedAnswers.get(AgentSelectedClientPage) mustEqual Some(sampleClient)
           capturedAnswers.get(VehicleFromEuPage) mustEqual None
-          capturedAnswers.get(PurchaserOrOnBehalfPage) mustEqual None
+          capturedAnswers.get(NotifyingAsPurchaserPage) mustEqual None
           capturedAnswers.get(AmendSubmittedNotificationPage) mustEqual None
         }
       }
