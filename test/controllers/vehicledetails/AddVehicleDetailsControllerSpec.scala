@@ -373,6 +373,28 @@ class AddVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
+    "must show the Unauthorised (ERR1) screen for an Agent who has a draft but answered No to IQ1" in {
+
+      // QA scenario: an agent completes CYA1.0 answering No to IQ1.0, then tries to access AVD1.0.
+      val answersIq1No = emptyUserAnswers
+        .set(DraftIdPage, DraftId("DRAFT-001"))
+        .success
+        .value
+        .set(VehicleFromEuPage, false)
+        .success
+        .value
+      val application = agentApplicationBuilder(answersIq1No).build()
+
+      running(application) {
+        val request = FakeRequest(GET, addVehicleDetailsRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+
     "must redirect to Unauthorised for a GET if draftId is missing" in {
 
       val answersWithoutDraftId = emptyUserAnswers.set(VehicleFromEuPage, true).success.value

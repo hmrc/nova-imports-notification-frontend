@@ -48,6 +48,13 @@ class Navigator @Inject() () {
               case Some(_) => initialquestions.routes.AgentVehicleBusinessUseController.onPageLoad(NormalMode)
               case _       => routes.JourneyRecoveryController.onPageLoad()
             }
+          case NovaUserType.Agent =>
+            // Agent without a selected client (user types 3/6): both answers continue to BusinessPrivateController,
+            // like an organisation. Previously "No" routed to VehicleOutsideEUController and got stuck on IQ1.1.
+            userAnswers.get(VehicleFromEuPage) match {
+              case Some(_) => initialquestions.routes.BusinessPrivateController.onPageLoad(NormalMode)
+              case _       => routes.JourneyRecoveryController.onPageLoad()
+            }
           case _ =>
             userAnswers.get(VehicleFromEuPage) match {
               case Some(true)  => initialquestions.routes.BusinessPrivateController.onPageLoad(NormalMode)
