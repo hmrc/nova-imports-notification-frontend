@@ -17,6 +17,8 @@
 package viewmodels.checkAnswers
 
 import models.{SupplierNumber, UserAnswers, UserContext}
+import pages.QuestionPage
+import pages.sections.supplierdetails.{UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import viewmodels.govuk.summarylist.*
@@ -26,13 +28,41 @@ object SupplierDetailsCheckYourAnswersHelper {
   def buildSummaryList(userContext: UserContext, answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages): SummaryList =
     SummaryListViewModel(rows = buildRows(answers, supplierNumber))
 
-  private def buildRows(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages) =
-    Seq(
-      SupplierBusinessOrIndividualSummary.row(answers, supplierNumber),
-      SupplierBusinessNameSummary.row(answers, supplierNumber), // TODO: Unit tests, see other Summary examples
-      SupplierNameSummary.row(answers, supplierNumber),
-      SupplierAddressSummary.row(answers, supplierNumber), // TODO: Unit tests, see other Summary examples
-      SupplierVatRegisteredSummary.row(answers, supplierNumber), // TODO: Unit tests, see other Summary examples
-      SupplierVatRegistrationNumberSummary.row(answers, supplierNumber) // TODO: Unit tests, see other Summary examples
-    ).flatten
+  private def buildRows(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages) = {
+
+    if (isUsingPersonalDetails(answers, supplierNumber)) {
+      Seq(
+        SupplierNameSummary.rowFromPersonalDetails(answers, supplierNumber),
+        SupplierAddressSummary.rowFromPersonalDetails(answers, supplierNumber),
+      ).flatten
+    } else if (isUsingPurchaserDetails(answers, supplierNumber)) {
+      Seq(
+        SupplierNameSummary.rowFromPurchaserDetails(answers, supplierNumber), //TODO: Can pass in the page / name details. Will also need to determine the change redirect page
+        SupplierAddressSummary.rowFromPurchaserDetails(answers, supplierNumber),
+      ).flatten
+    } else {
+      //TODO: Will the missing rows just be skipped avoiding displaying the extra fields or will that be an issue?
+      Seq(
+        SupplierBusinessOrIndividualSummary.row(answers, supplierNumber),
+        SupplierBusinessNameSummary.row(answers, supplierNumber), // TODO: Unit tests, see other Summary examples
+        SupplierNameSummary.rowFromSupplierDetails(answers, supplierNumber), // TODO: Update Unit tests. Already existed but will need to change with new row methods
+        SupplierAddressSummary.rowFromSupplierDetails(answers, supplierNumber), // TODO: Unit tests, see other Summary examples. Also do all 3 row types
+        SupplierVatRegisteredSummary.row(answers, supplierNumber), // TODO: Unit tests, see other Summary examples
+        SupplierVatRegistrationNumberSummary.row(answers, supplierNumber) // TODO: Unit tests, see other Summary examples
+      ).flatten
+    }
+
+  }
+
+
+  private def isAnswerTrue(answers: UserAnswers, page: QuestionPage[Boolean]): Boolean = answers.get(page).contains(true)
+
+  private def isUsingPersonalDetails(answers: UserAnswers, supplierNumber: SupplierNumber): Boolean = {
+    isAnswerTrue(answers, UsePersonalDetailsAsSupplierPage(supplierNumber))
+  }
+  private def isUsingPurchaserDetails(answers: UserAnswers, supplierNumber: SupplierNumber): Boolean = {
+    isAnswerTrue(answers, UsePurchaserDetailsAsSupplierPage(supplierNumber))
+  }
+
+
 }

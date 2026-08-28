@@ -17,7 +17,10 @@
 package viewmodels.checkAnswers
 
 import controllers.supplierdetails.routes
-import models.{CheckMode, SupplierNumber, UserAnswers}
+import models.{CheckMode, NameDetails, SupplierNumber, UserAnswers}
+import pages.QuestionPage
+import pages.sections.notifierdetails.NameDetailsPage
+import pages.sections.purchaserdetails.PurchaserNamePage
 import pages.sections.supplierdetails.SupplierNamePage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
@@ -27,9 +30,21 @@ import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 
 object SupplierNameSummary {
+  
+  def rowFromPersonalDetails(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages): Option[SummaryListRow] = {
+    row(answers, NameDetailsPage, routes.UsePersonalDetailsAsSupplierController.onPageLoad(supplierNumber, CheckMode).url)
+  }
 
-  def row(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(SupplierNamePage(supplierNumber)).map { name =>
+  def rowFromPurchaserDetails(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages): Option[SummaryListRow] = {
+    row(answers, PurchaserNamePage, routes.UsePurchaserDetailsAsSupplierController.onPageLoad(supplierNumber, CheckMode).url)
+  }
+
+  def rowFromSupplierDetails(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages): Option[SummaryListRow] = {
+    row(answers, SupplierNamePage(supplierNumber), routes.SupplierNameController.onPageLoad(supplierNumber, CheckMode).url)
+  }
+
+  private def row(answers: UserAnswers, namePage: QuestionPage[NameDetails], redirectUrl: String)(implicit messages: Messages): Option[SummaryListRow] = {
+    answers.get(namePage).map { name =>
 
       val value = Seq(name.title, name.firstName, name.lastName)
         .map(part => HtmlFormat.escape(part).body)
@@ -39,9 +54,10 @@ object SupplierNameSummary {
         key = "supplierName.checkYourAnswersLabel",
         value = ValueViewModel(HtmlContent(value)),
         actions = Seq(
-          ActionItemViewModel("site.change", routes.SupplierNameController.onPageLoad(supplierNumber, CheckMode).url)
+          ActionItemViewModel("site.change", redirectUrl)
             .withVisuallyHiddenText(messages("supplierName.change.hidden"))
         )
       )
     }
+  }
 }

@@ -20,12 +20,15 @@ import connectors.NovaImportsBackendConnector
 import controllers.BaseController
 import controllers.actions.*
 import controllers.utils.IsDraftIdDefined
-import models.draftsections.SupplierDetails
+import models.draftsections.{SupplierDetails, SupplierSelfSupplyDetails}
 import models.requests.DataRequest
-import models.{BusinessOrPrivateIndividual, NameDetails, NormalMode, SupplierNumber, UserAnswers, UserContext, VatNumberDetails}
+import models.{Address, BusinessOrPrivateIndividual, NameDetails, NormalMode, SupplierNumber, UserAnswers, UserContext, VatNumberDetails}
 import pages.*
-import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, VehicleBusinessUsePage}
+import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, VehicleBusinessUsePage}
+import pages.sections.notifieraddress.AddressPage
 import pages.sections.notifierdetails.*
+import pages.sections.purchaseraddress.PurchaserAddressPage
+import pages.sections.purchaserdetails.PurchaserNamePage
 import pages.sections.supplieraddress.{SupplierAddressJourneyIdPage, SupplierAddressPage}
 import pages.sections.supplierdetails.*
 import play.api.Logging
@@ -57,13 +60,10 @@ class SupplierDetailsCheckYourAnswersController @Inject() (
 
   def onChangeAddress(supplierNumber: SupplierNumber): Action[AnyContent] =
     actions.authAndGetDataWithUserTypeGuard(guardPredicate).async { implicit request =>
-//    TODO: should we use or call AddressChangedController.supplierOnChangeAddress    Probably not from the looks.
-      // TODO: May need special case for using own details
-      // TODO: Will the appropriate pages navigate back here or is the entire sequence following updating the address required ???
       for {
         cleared <- Future.fromTry(
-                     request.userAnswers.remove(SupplierAddressPage(supplierNumber)).flatMap(_.remove(SupplierAddressJourneyIdPage(supplierNumber)))
-                   )
+          request.userAnswers.remove(SupplierAddressPage(supplierNumber)).flatMap(_.remove(SupplierAddressJourneyIdPage(supplierNumber)))
+        )
         _ <- sessionRepository.set(cleared)
       } yield Redirect(controllers.supplieraddress.routes.IsSupplierAddressInTheUKController.onPageLoad(supplierNumber, NormalMode))
     }
@@ -72,32 +72,61 @@ class SupplierDetailsCheckYourAnswersController @Inject() (
     actions.authAndGetDataWithUserTypeGuard(guardPredicate).async { implicit request =>
       implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
-      val submissionData = for {
+      val submissionIDs = for {
         draftId     <- request.userAnswers.get(DraftIdPage)
         versionId   <- request.userAnswers.get(DraftVersionIdPage)
-        sectionData <- buildSectionData(request.userContext, request.userAnswers, supplierNumber)
-      } yield (draftId, versionId, sectionData)
+      } yield (draftId, versionId)
 
-      submissionData match {
+      def failureRecovery = {
+        //TODO: Is this the correct place to redirect to on failure?
+        Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+      }
+
+      def navigateToNextPage(newVersionId: Long) = {
+        sessionRepository
+          .setPage(request.userAnswers, DraftVersionIdPage, newVersionId)
+          .map(_ => Redirect(nextPage(supplierNumber)))
+      }
+
+      submissionIDs match {
         case None =>
-          logger.warn("Failed to submit 'supplier-details' — draftId, versionId or section data missing")
-          Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+          logger.warn("Failed to submit 'notifier-details' of type SupplierSelfSupply — draftId, versionId or section data missing")
+          failureRecovery
 
-        // TODO: We need to determine the json structure to be sent to the backend and then contruct it and send it via the appropriate backendConnector call. Prob updateDraftSection or a new one ?
+        case Some((draftId, versionId)) =>
+          // Save SupplierSelfSupply
+          val selfSupply = isSelfSupply(request.userAnswers, supplierNumber)
+          val selfSupplySectionData = buildSelfSupplySectionData(selfSupply)
+          val selfSupplierSectionJsonBody = selfSupplySectionData + ("versionId" -> Json.toJson(versionId))
+          backendConnector.updateDraftSection(draftId, "notifier-details", selfSupplierSectionJsonBody).flatMap {
+            case Right(selfSupplierNewVersionId) =>
 
-        case Some((draftId, versionId, sectionData)) =>
-          val sectionJsonBody = sectionData + ("versionId" -> Json.toJson(versionId))
-          backendConnector.updateDraftSection(draftId, "notifier-details", sectionJsonBody).flatMap {
-            case Right(newVersionId) =>
-              sessionRepository
-                .setPage(request.userAnswers, DraftVersionIdPage, newVersionId)
-                .map(_ => Redirect(nextPage(supplierNumber)))
+              if (selfSupply) {
+                navigateToNextPage(selfSupplierNewVersionId)
+              } else {
+                // Save SupplierDetails if the self supply is false
+                buildSupplierDetailsSectionData(request.userContext, request.userAnswers, supplierNumber) match {
+                  case Some(supplierDetailsSectionData) =>
+                    val supplierDetailsSectionJsonBody = selfSupplySectionData + ("versionId" -> Json.toJson(selfSupplierNewVersionId))
+                    backendConnector.updateDraftSection(draftId, "notifier-details", supplierDetailsSectionJsonBody).flatMap {
+                      case Right(supplierDetailsNewVersionId) =>
+                        navigateToNextPage(supplierDetailsNewVersionId)
+                      case Left(error) =>
+                        logger.warn(s"Failed to update 'notifier-details' section of type SupplierDetails for draftId ${draftId.value}: $error")
+                        failureRecovery
+                    }
+                  case None =>
+                    failureRecovery
+                }
+              }
+
             case Left(error) =>
-              logger.warn(s"Failed to update 'notifier-details' section for draftId ${draftId.value}: $error")
-              Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+              logger.warn(s"Failed to update 'notifier-details' section of type SupplierSelfSupply for draftId ${draftId.value}: $error")
+              failureRecovery
           }
       }
     }
+
 }
 
 object SupplierDetailsCheckYourAnswersController {
@@ -151,7 +180,23 @@ object SupplierDetailsCheckYourAnswersController {
       answers.get(EmailAddressPage).isDefined &&
       (answers.get(NameDetailsPage).isDefined == answers.get(AgentClientVehicleBusinessUsePage).contains(false))
 
-  def buildSectionData(userContext: UserContext, answers: UserAnswers, supplierNumber: SupplierNumber): Option[JsObject] = {
+
+  private def isSelfSupply(answers: UserAnswers, supplierNumber: SupplierNumber): Boolean = {
+    def isTrue(page: QuestionPage[Boolean]): Boolean = answers.get(page).contains(true)
+
+    isTrue(UsePersonalDetailsAsSupplierPage(supplierNumber))
+      || isTrue(UsePurchaserDetailsAsSupplierPage(supplierNumber))
+  }
+
+  def buildSelfSupplySectionData(selfSupply: Boolean): JsObject = {
+    Json.toJson(
+        SupplierSelfSupplyDetails(
+          selfSupply
+        )
+      ).as[JsObject]
+  }
+
+  def buildSupplierDetailsSectionData(userContext: UserContext, answers: UserAnswers, supplierNumber: SupplierNumber): Option[JsObject] = {
     for {
       supplierBusinessOrIndividual  <- answers.get(SupplierBusinessOrIndividualPage(supplierNumber))
       supplierBusinessName          <- answers.get(SupplierBusinessNamePage(supplierNumber))
@@ -161,7 +206,7 @@ object SupplierDetailsCheckYourAnswersController {
       supplierVatRegistrationNumber <- answers.get(SupplierVatRegistrationNumberPage(supplierNumber))
     } yield {
 
-      def buildSupplierDetailsSectionData(businessName: Option[String], name: Option[NameDetails], vatRegDetails: Option[VatNumberDetails]) = {
+      def buildSectionData(businessName: Option[String], name: Option[NameDetails], vatRegDetails: Option[VatNumberDetails]) = {
         Json
           .toJson(
             SupplierDetails(
@@ -185,20 +230,22 @@ object SupplierDetailsCheckYourAnswersController {
           .as[JsObject]
       }
 
+      //TODO: Adjust is buisness based on prior check to determine if using own details, purchaser details or supplier details.
+
       answers.get(SupplierBusinessOrIndividualPage(supplierNumber)) match {
         case Some(BusinessOrPrivateIndividual.Business) =>
           answers.get(IsSupplierVatRegisteredPage(supplierNumber)) match {
             case Some(vatRegistered: true) =>
-              buildSupplierDetailsSectionData(Some(supplierBusinessName), None, Some(supplierVatRegistrationNumber))
+              buildSectionData(Some(supplierBusinessName), None, Some(supplierVatRegistrationNumber))
             case Some(false) =>
-              buildSupplierDetailsSectionData(Some(supplierBusinessName), None, None)
+              buildSectionData(Some(supplierBusinessName), None, None)
           }
         case Some(BusinessOrPrivateIndividual.PrivateIndividual) =>
           answers.get(IsSupplierVatRegisteredPage(supplierNumber)) match {
             case Some(vatRegistered: true) =>
-              buildSupplierDetailsSectionData(None, Some(supplierName), Some(supplierVatRegistrationNumber))
+              buildSectionData(None, Some(supplierName), Some(supplierVatRegistrationNumber))
             case Some(false) =>
-              buildSupplierDetailsSectionData(None, Some(supplierName), None)
+              buildSectionData(None, Some(supplierName), None)
           }
       }
     }

@@ -17,7 +17,10 @@
 package viewmodels.checkAnswers
 
 import controllers.supplierdetails.routes
-import models.{SupplierNumber, UserAnswers}
+import models.{Address, CheckMode, SupplierNumber, UserAnswers}
+import pages.QuestionPage
+import pages.sections.notifieraddress.AddressPage
+import pages.sections.purchaseraddress.PurchaserAddressPage
 import pages.sections.supplieraddress.SupplierAddressPage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
@@ -27,9 +30,21 @@ import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 
 object SupplierAddressSummary {
+  
+  def rowFromPersonalDetails(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages): Option[SummaryListRow] = {
+    row(answers, AddressPage, routes.UsePersonalDetailsAsSupplierController.onPageLoad(supplierNumber, CheckMode).url)
+  }
 
-  def row(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(SupplierAddressPage(supplierNumber)).map { address =>
+  def rowFromPurchaserDetails(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages): Option[SummaryListRow] = {
+    row(answers, PurchaserAddressPage, routes.UsePurchaserDetailsAsSupplierController.onPageLoad(supplierNumber, CheckMode).url)
+  }
+
+  def rowFromSupplierDetails(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages): Option[SummaryListRow] = {
+    row(answers, SupplierAddressPage(supplierNumber), routes.SupplierDetailsCheckYourAnswersController.onChangeAddress(supplierNumber).url)
+  }
+  
+  private def row(answers: UserAnswers, addressPage: QuestionPage[Address], redirectUrl: String)(implicit messages: Messages): Option[SummaryListRow] =
+    answers.get(addressPage).map { address =>
 
       val countryLine = if (address.country.code == "GB") None else Some(address.country.name)
 
@@ -42,7 +57,7 @@ object SupplierAddressSummary {
         key = "supplierAddressCheckYourAnswers.checkYourAnswersLabel",
         value = ValueViewModel(HtmlContent(value)),
         actions = Seq(
-          ActionItemViewModel("site.change", routes.SupplierDetailsCheckYourAnswersController.onChangeAddress(supplierNumber).url)
+          ActionItemViewModel("site.change", redirectUrl)
             .withVisuallyHiddenText(messages("supplierAddressCheckYourAnswers.change.hidden"))
         )
       )
