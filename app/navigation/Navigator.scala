@@ -48,6 +48,11 @@ class Navigator @Inject() () {
               case Some(_) => initialquestions.routes.AgentVehicleBusinessUseController.onPageLoad(NormalMode)
               case _       => routes.JourneyRecoveryController.onPageLoad()
             }
+          case NovaUserType.Agent =>
+            userAnswers.get(VehicleFromEuPage) match {
+              case Some(_) => initialquestions.routes.BusinessPrivateController.onPageLoad(NormalMode)
+              case _       => routes.JourneyRecoveryController.onPageLoad()
+            }
           case _ =>
             userAnswers.get(VehicleFromEuPage) match {
               case Some(true)  => initialquestions.routes.BusinessPrivateController.onPageLoad(NormalMode)

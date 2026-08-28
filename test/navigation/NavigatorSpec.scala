@@ -202,10 +202,14 @@ class NavigatorSpec extends SpecBase {
           ) mustBe initialquestions.routes.BusinessPrivateController.onPageLoad(NormalMode)
         }
 
-        "must go from VehicleFromEuPage to VehicleOutsideEUController when No is selected" in {
+        "must go from VehicleFromEuPage to BusinessPrivateController when No is selected" in {
           val ua = userAnswers.set(VehicleFromEuPage, false).success.value
-          navigator.nextPage(VehicleFromEuPage, NormalMode, ua, NovaUserType.Agent) mustBe initialquestions.routes.VehicleOutsideEUController
-            .onPageLoad()
+          navigator.nextPage(
+            VehicleFromEuPage,
+            NormalMode,
+            ua,
+            NovaUserType.Agent
+          ) mustBe initialquestions.routes.BusinessPrivateController.onPageLoad(NormalMode)
         }
       }
 
