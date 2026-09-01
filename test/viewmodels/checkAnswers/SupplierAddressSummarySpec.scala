@@ -32,6 +32,8 @@ class SupplierAddressSummarySpec extends SpecBase {
 
   "SupplierAddressSummary" - {
 
+    //TODO: Add using client address details tests once AVD-S1.2 page is added
+
     "must end a UK address with the postcode and never show the country name when using personal address details" in {
       val address = Address(
         lines = Seq("12 High Street", "Reading"),

@@ -42,6 +42,8 @@ object SupplierAddressSummary {
   def rowFromSupplierDetails(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages): Option[SummaryListRow] = {
     row(answers, SupplierAddressPage(supplierNumber), routes.SupplierDetailsCheckYourAnswersController.onChangeAddress(supplierNumber).url)
   }
+  
+  //TODO: Add rowFromClientDetails once AVD-S1.2 page is added 
 
   private def row(answers: UserAnswers, addressPage: QuestionPage[Address], redirectUrl: String)(implicit
     messages: Messages

@@ -24,14 +24,14 @@ import models.draftsections.{SupplierDetails, SupplierSelfSupplyDetails}
 import models.requests.DataRequest
 import models.{Address, BusinessOrPrivateIndividual, NameDetails, NormalMode, SupplierNumber, UserAnswers, UserContext, VatNumberDetails}
 import pages.*
-import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, VehicleBusinessUsePage}
-import pages.sections.notifierdetails.*
+import pages.sections.initialquestions.VehicleFromEuPage
 import pages.sections.supplieraddress.{SupplierAddressJourneyIdPage, SupplierAddressPage}
 import pages.sections.supplierdetails.*
 import play.api.Logging
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
+import services.SupplierService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import views.html.SupplierDetailsCheckYourAnswersView
@@ -44,19 +44,20 @@ class SupplierDetailsCheckYourAnswersController @Inject() (
   actions: Actions,
   backendConnector: NovaImportsBackendConnector,
   sessionRepository: SessionRepository,
-  view: SupplierDetailsCheckYourAnswersView
+  view: SupplierDetailsCheckYourAnswersView,
+  supplierService: SupplierService
 )(implicit ec: ExecutionContext)
     extends BaseController
     with Logging {
 
   import SupplierDetailsCheckYourAnswersController.*
 
-  def onPageLoad(supplierNumber: SupplierNumber): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate) { implicit request =>
+  def onPageLoad(supplierNumber: SupplierNumber): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierService, supplierNumber)) { implicit request =>
     Ok(view(request.userContext, request.userAnswers, supplierNumber))
   }
 
   def onChangeAddress(supplierNumber: SupplierNumber): Action[AnyContent] =
-    actions.authAndGetDataWithUserTypeGuard(guardPredicate).async { implicit request =>
+    actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierService, supplierNumber)).async { implicit request =>
       for {
         cleared <- Future.fromTry(
                      request.userAnswers.remove(SupplierAddressPage(supplierNumber)).flatMap(_.remove(SupplierAddressJourneyIdPage(supplierNumber)))
@@ -66,7 +67,7 @@ class SupplierDetailsCheckYourAnswersController @Inject() (
     }
 
   def onChangeIsSupplierVatRegistered(supplierNumber: SupplierNumber): Action[AnyContent] =
-    actions.authAndGetDataWithUserTypeGuard(guardPredicate).async { implicit request =>
+    actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierService, supplierNumber)).async { implicit request =>
       for {
         cleared <- Future.fromTry(
                      request.userAnswers.remove(SupplierVatRegistrationNumberPage(supplierNumber))
@@ -76,7 +77,7 @@ class SupplierDetailsCheckYourAnswersController @Inject() (
     }
 
   def onSubmit(supplierNumber: SupplierNumber): Action[AnyContent] =
-    actions.authAndGetDataWithUserTypeGuard(guardPredicate).async { implicit request =>
+    actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierService, supplierNumber)).async { implicit request =>
       implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
       val submissionIDs = for {
@@ -140,55 +141,20 @@ object SupplierDetailsCheckYourAnswersController {
   def nextPage(supplierNumber: SupplierNumber): play.api.mvc.Call =
     controllers.vehicledetails.routes.VehiclesBoughtFromSupplierController.onPageLoad(supplierNumber)
 
-  def guardPredicate(request: DataRequest[?]): Boolean = {
-    // TODO: ???
-    // TODO: Will at least need to check for draft id. not sure on anything else?
-    // tODO: Just remove the guard for now so I can test everything and then can add it in later when needed or crack on with unit tests.
-
+  def guardPredicate(supplierService: SupplierService, supplierNumber: SupplierNumber)(request: DataRequest[?]): Boolean = {
     val answers     = request.userAnswers
     val userContext = request.userContext
 
+    val avdQuestionAnswered =
+      answers.get(UsePersonalDetailsAsSupplierPage(supplierNumber)).isDefined
+        || answers.get(UsePurchaserDetailsAsSupplierPage(supplierNumber)).isDefined
+//      || answers.get(UseClientDetailsAsSupplierPage(supplierNumber)).isDefined   TODO: include this line once AVD-S1.2 page is added
+
     IsDraftIdDefined(answers)
-
-//    IsDraftIdDefined(answers) && (userContext match {
-//      case ctx if ctx.isAgentWithClientNoEnrolments => agentWithClientNoEnrolmentsAnswersComplete(answers)
-//      case ctx if ctx.isVatRegisteredOrganisation   => vatRegisteredOrgAnswersComplete(answers)
-//      case ctx if ctx.isVatAgentWithoutClient       => agentWithoutClientAnswersComplete(answers)
-//      case ctx if ctx.isAgentWithoutClient          => nonVatAgentWithoutClientAnswersComplete(answers)
-//      case ctx if ctx.isAgentWithClient             => agentWithClientAnswersComplete(answers)
-//      case _                                        => standardUserAnswersComplete(answers)
-//    })
+      && avdQuestionAnswered
+      && request.userAnswers.get(VehicleFromEuPage).contains(true)
+      && supplierService.numberExists(request.userAnswers, supplierNumber)
   }
-
-  private def agentWithClientNoEnrolmentsAnswersComplete(answers: UserAnswers): Boolean =
-    answers.get(AgentClientVehicleBusinessUsePage).isDefined &&
-      answers.get(PhoneNumberPage).isDefined &&
-      answers.get(EmailAddressPage).isDefined
-
-  private def vatRegisteredOrgAnswersComplete(answers: UserAnswers): Boolean =
-    answers.get(PhoneNumberPage).isDefined &&
-      answers.get(EmailAddressPage).isDefined &&
-      (answers.get(NameDetailsPage).isDefined == answers.get(VehicleBusinessUsePage).contains(false))
-
-  private def standardUserAnswersComplete(answers: UserAnswers): Boolean =
-    answers.get(PhoneNumberPage).isDefined &&
-      answers.get(EmailAddressPage).isDefined &&
-      (answers.get(NameDetailsPage).isDefined == answers.get(BusinessOrPrivatePage).contains(BusinessOrPrivateIndividual.PrivateIndividual) &&
-        answers.get(BusinessNamePage).isDefined == answers.get(BusinessOrPrivatePage).contains(BusinessOrPrivateIndividual.Business))
-
-  private def agentWithoutClientAnswersComplete(answers: UserAnswers): Boolean =
-    answers.get(PhoneNumberPage).isDefined &&
-      answers.get(EmailAddressPage).isDefined
-
-  private def nonVatAgentWithoutClientAnswersComplete(answers: UserAnswers): Boolean =
-    answers.get(PhoneNumberPage).isDefined &&
-      answers.get(EmailAddressPage).isDefined &&
-      (answers.get(NameDetailsPage).isDefined == answers.get(BusinessOrPrivatePage).contains(BusinessOrPrivateIndividual.PrivateIndividual))
-
-  private def agentWithClientAnswersComplete(answers: UserAnswers): Boolean =
-    answers.get(PhoneNumberPage).isDefined &&
-      answers.get(EmailAddressPage).isDefined &&
-      (answers.get(NameDetailsPage).isDefined == answers.get(AgentClientVehicleBusinessUsePage).contains(false))
 
   private def isSelfSupply(answers: UserAnswers, supplierNumber: SupplierNumber): Boolean = {
     def isTrue(page: QuestionPage[Boolean]): Boolean = answers.get(page).contains(true)
@@ -197,7 +163,7 @@ object SupplierDetailsCheckYourAnswersController {
     || isTrue(UsePurchaserDetailsAsSupplierPage(supplierNumber))
   }
 
-  def buildSelfSupplySectionData(selfSupply: Boolean): JsObject = {
+  private def buildSelfSupplySectionData(selfSupply: Boolean): JsObject = {
     Json
       .toJson(
         SupplierSelfSupplyDetails(
@@ -207,7 +173,7 @@ object SupplierDetailsCheckYourAnswersController {
       .as[JsObject]
   }
 
-  def buildSupplierDetailsSectionData(userContext: UserContext, answers: UserAnswers, supplierNumber: SupplierNumber): Option[JsObject] = {
+  private def buildSupplierDetailsSectionData(userContext: UserContext, answers: UserAnswers, supplierNumber: SupplierNumber): Option[JsObject] = {
     for {
       supplierBusinessOrIndividual  <- answers.get(SupplierBusinessOrIndividualPage(supplierNumber))
       supplierBusinessName          <- answers.get(SupplierBusinessNamePage(supplierNumber))
@@ -240,8 +206,6 @@ object SupplierDetailsCheckYourAnswersController {
           )
           .as[JsObject]
       }
-
-      // TODO: Adjust is buisness based on prior check to determine if using own details, purchaser details or supplier details.
 
       answers.get(SupplierBusinessOrIndividualPage(supplierNumber)) match {
         case Some(BusinessOrPrivateIndividual.Business) =>

@@ -30,6 +30,8 @@ object SupplierDetailsCheckYourAnswersHelper {
 
   private def buildRows(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages) = {
 
+    //TODO: Add is using client details branch once AVD-S1.2 page is added
+
     if (isUsingPersonalDetails(answers, supplierNumber)) {
       Seq(
         SupplierNameSummary.rowFromPersonalDetails(answers, supplierNumber),
