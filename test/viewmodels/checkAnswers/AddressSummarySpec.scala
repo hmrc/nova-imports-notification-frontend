@@ -75,6 +75,20 @@ class AddressSummarySpec extends SpecBase {
       value mustBe "24 Rue de Rivoli<br>Paris<br>France"
     }
 
+    "must resolve an overseas country name from the ISO code when the stored name is empty" in {
+      val address = Address(
+        lines = Seq("Some Street", "Kabul"),
+        postcode = None,
+        country = Country("AF", "")
+      )
+
+      val userAnswers = UserAnswers(userAnswersId).unsafeSet(AddressPage, address)
+
+      val value = AddressSummary.row(userAnswers).value.value.content.asHtml.toString
+
+      value mustBe "Some Street<br>Kabul<br>Afghanistan"
+    }
+
     "must return None when the answer is not present" in {
       AddressSummary.row(UserAnswers(userAnswersId)) mustBe None
     }

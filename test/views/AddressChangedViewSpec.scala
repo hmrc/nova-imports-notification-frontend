@@ -55,7 +55,15 @@ class AddressChangedViewSpec extends SpecBase with Matchers with BeforeAndAfterA
     country = Country("DE", "Germany")
   )
 
+  private val overseasAddressWithoutPostcode = Address(
+    lines = Seq("24 Rue de Rivoli", "Paris"),
+    postcode = None,
+    country = Country("FR", "France")
+  )
+
   private val supplierNumber = SupplierNumber(1)
+
+  private def normalisedHtml(html: String) = html.replaceAll("\\s+", " ")
 
   private def notifierHtml(address: Address) =
     view(
@@ -75,23 +83,20 @@ class AddressChangedViewSpec extends SpecBase with Matchers with BeforeAndAfterA
 
   "AddressChangedView" - {
 
-    "must render every address line" in {
-      val html = notifierHtml(ukAddress)
-      html must include("12 High Street")
-      html must include("Reading")
-    }
-
-    // AYA3.0 / AVD-S7.0 both specify: postcode for a UK address, country for a non-UK one
     "must show the postcode and not the country for a UK address" in {
       val html = notifierHtml(ukAddress)
-      html must include("RE12 9GC")
-      html must not include "United Kingdom"
+      normalisedHtml(html) must include("""<p class="govuk-body">12 High Street<br>Reading<br>RE12 9GC</p>""")
+      html                 must not include "United Kingdom"
     }
 
-    "must show the country and not the postcode for a non-UK address" in {
+    "must show the postcode and the country for a non-UK address" in {
       val html = notifierHtml(nonUkAddress)
-      html must include("Germany")
-      html must not include "10115"
+      normalisedHtml(html) must include("""<p class="govuk-body">Musterstrasse 12<br>Berlin<br>10115<br>Germany</p>""")
+    }
+
+    "must leave no blank line where the postcode would be for a non-UK address without one" in {
+      val html = notifierHtml(overseasAddressWithoutPostcode)
+      normalisedHtml(html) must include("""<p class="govuk-body">24 Rue de Rivoli<br>Paris<br>France</p>""")
     }
 
     "must render the notifier copy and routes when given the notifier key prefix" in {
