@@ -21,7 +21,7 @@ import models.draftsections.{NotifierAddress, PurchaserAddress, SupplierAddress}
 import models.requests.DataRequest
 import models.{Address, AddressJourney, NormalMode, PurchaserOrOnBehalf, SupplierNumber}
 import pages.QuestionPage
-import pages.sections.initialquestions.PurchaserOrOnBehalfPage
+import pages.sections.initialquestions.NotifyingAsPurchaserPage
 import pages.sections.notifieraddress.{AddressJourneyIdPage, AddressPage}
 import pages.sections.purchaseraddress.{PurchaserAddressJourneyIdPage, PurchaserAddressPage}
 import pages.sections.supplieraddress.IsSupplierAddressInTheUkPage
@@ -94,7 +94,7 @@ object AddressJourneyBinding {
         case ctx if ctx.isAgent => IsDraftIdDefined(request.userAnswers)
         case _                  =>
           IsDraftIdDefined(request.userAnswers) &&
-          request.userAnswers.get(PurchaserOrOnBehalfPage).contains(PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+          request.userAnswers.get(NotifyingAsPurchaserPage).contains(PurchaserOrOnBehalf.OnBehalfOfPurchaser)
       },
     onComplete = routes.NotificationTaskListController.onPageLoad(),
     addressChangedPage = routes.AddressChangedController.purchaserOnPageLoad(),

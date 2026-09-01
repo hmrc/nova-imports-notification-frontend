@@ -25,15 +25,15 @@ import forms.AddVehicleDetailsFormProvider
 import models.requests.DataRequest
 
 import javax.inject.Inject
-import models.{AddVehicleDetails, Mode, NormalMode, NovaUserType, PurchaserOrOnBehalf}
+import models.{AddVehicleDetails, Mode, NormalMode, NovaUserType, PurchaserOrOnBehalf, SupplierNumber, UserAnswers}
 import navigation.Navigator
-import pages.sections.initialquestions.{PurchaserOrOnBehalfPage, VehicleFromEuPage}
+import pages.sections.initialquestions.{NotifyingAsPurchaserPage, VehicleFromEuPage}
 import pages.sections.vehicledetails.AddVehicleDetailsPage
 import play.api.data.Form
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
 import services.SupplierService
-import views.html.AddVehicleDetailsView
+import views.html.{AddVehicleDetailsBySupplierOnlyView, AddVehicleDetailsView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -45,6 +45,7 @@ class AddVehicleDetailsController @Inject() (
   formProvider: AddVehicleDetailsFormProvider,
   supplierService: SupplierService,
   view: AddVehicleDetailsView,
+  bySupplierOnlyView: AddVehicleDetailsBySupplierOnlyView,
   appConfig: FrontendAppConfig
 )(implicit ec: ExecutionContext)
     extends BaseController {
@@ -54,42 +55,59 @@ class AddVehicleDetailsController @Inject() (
   val form: Form[AddVehicleDetails] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate) { implicit request =>
-    Ok(view(form.withDefault(request.userAnswers.get(AddVehicleDetailsPage)), mode, appConfig.multipleVehiclesSpreadsheetsUrl))
+    if (isAgentOrVatRegOrg)
+      Ok(view(form.withDefault(request.userAnswers.get(AddVehicleDetailsPage)), mode, appConfig.multipleVehiclesSpreadsheetsUrl))
+    else
+      Ok(bySupplierOnlyView(mode))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate).async { implicit request =>
-    form
-      .bindFromRequest()
-      .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, appConfig.multipleVehiclesSpreadsheetsUrl))),
-        {
-          // choosing to add by supplier sets up a new supplier collection in the session ready for next question
-          case AddVehicleDetails.BySupplier =>
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(AddVehicleDetailsPage, AddVehicleDetails.BySupplier))
-              supplierNumber <- supplierService.add(updatedAnswers)
-            } yield
-              // non-VAT-registered users who bought on behalf of the purchaser (or an agent without a
-              // selected client) supply the purchaser's details as the supplier; everyone else supplies their own
-              if (
-                !request.userContext.isVatRegisteredOrganisation &&
-                (updatedAnswers.get(PurchaserOrOnBehalfPage).contains(PurchaserOrOnBehalf.OnBehalfOfPurchaser) ||
-                  request.userContext.isAgentWithoutClient)
+    if (isAgentOrVatRegOrg)
+      form
+        .bindFromRequest()
+        .fold(
+          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, appConfig.multipleVehiclesSpreadsheetsUrl))),
+          {
+            // choosing to add by supplier sets up a new supplier collection in the session ready for next question
+            case AddVehicleDetails.BySupplier => addSupplierAndRedirect()
+            case value                        =>
+              for {
+                updatedAnswers <- Future.fromTry(request.userAnswers.set(AddVehicleDetailsPage, value))
+                _              <- sessionRepository.set(updatedAnswers)
+              } yield Redirect(
+                navigator.nextPage(AddVehicleDetailsPage, mode, updatedAnswers, NovaUserType.from(request.affinityGroup, request.enrolments))
               )
-                Redirect(supplierdetails.routes.UsePurchaserDetailsAsSupplierController.onPageLoad(supplierNumber, NormalMode))
-              else
-                Redirect(supplierdetails.routes.UsePersonalDetailsAsSupplierController.onPageLoad(supplierNumber, NormalMode))
-
-          case value =>
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(AddVehicleDetailsPage, value))
-              _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(
-              navigator.nextPage(AddVehicleDetailsPage, mode, updatedAnswers, NovaUserType.from(request.affinityGroup, request.enrolments))
-            )
-        }
-      )
+          }
+        )
+    else
+      // the by-supplier-only view has no form, adding by supplier is the only option available
+      addSupplierAndRedirect()
   }
+
+  // VAT-registered organisations and agents acting for a selected client can also upload a spreadsheet;
+  // everyone else only ever adds vehicles by supplier, so they don't need to be asked
+  private def isAgentOrVatRegOrg(implicit request: DataRequest[?]): Boolean =
+    request.userContext.isVatRegisteredOrganisation || request.userContext.isAgentWithClient
+
+  private def addSupplierAndRedirect()(implicit request: DataRequest[?]): Future[Result] =
+    for {
+      updatedAnswers <- Future.fromTry(request.userAnswers.set(AddVehicleDetailsPage, AddVehicleDetails.BySupplier))
+      supplierNumber <- supplierService.add(updatedAnswers)
+    } yield redirectToSupplierDetails(supplierNumber, updatedAnswers)
+
+  // non-VAT-registered users who bought on behalf of the purchaser (or an agent without a
+  // selected client) supply the purchaser's details as the supplier; everyone else supplies their own
+  private def redirectToSupplierDetails(supplierNumber: SupplierNumber, updatedAnswers: UserAnswers)(implicit
+    request: DataRequest[?]
+  ): Result =
+    if (
+      !request.userContext.isVatRegisteredOrganisation &&
+      (updatedAnswers.get(NotifyingAsPurchaserPage).contains(PurchaserOrOnBehalf.OnBehalfOfPurchaser) ||
+        request.userContext.isAgentWithoutClient)
+    )
+      Redirect(supplierdetails.routes.UsePurchaserDetailsAsSupplierController.onPageLoad(supplierNumber, NormalMode))
+    else
+      Redirect(supplierdetails.routes.UsePersonalDetailsAsSupplierController.onPageLoad(supplierNumber, NormalMode))
 }
 
 object AddVehicleDetailsController {

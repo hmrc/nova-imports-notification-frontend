@@ -17,10 +17,10 @@
 package navigation
 
 import base.SpecBase
-import controllers.{initialquestions, notifierdetails, purchaserdetails, routes, supplieraddress, supplierdetails}
+import controllers.{initialquestions, notifierdetails, purchaserdetails, routes, supplieraddress, supplierdetails, vehicledetails}
 import pages.*
 import models.*
-import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
+import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, NotifyingAsPurchaserPage, PurchaserBusinessOrIndividualPage, VehicleBusinessUsePage, VehicleFromEuPage}
 import pages.sections.notifierdetails.{AboutYourDetailsPage, BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 import pages.sections.vehicledetails.{AddImportVehicleDetailsPage, AddVehicleDetailsPage}
 import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
@@ -202,10 +202,14 @@ class NavigatorSpec extends SpecBase {
           ) mustBe initialquestions.routes.BusinessPrivateController.onPageLoad(NormalMode)
         }
 
-        "must go from VehicleFromEuPage to VehicleOutsideEUController when No is selected" in {
+        "must go from VehicleFromEuPage to BusinessPrivateController when No is selected" in {
           val ua = userAnswers.set(VehicleFromEuPage, false).success.value
-          navigator.nextPage(VehicleFromEuPage, NormalMode, ua, NovaUserType.Agent) mustBe initialquestions.routes.VehicleOutsideEUController
-            .onPageLoad()
+          navigator.nextPage(
+            VehicleFromEuPage,
+            NormalMode,
+            ua,
+            NovaUserType.Agent
+          ) mustBe initialquestions.routes.BusinessPrivateController.onPageLoad(NormalMode)
         }
       }
 
@@ -264,9 +268,9 @@ class NavigatorSpec extends SpecBase {
       }
 
       "must go from PurchaserOrOnBehalfPage IQ3.0 to InitialQuestionsCheckYourAnswersController when Purchaser is selected" in {
-        val ua = userAnswers.set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser).success.value
+        val ua = userAnswers.set(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.Purchaser).success.value
         navigator.nextPage(
-          PurchaserOrOnBehalfPage,
+          NotifyingAsPurchaserPage,
           NormalMode,
           ua,
           NovaUserType.PrivateIndividual
@@ -274,9 +278,9 @@ class NavigatorSpec extends SpecBase {
       }
 
       "must go from PurchaserOrOnBehalfPage to PurchaserBusinessOrIndividualController when OnBehalfOfPurchaser is selected" in {
-        val ua = userAnswers.set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser).success.value
+        val ua = userAnswers.set(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser).success.value
         navigator.nextPage(
-          PurchaserOrOnBehalfPage,
+          NotifyingAsPurchaserPage,
           NormalMode,
           ua,
           NovaUserType.PrivateIndividual
@@ -284,7 +288,7 @@ class NavigatorSpec extends SpecBase {
       }
 
       "must go from PurchaserOrOnBehalfPage to JourneyRecovery when no answer is found" in {
-        navigator.nextPage(PurchaserOrOnBehalfPage, NormalMode, userAnswers, NovaUserType.PrivateIndividual) mustBe routes.JourneyRecoveryController
+        navigator.nextPage(NotifyingAsPurchaserPage, NormalMode, userAnswers, NovaUserType.PrivateIndividual) mustBe routes.JourneyRecoveryController
           .onPageLoad()
       }
 
@@ -319,15 +323,14 @@ class NavigatorSpec extends SpecBase {
           .onPageLoad()
       }
 
-      "must go from AddVehicleDetailsPage AVD1.0 to LandingPage when BySpreadsheet is selected" in {
-        // TODO: navigate to spreadsheet upload flow when implemented
+      "must go from AddVehicleDetailsPage to the upload vehicle spreadsheet page when the user chose to upload a spreadsheet" in {
         val ua = userAnswers.set(AddVehicleDetailsPage, AddVehicleDetails.BySpreadsheet).success.value
         navigator.nextPage(
           AddVehicleDetailsPage,
           NormalMode,
           ua,
           NovaUserType.VatRegisteredOrganisation
-        ) mustBe routes.LandingPageController.onPageLoad()
+        ) mustBe vehicledetails.routes.UploadVehicleSpreadsheetController.onPageLoad()
       }
 
       "must go from AddVehicleDetailsPage AVD1.0 to JourneyRecovery when no answer is found" in {
@@ -350,15 +353,14 @@ class NavigatorSpec extends SpecBase {
         ) mustBe routes.LandingPageController.onPageLoad()
       }
 
-      "must go from AddImportVehicleDetailsPage AVD1.1 to LandingPage when BySpreadsheet is selected" in {
-        // TODO: navigate to spreadsheet upload flow when built
+      "must go from AddImportVehicleDetailsPage to the upload vehicle spreadsheet page when the user chose to upload a spreadsheet" in {
         val ua = userAnswers.set(AddImportVehicleDetailsPage, AddImportVehicleDetails.BySpreadsheet).success.value
         navigator.nextPage(
           AddImportVehicleDetailsPage,
           NormalMode,
           ua,
           NovaUserType.VatRegisteredOrganisation
-        ) mustBe routes.LandingPageController.onPageLoad()
+        ) mustBe vehicledetails.routes.UploadVehicleSpreadsheetController.onPageLoad()
       }
 
       "must go from AddImportVehicleDetailsPage AVD1.1 to JourneyRecovery when no answer is found" in {
@@ -680,9 +682,9 @@ class NavigatorSpec extends SpecBase {
       }
 
       "must go from PurchaserOrOnBehalfPage IQ3.0 to InitialQuestionsCheckYourAnswersController when Purchaser is selected" in {
-        val ua = userAnswers.set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser).success.value
+        val ua = userAnswers.set(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.Purchaser).success.value
         navigator.nextPage(
-          PurchaserOrOnBehalfPage,
+          NotifyingAsPurchaserPage,
           CheckMode,
           ua,
           NovaUserType.PrivateIndividual
@@ -690,9 +692,9 @@ class NavigatorSpec extends SpecBase {
       }
 
       "must go from PurchaserOrOnBehalfPage IQ3.0 to PurchaserBusinessOrIndividualController IQ3.1 in CheckMode when OnBehalfOfPurchaser is selected" in {
-        val ua = userAnswers.set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser).success.value
+        val ua = userAnswers.set(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser).success.value
         navigator.nextPage(
-          PurchaserOrOnBehalfPage,
+          NotifyingAsPurchaserPage,
           CheckMode,
           ua,
           NovaUserType.PrivateIndividual
@@ -701,7 +703,7 @@ class NavigatorSpec extends SpecBase {
 
       "must go from PurchaserOrOnBehalfPage IQ3.0 to JourneyRecovery when no answer is found" in {
         navigator.nextPage(
-          PurchaserOrOnBehalfPage,
+          NotifyingAsPurchaserPage,
           CheckMode,
           userAnswers,
           NovaUserType.PrivateIndividual

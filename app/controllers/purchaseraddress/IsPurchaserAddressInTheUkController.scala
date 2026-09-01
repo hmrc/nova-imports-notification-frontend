@@ -24,7 +24,7 @@ import forms.IsPurchaserAddressInTheUkFormProvider
 import javax.inject.Inject
 import models.{AddressJourney, Mode, PurchaserOrOnBehalf}
 import models.requests.DataRequest
-import pages.sections.initialquestions.PurchaserOrOnBehalfPage
+import pages.sections.initialquestions.NotifyingAsPurchaserPage
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 import play.api.Logging
 import play.api.data.Form
@@ -55,7 +55,7 @@ class IsPurchaserAddressInTheUkController @Inject() (
       case ctx if ctx.isAgent => IsDraftIdDefined(request.userAnswers)
       case _                  =>
         IsDraftIdDefined(request.userAnswers) &&
-        request.userAnswers.get(PurchaserOrOnBehalfPage).contains(PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+        request.userAnswers.get(NotifyingAsPurchaserPage).contains(PurchaserOrOnBehalf.OnBehalfOfPurchaser)
     }
 
   def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate) { implicit request =>

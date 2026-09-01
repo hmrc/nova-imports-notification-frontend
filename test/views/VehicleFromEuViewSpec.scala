@@ -42,8 +42,8 @@ class VehicleFromEuViewSpec extends SpecBase with Matchers with BeforeAndAfterAl
   val importingUrl: String    = "https://example.com/importing-vehicles"
   val euCountriesUrl: String  = "https://example.com/eu-eea"
 
-  def render(f: Form[Boolean] = form): String =
-    view(f, NormalMode, importingUrl, euCountriesUrl)(request, msgs).toString
+  def render(f: Form[Boolean] = form, showAdditionalGuidance: Boolean = true): String =
+    view(f, NormalMode, importingUrl, euCountriesUrl, showAdditionalGuidance)(request, msgs).toString
 
   override def afterAll(): Unit = {
     Await.result(app.stop(), 10.seconds)
@@ -68,16 +68,29 @@ class VehicleFromEuViewSpec extends SpecBase with Matchers with BeforeAndAfterAl
       html must include(msgs("vehicleFromEu.caption"))
     }
 
-    "must render the first paragraph" in {
-      render() must include(msgs("vehicleFromEu.paragraph.1"))
+    "must render the first paragraph when additional guidance is shown (user types 1 and 2)" in {
+      render(showAdditionalGuidance = true) must include(msgs("vehicleFromEu.paragraph.1"))
     }
 
-    "must render the second paragraph with a new-tab link to importing vehicles" in {
-      val html = render()
+    "must render the second paragraph with a new-tab link to importing vehicles when additional guidance is shown" in {
+      val html = render(showAdditionalGuidance = true)
       html must include(importingUrl)
       html must include("""target="_blank"""")
       html must include("""class="govuk-link"""")
       html must include(msgs("vehicleFromEu.paragraph.2.linkText"))
+    }
+
+    "must not render the first two paragraphs when additional guidance is hidden (user types 3, 4, 5 and 6)" in {
+      val html = render(showAdditionalGuidance = false)
+      html must not include msgs("vehicleFromEu.paragraph.1")
+      html must not include msgs("vehicleFromEu.paragraph.2.linkText")
+      html must not include importingUrl
+    }
+
+    "must still render the EU countries paragraph when additional guidance is hidden" in {
+      val html = render(showAdditionalGuidance = false)
+      html must include(euCountriesUrl)
+      html must include(msgs("vehicleFromEu.paragraph.3.linkText"))
     }
 
     "must render the third paragraph with a new-tab link to the EU countries list" in {
@@ -116,13 +129,13 @@ class VehicleFromEuViewSpec extends SpecBase with Matchers with BeforeAndAfterAl
     }
 
     "must render the same content via the render method" in {
-      view.render(form, NormalMode, importingUrl, euCountriesUrl, request, msgs).toString must include(
+      view.render(form, NormalMode, importingUrl, euCountriesUrl, true, request, msgs).toString must include(
         msgs("vehicleFromEu.title")
       )
     }
 
     "must render the same content via the f method" in {
-      view.f(form, NormalMode, importingUrl, euCountriesUrl)(request, msgs).toString must include(
+      view.f(form, NormalMode, importingUrl, euCountriesUrl, true)(request, msgs).toString must include(
         msgs("vehicleFromEu.title")
       )
     }

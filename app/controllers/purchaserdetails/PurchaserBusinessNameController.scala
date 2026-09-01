@@ -24,7 +24,7 @@ import javax.inject.Inject
 import models.{Mode, NovaUserType, PurchaserBusinessOrIndividual, PurchaserOrOnBehalf}
 import models.requests.DataRequest
 import navigation.Navigator
-import pages.sections.initialquestions.{PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage}
+import pages.sections.initialquestions.{NotifyingAsPurchaserPage, PurchaserBusinessOrIndividualPage}
 import pages.sections.purchaserdetails.PurchaserBusinessNamePage
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -47,7 +47,7 @@ class PurchaserBusinessNameController @Inject() (
 
   private val guardPredicate: DataRequest[?] => Boolean = request =>
     IsDraftIdDefined(request.userAnswers) &&
-      request.userAnswers.get(PurchaserOrOnBehalfPage).contains(PurchaserOrOnBehalf.OnBehalfOfPurchaser) &&
+      request.userAnswers.get(NotifyingAsPurchaserPage).contains(PurchaserOrOnBehalf.OnBehalfOfPurchaser) &&
       request.userAnswers.get(PurchaserBusinessOrIndividualPage).contains(PurchaserBusinessOrIndividual.NonVatRegisteredBusiness)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate) { implicit request =>

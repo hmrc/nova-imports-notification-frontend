@@ -17,6 +17,7 @@
 package models
 
 import play.api.libs.json.*
+import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 import queries.{Gettable, Settable}
 import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
@@ -28,6 +29,10 @@ final case class UserAnswers(
   data: JsObject = Json.obj(),
   lastUpdated: Instant = Instant.now
 ) {
+
+  // A purchaser is either a business or a private individual
+  def purchaserName: Option[String] =
+    get(PurchaserBusinessNamePage).orElse(get(PurchaserNamePage).map(_.displayName))
 
   def get[A](page: Gettable[A])(implicit rds: Reads[A]): Option[A] =
     Reads.optionNoError(Reads.at(page.path)).reads(data).getOrElse(None)

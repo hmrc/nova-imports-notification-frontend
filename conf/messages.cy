@@ -239,7 +239,8 @@ addressLookup.error.line1Required = Enter address line 1, typically the building
 addressLookup.error.line2Required = Enter address line 2
 addressLookup.error.townRequired = Enter address line 4
 addressLookup.error.countryRequired = Enter a country
-addressLookup.error.countryPickerRequired = Select country or territory of your address
+# TODO: Welsh translation to be supplied by content team (AYA1.1a content update - "Enter" wording).
+addressLookup.error.countryPickerRequired = Enter the country or territory of your address
 addressLookup.countryPicker.title = Dewiswch eich gwlad neu diriogaeth
 addressLookup.countryPicker.heading = Dewiswch eich gwlad neu diriogaeth
 addressLookup.countryPicker.countryLabel = Select country or territory
@@ -613,7 +614,7 @@ supplierName.change.hidden = supplier’s name
 
 initialQuestionsCheckYourAnswers.caption = Cwestiynau cychwynnol
 initialQuestionsCheckYourAnswers.heading = Gwiriwch eich atebion
-initialQuestionsCheckYourAnswers.title = Gwiriwch eich atebion - Cwestiynau cychwynnol - Hysbysiad o Gerbydau’n Cyrraedd - GOV.UK
+initialQuestionsCheckYourAnswers.title = Gwiriwch eich atebion - Cwestiynau cychwynnol
 
 ######################################################
 # CYA2.0 - Check your answers 2 - Your details       #
@@ -621,7 +622,7 @@ initialQuestionsCheckYourAnswers.title = Gwiriwch eich atebion - Cwestiynau cych
 
 yourDetailsCheckYourAnswers.caption = Ychwanegu eich manylion chi
 yourDetailsCheckYourAnswers.heading = Gwiriwch eich atebion
-yourDetailsCheckYourAnswers.title = Gwirio’ch atebion - Eich manylion - Hysbysiad o Gerbydau’n Cyrraedd - GOV.UK
+yourDetailsCheckYourAnswers.title = Gwirio’ch atebion - Eich manylion
 
 ######################################################
 # CYA3.0 - Check your answers 3.0 - Your address     #
@@ -648,6 +649,20 @@ vehicleDates.checkbox.availabilityAndFirstRegistration = Date the vehicle was ma
 vehicleDates.or = or
 vehicleDates.checkbox.noDates = No, I do not have any of these dates
 
+######################################################
+# AVD1.0 - Add vehicle details: Vehicles brought from the EU #
+######################################################
+
+addVehicleDetails.heading = Cerbydau sy’n dod o’r UE
+addVehicleDetails.caption = Ychwanegwch fanylion cerbyd
+
+##################################################################################
+# AVD1.0b - Add vehicle details: Vehicles brought from the EU (by supplier only) #
+##################################################################################
+
+addVehicleDetails.bySupplierOnly.paragraph.1 = Rhowch fanylion y cyflenwr yn gyntaf, yna ychwanegwch y cerbydau a brynwyd ganddo
+addVehicleDetails.bySupplierOnly.paragraph.2 = Mae’n rhaid i chi gynnwys pob cerbyd a brynwyd gan gyflenwr yn yr UE. Gallwch ychwanegu hyd at 100 o gerbydau mewn un hysbysiad.
+addVehicleDetails.bySupplierOnly.button = Ychwanegu manylion y cyflenwr
 
 ##################################################################################################
 # AVD1.1 - Add vehicle details 1.1: Vehicles brought from outside both the UK and the EU          #
@@ -723,3 +738,15 @@ supplierDetailsCheckYourAnswers.title = Check the supplier details before adding
 supplierDetailsCheckYourAnswers.heading = Check the supplier details before adding vehicles
 supplierAddressCheckYourAnswers.checkYourAnswersLabel = Supplier’s address
 supplierAddressCheckYourAnswers.change.hidden = supplier’s address
+
+##################################################
+# UVS1.0 - Upload a vehicle spreadsheet 1.0      #
+##################################################
+# TODO: Welsh translations to be supplied by content team.
+uploadVehicleSpreadsheet.title = Upload a vehicle spreadsheet
+uploadVehicleSpreadsheet.heading = Upload a vehicle spreadsheet
+uploadVehicleSpreadsheet.caption = Add vehicle details
+uploadVehicleSpreadsheet.paragraph.1 = Add details for up to 100 vehicles of the same type in one notification. You must {0}.
+uploadVehicleSpreadsheet.useCorrectSpreadsheet.linkText = use the correct spreadsheet
+uploadVehicleSpreadsheet.label = Upload a file
+uploadVehicleSpreadsheet.hint = Must be an OpenDocument Spreadsheet (ODS) file

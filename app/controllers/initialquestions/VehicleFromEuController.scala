@@ -21,6 +21,7 @@ import controllers.BaseController
 import controllers.actions.*
 import forms.VehicleFromEuFormProvider
 import javax.inject.Inject
+import models.requests.DataRequest
 import models.{Mode, NovaUserType}
 import navigation.Navigator
 import pages.sections.initialquestions.VehicleFromEuPage
@@ -43,13 +44,21 @@ class VehicleFromEuController @Inject() (
 
   val form = formProvider()
 
+  // Paragraphs 1 and 2 are only shown to private individuals and non-VAT organisations (user types 1 and 2).
+  private def showAdditionalGuidance(request: DataRequest[?]): Boolean =
+    NovaUserType.from(request.affinityGroup, request.enrolments) match {
+      case NovaUserType.PrivateIndividual | NovaUserType.NonVatOrganisation => true
+      case _                                                                => false
+    }
+
   def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetData() { implicit request =>
     Ok(
       view(
         form.withDefault(request.userAnswers.get(VehicleFromEuPage)),
         mode,
         appConfig.importingVehiclesIntoTheUKUrl,
-        appConfig.euCountriesUrl
+        appConfig.euCountriesUrl,
+        showAdditionalGuidance(request)
       )
     )
   }
@@ -62,7 +71,7 @@ class VehicleFromEuController @Inject() (
         formWithErrors =>
           Future.successful(
             BadRequest(
-              view(formWithErrors, mode, appConfig.importingVehiclesIntoTheUKUrl, appConfig.euCountriesUrl)
+              view(formWithErrors, mode, appConfig.importingVehiclesIntoTheUKUrl, appConfig.euCountriesUrl, showAdditionalGuidance(request))
             )
           ),
         value =>

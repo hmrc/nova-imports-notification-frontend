@@ -25,88 +25,177 @@ class InitialQuestionsSpec extends AnyFreeSpec with Matchers {
 
   "InitialQuestions.writes" - {
 
-    "does not include fields that have no value" in {
+    "omits optional fields that have no value, but always writes the required flag fields" in {
       val model = InitialQuestions(
-        vehicleFromEuToNi = true,
+        bringingVehicleNI = true,
         isForBusinessUse = Some(true),
-        areYouBusinessOrPrivate = None,
-        notifyingAsPurchaserOrOnBehalf = None,
-        isPurchaserBusinessOrPrivateIndividual = None,
-        agentClientVehicleBusinessUse = None
+        areYouBusinessPrivate = None,
+        notifyingAsPurchaser = None,
+        purchaserBusinessPrivate = None,
+        agentClientVehicleBusinessUse = None,
+        bringingVehicleBusiness = None
       )
 
-      Json.toJson(model) mustEqual Json.parse(
-        """{"vehicleFromEuToNi":true,"isForBusinessUse":true}"""
+      Json.toJson(model) mustEqual Json.obj(
+        "bringingVehicleNI"              -> true,
+        "isForBusinessUse"               -> true,
+        "bringingVehicleBusinessNeeded"  -> false,
+        "purchasingVehiclesEuNeeded"     -> true,
+        "purchaserBusinessPrivateNeeded" -> true,
+        "sccCustomerFieldNeeded"         -> true,
+        "deregistered"                   -> false,
+        "registered"                     -> false
       )
     }
 
     "includes the agent client vehicle business use field when it has a value" in {
       val model = InitialQuestions(
-        vehicleFromEuToNi = true,
+        bringingVehicleNI = true,
         isForBusinessUse = None,
-        areYouBusinessOrPrivate = None,
-        notifyingAsPurchaserOrOnBehalf = None,
-        isPurchaserBusinessOrPrivateIndividual = None,
-        agentClientVehicleBusinessUse = Some(false)
+        areYouBusinessPrivate = None,
+        notifyingAsPurchaser = None,
+        purchaserBusinessPrivate = None,
+        agentClientVehicleBusinessUse = Some(false),
+        bringingVehicleBusiness = None
       )
 
-      Json.toJson(model) mustEqual Json.parse(
-        """{"vehicleFromEuToNi":true,"agentClientVehicleBusinessUse":false}"""
+      Json.toJson(model) mustEqual Json.obj(
+        "bringingVehicleNI"              -> true,
+        "agentClientVehicleBusinessUse"  -> false,
+        "bringingVehicleBusinessNeeded"  -> false,
+        "purchasingVehiclesEuNeeded"     -> true,
+        "purchaserBusinessPrivateNeeded" -> true,
+        "sccCustomerFieldNeeded"         -> true,
+        "deregistered"                   -> false,
+        "registered"                     -> false
+      )
+    }
+
+    "includes bringingVehicleBusiness and bringingVehicleBusinessNeeded when a VAT-registered organisation has answered" in {
+      val model = InitialQuestions(
+        bringingVehicleNI = true,
+        isForBusinessUse = Some(true),
+        areYouBusinessPrivate = None,
+        notifyingAsPurchaser = None,
+        purchaserBusinessPrivate = None,
+        agentClientVehicleBusinessUse = None,
+        bringingVehicleBusiness = Some(true),
+        bringingVehicleBusinessNeeded = true,
+        purchaserBusinessPrivateNeeded = false,
+        registered = true
+      )
+
+      Json.toJson(model) mustEqual Json.obj(
+        "bringingVehicleNI"              -> true,
+        "isForBusinessUse"               -> true,
+        "bringingVehicleBusiness"        -> true,
+        "bringingVehicleBusinessNeeded"  -> true,
+        "purchasingVehiclesEuNeeded"     -> true,
+        "purchaserBusinessPrivateNeeded" -> false,
+        "sccCustomerFieldNeeded"         -> true,
+        "deregistered"                   -> false,
+        "registered"                     -> true
       )
     }
 
     "writes the correct JSON value when the notifier is a business" in {
       val model = InitialQuestions(
-        vehicleFromEuToNi = true,
+        bringingVehicleNI = true,
         isForBusinessUse = None,
-        areYouBusinessOrPrivate = Some(BusinessOrPrivateIndividual.Business),
-        notifyingAsPurchaserOrOnBehalf = Some(PurchaserOrOnBehalf.Purchaser),
-        isPurchaserBusinessOrPrivateIndividual = None,
-        agentClientVehicleBusinessUse = None
+        areYouBusinessPrivate = Some(BusinessOrPrivateIndividual.Business),
+        notifyingAsPurchaser = Some(PurchaserOrOnBehalf.Purchaser),
+        purchaserBusinessPrivate = None,
+        agentClientVehicleBusinessUse = None,
+        bringingVehicleBusiness = None
       )
 
-      Json.toJson(model) mustEqual Json.parse(
-        """{"vehicleFromEuToNi":true,"areYouBusinessOrPrivate":"business","notifyingAsPurchaserOrOnBehalf":"self"}"""
+      Json.toJson(model) mustEqual Json.obj(
+        "bringingVehicleNI"              -> true,
+        "areYouBusinessPrivate"          -> "business",
+        "notifyingAsPurchaser"           -> "self",
+        "bringingVehicleBusinessNeeded"  -> false,
+        "purchasingVehiclesEuNeeded"     -> true,
+        "purchaserBusinessPrivateNeeded" -> true,
+        "sccCustomerFieldNeeded"         -> true,
+        "deregistered"                   -> false,
+        "registered"                     -> false
       )
     }
 
     "writes the correct JSON value when the purchaser is a non-VAT registered business" in {
       val model = InitialQuestions(
-        vehicleFromEuToNi = true,
+        bringingVehicleNI = true,
         isForBusinessUse = None,
-        areYouBusinessOrPrivate = Some(BusinessOrPrivateIndividual.PrivateIndividual),
-        notifyingAsPurchaserOrOnBehalf = Some(PurchaserOrOnBehalf.OnBehalfOfPurchaser),
-        isPurchaserBusinessOrPrivateIndividual = Some(PurchaserBusinessOrIndividual.NonVatRegisteredBusiness),
-        agentClientVehicleBusinessUse = None
+        areYouBusinessPrivate = Some(BusinessOrPrivateIndividual.PrivateIndividual),
+        notifyingAsPurchaser = Some(PurchaserOrOnBehalf.OnBehalfOfPurchaser),
+        purchaserBusinessPrivate = Some(PurchaserBusinessOrIndividual.NonVatRegisteredBusiness),
+        agentClientVehicleBusinessUse = None,
+        bringingVehicleBusiness = None
       )
 
-      Json.toJson(model) mustEqual Json.parse(
-        """{
-          |  "vehicleFromEuToNi":true,
-          |  "areYouBusinessOrPrivate":"individual",
-          |  "notifyingAsPurchaserOrOnBehalf":"behalfOfPurchaser",
-          |  "isPurchaserBusinessOrPrivateIndividual":"NON_VAT_REG_BUSINESS"
-          |}""".stripMargin
+      Json.toJson(model) mustEqual Json.obj(
+        "bringingVehicleNI"              -> true,
+        "areYouBusinessPrivate"          -> "individual",
+        "notifyingAsPurchaser"           -> "behalfOfPurchaser",
+        "purchaserBusinessPrivate"       -> "self",
+        "bringingVehicleBusinessNeeded"  -> false,
+        "purchasingVehiclesEuNeeded"     -> true,
+        "purchaserBusinessPrivateNeeded" -> true,
+        "sccCustomerFieldNeeded"         -> true,
+        "deregistered"                   -> false,
+        "registered"                     -> false
       )
     }
 
     "writes the correct JSON value when the purchaser is a private individual" in {
       val model = InitialQuestions(
-        vehicleFromEuToNi = true,
+        bringingVehicleNI = true,
         isForBusinessUse = None,
-        areYouBusinessOrPrivate = Some(BusinessOrPrivateIndividual.PrivateIndividual),
-        notifyingAsPurchaserOrOnBehalf = Some(PurchaserOrOnBehalf.OnBehalfOfPurchaser),
-        isPurchaserBusinessOrPrivateIndividual = Some(PurchaserBusinessOrIndividual.NonVatRegisteredPrivateIndividual),
-        agentClientVehicleBusinessUse = None
+        areYouBusinessPrivate = Some(BusinessOrPrivateIndividual.PrivateIndividual),
+        notifyingAsPurchaser = Some(PurchaserOrOnBehalf.OnBehalfOfPurchaser),
+        purchaserBusinessPrivate = Some(PurchaserBusinessOrIndividual.NonVatRegisteredPrivateIndividual),
+        agentClientVehicleBusinessUse = None,
+        bringingVehicleBusiness = None
       )
 
-      Json.toJson(model) mustEqual Json.parse(
-        """{
-          |  "vehicleFromEuToNi":true,
-          |  "areYouBusinessOrPrivate":"individual",
-          |  "notifyingAsPurchaserOrOnBehalf":"behalfOfPurchaser",
-          |  "isPurchaserBusinessOrPrivateIndividual":"PRIVATE_INDIVIDUAL"
-          |}""".stripMargin
+      Json.toJson(model) mustEqual Json.obj(
+        "bringingVehicleNI"              -> true,
+        "areYouBusinessPrivate"          -> "individual",
+        "notifyingAsPurchaser"           -> "behalfOfPurchaser",
+        "purchaserBusinessPrivate"       -> "other",
+        "bringingVehicleBusinessNeeded"  -> false,
+        "purchasingVehiclesEuNeeded"     -> true,
+        "purchaserBusinessPrivateNeeded" -> true,
+        "sccCustomerFieldNeeded"         -> true,
+        "deregistered"                   -> false,
+        "registered"                     -> false
+      )
+    }
+
+    "writes deregistered = true and registered = true for a deregistered user" in {
+      val model = InitialQuestions(
+        bringingVehicleNI = true,
+        isForBusinessUse = None,
+        areYouBusinessPrivate = Some(BusinessOrPrivateIndividual.Business),
+        notifyingAsPurchaser = Some(PurchaserOrOnBehalf.Purchaser),
+        purchaserBusinessPrivate = None,
+        agentClientVehicleBusinessUse = None,
+        bringingVehicleBusiness = None,
+        purchaserBusinessPrivateNeeded = false,
+        deregistered = true,
+        registered = true
+      )
+
+      Json.toJson(model) mustEqual Json.obj(
+        "bringingVehicleNI"              -> true,
+        "areYouBusinessPrivate"          -> "business",
+        "notifyingAsPurchaser"           -> "self",
+        "bringingVehicleBusinessNeeded"  -> false,
+        "purchasingVehiclesEuNeeded"     -> true,
+        "purchaserBusinessPrivateNeeded" -> false,
+        "sccCustomerFieldNeeded"         -> true,
+        "deregistered"                   -> true,
+        "registered"                     -> true
       )
     }
   }

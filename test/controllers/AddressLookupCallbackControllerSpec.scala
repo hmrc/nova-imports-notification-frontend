@@ -25,7 +25,7 @@ import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.DraftIdPage
-import pages.sections.initialquestions.PurchaserOrOnBehalfPage
+import pages.sections.initialquestions.NotifyingAsPurchaserPage
 import pages.sections.notifieraddress.{AddressJourneyIdPage, AddressPage}
 import pages.sections.purchaseraddress.{PurchaserAddressJourneyIdPage, PurchaserAddressPage}
 import queries.AllSuppliersQuery
@@ -335,7 +335,7 @@ class AddressLookupCallbackControllerSpec extends SpecBase with MockitoSugar {
         .set(DraftIdPage, draftId)
         .success
         .value
-        .set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+        .set(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
         .success
         .value
 
@@ -413,7 +413,7 @@ class AddressLookupCallbackControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to Unauthorised when a non-agent has not answered on behalf of the purchaser" in {
-      val answers = purchaserAnswers.remove(PurchaserOrOnBehalfPage).success.value
+      val answers = purchaserAnswers.remove(NotifyingAsPurchaserPage).success.value
       val app     = applicationWith(userAnswers = Some(answers), sessionRepository = stubSessionRepository(answers))
 
       running(app) {

@@ -22,13 +22,15 @@ import controllers.actions.*
 import controllers.initialquestions
 import models.{NormalMode, UserAnswers, UserContext}
 import models.NovaUserType
-import pages.sections.introduction.{AmendSubmittedNotificationPage, IntroductionAcknowledgePage}
+import pages.sections.introduction.{AmendSubmittedNotificationPage, IntroductionAcknowledgePage, NotDeregisteredPage}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import pages.AgentSelectedClientPage
 import views.html.{BeforeYouContinueOrganisationView, BeforeYouContinueView}
+
 import scala.concurrent.{ExecutionContext, Future}
 import play.api.mvc.Result
+
 import scala.util.{Success, Try}
 
 class BeforeYouContinueController @Inject() (

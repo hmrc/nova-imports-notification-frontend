@@ -19,7 +19,7 @@ package services
 import base.SpecBase
 import connectors.NovaImportsBackendConnector
 import models.DraftNotification.SectionId
-import models.{Address, BusinessOrPrivateIndividual, ContactNumbers, Country, DraftId, DraftNotification, DraftNotificationSection, NameDetails, SectionStatus, UserAnswers}
+import models.{Address, BusinessOrPrivateIndividual, ContactNumbers, Country, DraftId, DraftNotification, DraftNotificationSection, NameDetails, NovaUserType, SectionStatus, UserAnswers, UserContext}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.EitherValues
@@ -260,9 +260,77 @@ class UserDataServiceSpec extends SpecBase with MockitoSugar with ScalaFutures w
     }
   }
 
+  "UserDataService.storeInitialQuestionsPages" - {
+
+    val vatOrgContext = UserContext(
+      userType = NovaUserType.VatRegisteredOrganisation,
+      selectedClient = None,
+      notDeregistered = true,
+      isAgentWithClientNoEnrolments = false,
+      agentHasVatAgentEnrolment = false,
+      isForBusinessUse = false
+    )
+
+    def draftWithInitialQuestions(section: JsObject): DraftNotification =
+      draftWith(Map(SectionId.InitialQuestions -> DraftNotificationSection(Some(section))))
+
+    "must restore VehicleBusinessUsePage as false for a VAT-registered organisation whose saved answer was private use" in {
+      val section = Json.obj(
+        "bringingVehicleNI"             -> true,
+        "bringingVehicleBusiness"       -> false,
+        "bringingVehicleBusinessNeeded" -> true,
+        "registered"                    -> true
+      )
+
+      val result = UserDataService
+        .storeInitialQuestionsPages(draftWithInitialQuestions(section), emptyUserAnswers, stubSessionRepository(), vatOrgContext)
+        .futureValue
+
+      result.get(VehicleBusinessUsePage) mustBe Some(false)
+    }
+
+    "must restore VehicleBusinessUsePage as true for a VAT-registered organisation whose saved answer was business use" in {
+      val section = Json.obj(
+        "bringingVehicleNI"             -> true,
+        "bringingVehicleBusiness"       -> true,
+        "bringingVehicleBusinessNeeded" -> true,
+        "registered"                    -> true
+      )
+
+      val result = UserDataService
+        .storeInitialQuestionsPages(draftWithInitialQuestions(section), emptyUserAnswers, stubSessionRepository(), vatOrgContext)
+        .futureValue
+
+      result.get(VehicleBusinessUsePage) mustBe Some(true)
+    }
+
+    "must not derive VehicleBusinessUsePage from bringingVehicleBusinessNeeded alone - that flag only says the question was needed, not what the answer was" in {
+      val section = Json.obj(
+        "bringingVehicleNI"             -> true,
+        "bringingVehicleBusinessNeeded" -> true,
+        "registered"                    -> true
+      )
+
+      val result = UserDataService
+        .storeInitialQuestionsPages(draftWithInitialQuestions(section), emptyUserAnswers, stubSessionRepository(), vatOrgContext)
+        .futureValue
+
+      result.get(VehicleBusinessUsePage) mustBe None
+    }
+  }
+
   "UserDataService.retrieveAndStoreDraftNotification" - {
 
     implicit val hc: HeaderCarrier = HeaderCarrier()
+
+    val testUserContext = UserContext(
+      userType = NovaUserType.PrivateIndividual,
+      selectedClient = None,
+      notDeregistered = true,
+      isAgentWithClientNoEnrolments = false,
+      agentHasVatAgentEnrolment = false,
+      isForBusinessUse = false
+    )
 
     def serviceReturning(draft: DraftNotification): UserDataService = {
       val connector = mock[NovaImportsBackendConnector]
@@ -284,7 +352,10 @@ class UserDataServiceSpec extends SpecBase with MockitoSugar with ScalaFutures w
         .unsafeSet(DraftIdPage, DraftId("1"))
         .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business)
 
-      val result = serviceReturning(draftWithNotifier(individualNotifier)).retrieveAndStoreDraftNotification(DraftId("1"), answers).futureValue.value
+      val result = serviceReturning(draftWithNotifier(individualNotifier))
+        .retrieveAndStoreDraftNotification(DraftId("1"), answers, testUserContext)
+        .futureValue
+        .value
 
       result.get(NameDetailsPage) mustBe None
       result.get(EmailAddressPage) mustBe Some("john@example.com")
@@ -298,7 +369,10 @@ class UserDataServiceSpec extends SpecBase with MockitoSugar with ScalaFutures w
         .unsafeSet(BusinessNamePage, "Old Business Ltd")
 
       val result =
-        serviceReturning(draftWithNotifier(organisationNotifier)).retrieveAndStoreDraftNotification(DraftId("1"), answers).futureValue.value
+        serviceReturning(draftWithNotifier(organisationNotifier))
+          .retrieveAndStoreDraftNotification(DraftId("1"), answers, testUserContext)
+          .futureValue
+          .value
 
       result.get(BusinessNamePage) mustBe None
       result.get(EmailAddressPage) mustBe Some("acme@example.com")
@@ -310,7 +384,10 @@ class UserDataServiceSpec extends SpecBase with MockitoSugar with ScalaFutures w
         .unsafeSet(DraftIdPage, DraftId("1"))
         .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
 
-      val result = serviceReturning(draftWithNotifier(individualNotifier)).retrieveAndStoreDraftNotification(DraftId("1"), answers).futureValue.value
+      val result = serviceReturning(draftWithNotifier(individualNotifier))
+        .retrieveAndStoreDraftNotification(DraftId("1"), answers, testUserContext)
+        .futureValue
+        .value
 
       result.get(NameDetailsPage) mustBe Some(NameDetails("Mr", "John", "Smith"))
     }
@@ -321,7 +398,10 @@ class UserDataServiceSpec extends SpecBase with MockitoSugar with ScalaFutures w
         .unsafeSet(VehicleBusinessUsePage, true)
 
       val result =
-        serviceReturning(draftWithNotifier(organisationNotifier)).retrieveAndStoreDraftNotification(DraftId("1"), answers).futureValue.value
+        serviceReturning(draftWithNotifier(organisationNotifier))
+          .retrieveAndStoreDraftNotification(DraftId("1"), answers, testUserContext)
+          .futureValue
+          .value
 
       result.get(VehicleBusinessUsePage) mustBe Some(true)
       result.get(EmailAddressPage) mustBe Some("acme@example.com")

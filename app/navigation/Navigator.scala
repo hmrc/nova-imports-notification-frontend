@@ -18,10 +18,10 @@ package navigation
 
 import javax.inject.{Inject, Singleton}
 import play.api.mvc.Call
-import controllers.{initialquestions, notifierdetails, purchaserdetails, routes, supplieraddress, supplierdetails}
+import controllers.{initialquestions, notifierdetails, purchaserdetails, routes, supplieraddress, supplierdetails, vehicledetails}
 import pages.*
 import models.*
-import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
+import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, NotifyingAsPurchaserPage, PurchaserBusinessOrIndividualPage, VehicleBusinessUsePage, VehicleFromEuPage}
 import pages.sections.notifierdetails.{AboutYourDetailsPage, BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 import pages.sections.vehicledetails.{AddImportVehicleDetailsPage, AddVehicleDetailsPage}
 import pages.sections.notifieraddress.IsYourAddressInTheUkPage
@@ -46,6 +46,11 @@ class Navigator @Inject() () {
           case NovaUserType.Agent if userAnswers.get(AgentSelectedClientPage).isDefined =>
             userAnswers.get(VehicleFromEuPage) match {
               case Some(_) => initialquestions.routes.AgentVehicleBusinessUseController.onPageLoad(NormalMode)
+              case _       => routes.JourneyRecoveryController.onPageLoad()
+            }
+          case NovaUserType.Agent =>
+            userAnswers.get(VehicleFromEuPage) match {
+              case Some(_) => initialquestions.routes.BusinessPrivateController.onPageLoad(NormalMode)
               case _       => routes.JourneyRecoveryController.onPageLoad()
             }
           case _ =>
@@ -74,9 +79,9 @@ class Navigator @Inject() () {
       (_, _) => initialquestions.routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
     case AgentClientVehicleBusinessUsePage =>
       (_, _) => initialquestions.routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
-    case PurchaserOrOnBehalfPage =>
+    case NotifyingAsPurchaserPage =>
       (userAnswers, _) =>
-        userAnswers.get(PurchaserOrOnBehalfPage) match {
+        userAnswers.get(NotifyingAsPurchaserPage) match {
           case Some(PurchaserOrOnBehalf.Purchaser)           => initialquestions.routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
           case Some(PurchaserOrOnBehalf.OnBehalfOfPurchaser) => initialquestions.routes.PurchaserBusinessOrIndividualController.onPageLoad(NormalMode)
           case _                                             => routes.JourneyRecoveryController.onPageLoad()
@@ -90,7 +95,7 @@ class Navigator @Inject() () {
       (userAnswers, _) =>
         userAnswers.get(AddVehicleDetailsPage) match {
           case Some(AddVehicleDetails.BySpreadsheet) =>
-            routes.LandingPageController.onPageLoad() // TODO: navigate to spreadsheet upload flow when built
+            vehicledetails.routes.UploadVehicleSpreadsheetController.onPageLoad()
           case _ => routes.JourneyRecoveryController.onPageLoad()
         }
     case AddImportVehicleDetailsPage =>
@@ -100,7 +105,7 @@ class Navigator @Inject() () {
           case Some(AddImportVehicleDetails.ByImportEntryNumber) =>
             routes.LandingPageController.onPageLoad() // TODO: navigate to the import entry number flow when built
           case Some(AddImportVehicleDetails.BySpreadsheet) =>
-            routes.LandingPageController.onPageLoad() // TODO: navigate to spreadsheet upload flow when built
+            vehicledetails.routes.UploadVehicleSpreadsheetController.onPageLoad()
           case _ => routes.JourneyRecoveryController.onPageLoad()
         }
     case page: UsePersonalDetailsAsSupplierPage =>
@@ -203,9 +208,9 @@ class Navigator @Inject() () {
         }
     case VehicleBusinessUsePage | AgentClientVehicleBusinessUsePage | BusinessOrPrivatePage | PurchaserBusinessOrIndividualPage =>
       (_, _) => initialquestions.routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
-    case PurchaserOrOnBehalfPage =>
+    case NotifyingAsPurchaserPage =>
       (userAnswers, _) =>
-        userAnswers.get(PurchaserOrOnBehalfPage) match {
+        userAnswers.get(NotifyingAsPurchaserPage) match {
           case Some(PurchaserOrOnBehalf.Purchaser)           => initialquestions.routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
           case Some(PurchaserOrOnBehalf.OnBehalfOfPurchaser) => initialquestions.routes.PurchaserBusinessOrIndividualController.onPageLoad(CheckMode)
           case _                                             => routes.JourneyRecoveryController.onPageLoad()

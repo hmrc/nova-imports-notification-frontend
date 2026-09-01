@@ -27,7 +27,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import pages.*
-import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
+import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, NotifyingAsPurchaserPage, VehicleBusinessUsePage, VehicleFromEuPage}
 import pages.sections.notifierdetails.{AboutYourDetailsPage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -276,7 +276,7 @@ class PhoneNumberControllerSpec extends SpecBase with MockitoSugar {
         .set(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
         .success
         .value
-        .set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
+        .set(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.Purchaser)
         .success
         .value
 
@@ -299,7 +299,7 @@ class PhoneNumberControllerSpec extends SpecBase with MockitoSugar {
         .set(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business)
         .success
         .value
-        .set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
+        .set(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.Purchaser)
         .success
         .value
 
@@ -318,7 +318,7 @@ class PhoneNumberControllerSpec extends SpecBase with MockitoSugar {
       val nonVatAgentBusiness = baseRequiredAnswers
         .unsafeSet(VehicleFromEuPage, true)
         .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business)
-        .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
+        .unsafeSet(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.Purchaser)
 
       val application = nonVatAgentApplicationBuilder(Some(nonVatAgentBusiness)).build()
 
@@ -335,7 +335,7 @@ class PhoneNumberControllerSpec extends SpecBase with MockitoSugar {
       val nonVatAgentPrivateNoName = baseRequiredAnswers
         .unsafeSet(VehicleFromEuPage, true)
         .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
-        .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
+        .unsafeSet(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.Purchaser)
 
       val application = nonVatAgentApplicationBuilder(Some(nonVatAgentPrivateNoName)).build()
 
@@ -353,7 +353,7 @@ class PhoneNumberControllerSpec extends SpecBase with MockitoSugar {
       val nonVatAgentPrivateWithName = baseRequiredAnswers
         .unsafeSet(VehicleFromEuPage, true)
         .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
-        .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
+        .unsafeSet(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.Purchaser)
         .unsafeSet(NameDetailsPage, NameDetails("Mr", "John", "Doe"))
 
       val application = nonVatAgentApplicationBuilder(Some(nonVatAgentPrivateWithName)).build()
@@ -393,7 +393,7 @@ class PhoneNumberControllerSpec extends SpecBase with MockitoSugar {
         .set(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business)
         .success
         .value
-        .set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+        .set(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
         .success
         .value
 

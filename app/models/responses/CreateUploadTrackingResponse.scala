@@ -14,17 +14,13 @@
  * limitations under the License.
  */
 
-package models.draftsections
+package models.responses
 
-import play.api.libs.json.{Format, Json}
+import play.api.libs.json.*
 
-final case class Introduction(
-  acknowledged: Boolean,
-  amendSubmittedNotification: Boolean,
-  notDeregistered: Boolean,
-  agentActingOnBehalfOfClient: Boolean
-)
+final case class CreateUploadTrackingResponse(reference: String, uploadUrl: String, fields: Map[String, String])
 
-object Introduction {
-  implicit val format: Format[Introduction] = Json.format[Introduction]
+object CreateUploadTrackingResponse {
+
+  implicit val reads: Reads[CreateUploadTrackingResponse] = Json.reads[CreateUploadTrackingResponse]
 }

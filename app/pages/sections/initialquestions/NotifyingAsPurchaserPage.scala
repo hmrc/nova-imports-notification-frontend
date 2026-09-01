@@ -23,11 +23,11 @@ import play.api.libs.json.JsPath
 
 import scala.util.Try
 
-case object PurchaserOrOnBehalfPage extends QuestionPage[PurchaserOrOnBehalf] {
+case object NotifyingAsPurchaserPage extends QuestionPage[PurchaserOrOnBehalf] {
 
   override def path: JsPath = JsPath \ "initial-question" \ toString
 
-  override def toString: String = "purchaserOrOnBehalf"
+  override def toString: String = "notifyingAsPurchaser"
 
   // User is the purchaser, so there is no separate purchaser to capture. Clear the type and name answers
   override def cleanup(value: Option[PurchaserOrOnBehalf], userAnswers: UserAnswers): Try[UserAnswers] =

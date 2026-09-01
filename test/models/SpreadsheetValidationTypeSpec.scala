@@ -14,13 +14,22 @@
  * limitations under the License.
  */
 
-package pages
+package models
 
-import play.api.libs.json.JsPath
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
+import play.api.libs.json.{JsString, Json}
 
-case object IsDeregisteredPage extends QuestionPage[Boolean] {
+class SpreadsheetValidationTypeSpec extends AnyFreeSpec with Matchers {
 
-  override def path: JsPath = JsPath \ toString
+  "SpreadsheetValidationType.writes" - {
 
-  override def toString: String = "isDeregistered"
+    "must write CarsEu as the JSON string the backend expects" in {
+      Json.toJson(SpreadsheetValidationType.CarsEu) mustBe JsString("CarsEu")
+    }
+
+    "must write CarsNonEu as the JSON string the backend expects" in {
+      Json.toJson(SpreadsheetValidationType.CarsNonEu) mustBe JsString("CarsNonEu")
+    }
+  }
 }

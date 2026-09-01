@@ -27,7 +27,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{never, times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.*
-import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage, VehicleBusinessUsePage, VehicleFromEuPage}
+import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, NotifyingAsPurchaserPage, PurchaserBusinessOrIndividualPage, VehicleBusinessUsePage, VehicleFromEuPage}
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -63,7 +63,7 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
     .set(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business)
     .success
     .value
-    .set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
+    .set(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.Purchaser)
     .success
     .value
     .set(DraftIdPage, DraftId(draftId))
@@ -77,7 +77,7 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
     .set(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business)
     .success
     .value
-    .set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+    .set(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
     .success
     .value
     .set(PurchaserBusinessOrIndividualPage, PurchaserBusinessOrIndividual.NonVatRegisteredBusiness)
@@ -115,7 +115,7 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
     .set(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business)
     .success
     .value
-    .set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
+    .set(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.Purchaser)
     .success
     .value
 
@@ -134,7 +134,7 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
     .set(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business)
     .success
     .value
-    .set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
+    .set(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.Purchaser)
     .success
     .value
     .set(DraftIdPage, DraftId(draftId))
@@ -329,7 +329,7 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
           .set(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business)
           .success
           .value
-          .set(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+          .set(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
           .success
           .value
 

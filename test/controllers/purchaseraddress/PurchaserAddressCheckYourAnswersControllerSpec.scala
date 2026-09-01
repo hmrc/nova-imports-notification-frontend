@@ -24,7 +24,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{never, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.DraftIdPage
-import pages.sections.initialquestions.PurchaserOrOnBehalfPage
+import pages.sections.initialquestions.NotifyingAsPurchaserPage
 import pages.sections.purchaseraddress.{PurchaserAddressJourneyIdPage, PurchaserAddressPage}
 import play.api.Application
 import play.api.inject.bind
@@ -51,7 +51,7 @@ class PurchaserAddressCheckYourAnswersControllerSpec extends SpecBase with Mocki
     emptyUserAnswers
       .unsafeSet(PurchaserAddressPage, address)
       .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
-      .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+      .unsafeSet(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
 
   private def stubSessionRepository(): SessionRepository = {
     val m = mock[SessionRepository]

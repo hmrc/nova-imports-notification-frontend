@@ -26,7 +26,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.DraftIdPage
-import pages.sections.initialquestions.{PurchaserBusinessOrIndividualPage, PurchaserOrOnBehalfPage}
+import pages.sections.initialquestions.{NotifyingAsPurchaserPage, PurchaserBusinessOrIndividualPage}
 import pages.sections.purchaserdetails.PurchaserBusinessNamePage
 import play.api.inject.bind
 import play.api.mvc.Call
@@ -49,7 +49,7 @@ class PurchaserBusinessNameControllerSpec extends SpecBase with MockitoSugar {
 
   val requiredAnswers: UserAnswers = emptyUserAnswers
     .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
-    .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+    .unsafeSet(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
     .unsafeSet(PurchaserBusinessOrIndividualPage, PurchaserBusinessOrIndividual.NonVatRegisteredBusiness)
 
   "PurchaserBusinessName Controller" - {
@@ -207,7 +207,7 @@ class PurchaserBusinessNameControllerSpec extends SpecBase with MockitoSugar {
     "must redirect to Unauthorised for a GET when the purchaser is not on behalf of a purchaser" in {
       val answers = emptyUserAnswers
         .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
-        .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
+        .unsafeSet(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.Purchaser)
       val application = applicationBuilder(userAnswers = Some(answers)).build()
 
       running(application) {
@@ -223,7 +223,7 @@ class PurchaserBusinessNameControllerSpec extends SpecBase with MockitoSugar {
     "must redirect to Unauthorised for a GET when the purchaser is not a non-VAT registered business" in {
       val answers = emptyUserAnswers
         .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
-        .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+        .unsafeSet(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
       val application = applicationBuilder(userAnswers = Some(answers)).build()
 
       running(application) {
@@ -238,7 +238,7 @@ class PurchaserBusinessNameControllerSpec extends SpecBase with MockitoSugar {
 
     "must redirect to Unauthorised for a GET when no draft is in progress" in {
       val answers = emptyUserAnswers
-        .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+        .unsafeSet(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
         .unsafeSet(PurchaserBusinessOrIndividualPage, PurchaserBusinessOrIndividual.NonVatRegisteredBusiness)
       val application = applicationBuilder(userAnswers = Some(answers)).build()
 
@@ -255,7 +255,7 @@ class PurchaserBusinessNameControllerSpec extends SpecBase with MockitoSugar {
     "must redirect to Unauthorised for a POST when the breadcrumb is missing" in {
       val answers = emptyUserAnswers
         .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
-        .unsafeSet(PurchaserOrOnBehalfPage, PurchaserOrOnBehalf.Purchaser)
+        .unsafeSet(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.Purchaser)
       val application = applicationBuilder(userAnswers = Some(answers)).build()
 
       running(application) {
