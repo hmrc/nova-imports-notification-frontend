@@ -30,7 +30,7 @@ import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 
 object SupplierNameSummary {
-  
+
   def rowFromPersonalDetails(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages): Option[SummaryListRow] = {
     row(answers, NameDetailsPage, routes.UsePersonalDetailsAsSupplierController.onPageLoad(supplierNumber, CheckMode).url)
   }
@@ -43,7 +43,9 @@ object SupplierNameSummary {
     row(answers, SupplierNamePage(supplierNumber), routes.SupplierNameController.onPageLoad(supplierNumber, CheckMode).url)
   }
 
-  private def row(answers: UserAnswers, namePage: QuestionPage[NameDetails], redirectUrl: String)(implicit messages: Messages): Option[SummaryListRow] = {
+  private def row(answers: UserAnswers, namePage: QuestionPage[NameDetails], redirectUrl: String)(implicit
+    messages: Messages
+  ): Option[SummaryListRow] = {
     answers.get(namePage).map { name =>
 
       val value = Seq(name.title, name.firstName, name.lastName)

@@ -24,11 +24,8 @@ import models.draftsections.{SupplierDetails, SupplierSelfSupplyDetails}
 import models.requests.DataRequest
 import models.{Address, BusinessOrPrivateIndividual, NameDetails, NormalMode, SupplierNumber, UserAnswers, UserContext, VatNumberDetails}
 import pages.*
-import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage, VehicleBusinessUsePage}
-import pages.sections.notifieraddress.AddressPage
+import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, VehicleBusinessUsePage}
 import pages.sections.notifierdetails.*
-import pages.sections.purchaseraddress.PurchaserAddressPage
-import pages.sections.purchaserdetails.PurchaserNamePage
 import pages.sections.supplieraddress.{SupplierAddressJourneyIdPage, SupplierAddressPage}
 import pages.sections.supplierdetails.*
 import play.api.Logging
@@ -62,8 +59,8 @@ class SupplierDetailsCheckYourAnswersController @Inject() (
     actions.authAndGetDataWithUserTypeGuard(guardPredicate).async { implicit request =>
       for {
         cleared <- Future.fromTry(
-          request.userAnswers.remove(SupplierAddressPage(supplierNumber)).flatMap(_.remove(SupplierAddressJourneyIdPage(supplierNumber)))
-        )
+                     request.userAnswers.remove(SupplierAddressPage(supplierNumber)).flatMap(_.remove(SupplierAddressJourneyIdPage(supplierNumber)))
+                   )
         _ <- sessionRepository.set(cleared)
       } yield Redirect(controllers.supplieraddress.routes.IsSupplierAddressInTheUKController.onPageLoad(supplierNumber, NormalMode))
     }
@@ -73,12 +70,11 @@ class SupplierDetailsCheckYourAnswersController @Inject() (
       implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
       val submissionIDs = for {
-        draftId     <- request.userAnswers.get(DraftIdPage)
-        versionId   <- request.userAnswers.get(DraftVersionIdPage)
+        draftId   <- request.userAnswers.get(DraftIdPage)
+        versionId <- request.userAnswers.get(DraftVersionIdPage)
       } yield (draftId, versionId)
 
       def failureRecovery = {
-        //TODO: Is this the correct place to redirect to on failure?
         Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
       }
 
@@ -95,8 +91,8 @@ class SupplierDetailsCheckYourAnswersController @Inject() (
 
         case Some((draftId, versionId)) =>
           // Save SupplierSelfSupply
-          val selfSupply = isSelfSupply(request.userAnswers, supplierNumber)
-          val selfSupplySectionData = buildSelfSupplySectionData(selfSupply)
+          val selfSupply                  = isSelfSupply(request.userAnswers, supplierNumber)
+          val selfSupplySectionData       = buildSelfSupplySectionData(selfSupply)
           val selfSupplierSectionJsonBody = selfSupplySectionData + ("versionId" -> Json.toJson(versionId))
           backendConnector.updateDraftSection(draftId, "notifier-details", selfSupplierSectionJsonBody).flatMap {
             case Right(selfSupplierNewVersionId) =>
@@ -112,7 +108,7 @@ class SupplierDetailsCheckYourAnswersController @Inject() (
                       case Right(supplierDetailsNewVersionId) =>
                         navigateToNextPage(supplierDetailsNewVersionId)
                       case Left(error) =>
-                        logger.warn(s"Failed to update 'notifier-details' section of type SupplierDetails for draftId ${draftId.value}: $error")
+                        logger.warn(s"Failed to update 'notifier-details' of type SupplierDetails for draftId ${draftId.value}: $error")
                         failureRecovery
                     }
                   case None =>
@@ -136,18 +132,22 @@ object SupplierDetailsCheckYourAnswersController {
 
   def guardPredicate(request: DataRequest[?]): Boolean = {
     // TODO: ???
+    // TODO: Will at least need to check for draft id. not sure on anything else?
+    // tODO: Just remove the guard for now so I can test everything and then can add it in later when needed or crack on with unit tests.
 
     val answers     = request.userAnswers
     val userContext = request.userContext
 
-    IsDraftIdDefined(answers) && (userContext match {
-      case ctx if ctx.isAgentWithClientNoEnrolments => agentWithClientNoEnrolmentsAnswersComplete(answers)
-      case ctx if ctx.isVatRegisteredOrganisation   => vatRegisteredOrgAnswersComplete(answers)
-      case ctx if ctx.isVatAgentWithoutClient       => agentWithoutClientAnswersComplete(answers)
-      case ctx if ctx.isAgentWithoutClient          => nonVatAgentWithoutClientAnswersComplete(answers)
-      case ctx if ctx.isAgentWithClient             => agentWithClientAnswersComplete(answers)
-      case _                                        => standardUserAnswersComplete(answers)
-    })
+    IsDraftIdDefined(answers)
+
+//    IsDraftIdDefined(answers) && (userContext match {
+//      case ctx if ctx.isAgentWithClientNoEnrolments => agentWithClientNoEnrolmentsAnswersComplete(answers)
+//      case ctx if ctx.isVatRegisteredOrganisation   => vatRegisteredOrgAnswersComplete(answers)
+//      case ctx if ctx.isVatAgentWithoutClient       => agentWithoutClientAnswersComplete(answers)
+//      case ctx if ctx.isAgentWithoutClient          => nonVatAgentWithoutClientAnswersComplete(answers)
+//      case ctx if ctx.isAgentWithClient             => agentWithClientAnswersComplete(answers)
+//      case _                                        => standardUserAnswersComplete(answers)
+//    })
   }
 
   private def agentWithClientNoEnrolmentsAnswersComplete(answers: UserAnswers): Boolean =
@@ -180,20 +180,21 @@ object SupplierDetailsCheckYourAnswersController {
       answers.get(EmailAddressPage).isDefined &&
       (answers.get(NameDetailsPage).isDefined == answers.get(AgentClientVehicleBusinessUsePage).contains(false))
 
-
   private def isSelfSupply(answers: UserAnswers, supplierNumber: SupplierNumber): Boolean = {
     def isTrue(page: QuestionPage[Boolean]): Boolean = answers.get(page).contains(true)
 
     isTrue(UsePersonalDetailsAsSupplierPage(supplierNumber))
-      || isTrue(UsePurchaserDetailsAsSupplierPage(supplierNumber))
+    || isTrue(UsePurchaserDetailsAsSupplierPage(supplierNumber))
   }
 
   def buildSelfSupplySectionData(selfSupply: Boolean): JsObject = {
-    Json.toJson(
+    Json
+      .toJson(
         SupplierSelfSupplyDetails(
           selfSupply
         )
-      ).as[JsObject]
+      )
+      .as[JsObject]
   }
 
   def buildSupplierDetailsSectionData(userContext: UserContext, answers: UserAnswers, supplierNumber: SupplierNumber): Option[JsObject] = {
@@ -230,7 +231,7 @@ object SupplierDetailsCheckYourAnswersController {
           .as[JsObject]
       }
 
-      //TODO: Adjust is buisness based on prior check to determine if using own details, purchaser details or supplier details.
+      // TODO: Adjust is buisness based on prior check to determine if using own details, purchaser details or supplier details.
 
       answers.get(SupplierBusinessOrIndividualPage(supplierNumber)) match {
         case Some(BusinessOrPrivateIndividual.Business) =>

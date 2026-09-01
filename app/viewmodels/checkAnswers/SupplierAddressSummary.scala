@@ -30,7 +30,7 @@ import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 
 object SupplierAddressSummary {
-  
+
   def rowFromPersonalDetails(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages): Option[SummaryListRow] = {
     row(answers, AddressPage, routes.UsePersonalDetailsAsSupplierController.onPageLoad(supplierNumber, CheckMode).url)
   }
@@ -42,8 +42,10 @@ object SupplierAddressSummary {
   def rowFromSupplierDetails(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages): Option[SummaryListRow] = {
     row(answers, SupplierAddressPage(supplierNumber), routes.SupplierDetailsCheckYourAnswersController.onChangeAddress(supplierNumber).url)
   }
-  
-  private def row(answers: UserAnswers, addressPage: QuestionPage[Address], redirectUrl: String)(implicit messages: Messages): Option[SummaryListRow] =
+
+  private def row(answers: UserAnswers, addressPage: QuestionPage[Address], redirectUrl: String)(implicit
+    messages: Messages
+  ): Option[SummaryListRow] =
     answers.get(addressPage).map { address =>
 
       val countryLine = if (address.country.code == "GB") None else Some(address.country.name)
