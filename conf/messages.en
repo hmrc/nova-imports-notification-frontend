@@ -663,6 +663,14 @@ addVehicleDetails.inset.paragraph.1 = If you’re uploading a spreadsheet, you m
 addVehicleDetails.inset.findSpreadsheet.linkText = Find the spreadsheet
 addVehicleDetails.error.required = Select how you want to add vehicle details
 
+##################################################################################
+# AVD1.0b - Add vehicle details: Vehicles brought from the EU (by supplier only) #
+##################################################################################
+
+addVehicleDetails.bySupplierOnly.paragraph.1 = Provide the supplier details first, then add the vehicles bought from them.
+addVehicleDetails.bySupplierOnly.paragraph.2 = You must include all vehicles bought from a supplier in the EU. You can add up to 100 vehicles in one notification.
+addVehicleDetails.bySupplierOnly.button = Add supplier details
+
 ##################################################################################################
 # AVD1.1 - Add vehicle details 1.1: Vehicles brought from outside both the UK and the EU          #
 ##################################################################################################

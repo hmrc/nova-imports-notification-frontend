@@ -635,6 +635,20 @@ vehicleDates.checkbox.availabilityAndFirstRegistration = Date the vehicle was ma
 vehicleDates.or = or
 vehicleDates.checkbox.noDates = No, I do not have any of these dates
 
+######################################################
+# AVD1.0 - Add vehicle details: Vehicles brought from the EU #
+######################################################
+
+addVehicleDetails.heading = Cerbydau sy’n dod o’r UE
+addVehicleDetails.caption = Ychwanegwch fanylion cerbyd
+
+##################################################################################
+# AVD1.0b - Add vehicle details: Vehicles brought from the EU (by supplier only) #
+##################################################################################
+
+addVehicleDetails.bySupplierOnly.paragraph.1 = Rhowch fanylion y cyflenwr yn gyntaf, yna ychwanegwch y cerbydau a brynwyd ganddo
+addVehicleDetails.bySupplierOnly.paragraph.2 = Mae’n rhaid i chi gynnwys pob cerbyd a brynwyd gan gyflenwr yn yr UE. Gallwch ychwanegu hyd at 100 o gerbydau mewn un hysbysiad.
+addVehicleDetails.bySupplierOnly.button = Ychwanegu manylion y cyflenwr
 
 ##################################################################################################
 # AVD1.1 - Add vehicle details 1.1: Vehicles brought from outside both the UK and the EU          #
