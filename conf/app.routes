@@ -189,6 +189,7 @@ GET         /supplier/:supplierNumber/supplier-address-changed/change-address   
 GET         /supplier/:supplierNumber/confirm-supplier-details                           controllers.supplierdetails.SupplierDetailsCheckYourAnswersController.onPageLoad(supplierNumber: SupplierNumber)
 POST        /supplier/:supplierNumber/confirm-supplier-details                           controllers.supplierdetails.SupplierDetailsCheckYourAnswersController.onSubmit(supplierNumber: SupplierNumber)
 GET         /supplier/:supplierNumber/confirm-supplier-details/change-address            controllers.supplierdetails.SupplierDetailsCheckYourAnswersController.onChangeAddress(supplierNumber: SupplierNumber)
+GET         /supplier/:supplierNumber/confirm-supplier-details/change-vat                controllers.supplierdetails.SupplierDetailsCheckYourAnswersController.onChangeIsSupplierVatRegistered(supplierNumber: SupplierNumber)
 
 GET         /supplier/:supplierNumber/vehicles-bought-from-supplier                      controllers.vehicledetails.VehiclesBoughtFromSupplierController.onPageLoad(supplierNumber: SupplierNumber)
 POST        /supplier/:supplierNumber/vehicles-bought-from-supplier                      controllers.vehicledetails.VehiclesBoughtFromSupplierController.onSubmit(supplierNumber: SupplierNumber)

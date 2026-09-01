@@ -852,6 +852,7 @@ supplierVatRegistrationDetails.change.hidden = supplier’s VAT registration det
 supplierDetailsCheckYourAnswers.caption = Add vehicle details
 supplierDetailsCheckYourAnswers.title = Check the supplier details before adding vehicles
 supplierDetailsCheckYourAnswers.heading = Check the supplier details before adding vehicles
+supplierDetailsCheckYourAnswers.notProvided = Not provided
 supplierAddressCheckYourAnswers.checkYourAnswersLabel = Supplier’s address
 supplierAddressCheckYourAnswers.change.hidden = supplier’s address
 

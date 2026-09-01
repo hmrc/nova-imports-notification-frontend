@@ -46,12 +46,19 @@ object SupplierNameSummary {
   private def row(answers: UserAnswers, namePage: QuestionPage[NameDetails], redirectUrl: String)(implicit
     messages: Messages
   ): Option[SummaryListRow] = {
-    answers.get(namePage).map { name =>
 
-      val value = Seq(name.title, name.firstName, name.lastName)
-        .map(part => HtmlFormat.escape(part).body)
-        .mkString("<br>")
+    val value = answers.get(namePage) match {
+      case Some(name) =>
+        Seq(name.title, name.firstName, name.lastName)
+          .map(part => HtmlFormat.escape(part).body)
+          .mkString("<br>")
+      case None =>
+        Seq(messages("supplierDetailsCheckYourAnswers.notProvided"))
+          .map(part => HtmlFormat.escape(part).body)
+          .mkString("<br>")
+    }
 
+    Some(
       SummaryListRowViewModel(
         key = "supplierName.checkYourAnswersLabel",
         value = ValueViewModel(HtmlContent(value)),
@@ -60,6 +67,6 @@ object SupplierNameSummary {
             .withVisuallyHiddenText(messages("supplierName.change.hidden"))
         )
       )
-    }
+    )
   }
 }

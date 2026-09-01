@@ -45,16 +45,23 @@ object SupplierAddressSummary {
 
   private def row(answers: UserAnswers, addressPage: QuestionPage[Address], redirectUrl: String)(implicit
     messages: Messages
-  ): Option[SummaryListRow] =
-    answers.get(addressPage).map { address =>
+  ): Option[SummaryListRow] = {
 
-      val countryLine = if (address.country.code == "GB") None else Some(address.country.name)
+    val value = answers.get(addressPage) match {
+      case Some(address) =>
+        val countryLine = if (address.country.code == "GB") None else Some(address.country.name)
 
-      val value = (address.lines ++ address.postcode.toSeq ++ countryLine)
-        .filter(_.nonEmpty)
-        .map(line => HtmlFormat.escape(line).body)
-        .mkString("<br>")
+        (address.lines ++ address.postcode.toSeq ++ countryLine)
+          .filter(_.nonEmpty)
+          .map(line => HtmlFormat.escape(line).body)
+          .mkString("<br>")
+      case None =>
+        Seq(messages("supplierDetailsCheckYourAnswers.notProvided"))
+          .map(part => HtmlFormat.escape(part).body)
+          .mkString("<br>")
+    }
 
+    Some(
       SummaryListRowViewModel(
         key = "supplierAddressCheckYourAnswers.checkYourAnswersLabel",
         value = ValueViewModel(HtmlContent(value)),
@@ -63,5 +70,6 @@ object SupplierAddressSummary {
             .withVisuallyHiddenText(messages("supplierAddressCheckYourAnswers.change.hidden"))
         )
       )
-    }
+    )
+  }
 }

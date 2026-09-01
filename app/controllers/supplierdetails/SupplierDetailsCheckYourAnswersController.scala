@@ -65,6 +65,16 @@ class SupplierDetailsCheckYourAnswersController @Inject() (
       } yield Redirect(controllers.supplieraddress.routes.IsSupplierAddressInTheUKController.onPageLoad(supplierNumber, NormalMode))
     }
 
+  def onChangeIsSupplierVatRegistered(supplierNumber: SupplierNumber): Action[AnyContent] =
+    actions.authAndGetDataWithUserTypeGuard(guardPredicate).async { implicit request =>
+      for {
+        cleared <- Future.fromTry(
+                     request.userAnswers.remove(SupplierVatRegistrationNumberPage(supplierNumber))
+                   )
+        _ <- sessionRepository.set(cleared)
+      } yield Redirect(controllers.supplierdetails.routes.IsSupplierVatRegisteredController.onPageLoad(supplierNumber, NormalMode))
+    }
+
   def onSubmit(supplierNumber: SupplierNumber): Action[AnyContent] =
     actions.authAndGetDataWithUserTypeGuard(guardPredicate).async { implicit request =>
       implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
