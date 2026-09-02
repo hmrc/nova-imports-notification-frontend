@@ -16,17 +16,16 @@
 
 package viewmodels.checkAnswers
 
-import models.{Country, TraderInformation, UserAnswers}
+import models.{TraderInformation, UserAnswers}
 import pages.sections.notifierdetails.{BusinessNamePage, NameDetailsPage}
 import pages.sections.notifieraddress.AddressPage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{SummaryList, SummaryListRow}
+import viewmodels.{AddressDisplay, AddressLines}
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
-
-import java.util.Locale
 
 object SupplierPersonalDetailsSummary {
 
@@ -39,21 +38,31 @@ object SupplierPersonalDetailsSummary {
   def sessionRows(answers: UserAnswers)(implicit messages: Messages): Seq[SummaryListRow] = {
     val address = answers.get(AddressPage)
     val lines   = address.map(_.lines).getOrElse(Seq.empty)
-    // A UK address ends with the postcode; a non-UK address ends with the country name.
-    val lastPart = address.flatMap(a => if (a.country.code == "GB") a.postcode else Some(countryName(a.country)))
 
-    rows(sessionName(answers), addressDisplayLines(lines.lift(0), lines.lift(1), lines.lift(2), lines.lift(3), lastPart))
+    rows(
+      sessionName(answers),
+      AddressDisplay.paddedLines(
+        lines = AddressLines.from(lines),
+        postcode = address.flatMap(_.postcode),
+        country = address.map(_.country),
+        notProvided = notProvidedText
+      )
+    )
   }
 
   def traderRows(traderInformation: Option[TraderInformation])(implicit messages: Messages): Seq[SummaryListRow] =
     rows(
       traderInformation.flatMap(_.name),
-      addressDisplayLines(
-        traderInformation.flatMap(_.addressLine1),
-        traderInformation.flatMap(_.addressLine2),
-        traderInformation.flatMap(_.addressLine3),
-        traderInformation.flatMap(_.addressLine4),
-        traderInformation.flatMap(_.postcode)
+      AddressDisplay.paddedLines(
+        lines = AddressLines(
+          line1 = traderInformation.flatMap(_.addressLine1),
+          line2 = traderInformation.flatMap(_.addressLine2),
+          line3 = traderInformation.flatMap(_.addressLine3),
+          line4 = traderInformation.flatMap(_.addressLine4)
+        ),
+        postcode = traderInformation.flatMap(_.postcode),
+        country = None,
+        notProvided = notProvidedText
       )
     )
 
@@ -77,43 +86,10 @@ object SupplierPersonalDetailsSummary {
       )
     )
 
-  // Address lines render one per line. Lines 1 & 2 and the final part (postcode or country) show
-  // "Not provided" when empty; lines 3 & 4 are dropped when empty. An address with no parts at all
-  // yields an empty Seq, which addressRow renders as a single "Not provided".
-  private def addressDisplayLines(
-    line1: Option[String],
-    line2: Option[String],
-    line3: Option[String],
-    line4: Option[String],
-    lastPart: Option[String]
-  )(implicit messages: Messages): Seq[String] = {
-    val l1 = clean(line1)
-    val l2 = clean(line2)
-    val l3 = clean(line3)
-    val l4 = clean(line4)
-    val lp = clean(lastPart)
-
-    if (Seq(l1, l2, l3, l4, lp).forall(_.isEmpty)) Seq.empty
-    else Seq(Some(l1.getOrElse(notProvidedText)), Some(l2.getOrElse(notProvidedText)), l3, l4, Some(lp.getOrElse(notProvidedText))).flatten
-  }
-
-  private def clean(value: Option[String]): Option[String] = value.map(_.trim).filter(_.nonEmpty)
-
   private def notProvided(implicit messages: Messages): String = HtmlFormat.escape(notProvidedText).body
 
   private def notProvidedText(implicit messages: Messages): String = messages("usePersonalDetailsAsSupplier.notProvided")
 
   private def sessionName(answers: UserAnswers): Option[String] =
     answers.get(BusinessNamePage).orElse(answers.get(NameDetailsPage).map(_.displayName))
-
-  private val isoCountryCodes: Set[String] = Locale.getISOCountries.toSet
-
-  // The stored address often carries only the ISO country code with an empty name, so resolve the
-  // display name from the code. Fall back to the stored name (if any), then the raw code if unknown.
-  private def countryName(country: Country): String = {
-    val stored = country.name.trim
-    if (stored.nonEmpty) stored
-    else if (isoCountryCodes.contains(country.code)) new Locale("", country.code).getDisplayCountry(Locale.UK)
-    else country.code
-  }
 }

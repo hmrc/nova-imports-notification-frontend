@@ -67,10 +67,20 @@ class SupplierPurchaserDetailsSummarySpec extends SpecBase with BeforeAndAfterAl
       valueOf(rows.head) mustBe "Mr John Smith"
     }
 
-    "must end a non-UK address with the country (never the postcode)" in {
+    "must show the postcode before the country for a non-UK address" in {
       val answers = emptyUserAnswers
         .unsafeSet(PurchaserBusinessNamePage, "ABC Ltd")
         .unsafeSet(PurchaserAddressPage, Address(Seq("10 Rue de Paris"), Some("75000"), Country("FR", "France")))
+
+      val rows = SupplierPurchaserDetailsSummary.sessionRows(answers)
+
+      valueOf(rows(1)) mustBe "10 Rue de Paris<br>Not provided<br>75000<br>France"
+    }
+
+    "must omit the postcode line rather than mark it 'Not provided' for a non-UK address without one" in {
+      val answers = emptyUserAnswers
+        .unsafeSet(PurchaserBusinessNamePage, "ABC Ltd")
+        .unsafeSet(PurchaserAddressPage, Address(Seq("10 Rue de Paris"), None, Country("FR", "France")))
 
       val rows = SupplierPurchaserDetailsSummary.sessionRows(answers)
 
