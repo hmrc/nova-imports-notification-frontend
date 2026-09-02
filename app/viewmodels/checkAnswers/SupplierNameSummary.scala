@@ -43,7 +43,7 @@ object SupplierNameSummary {
     row(answers, SupplierNamePage(supplierNumber), routes.SupplierNameController.onPageLoad(supplierNumber, CheckMode).url)
   }
 
-  //TODO: Add rowFromClientDetails once AVD-S1.2 page is added
+  // TODO: Add rowFromClientDetails once AVD-S1.2 page is added
 
   private def row(answers: UserAnswers, namePage: QuestionPage[NameDetails], redirectUrl: String)(implicit
     messages: Messages

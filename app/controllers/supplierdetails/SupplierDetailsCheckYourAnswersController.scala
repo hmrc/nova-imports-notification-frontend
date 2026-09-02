@@ -52,9 +52,10 @@ class SupplierDetailsCheckYourAnswersController @Inject() (
 
   import SupplierDetailsCheckYourAnswersController.*
 
-  def onPageLoad(supplierNumber: SupplierNumber): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierService, supplierNumber)) { implicit request =>
-    Ok(view(request.userContext, request.userAnswers, supplierNumber))
-  }
+  def onPageLoad(supplierNumber: SupplierNumber): Action[AnyContent] =
+    actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierService, supplierNumber)) { implicit request =>
+      Ok(view(request.userContext, request.userAnswers, supplierNumber))
+    }
 
   def onChangeAddress(supplierNumber: SupplierNumber): Action[AnyContent] =
     actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierService, supplierNumber)).async { implicit request =>
@@ -151,9 +152,9 @@ object SupplierDetailsCheckYourAnswersController {
 //      || answers.get(UseClientDetailsAsSupplierPage(supplierNumber)).isDefined   TODO: include this line once AVD-S1.2 page is added
 
     IsDraftIdDefined(answers)
-      && avdQuestionAnswered
-      && request.userAnswers.get(VehicleFromEuPage).contains(true)
-      && supplierService.numberExists(request.userAnswers, supplierNumber)
+    && avdQuestionAnswered
+    && request.userAnswers.get(VehicleFromEuPage).contains(true)
+    && supplierService.numberExists(request.userAnswers, supplierNumber)
   }
 
   private def isSelfSupply(answers: UserAnswers, supplierNumber: SupplierNumber): Boolean = {

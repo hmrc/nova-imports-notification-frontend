@@ -32,7 +32,7 @@ class SupplierNameSummarySpec extends SpecBase {
 
   "SupplierNameSummary" - {
 
-    //TODO: Add using client name details tests once AVD-S1.2 page is added
+    // TODO: Add using client name details tests once AVD-S1.2 page is added
 
     "must return a summary with the name parts stacked on separate lines and a single change link using personal name details" in {
       val userAnswers =
