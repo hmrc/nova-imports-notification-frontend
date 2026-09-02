@@ -141,7 +141,8 @@ object InitialQuestionsCheckYourAnswersController {
             bringingVehicleBusiness = answers.get(VehicleBusinessUsePage),
             bringingVehicleBusinessNeeded = answers.get(VehicleBusinessUsePage).isDefined,
             purchaserBusinessPrivateNeeded = false,
-            registered = true
+            registered = true,
+            currentlyRegistered = true
           )
 
         case NovaUserType.Agent if userContext.isAgentWithClient =>
@@ -154,7 +155,8 @@ object InitialQuestionsCheckYourAnswersController {
             agentClientVehicleBusinessUse = answers.get(AgentClientVehicleBusinessUsePage),
             bringingVehicleBusiness = answers.get(AgentClientVehicleBusinessUsePage),
             bringingVehicleBusinessNeeded = answers.get(AgentClientVehicleBusinessUsePage).isDefined,
-            purchaserBusinessPrivateNeeded = false
+            purchaserBusinessPrivateNeeded = false,
+            currentlyRegistered = true
           )
 
         case _ if userContext.isDeregisteredUser =>
