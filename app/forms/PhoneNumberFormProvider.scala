@@ -49,10 +49,10 @@ class PhoneNumberFormProvider @Inject() extends Mappings {
               )
             )
         )
-      )(ContactNumbers.apply)(contactNumbers => Some((contactNumbers.phoneNumber, contactNumbers.mobileNumber)))
+      )(ContactNumbers.apply)(contactNumbers => Some((contactNumbers.telephoneNumber, contactNumbers.mobileTelephone)))
         .verifying(
           "phoneNumber.error.required",
-          contactNumbers => contactNumbers.phoneNumber.isDefined || contactNumbers.mobileNumber.isDefined
+          contactNumbers => contactNumbers.telephoneNumber.isDefined || contactNumbers.mobileTelephone.isDefined
         )
     )
 }

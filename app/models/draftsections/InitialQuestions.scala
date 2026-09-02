@@ -36,7 +36,8 @@ final case class InitialQuestions(
   purchaserBusinessPrivateNeeded: Boolean = true,
   sccCustomerFieldNeeded: Boolean = true,
   deregistered: Boolean = false,
-  registered: Boolean = false
+  registered: Boolean = false,
+  currentlyRegistered: Boolean = false
 )
 
 object InitialQuestions extends Enumerable.Implicits {

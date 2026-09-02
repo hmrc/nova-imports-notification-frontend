@@ -25,6 +25,8 @@ final case class NameDetails(
 ) {
 
   def displayName: String = List(title, firstName, lastName).filter(_.nonEmpty).mkString(" ")
+
+  def nonEmpty: Boolean = List(title.nonEmpty, firstName.nonEmpty, lastName.nonEmpty).forall(_ == true)
 }
 
 object NameDetails {
