@@ -30,6 +30,7 @@ import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserName
 import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierVatRegistrationNumberPage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
 import pages.sections.supplieraddress.IsSupplierAddressInTheUkPage
 import pages.sections.vehicledetails.VehicleDatesPage
+import queries.AllVehiclesQuery
 
 @Singleton
 class Navigator @Inject() () {
@@ -185,11 +186,21 @@ class Navigator @Inject() () {
           case Some(dates) if dates.contains(VehicleDates.AvailabilityAndFirstRegistration) =>
             routes.LandingPageController.onPageLoad() // TODO: navigate to AVD5.0 when built
           case Some(dates) if dates.contains(VehicleDates.NoDates) =>
-            routes.LandingPageController.onPageLoad() // TODO: navigate to AVD3.1 when built
+            supplierNumberFor(userAnswers, page.vehicleNumber) match {
+              case Some(supplierNumber) => vehicledetails.routes.NoVehicleDatesController.onPageLoad(supplierNumber, page.vehicleNumber)
+              case None                 => routes.JourneyRecoveryController.onPageLoad()
+            }
           case _ => routes.JourneyRecoveryController.onPageLoad()
         }
     case _ => (_, _) => routes.LandingPageController.onPageLoad()
   }
+
+  private def supplierNumberFor(userAnswers: UserAnswers, vehicleNumber: VehicleNumber): Option[SupplierNumber] =
+    userAnswers
+      .get(AllVehiclesQuery)
+      .flatMap(_.get(vehicleNumber.value.toString))
+      .flatMap(vehicle => (vehicle \ "supplierNumber").asOpt[Int])
+      .map(SupplierNumber(_))
 
   private val checkRouteMap: Page => (UserAnswers, NovaUserType) => Call = {
     case VehicleFromEuPage =>
