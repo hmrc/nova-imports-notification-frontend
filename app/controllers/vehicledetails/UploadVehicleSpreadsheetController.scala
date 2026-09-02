@@ -23,7 +23,7 @@ import controllers.actions.Actions
 import controllers.routes
 import controllers.utils.IsDraftIdDefined
 import controllers.vehicledetails.UploadVehicleSpreadsheetController.{guardPredicate, spreadsheetValidationTypeFor}
-import models.{SpreadsheetValidationType, UserAnswers}
+import models.{SpreadsheetUploadError, SpreadsheetValidationType, UserAnswers}
 import models.requests.DataRequest
 import pages.DraftIdPage
 import pages.sections.initialquestions.VehicleFromEuPage
@@ -48,10 +48,11 @@ class UploadVehicleSpreadsheetController @Inject() (
     actions.authAndGetDataWithUserTypeGuard(guardPredicate).async { implicit request =>
       // TODO - Will update once spreadsheet selection page is done
       val validationType = spreadsheetValidationTypeFor(request.userAnswers)
+      val uploadError    = request.getQueryString("errorCode").map(SpreadsheetUploadError.fromUpscanErrorCode)
 
       connector.createUploadTracking(request.userAnswers.get(DraftIdPage).get, validationType).map {
         case Right(uploadTracking) =>
-          Ok(view(uploadTracking.uploadUrl, uploadTracking.fields, appConfig.multipleVehiclesSpreadsheetsUrl))
+          Ok(view(uploadTracking.uploadUrl, uploadTracking.fields, appConfig.multipleVehiclesSpreadsheetsUrl, uploadError))
         case Left(error) =>
           logger.warn(s"Could not start a vehicle spreadsheet upload: $error")
           Redirect(routes.JourneyRecoveryController.onPageLoad())

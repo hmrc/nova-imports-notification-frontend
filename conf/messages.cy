@@ -724,3 +724,6 @@ uploadVehicleSpreadsheet.paragraph.1 = Add details for up to 100 vehicles of the
 uploadVehicleSpreadsheet.useCorrectSpreadsheet.linkText = use the correct spreadsheet
 uploadVehicleSpreadsheet.label = Upload a file
 uploadVehicleSpreadsheet.hint = Must be an OpenDocument Spreadsheet (ODS) file
+uploadVehicleSpreadsheet.error.required = Select a file
+uploadVehicleSpreadsheet.error.tooLarge = The selected file must be smaller than 1MB
+uploadVehicleSpreadsheet.error.unknown = The selected file could not be uploaded. Try again.
