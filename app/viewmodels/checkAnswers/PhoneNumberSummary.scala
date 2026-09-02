@@ -31,7 +31,7 @@ object PhoneNumberSummary {
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(PhoneNumberPage).map { contactNumbers =>
 
-      val value = Seq(contactNumbers.phoneNumber, contactNumbers.mobileNumber).flatten
+      val value = Seq(contactNumbers.telephoneNumber, contactNumbers.mobileTelephone).flatten
         .map(number => HtmlFormat.escape(number).body)
         .mkString("<br>")
 

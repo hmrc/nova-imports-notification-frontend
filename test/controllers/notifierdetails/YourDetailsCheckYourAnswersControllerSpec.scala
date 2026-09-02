@@ -729,7 +729,7 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
           (sentBody \ "title").as[String] mustEqual "Mr"
           (sentBody \ "firstName").as[String] mustEqual "John"
           (sentBody \ "lastName").as[String] mustEqual "Smith"
-          (sentBody \ "phoneNumber").as[String] mustEqual phone
+          (sentBody \ "telephoneNumber").as[String] mustEqual phone
           (sentBody \ "emailAddress").as[String] mustEqual email
         }
       }
@@ -751,7 +751,7 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
           verify(connector).updateDraftSection(any[DraftId], eqTo("notifier-details"), bodyCaptor.capture())(any[HeaderCarrier])
           val sentBody = bodyCaptor.getValue
 
-          (sentBody \ "phoneNumber").as[String] mustEqual phone
+          (sentBody \ "telephoneNumber").as[String] mustEqual phone
           (sentBody \ "emailAddress").as[String] mustEqual email
           (sentBody \ "title").toOption mustBe None
           (sentBody \ "firstName").toOption mustBe None
@@ -777,7 +777,7 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
           val sentBody = bodyCaptor.getValue
 
           (sentBody \ "businessName").as[String] mustEqual businessName
-          (sentBody \ "phoneNumber").as[String] mustEqual phone
+          (sentBody \ "telephoneNumber").as[String] mustEqual phone
           (sentBody \ "emailAddress").as[String] mustEqual email
           (sentBody \ "title").toOption mustBe None
           (sentBody \ "firstName").toOption mustBe None
