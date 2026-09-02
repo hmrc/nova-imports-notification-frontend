@@ -17,7 +17,7 @@
 package viewmodels.checkAnswers
 
 import controllers.supplierdetails.routes
-import models.{SupplierNumber, UserAnswers}
+import models.{CheckMode, SupplierNumber, UserAnswers}
 import pages.sections.supplierdetails.IsSupplierVatRegisteredPage
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
@@ -39,7 +39,7 @@ object SupplierVatRegisteredSummary {
         key = "isSupplierVatRegistered.checkYourAnswersLabel",
         value = ValueViewModel(value),
         actions = Seq(
-          ActionItemViewModel("site.change", routes.SupplierDetailsCheckYourAnswersController.onChangeIsSupplierVatRegistered(supplierNumber).url)
+          ActionItemViewModel("site.change", routes.IsSupplierVatRegisteredController.onPageLoad(supplierNumber, CheckMode).url)
             .withVisuallyHiddenText(messages("isSupplierVatRegistered.change.hidden"))
         )
       )

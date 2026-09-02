@@ -227,12 +227,31 @@ class Navigator @Inject() () {
       (_, _) => notifierdetails.routes.YourDetailsCheckYourAnswersController.onPageLoad()
     case PurchaserBusinessNamePage =>
       (_, _) => purchaserdetails.routes.PurchaserDetailsCheckYourAnswersController.onPageLoad()
+    case page: SupplierBusinessOrIndividualPage =>
+      (userAnswers, _) =>
+        userAnswers.get(page) match {
+          case Some(BusinessOrPrivateIndividual.Business) =>
+            supplierdetails.routes.SupplierBusinessNameController.onPageLoad(page.supplierNumber, CheckMode)
+          case Some(BusinessOrPrivateIndividual.PrivateIndividual) =>
+            supplierdetails.routes.SupplierNameController.onPageLoad(page.supplierNumber, CheckMode)
+          case _ =>
+            routes.JourneyRecoveryController.onPageLoad()
+        }
+    case page: IsSupplierVatRegisteredPage =>
+      (userAnswers, _) =>
+        userAnswers.get(page) match {
+          case Some(true) =>
+            supplierdetails.routes.SupplierVatRegistrationDetailsController
+              .onPageLoad(page.supplierNumber, CheckMode)
+          case Some(false) =>
+            supplierdetails.routes.SupplierDetailsCheckYourAnswersController
+              .onPageLoad(page.supplierNumber)
+          case _ => routes.JourneyRecoveryController.onPageLoad()
+        }
     case page: SupplierQuestionPage[?]
         if page.isInstanceOf[SupplierNamePage] ||
-          page.isInstanceOf[IsSupplierAddressInTheUkPage] ||
-          page.isInstanceOf[IsSupplierVatRegisteredPage] ||
           page.isInstanceOf[SupplierBusinessNamePage] ||
-          page.isInstanceOf[SupplierBusinessOrIndividualPage] ||
+          page.isInstanceOf[IsSupplierAddressInTheUkPage] ||
           page.isInstanceOf[SupplierVatRegistrationNumberPage] =>
       (_, _) => supplierdetails.routes.SupplierDetailsCheckYourAnswersController.onPageLoad(page.supplierNumber)
     case _: VehicleDatesPage =>

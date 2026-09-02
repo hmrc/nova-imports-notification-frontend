@@ -67,16 +67,6 @@ class SupplierDetailsCheckYourAnswersController @Inject() (
       } yield Redirect(controllers.supplieraddress.routes.IsSupplierAddressInTheUKController.onPageLoad(supplierNumber, NormalMode))
     }
 
-  def onChangeIsSupplierVatRegistered(supplierNumber: SupplierNumber): Action[AnyContent] =
-    actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierService, supplierNumber)).async { implicit request =>
-      for {
-        cleared <- Future.fromTry(
-                     request.userAnswers.remove(SupplierVatRegistrationNumberPage(supplierNumber))
-                   )
-        _ <- sessionRepository.set(cleared)
-      } yield Redirect(controllers.supplierdetails.routes.IsSupplierVatRegisteredController.onPageLoad(supplierNumber, NormalMode))
-    }
-
   def onSubmit(supplierNumber: SupplierNumber): Action[AnyContent] =
     actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierService, supplierNumber)).async { implicit request =>
       implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
@@ -98,7 +88,9 @@ class SupplierDetailsCheckYourAnswersController @Inject() (
 
       submissionIDs match {
         case None =>
-          logger.warn("Failed to submit 'notifier-details' of type SupplierSelfSupply — draftId, versionId or section data missing")
+          logger.warn(
+            s"Failed to submit 'supplier/${supplierNumber.value.toString}/self-supply' of type SupplierSelfSupply — draftId, versionId or section data missing"
+          )
           failureRecovery
 
         case Some((draftId, versionId)) =>
@@ -106,32 +98,40 @@ class SupplierDetailsCheckYourAnswersController @Inject() (
           val selfSupply                  = isSelfSupply(request.userAnswers, supplierNumber)
           val selfSupplySectionData       = buildSelfSupplySectionData(selfSupply)
           val selfSupplierSectionJsonBody = selfSupplySectionData + ("versionId" -> Json.toJson(versionId))
-          backendConnector.updateDraftSection(draftId, "notifier-details", selfSupplierSectionJsonBody).flatMap {
-            case Right(selfSupplierNewVersionId) =>
+          backendConnector
+            .updateDraftSection(draftId, s"supplier/${supplierNumber.value.toString}/self-supply", selfSupplierSectionJsonBody)
+            .flatMap {
+              case Right(selfSupplierNewVersionId) =>
 
-              if (selfSupply) {
-                navigateToNextPage(selfSupplierNewVersionId)
-              } else {
-                // Save SupplierDetails if the self supply is false
-                buildSupplierDetailsSectionData(request.userContext, request.userAnswers, supplierNumber) match {
-                  case Some(supplierDetailsSectionData) =>
-                    val supplierDetailsSectionJsonBody = selfSupplySectionData + ("versionId" -> Json.toJson(selfSupplierNewVersionId))
-                    backendConnector.updateDraftSection(draftId, "notifier-details", supplierDetailsSectionJsonBody).flatMap {
-                      case Right(supplierDetailsNewVersionId) =>
-                        navigateToNextPage(supplierDetailsNewVersionId)
-                      case Left(error) =>
-                        logger.warn(s"Failed to update 'notifier-details' of type SupplierDetails for draftId ${draftId.value}: $error")
-                        failureRecovery
-                    }
-                  case None =>
-                    failureRecovery
+                if (selfSupply) {
+                  navigateToNextPage(selfSupplierNewVersionId)
+                } else {
+                  // Save SupplierDetails if the self supply is false
+                  buildSupplierDetailsSectionData(request.userContext, request.userAnswers, supplierNumber) match {
+                    case Some(supplierDetailsSectionData) =>
+                      val supplierDetailsSectionJsonBody = selfSupplySectionData + ("versionId" -> Json.toJson(selfSupplierNewVersionId))
+                      backendConnector
+                        .updateDraftSection(draftId, s"supplier/${supplierNumber.value.toString}/details", supplierDetailsSectionJsonBody)
+                        .flatMap {
+                          case Right(supplierDetailsNewVersionId) =>
+                            navigateToNextPage(supplierDetailsNewVersionId)
+                          case Left(error) =>
+                            logger.warn(
+                              s"Failed to update 'supplier/${supplierNumber.value.toString}/details' of type SupplierDetails for draftId ${draftId.value}: $error"
+                            )
+                            failureRecovery
+                        }
+                    case None =>
+                      failureRecovery
+                  }
                 }
-              }
 
-            case Left(error) =>
-              logger.warn(s"Failed to update 'notifier-details' section of type SupplierSelfSupply for draftId ${draftId.value}: $error")
-              failureRecovery
-          }
+              case Left(error) =>
+                logger.warn(
+                  s"Failed to update 'supplier/${supplierNumber.value.toString}/self-supply' section of type SupplierSelfSupply for draftId ${draftId.value}: $error"
+                )
+                failureRecovery
+            }
       }
     }
 
@@ -140,7 +140,7 @@ class SupplierDetailsCheckYourAnswersController @Inject() (
 object SupplierDetailsCheckYourAnswersController {
 
   def nextPage(supplierNumber: SupplierNumber): play.api.mvc.Call =
-    controllers.vehicledetails.routes.VehiclesBoughtFromSupplierController.onPageLoad(supplierNumber)
+    controllers.routes.JourneyRecoveryController.onPageLoad() // TODO : replace with AVD2.0 once it is built
 
   def guardPredicate(supplierService: SupplierService, supplierNumber: SupplierNumber)(request: DataRequest[?]): Boolean = {
     val answers     = request.userAnswers

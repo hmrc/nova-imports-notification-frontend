@@ -17,11 +17,12 @@
 package viewmodels.checkAnswers
 
 import controllers.supplierdetails.routes
-import models.{CheckMode, NameDetails, SupplierNumber, UserAnswers}
+import models.BusinessOrPrivateIndividual.Business
+import models.{NameDetails, NormalMode, SupplierNumber, UserAnswers}
 import pages.QuestionPage
 import pages.sections.notifierdetails.NameDetailsPage
 import pages.sections.purchaserdetails.PurchaserNamePage
-import pages.sections.supplierdetails.SupplierNamePage
+import pages.sections.supplierdetails.{SupplierBusinessOrIndividualPage, SupplierNamePage}
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
@@ -32,43 +33,48 @@ import viewmodels.implicits.*
 object SupplierNameSummary {
 
   def rowFromPersonalDetails(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages): Option[SummaryListRow] = {
-    row(answers, NameDetailsPage, routes.UsePersonalDetailsAsSupplierController.onPageLoad(supplierNumber, CheckMode).url)
+    row(answers, NameDetailsPage, routes.UsePersonalDetailsAsSupplierController.onPageLoad(supplierNumber, NormalMode).url, supplierNumber)
   }
 
   def rowFromPurchaserDetails(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages): Option[SummaryListRow] = {
-    row(answers, PurchaserNamePage, routes.UsePurchaserDetailsAsSupplierController.onPageLoad(supplierNumber, CheckMode).url)
+    row(answers, PurchaserNamePage, routes.UsePurchaserDetailsAsSupplierController.onPageLoad(supplierNumber, NormalMode).url, supplierNumber)
   }
 
   def rowFromSupplierDetails(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages): Option[SummaryListRow] = {
-    row(answers, SupplierNamePage(supplierNumber), routes.SupplierNameController.onPageLoad(supplierNumber, CheckMode).url)
+    row(answers, SupplierNamePage(supplierNumber), routes.SupplierNameController.onPageLoad(supplierNumber, NormalMode).url, supplierNumber)
   }
 
   // TODO: Add rowFromClientDetails once AVD-S1.2 page is added
 
-  private def row(answers: UserAnswers, namePage: QuestionPage[NameDetails], redirectUrl: String)(implicit
+  private def row(answers: UserAnswers, namePage: QuestionPage[NameDetails], redirectUrl: String, supplierNumber: SupplierNumber)(implicit
     messages: Messages
   ): Option[SummaryListRow] = {
 
-    val value = answers.get(namePage) match {
-      case Some(name) =>
-        Seq(name.title, name.firstName, name.lastName)
-          .map(part => HtmlFormat.escape(part).body)
-          .mkString("<br>")
-      case None =>
-        Seq(messages("supplierDetailsCheckYourAnswers.notProvided"))
-          .map(part => HtmlFormat.escape(part).body)
-          .mkString("<br>")
-    }
+    if (answers.get(SupplierBusinessOrIndividualPage(supplierNumber)).contains(Business)) {
+      None
+    } else {
+      val value = answers.get(namePage) match {
+        case Some(name) =>
+          Seq(name.title, name.firstName, name.lastName)
+            .map(part => HtmlFormat.escape(part).body)
+            .mkString("<br>")
+        case None =>
+          Seq(messages("supplierDetailsCheckYourAnswers.notProvided"))
+            .map(part => HtmlFormat.escape(part).body)
+            .mkString("<br>")
+      }
 
-    Some(
-      SummaryListRowViewModel(
-        key = "supplierName.checkYourAnswersLabel",
-        value = ValueViewModel(HtmlContent(value)),
-        actions = Seq(
-          ActionItemViewModel("site.change", redirectUrl)
-            .withVisuallyHiddenText(messages("supplierName.change.hidden"))
+      Some(
+        SummaryListRowViewModel(
+          key = "supplierName.checkYourAnswersLabel",
+          value = ValueViewModel(HtmlContent(value)),
+          actions = Seq(
+            ActionItemViewModel("site.change", redirectUrl)
+              .withVisuallyHiddenText(messages("supplierName.change.hidden"))
+          )
         )
       )
-    )
+    }
   }
+
 }

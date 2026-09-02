@@ -17,7 +17,7 @@
 package viewmodels.checkAnswers
 
 import controllers.supplierdetails.routes
-import models.{Address, CheckMode, SupplierNumber, UserAnswers}
+import models.{Address, NormalMode, SupplierNumber, UserAnswers}
 import pages.QuestionPage
 import pages.sections.notifieraddress.AddressPage
 import pages.sections.purchaseraddress.PurchaserAddressPage
@@ -32,11 +32,11 @@ import viewmodels.implicits.*
 object SupplierAddressSummary {
 
   def rowFromPersonalDetails(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages): Option[SummaryListRow] = {
-    row(answers, AddressPage, routes.UsePersonalDetailsAsSupplierController.onPageLoad(supplierNumber, CheckMode).url)
+    row(answers, AddressPage, routes.UsePersonalDetailsAsSupplierController.onPageLoad(supplierNumber, NormalMode).url)
   }
 
   def rowFromPurchaserDetails(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages): Option[SummaryListRow] = {
-    row(answers, PurchaserAddressPage, routes.UsePurchaserDetailsAsSupplierController.onPageLoad(supplierNumber, CheckMode).url)
+    row(answers, PurchaserAddressPage, routes.UsePurchaserDetailsAsSupplierController.onPageLoad(supplierNumber, NormalMode).url)
   }
 
   def rowFromSupplierDetails(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages): Option[SummaryListRow] = {
