@@ -14,16 +14,32 @@
  * limitations under the License.
  *@
 
+@import models.SpreadsheetUploadError
+
 @this(
     layout: templates.Layout,
+    govukErrorSummary: GovukErrorSummary,
     govukFileUpload: GovukFileUpload,
     govukButton: GovukButton,
     hmrcNewTabLinkHelper: HmrcNewTabLinkHelper
 )
 
-@(uploadUrl: String, fields: Map[String, String], spreadsheetUrl: String)(implicit request: Request[?], messages: Messages)
+@(uploadUrl: String, fields: Map[String, String], spreadsheetUrl: String, uploadError: Option[SpreadsheetUploadError])(implicit request: Request[?], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("uploadVehicleSpreadsheet.title"))) {
+@pageTitle = @{
+    uploadError.fold(messages("uploadVehicleSpreadsheet.title")) { _ =>
+        s"""${messages("error.title.prefix")} ${messages("uploadVehicleSpreadsheet.title")}"""
+    }
+}
+
+@layout(pageTitle = titleNoForm(pageTitle)) {
+
+    @uploadError.map { error =>
+        @govukErrorSummary(ErrorSummary(
+            errorList = Seq(ErrorLink(href = Some("#file"), content = Text(messages(error.messageKey)))),
+            title = Text(messages("error.summary.title"))
+        ))
+    }
 
     <span class="govuk-caption-l">@messages("uploadVehicleSpreadsheet.caption")</span>
 
@@ -43,7 +59,9 @@
             id = "file",
             label = Label(content = Text(messages("uploadVehicleSpreadsheet.label"))),
             hint = Some(Hint(content = Text(messages("uploadVehicleSpreadsheet.hint")))),
-            attributes = Map("required" -> "required"),
+            errorMessage = uploadError.map { error =>
+                ErrorMessage.errorMessageWithDefaultStringsTranslated(content = Text(messages(error.messageKey)))
+            },
             javascript = Some(true)
         ))
 

@@ -23,7 +23,7 @@ import connectors.{CreateUploadTrackingError, NovaImportsBackendConnector}
 import controllers.actions.*
 import controllers.{routes, vehicledetails}
 import models.responses.CreateUploadTrackingResponse
-import models.{AgentSelectedClient, DraftId, SpreadsheetValidationType, UserAnswers}
+import models.{AgentSelectedClient, DraftId, SpreadsheetUploadError, SpreadsheetValidationType, UserAnswers}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
@@ -99,7 +99,47 @@ class UploadVehicleSpreadsheetControllerSpec extends SpecBase with MockitoSugar 
         contentAsString(result) mustEqual view(
           uploadTracking.uploadUrl,
           uploadTracking.fields,
-          appConfig.multipleVehiclesSpreadsheetsUrl
+          appConfig.multipleVehiclesSpreadsheetsUrl,
+          None
+        )(request, messages(application)).toString
+      }
+    }
+
+    "must render the error upscan reported when it redirected the user back here" in {
+      val application = applicationFor(classOf[FakeVatTraderIdentifierAction], Some(acquisitionAnswers))
+
+      running(application) {
+        val request =
+          FakeRequest(GET, s"$onPageLoadRoute?errorMessage=%27file%27+field+not+found&key=abc&errorCode=InvalidArgument")
+        val result    = route(application, request).value
+        val view      = application.injector.instanceOf[UploadVehicleSpreadsheetView]
+        val appConfig = application.injector.instanceOf[FrontendAppConfig]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(
+          uploadTracking.uploadUrl,
+          uploadTracking.fields,
+          appConfig.multipleVehiclesSpreadsheetsUrl,
+          Some(SpreadsheetUploadError.NoFileSelected)
+        )(request, messages(application)).toString
+      }
+    }
+
+    "must fall back to the generic upload error for an errorCode it does not recognise" in {
+      val application = applicationFor(classOf[FakeVatTraderIdentifierAction], Some(acquisitionAnswers))
+
+      running(application) {
+        val request   = FakeRequest(GET, s"$onPageLoadRoute?errorCode=AccessDenied")
+        val result    = route(application, request).value
+        val view      = application.injector.instanceOf[UploadVehicleSpreadsheetView]
+        val appConfig = application.injector.instanceOf[FrontendAppConfig]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(
+          uploadTracking.uploadUrl,
+          uploadTracking.fields,
+          appConfig.multipleVehiclesSpreadsheetsUrl,
+          Some(SpreadsheetUploadError.UploadFailed)
         )(request, messages(application)).toString
       }
     }
