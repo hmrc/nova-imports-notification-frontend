@@ -110,7 +110,7 @@ class VehicleDatesControllerSpec extends SpecBase with MockitoSugar {
       val answer = Set(VehicleDates.PurchaseInvoiceDate)
 
       val userAnswers = userAnswersWithGuardData
-        .set(VehicleDatesPage(vehicleNumber), answer)
+        .set(VehicleDatesPage(supplierNumber, vehicleNumber), answer)
         .success
         .value
 
@@ -162,7 +162,7 @@ class VehicleDatesControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
 
-        savedAnswers(mockSessionRepository).get(VehicleDatesPage(vehicleNumber)) mustEqual Some(
+        savedAnswers(mockSessionRepository).get(VehicleDatesPage(supplierNumber, vehicleNumber)) mustEqual Some(
           Set(VehicleDates.PurchaseInvoiceDate, VehicleDates.AvailabilityAndFirstRegistration)
         )
       }
