@@ -703,6 +703,17 @@ vehiclesBoughtFromSupplier.whereToFindDates.heading = Where to find these dates
 vehiclesBoughtFromSupplier.whereToFindDates.paragraph.1 = You can usually find the date of first registration in the vehicle log book. You can find the invoice date on the purchase invoice.
 vehiclesBoughtFromSupplier.addVehicle = Add vehicle
 
+#########################################################################################
+# AVD3.1 - Add vehicle details 3.1: If you do not have any of the dates for the vehicle #
+#########################################################################################
+# TODO: Welsh translations to be supplied by content team.
+noVehicleDates.title = If you do not have any of the dates for the vehicle
+noVehicleDates.heading = If you do not have any of the dates for the vehicle
+noVehicleDates.caption = Add vehicle details
+noVehicleDates.paragraph.1 = You cannot continue this notification online.
+noVehicleDates.paragraph.2 = Contact {0}.
+noVehicleDates.link.text = HMRC Personal Transport Unit
+
 ##########################################################################
 # AVD-S8.0 - Add vehicle details - Supplier 8.0: Supplier VAT Registered #
 ##########################################################################
@@ -750,3 +761,6 @@ uploadVehicleSpreadsheet.paragraph.1 = Add details for up to 100 vehicles of the
 uploadVehicleSpreadsheet.useCorrectSpreadsheet.linkText = use the correct spreadsheet
 uploadVehicleSpreadsheet.label = Upload a file
 uploadVehicleSpreadsheet.hint = Must be an OpenDocument Spreadsheet (ODS) file
+uploadVehicleSpreadsheet.error.required = Select a file
+uploadVehicleSpreadsheet.error.tooLarge = The selected file must be smaller than 1MB
+uploadVehicleSpreadsheet.error.unknown = The selected file could not be uploaded. Try again.

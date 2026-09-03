@@ -19,8 +19,8 @@ package models
 import play.api.libs.json.{Json, OFormat}
 
 final case class ContactNumbers(
-  phoneNumber: Option[String],
-  mobileNumber: Option[String]
+  telephoneNumber: Option[String],
+  mobileTelephone: Option[String]
 )
 
 object ContactNumbers {

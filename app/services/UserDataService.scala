@@ -135,14 +135,14 @@ object UserDataService {
             for {
               a1 <- sessionRepository.setPage(answers, NameDetailsPage, NameDetails(nd.title, nd.firstName, nd.lastName))
               a2 <- sessionRepository.setPage(a1, EmailAddressPage, nd.emailAddress)
-              a3 <- sessionRepository.setPage(a2, PhoneNumberPage, ContactNumbers(nd.phoneNumber, nd.mobileNumber))
+              a3 <- sessionRepository.setPage(a2, PhoneNumberPage, ContactNumbers(nd.telephoneNumber, nd.mobileTelephone))
             } yield a3
           case None =>
             data.asOpt[NotifierDetailsOrganisation] match {
               case Some(nd) =>
                 for {
                   a1 <- sessionRepository.setPage(answers, EmailAddressPage, nd.emailAddress)
-                  a2 <- sessionRepository.setPage(a1, PhoneNumberPage, ContactNumbers(nd.phoneNumber, nd.mobileNumber))
+                  a2 <- sessionRepository.setPage(a1, PhoneNumberPage, ContactNumbers(nd.telephoneNumber, nd.mobileTelephone))
                 } yield a2
               case None =>
                 Future.successful(answers)

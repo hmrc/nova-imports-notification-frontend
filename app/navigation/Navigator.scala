@@ -188,7 +188,7 @@ class Navigator @Inject() () {
           case Some(dates) if dates.contains(VehicleDates.AvailabilityAndFirstRegistration) =>
             routes.LandingPageController.onPageLoad() // TODO: navigate to AVD5.0 when built
           case Some(dates) if dates.contains(VehicleDates.NoDates) =>
-            routes.LandingPageController.onPageLoad() // TODO: navigate to AVD3.1 when built
+            vehicledetails.routes.NoVehicleDatesController.onPageLoad(page.supplierNumber, page.vehicleNumber)
           case _ => routes.JourneyRecoveryController.onPageLoad()
         }
     case _ => (_, _) => routes.LandingPageController.onPageLoad()

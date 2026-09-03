@@ -44,7 +44,8 @@ class InitialQuestionsSpec extends AnyFreeSpec with Matchers {
         "purchaserBusinessPrivateNeeded" -> true,
         "sccCustomerFieldNeeded"         -> true,
         "deregistered"                   -> false,
-        "registered"                     -> false
+        "registered"                     -> false,
+        "currentlyRegistered"            -> false
       )
     }
 
@@ -67,7 +68,8 @@ class InitialQuestionsSpec extends AnyFreeSpec with Matchers {
         "purchaserBusinessPrivateNeeded" -> true,
         "sccCustomerFieldNeeded"         -> true,
         "deregistered"                   -> false,
-        "registered"                     -> false
+        "registered"                     -> false,
+        "currentlyRegistered"            -> false
       )
     }
 
@@ -94,7 +96,8 @@ class InitialQuestionsSpec extends AnyFreeSpec with Matchers {
         "purchaserBusinessPrivateNeeded" -> false,
         "sccCustomerFieldNeeded"         -> true,
         "deregistered"                   -> false,
-        "registered"                     -> true
+        "registered"                     -> true,
+        "currentlyRegistered"            -> false
       )
     }
 
@@ -118,7 +121,8 @@ class InitialQuestionsSpec extends AnyFreeSpec with Matchers {
         "purchaserBusinessPrivateNeeded" -> true,
         "sccCustomerFieldNeeded"         -> true,
         "deregistered"                   -> false,
-        "registered"                     -> false
+        "registered"                     -> false,
+        "currentlyRegistered"            -> false
       )
     }
 
@@ -143,7 +147,8 @@ class InitialQuestionsSpec extends AnyFreeSpec with Matchers {
         "purchaserBusinessPrivateNeeded" -> true,
         "sccCustomerFieldNeeded"         -> true,
         "deregistered"                   -> false,
-        "registered"                     -> false
+        "registered"                     -> false,
+        "currentlyRegistered"            -> false
       )
     }
 
@@ -168,7 +173,8 @@ class InitialQuestionsSpec extends AnyFreeSpec with Matchers {
         "purchaserBusinessPrivateNeeded" -> true,
         "sccCustomerFieldNeeded"         -> true,
         "deregistered"                   -> false,
-        "registered"                     -> false
+        "registered"                     -> false,
+        "currentlyRegistered"            -> false
       )
     }
 
@@ -195,7 +201,8 @@ class InitialQuestionsSpec extends AnyFreeSpec with Matchers {
         "purchaserBusinessPrivateNeeded" -> false,
         "sccCustomerFieldNeeded"         -> true,
         "deregistered"                   -> true,
-        "registered"                     -> true
+        "registered"                     -> true,
+        "currentlyRegistered"            -> false
       )
     }
   }
