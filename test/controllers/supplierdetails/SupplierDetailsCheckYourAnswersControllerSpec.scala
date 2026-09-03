@@ -75,7 +75,7 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
     userAnswers: Option[UserAnswers],
     connector: NovaImportsBackendConnector,
     sessionRepository: SessionRepository = stubSessionRepository(),
-    identifierAction: Class[? <: IdentifierAction] = classOf[FakeVatTraderIdentifierAction],
+    identifierAction: Class[? <: IdentifierAction] = classOf[FakeVatTraderIdentifierAction]
   ): Application =
     new GuiceApplicationBuilder()
       .overrides(
@@ -90,7 +90,6 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
         bind[SessionRepository].toInstance(sessionRepository)
       )
       .build()
-
 
   "SupplierDetailsCheckYourAnswersController" - {
 
@@ -587,17 +586,20 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
 
     "onChangeAddress" - {
       "must clear the stored supplier address and supplier journey id from the session and redirect to AVD-S5.0 on change address" in {
-        val answersWithJourneyId = individualVatRegisteredSupplierDetailsAnswers.unsafeSet(SupplierAddressJourneyIdPage(supplierNumber), "journey-123")
+        val answersWithJourneyId =
+          individualVatRegisteredSupplierDetailsAnswers.unsafeSet(SupplierAddressJourneyIdPage(supplierNumber), "journey-123")
 
         val sessionRepository = stubSessionRepository()
-        val application = applicationForSubmit(Some(answersWithJourneyId), mock[NovaImportsBackendConnector], sessionRepository)
+        val application       = applicationForSubmit(Some(answersWithJourneyId), mock[NovaImportsBackendConnector], sessionRepository)
 
         running(application) {
           val request = FakeRequest(GET, supplierDetailsCheckYourAnswersRouteOnChangeAddress())
-          val result = route(application, request).value
+          val result  = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual controllers.supplieraddress.routes.IsSupplierAddressInTheUKController.onPageLoad(supplierNumber, NormalMode).url
+          redirectLocation(result).value mustEqual controllers.supplieraddress.routes.IsSupplierAddressInTheUKController
+            .onPageLoad(supplierNumber, NormalMode)
+            .url
 
           val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
           verify(sessionRepository).set(captor.capture())
@@ -611,14 +613,13 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
 
         running(application) {
           val request = FakeRequest(GET, supplierDetailsCheckYourAnswersRouteOnChangeAddress())
-          val result = route(application, request).value
+          val result  = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
         }
       }
     }
-
 
   }
 }

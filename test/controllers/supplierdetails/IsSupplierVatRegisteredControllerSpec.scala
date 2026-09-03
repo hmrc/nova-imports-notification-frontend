@@ -67,9 +67,11 @@ class IsSupplierVatRegisteredControllerSpec extends SpecBase with MockitoSugar {
     when(m.set(any())).thenReturn(Future.successful(true))
     m
   }
-  
-  private def applicationWithMockRepository(userAnswers: UserAnswers, sessionRepository: SessionRepository = stubSessionRepository()):
-                                            (play.api.Application, SessionRepository) = {
+
+  private def applicationWithMockRepository(
+    userAnswers: UserAnswers,
+    sessionRepository: SessionRepository = stubSessionRepository()
+  ): (play.api.Application, SessionRepository) = {
     val application =
       applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(
@@ -305,7 +307,7 @@ class IsSupplierVatRegisteredControllerSpec extends SpecBase with MockitoSugar {
         .unsafeSet(SupplierVatRegistrationNumberPage(SupplierNumber(1)), VatNumberDetails("FR", "12345678911"))
 
       val sessionRepository = stubSessionRepository()
-      val (application, _) = applicationWithMockRepository(answersWithVatNumberDetails, sessionRepository)
+      val (application, _)  = applicationWithMockRepository(answersWithVatNumberDetails, sessionRepository)
 
       running(application) {
         val request =
@@ -316,7 +318,6 @@ class IsSupplierVatRegisteredControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
-
 
         val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(sessionRepository).set(captor.capture())

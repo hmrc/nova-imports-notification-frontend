@@ -66,8 +66,10 @@ class SupplierBusinessOrIndividualControllerSpec extends SpecBase with MockitoSu
     m
   }
 
-  private def applicationWithMockRepository(userAnswers: UserAnswers, sessionRepository: SessionRepository = stubSessionRepository()):
-                                            (play.api.Application, SessionRepository) = {
+  private def applicationWithMockRepository(
+    userAnswers: UserAnswers,
+    sessionRepository: SessionRepository = stubSessionRepository()
+  ): (play.api.Application, SessionRepository) = {
     val application =
       applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(
@@ -327,7 +329,7 @@ class SupplierBusinessOrIndividualControllerSpec extends SpecBase with MockitoSu
         .unsafeSet(SupplierBusinessNamePage(SupplierNumber(1)), "SupplierBusinessName")
 
       val sessionRepository = stubSessionRepository()
-      val (application, _) = applicationWithMockRepository(answersWithVatNumberDetails, sessionRepository)
+      val (application, _)  = applicationWithMockRepository(answersWithVatNumberDetails, sessionRepository)
 
       running(application) {
         val request =
@@ -339,7 +341,6 @@ class SupplierBusinessOrIndividualControllerSpec extends SpecBase with MockitoSu
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
 
-
         val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(sessionRepository).set(captor.capture())
         captor.getValue.get(SupplierNamePage(SupplierNumber(1))) mustBe None
@@ -349,13 +350,13 @@ class SupplierBusinessOrIndividualControllerSpec extends SpecBase with MockitoSu
 
     "must clear the stored supplier business name from the session when the answer is Private Individual" in {
 
-      val nameDetails = NameDetails("Mr", "First Name", "Last Name")
+      val nameDetails                 = NameDetails("Mr", "First Name", "Last Name")
       val answersWithVatNumberDetails = userAnswersWithGuardData
         .unsafeSet(SupplierNamePage(SupplierNumber(1)), nameDetails)
         .unsafeSet(SupplierBusinessNamePage(SupplierNumber(1)), "SupplierBusinessName")
 
       val sessionRepository = stubSessionRepository()
-      val (application, _) = applicationWithMockRepository(answersWithVatNumberDetails, sessionRepository)
+      val (application, _)  = applicationWithMockRepository(answersWithVatNumberDetails, sessionRepository)
 
       running(application) {
         val request =
@@ -366,7 +367,6 @@ class SupplierBusinessOrIndividualControllerSpec extends SpecBase with MockitoSu
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
-
 
         val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(sessionRepository).set(captor.capture())
