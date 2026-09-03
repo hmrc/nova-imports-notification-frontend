@@ -109,7 +109,7 @@ class SupplierDetailsCheckYourAnswersController @Inject() (
                   // Save SupplierDetails if the self supply is false
                   buildSupplierDetailsSectionData(request.userContext, request.userAnswers, supplierNumber) match {
                     case Some(supplierDetailsSectionData) =>
-                      val supplierDetailsSectionJsonBody = selfSupplySectionData + ("versionId" -> Json.toJson(selfSupplierNewVersionId))
+                      val supplierDetailsSectionJsonBody = supplierDetailsSectionData + ("versionId" -> Json.toJson(selfSupplierNewVersionId))
                       backendConnector
                         .updateDraftSection(draftId, s"supplier/${supplierNumber.value.toString}/details", supplierDetailsSectionJsonBody)
                         .flatMap {
@@ -177,8 +177,8 @@ object SupplierDetailsCheckYourAnswersController {
   private def buildSupplierDetailsSectionData(userContext: UserContext, answers: UserAnswers, supplierNumber: SupplierNumber): Option[JsObject] = {
     for {
       supplierBusinessOrIndividual  <- answers.get(SupplierBusinessOrIndividualPage(supplierNumber))
-      supplierBusinessName          <- answers.get(SupplierBusinessNamePage(supplierNumber))
-      supplierName                  <- answers.get(SupplierNamePage(supplierNumber))
+      supplierBusinessName          <- answers.get(SupplierBusinessNamePage(supplierNumber)).orElse(Some(""))
+      supplierName                  <- answers.get(SupplierNamePage(supplierNumber)).orElse(Some(NameDetails("", "", "")))
       supplierAddress               <- answers.get(SupplierAddressPage(supplierNumber))
       isSupplierVatRegistered       <- answers.get(IsSupplierVatRegisteredPage(supplierNumber))
       supplierVatRegistrationNumber <- answers.get(SupplierVatRegistrationNumberPage(supplierNumber))
