@@ -355,26 +355,29 @@ emailAddress.checkYourAnswersLabel = Cyfeiriad e-bost
 emailAddress.change.hidden = eich cyfeiriad e-bost
 
 ######################################################
-# AYD1.4 - Add your details - Business name                #
+# AYD1.4 - Add your details - Business name          #
 ######################################################
 
+businessName.title = Beth yw enw’ch busnes?
+businessName.heading = Beth yw enw’ch busnes?
+businessName.caption = Ychwanegu eich manylion chi
+businessName.error.required = Nodwch enw’ch busnes
+businessName.error.length = Mae’n rhaid i enw eich busnes fod yn 160 o gymeriadau neu lai
+businessName.error.invalid = Nodwch enw eich busnes yn y fformat cywir
 businessName.checkYourAnswersLabel = Business name
 businessName.change.hidden = your business name
 
 ######################################################
 # ERR3.0 - Error message - Page not found            #
 ######################################################
-# TODO: Welsh translations to be supplied by content team.
 
-pageNotFound.title = Page not found
-pageNotFound.heading = Page not found
-pageNotFound.paragraph.1 = If you typed the web address, check it is correct.
-pageNotFound.paragraph.2 = If you pasted the web address, check you copied the entire address.
-pageNotFound.paragraph.3.start = If the web address is correct or you selected a link or button,
-pageNotFound.link.text = contact HMRC technical support (opens in new tab)
-pageNotFound.paragraph.3.end = if you need to speak to someone.
-
-# APD2.0 / CYA4.0 - Purchaser details (English defaults, Welsh translation to follow)
+pageNotFound.title = Heb ddod o hyd i’r dudalen
+pageNotFound.heading = Heb ddod o hyd i’r dudalen
+pageNotFound.paragraph.1 = Os gwnaethoch deipio’r cyfeiriad gwe, gwiriwch ei fod yn gywir.
+pageNotFound.paragraph.2 = Os gwnaethoch ludo’r cyfeiriad gwe, gwiriwch eich bod wedi copïo’r cyfeiriad yn llawn.
+pageNotFound.paragraph.3.start = Os yw’r cyfeiriad gwe yn gywir, neu os gwnaethoch ddewis cysylltiad neu fotwm,
+pageNotFound.link.text = cysylltwch â Desg Gymorth Gwasanaethau Ar-lein CThEF (yn agor tab newydd)
+pageNotFound.paragraph.3.end = os oes angen i chi siarad â rhywun.
 
 ######################################################
 # APD1.0 - Add Purchaser Details: Purchaser name     #
@@ -398,6 +401,20 @@ purchaserName.lastName.error.required = Nodwch enw olaf y prynwr
 # TODO: Welsh translations to be supplied by content team:
 purchaserName.checkYourAnswersLabel = Purchaser’s name
 purchaserName.change.hidden = the purchaser’s name
+
+###########################################################################
+# APD2.0 - Add purchaser details 2.0: Purchaser business name             #
+###########################################################################
+
+purchaserBusinessName.title = Beth yw enw busnes y prynwr?
+purchaserBusinessName.heading = Beth yw enw busnes y prynwr?
+purchaserBusinessName.caption = Ychwanegu manylion y prynwr
+purchaserBusinessName.error.required = Nodwch enw busnes y prynwr
+purchaserBusinessName.error.length = Mae’n rhaid i enw busnes y prynwr fod yn 160 o gymeriadau neu lai
+purchaserBusinessName.error.invalid = Nodwch enw busnes y prynwr yn y fformat cywir
+# TODO: Welsh translations to be supplied by content team:
+purchaserBusinessName.checkYourAnswersLabel = Purchaser’s business name
+purchaserBusinessName.change.hidden = the purchaser’s business name
 
 ######################################################
 # ERR2.0 - Error message - System error              #
@@ -608,7 +625,6 @@ supplierName.lastName.error.length = The supplier’s last name must be 100 char
 supplierName.lastName.error.required = Enter the supplier’s last name
 supplierName.checkYourAnswersLabel = Supplier’s name
 supplierName.change.hidden = the supplier’s name
-
 
 ######################################################
 # CYA1.0 - Check your answers 1 - Initial questions  #
