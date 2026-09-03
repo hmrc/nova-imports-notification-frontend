@@ -62,14 +62,16 @@
                 ).withCssClass(LegendSize.Medium.toString))
             )
         }else {
-        <legend class="govuk-fieldset__legend  govuk-fieldset__legend--l govuk-!-margin-0">
-            <h1 class="govuk-fieldset__heading">@messages("vehicleFromEu.heading")</h1>
-        </legend>
             @govukRadios(
                 RadiosViewModel.yesNo(
                 field  = form("value"),
-                legend = LegendViewModel(HtmlContent(s"""<p class="govuk-!-margin-bottom-0">${messages("vehicleFromEu.paragraph.3",
-                        hmrcNewTabLinkHelper(LinkViewModel(messages("vehicleFromEu.paragraph.3.linkText"), euCountriesUrl)))}</p>""")))
+                legend = LegendViewModel(messages("vehicleFromEu.heading")).asPageHeading(LegendSize.Large))
+                .withHint(
+                HintViewModel(
+                    HtmlContent(s"""<p class="govuk-body">${messages("vehicleFromEu.paragraph.3",
+                        hmrcNewTabLinkHelper(LinkViewModel(messages("vehicleFromEu.paragraph.3.linkText"), euCountriesUrl)))}</p>""")
+                    )
+                )
             )
         }
         @govukButton(
