@@ -17,16 +17,14 @@
 package controllers.supplierdetails
 
 import base.SpecBase
-import com.google.inject.name.Names
 import connectors.{NovaImportsBackendConnector, UpdateSectionError}
-import controllers.actions.*
-import controllers.{routes, supplierdetails}
 import controllers.supplierdetails.SupplierDetailsCheckYourAnswersControllerSpec.*
+import controllers.{routes, supplierdetails}
 import models.{Address, BusinessOrPrivateIndividual, Country, DraftId, NameDetails, NormalMode, SupplierNumber, UserAnswers, VatNumberDetails}
 import org.mockito.ArgumentCaptor
-import org.scalatestplus.mockito.MockitoSugar
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{atLeastOnce, verify, when}
+import org.scalatestplus.mockito.MockitoSugar
 import pages.*
 import pages.sections.initialquestions.VehicleFromEuPage
 import pages.sections.notifieraddress.AddressPage
@@ -37,8 +35,7 @@ import pages.sections.supplieraddress.{IsSupplierAddressInTheUkPage, SupplierAdd
 import pages.sections.supplierdetails.*
 import play.api.Application
 import play.api.inject.bind
-import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.{JsObject, Json, Writes}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -60,43 +57,35 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
     supplierdetails.routes.SupplierDetailsCheckYourAnswersController.onChangeAddress(supplierNumber).url
 
   private def applicationForPageLoad(
-    identifierAction: Class[? <: IdentifierAction],
     userAnswers: Option[UserAnswers]
   ): Application =
-    applicationForSubmit(userAnswers, mock[NovaImportsBackendConnector], identifierAction = identifierAction)
+    applicationForSubmit(userAnswers, mock[NovaImportsBackendConnector])
 
-  private def stubSessionRepository(): SessionRepository = {
+  private def stubSessionRepository(userAnswers: UserAnswers = individualVatRegisteredSupplierDetailsAnswers): SessionRepository = {
     val m = mock[SessionRepository]
     when(m.set(any())).thenReturn(Future.successful(true))
+    when(m.setPage(any(), any(), any())(any())).thenReturn(Future.successful(userAnswers))
     m
   }
 
   private def applicationForSubmit(
     userAnswers: Option[UserAnswers],
     connector: NovaImportsBackendConnector,
-    sessionRepository: SessionRepository = stubSessionRepository(),
-    identifierAction: Class[? <: IdentifierAction] = classOf[FakeVatTraderIdentifierAction]
+    sessionRepository: SessionRepository = stubSessionRepository()
   ): Application =
-    new GuiceApplicationBuilder()
+    applicationBuilder(userAnswers)
       .overrides(
-        bind[DataRequiredAction].to[DataRequiredActionImpl],
-        bind[IdentifierAction].to(identifierAction),
-        bind[IdentifierAction].qualifiedWith(Names.named("standard")).to(identifierAction),
-        bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeIdentifierAction],
-        bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeIdentifierAction],
-        bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
-        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers)),
-        bind[NovaImportsBackendConnector].toInstance(connector),
-        bind[SessionRepository].toInstance(sessionRepository)
-      )
-      .build()
+        bind[SessionRepository].toInstance(sessionRepository),
+        bind[NovaImportsBackendConnector].toInstance(connector)
+      ).build()
+
 
   "SupplierDetailsCheckYourAnswersController" - {
 
     "onPageLoad" - {
 
       "for a Self Supplying user using Personal details must return OK with name and address" in {
-        given application: Application = applicationForPageLoad(classOf[FakeVatTraderIdentifierAction], Some(selfSupplyPersonalDetailsAnswers))
+        given application: Application = applicationForPageLoad(Some(selfSupplyPersonalDetailsAnswers))
 
         running(application) {
           given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, supplierDetailsCheckYourAnswersRoutePageLoad())
@@ -118,7 +107,7 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
       }
 
       "for a Self Supplying user using Personal details that have not been provided must return OK Not Provided" in {
-        given application: Application = applicationForPageLoad(classOf[FakeVatTraderIdentifierAction], Some(selfSupplyPersonalDetailsEmptyAnswers))
+        given application: Application = applicationForPageLoad(Some(selfSupplyPersonalDetailsEmptyAnswers))
 
         running(application) {
           given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, supplierDetailsCheckYourAnswersRoutePageLoad())
@@ -140,7 +129,7 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
       }
 
       "for a Self Supplying user using Purchaser details must return OK with name and address" in {
-        given application: Application = applicationForPageLoad(classOf[FakeVatTraderIdentifierAction], Some(selfSupplyPurchaserDetailsAnswers))
+        given application: Application = applicationForPageLoad(Some(selfSupplyPurchaserDetailsAnswers))
 
         running(application) {
           given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, supplierDetailsCheckYourAnswersRoutePageLoad())
@@ -162,7 +151,7 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
       }
 
       "for a Self Supplying user using Purchaser details that have not been provided must return OK Not Provided" in {
-        given application: Application = applicationForPageLoad(classOf[FakeVatTraderIdentifierAction], Some(selfSupplyPurchaserDetailsEmptyAnswers))
+        given application: Application = applicationForPageLoad(Some(selfSupplyPurchaserDetailsEmptyAnswers))
 
         running(application) {
           given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, supplierDetailsCheckYourAnswersRoutePageLoad())
@@ -184,8 +173,7 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
       }
 
       "for a vat registered individual must return OK with correct rows" in {
-        given application: Application =
-          applicationForPageLoad(classOf[FakeVatTraderIdentifierAction], Some(individualVatRegisteredSupplierDetailsAnswers))
+        given application: Application = applicationForPageLoad(Some(individualVatRegisteredSupplierDetailsAnswers))
 
         running(application) {
           given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, supplierDetailsCheckYourAnswersRoutePageLoad())
@@ -207,8 +195,7 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
       }
 
       "for a non-vat registered individual must return OK with correct rows" in {
-        given application: Application =
-          applicationForPageLoad(classOf[FakeVatTraderIdentifierAction], Some(individualNonVatRegisteredSupplierDetailsAnswers))
+        given application: Application = applicationForPageLoad(Some(individualNonVatRegisteredSupplierDetailsAnswers))
 
         running(application) {
           given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, supplierDetailsCheckYourAnswersRoutePageLoad())
@@ -230,8 +217,7 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
       }
 
       "for a vat registered business must return OK with correct rows" in {
-        given application: Application =
-          applicationForPageLoad(classOf[FakeVatTraderIdentifierAction], Some(businessVatRegisteredSupplierDetailsAnswers))
+        given application: Application = applicationForPageLoad(Some(businessVatRegisteredSupplierDetailsAnswers))
 
         running(application) {
           given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, supplierDetailsCheckYourAnswersRoutePageLoad())
@@ -253,8 +239,7 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
       }
 
       "for a non-vat registered business must return OK with correct rows" in {
-        given application: Application =
-          applicationForPageLoad(classOf[FakeVatTraderIdentifierAction], Some(businessNonVatRegisteredSupplierDetailsAnswers))
+        given application: Application = applicationForPageLoad(Some(businessNonVatRegisteredSupplierDetailsAnswers))
 
         running(application) {
           given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, supplierDetailsCheckYourAnswersRoutePageLoad())
@@ -276,8 +261,7 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
       }
 
       "for a User with no answers for self supply must redirect to Unauthorised" in {
-        given application: Application =
-          applicationForPageLoad(classOf[FakeAgentNoEnrolmentsIdentifierAction], Some(baseUserAnswers))
+        given application: Application = applicationForPageLoad(Some(baseUserAnswers))
 
         running(application) {
           given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, supplierDetailsCheckYourAnswersRoutePageLoad())
@@ -297,8 +281,7 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
           .set(AllSuppliersQuery, Map("1" -> Json.obj()))
           .success
           .value
-        given application: Application =
-          applicationForPageLoad(classOf[FakeAgentNoEnrolmentsIdentifierAction], Some(ua))
+        given application: Application = applicationForPageLoad(Some(ua))
 
         running(application) {
           given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, supplierDetailsCheckYourAnswersRoutePageLoad())
@@ -321,8 +304,7 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
           .set(AllSuppliersQuery, Map("1" -> Json.obj()))
           .success
           .value
-        given application: Application =
-          applicationForPageLoad(classOf[FakeAgentNoEnrolmentsIdentifierAction], Some(ua))
+        given application: Application = applicationForPageLoad(Some(ua))
 
         running(application) {
           given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, supplierDetailsCheckYourAnswersRoutePageLoad())
@@ -345,8 +327,7 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
           .set(VehicleFromEuPage, true)
           .success
           .value
-        given application: Application =
-          applicationForPageLoad(classOf[FakeAgentNoEnrolmentsIdentifierAction], Some(ua))
+        given application: Application = applicationForPageLoad(Some(ua))
 
         running(application) {
           given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, supplierDetailsCheckYourAnswersRoutePageLoad())
