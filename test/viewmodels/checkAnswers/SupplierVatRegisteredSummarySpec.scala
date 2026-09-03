@@ -39,9 +39,7 @@ class SupplierVatRegisteredSummarySpec extends SpecBase {
 
       result.key.content.asHtml.toString   must include(msgs("isSupplierVatRegistered.checkYourAnswersLabel"))
       result.value.content.asHtml.toString must include(msgs("site.yes"))
-      result.actions.value.items.head.href mustBe routes.SupplierDetailsCheckYourAnswersController
-        .onChangeIsSupplierVatRegistered(SupplierNumber(2))
-        .url
+      result.actions.value.items.head.href mustBe routes.IsSupplierVatRegisteredController.onPageLoad(SupplierNumber(2), CheckMode).url
     }
 
     "must return a summary row with the correct value when the answer is No" in {
@@ -54,9 +52,7 @@ class SupplierVatRegisteredSummarySpec extends SpecBase {
 
       result.key.content.asHtml.toString   must include(msgs("isSupplierVatRegistered.checkYourAnswersLabel"))
       result.value.content.asHtml.toString must include(msgs("site.no"))
-      result.actions.value.items.head.href mustBe routes.SupplierDetailsCheckYourAnswersController
-        .onChangeIsSupplierVatRegistered(SupplierNumber(4))
-        .url
+      result.actions.value.items.head.href mustBe routes.IsSupplierVatRegisteredController.onPageLoad(SupplierNumber(4), CheckMode).url
     }
 
     "must return None when the answer is not present" in {

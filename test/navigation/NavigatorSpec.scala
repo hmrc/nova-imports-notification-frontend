@@ -373,14 +373,13 @@ class NavigatorSpec extends SpecBase {
       }
 
       "must go from UsePersonalDetailsAsSupplierPage AVD-S1.0 to LandingPage when Yes is selected" in {
-        // TODO: navigate to CYA3.0 when implemented
         val ua = userAnswers.set(UsePersonalDetailsAsSupplierPage(SupplierNumber(1)), true).success.value
         navigator.nextPage(
           UsePersonalDetailsAsSupplierPage(SupplierNumber(1)),
           NormalMode,
           ua,
           NovaUserType.VatRegisteredOrganisation
-        ) mustBe routes.LandingPageController.onPageLoad()
+        ) mustBe supplierdetails.routes.SupplierDetailsCheckYourAnswersController.onPageLoad(SupplierNumber(1))
       }
 
       "must go from UsePersonalDetailsAsSupplierPage AVD-S1.0 to SupplierBusinessOrIndividual AVD-S2.0 when No is selected" in {
@@ -403,14 +402,13 @@ class NavigatorSpec extends SpecBase {
       }
 
       "must go from UsePurchaserDetailsAsSupplierPage AVD-S1.1 to LandingPage when Yes is selected" in {
-        // TODO: navigate to CYA3.0 when implemented
         val ua = userAnswers.set(UsePurchaserDetailsAsSupplierPage(SupplierNumber(1)), true).success.value
         navigator.nextPage(
           UsePurchaserDetailsAsSupplierPage(SupplierNumber(1)),
           NormalMode,
           ua,
           NovaUserType.PrivateIndividual
-        ) mustBe routes.LandingPageController.onPageLoad()
+        ) mustBe supplierdetails.routes.SupplierDetailsCheckYourAnswersController.onPageLoad(SupplierNumber(1))
       }
 
       "must go from UsePurchaserDetailsAsSupplierPage AVD-S1.1 to SupplierBusinessOrIndividual AVD-S2.0 when No is selected" in {
@@ -434,13 +432,12 @@ class NavigatorSpec extends SpecBase {
 
       "must go from IsSupplierVatRegisteredPage AVD-S8.0 to CheckSupplierDetails AVD-S9 when No is selected" in {
         val ua = userAnswers.set(IsSupplierVatRegisteredPage(SupplierNumber(2)), false).success.value
-        // TODO: navigate to AVD-S9a when implemented
         navigator.nextPage(
           IsSupplierVatRegisteredPage(SupplierNumber(2)),
           NormalMode,
           ua,
           NovaUserType.VatRegisteredOrganisation
-        ) mustBe routes.LandingPageController.onPageLoad()
+        ) mustBe supplierdetails.routes.SupplierDetailsCheckYourAnswersController.onPageLoad(SupplierNumber(2))
       }
 
       "must go from IsSupplierVatRegisteredPage AVD-S8.0 to SupplierVatRegistrationDetails AVD-S8.1 when Yes is selected" in {
@@ -464,13 +461,12 @@ class NavigatorSpec extends SpecBase {
 
       "must go from SupplierVatRegistrationNumberPage AVD-S8.1 to CheckSupplierDetails AVD-S9 when continue is pressed" in {
         val ua = userAnswers.set(SupplierVatRegistrationNumberPage(SupplierNumber(2)), VatNumberDetails("FR", "AA123456789")).success.value
-        // TODO: navigate to AVD-S9 when implemented
         navigator.nextPage(
           SupplierVatRegistrationNumberPage(SupplierNumber(2)),
           NormalMode,
           ua,
           NovaUserType.VatRegisteredOrganisation
-        ) mustBe routes.LandingPageController.onPageLoad()
+        ) mustBe supplierdetails.routes.SupplierDetailsCheckYourAnswersController.onPageLoad(SupplierNumber(2))
       }
 
       "must go from SupplierVatRegistrationNumberPage AVD-S8.1 to JourneyRecovery when no answer is found" in {
@@ -719,24 +715,64 @@ class NavigatorSpec extends SpecBase {
         ) mustBe initialquestions.routes.InitialQuestionsCheckYourAnswersController.onPageLoad()
       }
 
-      "must go from SupplierBusinessOrIndividualPage AVD-S2.0 to LandingPage" in {
-        // TODO: navigate to AVD-S9.0 supplier-details CYA when implemented
+      "must go from SupplierBusinessOrIndividualPage AVD-S2.0  to the supplier business name page when Business is selected" in {
+        val ua = userAnswers
+          .set(SupplierBusinessOrIndividualPage(SupplierNumber(2)), BusinessOrPrivateIndividual.Business)
+          .success
+          .value
+        navigator.nextPage(
+          SupplierBusinessOrIndividualPage(SupplierNumber(2)),
+          NormalMode,
+          ua,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe supplierdetails.routes.SupplierBusinessNameController.onPageLoad(SupplierNumber(2), NormalMode)
+      }
+
+      "must go from SupplierBusinessOrIndividualPage AVD-S2.0 to SupplierName AVD-S4.0 when PrivateIndividual is selected" in {
+        val ua = userAnswers
+          .set(SupplierBusinessOrIndividualPage(SupplierNumber(2)), BusinessOrPrivateIndividual.PrivateIndividual)
+          .success
+          .value
+        navigator.nextPage(
+          SupplierBusinessOrIndividualPage(SupplierNumber(2)),
+          NormalMode,
+          ua,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe supplierdetails.routes.SupplierNameController.onPageLoad(SupplierNumber(2), NormalMode)
+      }
+
+      "must go from SupplierBusinessOrIndividualPage AVD-S2.0 to the next page for the supplier it was answered for" in {
+        val ua = userAnswers
+          .set(SupplierBusinessOrIndividualPage(SupplierNumber(1)), BusinessOrPrivateIndividual.Business)
+          .success
+          .value
+          .set(SupplierBusinessOrIndividualPage(SupplierNumber(3)), BusinessOrPrivateIndividual.PrivateIndividual)
+          .success
+          .value
+        navigator.nextPage(
+          SupplierBusinessOrIndividualPage(SupplierNumber(3)),
+          NormalMode,
+          ua,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe supplierdetails.routes.SupplierNameController.onPageLoad(SupplierNumber(3), NormalMode)
+      }
+
+      "must go from SupplierBusinessOrIndividualPage AVD-S2.0 to JourneyRecovery when no answer is found" in {
         navigator.nextPage(
           SupplierBusinessOrIndividualPage(SupplierNumber(1)),
           CheckMode,
           userAnswers,
           NovaUserType.VatRegisteredOrganisation
-        ) mustBe routes.LandingPageController.onPageLoad()
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
 
       "must go from SupplierNamePage AVD-S4.0 to LandingPage" in {
-        // TODO: navigate to AVD-S9.0 supplier-details CYA when implemented
         navigator.nextPage(
           SupplierNamePage(SupplierNumber(1)),
           CheckMode,
           userAnswers,
           NovaUserType.VatRegisteredOrganisation
-        ) mustBe routes.LandingPageController.onPageLoad()
+        ) mustBe supplierdetails.routes.SupplierDetailsCheckYourAnswersController.onPageLoad(SupplierNumber(1))
       }
 
       "must go from VehicleDatesPage AVD3.0 to LandingPage" in {
@@ -755,7 +791,7 @@ class NavigatorSpec extends SpecBase {
           CheckMode,
           userAnswers,
           NovaUserType.VatRegisteredOrganisation
-        ) mustBe routes.LandingPageController.onPageLoad() // TODO: navigate to AVD-S9.0 supplier-details CYA when built
+        ) mustBe supplierdetails.routes.SupplierDetailsCheckYourAnswersController.onPageLoad(SupplierNumber(1))
       }
 
       "must go from VehicleBusinessUsePage to InitialQuestionsCheckYourAnswersController" in {

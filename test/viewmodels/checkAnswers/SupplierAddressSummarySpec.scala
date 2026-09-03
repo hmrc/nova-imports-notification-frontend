@@ -18,7 +18,7 @@ package viewmodels.checkAnswers
 
 import controllers.supplierdetails.routes
 import base.SpecBase
-import models.{Address, CheckMode, Country, SupplierNumber, UserAnswers}
+import models.{Address, Country, NormalMode, SupplierNumber, UserAnswers}
 import pages.sections.notifieraddress.AddressPage
 import pages.sections.purchaseraddress.PurchaserAddressPage
 import pages.sections.supplieraddress.SupplierAddressPage
@@ -48,7 +48,7 @@ class SupplierAddressSummarySpec extends SpecBase {
 
       result.key.content.asHtml.toString must include(msgs("supplierAddressCheckYourAnswers.checkYourAnswersLabel"))
       value mustBe "12 High Street<br>Reading<br>RE12 9GC"
-      result.actions.value.items.head.href mustBe routes.UsePersonalDetailsAsSupplierController.onPageLoad(SupplierNumber(1), CheckMode).url
+      result.actions.value.items.head.href mustBe routes.UsePersonalDetailsAsSupplierController.onPageLoad(SupplierNumber(1), NormalMode).url
     }
 
     "must end a UK address with the postcode and never show the country name when using purchaser address details" in {
@@ -65,7 +65,7 @@ class SupplierAddressSummarySpec extends SpecBase {
 
       result.key.content.asHtml.toString must include(msgs("supplierAddressCheckYourAnswers.checkYourAnswersLabel"))
       value mustBe "13 High Street<br>Reading<br>RE12 9GC"
-      result.actions.value.items.head.href mustBe routes.UsePurchaserDetailsAsSupplierController.onPageLoad(SupplierNumber(2), CheckMode).url
+      result.actions.value.items.head.href mustBe routes.UsePurchaserDetailsAsSupplierController.onPageLoad(SupplierNumber(2), NormalMode).url
     }
 
     "must end a UK address with the postcode and never show the country name when using supplier address details" in {

@@ -18,7 +18,7 @@ package viewmodels.checkAnswers
 
 import base.SpecBase
 import controllers.supplierdetails.routes
-import models.{CheckMode, NameDetails, SupplierNumber, UserAnswers}
+import models.{NameDetails, NormalMode, SupplierNumber, UserAnswers}
 import pages.sections.notifierdetails.NameDetailsPage
 import pages.sections.purchaserdetails.PurchaserNamePage
 import pages.sections.supplierdetails.SupplierNamePage
@@ -43,7 +43,7 @@ class SupplierNameSummarySpec extends SpecBase {
 
       result.key.content.asHtml.toString must include(msgs("supplierName.checkYourAnswersLabel"))
       value                              must (include("Mr") and include("John") and include("Smith") and include("<br>"))
-      result.actions.value.items.head.href mustBe routes.UsePersonalDetailsAsSupplierController.onPageLoad(SupplierNumber(1), CheckMode).url
+      result.actions.value.items.head.href mustBe routes.UsePersonalDetailsAsSupplierController.onPageLoad(SupplierNumber(1), NormalMode).url
     }
 
     "must return a summary with the name parts stacked on separate lines and a single change link using purchaser name details" in {
@@ -55,7 +55,7 @@ class SupplierNameSummarySpec extends SpecBase {
 
       result.key.content.asHtml.toString must include(msgs("supplierName.checkYourAnswersLabel"))
       value                              must (include("Mr") and include("Adam") and include("Smith") and include("<br>"))
-      result.actions.value.items.head.href mustBe routes.UsePurchaserDetailsAsSupplierController.onPageLoad(SupplierNumber(2), CheckMode).url
+      result.actions.value.items.head.href mustBe routes.UsePurchaserDetailsAsSupplierController.onPageLoad(SupplierNumber(2), NormalMode).url
     }
 
     "must return a summary with the name parts stacked on separate lines and a single change link using supplier name details" in {
@@ -67,7 +67,7 @@ class SupplierNameSummarySpec extends SpecBase {
 
       result.key.content.asHtml.toString must include(msgs("supplierName.checkYourAnswersLabel"))
       value                              must (include("Mr") and include("Tom") and include("Smith") and include("<br>"))
-      result.actions.value.items.head.href mustBe routes.SupplierNameController.onPageLoad(SupplierNumber(3), CheckMode).url
+      result.actions.value.items.head.href mustBe routes.SupplierNameController.onPageLoad(SupplierNumber(3), NormalMode).url
     }
 
     "must return Not Provided when the answer is not present when using personal name details" in {
