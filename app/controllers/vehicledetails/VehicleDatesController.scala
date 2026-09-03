@@ -53,7 +53,7 @@ class VehicleDatesController @Inject() (
 
   def onPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode): Action[AnyContent] =
     actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierService, vehicleService, supplierNumber, vehicleNumber)) { implicit request =>
-      Ok(view(form.withDefault(request.userAnswers.get(VehicleDatesPage(vehicleNumber))), supplierNumber, vehicleNumber, mode))
+      Ok(view(form.withDefault(request.userAnswers.get(VehicleDatesPage(supplierNumber, vehicleNumber))), supplierNumber, vehicleNumber, mode))
     }
 
   def onSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode): Action[AnyContent] =
@@ -64,11 +64,11 @@ class VehicleDatesController @Inject() (
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, supplierNumber, vehicleNumber, mode))),
           value =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(VehicleDatesPage(vehicleNumber), value))
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(VehicleDatesPage(supplierNumber, vehicleNumber), value))
               _              <- sessionRepository.set(updatedAnswers)
             } yield Redirect(
               navigator.nextPage(
-                VehicleDatesPage(vehicleNumber),
+                VehicleDatesPage(supplierNumber, vehicleNumber),
                 mode,
                 updatedAnswers,
                 NovaUserType.from(request.affinityGroup, request.enrolments)
