@@ -77,8 +77,8 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
       .overrides(
         bind[SessionRepository].toInstance(sessionRepository),
         bind[NovaImportsBackendConnector].toInstance(connector)
-      ).build()
-
+      )
+      .build()
 
   "SupplierDetailsCheckYourAnswersController" - {
 
