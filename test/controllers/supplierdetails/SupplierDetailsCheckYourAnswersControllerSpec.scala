@@ -22,7 +22,7 @@ import connectors.{NovaImportsBackendConnector, UpdateSectionError}
 import controllers.actions.*
 import controllers.{routes, supplierdetails}
 import controllers.supplierdetails.SupplierDetailsCheckYourAnswersControllerSpec.*
-import models.{Address, BusinessOrPrivateIndividual, Country, DraftId, NameDetails, SupplierNumber, UserAnswers, VatNumberDetails}
+import models.{Address, BusinessOrPrivateIndividual, Country, DraftId, NameDetails, NormalMode, SupplierNumber, UserAnswers, VatNumberDetails}
 import org.mockito.ArgumentCaptor
 import org.scalatestplus.mockito.MockitoSugar
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
@@ -33,7 +33,7 @@ import pages.sections.notifieraddress.AddressPage
 import pages.sections.notifierdetails.NameDetailsPage
 import pages.sections.purchaseraddress.PurchaserAddressPage
 import pages.sections.purchaserdetails.PurchaserNamePage
-import pages.sections.supplieraddress.{IsSupplierAddressInTheUkPage, SupplierAddressPage}
+import pages.sections.supplieraddress.{IsSupplierAddressInTheUkPage, SupplierAddressJourneyIdPage, SupplierAddressPage}
 import pages.sections.supplierdetails.*
 import play.api.Application
 import play.api.inject.bind
@@ -43,25 +43,39 @@ import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import queries.AllSuppliersQuery
+import repositories.SessionRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 
 class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSugar {
 
-  private def supplierDetailsCheckYourAnswersRoute(supplierNumber: SupplierNumber = SupplierNumber(1)) =
+  private def supplierDetailsCheckYourAnswersRoutePageLoad(supplierNumber: SupplierNumber = SupplierNumber(1)) =
     supplierdetails.routes.SupplierDetailsCheckYourAnswersController.onPageLoad(supplierNumber).url
+
+  private def supplierDetailsCheckYourAnswersRouteSubmit(supplierNumber: SupplierNumber = SupplierNumber(1)) =
+    supplierdetails.routes.SupplierDetailsCheckYourAnswersController.onSubmit(supplierNumber).url
+
+  private def supplierDetailsCheckYourAnswersRouteOnChangeAddress(supplierNumber: SupplierNumber = SupplierNumber(1)) =
+    supplierdetails.routes.SupplierDetailsCheckYourAnswersController.onChangeAddress(supplierNumber).url
 
   private def applicationForPageLoad(
     identifierAction: Class[? <: IdentifierAction],
     userAnswers: Option[UserAnswers]
   ): Application =
-    applicationForSubmit(identifierAction, userAnswers, mock[NovaImportsBackendConnector])
+    applicationForSubmit(userAnswers, mock[NovaImportsBackendConnector], identifierAction = identifierAction)
+
+  private def stubSessionRepository(): SessionRepository = {
+    val m = mock[SessionRepository]
+    when(m.set(any())).thenReturn(Future.successful(true))
+    m
+  }
 
   private def applicationForSubmit(
-    identifierAction: Class[? <: IdentifierAction],
     userAnswers: Option[UserAnswers],
-    connector: NovaImportsBackendConnector
+    connector: NovaImportsBackendConnector,
+    sessionRepository: SessionRepository = stubSessionRepository(),
+    identifierAction: Class[? <: IdentifierAction] = classOf[FakeVatTraderIdentifierAction],
   ): Application =
     new GuiceApplicationBuilder()
       .overrides(
@@ -72,9 +86,11 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
         bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeIdentifierAction],
         bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers)),
-        bind[NovaImportsBackendConnector].toInstance(connector)
+        bind[NovaImportsBackendConnector].toInstance(connector),
+        bind[SessionRepository].toInstance(sessionRepository)
       )
       .build()
+
 
   "SupplierDetailsCheckYourAnswersController" - {
 
@@ -84,10 +100,10 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
         given application: Application = applicationForPageLoad(classOf[FakeVatTraderIdentifierAction], Some(selfSupplyPersonalDetailsAnswers))
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, supplierDetailsCheckYourAnswersRoute())
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, supplierDetailsCheckYourAnswersRoutePageLoad())
 
           val result = route(application, request).value
-          val body = contentAsString(result)
+          val body   = contentAsString(result)
 
           status(result) mustEqual OK
           body must include("Check the supplier details before adding vehicles")
@@ -106,10 +122,10 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
         given application: Application = applicationForPageLoad(classOf[FakeVatTraderIdentifierAction], Some(selfSupplyPersonalDetailsEmptyAnswers))
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, supplierDetailsCheckYourAnswersRoute())
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, supplierDetailsCheckYourAnswersRoutePageLoad())
 
           val result = route(application, request).value
-          val body = contentAsString(result)
+          val body   = contentAsString(result)
 
           status(result) mustEqual OK
           body must include("Check the supplier details before adding vehicles")
@@ -124,15 +140,14 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
         }
       }
 
-
       "for a Self Supplying user using Purchaser details must return OK with name and address" in {
         given application: Application = applicationForPageLoad(classOf[FakeVatTraderIdentifierAction], Some(selfSupplyPurchaserDetailsAnswers))
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, supplierDetailsCheckYourAnswersRoute())
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, supplierDetailsCheckYourAnswersRoutePageLoad())
 
           val result = route(application, request).value
-          val body = contentAsString(result)
+          val body   = contentAsString(result)
 
           status(result) mustEqual OK
           body must include("Check the supplier details before adding vehicles")
@@ -151,10 +166,10 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
         given application: Application = applicationForPageLoad(classOf[FakeVatTraderIdentifierAction], Some(selfSupplyPurchaserDetailsEmptyAnswers))
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, supplierDetailsCheckYourAnswersRoute())
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, supplierDetailsCheckYourAnswersRoutePageLoad())
 
           val result = route(application, request).value
-          val body = contentAsString(result)
+          val body   = contentAsString(result)
 
           status(result) mustEqual OK
           body must include("Check the supplier details before adding vehicles")
@@ -169,15 +184,15 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
         }
       }
 
-
       "for a vat registered individual must return OK with correct rows" in {
-        given application: Application = applicationForPageLoad(classOf[FakeVatTraderIdentifierAction], Some(individualVatRegisteredSupplierDetailsAnswers))
+        given application: Application =
+          applicationForPageLoad(classOf[FakeVatTraderIdentifierAction], Some(individualVatRegisteredSupplierDetailsAnswers))
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, supplierDetailsCheckYourAnswersRoute())
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, supplierDetailsCheckYourAnswersRoutePageLoad())
 
           val result = route(application, request).value
-          val body = contentAsString(result)
+          val body   = contentAsString(result)
 
           status(result) mustEqual OK
           body must include("Check the supplier details before adding vehicles")
@@ -187,20 +202,20 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
           body must include("Is the supplier VAT registered?")
           body must include("Supplier’s VAT registration details")
 
-
           body must not include "Not provided"
           body must not include "Supplier’s business name"
         }
       }
 
       "for a non-vat registered individual must return OK with correct rows" in {
-        given application: Application = applicationForPageLoad(classOf[FakeVatTraderIdentifierAction], Some(individualNonVatRegisteredSupplierDetailsAnswers))
+        given application: Application =
+          applicationForPageLoad(classOf[FakeVatTraderIdentifierAction], Some(individualNonVatRegisteredSupplierDetailsAnswers))
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, supplierDetailsCheckYourAnswersRoute())
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, supplierDetailsCheckYourAnswersRoutePageLoad())
 
           val result = route(application, request).value
-          val body = contentAsString(result)
+          val body   = contentAsString(result)
 
           status(result) mustEqual OK
           body must include("Check the supplier details before adding vehicles")
@@ -216,13 +231,14 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
       }
 
       "for a vat registered business must return OK with correct rows" in {
-        given application: Application = applicationForPageLoad(classOf[FakeVatTraderIdentifierAction], Some(businessVatRegisteredSupplierDetailsAnswers))
+        given application: Application =
+          applicationForPageLoad(classOf[FakeVatTraderIdentifierAction], Some(businessVatRegisteredSupplierDetailsAnswers))
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, supplierDetailsCheckYourAnswersRoute())
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, supplierDetailsCheckYourAnswersRoutePageLoad())
 
           val result = route(application, request).value
-          val body = contentAsString(result)
+          val body   = contentAsString(result)
 
           status(result) mustEqual OK
           body must include("Check the supplier details before adding vehicles")
@@ -232,20 +248,20 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
           body must include("Is the supplier VAT registered?")
           body must include("Supplier’s VAT registration details")
 
-
           body must not include "Not provided"
           body must not include "Supplier’s name"
         }
       }
 
       "for a non-vat registered business must return OK with correct rows" in {
-        given application: Application = applicationForPageLoad(classOf[FakeVatTraderIdentifierAction], Some(businessNonVatRegisteredSupplierDetailsAnswers))
+        given application: Application =
+          applicationForPageLoad(classOf[FakeVatTraderIdentifierAction], Some(businessNonVatRegisteredSupplierDetailsAnswers))
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, supplierDetailsCheckYourAnswersRoute())
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, supplierDetailsCheckYourAnswersRoutePageLoad())
 
           val result = route(application, request).value
-          val body = contentAsString(result)
+          val body   = contentAsString(result)
 
           status(result) mustEqual OK
           body must include("Check the supplier details before adding vehicles")
@@ -253,7 +269,6 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
           body must include("Supplier’s business name")
           body must include("Supplier’s address")
           body must include("Is the supplier VAT registered?")
-
 
           body must not include "Supplier’s VAT registration details"
           body must not include "Not provided"
@@ -266,7 +281,7 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
           applicationForPageLoad(classOf[FakeAgentNoEnrolmentsIdentifierAction], Some(baseUserAnswers))
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, supplierDetailsCheckYourAnswersRoute())
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, supplierDetailsCheckYourAnswersRoutePageLoad())
 
           val result = route(application, request).value
 
@@ -287,7 +302,7 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
           applicationForPageLoad(classOf[FakeAgentNoEnrolmentsIdentifierAction], Some(ua))
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, supplierDetailsCheckYourAnswersRoute())
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, supplierDetailsCheckYourAnswersRoutePageLoad())
 
           val result = route(application, request).value
 
@@ -311,7 +326,7 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
           applicationForPageLoad(classOf[FakeAgentNoEnrolmentsIdentifierAction], Some(ua))
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, supplierDetailsCheckYourAnswersRoute())
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, supplierDetailsCheckYourAnswersRoutePageLoad())
 
           val result = route(application, request).value
 
@@ -335,7 +350,7 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
           applicationForPageLoad(classOf[FakeAgentNoEnrolmentsIdentifierAction], Some(ua))
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, supplierDetailsCheckYourAnswersRoute())
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, supplierDetailsCheckYourAnswersRoutePageLoad())
 
           val result = route(application, request).value
 
@@ -354,10 +369,10 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
         when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
           .thenReturn(Future.successful(Right(2L)))
 
-        given application: Application = applicationForSubmit(classOf[FakeVatTraderIdentifierAction], Some(selfSupplyPersonalDetailsAnswers), connector)
+        given application: Application = applicationForSubmit(Some(selfSupplyPersonalDetailsAnswers), connector)
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, supplierDetailsCheckYourAnswersRoute())
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, supplierDetailsCheckYourAnswersRouteSubmit())
 
           val result = route(application, request).value
 
@@ -372,10 +387,10 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
         when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
           .thenReturn(Future.successful(Right(2L)))
 
-        given application: Application = applicationForSubmit(classOf[FakeVatTraderIdentifierAction], Some(individualVatRegisteredSupplierDetailsAnswers), connector)
+        given application: Application = applicationForSubmit(Some(individualVatRegisteredSupplierDetailsAnswers), connector)
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, supplierDetailsCheckYourAnswersRoute())
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, supplierDetailsCheckYourAnswersRouteSubmit())
 
           val result = route(application, request).value
 
@@ -389,10 +404,10 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
         when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
           .thenReturn(Future.successful(Left(UpdateSectionError.UpstreamError(500, "error"))))
 
-        given application: Application = applicationForSubmit(classOf[FakeVatTraderIdentifierAction], Some(selfSupplyPersonalDetailsAnswers), connector)
+        given application: Application = applicationForSubmit(Some(selfSupplyPersonalDetailsAnswers), connector)
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, supplierDetailsCheckYourAnswersRoute())
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, supplierDetailsCheckYourAnswersRouteSubmit())
 
           val result = route(application, request).value
 
@@ -406,10 +421,10 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
         when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
           .thenReturn(Future.successful(Left(UpdateSectionError.Forbidden)))
 
-        given application: Application = applicationForSubmit(classOf[FakeVatTraderIdentifierAction], Some(selfSupplyPersonalDetailsAnswers), connector)
+        given application: Application = applicationForSubmit(Some(selfSupplyPersonalDetailsAnswers), connector)
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, supplierDetailsCheckYourAnswersRoute())
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, supplierDetailsCheckYourAnswersRouteSubmit())
 
           val result = route(application, request).value
 
@@ -423,10 +438,10 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
         when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
           .thenReturn(Future.successful(Left(UpdateSectionError.NotFound)))
 
-        given application: Application = applicationForSubmit(classOf[FakeVatTraderIdentifierAction], Some(selfSupplyPersonalDetailsAnswers), connector)
+        given application: Application = applicationForSubmit(Some(selfSupplyPersonalDetailsAnswers), connector)
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, supplierDetailsCheckYourAnswersRoute())
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, supplierDetailsCheckYourAnswersRouteSubmit())
 
           val result = route(application, request).value
 
@@ -444,11 +459,10 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
           .success
           .value
 
-        given application: Application =
-          applicationForSubmit(classOf[FakeVatTraderIdentifierAction], Some(answersWithoutDraftId), mock[NovaImportsBackendConnector])
+        given application: Application = applicationForSubmit(Some(answersWithoutDraftId), mock[NovaImportsBackendConnector])
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, supplierDetailsCheckYourAnswersRoute())
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, supplierDetailsCheckYourAnswersRouteSubmit())
 
           val result = route(application, request).value
 
@@ -469,11 +483,10 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
           .success
           .value
 
-        given application: Application =
-          applicationForSubmit(classOf[FakeVatTraderIdentifierAction], Some(answersWithoutDraftId), mock[NovaImportsBackendConnector])
+        given application: Application = applicationForSubmit(Some(answersWithoutDraftId), mock[NovaImportsBackendConnector])
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, supplierDetailsCheckYourAnswersRoute())
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, supplierDetailsCheckYourAnswersRouteSubmit())
 
           val result = route(application, request).value
 
@@ -494,11 +507,10 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
           .success
           .value
 
-        given application: Application =
-          applicationForSubmit(classOf[FakeVatTraderIdentifierAction], Some(answersWithoutDraftId), mock[NovaImportsBackendConnector])
+        given application: Application = applicationForSubmit(Some(answersWithoutDraftId), mock[NovaImportsBackendConnector])
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, supplierDetailsCheckYourAnswersRoute())
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, supplierDetailsCheckYourAnswersRouteSubmit())
 
           val result = route(application, request).value
 
@@ -507,24 +519,22 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
         }
       }
 
-
-
-
       "must send the correct self-supply body with the current versionId" in {
         val connector = mock[NovaImportsBackendConnector]
         when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
           .thenReturn(Future.successful(Right(2L)))
 
-        given application: Application = applicationForSubmit(classOf[FakeVatTraderIdentifierAction], Some(selfSupplyPersonalDetailsAnswers), connector)
+        given application: Application = applicationForSubmit(Some(selfSupplyPersonalDetailsAnswers), connector)
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, supplierDetailsCheckYourAnswersRoute())
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, supplierDetailsCheckYourAnswersRouteSubmit())
 
           val result = route(application, request).value
           status(result) mustEqual SEE_OTHER
 
           val bodyCaptor = ArgumentCaptor.forClass(classOf[JsObject])
-          verify(connector).updateDraftSection(any[DraftId], eqTo(s"supplier/${supplierNumber.value}/self-supply"), bodyCaptor.capture())(any[HeaderCarrier])
+          verify(connector)
+            .updateDraftSection(any[DraftId], eqTo(s"supplier/${supplierNumber.value}/self-supply"), bodyCaptor.capture())(any[HeaderCarrier])
           val sentBody = bodyCaptor.getValue
 
           (sentBody \ "versionId").as[Long] mustEqual 1L
@@ -537,24 +547,26 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
         when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
           .thenReturn(Future.successful(Right(2L)))
 
-        given application: Application = applicationForSubmit(classOf[FakeVatTraderIdentifierAction], Some(individualVatRegisteredSupplierDetailsAnswers), connector)
+        given application: Application = applicationForSubmit(Some(individualVatRegisteredSupplierDetailsAnswers), connector)
 
         running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, supplierDetailsCheckYourAnswersRoute())
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, supplierDetailsCheckYourAnswersRouteSubmit())
 
           val result = route(application, request).value
           status(result) mustEqual SEE_OTHER
 
           // Verify the first specific call happened at least once
           val bodyCaptor = ArgumentCaptor.forClass(classOf[JsObject])
-          verify(connector, atLeastOnce()).updateDraftSection(any[DraftId], eqTo(s"supplier/${supplierNumber.value}/self-supply"), bodyCaptor.capture())(any[HeaderCarrier])
+          verify(connector, atLeastOnce())
+            .updateDraftSection(any[DraftId], eqTo(s"supplier/${supplierNumber.value}/self-supply"), bodyCaptor.capture())(any[HeaderCarrier])
           val sentBody = bodyCaptor.getValue
           (sentBody \ "versionId").as[Long] mustEqual 1L
           (sentBody \ "areYouSelfSupplying").as[Boolean] mustEqual false
 
           // Verify the second specific call happened at least once
           val bodyCaptorDetails = ArgumentCaptor.forClass(classOf[JsObject])
-          verify(connector, atLeastOnce()).updateDraftSection(any[DraftId], eqTo(s"supplier/${supplierNumber.value}/details"), bodyCaptorDetails.capture())(any[HeaderCarrier])
+          verify(connector, atLeastOnce())
+            .updateDraftSection(any[DraftId], eqTo(s"supplier/${supplierNumber.value}/details"), bodyCaptorDetails.capture())(any[HeaderCarrier])
           val sentBodyDetails = bodyCaptorDetails.getValue
           (sentBodyDetails \ "versionId").as[Long] mustEqual 2L
           (sentBodyDetails \ "supplierBusinessOrIndividual").as[String] mustEqual "individual"
@@ -571,8 +583,43 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
 
         }
       }
-
     }
+
+    "onChangeAddress" - {
+      "must clear the stored supplier address and supplier journey id from the session and redirect to AVD-S5.0 on change address" in {
+        val answersWithJourneyId = individualVatRegisteredSupplierDetailsAnswers.unsafeSet(SupplierAddressJourneyIdPage(supplierNumber), "journey-123")
+
+        val sessionRepository = stubSessionRepository()
+        val application = applicationForSubmit(Some(answersWithJourneyId), mock[NovaImportsBackendConnector], sessionRepository)
+
+        running(application) {
+          val request = FakeRequest(GET, supplierDetailsCheckYourAnswersRouteOnChangeAddress())
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual controllers.supplieraddress.routes.IsSupplierAddressInTheUKController.onPageLoad(supplierNumber, NormalMode).url
+
+          val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
+          verify(sessionRepository).set(captor.capture())
+          captor.getValue.get(AddressPage) mustBe None
+          captor.getValue.get(SupplierAddressJourneyIdPage(supplierNumber)) mustBe None
+        }
+      }
+
+      "must redirect to Unauthorised on change address if no session data is found" in {
+        val application = applicationForSubmit(None, mock[NovaImportsBackendConnector])
+
+        running(application) {
+          val request = FakeRequest(GET, supplierDetailsCheckYourAnswersRouteOnChangeAddress())
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+        }
+      }
+    }
+
+
   }
 }
 
@@ -581,11 +628,10 @@ object SupplierDetailsCheckYourAnswersControllerSpec {
   import org.scalatest.TryValues.*
 
   private val supplierNumber = SupplierNumber(1)
-  private val address          = Address(Seq("1 Fake Street"), Some("AB12 3CD"), Country("GB", "United Kingdom"))
+  private val address        = Address(Seq("1 Fake Street"), Some("AB12 3CD"), Country("GB", "United Kingdom"))
   private val name           = NameDetails("Mr", "FirstName", "LastName")
   private val businessName   = "ABC Ltd"
-  private val vatDetails = VatNumberDetails("FR", "12345678912")
-
+  private val vatDetails     = VatNumberDetails("FR", "12345678912")
 
   private val baseUserAnswers = UserAnswers("id")
     .set(DraftVersionIdPage, 1L)
@@ -637,7 +683,6 @@ object SupplierDetailsCheckYourAnswersControllerSpec {
     .success
     .value
 
-
   // individual Vat Registered
   private val individualVatRegisteredSupplierDetailsAnswers = baseUserAnswers
     .set(UsePersonalDetailsAsSupplierPage(supplierNumber), false)
@@ -661,7 +706,6 @@ object SupplierDetailsCheckYourAnswersControllerSpec {
     .set(SupplierVatRegistrationNumberPage(supplierNumber), vatDetails)
     .success
     .value
-
 
   // individual Non Vat Registered
   private val individualNonVatRegisteredSupplierDetailsAnswers = baseUserAnswers
