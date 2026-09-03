@@ -43,7 +43,7 @@ class NoVehicleDatesControllerSpec extends SpecBase with MockitoSugar {
     .unsafeSet(VehicleFromEuPage, true)
     .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj()))
     .unsafeSet(AllVehiclesQuery, Map("1" -> Json.obj("supplierNumber" -> 1)))
-    .unsafeSet(VehicleDatesPage(vehicleNumber), Set(VehicleDates.NoDates))
+    .unsafeSet(VehicleDatesPage(supplierNumber, vehicleNumber), Set(VehicleDates.NoDates))
 
   "NoVehicleDatesController" - {
 
@@ -135,7 +135,7 @@ class NoVehicleDatesControllerSpec extends SpecBase with MockitoSugar {
 
     "must redirect to Unauthorised if the user did not select 'No dates' on AVD3.0 for this vehicle" in {
 
-      val answers = userAnswersWithGuardData.unsafeSet(VehicleDatesPage(vehicleNumber), Set(VehicleDates.PurchaseInvoiceDate))
+      val answers = userAnswersWithGuardData.unsafeSet(VehicleDatesPage(supplierNumber, vehicleNumber), Set(VehicleDates.PurchaseInvoiceDate))
 
       val application = applicationBuilder(userAnswers = Some(answers)).build()
 
