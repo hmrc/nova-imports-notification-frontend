@@ -28,7 +28,12 @@
 
 @(form: Form[_], mode: Mode, importingVehiclesIntoTheUKUrl: String, euCountriesUrl: String, showAdditionalGuidance: Boolean)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("vehicleFromEu.title"))) {
+@pageTitle = @{
+    if(showAdditionalGuidance) messages("vehicleFromEu.title")
+    else messages("vehicleFromEu.heading")
+}
+
+@layout(pageTitle = title(form, pageTitle)) {
 
     @formHelper(action = routes.VehicleFromEuController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
@@ -38,27 +43,35 @@
 
         <span class="govuk-caption-l">@messages("vehicleFromEu.caption")</span>
 
-        <h1 class="govuk-heading-l">@messages("vehicleFromEu.title")</h1>
-
         @if(showAdditionalGuidance) {
+            <h1 class="govuk-heading-l">@messages("vehicleFromEu.title")</h1>
+
             <p class="govuk-body">@messages("vehicleFromEu.paragraph.1")</p>
 
             <p class="govuk-body">@Html(messages("vehicleFromEu.paragraph.2",
                 hmrcNewTabLinkHelper(LinkViewModel(messages("vehicleFromEu.paragraph.2.linkText"), importingVehiclesIntoTheUKUrl))))</p>
-        }
 
-        <p class="govuk-body">@Html(messages("vehicleFromEu.paragraph.3",
-            hmrcNewTabLinkHelper(LinkViewModel(messages("vehicleFromEu.paragraph.3.linkText"), euCountriesUrl))))</p>
+            <p class="govuk-body">@Html(messages("vehicleFromEu.paragraph.3",
+                hmrcNewTabLinkHelper(LinkViewModel(messages("vehicleFromEu.paragraph.3.linkText"), euCountriesUrl))))</p>
 
-        @govukRadios(
-            RadiosViewModel.yesNo(
+            @govukRadios(
+                RadiosViewModel.yesNo(
                 field  = form("value"),
                 legend = LegendViewModel(
-                    HtmlContent(s"""<h2 class="govuk-fieldset__heading">${messages("vehicleFromEu.heading")}</h2>""")
-                ).withCssClass(LegendSize.Medium.toString)
+                HtmlContent(s"""<h2 class="govuk-fieldset__heading">${messages("vehicleFromEu.heading")}</h2>""")
+                ).withCssClass(LegendSize.Medium.toString))
             )
-        )
-
+        }else {
+        <legend class="govuk-fieldset__legend  govuk-fieldset__legend--l govuk-!-margin-0">
+            <h1 class="govuk-fieldset__heading">@messages("vehicleFromEu.heading")</h1>
+        </legend>
+            @govukRadios(
+                RadiosViewModel.yesNo(
+                field  = form("value"),
+                legend = LegendViewModel(HtmlContent(s"""<p class="govuk-!-margin-bottom-0">${messages("vehicleFromEu.paragraph.3",
+                        hmrcNewTabLinkHelper(LinkViewModel(messages("vehicleFromEu.paragraph.3.linkText"), euCountriesUrl)))}</p>""")))
+            )
+        }
         @govukButton(
             ButtonViewModel(messages("site.continue"))
         )
