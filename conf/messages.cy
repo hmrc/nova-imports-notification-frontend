@@ -374,14 +374,30 @@ pageNotFound.paragraph.3.start = If the web address is correct or you selected a
 pageNotFound.link.text = contact HMRC technical support (opens in new tab)
 pageNotFound.paragraph.3.end = if you need to speak to someone.
 
-# APD1.0 / APD2.0 / CYA4.0 - Purchaser details (English defaults, Welsh translation to follow)
+# APD2.0 / CYA4.0 - Purchaser details (English defaults, Welsh translation to follow)
+
+######################################################
+# APD1.0 - Add Purchaser Details: Purchaser name     #
+######################################################
+
+purchaserName.title = Beth yw enw’r prynwr?
+purchaserName.caption = Ychwanegu manylion y prynwr
+purchaserName.heading = Beth yw enw’r prynwr?
+purchaserName.titleField = Title
+purchaserName.titleField.error.format = Nodwch deitl y prynwr yn y fformat cywir
+purchaserName.titleField.error.length = Mae’n rhaid i deitl y prynwr fod yn 20 o gymeriadau neu lai
+purchaserName.titleField.error.required = Nodwch deitl y prynwr
+purchaserName.firstName = Enw cyntaf
+purchaserName.firstName.error.format = Nodwch enw cyntaf y prynwr yn y fformat cywir
+purchaserName.firstName.error.length = Mae’n rhaid i enw cyntaf y prynwr fod yn 100 o gymeriadau neu lai
+purchaserName.firstName.error.required = Nodwch enw cyntaf y prynwr
+purchaserName.lastName = Enw olaf
+purchaserName.lastName.error.format = Nodwch enw olaf y prynwr yn y fformat cywir
+purchaserName.lastName.error.length = Mae’n rhaid i enw olaf y prynwr fod yn 100 o gymeriadau neu lai
+purchaserName.lastName.error.required = Nodwch enw olaf y prynwr
+# TODO: Welsh translations to be supplied by content team:
 purchaserName.checkYourAnswersLabel = Purchaser’s name
 purchaserName.change.hidden = the purchaser’s name
-purchaserBusinessName.checkYourAnswersLabel = Purchaser’s business name
-purchaserBusinessName.change.hidden = the purchaser’s business name
-purchaserDetailsCheckYourAnswers.caption = Add purchaser details
-purchaserDetailsCheckYourAnswers.title = Check your answers - Purchaser’s details
-purchaserDetailsCheckYourAnswers.heading = Check your answers
 
 ######################################################
 # ERR2.0 - Error message - System error              #
@@ -639,8 +655,18 @@ vehicleDates.checkbox.noDates = No, I do not have any of these dates
 # AVD1.0 - Add vehicle details: Vehicles brought from the EU #
 ######################################################
 
+addVehicleDetails.title = Cerbydau sy’n dod o’r UE
 addVehicleDetails.heading = Cerbydau sy’n dod o’r UE
 addVehicleDetails.caption = Ychwanegwch fanylion cerbyd
+addVehicleDetails.paragraph.1 = Mae’n rhaid i chi roi manylion pob cerbyd a brynwyd gan gyflenwr yn yr UE. Gallwch ychwanegu hyd at 100 o gerbydau mewn un hysbysiad.
+addVehicleDetails.method.heading = Sut hoffech ychwanegu manylion y cerbyd?
+addVehicleDetails.radio.bySupplier = Ychwanegu yn ôl cyflenwr
+addVehicleDetails.radio.bySupplier.hint = Rhowch fanylion y cyflenwr yn gyntaf, yna ychwanegwch y cerbydau a brynwyd ganddo
+addVehicleDetails.radio.bySpreadsheet = Uwchlwytho taenlen cerbyd
+addVehicleDetails.radio.bySpreadsheet.hint = Defnyddiwch yr opsiwn taenlen i ychwanegu manylion ar gyfer mwy nag un cerbyd o’r un math ar yr un pryd
+addVehicleDetails.inset.paragraph.1 = Os ydych chi’n uwchlwytho taenlen, mae’n rhaid i chi ddefnyddio’r un gywir ar gyfer yr un math o gerbydau. {0} y mae’n rhaid i chi ei lawrlwytho a’i defnyddio.
+addVehicleDetails.inset.findSpreadsheet.linkText = Dewch o hyd i’r daenlen
+addVehicleDetails.error.required = Dewiswch sut rydych am ychwanegu manylion y cerbyd
 
 ##################################################################################
 # AVD1.0b - Add vehicle details: Vehicles brought from the EU (by supplier only) #
