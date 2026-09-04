@@ -146,12 +146,13 @@ object YourDetailsCheckYourAnswersController {
         Json
           .toJson(
             NotifierDetailsIndividual(
-              name.title,
-              name.firstName,
-              name.lastName,
-              emailAddress,
-              contactNumbers.phoneNumber,
-              contactNumbers.mobileNumber
+              title = name.title,
+              firstName = name.firstName,
+              lastName = name.lastName,
+              emailAddress = emailAddress,
+              telephoneNumber = contactNumbers.telephoneNumber,
+              mobileTelephone = contactNumbers.mobileTelephone,
+              individualNameNeeded = name.nonEmpty
             )
           )
           .as[JsObject]
@@ -159,10 +160,11 @@ object YourDetailsCheckYourAnswersController {
         Json
           .toJson(
             NotifierDetailsOrganisation(
-              emailAddress,
-              contactNumbers.phoneNumber,
-              contactNumbers.mobileNumber,
-              answers.get(BusinessNamePage)
+              emailAddress = emailAddress,
+              telephoneNumber = contactNumbers.telephoneNumber,
+              mobileTelephone = contactNumbers.mobileTelephone,
+              businessName = answers.get(BusinessNamePage),
+              businessNameNeeded = answers.get(BusinessNamePage).exists(_.nonEmpty)
             )
           )
           .as[JsObject]

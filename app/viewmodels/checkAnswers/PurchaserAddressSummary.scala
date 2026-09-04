@@ -23,6 +23,7 @@ import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
+import viewmodels.AddressDisplay
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
 
@@ -31,12 +32,7 @@ object PurchaserAddressSummary {
   def row(answers: UserAnswers)(implicit messages: Messages): Option[SummaryListRow] =
     answers.get(PurchaserAddressPage).map { address =>
 
-      val countryLine = if (address.country.code == "GB") None else Some(address.country.name)
-
-      val value = (address.lines ++ address.postcode.toSeq ++ countryLine)
-        .filter(_.nonEmpty)
-        .map(line => HtmlFormat.escape(line).body)
-        .mkString("<br>")
+      val value = AddressDisplay.lines(address).map(line => HtmlFormat.escape(line).body).mkString("<br>")
 
       SummaryListRowViewModel(
         key = "purchaserAddressCheckYourAnswers.checkYourAnswersLabel",

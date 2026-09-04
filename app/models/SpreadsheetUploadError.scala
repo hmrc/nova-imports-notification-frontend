@@ -14,21 +14,19 @@
  * limitations under the License.
  */
 
-package models.draftsections
+package models
 
-import play.api.libs.json.{Format, Json}
+enum SpreadsheetUploadError(val messageKey: String) {
+  case NoFileSelected extends SpreadsheetUploadError("uploadVehicleSpreadsheet.error.required")
+  case FileTooLarge extends SpreadsheetUploadError("uploadVehicleSpreadsheet.error.tooLarge")
+  case UploadFailed extends SpreadsheetUploadError("uploadVehicleSpreadsheet.error.unknown")
+}
 
-final case class NotifierDetailsIndividual(
-  title: String,
-  firstName: String,
-  lastName: String,
-  emailAddress: String,
-  telephoneNumber: Option[String],
-  mobileTelephone: Option[String],
-  individualNameNeeded: Boolean = true,
-  businessNameNeeded: Boolean = false
-)
+object SpreadsheetUploadError {
 
-object NotifierDetailsIndividual {
-  implicit val format: Format[NotifierDetailsIndividual] = Json.format[NotifierDetailsIndividual]
+  def fromUpscanErrorCode(errorCode: String): SpreadsheetUploadError = errorCode match {
+    case "InvalidArgument" => NoFileSelected
+    case "EntityTooLarge"  => FileTooLarge
+    case _                 => UploadFailed
+  }
 }

@@ -194,6 +194,8 @@ POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/vehicle-dates      
 GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/vehicle-dates/change        controllers.vehicledetails.VehicleDatesController.onPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
 POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/vehicle-dates/change        controllers.vehicledetails.VehicleDatesController.onSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
 
+GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/no-vehicle-dates            controllers.vehicledetails.NoVehicleDatesController.onPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber)
+
 GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/purchase-invoice-date       controllers.vehicledetails.PurchaseInvoiceDateController.onPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
 POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/purchase-invoice-date       controllers.vehicledetails.PurchaseInvoiceDateController.onSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
 GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/purchase-invoice-date/change controllers.vehicledetails.PurchaseInvoiceDateController.onPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)

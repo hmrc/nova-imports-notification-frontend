@@ -342,10 +342,20 @@ class UserDataServiceSpec extends SpecBase with MockitoSugar with ScalaFutures w
       draftWith(Map(SectionId.NotifierDetails -> DraftNotificationSection(Some(section))))
 
     val individualNotifier =
-      Json.obj("title" -> "Mr", "firstName" -> "John", "lastName" -> "Smith", "emailAddress" -> "john@example.com", "phoneNumber" -> "01234567890")
+      Json.obj(
+        "title"           -> "Mr",
+        "firstName"       -> "John",
+        "lastName"        -> "Smith",
+        "emailAddress"    -> "john@example.com",
+        "telephoneNumber" -> "01234567890"
+      )
 
     val organisationNotifier =
-      Json.obj("emailAddress" -> "acme@example.com", "phoneNumber" -> "01234567890", "businessName" -> "Acme Trading Ltd")
+      Json.obj(
+        "emailAddress"    -> "acme@example.com",
+        "telephoneNumber" -> "01234567890",
+        "businessName"    -> "Acme Trading Ltd"
+      )
 
     "must drop the stale notifier name re-hydrated from the draft when the user is now a business" in {
       val answers = emptyUserAnswers
