@@ -45,7 +45,6 @@ private[mappings] class LocalDateFormatter(
 
   private def isNumber(value: String): Boolean = number.matches(value)
 
-  // Where the date is not held as dd/MM/yyyy the input also accepts "March" or "Mar" in place of "3"
   private def monthValue(month: String): Option[Int] =
     if (isNumber(month)) month.toIntOption
     else
@@ -53,7 +52,6 @@ private[mappings] class LocalDateFormatter(
         .find(m => m.toString == month.toUpperCase || m.toString.take(3) == month.toUpperCase)
         .map(_.getValue)
 
-  // dd/MM/yyyy needs every part to be a number padded to a fixed width, so "7" is not a day and "Mar" is not a month
   private def hasValidFormat(field: String, value: String): Boolean = field match {
     case "year"               => isNumber(value) && value.length == yearLength
     case _ if requireDdMmYyyy => isNumber(value) && value.length == dayAndMonthLength
@@ -61,8 +59,6 @@ private[mappings] class LocalDateFormatter(
     case _                    => monthValue(value).isDefined
   }
 
-  // A part the service cannot read is a format problem. Parts that are readable numbers but do not make up a date
-  // that exists are reported separately.
   private def formatDate(key: String, parts: Map[String, String]): Either[Seq[FormError], LocalDate] = {
 
     val unreadableFields = fieldKeys.filterNot(field => hasValidFormat(field, parts(field)))
@@ -95,8 +91,6 @@ private[mappings] class LocalDateFormatter(
     }
   }
 
-  // Naming a single field highlights just that field. When more than one is wrong it is not clear what the user
-  // meant, so no field is named and the date input is highlighted as a whole.
   private def error(key: String, errorKey: String, fields: Seq[String]): FormError = {
     val fieldArgs = if (fields.sizeIs == 1) fields.map(field => messages(s"date.error.$field")) else Seq.empty
     FormError(key, errorKey, fieldArgs ++ args)
@@ -121,7 +115,6 @@ private[mappings] class LocalDateFormatter(
     }
   }
 
-  // A dd/MM/yyyy date is put back into the fields padded, so that a date the user comes back to still binds
   override def unbind(key: String, value: LocalDate): Map[String, String] = {
     val dayOrMonth: Int => String = if (requireDdMmYyyy) part => f"$part%02d" else _.toString
 

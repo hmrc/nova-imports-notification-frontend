@@ -30,7 +30,6 @@ import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserName
 import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierVatRegistrationNumberPage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
 import pages.sections.supplieraddress.IsSupplierAddressInTheUkPage
 import pages.sections.vehicledetails.{PurchaseInvoiceDatePage, VehicleDatesPage}
-import queries.AllVehiclesQuery
 
 @Singleton
 class Navigator @Inject() () {
@@ -182,9 +181,7 @@ class Navigator @Inject() () {
       (userAnswers, _) =>
         userAnswers.get(page) match {
           case Some(dates) if dates.contains(VehicleDates.PurchaseInvoiceDate) =>
-            supplierNumberFor(userAnswers, page.vehicleNumber)
-              .map(vehicledetails.routes.PurchaseInvoiceDateController.onPageLoad(_, page.vehicleNumber, NormalMode))
-              .getOrElse(routes.JourneyRecoveryController.onPageLoad())
+            vehicledetails.routes.PurchaseInvoiceDateController.onPageLoad(page.supplierNumber, page.vehicleNumber, NormalMode)
           case Some(dates) if dates.contains(VehicleDates.AvailabilityAndFirstRegistration) =>
             routes.LandingPageController.onPageLoad() // TODO: navigate to AVD5.0 when built
           case Some(dates) if dates.contains(VehicleDates.NoDates) =>
@@ -248,12 +245,4 @@ class Navigator @Inject() () {
     case CheckMode =>
       checkRouteMap(page)(userAnswers, userType)
   }
-
-  // The vehicle record holds the supplier it was added for, which the AVD4.x URLs need
-  private def supplierNumberFor(userAnswers: UserAnswers, vehicleNumber: VehicleNumber): Option[SupplierNumber] =
-    userAnswers
-      .get(AllVehiclesQuery)
-      .flatMap(_.get(vehicleNumber.value.toString))
-      .flatMap(vehicle => (vehicle \ "supplierNumber").asOpt[Int])
-      .map(SupplierNumber(_))
 }

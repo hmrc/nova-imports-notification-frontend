@@ -297,11 +297,10 @@ class PurchaseInvoiceDateControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    // AC1 gates this screen on auth and a draftId only, so the AVD3.0 answer is not part of the data guard
     "must return OK for a GET when the purchase invoice date was not one of the dates selected on AVD3.0" in {
 
       val answersWithoutInvoiceDate = userAnswersWithGuardData
-        .set(VehicleDatesPage(vehicleNumber), Set(VehicleDates.AvailabilityAndFirstRegistration))
+        .set(VehicleDatesPage(supplierNumber, vehicleNumber), Set(VehicleDates.AvailabilityAndFirstRegistration))
         .success
         .value
 

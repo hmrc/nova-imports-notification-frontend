@@ -83,9 +83,9 @@ class PurchaseInvoiceDateViewSpec extends SpecBase with Matchers with BeforeAndA
     "must render a day, month and year field" in {
       val document = Jsoup.parse(render())
 
-      document.getElementById("value.day") must not be null
+      document.getElementById("value.day")   must not be null
       document.getElementById("value.month") must not be null
-      document.getElementById("value.year") must not be null
+      document.getElementById("value.year")  must not be null
     }
 
     "must render the day, month and year labels" in {

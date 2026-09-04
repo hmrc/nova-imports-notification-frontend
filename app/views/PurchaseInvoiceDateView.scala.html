@@ -35,7 +35,6 @@
 
     @formHelper(action = routes.PurchaseInvoiceDateController.onSubmit(supplierNumber, vehicleNumber, mode), Symbol("autoComplete") -> "off") {
 
-        @* the summary link takes the user to the first field of the date input, matching the GOV.UK date pattern *@
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map("value" -> "value.day")))
         }

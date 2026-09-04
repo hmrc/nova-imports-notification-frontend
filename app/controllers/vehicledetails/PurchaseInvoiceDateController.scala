@@ -77,7 +77,6 @@ class PurchaseInvoiceDateController @Inject() (
 
 object PurchaseInvoiceDateController {
 
-  // The numbers in the URL must match a session supplier and a vehicle that belongs to that supplier
   def guardPredicate(
     supplierService: SupplierService,
     vehicleService: VehicleService,
