@@ -26,12 +26,19 @@ import pages.sections.vehicledetails.{AddImportVehicleDetailsPage, AddVehicleDet
 import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierVatRegistrationNumberPage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
-import pages.sections.vehicledetails.VehicleDatesPage
+import pages.sections.vehicledetails.{PurchaseInvoiceDatePage, VehicleDatesPage}
+import play.api.libs.json.Json
+import queries.AllVehiclesQuery
+
+import java.time.LocalDate
 
 class NavigatorSpec extends SpecBase {
 
   val navigator                = new Navigator
   val userAnswers: UserAnswers = UserAnswers("id")
+
+  val vehicleOneForSupplierOne: UserAnswers =
+    userAnswers.set(AllVehiclesQuery, Map("1" -> Json.obj("supplierNumber" -> 1))).success.value
 
   "Navigator" - {
 
@@ -483,9 +490,58 @@ class NavigatorSpec extends SpecBase {
       }
 
       "must go from VehicleDatesPage AVD3.0 to PurchaseInvoiceDate AVD4.0 when the purchase invoice date is selected" in {
+        val ua = vehicleOneForSupplierOne.set(VehicleDatesPage(VehicleNumber(1)), Set(VehicleDates.PurchaseInvoiceDate)).success.value
+        navigator.nextPage(
+          VehicleDatesPage(VehicleNumber(1)),
+          NormalMode,
+          ua,
+          NovaUserType.PrivateIndividual
+        ) mustBe vehicledetails.routes.PurchaseInvoiceDateController.onPageLoad(SupplierNumber(1), VehicleNumber(1), NormalMode)
+      }
+
+      "must go from VehicleDatesPage AVD3.0 to PurchaseInvoiceDate AVD4.0 for the supplier the vehicle was added for" in {
+        val ua = userAnswers
+          .set(AllVehiclesQuery, Map("3" -> Json.obj("supplierNumber" -> 2)))
+          .success
+          .value
+          .set(VehicleDatesPage(VehicleNumber(3)), Set(VehicleDates.PurchaseInvoiceDate))
+          .success
+          .value
+        navigator.nextPage(
+          VehicleDatesPage(VehicleNumber(3)),
+          NormalMode,
+          ua,
+          NovaUserType.PrivateIndividual
+        ) mustBe vehicledetails.routes.PurchaseInvoiceDateController.onPageLoad(SupplierNumber(2), VehicleNumber(3), NormalMode)
+      }
+
+      "must go from VehicleDatesPage AVD3.0 to JourneyRecovery when the vehicle has no supplier to build the AVD4.0 URL from" in {
         val ua = userAnswers.set(VehicleDatesPage(VehicleNumber(1)), Set(VehicleDates.PurchaseInvoiceDate)).success.value
-        navigator.nextPage(VehicleDatesPage(VehicleNumber(1)), NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController
-          .onPageLoad()
+        navigator.nextPage(
+          VehicleDatesPage(VehicleNumber(1)),
+          NormalMode,
+          ua,
+          NovaUserType.PrivateIndividual
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from PurchaseInvoiceDatePage AVD4.0 to PurchaseInvoiceNumber AVD4.1 when a date is entered" in {
+        val ua = userAnswers.set(PurchaseInvoiceDatePage(VehicleNumber(1)), LocalDate.of(2026, 3, 27)).success.value
+        navigator.nextPage(
+          PurchaseInvoiceDatePage(VehicleNumber(1)),
+          NormalMode,
+          ua,
+          NovaUserType.PrivateIndividual
+        ) mustBe routes.LandingPageController.onPageLoad() // TODO: update when AVD4.1 is built
+      }
+
+      "must go from PurchaseInvoiceDatePage AVD4.0 to JourneyRecovery when no answer is found" in {
+        navigator.nextPage(
+          PurchaseInvoiceDatePage(VehicleNumber(1)),
+          NormalMode,
+          userAnswers,
+          NovaUserType.PrivateIndividual
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
 
       "must go from VehicleDatesPage AVD3.0 to DateOfAvailability AVD5.0 when only the date of availability is selected" in {
@@ -495,12 +551,16 @@ class NavigatorSpec extends SpecBase {
       }
 
       "must go from VehicleDatesPage AVD3.0 to PurchaseInvoiceDate AVD4.0 when both dates are selected" in {
-        val ua = userAnswers
+        val ua = vehicleOneForSupplierOne
           .set(VehicleDatesPage(VehicleNumber(1)), Set(VehicleDates.PurchaseInvoiceDate, VehicleDates.AvailabilityAndFirstRegistration))
           .success
           .value
-        navigator.nextPage(VehicleDatesPage(VehicleNumber(1)), NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController
-          .onPageLoad()
+        navigator.nextPage(
+          VehicleDatesPage(VehicleNumber(1)),
+          NormalMode,
+          ua,
+          NovaUserType.PrivateIndividual
+        ) mustBe vehicledetails.routes.PurchaseInvoiceDateController.onPageLoad(SupplierNumber(1), VehicleNumber(1), NormalMode)
       }
 
       "must go from VehicleDatesPage AVD3.0 to NoVehicleDates AVD3.1 when no dates are held" in {

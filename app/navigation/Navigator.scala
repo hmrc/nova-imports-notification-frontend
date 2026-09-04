@@ -29,7 +29,8 @@ import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierVatRegistrationNumberPage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
 import pages.sections.supplieraddress.IsSupplierAddressInTheUkPage
-import pages.sections.vehicledetails.VehicleDatesPage
+import pages.sections.vehicledetails.{PurchaseInvoiceDatePage, VehicleDatesPage}
+import queries.AllVehiclesQuery
 
 @Singleton
 class Navigator @Inject() () {
@@ -181,12 +182,20 @@ class Navigator @Inject() () {
       (userAnswers, _) =>
         userAnswers.get(page) match {
           case Some(dates) if dates.contains(VehicleDates.PurchaseInvoiceDate) =>
-            routes.LandingPageController.onPageLoad() // TODO: navigate to AVD4.0 when built
+            supplierNumberFor(userAnswers, page.vehicleNumber)
+              .map(vehicledetails.routes.PurchaseInvoiceDateController.onPageLoad(_, page.vehicleNumber, NormalMode))
+              .getOrElse(routes.JourneyRecoveryController.onPageLoad())
           case Some(dates) if dates.contains(VehicleDates.AvailabilityAndFirstRegistration) =>
             routes.LandingPageController.onPageLoad() // TODO: navigate to AVD5.0 when built
           case Some(dates) if dates.contains(VehicleDates.NoDates) =>
             routes.LandingPageController.onPageLoad() // TODO: navigate to AVD3.1 when built
           case _ => routes.JourneyRecoveryController.onPageLoad()
+        }
+    case page: PurchaseInvoiceDatePage =>
+      (userAnswers, _) =>
+        userAnswers.get(page) match {
+          case Some(_) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD4.1 when built
+          case _       => routes.JourneyRecoveryController.onPageLoad()
         }
     case _ => (_, _) => routes.LandingPageController.onPageLoad()
   }
@@ -227,7 +236,7 @@ class Navigator @Inject() () {
     case _: SupplierNamePage | _: IsSupplierAddressInTheUkPage | _: IsSupplierVatRegisteredPage | _: SupplierBusinessNamePage |
         _: SupplierBusinessOrIndividualPage | _: SupplierVatRegistrationNumberPage =>
       (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD-S9.0 CYA when built
-    case _: VehicleDatesPage =>
+    case _: VehicleDatesPage | _: PurchaseInvoiceDatePage =>
       (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to the vehicle details CYA when built
     case _ =>
       (_, _) => routes.LandingPageController.onPageLoad()
@@ -239,4 +248,12 @@ class Navigator @Inject() () {
     case CheckMode =>
       checkRouteMap(page)(userAnswers, userType)
   }
+
+  // The vehicle record holds the supplier it was added for, which the AVD4.x URLs need
+  private def supplierNumberFor(userAnswers: UserAnswers, vehicleNumber: VehicleNumber): Option[SupplierNumber] =
+    userAnswers
+      .get(AllVehiclesQuery)
+      .flatMap(_.get(vehicleNumber.value.toString))
+      .flatMap(vehicle => (vehicle \ "supplierNumber").asOpt[Int])
+      .map(SupplierNumber(_))
 }
