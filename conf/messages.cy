@@ -770,8 +770,8 @@ supplierVatRegistrationDetails.vatNumber.error.format = Enter the supplier’s V
 # UVS1.0 - Upload a vehicle spreadsheet 1.0      #
 ##################################################
 # TODO: Welsh translations to be supplied by content team.
-uploadVehicleSpreadsheet.title = Upload a vehicle spreadsheet
-uploadVehicleSpreadsheet.heading = Upload a vehicle spreadsheet
+uploadVehicleSpreadsheet.title = Upload vehicle spreadsheet
+uploadVehicleSpreadsheet.heading = Upload vehicle spreadsheet
 uploadVehicleSpreadsheet.caption = Add vehicle details
 uploadVehicleSpreadsheet.paragraph.1 = Add details for up to 100 vehicles of the same type in one notification. You must {0}.
 uploadVehicleSpreadsheet.useCorrectSpreadsheet.linkText = use the correct spreadsheet
