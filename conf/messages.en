@@ -155,7 +155,7 @@ landingPage.agent.saved.heading = Manage a saved notification
 landingPage.agent.saved.body.empty = You do not have a saved notification
 landingPage.agent.saved.body.has = View, continue or delete a notification you’ve started but not yet submitted
 landingPage.agent.clients.link = Manage your clients
-landingPage.agent.clients.body = View, search, remove or select a client to act on their behalf
+landingPage.agent.clients.body = View, search for, or remove a client, or select one to act on their behalf
 
 ##################################################################
 # IQ1.0 - Initial Question 1.0: Vehicle brought into NI from EU  #
