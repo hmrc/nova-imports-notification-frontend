@@ -17,10 +17,9 @@
 package pages.sections.supplierdetails
 
 import models.SupplierNumber
-import pages.QuestionPage
 import play.api.libs.json.JsPath
 
-final case class UsePersonalDetailsAsSupplierPage(supplierNumber: SupplierNumber) extends QuestionPage[Boolean] {
+final case class UsePersonalDetailsAsSupplierPage(supplierNumber: SupplierNumber) extends SupplierQuestionPage[Boolean] {
 
   override def path: JsPath = JsPath \ "suppliers" \ supplierNumber.value.toString \ toString
 

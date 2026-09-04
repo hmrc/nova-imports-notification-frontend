@@ -10,6 +10,7 @@ site.yes = Iawn
 site.continue = Parhau
 site.saveAndContinue = Cadw a pharhau
 # TODO: Welsh translations to be supplied by content team.
+site.confirmDetails = Confirm details
 site.start = Start now
 site.startAgain = Start again
 site.signIn = Sign in
@@ -604,6 +605,19 @@ purchaserBusinessOrIndividual.checkYourAnswersLabel = Math o brynwr rydych yn hy
 purchaserBusinessOrIndividual.change.hidden = P’un a yw’r prynwr rydych yn hysbysu ar ei ran yn fusnes neu’n unigolyn preifat
 
 ###########################################################################################
+# AVD-S3.0 - Add vehicle details - Supplier 3.0: Supplier business name                   #
+###########################################################################################
+
+supplierBusinessName.title = What is the supplier’s business name?
+supplierBusinessName.heading = What is the supplier’s business name?
+supplierBusinessName.caption = Add vehicle details
+supplierBusinessName.error.required = Enter the supplier’s business name
+supplierBusinessName.error.length = The supplier’s business name must be 160 characters or less
+supplierBusinessName.error.invalid = Enter the supplier’s business name in the correct format
+supplierBusinessName.checkYourAnswersLabel = Supplier’s business name
+supplierBusinessName.change.hidden = supplier’s business name
+
+###########################################################################################
 # AVD-S4.0 - Add vehicle details - Supplier 4.0: Supplier name                            #
 ###########################################################################################
 # TODO: Welsh translations to be supplied by content team.
@@ -624,7 +638,7 @@ supplierName.lastName.error.format = Enter the supplier’s last name in the cor
 supplierName.lastName.error.length = The supplier’s last name must be 100 characters or less
 supplierName.lastName.error.required = Enter the supplier’s last name
 supplierName.checkYourAnswersLabel = Supplier’s name
-supplierName.change.hidden = the supplier’s name
+supplierName.change.hidden = supplier’s name
 
 ######################################################
 # CYA1.0 - Check your answers 1 - Initial questions  #
@@ -750,6 +764,8 @@ isSupplierVatRegistered.title = Is the supplier VAT registered?
 isSupplierVatRegistered.heading = Is the supplier VAT registered?
 isSupplierVatRegistered.caption = Add vehicle details
 isSupplierVatRegistered.error.required = Select yes if the supplier is VAT registered
+isSupplierVatRegistered.checkYourAnswersLabel = Is the supplier VAT registered?
+isSupplierVatRegistered.change.hidden = whether supplier is VAT registered
 
 ####################################################################################
 # AVD-S8.1 - Add vehicle details - Supplier 8.1: Supplier VAT Registration Details #
@@ -765,6 +781,16 @@ supplierVatRegistrationDetails.label.vatNumber = VAT registration number
 supplierVatRegistrationDetails.country.error.required = Enter the country where the supplier is VAT registered
 supplierVatRegistrationDetails.vatNumber.error.required = Enter the supplier’s VAT registration number
 supplierVatRegistrationDetails.vatNumber.error.format = Enter the supplier’s VAT registration number in the correct format for the selected country
+
+######################################################
+# AVD-S9.0 - Check Your Answers 3 - Supplier Details #
+######################################################
+# TODO: Welsh translations to be supplied by content team.
+supplierDetailsCheckYourAnswers.caption = Add vehicle details
+supplierDetailsCheckYourAnswers.title = Check the supplier details before adding vehicles
+supplierDetailsCheckYourAnswers.heading = Check the supplier details before adding vehicles
+supplierAddressCheckYourAnswers.checkYourAnswersLabel = Supplier’s address
+supplierAddressCheckYourAnswers.change.hidden = supplier’s address
 
 ##################################################
 # UVS1.0 - Upload a vehicle spreadsheet 1.0      #

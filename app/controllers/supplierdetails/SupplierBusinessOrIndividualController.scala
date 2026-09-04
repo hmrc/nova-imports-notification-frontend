@@ -20,13 +20,14 @@ import controllers.BaseController
 import controllers.actions.*
 import controllers.utils.IsDraftIdDefined
 import forms.SupplierBusinessOrIndividualFormProvider
+import models.BusinessOrPrivateIndividual.Business
 import models.requests.DataRequest
 
 import javax.inject.Inject
-import models.{BusinessOrPrivateIndividual, Mode, NovaUserType, SupplierNumber}
+import models.{BusinessOrPrivateIndividual, Mode, NovaUserType, SupplierNumber, UserAnswers}
 import navigation.Navigator
 import pages.sections.initialquestions.VehicleFromEuPage
-import pages.sections.supplierdetails.SupplierBusinessOrIndividualPage
+import pages.sections.supplierdetails.{SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage}
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -34,6 +35,7 @@ import services.SupplierService
 import views.html.SupplierBusinessOrIndividualView
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
 
 class SupplierBusinessOrIndividualController @Inject() (
   val controllerComponents: MessagesControllerComponents,
@@ -63,13 +65,14 @@ class SupplierBusinessOrIndividualController @Inject() (
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, supplierNumber, mode))),
           value =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(SupplierBusinessOrIndividualPage(supplierNumber), value))
-              _              <- sessionRepository.set(updatedAnswers)
+              updatedAnswers  <- Future.fromTry(request.userAnswers.set(SupplierBusinessOrIndividualPage(supplierNumber), value))
+              updatedAnswers2 <- Future.fromTry(clearSessionDataOnAnswerChange(value, updatedAnswers, supplierNumber))
+              _               <- sessionRepository.set(updatedAnswers2)
             } yield Redirect(
               navigator.nextPage(
                 SupplierBusinessOrIndividualPage(supplierNumber),
                 mode,
-                updatedAnswers,
+                updatedAnswers2,
                 NovaUserType.from(request.affinityGroup, request.enrolments)
               )
             )
@@ -78,6 +81,20 @@ class SupplierBusinessOrIndividualController @Inject() (
 }
 
 object SupplierBusinessOrIndividualController {
+
+  private def clearSessionDataOnAnswerChange(
+    businessOrPrivateIndividual: BusinessOrPrivateIndividual,
+    userAnswers: UserAnswers,
+    supplierNumber: SupplierNumber
+  ): Try[UserAnswers] = {
+    if (businessOrPrivateIndividual == Business) {
+      // Clear individual name
+      userAnswers.remove(SupplierNamePage(supplierNumber))
+    } else {
+      // Clear business name
+      userAnswers.remove(SupplierBusinessNamePage(supplierNumber))
+    }
+  }
 
   // The supplier number in the URL must be one of the suppliers the user has in session
   def guardPredicate(supplierService: SupplierService, supplierNumber: SupplierNumber)(request: DataRequest[?]): Boolean =
