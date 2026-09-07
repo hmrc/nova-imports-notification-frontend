@@ -42,7 +42,8 @@ final case class AddressJourneyBinding(
   addressChangedSubmit: Call,
   changeAddressLink: Call,
   restartAt: Call,
-  messageKeyPrefix: String
+  messageKeyPrefix: String,
+  saveAddressToFormP: Boolean
 )
 
 object AddressJourneyBinding {
@@ -64,7 +65,8 @@ object AddressJourneyBinding {
     addressChangedSubmit = routes.AddressChangedController.onSubmit(),
     changeAddressLink = routes.AddressChangedController.onChangeAddress(),
     restartAt = notifieraddress.routes.IsYourAddressInTheUkController.onPageLoad(NormalMode),
-    messageKeyPrefix = "addressChanged"
+    messageKeyPrefix = "addressChanged",
+    saveAddressToFormP = true
   )
 
   private def supplier(number: SupplierNumber, supplierService: SupplierService): AddressJourneyBinding = AddressJourneyBinding(
@@ -81,7 +83,8 @@ object AddressJourneyBinding {
     addressChangedSubmit = routes.AddressChangedController.supplierOnSubmit(number),
     changeAddressLink = routes.AddressChangedController.supplierOnChangeAddress(number),
     restartAt = supplieraddress.routes.IsSupplierAddressInTheUKController.onPageLoad(number, NormalMode),
-    messageKeyPrefix = "supplierAddressChanged"
+    messageKeyPrefix = "supplierAddressChanged",
+    saveAddressToFormP = false
   )
 
   private val purchaser: AddressJourneyBinding = AddressJourneyBinding(
@@ -101,6 +104,7 @@ object AddressJourneyBinding {
     addressChangedSubmit = routes.AddressChangedController.purchaserOnSubmit(),
     changeAddressLink = routes.AddressChangedController.purchaserOnChangeAddress(),
     restartAt = purchaseraddress.routes.IsPurchaserAddressInTheUkController.onPageLoad(NormalMode),
-    messageKeyPrefix = "purchaserAddressChanged"
+    messageKeyPrefix = "purchaserAddressChanged",
+    saveAddressToFormP = true
   )
 }

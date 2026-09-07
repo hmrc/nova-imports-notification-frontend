@@ -91,24 +91,29 @@ class AddressChangedController @Inject() (
     val binding = AddressJourneyBinding(journey, supplierService)
 
     actions.authAndGetDataWithUserTypeGuard(dataGuard(binding)).async { implicit request =>
-      implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-      lazy val versionId             = request.userAnswers.get(DraftVersionIdPage).getOrElse(0L)
+      if (!binding.saveAddressToFormP) {
+        Future.successful(Redirect(binding.onComplete))
+      } else {
+        implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+        lazy val versionId             = request.userAnswers.get(DraftVersionIdPage).getOrElse(0L)
 
-      (request.userAnswers.get(binding.addressPage), request.userAnswers.get(DraftIdPage)) match {
-        case (Some(address), Some(draftId)) =>
-          val body = binding.payload(address) + ("versionId", Json.toJson(versionId))
-          backendConnector.updateDraftSection(draftId, binding.sectionId, body).map {
-            case Right(vId) =>
-              sessionRepository.setPage(request.userAnswers, DraftVersionIdPage, vId)
-              Redirect(binding.onComplete)
-            case Left(error) =>
-              logger.warn(s"Failed to update ${binding.sectionId} section for draftId ${draftId.value}: $error")
-              Redirect(routes.JourneyRecoveryController.onPageLoad())
-          }
-        case _ =>
-          logger.warn(s"Missing ${binding.addressPage} or DraftIdPage when submitting the address-changed page")
-          Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+        (request.userAnswers.get(binding.addressPage), request.userAnswers.get(DraftIdPage)) match {
+          case (Some(address), Some(draftId)) =>
+            val body = binding.payload(address) + ("versionId", Json.toJson(versionId))
+            backendConnector.updateDraftSection(draftId, binding.sectionId, body).map {
+              case Right(vId) =>
+                sessionRepository.setPage(request.userAnswers, DraftVersionIdPage, vId)
+                Redirect(binding.onComplete)
+              case Left(error) =>
+                logger.warn(s"Failed to update ${binding.sectionId} section for draftId ${draftId.value}: $error")
+                Redirect(routes.JourneyRecoveryController.onPageLoad())
+            }
+          case _ =>
+            logger.warn(s"Missing ${binding.addressPage} or DraftIdPage when submitting the address-changed page")
+            Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+        }
       }
     }
   }
+
 }

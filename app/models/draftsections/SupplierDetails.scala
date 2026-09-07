@@ -20,19 +20,20 @@ import models.{BusinessOrPrivateIndividual, Country}
 import play.api.libs.json.{Format, Json}
 
 final case class SupplierDetails(
-  supplierBusinessOrIndividual: Option[BusinessOrPrivateIndividual] = None,
+  supplierBusinessIndividual: BusinessOrPrivateIndividual,
   supplierBusinessName: Option[String] = None,
-  title: Option[String] = None,
-  firstName: Option[String] = None,
-  lastName: Option[String] = None,
-  line1: Option[String] = None,
-  line2: Option[String] = None,
-  line3: Option[String] = None,
-  line4: Option[String] = None,
-  line5: Option[String] = None,
-  postCode: Option[String] = None,
-  country: Option[Country] = None,
-  isSupplierVatRegistered: Option[Boolean] = None,
+  supplierTitle: Option[String] = None,
+  supplierFirstName: Option[String] = None,
+  supplierLastName: Option[String] = None,
+  addressLine1: String,
+  addressLine2: String,
+  addressLine3: Option[String] = None,
+  addressLine4: Option[String] = None,
+  addressLine5: Option[String] = None,
+  postcode: Option[String] = None,
+  country: String,
+  countryName: Option[String] = None,
+  isSupplierVatReg: Boolean,
   euStateVatReg: Option[String] = None,
   vatRegistrationNumber: Option[String] = None
 )

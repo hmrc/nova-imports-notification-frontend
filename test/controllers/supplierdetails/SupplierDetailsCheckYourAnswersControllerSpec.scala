@@ -343,7 +343,6 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
 
     "onSubmit" - {
 
-      // TODO: change correct downstream redirect once AVD2.0 is built
       "when succeeds must redirect to AVD2.0 for a self supplying user" in {
         val connector = mock[NovaImportsBackendConnector]
         when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
@@ -357,11 +356,12 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+          redirectLocation(result).value mustEqual controllers.vehicledetails.routes.VehiclesBoughtFromSupplierController
+            .onPageLoad(SupplierNumber(1))
+            .url
         }
       }
 
-      // TODO: change correct downstream redirect once AVD2.0 is built
       "when succeeds must redirect to AVD2.0 for a supplier details" in {
         val connector = mock[NovaImportsBackendConnector]
         when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
@@ -375,7 +375,9 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
+          redirectLocation(result).value mustEqual controllers.vehicledetails.routes.VehiclesBoughtFromSupplierController
+            .onPageLoad(SupplierNumber(1))
+            .url
         }
       }
 
@@ -549,15 +551,15 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
             .updateDraftSection(any[DraftId], eqTo(s"supplier/${supplierNumber.value}/details"), bodyCaptorDetails.capture())(any[HeaderCarrier])
           val sentBodyDetails = bodyCaptorDetails.getValue
           (sentBodyDetails \ "versionId").as[Long] mustEqual 2L
-          (sentBodyDetails \ "supplierBusinessOrIndividual").as[String] mustEqual "individual"
-          (sentBodyDetails \ "title").as[String] mustEqual "Mr"
-          (sentBodyDetails \ "firstName").as[String] mustEqual "FirstName"
-          (sentBodyDetails \ "lastName").as[String] mustEqual "LastName"
-          (sentBodyDetails \ "line1").as[String] mustEqual "1 Fake Street"
-          (sentBodyDetails \ "postCode").as[String] mustEqual "AB12 3CD"
-          (sentBodyDetails \ "country" \ "code").as[String] mustEqual "GB"
-          (sentBodyDetails \ "country" \ "name").as[String] mustEqual "United Kingdom"
-          (sentBodyDetails \ "isSupplierVatRegistered").as[Boolean] mustEqual true
+          (sentBodyDetails \ "supplierBusinessIndividual").as[String] mustEqual "individual"
+          (sentBodyDetails \ "supplierTitle").as[String] mustEqual "Mr"
+          (sentBodyDetails \ "supplierFirstName").as[String] mustEqual "FirstName"
+          (sentBodyDetails \ "supplierLastName").as[String] mustEqual "LastName"
+          (sentBodyDetails \ "addressLine1").as[String] mustEqual "1 Fake Street"
+          (sentBodyDetails \ "postcode").as[String] mustEqual "AB12 3CD"
+          (sentBodyDetails \ "country").as[String] mustEqual "GB"
+          (sentBodyDetails \ "countryName").as[String] mustEqual "United Kingdom"
+          (sentBodyDetails \ "isSupplierVatReg").as[Boolean] mustEqual true
           (sentBodyDetails \ "euStateVatReg").as[String] mustEqual "FR"
           (sentBodyDetails \ "vatRegistrationNumber").as[String] mustEqual "12345678912"
 

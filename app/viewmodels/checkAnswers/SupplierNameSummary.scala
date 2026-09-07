@@ -17,11 +17,13 @@
 package viewmodels.checkAnswers
 
 import controllers.supplierdetails.routes
-import models.BusinessOrPrivateIndividual.Business
+import models.BusinessOrPrivateIndividual.{Business, PrivateIndividual}
+import models.PurchaserBusinessOrIndividual.NonVatRegisteredBusiness
 import models.{NameDetails, NormalMode, SupplierNumber, UserAnswers}
 import pages.QuestionPage
-import pages.sections.notifierdetails.NameDetailsPage
-import pages.sections.purchaserdetails.PurchaserNamePage
+import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage}
+import pages.sections.notifierdetails.{BusinessNamePage, NameDetailsPage}
+import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 import pages.sections.supplierdetails.{SupplierBusinessOrIndividualPage, SupplierNamePage}
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
@@ -33,47 +35,59 @@ import viewmodels.implicits.*
 object SupplierNameSummary {
 
   def rowFromPersonalDetails(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages): Option[SummaryListRow] = {
-    row(answers, NameDetailsPage, routes.UsePersonalDetailsAsSupplierController.onPageLoad(supplierNumber, NormalMode).url, supplierNumber)
+    val nameValue = if (answers.get(BusinessOrPrivatePage).contains(Business)) {
+      answers.get(BusinessNamePage).getOrElse("")
+    } else {
+      extractNameDetailsValue(answers, NameDetailsPage)
+    }
+    row(nameValue, routes.UsePersonalDetailsAsSupplierController.onPageLoad(supplierNumber, NormalMode).url)
   }
 
   def rowFromPurchaserDetails(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages): Option[SummaryListRow] = {
-    row(answers, PurchaserNamePage, routes.UsePurchaserDetailsAsSupplierController.onPageLoad(supplierNumber, NormalMode).url, supplierNumber)
+    val nameValue = if (answers.get(PurchaserBusinessOrIndividualPage).contains(NonVatRegisteredBusiness)) {
+      answers.get(PurchaserBusinessNamePage).getOrElse("")
+    } else {
+      extractNameDetailsValue(answers, PurchaserNamePage)
+    }
+    row(nameValue, routes.UsePurchaserDetailsAsSupplierController.onPageLoad(supplierNumber, NormalMode).url)
   }
 
   def rowFromSupplierDetails(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages): Option[SummaryListRow] = {
-    row(answers, SupplierNamePage(supplierNumber), routes.SupplierNameController.onPageLoad(supplierNumber, NormalMode).url, supplierNumber)
+    if (answers.get(SupplierBusinessOrIndividualPage(supplierNumber)).contains(PrivateIndividual)) {
+      val nameValue = extractNameDetailsValue(answers, SupplierNamePage(supplierNumber))
+      row(nameValue, routes.SupplierNameController.onPageLoad(supplierNumber, NormalMode).url)
+    } else {
+      None
+    }
   }
 
   // TODO: Add rowFromClientDetails once AVD-S1.2 page is added
 
-  private def row(answers: UserAnswers, namePage: QuestionPage[NameDetails], redirectUrl: String, supplierNumber: SupplierNumber)(implicit
+  private def row(name: String, redirectUrl: String)(implicit
     messages: Messages
   ): Option[SummaryListRow] = {
-
-    if (answers.get(SupplierBusinessOrIndividualPage(supplierNumber)).contains(Business)) {
-      None
-    } else {
-      val value = answers.get(namePage) match {
-        case Some(name) =>
-          Seq(name.title, name.firstName, name.lastName)
-            .map(part => HtmlFormat.escape(part).body)
-            .mkString("<br>")
-        case None =>
-          Seq(messages("supplierDetailsCheckYourAnswers.notProvided"))
-            .map(part => HtmlFormat.escape(part).body)
-            .mkString("<br>")
-      }
-
-      Some(
-        SummaryListRowViewModel(
-          key = "supplierName.checkYourAnswersLabel",
-          value = ValueViewModel(HtmlContent(value)),
-          actions = Seq(
-            ActionItemViewModel("site.change", redirectUrl)
-              .withVisuallyHiddenText(messages("supplierName.change.hidden"))
-          )
+    Some(
+      SummaryListRowViewModel(
+        key = "supplierName.checkYourAnswersLabel",
+        value = ValueViewModel(HtmlContent(name)),
+        actions = Seq(
+          ActionItemViewModel("site.change", redirectUrl)
+            .withVisuallyHiddenText(messages("supplierName.change.hidden"))
         )
       )
+    )
+  }
+
+  private def extractNameDetailsValue(answers: UserAnswers, nameDetailsPage: QuestionPage[NameDetails])(implicit messages: Messages) = {
+    answers.get(nameDetailsPage) match {
+      case Some(name) =>
+        Seq(name.title, name.firstName, name.lastName)
+          .map(part => HtmlFormat.escape(part).body)
+          .mkString("<br>")
+      case None =>
+        Seq(messages("supplierDetailsCheckYourAnswers.notProvided"))
+          .map(part => HtmlFormat.escape(part).body)
+          .mkString("<br>")
     }
   }
 

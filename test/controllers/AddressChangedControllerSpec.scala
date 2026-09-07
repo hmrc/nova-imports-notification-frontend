@@ -22,7 +22,7 @@ import models.draftsections.{NotifierAddress, PurchaserAddress, SupplierAddress}
 import models.{Address, Country, DraftId, NormalMode, PurchaserOrOnBehalf, SupplierNumber, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
-import org.mockito.Mockito.{verify, when}
+import org.mockito.Mockito.{never, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.{DraftIdPage, DraftVersionIdPage}
 import pages.sections.initialquestions.NotifyingAsPurchaserPage
@@ -249,7 +249,7 @@ class AddressChangedControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must save to the correct supplier's draft section on submit" in {
+    "must Not save supplier's draft section on submit" in {
       val backendConnector = stubBackendConnector()
       val application      = applicationWith(userAnswers = Some(supplierAnswers), backendConnector = backendConnector)
 
@@ -259,8 +259,7 @@ class AddressChangedControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual SEE_OTHER
 
         val body = ArgumentCaptor.forClass(classOf[JsObject])
-        verify(backendConnector).updateDraftSection(eqTo(draftId), eqTo("supplier/1/details"), body.capture())(any[HeaderCarrier])
-        body.getValue mustBe Json.toJson(SupplierAddress.fromAddress(address)).as[JsObject] + ("versionId", Json.toJson(0L))
+        verify(backendConnector, never()).updateDraftSection(eqTo(draftId), eqTo("supplier/1/details"), body.capture())(any[HeaderCarrier])
       }
     }
 

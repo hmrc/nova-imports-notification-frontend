@@ -140,7 +140,7 @@ class SupplierDetailsCheckYourAnswersController @Inject() (
 object SupplierDetailsCheckYourAnswersController {
 
   def nextPage(supplierNumber: SupplierNumber): play.api.mvc.Call =
-    controllers.routes.JourneyRecoveryController.onPageLoad() // TODO : replace with AVD2.0 once it is built
+    controllers.vehicledetails.routes.VehiclesBoughtFromSupplierController.onPageLoad(supplierNumber)
 
   def guardPredicate(supplierService: SupplierService, supplierNumber: SupplierNumber)(request: DataRequest[?]): Boolean = {
     val answers     = request.userAnswers
@@ -176,33 +176,34 @@ object SupplierDetailsCheckYourAnswersController {
 
   private def buildSupplierDetailsSectionData(userContext: UserContext, answers: UserAnswers, supplierNumber: SupplierNumber): Option[JsObject] = {
     for {
-      supplierBusinessOrIndividual  <- answers.get(SupplierBusinessOrIndividualPage(supplierNumber))
-      supplierBusinessName          <- answers.get(SupplierBusinessNamePage(supplierNumber)).orElse(Some(""))
-      supplierName                  <- answers.get(SupplierNamePage(supplierNumber)).orElse(Some(NameDetails("", "", "")))
-      supplierAddress               <- answers.get(SupplierAddressPage(supplierNumber))
-      isSupplierVatRegistered       <- answers.get(IsSupplierVatRegisteredPage(supplierNumber))
-      supplierVatRegistrationNumber <- answers.get(SupplierVatRegistrationNumberPage(supplierNumber))
+      supplierBusinessOrIndividual <- answers.get(SupplierBusinessOrIndividualPage(supplierNumber))
+      supplierBusinessName         <- answers.get(SupplierBusinessNamePage(supplierNumber)).orElse(Some(""))
+      supplierName                 <- answers.get(SupplierNamePage(supplierNumber)).orElse(Some(NameDetails("", "", "")))
+      supplierAddress              <- answers.get(SupplierAddressPage(supplierNumber))
+      isSupplierVatRegistered      <- answers.get(IsSupplierVatRegisteredPage(supplierNumber))
+      supplierVatRegistrationNumber = answers.get(SupplierVatRegistrationNumberPage(supplierNumber))
     } yield {
 
       def buildSectionData(businessName: Option[String], name: Option[NameDetails], vatRegDetails: Option[VatNumberDetails]) = {
         Json
           .toJson(
             SupplierDetails(
-              Some(supplierBusinessOrIndividual),
-              businessName,
-              name.map(_.title),
-              name.map(_.firstName),
-              name.map(_.lastName),
-              supplierAddress.lines.lift(0),
-              supplierAddress.lines.lift(1),
-              supplierAddress.lines.lift(2),
-              supplierAddress.lines.lift(3),
-              supplierAddress.lines.lift(4),
-              supplierAddress.postcode,
-              Some(supplierAddress.country),
-              Some(isSupplierVatRegistered),
-              vatRegDetails.map(_.countryCode),
-              vatRegDetails.map(_.vatNumber)
+              supplierBusinessIndividual = supplierBusinessOrIndividual,
+              supplierBusinessName = businessName,
+              supplierTitle = name.map(_.title),
+              supplierFirstName = name.map(_.firstName),
+              supplierLastName = name.map(_.lastName),
+              addressLine1 = supplierAddress.lines.lift(0).getOrElse(""),
+              addressLine2 = supplierAddress.lines.lift(1).getOrElse(""),
+              addressLine3 = supplierAddress.lines.lift(2),
+              addressLine4 = supplierAddress.lines.lift(3),
+              addressLine5 = supplierAddress.lines.lift(4),
+              postcode = supplierAddress.postcode,
+              country = supplierAddress.country.code,
+              countryName = Some(supplierAddress.country.name),
+              isSupplierVatReg = isSupplierVatRegistered,
+              euStateVatReg = vatRegDetails.map(_.countryCode),
+              vatRegistrationNumber = vatRegDetails.map(_.vatNumber)
             )
           )
           .as[JsObject]
@@ -212,16 +213,16 @@ object SupplierDetailsCheckYourAnswersController {
         case Some(BusinessOrPrivateIndividual.Business) =>
           answers.get(IsSupplierVatRegisteredPage(supplierNumber)) match {
             case Some(vatRegistered: true) =>
-              buildSectionData(Some(supplierBusinessName), None, Some(supplierVatRegistrationNumber))
+              buildSectionData(Some(supplierBusinessName), None, supplierVatRegistrationNumber)
             case Some(false) =>
-              buildSectionData(Some(supplierBusinessName), None, None)
+              buildSectionData(Some(supplierBusinessName), None, supplierVatRegistrationNumber)
           }
         case Some(BusinessOrPrivateIndividual.PrivateIndividual) =>
           answers.get(IsSupplierVatRegisteredPage(supplierNumber)) match {
             case Some(vatRegistered: true) =>
-              buildSectionData(None, Some(supplierName), Some(supplierVatRegistrationNumber))
+              buildSectionData(None, Some(supplierName), supplierVatRegistrationNumber)
             case Some(false) =>
-              buildSectionData(None, Some(supplierName), None)
+              buildSectionData(None, Some(supplierName), supplierVatRegistrationNumber)
           }
       }
     }

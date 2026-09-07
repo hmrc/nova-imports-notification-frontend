@@ -113,16 +113,20 @@ class AddressLookupCallbackController @Inject() (
         Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
 
       case Some(draftId) =>
-        val body = binding.payload(address) + ("versionId", Json.toJson(versionId))
-        backendConnector.updateDraftSection(draftId, binding.sectionId, body).flatMap {
-          case Right(versionId) =>
-            for {
-              _      <- sessionRepository.setPage(userAnswers, DraftVersionIdPage, versionId)
-              result <- Future successful Redirect(binding.onComplete)
-            } yield result
-          case Left(error) =>
-            logger.warn(s"Failed to update ${binding.sectionId} section for draftId ${draftId.value}: $error")
-            Future successful Redirect(routes.JourneyRecoveryController.onPageLoad())
+        if (!binding.saveAddressToFormP) {
+          Future successful Redirect(binding.onComplete)
+        } else {
+          val body = binding.payload(address) + ("versionId", Json.toJson(versionId))
+          backendConnector.updateDraftSection(draftId, binding.sectionId, body).flatMap {
+            case Right(versionId) =>
+              for {
+                _      <- sessionRepository.setPage(userAnswers, DraftVersionIdPage, versionId)
+                result <- Future successful Redirect(binding.onComplete)
+              } yield result
+            case Left(error) =>
+              logger.warn(s"Failed to update ${binding.sectionId} section for draftId ${draftId.value}: $error")
+              Future successful Redirect(routes.JourneyRecoveryController.onPageLoad())
+          }
         }
     }
 }
