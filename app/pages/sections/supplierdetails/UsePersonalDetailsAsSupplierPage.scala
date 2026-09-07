@@ -24,5 +24,5 @@ final case class UsePersonalDetailsAsSupplierPage(supplierNumber: SupplierNumber
 
   override def path: JsPath = JsPath \ "suppliers" \ supplierNumber.value.toString \ toString
 
-  override def toString: String = "areYouSelfSupplying"
+  override def toString: String = "usePersonalDetailsAsSupplier"
 }

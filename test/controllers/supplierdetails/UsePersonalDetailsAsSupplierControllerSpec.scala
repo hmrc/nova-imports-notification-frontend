@@ -19,7 +19,7 @@ package controllers.supplierdetails
 import base.SpecBase
 import com.google.inject.name.Names
 import config.FrontendAppConfig
-import connectors.{GetTraderInformationError, NovaImportsBackendConnector}
+import connectors.{GetTraderInformationError, NovaImportsBackendConnector, UpdateSectionError}
 import controllers.actions.*
 import controllers.{routes, supplierdetails}
 import forms.UsePersonalDetailsAsSupplierFormProvider
@@ -27,7 +27,7 @@ import models.{AddVehicleDetails, Address, Country, DraftId, NameDetails, Normal
 import play.api.libs.json.Json
 import queries.AllSuppliersQuery
 import navigation.{FakeNavigator, Navigator}
-import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{never, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.DraftIdPage
@@ -163,14 +163,20 @@ class UsePersonalDetailsAsSupplierControllerSpec extends SpecBase with MockitoSu
     "must redirect to the next page when valid data is submitted" in {
 
       val mockSessionRepository = mock[SessionRepository]
+      val connector             = mock[NovaImportsBackendConnector]
 
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      when(mockSessionRepository.setPage(any(), any(), any())(any())) thenAnswer { invocation =>
+        Future.successful(invocation.getArgument[UserAnswers](0))
+      }
+      when(connector.updateDraftSection(any(), any(), any())(any())) thenReturn Future.successful(Right(2L))
 
       val application =
         applicationBuilder(userAnswers = Some(answersSatisfyingGuard))
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-            bind[SessionRepository].toInstance(mockSessionRepository)
+            bind[SessionRepository].toInstance(mockSessionRepository),
+            bind[NovaImportsBackendConnector].toInstance(connector)
           )
           .build()
 
@@ -183,6 +189,43 @@ class UsePersonalDetailsAsSupplierControllerSpec extends SpecBase with MockitoSu
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
+        verify(connector)
+          .updateDraftSection(
+            eqTo(DraftId("DRAFT-001")),
+            eqTo("supplier/1/self-supply"),
+            eqTo(Json.obj("areYouSelfSupplying" -> true, "versionId" -> 0L))
+          )(
+            any()
+          )
+      }
+    }
+
+    "must redirect to Journey Recovery when the backend fails to save the self-supply section" in {
+
+      val mockSessionRepository = mock[SessionRepository]
+      val connector             = mock[NovaImportsBackendConnector]
+
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      when(connector.updateDraftSection(any(), any(), any())(any())) thenReturn Future.successful(Left(UpdateSectionError.NotFound))
+
+      val application =
+        applicationBuilder(userAnswers = Some(answersSatisfyingGuard))
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[SessionRepository].toInstance(mockSessionRepository),
+            bind[NovaImportsBackendConnector].toInstance(connector)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, usePersonalDetailsAsSupplierSubmitRoute)
+            .withFormUrlEncodedBody(("value", "true"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
 
@@ -392,8 +435,13 @@ class UsePersonalDetailsAsSupplierControllerSpec extends SpecBase with MockitoSu
     "must proceed to the next page for a POST from a non-VAT-registered user whose personal details are not in the session" in {
 
       val mockSessionRepository = mock[SessionRepository]
+      val connector             = mock[NovaImportsBackendConnector]
 
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      when(mockSessionRepository.setPage(any(), any(), any())(any())) thenAnswer { invocation =>
+        Future.successful(invocation.getArgument[UserAnswers](0))
+      }
+      when(connector.updateDraftSection(any(), any(), any())(any())) thenReturn Future.successful(Right(1L))
 
       val answers = emptyUserAnswers
         .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
@@ -404,7 +452,8 @@ class UsePersonalDetailsAsSupplierControllerSpec extends SpecBase with MockitoSu
       val application = applicationBuilder(userAnswers = Some(answers))
         .overrides(
           bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-          bind[SessionRepository].toInstance(mockSessionRepository)
+          bind[SessionRepository].toInstance(mockSessionRepository),
+          bind[NovaImportsBackendConnector].toInstance(connector)
         )
         .build()
 
