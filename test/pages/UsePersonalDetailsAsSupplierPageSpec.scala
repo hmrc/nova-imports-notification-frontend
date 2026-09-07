@@ -27,7 +27,7 @@ class UsePersonalDetailsAsSupplierPageSpec extends SpecBase {
     "must store the answer under the supplier it belongs to" in {
       val answers = emptyUserAnswers.unsafeSet(UsePersonalDetailsAsSupplierPage(SupplierNumber(2)), true)
 
-      (answers.data \ "suppliers" \ "2" \ "areYouSelfSupplying").as[Boolean] mustBe true
+      (answers.data \ "suppliers" \ "2" \ "usePersonalDetailsAsSupplier").as[Boolean] mustBe true
     }
   }
 }

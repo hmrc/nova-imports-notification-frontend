@@ -19,18 +19,19 @@ package services
 import base.SpecBase
 import connectors.NovaImportsBackendConnector
 import models.DraftNotification.SectionId
-import models.{Address, BusinessOrPrivateIndividual, ContactNumbers, Country, DraftId, DraftNotification, DraftNotificationSection, NameDetails, NovaUserType, SectionStatus, UserAnswers, UserContext}
+import models.{Address, BusinessOrPrivateIndividual, ContactNumbers, Country, DraftId, DraftNotification, DraftNotificationSection, NameDetails, NovaUserType, PurchaserOrOnBehalf, SectionStatus, SupplierNumber, UserAnswers, UserContext}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.EitherValues
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import pages.DraftIdPage
-import pages.sections.initialquestions.{BusinessOrPrivatePage, VehicleBusinessUsePage}
+import pages.sections.initialquestions.{BusinessOrPrivatePage, NotifyingAsPurchaserPage, VehicleBusinessUsePage}
 import pages.sections.notifierdetails.{BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 import pages.sections.notifieraddress.AddressPage
 import pages.sections.purchaseraddress.{IsPurchaserAddressInTheUkPage, PurchaserAddressPage}
 import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
+import pages.sections.supplierdetails.{UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
 import play.api.libs.json.{JsObject, Json, Writes}
 import repositories.SessionRepository
 import uk.gov.hmrc.http.HeaderCarrier
@@ -89,6 +90,88 @@ class UserDataServiceSpec extends SpecBase with MockitoSugar with ScalaFutures w
 
       result.get(PurchaserNamePage) mustBe None
       result.get(PurchaserBusinessNamePage) mustBe None
+    }
+  }
+
+  "UserDataService.storeSupplierSelfSupplyPages" - {
+
+    val selfNotifyingAnswers: UserAnswers =
+      emptyUserAnswers.unsafeSet(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.Purchaser)
+
+    val onBehalfOfPurchaserAnswers: UserAnswers =
+      emptyUserAnswers.unsafeSet(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+
+    "must rehydrate UsePersonalDetailsAsSupplierPage for a single supplier when notifying as the purchaser" in {
+      val draft =
+        draftWith(Map("supplier/1/self-supply" -> DraftNotificationSection(Some(Json.obj("areYouSelfSupplying" -> true)))))
+      val result = UserDataService.storeSupplierSelfSupplyPages(draft, selfNotifyingAnswers, stubSessionRepository()).futureValue
+
+      result.get(UsePersonalDetailsAsSupplierPage(SupplierNumber(1))) mustBe Some(true)
+      result.get(UsePurchaserDetailsAsSupplierPage(SupplierNumber(1))) mustBe None
+    }
+
+    "must rehydrate UsePersonalDetailsAsSupplierPage for every supplier the draft holds when notifying as the purchaser" in {
+      val draft = draftWith(
+        Map(
+          "supplier/1/self-supply" -> DraftNotificationSection(Some(Json.obj("areYouSelfSupplying" -> true))),
+          "supplier/2/self-supply" -> DraftNotificationSection(Some(Json.obj("areYouSelfSupplying" -> false)))
+        )
+      )
+      val result = UserDataService.storeSupplierSelfSupplyPages(draft, selfNotifyingAnswers, stubSessionRepository()).futureValue
+
+      result.get(UsePersonalDetailsAsSupplierPage(SupplierNumber(1))) mustBe Some(true)
+      result.get(UsePersonalDetailsAsSupplierPage(SupplierNumber(2))) mustBe Some(false)
+    }
+
+    "must rehydrate UsePurchaserDetailsAsSupplierPage for a single supplier when notifying on behalf of the purchaser" in {
+      val draft =
+        draftWith(Map("supplier/1/self-supply" -> DraftNotificationSection(Some(Json.obj("areYouSelfSupplying" -> true)))))
+      val result = UserDataService.storeSupplierSelfSupplyPages(draft, onBehalfOfPurchaserAnswers, stubSessionRepository()).futureValue
+
+      result.get(UsePurchaserDetailsAsSupplierPage(SupplierNumber(1))) mustBe Some(true)
+      result.get(UsePersonalDetailsAsSupplierPage(SupplierNumber(1))) mustBe None
+    }
+
+    "must rehydrate UsePurchaserDetailsAsSupplierPage for every supplier the draft holds when notifying on behalf of the purchaser" in {
+      val draft = draftWith(
+        Map(
+          "supplier/1/self-supply" -> DraftNotificationSection(Some(Json.obj("areYouSelfSupplying" -> true))),
+          "supplier/2/self-supply" -> DraftNotificationSection(Some(Json.obj("areYouSelfSupplying" -> false)))
+        )
+      )
+      val result = UserDataService.storeSupplierSelfSupplyPages(draft, onBehalfOfPurchaserAnswers, stubSessionRepository()).futureValue
+
+      result.get(UsePurchaserDetailsAsSupplierPage(SupplierNumber(1))) mustBe Some(true)
+      result.get(UsePurchaserDetailsAsSupplierPage(SupplierNumber(2))) mustBe Some(false)
+    }
+
+    "must rehydrate UsePurchaserDetailsAsSupplierPage when NotifyingAsPurchaserPage has not been answered (agent without a client)" in {
+      val draft =
+        draftWith(Map("supplier/1/self-supply" -> DraftNotificationSection(Some(Json.obj("areYouSelfSupplying" -> true)))))
+      val result = UserDataService.storeSupplierSelfSupplyPages(draft, emptyUserAnswers, stubSessionRepository()).futureValue
+
+      result.get(UsePurchaserDetailsAsSupplierPage(SupplierNumber(1))) mustBe Some(true)
+      result.get(UsePersonalDetailsAsSupplierPage(SupplierNumber(1))) mustBe None
+    }
+
+    "must ignore the fixed SectionId.SupplierSelfSupply key, which never appears in a real draft" in {
+      val draft  = draftWith(Map(SectionId.SupplierSelfSupply -> DraftNotificationSection(Some(Json.obj("areYouSelfSupplying" -> true)))))
+      val result = UserDataService.storeSupplierSelfSupplyPages(draft, selfNotifyingAnswers, stubSessionRepository()).futureValue
+
+      result.get(UsePersonalDetailsAsSupplierPage(SupplierNumber(1))) mustBe None
+    }
+
+    "must leave answers unchanged when the section has no data" in {
+      val draft  = draftWith(Map("supplier/1/self-supply" -> DraftNotificationSection(None)))
+      val result = UserDataService.storeSupplierSelfSupplyPages(draft, selfNotifyingAnswers, stubSessionRepository()).futureValue
+
+      result.get(UsePersonalDetailsAsSupplierPage(SupplierNumber(1))) mustBe None
+    }
+
+    "must leave answers unchanged when the draft has no supplier sections" in {
+      val result = UserDataService.storeSupplierSelfSupplyPages(draftWith(Map.empty), selfNotifyingAnswers, stubSessionRepository()).futureValue
+
+      result.get(UsePersonalDetailsAsSupplierPage(SupplierNumber(1))) mustBe None
     }
   }
 

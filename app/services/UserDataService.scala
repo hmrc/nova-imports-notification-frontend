@@ -32,6 +32,7 @@ import pages.AgentSelectedClientPage
 import pages.sections.notifierdetails.{BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 import pages.sections.purchaseraddress.{IsPurchaserAddressInTheUkPage, PurchaserAddressPage}
+import pages.sections.supplierdetails.{UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -66,9 +67,10 @@ class UserDataServiceImpl @Inject() (
           u2 <- storeNotifierDetailsPages(draft, u1, repository)
           u3 <- storeNotifierAddressPages(draft, u2, repository)
           u4 <- storePurchaserDetailsPages(draft, u3, repository)
-          u5 <- u4.get(BusinessOrPrivatePage)
-                  .fold(Future.successful(u4))(businessOrPrivate => repository.setPage(u4, BusinessOrPrivatePage, businessOrPrivate))
-        } yield Right(u5)
+          u5 <- storeSupplierSelfSupplyPages(draft, u4, repository)
+          u6 <- u5.get(BusinessOrPrivatePage)
+                  .fold(Future.successful(u5))(businessOrPrivate => repository.setPage(u5, BusinessOrPrivatePage, businessOrPrivate))
+        } yield Right(u6)
     }
 
   def determineAndUpdateStatus(userAnswers: UserAnswers, userContext: UserContext): Map[String, SectionStatus] =
@@ -182,6 +184,25 @@ object UserDataService {
             }
         }
     }
+
+  private val SupplierSelfSupplySectionRe = raw"supplier/(\d+)/self-supply".r
+
+  def storeSupplierSelfSupplyPages(draft: DraftNotification, answers: UserAnswers, sessionRepository: SessionRepository)(implicit
+    ec: ExecutionContext
+  ): Future[UserAnswers] = {
+    val selfSupplyAnswers = draft.sections.toSeq.collect { case (SupplierSelfSupplySectionRe(supplierNumber), section) =>
+      section.data.flatMap(data => (data \ "areYouSelfSupplying").asOpt[Boolean]).map(SupplierNumber(supplierNumber.toInt) -> _)
+    }.flatten
+
+    val notifyingAsSelf = answers.get(NotifyingAsPurchaserPage).contains(PurchaserOrOnBehalf.Purchaser)
+
+    selfSupplyAnswers.foldLeft(Future.successful(answers)) { case (answersF, (supplierNumber, value)) =>
+      answersF.flatMap { a =>
+        if notifyingAsSelf then sessionRepository.setPage(a, UsePersonalDetailsAsSupplierPage(supplierNumber), value)
+        else sessionRepository.setPage(a, UsePurchaserDetailsAsSupplierPage(supplierNumber), value)
+      }
+    }
+  }
 
   def orgWithEnrolments(answers: UserAnswers): Map[String, SectionStatus] = {
     /* Introduction */
