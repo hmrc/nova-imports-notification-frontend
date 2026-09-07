@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-package pages.sections.supplierdetails
+package pages.sections.vehicledetails
 
-import models.SupplierNumber
+import models.VehicleNumber
+import pages.QuestionPage
 import play.api.libs.json.JsPath
 
-final case class UsePersonalDetailsAsSupplierPage(supplierNumber: SupplierNumber) extends SupplierQuestionPage[Boolean] {
+import java.time.LocalDate
 
-  override def path: JsPath = JsPath \ "suppliers" \ supplierNumber.value.toString \ toString
+final case class PurchaseInvoiceDatePage(vehicleNumber: VehicleNumber) extends QuestionPage[LocalDate] {
 
-  override def toString: String = "usePersonalDetailsAsSupplier"
+  override def path: JsPath = JsPath \ "vehicles" \ vehicleNumber.value.toString \ "details" \ toString
+
+  override def toString: String = "purchaseInvoiceDate"
 }

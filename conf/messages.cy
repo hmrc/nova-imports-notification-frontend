@@ -681,6 +681,21 @@ vehicleDates.checkbox.availabilityAndFirstRegistration = Date the vehicle was ma
 vehicleDates.or = or
 vehicleDates.checkbox.noDates = No, I do not have any of these dates
 
+##############################################################
+# AVD4.0 - Add vehicle details 4.0: Purchase invoice date    #
+##############################################################
+# TODO: Welsh translations to be supplied by content team.
+
+purchaseInvoiceDate.title = What is the purchase invoice date?
+purchaseInvoiceDate.heading = What is the purchase invoice date?
+purchaseInvoiceDate.caption = Add vehicle dates
+purchaseInvoiceDate.hint = For example, 27 03 2026
+purchaseInvoiceDate.error.required.all = Enter the purchase invoice date
+purchaseInvoiceDate.error.required = The purchase invoice date must include a {0}
+purchaseInvoiceDate.error.required.two = The purchase invoice date must include a {0} and {1}
+purchaseInvoiceDate.error.invalid = Enter the purchase invoice date in the correct format
+purchaseInvoiceDate.error.notARealDate = The purchase invoice date must be a real date
+
 ######################################################
 # AVD1.0 - Add vehicle details: Vehicles brought from the EU #
 ######################################################
@@ -796,8 +811,8 @@ supplierAddressCheckYourAnswers.change.hidden = supplier’s address
 # UVS1.0 - Upload a vehicle spreadsheet 1.0      #
 ##################################################
 # TODO: Welsh translations to be supplied by content team.
-uploadVehicleSpreadsheet.title = Upload a vehicle spreadsheet
-uploadVehicleSpreadsheet.heading = Upload a vehicle spreadsheet
+uploadVehicleSpreadsheet.title = Upload vehicle spreadsheet
+uploadVehicleSpreadsheet.heading = Upload vehicle spreadsheet
 uploadVehicleSpreadsheet.caption = Add vehicle details
 uploadVehicleSpreadsheet.paragraph.1 = Add details for up to 100 vehicles of the same type in one notification. You must {0}.
 uploadVehicleSpreadsheet.useCorrectSpreadsheet.linkText = use the correct spreadsheet

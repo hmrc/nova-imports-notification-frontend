@@ -37,7 +37,8 @@ class DateMappingsSpec extends AnyFreeSpec with Matchers with ScalaCheckProperty
       requiredKey = "error.required",
       allRequiredKey = "error.required.all",
       twoRequiredKey = "error.required.two",
-      invalidKey = "error.invalid"
+      invalidKey = "error.invalid",
+      notARealDateKey = "error.notARealDate"
     )
   )
 
@@ -172,7 +173,7 @@ class DateMappingsSpec extends AnyFreeSpec with Matchers with ScalaCheckProperty
     }
   }
 
-  "must fail to bind a date with an invalid day" in {
+  "must fail to bind a date with an invalid day, naming the day so that it is the only field highlighted" in {
 
     forAll(validData -> "valid date", invalidField -> "invalid field") { (date, field) =>
 
@@ -185,7 +186,7 @@ class DateMappingsSpec extends AnyFreeSpec with Matchers with ScalaCheckProperty
       val result = form.bind(data)
 
       result.errors must contain(
-        FormError("value", "error.invalid", List.empty)
+        FormError("value", "error.invalid", List(messages("date.error.day")))
       )
     }
   }
@@ -209,7 +210,7 @@ class DateMappingsSpec extends AnyFreeSpec with Matchers with ScalaCheckProperty
     }
   }
 
-  "must fail to bind a date with an invalid month" in {
+  "must fail to bind a date with an invalid month, naming the month so that it is the only field highlighted" in {
 
     forAll(validData -> "valid data", invalidField -> "invalid field") { (date, field) =>
 
@@ -222,7 +223,7 @@ class DateMappingsSpec extends AnyFreeSpec with Matchers with ScalaCheckProperty
       val result = form.bind(data)
 
       result.errors must contain(
-        FormError("value", "error.invalid", List.empty)
+        FormError("value", "error.invalid", List(messages("date.error.month")))
       )
     }
   }
@@ -246,7 +247,7 @@ class DateMappingsSpec extends AnyFreeSpec with Matchers with ScalaCheckProperty
     }
   }
 
-  "must fail to bind a date with an invalid year" in {
+  "must fail to bind a date with an invalid year, naming the year so that it is the only field highlighted" in {
 
     forAll(validData -> "valid data", invalidField -> "invalid field") { (date, field) =>
 
@@ -259,9 +260,22 @@ class DateMappingsSpec extends AnyFreeSpec with Matchers with ScalaCheckProperty
       val result = form.bind(data)
 
       result.errors must contain(
-        FormError("value", "error.invalid", List.empty)
+        FormError("value", "error.invalid", List(messages("date.error.year")))
       )
     }
+  }
+
+  "must fail to bind a date with a year that is not four digits" in {
+
+    val data = Map(
+      "value.day"   -> "27",
+      "value.month" -> "3",
+      "value.year"  -> "26"
+    )
+
+    val result = form.bind(data)
+
+    result.errors must contain only FormError("value", "error.invalid", List(messages("date.error.year")))
   }
 
   "must fail to bind a date with a missing day and month" in {
@@ -394,7 +408,7 @@ class DateMappingsSpec extends AnyFreeSpec with Matchers with ScalaCheckProperty
     }
   }
 
-  "must fail to bind an invalid date" in {
+  "must fail to bind a date that does not exist, highlighting the date as a whole" in {
 
     val data = Map(
       "value.day"   -> "30",
@@ -404,9 +418,59 @@ class DateMappingsSpec extends AnyFreeSpec with Matchers with ScalaCheckProperty
 
     val result = form.bind(data)
 
-    result.errors must contain(
-      FormError("value", "error.invalid", List.empty)
+    result.errors must contain only FormError("value", "error.notARealDate", List.empty)
+  }
+
+  "must fail to bind a day outside of the days in a month, naming the day so that it is the only field highlighted" in {
+
+    val data = Map(
+      "value.day"   -> "32",
+      "value.month" -> "3",
+      "value.year"  -> "2026"
     )
+
+    val result = form.bind(data)
+
+    result.errors must contain only FormError("value", "error.notARealDate", List(messages("date.error.day")))
+  }
+
+  "must fail to bind a month outside of the months in a year, naming the month so that it is the only field highlighted" in {
+
+    val data = Map(
+      "value.day"   -> "27",
+      "value.month" -> "13",
+      "value.year"  -> "2026"
+    )
+
+    val result = form.bind(data)
+
+    result.errors must contain only FormError("value", "error.notARealDate", List(messages("date.error.month")))
+  }
+
+  "must fail to bind a day and a month that are both out of range, highlighting the date as a whole" in {
+
+    val data = Map(
+      "value.day"   -> "32",
+      "value.month" -> "13",
+      "value.year"  -> "2026"
+    )
+
+    val result = form.bind(data)
+
+    result.errors must contain only FormError("value", "error.notARealDate", List.empty)
+  }
+
+  "must treat a field of only whitespace as missing rather than badly formatted" in {
+
+    val data = Map(
+      "value.day"   -> "  ",
+      "value.month" -> "3",
+      "value.year"  -> "2026"
+    )
+
+    val result = form.bind(data)
+
+    result.errors must contain only FormError("value", "error.required", List(messages("date.error.day")))
   }
 
   "must unbind a date" in {
@@ -418,6 +482,50 @@ class DateMappingsSpec extends AnyFreeSpec with Matchers with ScalaCheckProperty
       filledForm("value.day").value.value mustEqual date.getDayOfMonth.toString
       filledForm("value.month").value.value mustEqual date.getMonthValue.toString
       filledForm("value.year").value.value mustEqual date.getYear.toString
+    }
+  }
+
+  "when the date is held as dd/MM/yyyy" - {
+
+    val ddMmYyyyForm = Form(
+      "value" -> localDate(
+        requiredKey = "error.required",
+        allRequiredKey = "error.required.all",
+        twoRequiredKey = "error.required.two",
+        invalidKey = "error.invalid",
+        notARealDateKey = "error.notARealDate",
+        requireDdMmYyyy = true
+      )
+    )
+
+    def bind(day: String, month: String, year: String) =
+      ddMmYyyyForm.bind(Map("value.day" -> day, "value.month" -> month, "value.year" -> year))
+
+    "must bind a day and month padded to two digits" in {
+      bind("07", "03", "2026").value.value mustEqual LocalDate.of(2026, 3, 7)
+    }
+
+    "must fail to bind a single digit day" in {
+      bind("7", "03", "2026").errors must contain only FormError("value", "error.invalid", List(messages("date.error.day")))
+    }
+
+    "must fail to bind a single digit month" in {
+      bind("27", "3", "2026").errors must contain only FormError("value", "error.invalid", List(messages("date.error.month")))
+    }
+
+    "must fail to bind a month written as a name, which the lenient mapping accepts" in {
+      bind("27", "March", "2026").errors must contain only FormError("value", "error.invalid", List(messages("date.error.month")))
+
+      form.bind(Map("value.day" -> "27", "value.month" -> "March", "value.year" -> "2026")).value.value mustEqual LocalDate.of(2026, 3, 27)
+    }
+
+    "must unbind a date with the day and month padded, so that it binds again unchanged" in {
+
+      val filledForm = ddMmYyyyForm.fill(LocalDate.of(2026, 3, 7))
+
+      filledForm("value.day").value.value mustEqual "07"
+      filledForm("value.month").value.value mustEqual "03"
+      filledForm("value.year").value.value mustEqual "2026"
     }
   }
 }

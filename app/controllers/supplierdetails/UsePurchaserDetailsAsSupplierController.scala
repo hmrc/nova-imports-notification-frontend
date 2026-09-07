@@ -16,20 +16,27 @@
 
 package controllers.supplierdetails
 
+import connectors.NovaImportsBackendConnector
 import controllers.actions.*
 import controllers.utils.IsDraftIdDefined
 import controllers.BaseController
+import controllers.routes
 import forms.UsePurchaserDetailsAsSupplierFormProvider
 import models.requests.DataRequest
-import models.{AddVehicleDetails, Mode, NovaUserType, PurchaserOrOnBehalf, SupplierNumber}
+import models.{AddVehicleDetails, Mode, NovaUserType, PurchaserOrOnBehalf, SupplierNumber, UserAnswers}
 import navigation.Navigator
+import pages.{DraftIdPage, DraftVersionIdPage}
 import pages.sections.initialquestions.{NotifyingAsPurchaserPage, VehicleFromEuPage}
 import pages.sections.supplierdetails.UsePurchaserDetailsAsSupplierPage
 import pages.sections.vehicledetails.AddVehicleDetailsPage
+import play.api.Logging
 import play.api.data.Form
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.libs.json.Json
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
 import services.SupplierService
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import viewmodels.checkAnswers.SupplierPurchaserDetailsSummary
 import views.html.UsePurchaserDetailsAsSupplierView
 
@@ -43,9 +50,11 @@ class UsePurchaserDetailsAsSupplierController @Inject() (
   actions: Actions,
   formProvider: UsePurchaserDetailsAsSupplierFormProvider,
   supplierService: SupplierService,
-  view: UsePurchaserDetailsAsSupplierView
+  view: UsePurchaserDetailsAsSupplierView,
+  connector: NovaImportsBackendConnector
 )(implicit ec: ExecutionContext)
-    extends BaseController {
+    extends BaseController
+    with Logging {
 
   import UsePurchaserDetailsAsSupplierController.*
 
@@ -66,6 +75,8 @@ class UsePurchaserDetailsAsSupplierController @Inject() (
   }
 
   def onSubmit(supplierNumber: SupplierNumber, mode: Mode): Action[AnyContent] = authenticate(supplierNumber).async { implicit request =>
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+
     form
       .bindFromRequest()
       .fold(
@@ -77,16 +88,39 @@ class UsePurchaserDetailsAsSupplierController @Inject() (
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(UsePurchaserDetailsAsSupplierPage(supplierNumber), value))
             _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(
-            navigator.nextPage(
-              UsePurchaserDetailsAsSupplierPage(supplierNumber),
-              mode,
-              updatedAnswers,
-              NovaUserType.from(request.affinityGroup, request.enrolments)
-            )
-          )
+            result         <- updateSelfSupplySection(supplierNumber, value, updatedAnswers, mode)
+          } yield result
       )
   }
+
+  private def updateSelfSupplySection(supplierNumber: SupplierNumber, value: Boolean, answers: UserAnswers, mode: Mode)(implicit
+    request: DataRequest[?],
+    hc: HeaderCarrier
+  ): Future[Result] =
+    answers.get(DraftIdPage) match {
+      case None =>
+        logger.warn(s"Missing DraftIdPage when submitting supplier/${supplierNumber.value}/self-supply")
+        Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+      case Some(draftId) =>
+        val versionId = answers.get(DraftVersionIdPage).getOrElse(0L)
+        val body      = Json.obj("areYouSelfSupplying" -> value, "versionId" -> versionId)
+        connector.updateDraftSection(draftId, s"supplier/${supplierNumber.value}/self-supply", body).flatMap {
+          case Right(newVersionId) =>
+            sessionRepository.setPage(answers, DraftVersionIdPage, newVersionId).map { _ =>
+              Redirect(
+                navigator.nextPage(
+                  UsePurchaserDetailsAsSupplierPage(supplierNumber),
+                  mode,
+                  answers,
+                  NovaUserType.from(request.affinityGroup, request.enrolments)
+                )
+              )
+            }
+          case Left(error) =>
+            logger.warn(s"Failed to update supplier/${supplierNumber.value}/self-supply section for draftId ${draftId.value}: $error")
+            Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+        }
+    }
 }
 
 object UsePurchaserDetailsAsSupplierController {
