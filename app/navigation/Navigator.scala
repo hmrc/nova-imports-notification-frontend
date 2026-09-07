@@ -29,7 +29,7 @@ import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierVatRegistrationNumberPage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
 import pages.sections.supplieraddress.IsSupplierAddressInTheUkPage
-import pages.sections.vehicledetails.VehicleDatesPage
+import pages.sections.vehicledetails.{PurchaseInvoiceDatePage, VehicleDatesPage}
 
 @Singleton
 class Navigator @Inject() () {
@@ -181,12 +181,18 @@ class Navigator @Inject() () {
       (userAnswers, _) =>
         userAnswers.get(page) match {
           case Some(dates) if dates.contains(VehicleDates.PurchaseInvoiceDate) =>
-            routes.LandingPageController.onPageLoad() // TODO: navigate to AVD4.0 when built
+            vehicledetails.routes.PurchaseInvoiceDateController.onPageLoad(page.supplierNumber, page.vehicleNumber, NormalMode)
           case Some(dates) if dates.contains(VehicleDates.AvailabilityAndFirstRegistration) =>
             routes.LandingPageController.onPageLoad() // TODO: navigate to AVD5.0 when built
           case Some(dates) if dates.contains(VehicleDates.NoDates) =>
             vehicledetails.routes.NoVehicleDatesController.onPageLoad(page.supplierNumber, page.vehicleNumber)
           case _ => routes.JourneyRecoveryController.onPageLoad()
+        }
+    case page: PurchaseInvoiceDatePage =>
+      (userAnswers, _) =>
+        userAnswers.get(page) match {
+          case Some(_) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD4.1 when built
+          case _       => routes.JourneyRecoveryController.onPageLoad()
         }
     case _ => (_, _) => routes.LandingPageController.onPageLoad()
   }
@@ -227,7 +233,7 @@ class Navigator @Inject() () {
     case _: SupplierNamePage | _: IsSupplierAddressInTheUkPage | _: IsSupplierVatRegisteredPage | _: SupplierBusinessNamePage |
         _: SupplierBusinessOrIndividualPage | _: SupplierVatRegistrationNumberPage =>
       (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD-S9.0 CYA when built
-    case _: VehicleDatesPage =>
+    case _: VehicleDatesPage | _: PurchaseInvoiceDatePage =>
       (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to the vehicle details CYA when built
     case _ =>
       (_, _) => routes.LandingPageController.onPageLoad()
