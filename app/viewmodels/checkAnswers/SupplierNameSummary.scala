@@ -17,13 +17,13 @@
 package viewmodels.checkAnswers
 
 import controllers.supplierdetails.routes
-import models.BusinessOrPrivateIndividual.{Business, PrivateIndividual}
+import models.BusinessOrPrivateIndividual.Business
 import models.PurchaserBusinessOrIndividual.NonVatRegisteredBusiness
 import models.{NameDetails, NormalMode, SupplierNumber, UserAnswers}
 import pages.QuestionPage
 import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage}
-import pages.sections.notifierdetails.{BusinessNamePage, NameDetailsPage}
-import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
+import pages.sections.notifierdetails.NameDetailsPage
+import pages.sections.purchaserdetails.PurchaserNamePage
 import pages.sections.supplierdetails.{SupplierBusinessOrIndividualPage, SupplierNamePage}
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
@@ -35,29 +35,29 @@ import viewmodels.implicits.*
 object SupplierNameSummary {
 
   def rowFromPersonalDetails(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages): Option[SummaryListRow] = {
-    val nameValue = if (answers.get(BusinessOrPrivatePage).contains(Business)) {
-      answers.get(BusinessNamePage).getOrElse("")
+    if (answers.get(BusinessOrPrivatePage).contains(Business)) {
+      None
     } else {
-      extractNameDetailsValue(answers, NameDetailsPage)
+      val nameValue = extractNameDetailsValue(answers, NameDetailsPage)
+      row(nameValue, routes.UsePersonalDetailsAsSupplierController.onPageLoad(supplierNumber, NormalMode).url)
     }
-    row(nameValue, routes.UsePersonalDetailsAsSupplierController.onPageLoad(supplierNumber, NormalMode).url)
   }
 
   def rowFromPurchaserDetails(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages): Option[SummaryListRow] = {
-    val nameValue = if (answers.get(PurchaserBusinessOrIndividualPage).contains(NonVatRegisteredBusiness)) {
-      answers.get(PurchaserBusinessNamePage).getOrElse("")
+    if (answers.get(PurchaserBusinessOrIndividualPage).contains(NonVatRegisteredBusiness)) {
+      None
     } else {
-      extractNameDetailsValue(answers, PurchaserNamePage)
+      val nameValue = extractNameDetailsValue(answers, PurchaserNamePage)
+      row(nameValue, routes.UsePurchaserDetailsAsSupplierController.onPageLoad(supplierNumber, NormalMode).url)
     }
-    row(nameValue, routes.UsePurchaserDetailsAsSupplierController.onPageLoad(supplierNumber, NormalMode).url)
   }
 
   def rowFromSupplierDetails(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages): Option[SummaryListRow] = {
-    if (answers.get(SupplierBusinessOrIndividualPage(supplierNumber)).contains(PrivateIndividual)) {
+    if (answers.get(SupplierBusinessOrIndividualPage(supplierNumber)).contains(Business)) {
+      None
+    } else {
       val nameValue = extractNameDetailsValue(answers, SupplierNamePage(supplierNumber))
       row(nameValue, routes.SupplierNameController.onPageLoad(supplierNumber, NormalMode).url)
-    } else {
-      None
     }
   }
 
@@ -85,9 +85,7 @@ object SupplierNameSummary {
           .map(part => HtmlFormat.escape(part).body)
           .mkString("<br>")
       case None =>
-        Seq(messages("supplierDetailsCheckYourAnswers.notProvided"))
-          .map(part => HtmlFormat.escape(part).body)
-          .mkString("<br>")
+        messages("supplierDetailsCheckYourAnswers.notProvided")
     }
   }
 

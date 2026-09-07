@@ -17,8 +17,14 @@
 package viewmodels.checkAnswers
 
 import controllers.supplierdetails.routes
+import models.BusinessOrPrivateIndividual.{Business, PrivateIndividual}
+import models.PurchaserBusinessOrIndividual.NonVatRegisteredBusiness
 import models.{CheckMode, SupplierNumber, UserAnswers}
-import pages.sections.supplierdetails.SupplierBusinessNamePage
+import pages.QuestionPage
+import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage}
+import pages.sections.notifierdetails.BusinessNamePage
+import pages.sections.purchaserdetails.PurchaserBusinessNamePage
+import pages.sections.supplierdetails.{SupplierBusinessNamePage, SupplierBusinessOrIndividualPage}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
@@ -27,16 +33,53 @@ import viewmodels.implicits.*
 
 object SupplierBusinessNameSummary {
 
-  def row(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages): Option[SummaryListRow] =
-    answers.get(SupplierBusinessNamePage(supplierNumber)).map { name =>
-      SummaryListRowViewModel(
-        key = "supplierBusinessName.checkYourAnswersLabel",
-        value = ValueViewModel(Text(name)),
-        actions = Seq(
-          ActionItemViewModel("site.change", routes.SupplierBusinessNameController.onPageLoad(supplierNumber, CheckMode).url)
-            .withVisuallyHiddenText(messages("supplierBusinessName.change.hidden"))
-        )
-      )
+  def rowFromPersonalDetails(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages): Option[SummaryListRow] = {
+    if (answers.get(BusinessOrPrivatePage).contains(Business)) {
+      val nameValue = extractNameDetailsValue(answers, BusinessNamePage)
+      Some(row(nameValue, supplierNumber))
+    } else {
+      None
     }
+  }
+
+  def rowFromPurchaserDetails(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages): Option[SummaryListRow] = {
+    if (answers.get(PurchaserBusinessOrIndividualPage).contains(NonVatRegisteredBusiness)) {
+      val nameValue = extractNameDetailsValue(answers, PurchaserBusinessNamePage)
+      Some(row(nameValue, supplierNumber))
+    } else {
+      None
+    }
+  }
+
+  def rowFromSupplierDetails(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages): Option[SummaryListRow] = {
+    if (answers.get(SupplierBusinessOrIndividualPage(supplierNumber)).contains(Business)) {
+      val nameValue = extractNameDetailsValue(answers, SupplierBusinessNamePage(supplierNumber))
+      Some(row(nameValue, supplierNumber))
+    } else {
+      None
+    }
+  }
+
+  // TODO: Add rowFromClientDetails once AVD-S1.2 page is added
+
+  private def row(supplierBusinessName: String, supplierNumber: SupplierNumber)(implicit messages: Messages): SummaryListRow = {
+    SummaryListRowViewModel(
+      key = "supplierBusinessName.checkYourAnswersLabel",
+      value = ValueViewModel(Text(supplierBusinessName)),
+      actions = Seq(
+        ActionItemViewModel("site.change", routes.SupplierBusinessNameController.onPageLoad(supplierNumber, CheckMode).url)
+          .withVisuallyHiddenText(messages("supplierBusinessName.change.hidden"))
+      )
+    )
+  }
+
+  private def extractNameDetailsValue(answers: UserAnswers, businessNameDetailsPage: QuestionPage[String])(implicit messages: Messages) = {
+    answers.get(businessNameDetailsPage) match {
+      case Some(name) =>
+        name
+      case None =>
+        messages("supplierDetailsCheckYourAnswers.notProvided")
+    }
+  }
 
 }

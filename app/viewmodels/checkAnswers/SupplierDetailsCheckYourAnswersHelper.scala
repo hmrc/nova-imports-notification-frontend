@@ -34,18 +34,20 @@ object SupplierDetailsCheckYourAnswersHelper {
 
     if (isUsingPersonalDetails(answers, supplierNumber)) {
       Seq(
+        SupplierBusinessNameSummary.rowFromPersonalDetails(answers, supplierNumber),
         SupplierNameSummary.rowFromPersonalDetails(answers, supplierNumber),
         SupplierAddressSummary.rowFromPersonalDetails(answers, supplierNumber)
       ).flatten
     } else if (isUsingPurchaserDetails(answers, supplierNumber)) {
       Seq(
+        SupplierBusinessNameSummary.rowFromPurchaserDetails(answers, supplierNumber),
         SupplierNameSummary.rowFromPurchaserDetails(answers, supplierNumber),
         SupplierAddressSummary.rowFromPurchaserDetails(answers, supplierNumber)
       ).flatten
     } else {
       Seq(
         SupplierBusinessOrIndividualSummary.row(answers, supplierNumber),
-        SupplierBusinessNameSummary.row(answers, supplierNumber),
+        SupplierBusinessNameSummary.rowFromSupplierDetails(answers, supplierNumber),
         SupplierNameSummary.rowFromSupplierDetails(answers, supplierNumber),
         SupplierAddressSummary.rowFromSupplierDetails(answers, supplierNumber),
         SupplierVatRegisteredSummary.row(answers, supplierNumber),

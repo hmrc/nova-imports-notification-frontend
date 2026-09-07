@@ -38,8 +38,8 @@ class SupplierNameSummarySpec extends SpecBase {
     // TODO: Add using client name details tests once AVD-S1.2 page is added
 
     "must return a summary with the name parts stacked on separate lines and a single change link when using Private Individuals personal name details" in {
-      val userAnswers =
-        UserAnswers(userAnswersId).unsafeSet(NameDetailsPage, NameDetails("Mr", "John", "Smith"))
+      val userAnswers = UserAnswers(userAnswersId)
+        .unsafeSet(NameDetailsPage, NameDetails("Mr", "John", "Smith"))
 
       val result = SupplierNameSummary.rowFromPersonalDetails(userAnswers, SupplierNumber(1)).value
       val value  = result.value.content.asHtml.toString
@@ -48,21 +48,19 @@ class SupplierNameSummarySpec extends SpecBase {
       value                              must (include("Mr") and include("John") and include("Smith") and include("<br>"))
       result.actions.value.items.head.href mustBe routes.UsePersonalDetailsAsSupplierController.onPageLoad(SupplierNumber(1), NormalMode).url
     }
-    "must return a summary with the business name and a single change link when using Business name details" in {
-      val userAnswers =
-        UserAnswers(userAnswersId).unsafeSet(BusinessNamePage, "Bis").unsafeSet(BusinessOrPrivatePage, Business)
 
-      val result = SupplierNameSummary.rowFromPersonalDetails(userAnswers, SupplierNumber(1)).value
-      val value  = result.value.content.asHtml.toString
+    "must nothing when using own details as a business" in {
+      val userAnswers = UserAnswers(userAnswersId)
+        .unsafeSet(BusinessNamePage, "Bis")
+        .unsafeSet(BusinessOrPrivatePage, Business)
 
-      result.key.content.asHtml.toString must include(msgs("supplierName.checkYourAnswersLabel"))
-      value                              must include("Bis")
-      result.actions.value.items.head.href mustBe routes.UsePersonalDetailsAsSupplierController.onPageLoad(SupplierNumber(1), NormalMode).url
+      val result = SupplierNameSummary.rowFromPersonalDetails(userAnswers, SupplierNumber(3))
+      result mustBe None
     }
 
     "must return a summary with the name parts stacked on separate lines and a single change link when using Private Individuals purchaser name details" in {
-      val userAnswers =
-        UserAnswers(userAnswersId).unsafeSet(PurchaserNamePage, NameDetails("Mr", "Adam", "Smith"))
+      val userAnswers = UserAnswers(userAnswersId)
+        .unsafeSet(PurchaserNamePage, NameDetails("Mr", "Adam", "Smith"))
 
       val result = SupplierNameSummary.rowFromPurchaserDetails(userAnswers, SupplierNumber(2)).value
       val value  = result.value.content.asHtml.toString
@@ -72,21 +70,19 @@ class SupplierNameSummarySpec extends SpecBase {
       result.actions.value.items.head.href mustBe routes.UsePurchaserDetailsAsSupplierController.onPageLoad(SupplierNumber(2), NormalMode).url
     }
 
-    "must return a summary with the business name and a single change link when using Business purchaser name details" in {
-      val userAnswers =
-        UserAnswers(userAnswersId).unsafeSet(PurchaserBusinessNamePage, "Bis").unsafeSet(PurchaserBusinessOrIndividualPage, NonVatRegisteredBusiness)
+    "must nothing when using purchasers details when the purchaser is a business" in {
+      val userAnswers = UserAnswers(userAnswersId)
+        .unsafeSet(PurchaserBusinessNamePage, "Bis")
+        .unsafeSet(PurchaserBusinessOrIndividualPage, NonVatRegisteredBusiness)
 
-      val result = SupplierNameSummary.rowFromPurchaserDetails(userAnswers, SupplierNumber(2)).value
-      val value  = result.value.content.asHtml.toString
-
-      result.key.content.asHtml.toString must include(msgs("supplierName.checkYourAnswersLabel"))
-      value                              must include("Bis")
-      result.actions.value.items.head.href mustBe routes.UsePurchaserDetailsAsSupplierController.onPageLoad(SupplierNumber(2), NormalMode).url
+      val result = SupplierNameSummary.rowFromPurchaserDetails(userAnswers, SupplierNumber(3))
+      result mustBe None
     }
 
     "must return a summary with the name parts stacked on separate lines and a single change link using supplier name details" in {
-      val userAnswers =
-        UserAnswers(userAnswersId).unsafeSet(SupplierNamePage(SupplierNumber(3)), NameDetails("Mr", "Tom", "Smith")).unsafeSet(SupplierBusinessOrIndividualPage(SupplierNumber(3)), PrivateIndividual)
+      val userAnswers = UserAnswers(userAnswersId)
+        .unsafeSet(SupplierNamePage(SupplierNumber(3)), NameDetails("Mr", "Tom", "Smith"))
+        .unsafeSet(SupplierBusinessOrIndividualPage(SupplierNumber(3)), PrivateIndividual)
 
       val result = SupplierNameSummary.rowFromSupplierDetails(userAnswers, SupplierNumber(3)).value
       val value  = result.value.content.asHtml.toString
@@ -98,7 +94,9 @@ class SupplierNameSummarySpec extends SpecBase {
 
     "must return nothing when supplier is a Business" in {
       val userAnswers =
-        UserAnswers(userAnswersId).unsafeSet(SupplierNamePage(SupplierNumber(3)), NameDetails("Mr", "Tom", "Smith")).unsafeSet(SupplierBusinessOrIndividualPage(SupplierNumber(3)), Business)
+        UserAnswers(userAnswersId)
+          .unsafeSet(SupplierNamePage(SupplierNumber(3)), NameDetails("Mr", "Tom", "Smith"))
+          .unsafeSet(SupplierBusinessOrIndividualPage(SupplierNumber(3)), Business)
 
       val result = SupplierNameSummary.rowFromSupplierDetails(userAnswers, SupplierNumber(3))
       result mustBe None
