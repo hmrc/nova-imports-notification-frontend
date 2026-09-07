@@ -107,7 +107,7 @@ class SupplierDetailsCheckYourAnswersController @Inject() (
                   navigateToNextPage(selfSupplierNewVersionId)
                 } else {
                   // Save SupplierDetails if the self supply is false
-                  buildSupplierDetailsSectionData(request.userContext, request.userAnswers, supplierNumber) match {
+                  buildSupplierDetailsSectionData(request.userAnswers, supplierNumber) match {
                     case Some(supplierDetailsSectionData) =>
                       val supplierDetailsSectionJsonBody = supplierDetailsSectionData + ("versionId" -> Json.toJson(selfSupplierNewVersionId))
                       backendConnector
@@ -174,7 +174,7 @@ object SupplierDetailsCheckYourAnswersController {
       .as[JsObject]
   }
 
-  private def buildSupplierDetailsSectionData(userContext: UserContext, answers: UserAnswers, supplierNumber: SupplierNumber): Option[JsObject] = {
+  private def buildSupplierDetailsSectionData(answers: UserAnswers, supplierNumber: SupplierNumber): Option[JsObject] = {
     for {
       supplierBusinessOrIndividual <- answers.get(SupplierBusinessOrIndividualPage(supplierNumber))
       supplierBusinessName         <- answers.get(SupplierBusinessNamePage(supplierNumber)).orElse(Some(""))
