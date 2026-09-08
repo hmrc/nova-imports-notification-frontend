@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package pages.sections.supplieraddress
+package models.draftsections
 
-import models.SupplierNumber
-import pages.sections.supplierdetails.SupplierQuestionPage
-import play.api.libs.json.JsPath
+import play.api.libs.json.{Format, Json}
 
-final case class IsSupplierAddressInTheUkPage(supplierNumber: SupplierNumber) extends SupplierQuestionPage[Boolean] {
+final case class SupplierSelfSupplyDetails(
+  areYouSelfSupplying: Boolean
+)
 
-  override def path: JsPath = JsPath \ "suppliers" \ supplierNumber.value.toString \ toString
-
-  override def toString: String = "isSupplierAddressInTheUk"
+object SupplierSelfSupplyDetails {
+  implicit val format: Format[SupplierSelfSupplyDetails] = Json.format[SupplierSelfSupplyDetails]
 }

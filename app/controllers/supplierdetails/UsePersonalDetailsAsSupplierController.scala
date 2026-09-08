@@ -20,21 +20,18 @@ import config.FrontendAppConfig
 import connectors.NovaImportsBackendConnector
 import controllers.BaseController
 import controllers.actions.*
-import controllers.routes
 import controllers.utils.IsDraftIdDefined
 import forms.UsePersonalDetailsAsSupplierFormProvider
 import models.requests.DataRequest
-import models.{AddVehicleDetails, Mode, NovaUserType, PurchaserOrOnBehalf, SupplierNumber, TraderInformation, UserAnswers}
+import models.{AddVehicleDetails, Mode, NovaUserType, PurchaserOrOnBehalf, SupplierNumber, TraderInformation}
 import navigation.Navigator
-import pages.{DraftIdPage, DraftVersionIdPage}
 import pages.sections.initialquestions.{NotifyingAsPurchaserPage, VehicleFromEuPage}
 import pages.sections.vehicledetails.AddVehicleDetailsPage
 import pages.sections.supplierdetails.UsePersonalDetailsAsSupplierPage
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.Messages
-import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import services.SupplierService
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
@@ -85,8 +82,6 @@ class UsePersonalDetailsAsSupplierController @Inject() (
   }
 
   def onSubmit(supplierNumber: SupplierNumber, mode: Mode): Action[AnyContent] = authenticate(supplierNumber).async { implicit request =>
-    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-
     form
       .bindFromRequest()
       .fold(
@@ -106,39 +101,16 @@ class UsePersonalDetailsAsSupplierController @Inject() (
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(UsePersonalDetailsAsSupplierPage(supplierNumber), value))
             _              <- sessionRepository.set(updatedAnswers)
-            result         <- updateSelfSupplySection(supplierNumber, value, updatedAnswers, mode)
-          } yield result
+          } yield Redirect(
+            navigator.nextPage(
+              UsePersonalDetailsAsSupplierPage(supplierNumber),
+              mode,
+              updatedAnswers,
+              NovaUserType.from(request.affinityGroup, request.enrolments)
+            )
+          )
       )
   }
-
-  private def updateSelfSupplySection(supplierNumber: SupplierNumber, value: Boolean, answers: UserAnswers, mode: Mode)(implicit
-    request: DataRequest[?],
-    hc: HeaderCarrier
-  ): Future[Result] =
-    answers.get(DraftIdPage) match {
-      case None =>
-        logger.warn(s"Missing DraftIdPage when submitting supplier/${supplierNumber.value}/self-supply")
-        Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
-      case Some(draftId) =>
-        val versionId = answers.get(DraftVersionIdPage).getOrElse(0L)
-        val body      = Json.obj("areYouSelfSupplying" -> value, "versionId" -> versionId)
-        connector.updateDraftSection(draftId, s"supplier/${supplierNumber.value}/self-supply", body).flatMap {
-          case Right(newVersionId) =>
-            sessionRepository.setPage(answers, DraftVersionIdPage, newVersionId).map { _ =>
-              Redirect(
-                navigator.nextPage(
-                  UsePersonalDetailsAsSupplierPage(supplierNumber),
-                  mode,
-                  answers,
-                  NovaUserType.from(request.affinityGroup, request.enrolments)
-                )
-              )
-            }
-          case Left(error) =>
-            logger.warn(s"Failed to update supplier/${supplierNumber.value}/self-supply section for draftId ${draftId.value}: $error")
-            Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
-        }
-    }
 
   private def personalDetails(implicit request: DataRequest[?], messages: Messages): Future[SummaryList] =
     if (request.userContext.usesTraderDetails)
