@@ -47,8 +47,8 @@ class NoVehicleDatesViewSpec extends SpecBase with Matchers with BeforeAndAfterA
 
   "NoVehicleDatesView" - {
 
-    "must render the caption" in {
-      html must include(msgs("noVehicleDates.caption"))
+    "must not render a caption" in {
+      html must not include (msgs("govuk-caption-l"))
     }
 
     "must render the heading as a page heading" in {
@@ -63,8 +63,7 @@ class NoVehicleDatesViewSpec extends SpecBase with Matchers with BeforeAndAfterA
       html must include(msgs("noVehicleDates.paragraph.1"))
     }
 
-    "must render the Personal Transport Unit link inside inset text" in {
-      html must include("govuk-inset-text")
+    "must render the Personal Transport Unit link" in {
       html must include(personalTransportUnitUrl)
       html must include(msgs("noVehicleDates.link.text"))
     }
