@@ -21,10 +21,10 @@ import controllers.actions.*
 import controllers.utils.IsDraftIdDefined
 import forms.IsSupplierVatRegisteredFormProvider
 import models.requests.DataRequest
-import models.{Mode, NovaUserType, SupplierNumber}
+import models.{Mode, NovaUserType, SupplierNumber, UserAnswers}
 import navigation.Navigator
 import pages.sections.initialquestions.VehicleFromEuPage
-import pages.sections.supplierdetails.IsSupplierVatRegisteredPage
+import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierVatRegistrationNumberPage}
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
@@ -33,6 +33,7 @@ import views.html.IsSupplierVatRegisteredView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
 
 class IsSupplierVatRegisteredController @Inject() (
   val controllerComponents: MessagesControllerComponents,
@@ -62,13 +63,14 @@ class IsSupplierVatRegisteredController @Inject() (
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, supplierNumber, mode))),
           value =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(IsSupplierVatRegisteredPage(supplierNumber), value))
-              _              <- sessionRepository.set(updatedAnswers)
+              updatedAnswers  <- Future.fromTry(request.userAnswers.set(IsSupplierVatRegisteredPage(supplierNumber), value))
+              updatedAnswers2 <- Future.fromTry(clearSessionDataOnAnswerChange(value, updatedAnswers, supplierNumber))
+              _               <- sessionRepository.set(updatedAnswers2)
             } yield Redirect(
               navigator.nextPage(
                 IsSupplierVatRegisteredPage(supplierNumber),
                 mode,
-                updatedAnswers,
+                updatedAnswers2,
                 NovaUserType.from(request.affinityGroup, request.enrolments)
               )
             )
@@ -78,6 +80,19 @@ class IsSupplierVatRegisteredController @Inject() (
 }
 
 object IsSupplierVatRegisteredController {
+
+  private def clearSessionDataOnAnswerChange(
+    isVatRegisteredValue: Boolean,
+    userAnswers: UserAnswers,
+    supplierNumber: SupplierNumber
+  ): Try[UserAnswers] = {
+    if (!isVatRegisteredValue) {
+      // Clear vat registration details
+      userAnswers.remove(SupplierVatRegistrationNumberPage(supplierNumber))
+    } else {
+      Try(userAnswers)
+    }
+  }
 
   // The supplier number in the URL must be one of the suppliers the user has in session
   def guardPredicate(supplierService: SupplierService, supplierNumber: SupplierNumber)(request: DataRequest[?]): Boolean =

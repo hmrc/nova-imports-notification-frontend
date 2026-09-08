@@ -14,15 +14,11 @@
  * limitations under the License.
  */
 
-package pages.sections.supplieraddress
+package pages.sections.supplierdetails
 
 import models.SupplierNumber
-import pages.sections.supplierdetails.SupplierQuestionPage
-import play.api.libs.json.JsPath
+import pages.QuestionPage
 
-final case class IsSupplierAddressInTheUkPage(supplierNumber: SupplierNumber) extends SupplierQuestionPage[Boolean] {
-
-  override def path: JsPath = JsPath \ "suppliers" \ supplierNumber.value.toString \ toString
-
-  override def toString: String = "isSupplierAddressInTheUk"
+trait SupplierQuestionPage[A] extends QuestionPage[A] {
+  def supplierNumber: SupplierNumber
 }
