@@ -821,3 +821,36 @@ uploadVehicleSpreadsheet.hint = Must be an OpenDocument Spreadsheet (ODS) file
 uploadVehicleSpreadsheet.error.required = Select a file
 uploadVehicleSpreadsheet.error.tooLarge = The selected file must be smaller than 1MB
 uploadVehicleSpreadsheet.error.unknown = The selected file could not be uploaded. Try again.
+
+###############################################################
+# UVS3.0 - Upload vehicle spreadsheet 3.0 - Error: Virus      #
+###############################################################
+# TODO: Welsh translations to be supplied by content team.
+uploadSpreadsheetErrorQuarantine.title = The file contains a virus
+uploadSpreadsheetErrorQuarantine.heading = The file contains a virus
+uploadSpreadsheetErrorQuarantine.caption = Add vehicle details
+uploadSpreadsheetErrorQuarantine.paragraph = Check the file for any virus or create a new version before uploading it again.
+uploadSpreadsheetErrorQuarantine.link = Return to create a vehicle notification
+uploadSpreadsheetErrorQuarantine.buttonLabel = Upload again
+
+###########################################################################
+# UVS3.1 - Upload vehicle spreadsheet 3.1 - Error: problem uploading      #
+###########################################################################
+# TODO: Welsh translations to be supplied by content team.
+uploadSpreadsheetErrorUnknown.title = There is a problem uploading this file
+uploadSpreadsheetErrorUnknown.heading = There is a problem uploading this file
+uploadSpreadsheetErrorUnknown.caption = Add vehicle details
+uploadSpreadsheetErrorUnknown.paragraph = The spreadsheet could not be uploaded. You can try uploading the file again.
+uploadSpreadsheetErrorUnknown.link = Return to create a vehicle notification
+uploadSpreadsheetErrorUnknown.buttonLabel = Try again
+
+##################################################################
+# UVS3.2 - Upload vehicle spreadsheet 3.2 - Error: File type     #
+##################################################################
+# TODO: Welsh translations to be supplied by content team.
+uploadSpreadsheetErrorRejected.title = The selected file cannot be accepted
+uploadSpreadsheetErrorRejected.heading = The selected file cannot be accepted
+uploadSpreadsheetErrorRejected.caption = Add vehicle details
+uploadSpreadsheetErrorRejected.paragraph = You must save the spreadsheet as an ODS file and try uploading it again.
+uploadSpreadsheetErrorRejected.link = Return to create a vehicle notification
+uploadSpreadsheetErrorRejected.buttonLabel = Upload again
