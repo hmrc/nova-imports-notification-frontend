@@ -20,7 +20,7 @@ import base.SpecBase
 import controllers.supplierdetails.routes
 import models.BusinessOrPrivateIndividual.{Business, PrivateIndividual}
 import models.PurchaserBusinessOrIndividual.{NonVatRegisteredBusiness, NonVatRegisteredPrivateIndividual}
-import models.{CheckMode, NormalMode, SupplierNumber, UserAnswers}
+import models.{CheckMode, SupplierNumber, UserAnswers}
 import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage}
 import pages.sections.notifierdetails.BusinessNamePage
 import pages.sections.purchaserdetails.PurchaserBusinessNamePage

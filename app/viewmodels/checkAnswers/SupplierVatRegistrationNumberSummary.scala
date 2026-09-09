@@ -18,7 +18,7 @@ package viewmodels.checkAnswers
 
 import controllers.supplierdetails.routes
 import models.{CheckMode, SupplierNumber, UserAnswers}
-import pages.sections.supplierdetails.{SupplierNamePage, SupplierVatRegistrationNumberPage}
+import pages.sections.supplierdetails.SupplierVatRegistrationNumberPage
 import play.api.i18n.Messages
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent

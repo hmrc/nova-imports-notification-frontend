@@ -16,7 +16,7 @@
 
 package models.draftsections
 
-import models.{BusinessOrPrivateIndividual, Country}
+import models.BusinessOrPrivateIndividual
 import play.api.libs.json.{Format, Json}
 
 final case class SupplierDetails(

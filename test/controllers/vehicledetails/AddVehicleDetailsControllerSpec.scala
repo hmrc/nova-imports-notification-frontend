@@ -26,9 +26,8 @@ import models.{AddVehicleDetails, AgentSelectedClient, DraftId, NormalMode, Purc
 import play.api.libs.json.Json
 import queries.AllSuppliersQuery
 import navigation.{FakeNavigator, Navigator}
-import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{verify, when}
+import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import pages.AgentSelectedClientPage
 import pages.DraftIdPage
@@ -123,12 +122,6 @@ class AddVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
     (application, mockSessionRepository)
-  }
-
-  private def savedAnswers(mockSessionRepository: SessionRepository): UserAnswers = {
-    val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
-    verify(mockSessionRepository).set(captor.capture())
-    captor.getValue
   }
 
   "AddVehicleDetailsController" - {

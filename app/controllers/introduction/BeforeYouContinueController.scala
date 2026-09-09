@@ -22,7 +22,7 @@ import controllers.actions.*
 import controllers.initialquestions
 import models.{NormalMode, UserAnswers, UserContext}
 import models.NovaUserType
-import pages.sections.introduction.{AmendSubmittedNotificationPage, IntroductionAcknowledgePage, NotDeregisteredPage}
+import pages.sections.introduction.{AmendSubmittedNotificationPage, IntroductionAcknowledgePage}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import pages.AgentSelectedClientPage

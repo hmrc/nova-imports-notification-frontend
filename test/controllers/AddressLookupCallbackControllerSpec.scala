@@ -18,7 +18,7 @@ package controllers
 
 import base.SpecBase
 import connectors.{AddressLookupConnector, AddressLookupError, NovaImportsBackendConnector, UpdateSectionError}
-import models.draftsections.{NotifierAddress, PurchaserAddress, SupplierAddress}
+import models.draftsections.{NotifierAddress, PurchaserAddress}
 import models.{Address, Country, DraftId, PurchaserOrOnBehalf, SupplierNumber, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
