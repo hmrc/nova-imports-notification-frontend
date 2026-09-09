@@ -17,9 +17,11 @@
 package controllers.vehicledetails
 
 import base.SpecBase
+import com.google.inject.name.Names
+import controllers.actions.{DataRequiredAction, DataRequiredActionImpl, DataRetrievalAction, FakeAgentNoEnrolmentsIdentifierAction, FakeDataRetrievalAction, FakeIdentifierAction, FakeOrganisationIdentifierAction, IdentifierAction}
 import controllers.{routes, vehicledetails}
-import forms.PurchaseInvoiceDateFormProvider
-import models.{DraftId, NormalMode, SupplierNumber, UserAnswers, VehicleDates, VehicleNumber}
+import forms.PurchaseInvoiceNumberFormProvider
+import models.{DraftId, NormalMode, SupplierNumber, UserAnswers, VehicleNumber}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
@@ -27,30 +29,33 @@ import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.DraftIdPage
 import pages.sections.initialquestions.VehicleFromEuPage
-import pages.sections.vehicledetails.{PurchaseInvoiceDatePage, VehicleDatesPage}
+import pages.sections.vehicledetails.PurchaseInvoiceNumberPage
 import play.api.inject.bind
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import queries.{AllSuppliersQuery, AllVehiclesQuery}
 import repositories.SessionRepository
-import views.html.PurchaseInvoiceDateView
+import views.html.PurchaseInvoiceNumberView
 
-import java.time.LocalDate
 import scala.concurrent.Future
 
-class PurchaseInvoiceDateControllerSpec extends SpecBase with MockitoSugar {
+class PurchaseInvoiceNumberControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute = Call("GET", "/foo")
+
+  val formProvider = new PurchaseInvoiceNumberFormProvider()
+  val form         = formProvider()
 
   val supplierNumber = SupplierNumber(1)
   val vehicleNumber  = VehicleNumber(1)
 
-  val answer: LocalDate = LocalDate.of(2026, 3, 27)
+  val answer = "INV-2026-001"
 
-  lazy val purchaseInvoiceDateRoute =
-    vehicledetails.routes.PurchaseInvoiceDateController.onPageLoad(supplierNumber, vehicleNumber, NormalMode).url
+  lazy val purchaseInvoiceNumberRoute =
+    vehicledetails.routes.PurchaseInvoiceNumberController.onPageLoad(supplierNumber, vehicleNumber, NormalMode).url
 
   val userAnswersWithGuardData: UserAnswers = emptyUserAnswers
     .set(DraftIdPage, DraftId("DRAFT-001"))
@@ -66,8 +71,18 @@ class PurchaseInvoiceDateControllerSpec extends SpecBase with MockitoSugar {
     .success
     .value
 
-  private def dateFields(day: String, month: String, year: String) =
-    Seq("value.day" -> day, "value.month" -> month, "value.year" -> year)
+  private def applicationForUserType(identifierAction: Class[? <: IdentifierAction], userAnswers: UserAnswers): play.api.Application =
+    new GuiceApplicationBuilder()
+      .overrides(
+        bind[DataRequiredAction].to[DataRequiredActionImpl],
+        bind[IdentifierAction].to(identifierAction),
+        bind[IdentifierAction].qualifiedWith(Names.named("standard")).to(identifierAction),
+        bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeIdentifierAction],
+        bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to(identifierAction),
+        bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
+        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(Some(userAnswers)))
+      )
+      .build()
 
   private def applicationWithMockRepository(userAnswers: UserAnswers): (play.api.Application, SessionRepository) = {
 
@@ -91,19 +106,18 @@ class PurchaseInvoiceDateControllerSpec extends SpecBase with MockitoSugar {
     captor.getValue
   }
 
-  "PurchaseInvoiceDateController" - {
+  "PurchaseInvoiceNumberController" - {
 
     "must return OK and the correct view for a GET" in {
 
       val application = applicationBuilder(userAnswers = Some(userAnswersWithGuardData)).build()
 
       running(application) {
-        val request = FakeRequest(GET, purchaseInvoiceDateRoute)
+        val request = FakeRequest(GET, purchaseInvoiceNumberRoute)
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[PurchaseInvoiceDateView]
-        val form = new PurchaseInvoiceDateFormProvider()()(messages(application))
+        val view = application.injector.instanceOf[PurchaseInvoiceNumberView]
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form, supplierNumber, vehicleNumber, NormalMode)(request, messages(application)).toString
@@ -113,19 +127,18 @@ class PurchaseInvoiceDateControllerSpec extends SpecBase with MockitoSugar {
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
       val userAnswers = userAnswersWithGuardData
-        .set(PurchaseInvoiceDatePage(supplierNumber, vehicleNumber), answer)
+        .set(PurchaseInvoiceNumberPage(supplierNumber, vehicleNumber), answer)
         .success
         .value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, purchaseInvoiceDateRoute)
+        val request = FakeRequest(GET, purchaseInvoiceNumberRoute)
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[PurchaseInvoiceDateView]
-        val form = new PurchaseInvoiceDateFormProvider()()(messages(application))
+        val view = application.injector.instanceOf[PurchaseInvoiceNumberView]
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form.fill(answer), supplierNumber, vehicleNumber, NormalMode)(
@@ -135,85 +148,91 @@ class PurchaseInvoiceDateControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to the next page and save the date when valid data is submitted" in {
+    "must redirect to the next page and save the invoice number when valid data is submitted" in {
 
       val (application, mockSessionRepository) = applicationWithMockRepository(userAnswersWithGuardData)
 
       running(application) {
         val request =
-          FakeRequest(POST, purchaseInvoiceDateRoute)
-            .withFormUrlEncodedBody(dateFields("27", "03", "2026")*)
+          FakeRequest(POST, purchaseInvoiceNumberRoute)
+            .withFormUrlEncodedBody(("value", answer))
 
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
 
-        savedAnswers(mockSessionRepository).get(PurchaseInvoiceDatePage(supplierNumber, vehicleNumber)) mustEqual Some(answer)
+        savedAnswers(mockSessionRepository).get(PurchaseInvoiceNumberPage(supplierNumber, vehicleNumber)) mustEqual Some(answer)
       }
     }
 
-    "must return a Bad Request and the empty date error when no date is entered" in {
+    "must return a Bad Request and the required error when nothing is entered" in {
 
       val application = applicationBuilder(userAnswers = Some(userAnswersWithGuardData)).build()
 
       running(application) {
         val request =
-          FakeRequest(POST, purchaseInvoiceDateRoute)
-            .withFormUrlEncodedBody(dateFields("", "", "")*)
+          FakeRequest(POST, purchaseInvoiceNumberRoute)
+            .withFormUrlEncodedBody(("value", ""))
 
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) must include(messages(application)("purchaseInvoiceDate.error.required.all"))
+        contentAsString(result) must include(messages(application)("purchaseInvoiceNumber.error.required"))
       }
     }
 
-    "must return a Bad Request and the incomplete date error when a part of the date is missing" in {
+    "must return a Bad Request and the format error when invalid characters are entered" in {
 
       val application = applicationBuilder(userAnswers = Some(userAnswersWithGuardData)).build()
 
       running(application) {
         val request =
-          FakeRequest(POST, purchaseInvoiceDateRoute)
-            .withFormUrlEncodedBody(dateFields("27", "03", "")*)
+          FakeRequest(POST, purchaseInvoiceNumberRoute)
+            .withFormUrlEncodedBody(("value", "INV 123#"))
 
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) must include(messages(application)("purchaseInvoiceDate.error.required", messages(application)("date.error.year")))
+        contentAsString(result) must include(messages(application)("purchaseInvoiceNumber.error.invalid"))
       }
     }
 
-    "must return a Bad Request and the format error when the date is not made up of numbers" in {
+    "must return a Bad Request and the length error when more than 20 characters are entered" in {
 
       val application = applicationBuilder(userAnswers = Some(userAnswersWithGuardData)).build()
 
       running(application) {
         val request =
-          FakeRequest(POST, purchaseInvoiceDateRoute)
-            .withFormUrlEncodedBody(dateFields("aa", "03", "2026")*)
+          FakeRequest(POST, purchaseInvoiceNumberRoute)
+            .withFormUrlEncodedBody(("value", "A" * 21))
 
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) must include(messages(application)("purchaseInvoiceDate.error.invalid"))
+        contentAsString(result) must include(messages(application)("purchaseInvoiceNumber.error.length"))
       }
     }
 
-    "must return a Bad Request and the real date error when the date does not exist" in {
+    "must return OK for a GET for an agent with no client selected" in {
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithGuardData)).build()
+      val application = applicationForUserType(classOf[FakeAgentNoEnrolmentsIdentifierAction], userAnswersWithGuardData)
 
       running(application) {
-        val request =
-          FakeRequest(POST, purchaseInvoiceDateRoute)
-            .withFormUrlEncodedBody(dateFields("31", "02", "2026")*)
+        val request = FakeRequest(GET, purchaseInvoiceNumberRoute)
 
-        val result = route(application, request).value
+        status(route(application, request).value) mustEqual OK
+      }
+    }
 
-        status(result) mustEqual BAD_REQUEST
-        contentAsString(result) must include(messages(application)("purchaseInvoiceDate.error.notARealDate"))
+    "must return OK for a GET for an organisation" in {
+
+      val application = applicationForUserType(classOf[FakeOrganisationIdentifierAction], userAnswersWithGuardData)
+
+      running(application) {
+        val request = FakeRequest(GET, purchaseInvoiceNumberRoute)
+
+        status(route(application, request).value) mustEqual OK
       }
     }
 
@@ -222,7 +241,7 @@ class PurchaseInvoiceDateControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
-        val request = FakeRequest(GET, purchaseInvoiceDateRoute)
+        val request = FakeRequest(GET, purchaseInvoiceNumberRoute)
 
         val result = route(application, request).value
 
@@ -237,8 +256,8 @@ class PurchaseInvoiceDateControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, purchaseInvoiceDateRoute)
-            .withFormUrlEncodedBody(dateFields("27", "03", "2026")*)
+          FakeRequest(POST, purchaseInvoiceNumberRoute)
+            .withFormUrlEncodedBody(("value", answer))
 
         val result = route(application, request).value
 
@@ -254,7 +273,7 @@ class PurchaseInvoiceDateControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(answersWithoutDraftId)).build()
 
       running(application) {
-        val request = FakeRequest(GET, purchaseInvoiceDateRoute)
+        val request = FakeRequest(GET, purchaseInvoiceNumberRoute)
 
         val result = route(application, request).value
 
@@ -271,8 +290,8 @@ class PurchaseInvoiceDateControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, purchaseInvoiceDateRoute)
-            .withFormUrlEncodedBody(dateFields("27", "03", "2026")*)
+          FakeRequest(POST, purchaseInvoiceNumberRoute)
+            .withFormUrlEncodedBody(("value", answer))
 
         val result = route(application, request).value
 
@@ -288,43 +307,12 @@ class PurchaseInvoiceDateControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(answersIq1No)).build()
 
       running(application) {
-        val request = FakeRequest(GET, purchaseInvoiceDateRoute)
+        val request = FakeRequest(GET, purchaseInvoiceNumberRoute)
 
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
-      }
-    }
-
-    "must return OK for a GET when the purchase invoice date was not one of the dates selected on AVD3.0" in {
-
-      val answersWithoutInvoiceDate = userAnswersWithGuardData
-        .set(VehicleDatesPage(supplierNumber, vehicleNumber), Set(VehicleDates.AvailabilityAndFirstRegistration))
-        .success
-        .value
-
-      val application = applicationBuilder(userAnswers = Some(answersWithoutInvoiceDate)).build()
-
-      running(application) {
-        val request = FakeRequest(GET, purchaseInvoiceDateRoute)
-
-        val result = route(application, request).value
-
-        status(result) mustEqual OK
-      }
-    }
-
-    "must return OK for a GET when AVD3.0 has not been answered at all" in {
-
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithGuardData)).build()
-
-      running(application) {
-        val request = FakeRequest(GET, purchaseInvoiceDateRoute)
-
-        val result = route(application, request).value
-
-        status(result) mustEqual OK
       }
     }
 
@@ -334,7 +322,23 @@ class PurchaseInvoiceDateControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(GET, vehicledetails.routes.PurchaseInvoiceDateController.onPageLoad(SupplierNumber(2), vehicleNumber, NormalMode).url)
+          FakeRequest(GET, vehicledetails.routes.PurchaseInvoiceNumberController.onPageLoad(SupplierNumber(2), vehicleNumber, NormalMode).url)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Unauthorised for a POST if the supplier number in the URL is not one of the user's suppliers" in {
+
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithGuardData)).build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, vehicledetails.routes.PurchaseInvoiceNumberController.onSubmit(SupplierNumber(2), vehicleNumber, NormalMode).url)
+            .withFormUrlEncodedBody(("value", answer))
 
         val result = route(application, request).value
 
@@ -349,7 +353,7 @@ class PurchaseInvoiceDateControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(GET, vehicledetails.routes.PurchaseInvoiceDateController.onPageLoad(supplierNumber, VehicleNumber(999), NormalMode).url)
+          FakeRequest(GET, vehicledetails.routes.PurchaseInvoiceNumberController.onPageLoad(supplierNumber, VehicleNumber(999), NormalMode).url)
 
         val result = route(application, request).value
 
@@ -371,12 +375,39 @@ class PurchaseInvoiceDateControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = Some(answers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, purchaseInvoiceDateRoute)
+        val request = FakeRequest(GET, purchaseInvoiceNumberRoute)
 
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+
+    "must save the invoice number against the vehicle in the URL" in {
+
+      val answers = userAnswersWithGuardData
+        .set(AllSuppliersQuery, Map("1" -> Json.obj(), "2" -> Json.obj()))
+        .success
+        .value
+        .set(AllVehiclesQuery, Map("1" -> Json.obj("supplierNumber" -> 1), "3" -> Json.obj("supplierNumber" -> 2)))
+        .success
+        .value
+
+      val (application, mockSessionRepository) = applicationWithMockRepository(answers)
+
+      running(application) {
+        val request =
+          FakeRequest(POST, vehicledetails.routes.PurchaseInvoiceNumberController.onSubmit(SupplierNumber(2), VehicleNumber(3), NormalMode).url)
+            .withFormUrlEncodedBody(("value", answer))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+
+        val saved = savedAnswers(mockSessionRepository)
+        saved.get(PurchaseInvoiceNumberPage(SupplierNumber(2), VehicleNumber(3))) mustEqual Some(answer)
+        saved.get(PurchaseInvoiceNumberPage(supplierNumber, vehicleNumber)) mustEqual None
       }
     }
   }
