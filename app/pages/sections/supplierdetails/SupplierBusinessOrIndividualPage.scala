@@ -17,7 +17,6 @@
 package pages.sections.supplierdetails
 
 import models.{BusinessOrPrivateIndividual, SupplierNumber, UserAnswers}
-import pages.QuestionPage
 import play.api.libs.json.JsPath
 
 import scala.util.Try

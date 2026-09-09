@@ -19,7 +19,7 @@ package services
 import base.SpecBase
 import models.{ImportNumber, SupplierNumber, UserAnswers, VehicleNumber}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
-import org.mockito.Mockito.{never, verify, when}
+import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.Json
 import queries.AllVehiclesQuery
