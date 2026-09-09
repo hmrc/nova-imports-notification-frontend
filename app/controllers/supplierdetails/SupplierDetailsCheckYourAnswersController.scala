@@ -103,26 +103,28 @@ class SupplierDetailsCheckYourAnswersController @Inject() (
             .flatMap {
               case Right(selfSupplierNewVersionId) =>
 
-                if (selfSupply) {
-                  navigateToNextPage(selfSupplierNewVersionId)
-                } else {
-                  // Save SupplierDetails if the self supply is false
-                  buildSupplierDetailsSectionData(request.userAnswers, supplierNumber) match {
-                    case Some(supplierDetailsSectionData) =>
-                      val supplierDetailsSectionJsonBody = supplierDetailsSectionData + ("versionId" -> Json.toJson(selfSupplierNewVersionId))
-                      backendConnector
-                        .updateDraftSection(draftId, s"supplier/${supplierNumber.value.toString}/details", supplierDetailsSectionJsonBody)
-                        .flatMap {
-                          case Right(supplierDetailsNewVersionId) =>
-                            navigateToNextPage(supplierDetailsNewVersionId)
-                          case Left(error) =>
-                            logger.warn(
-                              s"Failed to update 'supplier/${supplierNumber.value.toString}/details' of type SupplierDetails for draftId ${draftId.value}: $error"
-                            )
-                            failureRecovery
-                        }
-                    case None =>
-                      failureRecovery
+                sessionRepository.setPage(request.userAnswers, DraftVersionIdPage, selfSupplierNewVersionId).flatMap { _ =>
+                  if (selfSupply) {
+                    Future.successful(Redirect(nextPage(supplierNumber)))
+                  } else {
+                    // Save SupplierDetails if the self supply is false
+                    buildSupplierDetailsSectionData(request.userAnswers, supplierNumber) match {
+                      case Some(supplierDetailsSectionData) =>
+                        val supplierDetailsSectionJsonBody = supplierDetailsSectionData + ("versionId" -> Json.toJson(selfSupplierNewVersionId))
+                        backendConnector
+                          .updateDraftSection(draftId, s"supplier/${supplierNumber.value.toString}/details", supplierDetailsSectionJsonBody)
+                          .flatMap {
+                            case Right(supplierDetailsNewVersionId) =>
+                              navigateToNextPage(supplierDetailsNewVersionId)
+                            case Left(error) =>
+                              logger.warn(
+                                s"Failed to update 'supplier/${supplierNumber.value.toString}/details' of type SupplierDetails for draftId ${draftId.value}: $error"
+                              )
+                              failureRecovery
+                          }
+                      case None =>
+                        failureRecovery
+                    }
                   }
                 }
 
