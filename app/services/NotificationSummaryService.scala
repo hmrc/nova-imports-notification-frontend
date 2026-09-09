@@ -53,8 +53,6 @@ class NotificationSummaryServiceImpl @Inject() (
           a1 <- sessionRepository.setPage(answers, AgentActingOnBehalfOfClientPage, true)
           a2 <- sessionRepository.setPage(a1, NotDeregisteredPage, !summary.clientIsDeregistered)
         } yield Right((summary, a2))
-      case Right(summary) =>
-        Future.successful(Right((summary, answers)))
       case Left(error) =>
         Future.successful(Left(error))
     }

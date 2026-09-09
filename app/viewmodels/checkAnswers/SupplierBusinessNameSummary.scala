@@ -17,7 +17,7 @@
 package viewmodels.checkAnswers
 
 import controllers.supplierdetails.routes
-import models.BusinessOrPrivateIndividual.{Business, PrivateIndividual}
+import models.BusinessOrPrivateIndividual.Business
 import models.PurchaserBusinessOrIndividual.NonVatRegisteredBusiness
 import models.{CheckMode, SupplierNumber, UserAnswers}
 import pages.QuestionPage

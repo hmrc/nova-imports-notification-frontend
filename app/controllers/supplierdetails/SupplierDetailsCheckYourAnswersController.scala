@@ -22,7 +22,7 @@ import controllers.actions.*
 import controllers.utils.IsDraftIdDefined
 import models.draftsections.{SupplierDetails, SupplierSelfSupplyDetails}
 import models.requests.DataRequest
-import models.{Address, BusinessOrPrivateIndividual, NameDetails, NormalMode, SupplierNumber, UserAnswers, UserContext, VatNumberDetails}
+import models.{Address, BusinessOrPrivateIndividual, NameDetails, NormalMode, SupplierNumber, UserAnswers, VatNumberDetails}
 import pages.*
 import pages.sections.initialquestions.VehicleFromEuPage
 import pages.sections.supplieraddress.{SupplierAddressJourneyIdPage, SupplierAddressPage}
@@ -143,8 +143,7 @@ object SupplierDetailsCheckYourAnswersController {
     controllers.vehicledetails.routes.VehiclesBoughtFromSupplierController.onPageLoad(supplierNumber)
 
   def guardPredicate(supplierService: SupplierService, supplierNumber: SupplierNumber)(request: DataRequest[?]): Boolean = {
-    val answers     = request.userAnswers
-    val userContext = request.userContext
+    val answers = request.userAnswers
 
     val avdQuestionAnswered =
       answers.get(UsePersonalDetailsAsSupplierPage(supplierNumber)).isDefined
