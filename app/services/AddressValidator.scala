@@ -37,14 +37,14 @@ object AddressValidator {
   def isValid(address: Address): Boolean =
     hasMandatoryFields(address) &&
       address.lines.forall(isValidLine) &&
-      isValidCountryName(address.country.name.getOrElse("")) &&
+      isValidCountryName(address.country.name) &&
       address.postcode.forall(isValidUkPostcode)
 
   def isValidLine(line: String): Boolean =
     AddressLinePattern.matches(line)
 
-  def isValidCountryName(name: String): Boolean =
-    CountryNamePattern.matches(name)
+  def isValidCountryName(name: Option[String]): Boolean =
+    name.exists(CountryNamePattern.matches)
 
   def isValidUkPostcode(postcode: String): Boolean =
     UkPostcodePattern.matches(postcode)
