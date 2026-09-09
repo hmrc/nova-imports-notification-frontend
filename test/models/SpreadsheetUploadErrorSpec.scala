@@ -27,6 +27,10 @@ class SpreadsheetUploadErrorSpec extends AnyFreeSpec with Matchers {
       SpreadsheetUploadError.fromUpscanErrorCode("InvalidArgument") mustBe SpreadsheetUploadError.NoFileSelected
     }
 
+    "must read the below-minimum-size error upscan reports for the empty file browsers send when no file is chosen" in {
+      SpreadsheetUploadError.fromUpscanErrorCode("EntityTooSmall") mustBe SpreadsheetUploadError.NoFileSelected
+    }
+
     "must read the oversize file upscan reports when the upload exceeds the configured maximum" in {
       SpreadsheetUploadError.fromUpscanErrorCode("EntityTooLarge") mustBe SpreadsheetUploadError.FileTooLarge
     }

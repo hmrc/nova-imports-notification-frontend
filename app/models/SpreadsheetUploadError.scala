@@ -25,8 +25,8 @@ enum SpreadsheetUploadError(val messageKey: String) {
 object SpreadsheetUploadError {
 
   def fromUpscanErrorCode(errorCode: String): SpreadsheetUploadError = errorCode match {
-    case "InvalidArgument" => NoFileSelected
-    case "EntityTooLarge"  => FileTooLarge
-    case _                 => UploadFailed
+    case "InvalidArgument" | "EntityTooSmall" => NoFileSelected
+    case "EntityTooLarge"                     => FileTooLarge
+    case _                                    => UploadFailed
   }
 }
