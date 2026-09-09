@@ -22,4 +22,6 @@ final case class Country(code: String, name: Option[String])
 
 object Country {
   implicit val format: OFormat[Country] = Json.format[Country]
+
+  def apply(code: String, name: String): Country = Country(code, Some(name))
 }
