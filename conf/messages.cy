@@ -696,6 +696,19 @@ purchaseInvoiceDate.error.required.two = The purchase invoice date must include 
 purchaseInvoiceDate.error.invalid = Enter the purchase invoice date in the correct format
 purchaseInvoiceDate.error.notARealDate = The purchase invoice date must be a real date
 
+##############################################################
+# AVD4.1 - Add vehicle details 4.1: Purchase invoice number  #
+##############################################################
+# TODO: Welsh translations to be supplied by content team.
+
+purchaseInvoiceNumber.title = What is the purchase invoice number?
+purchaseInvoiceNumber.heading = What is the purchase invoice number?
+purchaseInvoiceNumber.caption = Add vehicle details
+purchaseInvoiceNumber.hint = It’s a set of letters or numbers usually found at the top or bottom of the purchase invoice
+purchaseInvoiceNumber.error.required = Enter the purchase invoice number
+purchaseInvoiceNumber.error.invalid = Enter the purchase invoice number in the correct format
+purchaseInvoiceNumber.error.length = The purchase invoice number must be 20 characters or less
+
 ######################################################
 # AVD1.0 - Add vehicle details: Vehicles brought from the EU #
 ######################################################

@@ -20,11 +20,9 @@ import models.{SupplierNumber, VehicleNumber}
 import pages.QuestionPage
 import play.api.libs.json.JsPath
 
-import java.time.LocalDate
-
-final case class PurchaseInvoiceDatePage(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber) extends QuestionPage[LocalDate] {
+final case class PurchaseInvoiceNumberPage(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber) extends QuestionPage[String] {
 
   override def path: JsPath = JsPath \ "vehicles" \ vehicleNumber.value.toString \ "details" \ toString
 
-  override def toString: String = "purchaseInvoiceDate"
+  override def toString: String = "purchaseInvoiceNumber"
 }

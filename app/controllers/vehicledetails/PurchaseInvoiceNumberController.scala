@@ -19,53 +19,57 @@ package controllers.vehicledetails
 import controllers.BaseController
 import controllers.actions.*
 import controllers.utils.IsDraftIdDefined
-import forms.PurchaseInvoiceDateFormProvider
+import forms.PurchaseInvoiceNumberFormProvider
 import models.requests.DataRequest
 import models.{Mode, NovaUserType, SupplierNumber, VehicleNumber}
 import navigation.Navigator
 import pages.sections.initialquestions.VehicleFromEuPage
-import pages.sections.vehicledetails.PurchaseInvoiceDatePage
+import pages.sections.vehicledetails.PurchaseInvoiceNumberPage
+import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import services.{SupplierService, VehicleService}
-import views.html.PurchaseInvoiceDateView
+import views.html.PurchaseInvoiceNumberView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class PurchaseInvoiceDateController @Inject() (
+class PurchaseInvoiceNumberController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   sessionRepository: SessionRepository,
   navigator: Navigator,
   actions: Actions,
-  formProvider: PurchaseInvoiceDateFormProvider,
+  formProvider: PurchaseInvoiceNumberFormProvider,
   supplierService: SupplierService,
   vehicleService: VehicleService,
-  view: PurchaseInvoiceDateView
+  view: PurchaseInvoiceNumberView
 )(implicit ec: ExecutionContext)
     extends BaseController {
 
-  import PurchaseInvoiceDateController.*
+  import PurchaseInvoiceNumberController.*
+
+  val form: Form[String] = formProvider()
 
   def onPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode): Action[AnyContent] =
     actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierService, vehicleService, supplierNumber, vehicleNumber)) { implicit request =>
-      val form = formProvider()
-      Ok(view(form.withDefault(request.userAnswers.get(PurchaseInvoiceDatePage(supplierNumber, vehicleNumber))), supplierNumber, vehicleNumber, mode))
+      Ok(
+        view(form.withDefault(request.userAnswers.get(PurchaseInvoiceNumberPage(supplierNumber, vehicleNumber))), supplierNumber, vehicleNumber, mode)
+      )
     }
 
   def onSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode): Action[AnyContent] =
     actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierService, vehicleService, supplierNumber, vehicleNumber)).async { implicit request =>
-      formProvider()
+      form
         .bindFromRequest()
         .fold(
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, supplierNumber, vehicleNumber, mode))),
           value =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(PurchaseInvoiceDatePage(supplierNumber, vehicleNumber), value))
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(PurchaseInvoiceNumberPage(supplierNumber, vehicleNumber), value))
               _              <- sessionRepository.set(updatedAnswers)
             } yield Redirect(
               navigator.nextPage(
-                PurchaseInvoiceDatePage(supplierNumber, vehicleNumber),
+                PurchaseInvoiceNumberPage(supplierNumber, vehicleNumber),
                 mode,
                 updatedAnswers,
                 NovaUserType.from(request.affinityGroup, request.enrolments)
@@ -75,7 +79,7 @@ class PurchaseInvoiceDateController @Inject() (
     }
 }
 
-object PurchaseInvoiceDateController {
+object PurchaseInvoiceNumberController {
 
   def guardPredicate(
     supplierService: SupplierService,
