@@ -35,7 +35,7 @@ object AddressDisplay {
   private val isoCountryCodes: Set[String] = Locale.getISOCountries.toSet
 
   private def countryName(country: Country): String = {
-    val stored = country.name.trim
+    val stored = country.name.getOrElse("").trim
     if (stored.nonEmpty) stored
     else if (isoCountryCodes.contains(country.code)) new Locale("", country.code).getDisplayCountry(Locale.UK)
     else country.code

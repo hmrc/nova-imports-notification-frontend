@@ -37,7 +37,7 @@ object AddressValidator {
   def isValid(address: Address): Boolean =
     hasMandatoryFields(address) &&
       address.lines.forall(isValidLine) &&
-      isValidCountryName(address.country.name) &&
+      isValidCountryName(address.country.name.getOrElse("")) &&
       address.postcode.forall(isValidUkPostcode)
 
   def isValidLine(line: String): Boolean =

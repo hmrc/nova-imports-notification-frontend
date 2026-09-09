@@ -199,7 +199,7 @@ object SupplierDetailsCheckYourAnswersController {
               addressLine5 = supplierAddress.lines.lift(4),
               postcode = supplierAddress.postcode,
               country = supplierAddress.country.code,
-              countryName = Some(supplierAddress.country.name),
+              countryName = supplierAddress.country.name,
               isSupplierVatReg = isSupplierVatRegistered,
               euStateVatReg = vatRegDetails.map(_.countryCode),
               vatRegistrationNumber = vatRegDetails.map(_.vatNumber)
@@ -208,19 +208,19 @@ object SupplierDetailsCheckYourAnswersController {
           .as[JsObject]
       }
 
-      answers.get(SupplierBusinessOrIndividualPage(supplierNumber)) match {
-        case Some(BusinessOrPrivateIndividual.Business) =>
-          answers.get(IsSupplierVatRegisteredPage(supplierNumber)) match {
-            case Some(vatRegistered: true) =>
+      supplierBusinessOrIndividual match {
+        case BusinessOrPrivateIndividual.Business =>
+          isSupplierVatRegistered match {
+            case vatRegistered: true =>
               buildSectionData(Some(supplierBusinessName), None, supplierVatRegistrationNumber)
-            case Some(false) =>
+            case false =>
               buildSectionData(Some(supplierBusinessName), None, supplierVatRegistrationNumber)
           }
-        case Some(BusinessOrPrivateIndividual.PrivateIndividual) =>
-          answers.get(IsSupplierVatRegisteredPage(supplierNumber)) match {
-            case Some(vatRegistered: true) =>
+        case BusinessOrPrivateIndividual.PrivateIndividual =>
+          isSupplierVatRegistered match {
+            case vatRegistered: true =>
               buildSectionData(None, Some(supplierName), supplierVatRegistrationNumber)
-            case Some(false) =>
+            case false =>
               buildSectionData(None, Some(supplierName), supplierVatRegistrationNumber)
           }
       }
