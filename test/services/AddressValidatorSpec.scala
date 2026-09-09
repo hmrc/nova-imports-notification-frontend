@@ -57,23 +57,26 @@ class AddressValidatorSpec extends SpecBase {
   "AddressValidator.isValidCountryName" - {
 
     "must accept a country name of 18 characters or fewer" in {
-      AddressValidator.isValidCountryName("United Kingdom") mustBe true
+      AddressValidator.isValidCountryName(Some("United Kingdom")) mustBe true
     }
 
     "must accept a country name of exactly 18 characters" in {
-      AddressValidator.isValidCountryName("a" * 18) mustBe true
+      AddressValidator.isValidCountryName(Some("a" * 18)) mustBe true
     }
 
     "must reject a country name longer than 18 characters" in {
-      AddressValidator.isValidCountryName("United Arab Emirates") mustBe false
+      AddressValidator.isValidCountryName(Some("United Arab Emirates")) mustBe false
     }
 
     "must reject a country name beginning with a space" in {
-      AddressValidator.isValidCountryName(" Germany") mustBe false
+      AddressValidator.isValidCountryName(Some(" Germany")) mustBe false
     }
 
     "must reject an empty country name" in {
-      AddressValidator.isValidCountryName("") mustBe false
+      AddressValidator.isValidCountryName(Some("")) mustBe false
+    }
+    "must reject an None country name" in {
+      AddressValidator.isValidCountryName(None) mustBe false
     }
   }
 

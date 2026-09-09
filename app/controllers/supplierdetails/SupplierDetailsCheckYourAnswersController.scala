@@ -20,12 +20,13 @@ import connectors.NovaImportsBackendConnector
 import controllers.BaseController
 import controllers.actions.*
 import controllers.utils.IsDraftIdDefined
+import models.BusinessOrPrivateIndividual.{Business, PrivateIndividual}
 import models.draftsections.{SupplierDetails, SupplierSelfSupplyDetails}
 import models.requests.DataRequest
 import models.{Address, BusinessOrPrivateIndividual, NameDetails, NormalMode, SupplierNumber, UserAnswers, VatNumberDetails}
 import pages.*
 import pages.sections.initialquestions.VehicleFromEuPage
-import pages.sections.supplieraddress.{SupplierAddressJourneyIdPage, SupplierAddressPage}
+import pages.sections.supplieraddress.{IsSupplierAddressInTheUkPage, SupplierAddressJourneyIdPage, SupplierAddressPage}
 import pages.sections.supplierdetails.*
 import play.api.Logging
 import play.api.libs.json.{JsObject, Json}
@@ -103,26 +104,28 @@ class SupplierDetailsCheckYourAnswersController @Inject() (
             .flatMap {
               case Right(selfSupplierNewVersionId) =>
 
-                if (selfSupply) {
-                  navigateToNextPage(selfSupplierNewVersionId)
-                } else {
-                  // Save SupplierDetails if the self supply is false
-                  buildSupplierDetailsSectionData(request.userAnswers, supplierNumber) match {
-                    case Some(supplierDetailsSectionData) =>
-                      val supplierDetailsSectionJsonBody = supplierDetailsSectionData + ("versionId" -> Json.toJson(selfSupplierNewVersionId))
-                      backendConnector
-                        .updateDraftSection(draftId, s"supplier/${supplierNumber.value.toString}/details", supplierDetailsSectionJsonBody)
-                        .flatMap {
-                          case Right(supplierDetailsNewVersionId) =>
-                            navigateToNextPage(supplierDetailsNewVersionId)
-                          case Left(error) =>
-                            logger.warn(
-                              s"Failed to update 'supplier/${supplierNumber.value.toString}/details' of type SupplierDetails for draftId ${draftId.value}: $error"
-                            )
-                            failureRecovery
-                        }
-                    case None =>
-                      failureRecovery
+                sessionRepository.setPage(request.userAnswers, DraftVersionIdPage, selfSupplierNewVersionId).flatMap { _ =>
+                  if (selfSupply) {
+                    Future.successful(Redirect(nextPage(supplierNumber)))
+                  } else {
+                    // Save SupplierDetails if the self supply is false
+                    buildSupplierDetailsSectionData(request.userAnswers, supplierNumber) match {
+                      case Some(supplierDetailsSectionData) =>
+                        val supplierDetailsSectionJsonBody = supplierDetailsSectionData + ("versionId" -> Json.toJson(selfSupplierNewVersionId))
+                        backendConnector
+                          .updateDraftSection(draftId, s"supplier/${supplierNumber.value.toString}/details", supplierDetailsSectionJsonBody)
+                          .flatMap {
+                            case Right(supplierDetailsNewVersionId) =>
+                              navigateToNextPage(supplierDetailsNewVersionId)
+                            case Left(error) =>
+                              logger.warn(
+                                s"Failed to update 'supplier/${supplierNumber.value.toString}/details' of type SupplierDetails for draftId ${draftId.value}: $error"
+                              )
+                              failureRecovery
+                          }
+                      case None =>
+                        failureRecovery
+                    }
                   }
                 }
 
@@ -150,10 +153,34 @@ object SupplierDetailsCheckYourAnswersController {
         || answers.get(UsePurchaserDetailsAsSupplierPage(supplierNumber)).isDefined
 //      || answers.get(UseClientDetailsAsSupplierPage(supplierNumber)).isDefined   TODO: include this line once AVD-S1.2 page is added
 
+    val supplierDetailsQuestionsAnswered =
+      if (
+        answers.get(UsePersonalDetailsAsSupplierPage(supplierNumber)).contains(false)
+        || answers.get(UsePurchaserDetailsAsSupplierPage(supplierNumber)).contains(false)
+      ) { // TODO: include this line once AVD-S1.2 page is added
+        supplierDetailsDefined(answers, supplierNumber)
+      } else {
+        true
+      }
+
     IsDraftIdDefined(answers)
+    && supplierDetailsQuestionsAnswered
     && avdQuestionAnswered
     && request.userAnswers.get(VehicleFromEuPage).contains(true)
     && supplierService.numberExists(request.userAnswers, supplierNumber)
+  }
+
+  private def supplierDetailsDefined(answers: UserAnswers, supplierNumber: SupplierNumber): Boolean = {
+    answers.get(SupplierBusinessOrIndividualPage(supplierNumber)).isDefined
+    && (answers.get(SupplierBusinessOrIndividualPage(supplierNumber)).contains(PrivateIndividual)
+      || answers.get(SupplierBusinessNamePage(supplierNumber)).isDefined)
+    && (answers.get(SupplierBusinessOrIndividualPage(supplierNumber)).contains(Business)
+      || answers.get(SupplierNamePage(supplierNumber)).isDefined)
+    && answers.get(IsSupplierAddressInTheUkPage(supplierNumber)).isDefined
+    && answers.get(SupplierAddressPage(supplierNumber)).isDefined
+    && answers.get(IsSupplierVatRegisteredPage(supplierNumber)).isDefined
+    && (answers.get(IsSupplierVatRegisteredPage(supplierNumber)).contains(false)
+      || answers.get(SupplierVatRegistrationNumberPage(supplierNumber)).isDefined)
   }
 
   private def isSelfSupply(answers: UserAnswers, supplierNumber: SupplierNumber): Boolean = {
@@ -199,7 +226,7 @@ object SupplierDetailsCheckYourAnswersController {
               addressLine5 = supplierAddress.lines.lift(4),
               postcode = supplierAddress.postcode,
               country = supplierAddress.country.code,
-              countryName = Some(supplierAddress.country.name),
+              countryName = supplierAddress.country.name,
               isSupplierVatReg = isSupplierVatRegistered,
               euStateVatReg = vatRegDetails.map(_.countryCode),
               vatRegistrationNumber = vatRegDetails.map(_.vatNumber)
@@ -208,19 +235,19 @@ object SupplierDetailsCheckYourAnswersController {
           .as[JsObject]
       }
 
-      answers.get(SupplierBusinessOrIndividualPage(supplierNumber)) match {
-        case Some(BusinessOrPrivateIndividual.Business) =>
-          answers.get(IsSupplierVatRegisteredPage(supplierNumber)) match {
-            case Some(vatRegistered: true) =>
+      supplierBusinessOrIndividual match {
+        case BusinessOrPrivateIndividual.Business =>
+          isSupplierVatRegistered match {
+            case vatRegistered: true =>
               buildSectionData(Some(supplierBusinessName), None, supplierVatRegistrationNumber)
-            case Some(false) =>
+            case false =>
               buildSectionData(Some(supplierBusinessName), None, supplierVatRegistrationNumber)
           }
-        case Some(BusinessOrPrivateIndividual.PrivateIndividual) =>
-          answers.get(IsSupplierVatRegisteredPage(supplierNumber)) match {
-            case Some(vatRegistered: true) =>
+        case BusinessOrPrivateIndividual.PrivateIndividual =>
+          isSupplierVatRegistered match {
+            case vatRegistered: true =>
               buildSectionData(None, Some(supplierName), supplierVatRegistrationNumber)
-            case Some(false) =>
+            case false =>
               buildSectionData(None, Some(supplierName), supplierVatRegistrationNumber)
           }
       }

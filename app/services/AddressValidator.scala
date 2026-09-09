@@ -43,8 +43,8 @@ object AddressValidator {
   def isValidLine(line: String): Boolean =
     AddressLinePattern.matches(line)
 
-  def isValidCountryName(name: String): Boolean =
-    CountryNamePattern.matches(name)
+  def isValidCountryName(name: Option[String]): Boolean =
+    name.exists(CountryNamePattern.matches)
 
   def isValidUkPostcode(postcode: String): Boolean =
     UkPostcodePattern.matches(postcode)

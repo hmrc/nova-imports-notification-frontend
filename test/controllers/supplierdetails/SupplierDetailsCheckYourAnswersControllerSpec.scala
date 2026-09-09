@@ -339,6 +339,153 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
         }
       }
 
+      "for a User providing supplier details with no answer for IsSupplierBusinessOrIndividual must redirect to Unauthorised" in {
+        val ua = baseUserAnswers
+          .unsafeSet(UsePersonalDetailsAsSupplierPage(supplierNumber), false)
+          .unsafeSet(SupplierNamePage(supplierNumber), name)
+          .unsafeSet(IsSupplierAddressInTheUkPage(supplierNumber), true)
+          .unsafeSet(SupplierAddressPage(supplierNumber), address)
+          .unsafeSet(IsSupplierVatRegisteredPage(supplierNumber), true)
+          .unsafeSet(SupplierVatRegistrationNumberPage(supplierNumber), vatDetails)
+
+        given application: Application = applicationForPageLoad(Some(ua))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, supplierDetailsCheckYourAnswersRoutePageLoad())
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+        }
+      }
+
+      "for a User providing supplier details with no answer for SupplierNamePage must redirect to Unauthorised" in {
+        val ua = baseUserAnswers
+          .unsafeSet(UsePersonalDetailsAsSupplierPage(supplierNumber), false)
+          .unsafeSet(SupplierBusinessOrIndividualPage(supplierNumber), BusinessOrPrivateIndividual.PrivateIndividual)
+          .unsafeSet(IsSupplierAddressInTheUkPage(supplierNumber), true)
+          .unsafeSet(SupplierAddressPage(supplierNumber), address)
+          .unsafeSet(IsSupplierVatRegisteredPage(supplierNumber), true)
+          .unsafeSet(SupplierVatRegistrationNumberPage(supplierNumber), vatDetails)
+
+        given application: Application = applicationForPageLoad(Some(ua))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, supplierDetailsCheckYourAnswersRoutePageLoad())
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+        }
+      }
+
+      "for a User providing supplier details with no answer for Business Name must redirect to Unauthorised" in {
+        val ua = baseUserAnswers
+          .unsafeSet(UsePersonalDetailsAsSupplierPage(supplierNumber), false)
+          .unsafeSet(SupplierBusinessOrIndividualPage(supplierNumber), BusinessOrPrivateIndividual.Business)
+          .unsafeSet(IsSupplierAddressInTheUkPage(supplierNumber), true)
+          .unsafeSet(SupplierAddressPage(supplierNumber), address)
+          .unsafeSet(IsSupplierVatRegisteredPage(supplierNumber), true)
+          .unsafeSet(SupplierVatRegistrationNumberPage(supplierNumber), vatDetails)
+
+        given application: Application = applicationForPageLoad(Some(ua))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, supplierDetailsCheckYourAnswersRoutePageLoad())
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+        }
+      }
+
+      "for a User providing supplier details with no answer for IsSupplierAddressInTheUkPage must redirect to Unauthorised" in {
+        val ua = baseUserAnswers
+          .unsafeSet(UsePersonalDetailsAsSupplierPage(supplierNumber), false)
+          .unsafeSet(SupplierBusinessOrIndividualPage(supplierNumber), BusinessOrPrivateIndividual.PrivateIndividual)
+          .unsafeSet(SupplierNamePage(supplierNumber), name)
+          .unsafeSet(SupplierAddressPage(supplierNumber), address)
+          .unsafeSet(IsSupplierVatRegisteredPage(supplierNumber), true)
+          .unsafeSet(SupplierVatRegistrationNumberPage(supplierNumber), vatDetails)
+
+        given application: Application = applicationForPageLoad(Some(ua))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, supplierDetailsCheckYourAnswersRoutePageLoad())
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+        }
+      }
+
+      "for a User providing supplier details with no answer for SupplierAddressPage must redirect to Unauthorised" in {
+        val ua = baseUserAnswers
+          .unsafeSet(UsePersonalDetailsAsSupplierPage(supplierNumber), false)
+          .unsafeSet(SupplierBusinessOrIndividualPage(supplierNumber), BusinessOrPrivateIndividual.PrivateIndividual)
+          .unsafeSet(SupplierNamePage(supplierNumber), name)
+          .unsafeSet(IsSupplierAddressInTheUkPage(supplierNumber), true)
+          .unsafeSet(IsSupplierVatRegisteredPage(supplierNumber), true)
+          .unsafeSet(SupplierVatRegistrationNumberPage(supplierNumber), vatDetails)
+
+        given application: Application = applicationForPageLoad(Some(ua))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, supplierDetailsCheckYourAnswersRoutePageLoad())
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+        }
+      }
+
+      "for a User providing supplier details with no answer for IsSupplierVatRegisteredPage must redirect to Unauthorised" in {
+        val ua = baseUserAnswers
+          .unsafeSet(UsePersonalDetailsAsSupplierPage(supplierNumber), false)
+          .unsafeSet(SupplierBusinessOrIndividualPage(supplierNumber), BusinessOrPrivateIndividual.PrivateIndividual)
+          .unsafeSet(SupplierNamePage(supplierNumber), name)
+          .unsafeSet(IsSupplierAddressInTheUkPage(supplierNumber), true)
+          .unsafeSet(SupplierAddressPage(supplierNumber), address)
+          .unsafeSet(SupplierVatRegistrationNumberPage(supplierNumber), vatDetails)
+
+        given application: Application = applicationForPageLoad(Some(ua))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, supplierDetailsCheckYourAnswersRoutePageLoad())
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+        }
+      }
+
+      "for a User providing supplier details with no answer for SupplierVatRegistrationNumberPage must redirect to Unauthorised" in {
+        val ua = baseUserAnswers
+          .unsafeSet(UsePersonalDetailsAsSupplierPage(supplierNumber), false)
+          .unsafeSet(SupplierBusinessOrIndividualPage(supplierNumber), BusinessOrPrivateIndividual.PrivateIndividual)
+          .unsafeSet(SupplierNamePage(supplierNumber), name)
+          .unsafeSet(IsSupplierAddressInTheUkPage(supplierNumber), true)
+          .unsafeSet(SupplierAddressPage(supplierNumber), address)
+          .unsafeSet(IsSupplierVatRegisteredPage(supplierNumber), true)
+
+        given application: Application = applicationForPageLoad(Some(ua))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, supplierDetailsCheckYourAnswersRoutePageLoad())
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+        }
+      }
+
     }
 
     "onSubmit" - {

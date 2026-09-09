@@ -51,7 +51,7 @@ object SupplierAddressSummary {
 
     val value = answers.get(addressPage) match {
       case Some(address) =>
-        val countryLine = if (address.country.code == "GB") None else Some(address.country.name)
+        val countryLine = if (address.country.code == "GB") None else address.country.name
 
         (address.lines ++ address.postcode.toSeq ++ countryLine)
           .filter(_.nonEmpty)
