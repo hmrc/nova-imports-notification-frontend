@@ -20,7 +20,7 @@ import base.SpecBase
 import controllers.supplierdetails.routes
 import models.BusinessOrPrivateIndividual.{Business, PrivateIndividual}
 import models.PurchaserBusinessOrIndividual.NonVatRegisteredBusiness
-import models.{NameDetails, NormalMode, SupplierNumber, UserAnswers}
+import models.{CheckMode, NameDetails, NormalMode, SupplierNumber, UserAnswers}
 import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage}
 import pages.sections.notifierdetails.{BusinessNamePage, NameDetailsPage}
 import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
@@ -89,7 +89,7 @@ class SupplierNameSummarySpec extends SpecBase {
 
       result.key.content.asHtml.toString must include(msgs("supplierName.checkYourAnswersLabel"))
       value                              must (include("Mr") and include("Tom") and include("Smith") and include("<br>"))
-      result.actions.value.items.head.href mustBe routes.SupplierNameController.onPageLoad(SupplierNumber(3), NormalMode).url
+      result.actions.value.items.head.href mustBe routes.SupplierNameController.onPageLoad(SupplierNumber(3), CheckMode).url
     }
 
     "must return nothing when supplier is a Business" in {
