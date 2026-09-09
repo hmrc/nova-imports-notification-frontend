@@ -22,7 +22,7 @@ import play.api.libs.json.JsPath
 
 import scala.util.Try
 
-final case class SupplierBusinessOrIndividualPage(supplierNumber: SupplierNumber) extends QuestionPage[BusinessOrPrivateIndividual] {
+final case class SupplierBusinessOrIndividualPage(supplierNumber: SupplierNumber) extends SupplierQuestionPage[BusinessOrPrivateIndividual] {
 
   override def path: JsPath = JsPath \ "suppliers" \ supplierNumber.value.toString \ "details" \ toString
 

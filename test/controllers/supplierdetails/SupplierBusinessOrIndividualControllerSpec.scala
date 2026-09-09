@@ -19,7 +19,7 @@ package controllers.supplierdetails
 import base.SpecBase
 import controllers.{routes, supplierdetails}
 import forms.SupplierBusinessOrIndividualFormProvider
-import models.{BusinessOrPrivateIndividual, DraftId, NormalMode, SupplierNumber, UserAnswers}
+import models.{BusinessOrPrivateIndividual, DraftId, NameDetails, NormalMode, SupplierNumber, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
@@ -27,7 +27,7 @@ import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.DraftIdPage
 import pages.sections.initialquestions.VehicleFromEuPage
-import pages.sections.supplierdetails.SupplierBusinessOrIndividualPage
+import pages.sections.supplierdetails.{SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage}
 import play.api.libs.json.Json
 import queries.AllSuppliersQuery
 import play.api.inject.bind
@@ -60,20 +60,25 @@ class SupplierBusinessOrIndividualControllerSpec extends SpecBase with MockitoSu
     .success
     .value
 
-  private def applicationWithMockRepository(userAnswers: UserAnswers): (play.api.Application, SessionRepository) = {
+  private def stubSessionRepository(): SessionRepository = {
+    val m = mock[SessionRepository]
+    when(m.set(any())).thenReturn(Future.successful(true))
+    m
+  }
 
-    val mockSessionRepository = mock[SessionRepository]
-    when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
-
+  private def applicationWithMockRepository(
+    userAnswers: UserAnswers,
+    sessionRepository: SessionRepository = stubSessionRepository()
+  ): (play.api.Application, SessionRepository) = {
     val application =
       applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(
           bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-          bind[SessionRepository].toInstance(mockSessionRepository)
+          bind[SessionRepository].toInstance(sessionRepository)
         )
         .build()
 
-    (application, mockSessionRepository)
+    (application, sessionRepository)
   }
 
   private def savedAnswers(mockSessionRepository: SessionRepository): UserAnswers = {
@@ -316,5 +321,59 @@ class SupplierBusinessOrIndividualControllerSpec extends SpecBase with MockitoSu
         redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
       }
     }
+
+    "must clear the stored supplier name from the session when the answer is Business" in {
+
+      val answersWithVatNumberDetails = userAnswersWithGuardData
+        .unsafeSet(SupplierNamePage(SupplierNumber(1)), NameDetails("Mr", "First Name", "Last Name"))
+        .unsafeSet(SupplierBusinessNamePage(SupplierNumber(1)), "SupplierBusinessName")
+
+      val sessionRepository = stubSessionRepository()
+      val (application, _)  = applicationWithMockRepository(answersWithVatNumberDetails, sessionRepository)
+
+      running(application) {
+        val request =
+          FakeRequest(POST, supplierBusinessOrIndividualRoute)
+            .withFormUrlEncodedBody(("value", BusinessOrPrivateIndividual.Business.toString))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRoute.url
+
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
+        verify(sessionRepository).set(captor.capture())
+        captor.getValue.get(SupplierNamePage(SupplierNumber(1))) mustBe None
+        captor.getValue.get(SupplierBusinessNamePage(SupplierNumber(1))) mustBe Some("SupplierBusinessName")
+      }
+    }
+
+    "must clear the stored supplier business name from the session when the answer is Private Individual" in {
+
+      val nameDetails                 = NameDetails("Mr", "First Name", "Last Name")
+      val answersWithVatNumberDetails = userAnswersWithGuardData
+        .unsafeSet(SupplierNamePage(SupplierNumber(1)), nameDetails)
+        .unsafeSet(SupplierBusinessNamePage(SupplierNumber(1)), "SupplierBusinessName")
+
+      val sessionRepository = stubSessionRepository()
+      val (application, _)  = applicationWithMockRepository(answersWithVatNumberDetails, sessionRepository)
+
+      running(application) {
+        val request =
+          FakeRequest(POST, supplierBusinessOrIndividualRoute)
+            .withFormUrlEncodedBody(("value", BusinessOrPrivateIndividual.PrivateIndividual.toString))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRoute.url
+
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
+        verify(sessionRepository).set(captor.capture())
+        captor.getValue.get(SupplierNamePage(SupplierNumber(1))) mustBe Some(nameDetails)
+        captor.getValue.get(SupplierBusinessNamePage(SupplierNumber(1))) mustBe None
+      }
+    }
+
   }
 }

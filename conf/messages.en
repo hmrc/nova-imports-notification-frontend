@@ -7,6 +7,7 @@ site.no = No
 site.yes = Yes
 site.continue = Continue
 site.saveAndContinue = Save and continue
+site.confirmDetails = Confirm details
 site.start = Start now
 site.startAgain = Start again
 site.signIn = Sign in
@@ -392,7 +393,7 @@ addYourName.checkYourAnswersLabel = Name
 addYourName.change.hidden = your name
 
 ######################################################
-# AYD1.4 - Add your details - Business name                #
+# AYD1.4 - Add your details - Business name          #
 ######################################################
 
 businessName.title = What is your business name?
@@ -770,6 +771,8 @@ supplierBusinessName.caption = Add vehicle details
 supplierBusinessName.error.required = Enter the supplier’s business name
 supplierBusinessName.error.length = The supplier’s business name must be 160 characters or less
 supplierBusinessName.error.invalid = Enter the supplier’s business name in the correct format
+supplierBusinessName.checkYourAnswersLabel = Supplier’s business name
+supplierBusinessName.change.hidden = supplier’s business name
 
 ###########################################################################################
 # AVD-S7.0 - Add vehicle details - Supplier 7.0: We've changed the supplier's address      #
@@ -803,7 +806,7 @@ supplierName.lastName.error.format = Enter the supplier’s last name in the cor
 supplierName.lastName.error.length = The supplier’s last name must be 100 characters or less
 supplierName.lastName.error.required = Enter the supplier’s last name
 supplierName.checkYourAnswersLabel = Supplier’s name
-supplierName.change.hidden = the supplier’s name
+supplierName.change.hidden = supplier’s name
 
 #############################################################################
 # AVD-S5.0 - Add vehicle details - Supplier 5.0: Supplier address in the UK #
@@ -822,6 +825,8 @@ isSupplierVatRegistered.title = Is the supplier VAT registered?
 isSupplierVatRegistered.heading = Is the supplier VAT registered?
 isSupplierVatRegistered.caption = Add vehicle details
 isSupplierVatRegistered.error.required = Select yes if the supplier is VAT registered
+isSupplierVatRegistered.checkYourAnswersLabel = Is the supplier VAT registered?
+isSupplierVatRegistered.change.hidden = whether supplier is VAT registered
 
 ####################################################################################
 # AVD-S8.1 - Add vehicle details - Supplier 8.1: Supplier VAT Registration Details #
@@ -837,6 +842,19 @@ supplierVatRegistrationDetails.hint.vatNumber = Enter as shown on the supplier�
 supplierVatRegistrationDetails.country.error.required = Enter the country where the supplier is VAT registered
 supplierVatRegistrationDetails.vatNumber.error.required = Enter the supplier’s VAT registration number
 supplierVatRegistrationDetails.vatNumber.error.format = Enter the supplier’s VAT registration number in the correct format for the selected country
+supplierVatRegistrationDetails.checkYourAnswersLabel = Supplier’s VAT registration details
+supplierVatRegistrationDetails.change.hidden = supplier’s VAT registration details
+
+######################################################
+# AVD-S9.0 - Check Your Answers 3 - Supplier Details #
+######################################################
+
+supplierDetailsCheckYourAnswers.caption = Add vehicle details
+supplierDetailsCheckYourAnswers.title = Check the supplier details before adding vehicles
+supplierDetailsCheckYourAnswers.heading = Check the supplier details before adding vehicles
+supplierDetailsCheckYourAnswers.notProvided = Not provided
+supplierAddressCheckYourAnswers.checkYourAnswersLabel = Supplier’s address
+supplierAddressCheckYourAnswers.change.hidden = supplier’s address
 
 #####################################################################
 # AVD3.0 - Add vehicle details 3.0: Which vehicle dates do you have #
@@ -931,3 +949,36 @@ uploadVehicleSpreadsheet.hint = Must be an OpenDocument Spreadsheet (ODS) file
 uploadVehicleSpreadsheet.error.required = Select a file
 uploadVehicleSpreadsheet.error.tooLarge = The selected file must be smaller than 1MB
 uploadVehicleSpreadsheet.error.unknown = The selected file could not be uploaded. Try again.
+
+###############################################################
+# UVS3.0 - Upload vehicle spreadsheet 3.0 - Error: Virus      #
+###############################################################
+
+uploadSpreadsheetErrorQuarantine.title = The file contains a virus
+uploadSpreadsheetErrorQuarantine.heading = The file contains a virus
+uploadSpreadsheetErrorQuarantine.caption = Add vehicle details
+uploadSpreadsheetErrorQuarantine.paragraph = Check the file for any virus or create a new version before uploading it again.
+uploadSpreadsheetErrorQuarantine.link = Return to create a vehicle notification
+uploadSpreadsheetErrorQuarantine.buttonLabel = Upload again
+
+###########################################################################
+# UVS3.1 - Upload vehicle spreadsheet 3.1 - Error: problem uploading      #
+###########################################################################
+
+uploadSpreadsheetErrorUnknown.title = There is a problem uploading this file
+uploadSpreadsheetErrorUnknown.heading = There is a problem uploading this file
+uploadSpreadsheetErrorUnknown.caption = Add vehicle details
+uploadSpreadsheetErrorUnknown.paragraph = The spreadsheet could not be uploaded. You can try uploading the file again.
+uploadSpreadsheetErrorUnknown.link = Return to create a vehicle notification
+uploadSpreadsheetErrorUnknown.buttonLabel = Try again
+
+##################################################################
+# UVS3.2 - Upload vehicle spreadsheet 3.2 - Error: File type     #
+##################################################################
+
+uploadSpreadsheetErrorRejected.title = The selected file cannot be accepted
+uploadSpreadsheetErrorRejected.heading = The selected file cannot be accepted
+uploadSpreadsheetErrorRejected.caption = Add vehicle details
+uploadSpreadsheetErrorRejected.paragraph = You must save the spreadsheet as an ODS file and try uploading it again.
+uploadSpreadsheetErrorRejected.link = Return to create a vehicle notification
+uploadSpreadsheetErrorRejected.buttonLabel = Upload again

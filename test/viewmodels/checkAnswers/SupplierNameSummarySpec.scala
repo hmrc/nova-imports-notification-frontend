@@ -18,8 +18,13 @@ package viewmodels.checkAnswers
 
 import base.SpecBase
 import controllers.supplierdetails.routes
-import models.{CheckMode, NameDetails, SupplierNumber, UserAnswers}
-import pages.sections.supplierdetails.SupplierNamePage
+import models.BusinessOrPrivateIndividual.{Business, PrivateIndividual}
+import models.PurchaserBusinessOrIndividual.NonVatRegisteredBusiness
+import models.{NameDetails, NormalMode, SupplierNumber, UserAnswers}
+import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage}
+import pages.sections.notifierdetails.{BusinessNamePage, NameDetailsPage}
+import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
+import pages.sections.supplierdetails.{SupplierBusinessOrIndividualPage, SupplierNamePage}
 import play.api.Application
 import play.api.i18n.Messages
 
@@ -30,29 +35,94 @@ class SupplierNameSummarySpec extends SpecBase {
 
   "SupplierNameSummary" - {
 
-    "must return a summary with the name parts stacked on separate lines and a single change link" in {
-      val userAnswers =
-        UserAnswers(userAnswersId).set(SupplierNamePage(SupplierNumber(1)), NameDetails("Mr", "John", "Smith")).success.value
+    // TODO: Add using client name details tests once AVD-S1.2 page is added
 
-      val result = SupplierNameSummary.row(userAnswers, SupplierNumber(1)).value
+    "must return a summary with the name parts stacked on separate lines and a single change link when using Private Individuals personal name details" in {
+      val userAnswers = UserAnswers(userAnswersId)
+        .unsafeSet(NameDetailsPage, NameDetails("Mr", "John", "Smith"))
+
+      val result = SupplierNameSummary.rowFromPersonalDetails(userAnswers, SupplierNumber(1)).value
       val value  = result.value.content.asHtml.toString
 
       result.key.content.asHtml.toString must include(msgs("supplierName.checkYourAnswersLabel"))
       value                              must (include("Mr") and include("John") and include("Smith") and include("<br>"))
-      result.actions.value.items.head.href mustBe routes.SupplierNameController.onPageLoad(SupplierNumber(1), CheckMode).url
+      result.actions.value.items.head.href mustBe routes.UsePersonalDetailsAsSupplierController.onPageLoad(SupplierNumber(1), NormalMode).url
     }
 
-    "must link the Change action to AVD-S4.0 in CheckMode for supplier 3" in {
+    "must nothing when using own details as a business" in {
+      val userAnswers = UserAnswers(userAnswersId)
+        .unsafeSet(BusinessNamePage, "Bis")
+        .unsafeSet(BusinessOrPrivatePage, Business)
+
+      val result = SupplierNameSummary.rowFromPersonalDetails(userAnswers, SupplierNumber(3))
+      result mustBe None
+    }
+
+    "must return a summary with the name parts stacked on separate lines and a single change link when using Private Individuals purchaser name details" in {
+      val userAnswers = UserAnswers(userAnswersId)
+        .unsafeSet(PurchaserNamePage, NameDetails("Mr", "Adam", "Smith"))
+
+      val result = SupplierNameSummary.rowFromPurchaserDetails(userAnswers, SupplierNumber(2)).value
+      val value  = result.value.content.asHtml.toString
+
+      result.key.content.asHtml.toString must include(msgs("supplierName.checkYourAnswersLabel"))
+      value                              must (include("Mr") and include("Adam") and include("Smith") and include("<br>"))
+      result.actions.value.items.head.href mustBe routes.UsePurchaserDetailsAsSupplierController.onPageLoad(SupplierNumber(2), NormalMode).url
+    }
+
+    "must nothing when using purchasers details when the purchaser is a business" in {
+      val userAnswers = UserAnswers(userAnswersId)
+        .unsafeSet(PurchaserBusinessNamePage, "Bis")
+        .unsafeSet(PurchaserBusinessOrIndividualPage, NonVatRegisteredBusiness)
+
+      val result = SupplierNameSummary.rowFromPurchaserDetails(userAnswers, SupplierNumber(3))
+      result mustBe None
+    }
+
+    "must return a summary with the name parts stacked on separate lines and a single change link using supplier name details" in {
+      val userAnswers = UserAnswers(userAnswersId)
+        .unsafeSet(SupplierNamePage(SupplierNumber(3)), NameDetails("Mr", "Tom", "Smith"))
+        .unsafeSet(SupplierBusinessOrIndividualPage(SupplierNumber(3)), PrivateIndividual)
+
+      val result = SupplierNameSummary.rowFromSupplierDetails(userAnswers, SupplierNumber(3)).value
+      val value  = result.value.content.asHtml.toString
+
+      result.key.content.asHtml.toString must include(msgs("supplierName.checkYourAnswersLabel"))
+      value                              must (include("Mr") and include("Tom") and include("Smith") and include("<br>"))
+      result.actions.value.items.head.href mustBe routes.SupplierNameController.onPageLoad(SupplierNumber(3), NormalMode).url
+    }
+
+    "must return nothing when supplier is a Business" in {
       val userAnswers =
-        UserAnswers(userAnswersId).set(SupplierNamePage(SupplierNumber(3)), NameDetails("Mr", "John", "Smith")).success.value
+        UserAnswers(userAnswersId)
+          .unsafeSet(SupplierNamePage(SupplierNumber(3)), NameDetails("Mr", "Tom", "Smith"))
+          .unsafeSet(SupplierBusinessOrIndividualPage(SupplierNumber(3)), Business)
 
-      val result = SupplierNameSummary.row(userAnswers, SupplierNumber(3)).value
-
-      result.actions.value.items.head.href mustBe routes.SupplierNameController.onPageLoad(SupplierNumber(3), CheckMode).url
+      val result = SupplierNameSummary.rowFromSupplierDetails(userAnswers, SupplierNumber(3))
+      result mustBe None
     }
 
-    "must return None when the answer is not present" in {
-      SupplierNameSummary.row(UserAnswers(userAnswersId), SupplierNumber(1)) mustBe None
+    "must return Not Provided when the answer is not present when using personal name details" in {
+      val result = SupplierNameSummary.rowFromPersonalDetails(UserAnswers(userAnswersId), SupplierNumber(1)).value
+      val value  = result.value.content.asHtml.toString
+      result.key.content.asHtml.toString must include(msgs("supplierName.checkYourAnswersLabel"))
+      value                              must include(msgs("supplierDetailsCheckYourAnswers.notProvided"))
+    }
+
+    "must return Not Provided when the answer is not present when using purchaser name details" in {
+      val result = SupplierNameSummary.rowFromPurchaserDetails(UserAnswers(userAnswersId), SupplierNumber(2)).value
+      val value  = result.value.content.asHtml.toString
+      result.key.content.asHtml.toString must include(msgs("supplierName.checkYourAnswersLabel"))
+      value                              must include(msgs("supplierDetailsCheckYourAnswers.notProvided"))
+    }
+
+    "must return Not Provided when the answer is not present when using supplier name details" in {
+      val userAnswers =
+        UserAnswers(userAnswersId).unsafeSet(SupplierBusinessOrIndividualPage(SupplierNumber(3)), PrivateIndividual)
+      val result = SupplierNameSummary.rowFromSupplierDetails(userAnswers, SupplierNumber(3)).value
+      val value  = result.value.content.asHtml.toString
+      result.key.content.asHtml.toString must include(msgs("supplierName.checkYourAnswersLabel"))
+      value                              must include(msgs("supplierDetailsCheckYourAnswers.notProvided"))
     }
   }
 }

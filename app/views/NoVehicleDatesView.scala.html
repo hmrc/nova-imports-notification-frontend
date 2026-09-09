@@ -16,7 +16,6 @@
 
 @this(
         layout: templates.Layout,
-        govukInsetText: GovukInsetText,
         hmrcNewTabLinkHelper: HmrcNewTabLinkHelper
 )
 
@@ -24,14 +23,10 @@
 
 @layout(pageTitle = titleNoForm(messages("noVehicleDates.title"))) {
 
-    <span class="govuk-caption-l">@messages("noVehicleDates.caption")</span>
-
     <h1 class="govuk-heading-l">@messages("noVehicleDates.heading")</h1>
 
     <p class="govuk-body">@messages("noVehicleDates.paragraph.1")</p>
 
-    @govukInsetText(InsetTextViewModel(
-        messages("noVehicleDates.paragraph.2",
-            hmrcNewTabLinkHelper(LinkViewModel(messages("noVehicleDates.link.text"), personalTransportUnitUrl)))
-    ))
+    <p class="govuk-body">@Html(messages("noVehicleDates.paragraph.2",
+        hmrcNewTabLinkHelper(LinkViewModel(messages("noVehicleDates.link.text"), personalTransportUnitUrl))))</p>
 }
