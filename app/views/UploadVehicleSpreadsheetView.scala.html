@@ -62,7 +62,8 @@
             errorMessage = uploadError.map { error =>
                 ErrorMessage.errorMessageWithDefaultStringsTranslated(content = Text(messages(error.messageKey)))
             },
-            javascript = Some(true)
+            javascript = Some(true),
+            attributes = Map("accept" -> ".ods,application/vnd.oasis.opendocument.spreadsheet")
         ))
 
         @govukButton(ButtonViewModel(messages("site.continue")))
