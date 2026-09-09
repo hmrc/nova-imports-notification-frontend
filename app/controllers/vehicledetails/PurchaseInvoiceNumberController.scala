@@ -52,7 +52,9 @@ class PurchaseInvoiceNumberController @Inject() (
 
   def onPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode): Action[AnyContent] =
     actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierService, vehicleService, supplierNumber, vehicleNumber)) { implicit request =>
-      Ok(view(form.withDefault(request.userAnswers.get(PurchaseInvoiceNumberPage(supplierNumber, vehicleNumber))), supplierNumber, vehicleNumber, mode))
+      Ok(
+        view(form.withDefault(request.userAnswers.get(PurchaseInvoiceNumberPage(supplierNumber, vehicleNumber))), supplierNumber, vehicleNumber, mode)
+      )
     }
 
   def onSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode): Action[AnyContent] =
