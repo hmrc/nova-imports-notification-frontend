@@ -19,7 +19,7 @@ package viewmodels.checkAnswers
 import controllers.supplierdetails.routes
 import models.BusinessOrPrivateIndividual.Business
 import models.PurchaserBusinessOrIndividual.NonVatRegisteredBusiness
-import models.{NameDetails, NormalMode, SupplierNumber, UserAnswers}
+import models.{CheckMode, NameDetails, NormalMode, SupplierNumber, UserAnswers}
 import pages.QuestionPage
 import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage}
 import pages.sections.notifierdetails.NameDetailsPage
@@ -57,7 +57,7 @@ object SupplierNameSummary {
       None
     } else {
       val nameValue = extractNameDetailsValue(answers, SupplierNamePage(supplierNumber))
-      row(nameValue, routes.SupplierNameController.onPageLoad(supplierNumber, NormalMode).url)
+      row(nameValue, routes.SupplierNameController.onPageLoad(supplierNumber, CheckMode).url)
     }
   }
 
