@@ -402,7 +402,7 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
         }
       }
 
-      "for a User providing supplier details with no answer for IsSupplierAddressInTheUkPage must redirect to Unauthorised" in {
+      "for a User resuming a previous draft, with supplier details restored from FormP but no answer for IsSupplierAddressInTheUkPage, must return OK" in {
         val ua = baseUserAnswers
           .unsafeSet(UsePersonalDetailsAsSupplierPage(supplierNumber), false)
           .unsafeSet(SupplierBusinessOrIndividualPage(supplierNumber), BusinessOrPrivateIndividual.PrivateIndividual)
@@ -418,8 +418,7 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
 
           val result = route(application, request).value
 
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+          status(result) mustEqual OK
         }
       }
 
