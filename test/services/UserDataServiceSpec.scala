@@ -129,6 +129,8 @@ class UserDataServiceSpec extends SpecBase with MockitoSugar with ScalaFutures w
         "supplierBusinessName"       -> businessName,
         "addressLine1"               -> "1 High Street",
         "addressLine2"               -> "Town",
+        "addressLine3"               -> "County",
+        "addressLine4"               -> "Region",
         "postcode"                   -> "XX11 1XX",
         "country"                    -> "GB",
         "countryName"                -> "United Kingdom",
@@ -145,7 +147,7 @@ class UserDataServiceSpec extends SpecBase with MockitoSugar with ScalaFutures w
       result.get(SupplierBusinessOrIndividualPage(SupplierNumber(1))) mustBe Some(BusinessOrPrivateIndividual.Business)
       result.get(SupplierBusinessNamePage(SupplierNumber(1))) mustBe Some("Test Trading Ltd")
       result.get(SupplierAddressPage(SupplierNumber(1))) mustBe Some(
-        Address(lines = List("1 High Street", "Town"), postcode = Some("XX11 1XX"), country = Country("GB", "United Kingdom"))
+        Address(lines = List("1 High Street", "Town", "County", "Region"), postcode = Some("XX11 1XX"), country = Country("GB", "United Kingdom"))
       )
       result.get(IsSupplierVatRegisteredPage(SupplierNumber(1))) mustBe Some(true)
       result.get(SupplierVatRegistrationNumberPage(SupplierNumber(1))) mustBe Some(VatNumberDetails("GB", "123456789"))
