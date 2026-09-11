@@ -19,7 +19,7 @@ package services
 import base.SpecBase
 import connectors.NovaImportsBackendConnector
 import models.DraftNotification.SectionId
-import models.{Address, BusinessOrPrivateIndividual, ContactNumbers, Country, DraftId, DraftNotification, DraftNotificationSection, NameDetails, NovaUserType, PurchaserOrOnBehalf, SectionStatus, SupplierNumber, UserAnswers, UserContext}
+import models.{Address, BusinessOrPrivateIndividual, ContactNumbers, Country, DraftId, DraftNotification, DraftNotificationSection, NameDetails, NovaUserType, PurchaserOrOnBehalf, SectionStatus, SupplierNumber, UserAnswers, UserContext, VatNumberDetails}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.EitherValues
@@ -31,7 +31,8 @@ import pages.sections.notifierdetails.{BusinessNamePage, EmailAddressPage, NameD
 import pages.sections.notifieraddress.AddressPage
 import pages.sections.purchaseraddress.{IsPurchaserAddressInTheUkPage, PurchaserAddressPage}
 import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
-import pages.sections.supplierdetails.{UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
+import pages.sections.supplieraddress.SupplierAddressPage
+import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierVatRegistrationNumberPage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
 import play.api.libs.json.{JsObject, Json, Writes}
 import repositories.SessionRepository
 import uk.gov.hmrc.http.HeaderCarrier
@@ -90,6 +91,108 @@ class UserDataServiceSpec extends SpecBase with MockitoSugar with ScalaFutures w
 
       result.get(PurchaserNamePage) mustBe None
       result.get(PurchaserBusinessNamePage) mustBe None
+    }
+  }
+
+  "UserDataService.storePurchaserAddressPages" - {
+
+    def draftWithPurchaserAddress(section: Option[JsObject]): DraftNotification =
+      draftWith(Map(SectionId.PurchaserAddress -> DraftNotificationSection(section)))
+
+    "must rehydrate PurchaserAddressPage from a purchaser address section" in {
+      val section = Json.obj(
+        "line1"    -> "1 High Street",
+        "line2"    -> "Town",
+        "postCode" -> "XX11 1XX",
+        "country"  -> Json.obj("code" -> "GB", "name" -> "United Kingdom")
+      )
+      val draft  = draftWithPurchaserAddress(Some(section))
+      val result = UserDataService.storePurchaserAddressPages(draft, emptyUserAnswers, stubSessionRepository()).futureValue
+
+      result.get(PurchaserAddressPage) mustBe Some(
+        Address(lines = List("1 High Street", "Town"), postcode = Some("XX11 1XX"), country = Country("GB", "United Kingdom"))
+      )
+    }
+
+    "must leave answers unchanged when the draft has no purchaser address section" in {
+      val result = UserDataService.storePurchaserAddressPages(draftWith(Map.empty), emptyUserAnswers, stubSessionRepository()).futureValue
+
+      result.get(PurchaserAddressPage) mustBe None
+    }
+  }
+
+  "UserDataService.storeSupplierDetailsPages" - {
+
+    def supplierDetailsSection(businessName: String): JsObject =
+      Json.obj(
+        "supplierBusinessIndividual" -> "business",
+        "supplierBusinessName"       -> businessName,
+        "addressLine1"               -> "1 High Street",
+        "addressLine2"               -> "Town",
+        "postcode"                   -> "XX11 1XX",
+        "country"                    -> "GB",
+        "countryName"                -> "United Kingdom",
+        "isSupplierVatReg"           -> true,
+        "euStateVatReg"              -> "GB",
+        "vatRegistrationNumber"      -> "123456789"
+      )
+
+    "must rehydrate every supplier details page from a supplier details section" in {
+      val draft =
+        draftWith(Map("supplier/1/details" -> DraftNotificationSection(Some(supplierDetailsSection("Test Trading Ltd")))))
+      val result = UserDataService.storeSupplierDetailsPages(draft, emptyUserAnswers, stubSessionRepository()).futureValue
+
+      result.get(SupplierBusinessOrIndividualPage(SupplierNumber(1))) mustBe Some(BusinessOrPrivateIndividual.Business)
+      result.get(SupplierBusinessNamePage(SupplierNumber(1))) mustBe Some("Test Trading Ltd")
+      result.get(SupplierAddressPage(SupplierNumber(1))) mustBe Some(
+        Address(lines = List("1 High Street", "Town"), postcode = Some("XX11 1XX"), country = Country("GB", "United Kingdom"))
+      )
+      result.get(IsSupplierVatRegisteredPage(SupplierNumber(1))) mustBe Some(true)
+      result.get(SupplierVatRegistrationNumberPage(SupplierNumber(1))) mustBe Some(VatNumberDetails("GB", "123456789"))
+      result.get(SupplierNamePage(SupplierNumber(1))) mustBe None
+    }
+
+    "must rehydrate the supplier name for a private individual supplier and leave the business name unset" in {
+      val section = Json.obj(
+        "supplierBusinessIndividual" -> "individual",
+        "supplierTitle"              -> "Mr",
+        "supplierFirstName"          -> "FirstName",
+        "supplierLastName"           -> "LastName",
+        "addressLine1"               -> "1 High Street",
+        "addressLine2"               -> "Town",
+        "country"                    -> "FR",
+        "isSupplierVatReg"           -> false
+      )
+      val draft  = draftWith(Map("supplier/1/details" -> DraftNotificationSection(Some(section))))
+      val result = UserDataService.storeSupplierDetailsPages(draft, emptyUserAnswers, stubSessionRepository()).futureValue
+
+      result.get(SupplierNamePage(SupplierNumber(1))) mustBe Some(NameDetails("Mr", "FirstName", "LastName"))
+      result.get(SupplierBusinessNamePage(SupplierNumber(1))) mustBe None
+      result.get(IsSupplierVatRegisteredPage(SupplierNumber(1))) mustBe Some(false)
+      result.get(SupplierVatRegistrationNumberPage(SupplierNumber(1))) mustBe None
+      result.get(SupplierAddressPage(SupplierNumber(1))) mustBe Some(
+        Address(lines = List("1 High Street", "Town"), postcode = None, country = Country("FR", None))
+      )
+    }
+
+    "must rehydrate every supplier the draft holds" in {
+      val draft = draftWith(
+        Map(
+          "supplier/1/details" -> DraftNotificationSection(Some(supplierDetailsSection("Test 1 Trading Ltd"))),
+          "supplier/2/details" -> DraftNotificationSection(Some(supplierDetailsSection("Test 2 Motors Ltd")))
+        )
+      )
+      val result = UserDataService.storeSupplierDetailsPages(draft, emptyUserAnswers, stubSessionRepository()).futureValue
+
+      result.get(SupplierBusinessNamePage(SupplierNumber(1))) mustBe Some("Test 1 Trading Ltd")
+      result.get(SupplierBusinessNamePage(SupplierNumber(2))) mustBe Some("Test 2 Motors Ltd")
+    }
+
+    "must leave answers unchanged when the draft has no supplier details section" in {
+      val result = UserDataService.storeSupplierDetailsPages(draftWith(Map.empty), emptyUserAnswers, stubSessionRepository()).futureValue
+
+      result.get(SupplierBusinessOrIndividualPage(SupplierNumber(1))) mustBe None
+      result.get(SupplierAddressPage(SupplierNumber(1))) mustBe None
     }
   }
 
