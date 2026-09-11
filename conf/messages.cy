@@ -784,6 +784,25 @@ noVehicleDates.paragraph.1 = You cannot continue this notification online.
 noVehicleDates.paragraph.2 = Contact {0}.
 noVehicleDates.link.text = HMRC Personal Transport Unit
 
+######################################################################
+# AVD5.0 - Add vehicle details 5.0: Date of availability             #
+######################################################################
+# TODO: Welsh translations to be supplied by content team.
+
+dateOfAvailability.title = Date of availability
+dateOfAvailability.heading = Date of availability
+dateOfAvailability.caption = Add vehicle details
+dateOfAvailability.paragraph.1 = This is the date the vehicle was first made available to be taken into possession, even if it was not collected on that date.
+dateOfAvailability.inset.paragraph.1 = If the vehicle was made available after 11pm on 31 October 2019, it’s considered an import. Find out about {0}.
+dateOfAvailability.inset.importingVehicles.linkText = Importing vehicles into the UK
+dateOfAvailability.question.heading = When was the vehicle made available to you?
+dateOfAvailability.hint = For example, 27 3 2026
+dateOfAvailability.error.required.all = Enter the date the vehicle was made available to you
+dateOfAvailability.error.required = The date the vehicle was made available to you must include a {0}
+dateOfAvailability.error.required.two = The date the vehicle was made available to you must include a {0} and {1}
+dateOfAvailability.error.invalid = Enter the date the vehicle was made available to you in the correct format
+dateOfAvailability.error.notARealDate = The date the vehicle was made available to you must be a real date
+
 ##########################################################################
 # AVD-S8.0 - Add vehicle details - Supplier 8.0: Supplier VAT Registered #
 ##########################################################################
