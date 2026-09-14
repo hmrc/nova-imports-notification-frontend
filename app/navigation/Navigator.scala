@@ -202,7 +202,7 @@ class Navigator @Inject() () {
       (userAnswers, _) =>
         (userAnswers.get(page), userAnswers.get(VehicleDatesPage(page.supplierNumber, page.vehicleNumber))) match {
           case (Some(_), Some(dates)) if dates.contains(VehicleDates.AvailabilityAndFirstRegistration) =>
-            routes.LandingPageController.onPageLoad()
+            vehicledetails.routes.DateOfAvailabilityController.onPageLoad(page.supplierNumber, page.vehicleNumber, NormalMode)
           case (Some(_), Some(dates)) if dates.contains(VehicleDates.PurchaseInvoiceDate) =>
             routes.LandingPageController.onPageLoad()
           case _ => routes.JourneyRecoveryController.onPageLoad()

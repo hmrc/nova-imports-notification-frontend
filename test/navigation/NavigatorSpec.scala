@@ -535,7 +535,7 @@ class NavigatorSpec extends SpecBase {
           NormalMode,
           ua,
           NovaUserType.PrivateIndividual
-        ) mustBe routes.LandingPageController.onPageLoad()
+        ) mustBe vehicledetails.routes.DateOfAvailabilityController.onPageLoad(SupplierNumber(1), VehicleNumber(1), NormalMode)
       }
 
       "must go from PurchaseInvoiceNumberPage AVD4.1 to TotalPricePaid AVD7.0 when only the purchase invoice date was selected on AVD3.0" in {

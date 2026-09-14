@@ -26,5 +26,5 @@ final case class DateOfAvailabilityPage(supplierNumber: SupplierNumber, vehicleN
 
   override def path: JsPath = JsPath \ "vehicles" \ vehicleNumber.value.toString \ "details" \ toString
 
-  override def toString: String = "dateOfAvailability"
+  override def toString: String = "dateMadeAvailableYou"
 }

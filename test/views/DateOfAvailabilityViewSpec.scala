@@ -106,7 +106,7 @@ class DateOfAvailabilityViewSpec extends SpecBase with Matchers with BeforeAndAf
 
     "must render the hint text" in {
       render() must include(msgs("dateOfAvailability.hint"))
-      msgs("dateOfAvailability.hint") mustEqual "For example, 27 3 2026"
+      msgs("dateOfAvailability.hint") mustEqual "For example, 27 03 2026"
     }
 
     "must render a back link" in {
@@ -202,7 +202,6 @@ class DateOfAvailabilityViewSpec extends SpecBase with Matchers with BeforeAndAf
       hasErrorClass(html, "month") mustEqual false
       hasErrorClass(html, "year") mustEqual false
     }
-
     "must highlight the whole date when the date does not exist but no single field is at fault" in {
       val html = render(bind("31", "02", "2026"))
 
