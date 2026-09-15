@@ -19,7 +19,7 @@ package views
 import base.SpecBase
 import config.FrontendAppConfig
 import forms.SupplierVatRegistrationDetailsFormProvider
-import models.{NormalMode, SupplierNumber}
+import models.{Country, NormalMode, SupplierNumber}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.must.Matchers
 import play.api.Application
@@ -46,58 +46,59 @@ class SupplierVatRegistrationDetailsViewSpec extends SpecBase with Matchers with
 
   val appConfig    = app.injector.instanceOf[FrontendAppConfig]
   val formProvider = new SupplierVatRegistrationDetailsFormProvider()
-  val form         = formProvider(appConfig.vrnValidationList)
+  val euCountries  = Seq(Country("FR", "France"), Country("DE", "Germany"))
+  val form         = formProvider(euCountries, appConfig.vrnValidationList)
 
   "SupplierVatRegistrationDetailsView" - {
 
     "must render the correct heading" in {
-      val html: String = view(appConfig.vrnValidationList, form, SupplierNumber(1), NormalMode)(request, msgs).toString
+      val html: String = view(euCountries, form, SupplierNumber(1), NormalMode)(request, msgs).toString
 
       html must include(msgs("supplierVatRegistrationDetails.heading"))
     }
 
     "must render the correct page title" in {
-      val html: String = view(appConfig.vrnValidationList, form, SupplierNumber(1), NormalMode)(request, msgs).toString
+      val html: String = view(euCountries, form, SupplierNumber(1), NormalMode)(request, msgs).toString
 
       html must include(msgs("supplierVatRegistrationDetails.title"))
     }
 
     "must render the correct page caption" in {
-      val html: String = view(appConfig.vrnValidationList, form, SupplierNumber(1), NormalMode)(request, msgs).toString
+      val html: String = view(euCountries, form, SupplierNumber(1), NormalMode)(request, msgs).toString
 
       html must include("govuk-caption-l")
       html must include(msgs("supplierVatRegistrationDetails.caption"))
     }
 
     "must render the first paragraph" in {
-      val html: String = view(appConfig.vrnValidationList, form, SupplierNumber(1), NormalMode)(request, msgs).toString
+      val html: String = view(euCountries, form, SupplierNumber(1), NormalMode)(request, msgs).toString
 
       html must include("govuk-body")
       html must include(msgs("supplierVatRegistrationDetails.paragraph.1"))
     }
 
     "must render the country field label" in {
-      val html: String = view(appConfig.vrnValidationList, form, SupplierNumber(1), NormalMode)(request, msgs).toString
+      val html: String = view(euCountries, form, SupplierNumber(1), NormalMode)(request, msgs).toString
 
       html must include(msgs("supplierVatRegistrationDetails.label.country"))
     }
 
     "must render the country vat number label with hint" in {
-      val html: String = view(appConfig.vrnValidationList, form, SupplierNumber(1), NormalMode)(request, msgs).toString
+      val html: String = view(euCountries, form, SupplierNumber(1), NormalMode)(request, msgs).toString
 
       html must include(msgs("supplierVatRegistrationDetails.label.vatNumber"))
       html must include(msgs("supplierVatRegistrationDetails.hint.vatNumber"))
     }
 
     "must render the Continue button" in {
-      val html: String = view(appConfig.vrnValidationList, form, SupplierNumber(1), NormalMode)(request, msgs).toString
+      val html: String = view(euCountries, form, SupplierNumber(1), NormalMode)(request, msgs).toString
 
       html must include(msgs("site.continue"))
     }
 
     "must render the error summary when the form has errors" in {
       val boundForm    = form.bind(Map("value" -> ""))
-      val html: String = view(appConfig.vrnValidationList, boundForm, SupplierNumber(1), NormalMode)(request, msgs).toString
+      val html: String = view(euCountries, boundForm, SupplierNumber(1), NormalMode)(request, msgs).toString
 
       html must include(msgs("supplierVatRegistrationDetails.country.error.required"))
       html must include(msgs("supplierVatRegistrationDetails.vatNumber.error.required"))

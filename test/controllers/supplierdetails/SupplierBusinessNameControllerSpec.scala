@@ -17,31 +17,30 @@
 package controllers.supplierdetails
 
 import base.SpecBase
+import connectors.NovaImportsBackendConnector
 import controllers.{routes, supplierdetails}
 import forms.SupplierBusinessNameFormProvider
-import models.{BusinessOrPrivateIndividual, CheckMode, DraftId, NormalMode, SupplierNumber, UserAnswers}
-import navigation.{FakeNavigator, Navigator}
+import models.{AddressJourney, BusinessOrPrivateIndividual, CheckMode, Country, DraftId, EuMemberStates, NormalMode, SupplierNumber, UserAnswers}
 import org.mockito.ArgumentCaptor
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{verify, when}
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
+import org.mockito.Mockito.{atLeastOnce, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.DraftIdPage
 import pages.sections.initialquestions.VehicleFromEuPage
-import pages.sections.supplierdetails.{SupplierBusinessNamePage, SupplierBusinessOrIndividualPage}
+import pages.sections.supplierdetails.{SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierEuMemberStatesPage}
 import play.api.libs.json.Json
 import queries.AllSuppliersQuery
 import play.api.inject.bind
-import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
+import services.AddressLookupService
+import uk.gov.hmrc.http.HeaderCarrier
 import views.html.SupplierBusinessNameView
 
 import scala.concurrent.Future
 
 class SupplierBusinessNameControllerSpec extends SpecBase with MockitoSugar {
-
-  def onwardRoute: Call = Call("GET", "/foo")
 
   val formProvider = new SupplierBusinessNameFormProvider()
   val form         = formProvider()
@@ -53,22 +52,34 @@ class SupplierBusinessNameControllerSpec extends SpecBase with MockitoSugar {
 
   private val supplierOne = SupplierNumber(1)
 
+  private val testEuCountries = Set(Country("FR", "France"))
+  private val journeyUrl      = "http://alf.example.com/lookup/journey-123"
+
   private val requiredAnswers: UserAnswers = emptyUserAnswers
     .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
     .unsafeSet(VehicleFromEuPage, true)
     .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj()))
     .unsafeSet(SupplierBusinessOrIndividualPage(supplierOne), BusinessOrPrivateIndividual.Business)
 
-  private def applicationWithMockRepository(userAnswers: UserAnswers): (play.api.Application, SessionRepository) = {
+  private def applicationWithMockRepository(
+    userAnswers: UserAnswers,
+    supplierNumber: SupplierNumber = supplierOne
+  ): (play.api.Application, SessionRepository) = {
 
     val mockSessionRepository = mock[SessionRepository]
+    val mockAlfService        = mock[AddressLookupService]
+    val mockBackendConnector  = mock[NovaImportsBackendConnector]
     when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+    when(mockBackendConnector.getEuMemberStates()(any())) thenReturn Future.successful(Right(EuMemberStates(testEuCountries)))
+    when(mockAlfService.initJourney(eqTo(AddressJourney.Supplier(supplierNumber)), eqTo(false), any[Seq[String]])(any[HeaderCarrier]))
+      .thenReturn(Future.successful(Right(journeyUrl)))
 
     val application =
       applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(
-          bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-          bind[SessionRepository].toInstance(mockSessionRepository)
+          bind[SessionRepository].toInstance(mockSessionRepository),
+          bind[AddressLookupService].toInstance(mockAlfService),
+          bind[NovaImportsBackendConnector].toInstance(mockBackendConnector)
         )
         .build()
 
@@ -77,7 +88,7 @@ class SupplierBusinessNameControllerSpec extends SpecBase with MockitoSugar {
 
   private def savedAnswers(mockSessionRepository: SessionRepository): UserAnswers = {
     val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
-    verify(mockSessionRepository).set(captor.capture())
+    verify(mockSessionRepository, atLeastOnce()).set(captor.capture())
     captor.getValue
   }
 
@@ -119,7 +130,7 @@ class SupplierBusinessNameControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must save the business name and redirect to the next page when valid data is submitted" in {
+    "must save the business name and redirect to the ALF journey when valid data is submitted" in {
 
       val (application, mockSessionRepository) = applicationWithMockRepository(requiredAnswers)
 
@@ -129,9 +140,11 @@ class SupplierBusinessNameControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRoute.url
+        redirectLocation(result).value mustEqual journeyUrl
 
-        savedAnswers(mockSessionRepository).get(SupplierBusinessNamePage(supplierOne)) mustEqual Some(validName)
+        val answers = savedAnswers(mockSessionRepository)
+        answers.get(SupplierBusinessNamePage(supplierOne)) mustEqual Some(validName)
+        answers.get(SupplierEuMemberStatesPage(supplierOne)) mustEqual Some(testEuCountries)
       }
     }
 
@@ -143,7 +156,7 @@ class SupplierBusinessNameControllerSpec extends SpecBase with MockitoSugar {
         .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj(), "3" -> Json.obj()))
         .unsafeSet(SupplierBusinessOrIndividualPage(supplierThree), BusinessOrPrivateIndividual.Business)
 
-      val (application, mockSessionRepository) = applicationWithMockRepository(answersForThirdSupplier)
+      val (application, mockSessionRepository) = applicationWithMockRepository(answersForThirdSupplier, supplierThree)
 
       running(application) {
         val request = FakeRequest(POST, supplierdetails.routes.SupplierBusinessNameController.onSubmit(supplierThree, NormalMode).url)

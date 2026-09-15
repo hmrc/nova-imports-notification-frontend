@@ -18,9 +18,10 @@ package controllers.supplierdetails
 
 import base.SpecBase
 import config.FrontendAppConfig
+import connectors.NovaImportsBackendConnector
 import controllers.{routes, supplierdetails}
 import forms.SupplierVatRegistrationDetailsFormProvider
-import models.{DraftId, Mode, NormalMode, SupplierNumber, UserAnswers, VatNumberDetails}
+import models.{Country, DraftId, EuMemberStates, Mode, NormalMode, SupplierNumber, UserAnswers, VatNumberDetails}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
@@ -28,7 +29,8 @@ import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.DraftIdPage
 import pages.sections.initialquestions.VehicleFromEuPage
-import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierVatRegistrationNumberPage}
+import pages.sections.supplieraddress.SupplierAddressJourneyIdPage
+import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierEuMemberStatesPage, SupplierVatRegistrationNumberPage}
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.libs.json.Json
@@ -49,6 +51,8 @@ class SupplierVatRegistrationDetailsControllerSpec extends SpecBase with Mockito
 
   private val validVatNumberDetails = VatNumberDetails("FR", "AB123456789")
 
+  private val testEuCountries: Set[Country] = Set(Country("FR", "France"), Country("DE", "Germany"))
+
   private lazy val supplierVatRegistrationDetailsRoute =
     supplierdetails.routes.SupplierVatRegistrationDetailsController.onPageLoad(SupplierNumber(1), NormalMode).url
   private def supplierVatRegistrationDetailsSubmitRoute(supplierNumber: SupplierNumber, mode: Mode = NormalMode) =
@@ -67,10 +71,16 @@ class SupplierVatRegistrationDetailsControllerSpec extends SpecBase with Mockito
     .set(IsSupplierVatRegisteredPage(SupplierNumber(1)), true)
     .success
     .value
+    .set(SupplierAddressJourneyIdPage(SupplierNumber(1)), "journey-id-1")
+    .success
+    .value
+    .set(SupplierEuMemberStatesPage(SupplierNumber(1)), testEuCountries)
+    .success
+    .value
 
   private def buildAppConfigAndForm(application: play.api.Application): (FrontendAppConfig, Form[VatNumberDetails]) = {
     val appConfig = application.injector.instanceOf[FrontendAppConfig]
-    (appConfig, formProvider(appConfig.vrnValidationList))
+    (appConfig, formProvider(testEuCountries.toSeq, appConfig.vrnValidationList))
   }
 
   private def applicationWithMockRepository(userAnswers: UserAnswers): (play.api.Application, SessionRepository) = {
@@ -108,7 +118,7 @@ class SupplierVatRegistrationDetailsControllerSpec extends SpecBase with Mockito
         val view    = application.injector.instanceOf[SupplierVatRegistrationDetailsView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(appConfig.vrnValidationList, form, SupplierNumber(1), NormalMode)(
+        contentAsString(result) mustEqual view(testEuCountries.toSeq, form, SupplierNumber(1), NormalMode)(
           request,
           messages(application)
         ).toString
@@ -127,10 +137,45 @@ class SupplierVatRegistrationDetailsControllerSpec extends SpecBase with Mockito
         val view    = application.injector.instanceOf[SupplierVatRegistrationDetailsView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(appConfig.vrnValidationList, form.fill(validVatNumberDetails), SupplierNumber(1), NormalMode)(
+        contentAsString(result) mustEqual view(testEuCountries.toSeq, form.fill(validVatNumberDetails), SupplierNumber(1), NormalMode)(
           request,
           messages(application)
         ).toString
+      }
+    }
+
+    "must fetch and cache the EU member states when they are not already in session (AC8)" in {
+
+      val answersWithoutEuMemberStates = userAnswersWithGuardData.remove(SupplierEuMemberStatesPage(SupplierNumber(1))).success.value
+
+      val mockConnector         = mock[NovaImportsBackendConnector]
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockConnector.getEuMemberStates()(any())) thenReturn Future.successful(Right(EuMemberStates(testEuCountries)))
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
+      val application =
+        applicationBuilder(userAnswers = Some(answersWithoutEuMemberStates))
+          .overrides(
+            bind[NovaImportsBackendConnector].toInstance(mockConnector),
+            bind[SessionRepository].toInstance(mockSessionRepository)
+          )
+          .build()
+
+      val (appConfig, form) = buildAppConfigAndForm(application)
+
+      running(application) {
+        val request = FakeRequest(GET, supplierVatRegistrationDetailsRoute)
+        val result  = route(application, request).value
+        val view    = application.injector.instanceOf[SupplierVatRegistrationDetailsView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(testEuCountries.toSeq, form, SupplierNumber(1), NormalMode)(
+          request,
+          messages(application)
+        ).toString
+
+        val persisted = savedAnswers(mockSessionRepository)
+        persisted.get(SupplierEuMemberStatesPage(SupplierNumber(1))) mustEqual Some(testEuCountries)
       }
     }
 
@@ -168,6 +213,12 @@ class SupplierVatRegistrationDetailsControllerSpec extends SpecBase with Mockito
         .set(IsSupplierVatRegisteredPage(SupplierNumber(3)), true)
         .success
         .value
+        .set(SupplierAddressJourneyIdPage(SupplierNumber(3)), "journey-id-3")
+        .success
+        .value
+        .set(SupplierEuMemberStatesPage(SupplierNumber(3)), testEuCountries)
+        .success
+        .value
       val (application, mockSessionRepository) = applicationWithMockRepository(answersForSupplierThree)
 
       running(application) {
@@ -202,7 +253,7 @@ class SupplierVatRegistrationDetailsControllerSpec extends SpecBase with Mockito
         val result    = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(appConfig.vrnValidationList, boundForm, SupplierNumber(1), NormalMode)(
+        contentAsString(result) mustEqual view(testEuCountries.toSeq, boundForm, SupplierNumber(1), NormalMode)(
           request,
           messages(application)
         ).toString

@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package pages.sections.supplieraddress
+package pages.sections.supplierdetails
 
-import models.SupplierNumber
-import pages.sections.supplierdetails.SupplierQuestionPage
+import models.{Country, SupplierNumber}
 import play.api.libs.json.JsPath
 
-final case class IsSupplierAddressInTheUkPage(supplierNumber: SupplierNumber) extends SupplierQuestionPage[Boolean] {
+final case class SupplierEuMemberStatesPage(supplierNumber: SupplierNumber) extends SupplierQuestionPage[Set[Country]] {
 
-  override def path: JsPath = JsPath \ "suppliers" \ supplierNumber.value.toString \ toString
+  override def path: JsPath = JsPath \ "suppliers" \ supplierNumber.value.toString \ "details" \ toString
 
-  override def toString: String = "isSupplierAddressInTheUk"
+  override def toString: String = "supplierEuMemberStates"
 }

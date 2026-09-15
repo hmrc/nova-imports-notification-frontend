@@ -83,7 +83,7 @@ class AddressChangedController @Inject() (
       for {
         cleared <- Future.fromTry(request.userAnswers.remove(binding.addressPage).flatMap(_.remove(binding.journeyIdPage)))
         _       <- sessionRepository.set(cleared)
-      } yield Redirect(binding.restartAt)
+      } yield Redirect(binding.restartAt(request))
     }
   }
 
