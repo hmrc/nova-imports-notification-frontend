@@ -128,7 +128,7 @@ class VehicleServiceImpl @Inject() (
       }
     )
 
-  // reuses a collection if no values set, overwriting its supplierNumber or importNumber
+  // reuses a collection if no answer values set yet, overwriting its supplierNumber or importNumber
   private def add(answers: UserAnswers, belongsTo: JsObject): Future[VehicleNumber] = {
     val vehicles = allVehicles(answers)
     val number   = availableNumber(vehicles).getOrElse(nextNumber(vehicles))

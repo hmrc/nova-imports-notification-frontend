@@ -91,7 +91,7 @@ object VehiclesBoughtFromSupplierAvd12PlaceholderController {
     IsDraftIdDefined(request.userAnswers) &&
       supplierService.numberHasValues(request.userAnswers, supplierNumber)
 
-  // the vehicle being deleted must also belong to the supplier in the URL
+  // the vehicle being deleted must also belong to the supplier
   def deleteGuardPredicate(
     supplierService: SupplierService,
     vehicleService: VehicleService,
