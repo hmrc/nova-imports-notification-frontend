@@ -22,7 +22,7 @@ import config.FrontendAppConfig
 import controllers.actions.*
 import controllers.{routes, vehicledetails}
 import forms.AddImportVehicleDetailsFormProvider
-import models.{AddImportVehicleDetails, DraftId, NormalMode, UserAnswers}
+import models.{AddImportVehicleDetails, DraftId, ImportNumber, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -33,9 +33,11 @@ import pages.sections.initialquestions.VehicleFromEuPage
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.libs.json.Json
 import play.api.mvc.*
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import queries.AllImportsQuery
 import repositories.SessionRepository
 import views.html.AddImportVehicleDetailsView
 
@@ -139,11 +141,49 @@ class AddImportVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
         .build()
 
       running(application) {
-        val request = FakeRequest(POST, onSubmitRoute).withFormUrlEncodedBody(("value", AddImportVehicleDetails.ByImportEntryNumber.toString))
+        val request = FakeRequest(POST, onSubmitRoute).withFormUrlEncodedBody(("value", AddImportVehicleDetails.BySpreadsheet.toString))
         val result  = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
+      }
+    }
+
+    "must add import 1 and send a VAT-registered organisation to AVD-IE1.0 placeholder for import 1" in {
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.setPage(any(), any(), any())(any())) thenReturn Future.successful(answersSatisfyingGuard)
+
+      val application = builderFor(classOf[FakeVatTraderIdentifierAction], Some(answersSatisfyingGuard))
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(POST, onSubmitRoute).withFormUrlEncodedBody(("value", AddImportVehicleDetails.ByImportEntryNumber.toString))
+        val result  = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual
+          vehicledetails.routes.ImportEntryNumberController.onPageLoad(ImportNumber(1)).url
+      }
+    }
+
+    "must add import 2 when the user already has import 1 in session with an answer" in {
+      val importOne             = Json.obj("importEntryNumber" -> "123456789A")
+      val answersWithImport     = answersSatisfyingGuard.set(AllImportsQuery, Map("1" -> importOne)).success.value
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.setPage(any(), any(), any())(any())) thenReturn Future.successful(answersWithImport)
+
+      val application = builderFor(classOf[FakeVatTraderIdentifierAction], Some(answersWithImport))
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(POST, onSubmitRoute).withFormUrlEncodedBody(("value", AddImportVehicleDetails.ByImportEntryNumber.toString))
+        val result  = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual
+          vehicledetails.routes.ImportEntryNumberController.onPageLoad(ImportNumber(2)).url
       }
     }
 

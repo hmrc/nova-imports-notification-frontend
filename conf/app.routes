@@ -194,6 +194,19 @@ GET         /supplier/:supplierNumber/confirm-supplier-details                  
 POST        /supplier/:supplierNumber/confirm-supplier-details                           controllers.supplierdetails.SupplierDetailsCheckYourAnswersController.onSubmit(supplierNumber: SupplierNumber)
 GET         /supplier/:supplierNumber/confirm-supplier-details/change-address            controllers.supplierdetails.SupplierDetailsCheckYourAnswersController.onChangeAddress(supplierNumber: SupplierNumber)
 
+# TODO: DELETE these AVD13.0 placeholder routes when AVD13.0 is built into the AVD1.0 screen
+GET         /vehicles-brought-from-eu-avd13-placeholder                                  controllers.vehicledetails.VehiclesBroughtFromEuAvd13PlaceholderController.onPageLoad()
+POST        /vehicles-brought-from-eu-avd13-placeholder                                  controllers.vehicledetails.VehiclesBroughtFromEuAvd13PlaceholderController.onSubmit()
+POST        /vehicles-brought-from-eu-avd13-placeholder/:supplierNumber/delete           controllers.vehicledetails.VehiclesBroughtFromEuAvd13PlaceholderController.onDelete(supplierNumber: SupplierNumber)
+
+# TODO: DELETE these AVD12.0 placeholder routes when AVD12.0 is built into the AVD2.0 screen
+GET         /supplier/:supplierNumber/vehicles-bought-from-supplier-avd12-placeholder                                  controllers.vehicledetails.VehiclesBoughtFromSupplierAvd12PlaceholderController.onPageLoad(supplierNumber: SupplierNumber)
+POST        /supplier/:supplierNumber/vehicles-bought-from-supplier-avd12-placeholder                                  controllers.vehicledetails.VehiclesBoughtFromSupplierAvd12PlaceholderController.onSubmit(supplierNumber: SupplierNumber)
+POST        /supplier/:supplierNumber/vehicles-bought-from-supplier-avd12-placeholder/vehicle/:vehicleNumber/delete    controllers.vehicledetails.VehiclesBoughtFromSupplierAvd12PlaceholderController.onDelete(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber)
+
+# TODO: this screen to be completed, is AVD-IE1.0, do not delete it
+GET         /import/:importNumber/import-entry-number                                    controllers.vehicledetails.ImportEntryNumberController.onPageLoad(importNumber: ImportNumber)
+
 GET         /supplier/:supplierNumber/vehicles-bought-from-supplier                      controllers.vehicledetails.VehiclesBoughtFromSupplierController.onPageLoad(supplierNumber: SupplierNumber)
 POST        /supplier/:supplierNumber/vehicles-bought-from-supplier                      controllers.vehicledetails.VehiclesBoughtFromSupplierController.onSubmit(supplierNumber: SupplierNumber)
 
@@ -204,20 +217,20 @@ POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/vehicle-dates/chang
 
 GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/no-vehicle-dates            controllers.vehicledetails.NoVehicleDatesController.onPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber)
 
-GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/purchase-invoice-date       controllers.vehicledetails.PurchaseInvoiceDateController.onPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
-POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/purchase-invoice-date       controllers.vehicledetails.PurchaseInvoiceDateController.onSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
-GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/purchase-invoice-date/change controllers.vehicledetails.PurchaseInvoiceDateController.onPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
-POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/purchase-invoice-date/change controllers.vehicledetails.PurchaseInvoiceDateController.onSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
+GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/purchase-invoice-date           controllers.vehicledetails.PurchaseInvoiceDateController.onPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/purchase-invoice-date           controllers.vehicledetails.PurchaseInvoiceDateController.onSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/purchase-invoice-date/change    controllers.vehicledetails.PurchaseInvoiceDateController.onPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
+POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/purchase-invoice-date/change    controllers.vehicledetails.PurchaseInvoiceDateController.onSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
 
 GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/date-of-availability            controllers.vehicledetails.DateOfAvailabilityController.onPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
 POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/date-of-availability            controllers.vehicledetails.DateOfAvailabilityController.onSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
 GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/date-of-availability/change     controllers.vehicledetails.DateOfAvailabilityController.onPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
 POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/date-of-availability/change     controllers.vehicledetails.DateOfAvailabilityController.onSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
 
-GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/purchase-invoice-number     controllers.vehicledetails.PurchaseInvoiceNumberController.onPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
-POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/purchase-invoice-number     controllers.vehicledetails.PurchaseInvoiceNumberController.onSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
-GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/purchase-invoice-number/change controllers.vehicledetails.PurchaseInvoiceNumberController.onPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
-POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/purchase-invoice-number/change controllers.vehicledetails.PurchaseInvoiceNumberController.onSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
+GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/purchase-invoice-number           controllers.vehicledetails.PurchaseInvoiceNumberController.onPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/purchase-invoice-number           controllers.vehicledetails.PurchaseInvoiceNumberController.onSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/purchase-invoice-number/change    controllers.vehicledetails.PurchaseInvoiceNumberController.onPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
+POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/purchase-invoice-number/change    controllers.vehicledetails.PurchaseInvoiceNumberController.onSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
 
 GET         /check-answers/your-address                                                  controllers.notifieraddress.YourAddressCheckYourAnswersController.onPageLoad()
 POST        /check-answers/your-address                                                  controllers.notifieraddress.YourAddressCheckYourAnswersController.onSubmit()

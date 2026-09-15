@@ -344,17 +344,6 @@ class NavigatorSpec extends SpecBase {
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
 
-      "must go from AddImportVehicleDetailsPage AVD1.1 to LandingPage when ByImportEntryNumber is selected" in {
-        // TODO: navigate to the import entry number flow when built
-        val ua = userAnswers.set(AddImportVehicleDetailsPage, AddImportVehicleDetails.ByImportEntryNumber).success.value
-        navigator.nextPage(
-          AddImportVehicleDetailsPage,
-          NormalMode,
-          ua,
-          NovaUserType.VatRegisteredOrganisation
-        ) mustBe routes.LandingPageController.onPageLoad()
-      }
-
       "must go from AddImportVehicleDetailsPage to the upload vehicle spreadsheet page when the user chose to upload a spreadsheet" in {
         val ua = userAnswers.set(AddImportVehicleDetailsPage, AddImportVehicleDetails.BySpreadsheet).success.value
         navigator.nextPage(

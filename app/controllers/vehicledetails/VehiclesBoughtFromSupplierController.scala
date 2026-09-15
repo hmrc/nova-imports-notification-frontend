@@ -17,17 +17,13 @@
 package controllers.vehicledetails
 
 import config.FrontendAppConfig
-import connectors.NovaImportsBackendConnector
 import controllers.BaseController
 import controllers.actions.*
 import controllers.utils.IsDraftIdDefined
 import controllers.vehicledetails.VehiclesBoughtFromSupplierController.*
 import models.requests.DataRequest
-import models.{BusinessOrPrivateIndividual, NormalMode, SupplierNumber}
-import pages.sections.initialquestions.{BusinessOrPrivatePage, VehicleFromEuPage}
-import pages.sections.notifierdetails.{BusinessNamePage, NameDetailsPage}
-import pages.sections.supplierdetails.{SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
-import play.api.Logging
+import models.{NormalMode, SupplierNumber}
+import pages.sections.initialquestions.VehicleFromEuPage
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{SupplierService, VehicleService}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -35,24 +31,23 @@ import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import views.html.VehiclesBoughtFromSupplierView
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.control.NonFatal
+import scala.concurrent.ExecutionContext
 
 class VehiclesBoughtFromSupplierController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   actions: Actions,
   view: VehiclesBoughtFromSupplierView,
-  connector: NovaImportsBackendConnector,
   supplierService: SupplierService,
   vehicleService: VehicleService,
   appConfig: FrontendAppConfig
 )(implicit ec: ExecutionContext)
-    extends BaseController
-    with Logging {
+    extends BaseController {
 
   def onPageLoad(supplierNumber: SupplierNumber): Action[AnyContent] =
     actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierService, supplierNumber)).async { implicit request =>
-      supplierName(supplierNumber).map { name =>
+      implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+
+      supplierService.supplierName(request.userAnswers, request.userContext, supplierNumber).map { name =>
         Ok(
           view(name, supplierNumber, appConfig.personalTransportUnitUrl)
         )
@@ -66,52 +61,6 @@ class VehiclesBoughtFromSupplierController @Inject() (
         Redirect(routes.VehicleDatesController.onPageLoad(supplierNumber, vehicleNumber, NormalMode))
       }
     }
-
-  private def supplierName(supplierNumber: SupplierNumber)(implicit request: DataRequest[?]): Future[Option[String]] =
-    (
-      request.userAnswers.get(UsePersonalDetailsAsSupplierPage(supplierNumber)),
-      request.userAnswers.get(UsePurchaserDetailsAsSupplierPage(supplierNumber))
-    ) match {
-      case (Some(true), _) if request.userContext.usesTraderDetails => traderName
-      case (Some(true), _)                                          => Future.successful(notifierName)
-      case (_, Some(true))                                          => Future.successful(request.userAnswers.purchaserName)
-      case _                                                        => Future.successful(enteredSupplierName(supplierNumber))
-    }
-
-  private def notifierName(implicit request: DataRequest[?]): Option[String] =
-    if (request.userContext.isVatRegisteredOrganisation)
-      request.userAnswers.get(NameDetailsPage).map(_.displayName)
-    else
-      request.userAnswers.get(BusinessOrPrivatePage) match {
-        case Some(BusinessOrPrivateIndividual.Business)          => request.userAnswers.get(BusinessNamePage)
-        case Some(BusinessOrPrivateIndividual.PrivateIndividual) => request.userAnswers.get(NameDetailsPage).map(_.displayName)
-        case None                                                => None
-      }
-
-  private def enteredSupplierName(supplierNumber: SupplierNumber)(implicit request: DataRequest[?]): Option[String] =
-    request.userAnswers.get(SupplierBusinessOrIndividualPage(supplierNumber)) match {
-      case Some(BusinessOrPrivateIndividual.Business)          => request.userAnswers.get(SupplierBusinessNamePage(supplierNumber))
-      case Some(BusinessOrPrivateIndividual.PrivateIndividual) =>
-        request.userAnswers.get(SupplierNamePage(supplierNumber)).map(_.displayName)
-      case None => None
-    }
-
-  private def traderName(implicit request: DataRequest[?]): Future[Option[String]] = {
-    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-
-    connector
-      .getTraderInformation()
-      .map {
-        case Right(traderInformation) => traderInformation.name
-        case Left(error)              =>
-          logger.warn(s"Failed to fetch trader information for the vehicles bought from supplier heading: $error")
-          None
-      }
-      .recover { case NonFatal(e) =>
-        logger.warn("Failed to fetch trader information for the vehicles bought from supplier heading", e)
-        None
-      }
-  }
 }
 
 object VehiclesBoughtFromSupplierController {
