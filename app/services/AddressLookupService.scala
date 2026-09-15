@@ -316,15 +316,17 @@ class AddressLookupService @Inject() (
     "GB"
   )
 
-  private def allowedCountryCodesFor(journey: AddressJourney): Seq[String] = journey match {
+  private def allowedCountryCodesFor(journey: AddressJourney, supplierCountryCodes: Seq[String] = Seq.empty): Seq[String] = journey match {
     case AddressJourney.Notifier    => notifierAllowedCountryCodes
-    case AddressJourney.Supplier(_) => supplierAllowedCountryCodes
+    case AddressJourney.Supplier(_) => if supplierCountryCodes.nonEmpty then supplierCountryCodes else supplierAllowedCountryCodes
     case AddressJourney.Purchaser   => notifierAllowedCountryCodes
   }
 
-  def initJourney(journey: AddressJourney, ukMode: Boolean)(implicit hc: HeaderCarrier): Future[Either[AddressLookupError, String]] = {
+  def initJourney(journey: AddressJourney, ukMode: Boolean, supplierCountryCodes: Seq[String] = Seq.empty)(implicit
+    hc: HeaderCarrier
+  ): Future[Either[AddressLookupError, String]] = {
     val callbackUrl = appConfig.addressLookupCallbackUrl(journey)
-    val config      = if (ukMode) ukJourneyConfig(journey, callbackUrl) else nonUkJourneyConfig(journey, callbackUrl)
+    val config      = if (ukMode) ukJourneyConfig(journey, callbackUrl) else nonUkJourneyConfig(journey, callbackUrl, supplierCountryCodes)
     connector.initJourney(config)
   }
 
@@ -357,12 +359,12 @@ class AddressLookupService @Inject() (
       )
     )
 
-  private def nonUkJourneyConfig(journey: AddressJourney, callbackUrl: String): JsObject =
+  private def nonUkJourneyConfig(journey: AddressJourney, callbackUrl: String, supplierCountryCodes: Seq[String] = Seq.empty): JsObject =
     Json.obj(
       "version" -> 2,
       "options" -> (commonOptions(callbackUrl) ++ Json.obj(
         "ukMode"              -> false,
-        "allowedCountryCodes" -> allowedCountryCodesFor(journey)
+        "allowedCountryCodes" -> allowedCountryCodesFor(journey, supplierCountryCodes)
       )),
       "labels" -> Json.obj(
         "en" -> labelsFor(journey, Lang("en"), uk = false),

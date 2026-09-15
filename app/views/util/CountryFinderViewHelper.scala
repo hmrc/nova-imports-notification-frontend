@@ -16,8 +16,7 @@
 
 package views.util
 
-import models.CountryVrnValidation
-import play.api.data.Form
+import models.Country
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.SelectItem
 
@@ -31,12 +30,13 @@ object CountryFinderViewHelper {
       attributes = Map("id" -> countryCode)
     )
 
-  def countriesToSelectItems(euCountriesVrnValidationList: Seq[CountryVrnValidation], form: Form[?])(implicit
-    messages: Messages
-  ): Seq[SelectItem] = {
-    SelectItem() +: euCountriesVrnValidationList.map(euCountriesVrnValidation =>
-      countryToSelectItem(euCountriesVrnValidation.code, messages(s"country.${euCountriesVrnValidation.code}"))
-    )
+  def countriesToSelectItems(euCountries: Seq[Country])(implicit messages: Messages): Seq[SelectItem] = {
+    def displayName(country: Country): String =
+      messages.translate(s"country.${country.code}", Nil).orElse(country.name).getOrElse(country.code)
+
+    SelectItem() +: euCountries
+      .sortBy(displayName)
+      .map(country => countryToSelectItem(country.code, displayName(country)))
   }
 
 }

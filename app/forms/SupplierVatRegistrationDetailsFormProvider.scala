@@ -17,7 +17,7 @@
 package forms
 
 import forms.mappings.Mappings
-import models.{CountryVrnValidation, VatNumberDetails}
+import models.{Country, CountryVrnValidation, VatNumberDetails}
 import play.api.data.Form
 import play.api.data.Forms.mapping
 import play.api.data.validation.Constraint
@@ -26,10 +26,10 @@ import javax.inject.Inject
 
 class SupplierVatRegistrationDetailsFormProvider @Inject() extends Mappings {
 
-  def apply(countryVrnValidationList: Seq[CountryVrnValidation]): Form[VatNumberDetails] = Form(
+  def apply(euCountries: Seq[Country], countryVrnValidationList: Seq[CountryVrnValidation]): Form[VatNumberDetails] = Form(
     mapping(
       "countryCode" -> text("supplierVatRegistrationDetails.country.error.required")
-        .verifying(validCountryCode("supplierVatRegistrationDetails.country.error.required", countryVrnValidationList.map(_.code))),
+        .verifying(validCountryCode("supplierVatRegistrationDetails.country.error.required", euCountries.map(_.code))),
       "vatNumber" -> vatNumber(
         "countryCode",
         countryVrnValidationList,

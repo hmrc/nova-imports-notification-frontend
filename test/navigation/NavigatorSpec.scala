@@ -17,7 +17,7 @@
 package navigation
 
 import base.SpecBase
-import controllers.{initialquestions, notifierdetails, purchaserdetails, routes, supplieraddress, supplierdetails, vehicledetails}
+import controllers.{initialquestions, notifierdetails, purchaserdetails, routes, supplierdetails, vehicledetails}
 import pages.*
 import models.*
 import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, NotifyingAsPurchaserPage, PurchaserBusinessOrIndividualPage, VehicleBusinessUsePage, VehicleFromEuPage}
@@ -689,31 +689,34 @@ class NavigatorSpec extends SpecBase {
         ) mustBe supplierdetails.routes.SupplierNameController.onPageLoad(SupplierNumber(3), NormalMode)
       }
 
-      "must go from SupplierNamePage AVD-S4.0 to the supplier address page AVD-S5.0" in {
+      // AVD-S5.0 no longer exists: AVD-S4.0/AVD-S3.0 now initiate the ALF journey directly from
+      // SupplierNameController/SupplierBusinessNameController rather than routing via the Navigator,
+      // so these pages are never looked up here in practice - the catch-all applies.
+      "must go from SupplierNamePage AVD-S4.0 to the landing page (unused - navigation handled by the controller)" in {
         navigator.nextPage(
           SupplierNamePage(SupplierNumber(1)),
           NormalMode,
           userAnswers,
           NovaUserType.VatRegisteredOrganisation
-        ) mustBe supplieraddress.routes.IsSupplierAddressInTheUKController.onPageLoad(SupplierNumber(1), NormalMode)
+        ) mustBe routes.LandingPageController.onPageLoad()
       }
 
-      "must go from SupplierBusinessNamePage to the supplier address page" in {
+      "must go from SupplierBusinessNamePage to the landing page (unused - navigation handled by the controller)" in {
         navigator.nextPage(
           SupplierBusinessNamePage(SupplierNumber(1)),
           NormalMode,
           userAnswers,
           NovaUserType.VatRegisteredOrganisation
-        ) mustBe supplieraddress.routes.IsSupplierAddressInTheUKController.onPageLoad(SupplierNumber(1), NormalMode)
+        ) mustBe routes.LandingPageController.onPageLoad()
       }
 
-      "must go from SupplierBusinessNamePage AVD-S3.0 to the supplier address page AVD-S5.0 for supplier 3" in {
+      "must go from SupplierBusinessNamePage AVD-S3.0 to the landing page for supplier 3 (unused - navigation handled by the controller)" in {
         navigator.nextPage(
           SupplierBusinessNamePage(SupplierNumber(3)),
           NormalMode,
           userAnswers,
           NovaUserType.VatRegisteredOrganisation
-        ) mustBe supplieraddress.routes.IsSupplierAddressInTheUKController.onPageLoad(SupplierNumber(3), NormalMode)
+        ) mustBe routes.LandingPageController.onPageLoad()
       }
 
       "must go from SupplierBusinessOrIndividualPage AVD-S2.0 to JourneyRecovery when no answer is found" in {

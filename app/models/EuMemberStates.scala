@@ -14,20 +14,11 @@
  * limitations under the License.
  */
 
-package pages
+package models
 
-import base.SpecBase
-import models.SupplierNumber
-import pages.sections.supplieraddress.IsSupplierAddressInTheUkPage
+import play.api.libs.json.{Json, OFormat}
 
-class IsSupplierAddressInTheUkPageSpec extends SpecBase {
+final case class EuMemberStates(countries: Set[Country])
 
-  "IsSupplierAddressInTheUkPage" - {
-
-    "must store the answer under the supplier it belongs to" in {
-      val answers = emptyUserAnswers.unsafeSet(IsSupplierAddressInTheUkPage(SupplierNumber(2)), true)
-
-      (answers.data \ "suppliers" \ "2" \ "isSupplierAddressInTheUk").as[Boolean] mustBe true
-    }
-  }
-}
+object EuMemberStates:
+  implicit val format: OFormat[EuMemberStates] = Json.format[EuMemberStates]

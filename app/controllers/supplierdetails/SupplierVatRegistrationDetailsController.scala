@@ -17,20 +17,26 @@
 package controllers.supplierdetails
 
 import config.FrontendAppConfig
+import connectors.NovaImportsBackendConnector
 import controllers.actions.*
 import controllers.utils.IsDraftIdDefined
-import controllers.BaseController
+import controllers.{BaseController, routes}
 import forms.SupplierVatRegistrationDetailsFormProvider
 import models.requests.DataRequest
-import models.{Mode, NovaUserType, SupplierNumber, VatNumberDetails}
+import models.{Country, Mode, NovaUserType, SupplierNumber, UserAnswers, VatNumberDetails}
 import navigation.Navigator
 import pages.sections.initialquestions.VehicleFromEuPage
-import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierVatRegistrationNumberPage}
+import pages.sections.supplieraddress.SupplierAddressJourneyIdPage
+import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierEuMemberStatesPage, SupplierVatRegistrationNumberPage}
+import play.api.Logging
 import play.api.data.Form
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
-import views.html.SupplierVatRegistrationDetailsView
 import services.SupplierService
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
+import views.html.SupplierVatRegistrationDetailsView
+
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -41,47 +47,75 @@ class SupplierVatRegistrationDetailsController @Inject() (
   actions: Actions,
   appConfig: FrontendAppConfig,
   formProvider: SupplierVatRegistrationDetailsFormProvider,
+  backendConnector: NovaImportsBackendConnector,
   view: SupplierVatRegistrationDetailsView,
   supplierService: SupplierService
 )(implicit ec: ExecutionContext)
-    extends BaseController {
+    extends BaseController
+    with Logging {
 
   import SupplierVatRegistrationDetailsController.*
 
-  val form: Form[VatNumberDetails] = formProvider(appConfig.vrnValidationList)
+  private def form(euCountries: Seq[Country]): Form[VatNumberDetails] = formProvider(euCountries, appConfig.vrnValidationList)
 
   def onPageLoad(supplierNumber: SupplierNumber, mode: Mode): Action[AnyContent] =
-    actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierService, supplierNumber)) { implicit request =>
-      Ok(
-        view(
-          appConfig.vrnValidationList,
-          form.withDefault(request.userAnswers.get(SupplierVatRegistrationNumberPage(supplierNumber))),
-          supplierNumber,
-          mode
+    actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierService, supplierNumber)).async { implicit request =>
+      withEuMemberStates(supplierNumber, request.userAnswers) { (euCountries, answers) =>
+        Future.successful(
+          Ok(
+            view(
+              euCountries,
+              form(euCountries).withDefault(answers.get(SupplierVatRegistrationNumberPage(supplierNumber))),
+              supplierNumber,
+              mode
+            )
+          )
         )
-      )
+      }
     }
 
   def onSubmit(supplierNumber: SupplierNumber, mode: Mode): Action[AnyContent] =
     actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierService, supplierNumber)).async { implicit request =>
-      form
-        .bindFromRequest()
-        .fold(
-          formWithErrors => Future.successful(BadRequest(view(appConfig.vrnValidationList, formWithErrors, supplierNumber, mode))),
-          supplierVatNumberDetails =>
+      withEuMemberStates(supplierNumber, request.userAnswers) { (euCountries, answers) =>
+        form(euCountries)
+          .bindFromRequest()
+          .fold(
+            formWithErrors => Future.successful(BadRequest(view(euCountries, formWithErrors, supplierNumber, mode))),
+            supplierVatNumberDetails =>
+              for {
+                updatedAnswers <- Future.fromTry(answers.set(SupplierVatRegistrationNumberPage(supplierNumber), supplierVatNumberDetails))
+                _              <- sessionRepository.set(updatedAnswers)
+              } yield Redirect(
+                navigator
+                  .nextPage(
+                    SupplierVatRegistrationNumberPage(supplierNumber),
+                    mode,
+                    updatedAnswers,
+                    NovaUserType.from(request.affinityGroup, request.enrolments)
+                  )
+              )
+          )
+      }
+    }
+
+  private def withEuMemberStates(supplierNumber: SupplierNumber, userAnswers: UserAnswers)(
+    block: (Seq[Country], UserAnswers) => Future[Result]
+  )(implicit request: DataRequest[?]): Future[Result] =
+    userAnswers.get(SupplierEuMemberStatesPage(supplierNumber)) match {
+      case Some(countries) => block(countries.toSeq, userAnswers)
+      case None            =>
+        implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+        backendConnector.getEuMemberStates().flatMap {
+          case Right(states) =>
             for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(SupplierVatRegistrationNumberPage(supplierNumber), supplierVatNumberDetails))
+              updatedAnswers <- Future.fromTry(userAnswers.set(SupplierEuMemberStatesPage(supplierNumber), states.countries))
               _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(
-              navigator
-                .nextPage(
-                  SupplierVatRegistrationNumberPage(supplierNumber),
-                  mode,
-                  updatedAnswers,
-                  NovaUserType.from(request.affinityGroup, request.enrolments)
-                )
-            )
-        )
+              result         <- block(states.countries.toSeq, updatedAnswers)
+            } yield result
+          case Left(error) =>
+            logger.warn(s"Failed to retrieve EU member states for supplier ${supplierNumber.value}: $error")
+            Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+        }
     }
 
 }
@@ -91,5 +125,6 @@ object SupplierVatRegistrationDetailsController {
     IsDraftIdDefined(request.userAnswers) &&
       request.userAnswers.get(VehicleFromEuPage).contains(true) &&
       request.userAnswers.get(IsSupplierVatRegisteredPage(supplierNumber)).contains(true) &&
-      supplierService.numberExists(request.userAnswers, supplierNumber)
+      supplierService.numberExists(request.userAnswers, supplierNumber) &&
+      request.userAnswers.get(SupplierAddressJourneyIdPage(supplierNumber)).isDefined
 }
