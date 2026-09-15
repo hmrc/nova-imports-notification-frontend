@@ -155,7 +155,7 @@ class UploadVehicleSpreadsheetViewSpec extends SpecBase with Matchers with Befor
 
     "must render the copy Confluence specifies for each upload error upscan can report" in {
       render(Some(SpreadsheetUploadError.NoFileSelected)) must include("Select a file")
-      render(Some(SpreadsheetUploadError.FileTooLarge))   must include("The selected file must be smaller than 1MB")
+      render(Some(SpreadsheetUploadError.FileTooLarge))   must include("The selected file must be smaller than 1024MB")
       render(Some(SpreadsheetUploadError.UploadFailed))   must include("The selected file could not be uploaded. Try again.")
     }
 
