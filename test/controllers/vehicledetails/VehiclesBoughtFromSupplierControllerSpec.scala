@@ -18,14 +18,13 @@ package controllers.vehicledetails
 
 import base.SpecBase
 import config.FrontendAppConfig
-import connectors.NovaImportsBackendConnector
 import controllers.{routes, vehicledetails}
 import models.{BusinessOrPrivateIndividual, DraftId, NormalMode, SupplierNumber, UserAnswers, VehicleNumber}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.DraftIdPage
-import pages.sections.initialquestions.{VehicleBusinessUsePage, VehicleFromEuPage}
+import pages.sections.initialquestions.VehicleFromEuPage
 import pages.sections.supplierdetails.{SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, UsePersonalDetailsAsSupplierPage}
 import play.api.inject.bind
 import play.api.libs.json.Json
@@ -44,7 +43,7 @@ class VehiclesBoughtFromSupplierControllerSpec extends SpecBase with MockitoSuga
   val userAnswersWithGuardData: UserAnswers = emptyUserAnswers
     .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
     .unsafeSet(VehicleFromEuPage, true)
-    .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj()))
+    .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
 
   lazy val vehiclesBoughtFromSupplierRoute: String =
     vehicledetails.routes.VehiclesBoughtFromSupplierController.onPageLoad(supplierNumber).url
@@ -127,7 +126,7 @@ class VehiclesBoughtFromSupplierControllerSpec extends SpecBase with MockitoSuga
 
       val answers = emptyUserAnswers
         .unsafeSet(VehicleFromEuPage, true)
-        .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj()))
+        .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
 
       val application = applicationBuilder(userAnswers = Some(answers)).build()
 
@@ -143,7 +142,7 @@ class VehiclesBoughtFromSupplierControllerSpec extends SpecBase with MockitoSuga
 
       val answers = emptyUserAnswers
         .unsafeSet(VehicleFromEuPage, true)
-        .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj()))
+        .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
 
       val application = applicationBuilder(userAnswers = Some(answers)).build()
 

@@ -89,7 +89,7 @@ object VehiclesBoughtFromSupplierAvd12PlaceholderController {
   // the supplier number in the URL must be one of the suppliers the user has in session
   def guardPredicate(supplierService: SupplierService, supplierNumber: SupplierNumber)(request: DataRequest[?]): Boolean =
     IsDraftIdDefined(request.userAnswers) &&
-      supplierService.numberExists(request.userAnswers, supplierNumber)
+      supplierService.numberHasValues(request.userAnswers, supplierNumber)
 
   // the vehicle being deleted must also belong to the supplier in the URL
   def deleteGuardPredicate(

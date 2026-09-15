@@ -77,7 +77,7 @@ object AddressJourneyBinding {
     guard = request =>
       IsDraftIdDefined(request.userAnswers) &&
         request.userAnswers.get(IsSupplierAddressInTheUkPage(number)).isDefined &&
-        supplierService.numberExists(request.userAnswers, number),
+        supplierService.numberHasValues(request.userAnswers, number),
     onComplete = supplierdetails.routes.IsSupplierVatRegisteredController.onPageLoad(number, NormalMode),
     addressChangedPage = routes.AddressChangedController.supplierOnPageLoad(number),
     addressChangedSubmit = routes.AddressChangedController.supplierOnSubmit(number),

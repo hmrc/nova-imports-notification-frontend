@@ -215,7 +215,7 @@ class AddressChangedControllerSpec extends SpecBase with MockitoSugar {
 
     val supplierAnswers: UserAnswers =
       emptyUserAnswers
-        .set(AllSuppliersQuery, Map("1" -> Json.obj()))
+        .set(AllSuppliersQuery, Map("1" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
         .success
         .value
         .set(SupplierAddressPage(supplierNumber), address)

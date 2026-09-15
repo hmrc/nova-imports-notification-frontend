@@ -58,7 +58,7 @@ class VehicleDatesControllerSpec extends SpecBase with MockitoSugar {
     .set(VehicleFromEuPage, true)
     .success
     .value
-    .set(AllSuppliersQuery, Map("1" -> Json.obj()))
+    .set(AllSuppliersQuery, Map("1" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
     .success
     .value
     .set(AllVehiclesQuery, Map("1" -> Json.obj("supplierNumber" -> 1)))

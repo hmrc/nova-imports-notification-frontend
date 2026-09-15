@@ -90,5 +90,5 @@ object IsSupplierAddressInTheUKController {
   def guardPredicate(supplierService: SupplierService, supplierNumber: SupplierNumber)(request: DataRequest[?]): Boolean =
     IsDraftIdDefined(request.userAnswers) &&
       request.userAnswers.get(VehicleFromEuPage).contains(true) &&
-      supplierService.numberExists(request.userAnswers, supplierNumber)
+      supplierService.numberHasValues(request.userAnswers, supplierNumber)
 }
