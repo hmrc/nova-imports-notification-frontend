@@ -123,7 +123,8 @@ class IsYourAddressInTheUkControllerSpec extends SpecBase with MockitoSugar {
       val mockSessionRepository = mock[SessionRepository]
       val mockAlfService        = mock[AddressLookupService]
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
-      when(mockAlfService.initJourney(eqTo(AddressJourney.Notifier), eqTo(true))(any[HeaderCarrier])).thenReturn(Future.successful(Right(journeyUrl)))
+      when(mockAlfService.initJourney(eqTo(AddressJourney.Notifier), eqTo(true), any[Seq[String]])(any[HeaderCarrier]))
+        .thenReturn(Future.successful(Right(journeyUrl)))
 
       val application = applicationBuilder(userAnswers = Some(answersSatisfyingGuard))
         .overrides(
@@ -138,7 +139,7 @@ class IsYourAddressInTheUkControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual journeyUrl
-        verify(mockAlfService).initJourney(eqTo(AddressJourney.Notifier), eqTo(true))(any[HeaderCarrier])
+        verify(mockAlfService).initJourney(eqTo(AddressJourney.Notifier), eqTo(true), any[Seq[String]])(any[HeaderCarrier])
       }
     }
 
@@ -148,7 +149,7 @@ class IsYourAddressInTheUkControllerSpec extends SpecBase with MockitoSugar {
       val mockSessionRepository = mock[SessionRepository]
       val mockAlfService        = mock[AddressLookupService]
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
-      when(mockAlfService.initJourney(eqTo(AddressJourney.Notifier), eqTo(false))(any[HeaderCarrier]))
+      when(mockAlfService.initJourney(eqTo(AddressJourney.Notifier), eqTo(false), any[Seq[String]])(any[HeaderCarrier]))
         .thenReturn(Future.successful(Right(journeyUrl)))
 
       val application = applicationBuilder(userAnswers = Some(answersSatisfyingGuard))
@@ -164,7 +165,7 @@ class IsYourAddressInTheUkControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual journeyUrl
-        verify(mockAlfService).initJourney(eqTo(AddressJourney.Notifier), eqTo(false))(any[HeaderCarrier])
+        verify(mockAlfService).initJourney(eqTo(AddressJourney.Notifier), eqTo(false), any[Seq[String]])(any[HeaderCarrier])
       }
     }
 
@@ -173,7 +174,7 @@ class IsYourAddressInTheUkControllerSpec extends SpecBase with MockitoSugar {
       val mockSessionRepository = mock[SessionRepository]
       val mockAlfService        = mock[AddressLookupService]
       when(mockSessionRepository.set(any())).thenReturn(Future.successful(true))
-      when(mockAlfService.initJourney(any[AddressJourney], any[Boolean])(any[HeaderCarrier]))
+      when(mockAlfService.initJourney(any[AddressJourney], any[Boolean], any[Seq[String]])(any[HeaderCarrier]))
         .thenReturn(Future.successful(Left(AddressLookupError.UpstreamError(500, "boom"))))
 
       val application = applicationBuilder(userAnswers = Some(answersSatisfyingGuard))

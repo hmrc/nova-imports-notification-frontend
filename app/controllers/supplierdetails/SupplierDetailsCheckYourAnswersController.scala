@@ -23,7 +23,7 @@ import controllers.utils.IsDraftIdDefined
 import models.BusinessOrPrivateIndividual.{Business, PrivateIndividual}
 import models.draftsections.{SupplierDetails, SupplierSelfSupplyDetails}
 import models.requests.DataRequest
-import models.{Address, BusinessOrPrivateIndividual, NameDetails, NormalMode, SupplierNumber, UserAnswers, VatNumberDetails}
+import models.{Address, BusinessOrPrivateIndividual, NameDetails, SupplierNumber, UserAnswers, VatNumberDetails}
 import pages.*
 import pages.sections.initialquestions.VehicleFromEuPage
 import pages.sections.supplieraddress.{SupplierAddressJourneyIdPage, SupplierAddressPage}
@@ -65,7 +65,7 @@ class SupplierDetailsCheckYourAnswersController @Inject() (
                      request.userAnswers.remove(SupplierAddressPage(supplierNumber)).flatMap(_.remove(SupplierAddressJourneyIdPage(supplierNumber)))
                    )
         _ <- sessionRepository.set(cleared)
-      } yield Redirect(controllers.supplieraddress.routes.IsSupplierAddressInTheUKController.onPageLoad(supplierNumber, NormalMode))
+      } yield Redirect(controllers.AddressJourneyBinding.supplierAlfRestart(supplierNumber, request))
     }
 
   def onSubmit(supplierNumber: SupplierNumber): Action[AnyContent] =

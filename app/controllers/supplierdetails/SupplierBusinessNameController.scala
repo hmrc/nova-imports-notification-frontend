@@ -16,21 +16,24 @@
 
 package controllers.supplierdetails
 
-import controllers.BaseController
+import connectors.NovaImportsBackendConnector
+import controllers.{BaseController, routes}
 import controllers.actions.*
 import controllers.utils.IsDraftIdDefined
 import forms.SupplierBusinessNameFormProvider
 import models.requests.DataRequest
 
 import javax.inject.Inject
-import models.{BusinessOrPrivateIndividual, Mode, NovaUserType, SupplierNumber}
-import navigation.Navigator
+import models.{AddressJourney, BusinessOrPrivateIndividual, Mode, SupplierNumber, UserAnswers}
 import pages.sections.initialquestions.VehicleFromEuPage
-import pages.sections.supplierdetails.{SupplierBusinessNamePage, SupplierBusinessOrIndividualPage}
+import pages.sections.supplierdetails.{SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierEuMemberStatesPage}
+import play.api.Logging
 import play.api.data.Form
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
-import services.SupplierService
+import services.{AddressLookupService, SupplierService}
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import views.html.SupplierBusinessNameView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -38,13 +41,15 @@ import scala.concurrent.{ExecutionContext, Future}
 class SupplierBusinessNameController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   sessionRepository: SessionRepository,
-  navigator: Navigator,
   actions: Actions,
   formProvider: SupplierBusinessNameFormProvider,
   supplierService: SupplierService,
+  addressLookupService: AddressLookupService,
+  backendConnector: NovaImportsBackendConnector,
   view: SupplierBusinessNameView
 )(implicit ec: ExecutionContext)
-    extends BaseController {
+    extends BaseController
+    with Logging {
 
   import SupplierBusinessNameController.*
 
@@ -65,11 +70,34 @@ class SupplierBusinessNameController @Inject() (
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(SupplierBusinessNamePage(supplierNumber), supplierBusinessName))
               _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(
-              navigator.nextPage(SupplierBusinessNamePage(supplierNumber), mode, updatedAnswers, NovaUserType.fromRequest)
-            )
+              result         <- initialiseAlfJourney(supplierNumber, updatedAnswers)
+            } yield result
         )
     }
+
+  private def initialiseAlfJourney(supplierNumber: SupplierNumber, userAnswers: UserAnswers)(implicit
+    request: DataRequest[?]
+  ): Future[Result] = {
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+    val journey                    = AddressJourney.Supplier(supplierNumber)
+
+    backendConnector.getEuMemberStates().flatMap {
+      case Right(states) =>
+        addressLookupService.initJourney(journey, false, states.countries.map(_.code).toSeq).flatMap {
+          case Right(journeyUrl) =>
+            for {
+              ua <- Future.fromTry(userAnswers.set(SupplierEuMemberStatesPage(supplierNumber), states.countries))
+              _  <- sessionRepository.set(ua)
+            } yield Redirect(journeyUrl)
+          case Left(error) =>
+            logger.warn(s"Failed to init supplier ALF journey : $error")
+            Future successful Redirect(routes.JourneyRecoveryController.onPageLoad())
+        }
+      case Left(error) =>
+        logger.warn(s"Failed to init supplier ALF journey : $error")
+        Future successful Redirect(routes.JourneyRecoveryController.onPageLoad())
+    }
+  }
 }
 
 object SupplierBusinessNameController {

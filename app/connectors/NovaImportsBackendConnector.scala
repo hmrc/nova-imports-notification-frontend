@@ -19,7 +19,7 @@ package connectors
 import com.google.inject.Inject
 import config.FrontendAppConfig
 import models.responses.{CreateDraftResponse, CreateUploadTrackingResponse}
-import models.{DraftId, DraftNotification, NotificationSummary, SpreadsheetValidationType, TraderInformation}
+import models.{DraftId, DraftNotification, EuMemberStates, NotificationSummary, SpreadsheetValidationType, TraderInformation}
 import play.api.libs.json.{JsObject, JsSuccess, Json}
 import play.api.libs.ws.writeableOf_JsValue
 import uk.gov.hmrc.http.HttpReads.Implicits.*
@@ -66,6 +66,13 @@ object GetTraderInformationError {
   final case class UpstreamError(status: Int, message: String) extends GetTraderInformationError
 }
 
+sealed trait GetEuMemberStatesError
+object GetEuMemberStatesError {
+  case object Forbidden extends GetEuMemberStatesError
+  case object NotFound extends GetEuMemberStatesError
+  final case class UpstreamError(status: Int, message: String) extends GetEuMemberStatesError
+}
+
 trait NovaImportsBackendConnector {
 
   def createDraft(clientVrn: Option[String])(implicit hc: HeaderCarrier): Future[Either[CreateDraftError, CreateDraftResponse]]
@@ -79,6 +86,8 @@ trait NovaImportsBackendConnector {
   def getDraftNotification(draftId: DraftId)(implicit hc: HeaderCarrier): Future[Either[GetDraftNotificationError, DraftNotification]]
 
   def getTraderInformation()(implicit hc: HeaderCarrier): Future[Either[GetTraderInformationError, TraderInformation]]
+
+  def getEuMemberStates()(implicit hc: HeaderCarrier): Future[Either[GetEuMemberStatesError, EuMemberStates]]
 
   def createUploadTracking(draftId: DraftId, validationType: SpreadsheetValidationType)(implicit
     hc: HeaderCarrier
@@ -194,6 +203,26 @@ class NovaImportsBackendConnectorImpl @Inject() (
               .validate[DraftNotification]
               .map(Right(_))
               .recoverTotal(err => Left(UpstreamError(200, s"Malformed draft notification: $err")))
+          case 403 => Left(Forbidden)
+          case 404 => Left(NotFound)
+          case s   => Left(UpstreamError(s, response.body))
+        }
+      }
+  }
+
+  override def getEuMemberStates()(implicit hc: HeaderCarrier): Future[Either[GetEuMemberStatesError, EuMemberStates]] = {
+    import GetEuMemberStatesError.*
+
+    httpClient
+      .get(url"${serviceUrl(s"/eu-member-states")}")
+      .execute[HttpResponse]
+      .map { response =>
+        response.status match {
+          case 200 =>
+            response.json
+              .validate[EuMemberStates]
+              .map(Right(_))
+              .recoverTotal(err => Left(UpstreamError(200, s"Malformed EU member states response: $err")))
           case 403 => Left(Forbidden)
           case 404 => Left(NotFound)
           case s   => Left(UpstreamError(s, response.body))

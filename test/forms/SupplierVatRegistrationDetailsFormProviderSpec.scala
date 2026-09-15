@@ -17,7 +17,7 @@
 package forms
 
 import forms.behaviours.StringFieldBehaviours
-import models.CountryVrnValidation
+import models.{Country, CountryVrnValidation}
 import play.api.data.FormError
 
 class SupplierVatRegistrationDetailsFormProviderSpec extends StringFieldBehaviours {
@@ -29,8 +29,9 @@ class SupplierVatRegistrationDetailsFormProviderSpec extends StringFieldBehaviou
 
   val countryRegex          = "[A-HJ-NP-Z0-9]{1}[A-HJ-NP-Z0-9]{1}[0-9]{9}"
   val countryCode           = "FR"
+  val testEuCountry         = Country(countryCode, "France")
   val testCountryValidation = CountryVrnValidation(countryCode, countryRegex)
-  val form                  = new SupplierVatRegistrationDetailsFormProvider()(Seq(testCountryValidation))
+  val form                  = new SupplierVatRegistrationDetailsFormProvider()(Seq(testEuCountry), Seq(testCountryValidation))
 
   ".countryCode" - {
     val fieldName = "countryCode"
