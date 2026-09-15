@@ -41,7 +41,7 @@ class NoVehicleDatesControllerSpec extends SpecBase with MockitoSugar {
   val userAnswersWithGuardData: UserAnswers = emptyUserAnswers
     .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
     .unsafeSet(VehicleFromEuPage, true)
-    .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj()))
+    .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
     .unsafeSet(AllVehiclesQuery, Map("1" -> Json.obj("supplierNumber" -> 1)))
     .unsafeSet(VehicleDatesPage(supplierNumber, vehicleNumber), Set(VehicleDates.NoDates))
 

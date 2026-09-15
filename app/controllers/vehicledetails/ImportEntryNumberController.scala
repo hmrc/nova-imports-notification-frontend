@@ -23,6 +23,7 @@ import controllers.vehicledetails.ImportEntryNumberController.*
 import models.ImportNumber
 import models.requests.DataRequest
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.ImportService
 import views.html.ImportEntryNumberView
 
 import javax.inject.Inject
@@ -31,17 +32,20 @@ import javax.inject.Inject
 class ImportEntryNumberController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   actions: Actions,
-  view: ImportEntryNumberView
+  view: ImportEntryNumberView,
+  importService: ImportService
 ) extends BaseController {
 
   def onPageLoad(importNumber: ImportNumber): Action[AnyContent] =
-    actions.authAndGetDataWithUserTypeGuard(guardPredicate) { implicit request =>
+    actions.authAndGetDataWithUserTypeGuard(guardPredicate(importService, importNumber)) { implicit request =>
       Ok(view(importNumber))
     }
 }
 
 object ImportEntryNumberController {
 
-  def guardPredicate(request: DataRequest[?]): Boolean =
-    IsDraftIdDefined(request.userAnswers)
+  // the first import question, so the collection is still empty at this point
+  def guardPredicate(importService: ImportService, importNumber: ImportNumber)(request: DataRequest[?]): Boolean =
+    IsDraftIdDefined(request.userAnswers) &&
+      importService.numberExists(request.userAnswers, importNumber)
 }

@@ -38,7 +38,7 @@ class VehiclesBoughtFromSupplierAvd12PlaceholderControllerSpec extends SpecBase 
 
   private val answersWithSupplierOne: UserAnswers = emptyUserAnswers
     .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
-    .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj()))
+    .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
 
   private lazy val vehiclesFromSupplierRoute: String =
     vehicledetails.routes.VehiclesBoughtFromSupplierAvd12PlaceholderController.onPageLoad(supplierNumber).url

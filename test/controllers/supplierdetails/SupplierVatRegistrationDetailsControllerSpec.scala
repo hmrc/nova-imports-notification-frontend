@@ -65,7 +65,7 @@ class SupplierVatRegistrationDetailsControllerSpec extends SpecBase with Mockito
     .set(VehicleFromEuPage, true)
     .success
     .value
-    .set(AllSuppliersQuery, Map("1" -> Json.obj()))
+    .set(AllSuppliersQuery, Map("1" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
     .success
     .value
     .set(IsSupplierVatRegisteredPage(SupplierNumber(1)), true)
@@ -207,7 +207,7 @@ class SupplierVatRegistrationDetailsControllerSpec extends SpecBase with Mockito
         .set(VehicleFromEuPage, true)
         .success
         .value
-        .set(AllSuppliersQuery, Map("3" -> Json.obj()))
+        .set(AllSuppliersQuery, Map("3" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
         .success
         .value
         .set(IsSupplierVatRegisteredPage(SupplierNumber(3)), true)
@@ -296,7 +296,7 @@ class SupplierVatRegistrationDetailsControllerSpec extends SpecBase with Mockito
         .set(VehicleFromEuPage, false)
         .success
         .value
-        .set(AllSuppliersQuery, Map("1" -> Json.obj()))
+        .set(AllSuppliersQuery, Map("1" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
         .success
         .value
         .set(IsSupplierVatRegisteredPage(SupplierNumber(1)), true)
@@ -323,7 +323,7 @@ class SupplierVatRegistrationDetailsControllerSpec extends SpecBase with Mockito
         .set(VehicleFromEuPage, true)
         .success
         .value
-        .set(AllSuppliersQuery, Map("1" -> Json.obj()))
+        .set(AllSuppliersQuery, Map("1" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
         .success
         .value
         .set(IsSupplierVatRegisteredPage(SupplierNumber(1)), false) // No on AVD-S8.0

@@ -57,7 +57,7 @@ object NoVehicleDatesController {
   )(request: DataRequest[?]): Boolean =
     IsDraftIdDefined(request.userAnswers) &&
       request.userAnswers.get(VehicleFromEuPage).contains(true) &&
-      supplierService.numberExists(request.userAnswers, supplierNumber) &&
+      supplierService.numberHasValues(request.userAnswers, supplierNumber) &&
       vehicleService.belongsToSupplier(request.userAnswers, vehicleNumber, supplierNumber) &&
       request.userAnswers.get(VehicleDatesPage(supplierNumber, vehicleNumber)).exists(_.contains(VehicleDates.NoDates))
 }
