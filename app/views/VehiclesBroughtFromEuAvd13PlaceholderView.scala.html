@@ -1,0 +1,83 @@
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import controllers.vehicledetails.routes
+@import models.SupplierNumber
+
+@this(
+    layout: templates.Layout,
+    formHelper: FormWithCSRF,
+    govukErrorSummary: GovukErrorSummary,
+    govukButton: GovukButton
+)
+
+@(suppliers: Seq[(SupplierNumber, Option[String])], limitReached: Boolean)(implicit request: Request[?], messages: Messages)
+
+@pageTitle = @{
+    if (limitReached) titleNoForm(s"${messages("error.title.prefix")} ${messages("vehiclesBroughtFromEuAvd13Placeholder.title")}")
+    else titleNoForm(messages("vehiclesBroughtFromEuAvd13Placeholder.title"))
+}
+
+@layout(pageTitle = pageTitle) {
+
+    @if(limitReached) {
+        @govukErrorSummary(ErrorSummary(
+            errorList = Seq(ErrorLink(href = Some("#add-supplier"), content = Text(messages("vehiclesBroughtFromEuAvd13Placeholder.error.limitReached")))),
+            title = Text(messages("error.summary.title"))
+        ))
+    }
+
+    <h1 class="govuk-heading-l">@messages("vehiclesBroughtFromEuAvd13Placeholder.heading")</h1>
+
+    @if(suppliers.isEmpty) {
+        <p class="govuk-body">@messages("vehiclesBroughtFromEuAvd13Placeholder.noSuppliers")</p>
+    } else {
+        <table class="govuk-table">
+            <thead class="govuk-table__head">
+                <tr class="govuk-table__row">
+                    <th scope="col" class="govuk-table__header">@messages("vehiclesBroughtFromEuAvd13Placeholder.supplierNumber")</th>
+                    <th scope="col" class="govuk-table__header">@messages("vehiclesBroughtFromEuAvd13Placeholder.name")</th>
+                    <th scope="col" class="govuk-table__header"><span class="govuk-visually-hidden">@messages("vehiclesBroughtFromEuAvd13Placeholder.vehicles")</span></th>
+                    <th scope="col" class="govuk-table__header"><span class="govuk-visually-hidden">@messages("vehiclesBroughtFromEuAvd13Placeholder.delete")</span></th>
+                </tr>
+            </thead>
+            <tbody class="govuk-table__body">
+                @for((supplierNumber, supplierName) <- suppliers) {
+                    <tr class="govuk-table__row">
+                        <td class="govuk-table__cell">@supplierNumber.value</td>
+                        <td class="govuk-table__cell">@supplierName.getOrElse(messages("vehiclesBroughtFromEuAvd13Placeholder.notProvided"))</td>
+                        <td class="govuk-table__cell">
+                            <a href="@routes.VehiclesBoughtFromSupplierAvd12PlaceholderController.onPageLoad(supplierNumber)" class="govuk-link">@messages("vehiclesBroughtFromEuAvd13Placeholder.vehicles")</a>
+                        </td>
+                        <td class="govuk-table__cell">
+                            @formHelper(action = routes.VehiclesBroughtFromEuAvd13PlaceholderController.onDelete(supplierNumber)) {
+                                @govukButton(
+                                    ButtonViewModel(messages("vehiclesBroughtFromEuAvd13Placeholder.delete")).asWarningButton().withCssClass("govuk-!-margin-bottom-0")
+                                )
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+    @formHelper(action = routes.VehiclesBroughtFromEuAvd13PlaceholderController.onSubmit()) {
+        @govukButton(
+            ButtonViewModel(messages("vehiclesBroughtFromEuAvd13Placeholder.addSupplier")).withAttribute("id" -> "add-supplier")
+        )
+    }
+}

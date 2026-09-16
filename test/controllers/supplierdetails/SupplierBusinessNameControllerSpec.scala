@@ -56,7 +56,7 @@ class SupplierBusinessNameControllerSpec extends SpecBase with MockitoSugar {
   private val requiredAnswers: UserAnswers = emptyUserAnswers
     .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
     .unsafeSet(VehicleFromEuPage, true)
-    .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj()))
+    .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
     .unsafeSet(SupplierBusinessOrIndividualPage(supplierOne), BusinessOrPrivateIndividual.Business)
 
   private def applicationWithMockRepository(userAnswers: UserAnswers): (play.api.Application, SessionRepository) = {
@@ -249,7 +249,7 @@ class SupplierBusinessNameControllerSpec extends SpecBase with MockitoSugar {
 
       val answersWithoutDraftId = emptyUserAnswers
         .unsafeSet(VehicleFromEuPage, true)
-        .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj()))
+        .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
         .unsafeSet(SupplierBusinessOrIndividualPage(supplierOne), BusinessOrPrivateIndividual.Business)
 
       val application = applicationBuilder(userAnswers = Some(answersWithoutDraftId)).build()
@@ -268,7 +268,7 @@ class SupplierBusinessNameControllerSpec extends SpecBase with MockitoSugar {
 
       val answersWithoutDraftId = emptyUserAnswers
         .unsafeSet(VehicleFromEuPage, true)
-        .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj()))
+        .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
         .unsafeSet(SupplierBusinessOrIndividualPage(supplierOne), BusinessOrPrivateIndividual.Business)
 
       val application = applicationBuilder(userAnswers = Some(answersWithoutDraftId)).build()
@@ -336,7 +336,7 @@ class SupplierBusinessNameControllerSpec extends SpecBase with MockitoSugar {
       val answersWithoutSupplierType = emptyUserAnswers
         .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
         .unsafeSet(VehicleFromEuPage, true)
-        .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj()))
+        .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
 
       val application = applicationBuilder(userAnswers = Some(answersWithoutSupplierType)).build()
 

@@ -21,7 +21,7 @@ import models.{ImportNumber, UserAnswers}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{never, times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import play.api.libs.json.Json
+import play.api.libs.json.{JsObject, Json}
 import queries.AllImportsQuery
 import repositories.SessionRepository
 
@@ -43,9 +43,13 @@ class ImportServiceSpec extends SpecBase with MockitoSugar {
 
   private def mockVehicleServiceThatRemoves(answers: UserAnswers): VehicleService = {
     val vehicles = mock[VehicleService]
-    when(vehicles.removeForImport(any(), any())).thenReturn(Success(answers))
+    when(vehicles.deleteValuesForImport(any(), any())).thenReturn(Success(answers))
     vehicles
   }
+
+  private val deleted: JsObject = Json.obj("deleted" -> true)
+
+  private val answered: JsObject = Json.obj("importEntryNumber" -> "123456789A")
 
   "ImportService.add" - {
 
@@ -66,7 +70,7 @@ class ImportServiceSpec extends SpecBase with MockitoSugar {
     }
 
     "must return the next number after the highest, even when there are gaps" in {
-      val answers = emptyUserAnswers.unsafeSet(AllImportsQuery, Map("2" -> Json.obj(), "5" -> Json.obj()))
+      val answers = emptyUserAnswers.unsafeSet(AllImportsQuery, Map("2" -> answered, "5" -> answered))
       val repo    = mockSessionRepoThatSaves(answers)
 
       val number = newService(repo).add(answers).futureValue
@@ -75,7 +79,7 @@ class ImportServiceSpec extends SpecBase with MockitoSugar {
     }
 
     "must keep the existing imports when adding a new one" in {
-      val existing = Map("2" -> Json.obj("importEntryNumber" -> "123456789A"))
+      val existing = Map("2" -> answered)
       val answers  = emptyUserAnswers.unsafeSet(AllImportsQuery, existing)
       val repo     = mockSessionRepoThatSaves(answers)
 
@@ -83,35 +87,72 @@ class ImportServiceSpec extends SpecBase with MockitoSugar {
 
       verify(repo).setPage(any(), eqTo(AllImportsQuery), eqTo(existing + ("3" -> Json.obj())))(any())
     }
-  }
 
-  "ImportService.delete" - {
-
-    "must remove the import from the session" in {
-      val answers = emptyUserAnswers.unsafeSet(AllImportsQuery, Map("1" -> Json.obj(), "2" -> Json.obj()))
-
-      val result = newService(mockSessionRepoThatSaves(answers), mockVehicleServiceThatRemoves(answers)).delete(answers, ImportNumber(1)).futureValue
-
-      result.get(AllImportsQuery).value mustBe Map("2" -> Json.obj())
-    }
-
-    "must remove the imports associated vehicles" in {
-      val answers  = emptyUserAnswers.unsafeSet(AllImportsQuery, Map("1" -> Json.obj()))
-      val vehicles = mockVehicleServiceThatRemoves(answers)
-
-      newService(mockSessionRepoThatSaves(answers), vehicles).delete(answers, ImportNumber(1)).futureValue
-
-      verify(vehicles).removeForImport(any(), eqTo(ImportNumber(1)))
-    }
-
-    "must delete the import and its vehicles in a single write" in {
-      val answers = emptyUserAnswers.unsafeSet(AllImportsQuery, Map("1" -> Json.obj()))
+    "must reuse import 3 when it holds no values" in {
+      val answers = emptyUserAnswers.unsafeSet(AllImportsQuery, Map("2" -> answered, "3" -> Json.obj()))
       val repo    = mockSessionRepoThatSaves(answers)
 
-      newService(repo, mockVehicleServiceThatRemoves(answers)).delete(answers, ImportNumber(1)).futureValue
+      val number = newService(repo).add(answers).futureValue
+
+      number mustBe ImportNumber(3)
+    }
+
+    "must not return a deleted import's number out again, must be next highest number" in {
+      val answers = emptyUserAnswers.unsafeSet(AllImportsQuery, Map("1" -> answered, "2" -> deleted))
+      val repo    = mockSessionRepoThatSaves(answers)
+
+      val number = newService(repo).add(answers).futureValue
+
+      number mustBe ImportNumber(3)
+    }
+  }
+
+  "ImportService.numberHasValues" - {
+
+    "must be false for an empty import collection" in {
+      val answers = emptyUserAnswers.unsafeSet(AllImportsQuery, Map("1" -> Json.obj()))
+
+      newService(mock[SessionRepository]).numberHasValues(answers, ImportNumber(1)) mustBe false
+    }
+
+    "must be true for an import holding an answer" in {
+      val answers = emptyUserAnswers.unsafeSet(AllImportsQuery, Map("1" -> answered))
+
+      newService(mock[SessionRepository]).numberHasValues(answers, ImportNumber(1)) mustBe true
+    }
+  }
+
+  "ImportService.deleteValues" - {
+
+    "must empty import 1 and mark it deleted, keeping its number in the session" in {
+      val answers = emptyUserAnswers.unsafeSet(AllImportsQuery, Map("1" -> answered, "2" -> answered))
+
+      val result = newService(mockSessionRepoThatSaves(answers), mockVehicleServiceThatRemoves(answers))
+        .deleteValues(answers, ImportNumber(1))
+        .futureValue
+
+      result.get(AllImportsQuery).value mustBe Map("1" -> deleted, "2" -> answered)
+    }
+
+    "must empty the import and its vehicles in a single write" in {
+      val answers = emptyUserAnswers.unsafeSet(AllImportsQuery, Map("1" -> answered))
+      val repo    = mockSessionRepoThatSaves(answers)
+
+      newService(repo, mockVehicleServiceThatRemoves(answers)).deleteValues(answers, ImportNumber(1)).futureValue
 
       verify(repo, times(1)).set(any())
       verify(repo, never).setPage(any(), any(), any())(any())
+    }
+
+    "must leave imports 1 and 2 unchanged when import 9 is not in the session" in {
+      val existing = Map("1" -> answered, "2" -> answered)
+      val answers  = emptyUserAnswers.unsafeSet(AllImportsQuery, existing)
+
+      val result = newService(mockSessionRepoThatSaves(answers), mockVehicleServiceThatRemoves(answers))
+        .deleteValues(answers, ImportNumber(9))
+        .futureValue
+
+      result.get(AllImportsQuery).value mustBe existing
     }
   }
 
@@ -120,7 +161,7 @@ class ImportServiceSpec extends SpecBase with MockitoSugar {
     "must sort the imports into ascending number order" in {
       val answers = emptyUserAnswers.unsafeSet(
         AllImportsQuery,
-        Map("3" -> Json.obj(), "1" -> Json.obj(), "4" -> Json.obj(), "2" -> Json.obj())
+        Map("3" -> answered, "1" -> answered, "4" -> answered, "2" -> answered)
       )
 
       newService(mock[SessionRepository]).inOrder(answers).map { case (number, _) => number } mustBe
@@ -128,7 +169,7 @@ class ImportServiceSpec extends SpecBase with MockitoSugar {
     }
 
     "must sort 10 after 2" in {
-      val answers = emptyUserAnswers.unsafeSet(AllImportsQuery, Map("10" -> Json.obj(), "2" -> Json.obj()))
+      val answers = emptyUserAnswers.unsafeSet(AllImportsQuery, Map("10" -> answered, "2" -> answered))
 
       newService(mock[SessionRepository]).inOrder(answers).map { case (number, _) => number } mustBe
         Seq(ImportNumber(2), ImportNumber(10))
@@ -136,6 +177,14 @@ class ImportServiceSpec extends SpecBase with MockitoSugar {
 
     "must return nothing when there are no imports" in {
       newService(mock[SessionRepository]).inOrder(emptyUserAnswers) mustBe empty
+    }
+
+    "must ignore deleted and empty imports" in {
+      val answers = emptyUserAnswers
+        .unsafeSet(AllImportsQuery, Map("1" -> answered, "2" -> deleted, "3" -> Json.obj()))
+
+      newService(mock[SessionRepository]).inOrder(answers).map { case (number, _) => number } mustBe
+        Seq(ImportNumber(1))
     }
   }
 

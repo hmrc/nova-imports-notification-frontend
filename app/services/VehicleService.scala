@@ -18,6 +18,7 @@ package services
 
 import com.google.inject.{ImplementedBy, Inject, Singleton}
 import models.{ImportNumber, SupplierNumber, UserAnswers, VehicleNumber}
+import play.api.Logging
 import play.api.libs.json.{JsObject, Json}
 import queries.AllVehiclesQuery
 import repositories.SessionRepository
@@ -32,16 +33,24 @@ trait VehicleService {
 
   def addForImport(answers: UserAnswers, importNumber: ImportNumber): Future[VehicleNumber]
 
+  // checks the numbered collection exists but may be empty, so used on the first question only
   def numberExists(answers: UserAnswers, vehicleNumber: VehicleNumber): Boolean
+
+  def numberHasValues(answers: UserAnswers, vehicleNumber: VehicleNumber): Boolean
 
   def belongsToSupplier(answers: UserAnswers, vehicleNumber: VehicleNumber, supplierNumber: SupplierNumber): Boolean
 
-  def delete(answers: UserAnswers, vehicleNumber: VehicleNumber): Future[UserAnswers]
+  def belongsToImport(answers: UserAnswers, vehicleNumber: VehicleNumber, importNumber: ImportNumber): Boolean
 
-  // these removeFors don't save. delete calls them to remove a supplier or import with its vehicles in one write
-  def removeForSupplier(answers: UserAnswers, supplierNumber: SupplierNumber): Try[UserAnswers]
+  def limitReached(answers: UserAnswers): Boolean
 
-  def removeForImport(answers: UserAnswers, importNumber: ImportNumber): Try[UserAnswers]
+  def deleteValues(answers: UserAnswers, vehicleNumber: VehicleNumber): Future[UserAnswers]
+
+  // returns the changed answers without saving, deleteValues from SupplierService writes both
+  def deleteValuesForSupplier(answers: UserAnswers, supplierNumber: SupplierNumber): Try[UserAnswers]
+
+  // returns the changed answers without saving, deleteValues from ImportService writes both
+  def deleteValuesForImport(answers: UserAnswers, importNumber: ImportNumber): Try[UserAnswers]
 
   def count(answers: UserAnswers): Int
 
@@ -52,49 +61,77 @@ trait VehicleService {
 class VehicleServiceImpl @Inject() (
   sessionRepository: SessionRepository
 )(implicit ec: ExecutionContext)
-    extends VehicleService {
+    extends VehicleService
+    with Logging {
+
+  import VehicleServiceImpl.*
+
+  private val MaxVehicles = 100
 
   def addForSupplier(answers: UserAnswers, supplierNumber: SupplierNumber): Future[VehicleNumber] =
-    add(answers, Json.obj("supplierNumber" -> supplierNumber.value))
+    add(answers, Json.obj(SupplierNumberKey -> supplierNumber.value))
 
   def addForImport(answers: UserAnswers, importNumber: ImportNumber): Future[VehicleNumber] =
-    add(answers, Json.obj("importNumber" -> importNumber.value))
+    add(answers, Json.obj(ImportNumberKey -> importNumber.value))
 
   def numberExists(answers: UserAnswers, vehicleNumber: VehicleNumber): Boolean =
     allVehicles(answers).contains(vehicleNumber.value.toString)
 
+  def numberHasValues(answers: UserAnswers, vehicleNumber: VehicleNumber): Boolean =
+    vehiclesWithValues(answers).contains(vehicleNumber.value.toString)
+
   def belongsToSupplier(answers: UserAnswers, vehicleNumber: VehicleNumber, supplierNumber: SupplierNumber): Boolean =
     allVehicles(answers)
       .get(vehicleNumber.value.toString)
-      .exists(vehicle => (vehicle \ "supplierNumber").asOpt[Int].contains(supplierNumber.value))
+      .exists(vehicle => (vehicle \ SupplierNumberKey).asOpt[Int].contains(supplierNumber.value))
 
-  def delete(answers: UserAnswers, vehicleNumber: VehicleNumber): Future[UserAnswers] =
-    save(answers, allVehicles(answers) - vehicleNumber.value.toString)
+  def belongsToImport(answers: UserAnswers, vehicleNumber: VehicleNumber, importNumber: ImportNumber): Boolean =
+    allVehicles(answers)
+      .get(vehicleNumber.value.toString)
+      .exists(vehicle => (vehicle \ ImportNumberKey).asOpt[Int].contains(importNumber.value))
 
-  def removeForSupplier(answers: UserAnswers, supplierNumber: SupplierNumber): Try[UserAnswers] =
-    removeVehiclesFor(answers, "supplierNumber", supplierNumber.value)
+  def limitReached(answers: UserAnswers): Boolean = {
+    val reached = count(answers) >= MaxVehicles
+    if (reached) logger.info(s"Maximum vehicle count of $MaxVehicles reached")
+    reached
+  }
 
-  def removeForImport(answers: UserAnswers, importNumber: ImportNumber): Try[UserAnswers] =
-    removeVehiclesFor(answers, "importNumber", importNumber.value)
+  def deleteValues(answers: UserAnswers, vehicleNumber: VehicleNumber): Future[UserAnswers] = {
+    val vehicles = allVehicles(answers)
+    val key      = vehicleNumber.value.toString
+
+    // clears the previous values, keeps the numbered key, skips it if the number is not there
+    save(answers, if (vehicles.contains(key)) vehicles + (key -> DeletedVehicle) else vehicles)
+  }
+
+  def deleteValuesForSupplier(answers: UserAnswers, supplierNumber: SupplierNumber): Try[UserAnswers] =
+    deleteValuesForOwner(answers, SupplierNumberKey, supplierNumber.value)
+
+  def deleteValuesForImport(answers: UserAnswers, importNumber: ImportNumber): Try[UserAnswers] =
+    deleteValuesForOwner(answers, ImportNumberKey, importNumber.value)
 
   def count(answers: UserAnswers): Int =
-    allVehicles(answers).size
+    vehiclesWithValues(answers).size
 
   def inOrder(answers: UserAnswers): Seq[(VehicleNumber, JsObject)] =
-    allVehicles(answers).toSeq
+    vehiclesWithValues(answers).toSeq
       .flatMap { case (key, vehicle) => key.toIntOption.map(number => VehicleNumber(number) -> vehicle) }
       .sortBy { case (number, _) => number.value }
 
-  private def removeVehiclesFor(answers: UserAnswers, ownerField: String, ownerNumber: Int): Try[UserAnswers] =
+  private def deleteValuesForOwner(answers: UserAnswers, ownerKey: String, ownerNumber: Int): Try[UserAnswers] =
     answers.set(
       AllVehiclesQuery,
-      allVehicles(answers).filterNot { case (_, vehicle) => (vehicle \ ownerField).asOpt[Int].contains(ownerNumber) }
+      allVehicles(answers).map {
+        case (key, vehicle) if (vehicle \ ownerKey).asOpt[Int].contains(ownerNumber) && hasValues(vehicle) =>
+          key -> DeletedVehicle
+        case entry => entry
+      }
     )
 
-  // the vehicle record is created holding the supplier or import number it belongs to
+  // reuses a collection if no answer values set yet, overwriting its supplierNumber or importNumber
   private def add(answers: UserAnswers, belongsTo: JsObject): Future[VehicleNumber] = {
     val vehicles = allVehicles(answers)
-    val number   = VehicleNumber(vehicles.keys.flatMap(_.toIntOption).maxOption.getOrElse(0) + 1)
+    val number   = availableNumber(vehicles).getOrElse(nextNumber(vehicles))
     val updated  = vehicles + (number.value.toString -> belongsTo)
 
     save(answers, updated).map(_ => number)
@@ -103,6 +140,39 @@ class VehicleServiceImpl @Inject() (
   private def save(answers: UserAnswers, vehicles: Map[String, JsObject]): Future[UserAnswers] =
     sessionRepository.setPage(answers, AllVehiclesQuery, vehicles)
 
+  // every vehicle, empty and deleted included
   private def allVehicles(answers: UserAnswers): Map[String, JsObject] =
     answers.get(AllVehiclesQuery).getOrElse(Map.empty)
+
+  private def vehiclesWithValues(answers: UserAnswers): Map[String, JsObject] =
+    allVehicles(answers).filter { case (_, vehicle) => hasValues(vehicle) }
+
+  private def hasValues(vehicle: JsObject): Boolean =
+    vehicle.keys.exists(key => !ReservedKeys.contains(key))
+
+  private def isDeleted(vehicle: JsObject): Boolean =
+    (vehicle \ DeletedKey).asOpt[Boolean].contains(true)
+
+  private def availableNumber(vehicles: Map[String, JsObject]): Option[VehicleNumber] =
+    vehicles.toSeq
+      .flatMap { case (key, vehicle) => key.toIntOption.filter(_ => !hasValues(vehicle) && !isDeleted(vehicle)) }
+      .minOption
+      .map(VehicleNumber(_))
+
+  private def nextNumber(vehicles: Map[String, JsObject]): VehicleNumber =
+    VehicleNumber(vehicles.keys.flatMap(_.toIntOption).maxOption.getOrElse(0) + 1)
+}
+
+object VehicleServiceImpl {
+
+  private[services] val SupplierNumberKey = "supplierNumber"
+
+  private[services] val ImportNumberKey = "importNumber"
+
+  private[services] val DeletedKey = "deleted"
+
+  private[services] val DeletedVehicle: JsObject = Json.obj(DeletedKey -> true)
+
+  // reserved keys are ignored when checking for values
+  private[services] val ReservedKeys: Set[String] = Set(SupplierNumberKey, ImportNumberKey, DeletedKey)
 }

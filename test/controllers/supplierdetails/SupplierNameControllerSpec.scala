@@ -64,7 +64,7 @@ class SupplierNameControllerSpec extends SpecBase with MockitoSugar {
     .set(VehicleFromEuPage, true)
     .success
     .value
-    .set(AllSuppliersQuery, Map("1" -> Json.obj()))
+    .set(AllSuppliersQuery, Map("1" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
     .success
     .value
     .set(SupplierBusinessOrIndividualPage(supplierOne), BusinessOrPrivateIndividual.PrivateIndividual)
@@ -235,7 +235,7 @@ class SupplierNameControllerSpec extends SpecBase with MockitoSugar {
         .set(SupplierBusinessOrIndividualPage(supplierOne), BusinessOrPrivateIndividual.PrivateIndividual)
         .success
         .value
-        .set(AllSuppliersQuery, Map("1" -> Json.obj()))
+        .set(AllSuppliersQuery, Map("1" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
         .success
         .value
 
@@ -260,7 +260,7 @@ class SupplierNameControllerSpec extends SpecBase with MockitoSugar {
         .set(SupplierBusinessOrIndividualPage(supplierOne), BusinessOrPrivateIndividual.PrivateIndividual)
         .success
         .value
-        .set(AllSuppliersQuery, Map("1" -> Json.obj()))
+        .set(AllSuppliersQuery, Map("1" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
         .success
         .value
 
@@ -339,7 +339,7 @@ class SupplierNameControllerSpec extends SpecBase with MockitoSugar {
         .set(VehicleFromEuPage, true)
         .success
         .value
-        .set(AllSuppliersQuery, Map("1" -> Json.obj()))
+        .set(AllSuppliersQuery, Map("1" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
         .success
         .value
 
