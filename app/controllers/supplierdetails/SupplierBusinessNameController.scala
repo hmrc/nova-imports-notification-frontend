@@ -17,24 +17,23 @@
 package controllers.supplierdetails
 
 import connectors.NovaImportsBackendConnector
-import controllers.{BaseController, routes}
+import controllers.BaseController
 import controllers.actions.*
 import controllers.utils.IsDraftIdDefined
+import controllers.utils.SupplierAlfUtil.initialiseAlfJourney
 import forms.SupplierBusinessNameFormProvider
 import models.requests.DataRequest
 
 import javax.inject.Inject
-import models.{AddressJourney, BusinessOrPrivateIndividual, CheckMode, Mode, SupplierNumber, UserAnswers}
+import models.{BusinessOrPrivateIndividual, CheckMode, Mode, SupplierNumber}
 import pages.sections.initialquestions.VehicleFromEuPage
 import pages.sections.supplieraddress.SupplierAddressPage
-import pages.sections.supplierdetails.{SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierEuMemberStatesPage}
+import pages.sections.supplierdetails.{SupplierBusinessNamePage, SupplierBusinessOrIndividualPage}
 import play.api.Logging
 import play.api.data.Form
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import services.{AddressLookupService, SupplierService}
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import views.html.SupplierBusinessNameView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -76,35 +75,11 @@ class SupplierBusinessNameController @Inject() (
                             Future.successful(
                               Redirect(controllers.supplierdetails.routes.SupplierDetailsCheckYourAnswersController.onPageLoad(supplierNumber))
                             )
-                          case _ => initialiseAlfJourney(supplierNumber, updatedAnswers)
+                          case _ => initialiseAlfJourney(backendConnector, addressLookupService, sessionRepository, supplierNumber, updatedAnswers)
                         }
             } yield result
         )
     }
-
-  private def initialiseAlfJourney(supplierNumber: SupplierNumber, userAnswers: UserAnswers)(implicit
-    request: DataRequest[?]
-  ): Future[Result] = {
-    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-    val journey                    = AddressJourney.Supplier(supplierNumber)
-
-    backendConnector.getEuMemberStates().flatMap {
-      case Right(states) =>
-        addressLookupService.initJourney(journey, false, states.countries.map(_.code).toSeq).flatMap {
-          case Right(journeyUrl) =>
-            for {
-              ua <- Future.fromTry(userAnswers.set(SupplierEuMemberStatesPage(supplierNumber), states.countries))
-              _  <- sessionRepository.set(ua)
-            } yield Redirect(journeyUrl)
-          case Left(error) =>
-            logger.warn(s"Failed to init supplier ALF journey : $error")
-            Future successful Redirect(routes.JourneyRecoveryController.onPageLoad())
-        }
-      case Left(error) =>
-        logger.warn(s"Failed to init supplier ALF journey : $error")
-        Future successful Redirect(routes.JourneyRecoveryController.onPageLoad())
-    }
-  }
 }
 
 object SupplierBusinessNameController {
