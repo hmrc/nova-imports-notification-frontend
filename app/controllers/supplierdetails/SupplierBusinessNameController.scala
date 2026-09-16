@@ -16,21 +16,24 @@
 
 package controllers.supplierdetails
 
+import connectors.NovaImportsBackendConnector
 import controllers.BaseController
 import controllers.actions.*
 import controllers.utils.IsDraftIdDefined
+import controllers.utils.SupplierAlfUtil.initialiseAlfJourney
 import forms.SupplierBusinessNameFormProvider
 import models.requests.DataRequest
 
 import javax.inject.Inject
-import models.{BusinessOrPrivateIndividual, Mode, NovaUserType, SupplierNumber}
-import navigation.Navigator
+import models.{BusinessOrPrivateIndividual, CheckMode, Mode, SupplierNumber}
 import pages.sections.initialquestions.VehicleFromEuPage
+import pages.sections.supplieraddress.SupplierAddressPage
 import pages.sections.supplierdetails.{SupplierBusinessNamePage, SupplierBusinessOrIndividualPage}
+import play.api.Logging
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
-import services.SupplierService
+import services.{AddressLookupService, SupplierService}
 import views.html.SupplierBusinessNameView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -38,13 +41,15 @@ import scala.concurrent.{ExecutionContext, Future}
 class SupplierBusinessNameController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   sessionRepository: SessionRepository,
-  navigator: Navigator,
   actions: Actions,
   formProvider: SupplierBusinessNameFormProvider,
   supplierService: SupplierService,
+  addressLookupService: AddressLookupService,
+  backendConnector: NovaImportsBackendConnector,
   view: SupplierBusinessNameView
 )(implicit ec: ExecutionContext)
-    extends BaseController {
+    extends BaseController
+    with Logging {
 
   import SupplierBusinessNameController.*
 
@@ -65,9 +70,14 @@ class SupplierBusinessNameController @Inject() (
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(SupplierBusinessNamePage(supplierNumber), supplierBusinessName))
               _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(
-              navigator.nextPage(SupplierBusinessNamePage(supplierNumber), mode, updatedAnswers, NovaUserType.fromRequest)
-            )
+              result         <- (mode, updatedAnswers.get(SupplierAddressPage(supplierNumber))) match {
+                          case (CheckMode, Some(_)) =>
+                            Future.successful(
+                              Redirect(controllers.supplierdetails.routes.SupplierDetailsCheckYourAnswersController.onPageLoad(supplierNumber))
+                            )
+                          case _ => initialiseAlfJourney(backendConnector, addressLookupService, sessionRepository, supplierNumber, updatedAnswers)
+                        }
+            } yield result
         )
     }
 }

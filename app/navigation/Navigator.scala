@@ -18,7 +18,7 @@ package navigation
 
 import javax.inject.{Inject, Singleton}
 import play.api.mvc.Call
-import controllers.{initialquestions, notifierdetails, purchaserdetails, routes, supplieraddress, supplierdetails, vehicledetails}
+import controllers.{initialquestions, notifierdetails, purchaserdetails, routes, supplierdetails, vehicledetails}
 import pages.*
 import models.*
 import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, NotifyingAsPurchaserPage, PurchaserBusinessOrIndividualPage, VehicleBusinessUsePage, VehicleFromEuPage}
@@ -28,7 +28,6 @@ import pages.sections.notifieraddress.IsYourAddressInTheUkPage
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierQuestionPage, SupplierVatRegistrationNumberPage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
-import pages.sections.supplieraddress.IsSupplierAddressInTheUkPage
 import pages.sections.vehicledetails.{DateOfAvailabilityPage, PurchaseInvoiceDatePage, PurchaseInvoiceNumberPage, VehicleDatesPage}
 
 @Singleton
@@ -147,14 +146,6 @@ class Navigator @Inject() () {
           case _ =>
             routes.JourneyRecoveryController.onPageLoad()
         }
-    case page: SupplierNamePage =>
-      (_, _) =>
-        supplieraddress.routes.IsSupplierAddressInTheUKController
-          .onPageLoad(page.supplierNumber, NormalMode)
-    case page: SupplierBusinessNamePage =>
-      (_, _) =>
-        supplieraddress.routes.IsSupplierAddressInTheUKController
-          .onPageLoad(page.supplierNumber, NormalMode)
     case IsPurchaserAddressInTheUkPage =>
       (userAnswers, _) =>
         userAnswers.get(IsPurchaserAddressInTheUkPage) match {
@@ -273,7 +264,6 @@ class Navigator @Inject() () {
     case page: SupplierQuestionPage[?]
         if page.isInstanceOf[SupplierNamePage] ||
           page.isInstanceOf[SupplierBusinessNamePage] ||
-          page.isInstanceOf[IsSupplierAddressInTheUkPage] ||
           page.isInstanceOf[SupplierVatRegistrationNumberPage] =>
       (_, _) => supplierdetails.routes.SupplierDetailsCheckYourAnswersController.onPageLoad(page.supplierNumber)
     case _: VehicleDatesPage | _: PurchaseInvoiceDatePage | _: DateOfAvailabilityPage | _: PurchaseInvoiceNumberPage =>

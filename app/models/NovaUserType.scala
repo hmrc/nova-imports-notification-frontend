@@ -34,6 +34,7 @@ object NovaUserType {
   def from(affinityGroup: AffinityGroup, enrolments: Enrolments): NovaUserType =
     affinityGroup match {
       case AffinityGroup.Organisation if hasVatEnrolment(enrolments) => NovaUserType.VatRegisteredOrganisation
+      case AffinityGroup.Individual if hasVatEnrolment(enrolments)   => NovaUserType.VatRegisteredOrganisation
       case AffinityGroup.Organisation                                => NovaUserType.NonVatOrganisation
       case AffinityGroup.Agent if !isSpecialUser(enrolments)         => NovaUserType.Agent
       case _ if !isSpecialUser(enrolments)                           => NovaUserType.PrivateIndividual
