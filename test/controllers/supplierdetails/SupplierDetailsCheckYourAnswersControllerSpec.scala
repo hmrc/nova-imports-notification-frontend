@@ -715,14 +715,13 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
         val answersWithJourneyId =
           individualVatRegisteredSupplierDetailsAnswers.unsafeSet(SupplierAddressJourneyIdPage(supplierNumber), "journey-123")
 
-        val redirectUrl = "/country-picker"
+        val redirectUrl          = "/country-picker"
         val addressLookupService = mock[AddressLookupService]
-        when(addressLookupService.initJourney(any(), any(), any())(any[HeaderCarrier])).thenReturn(
-          Future.successful(Right(redirectUrl)))
+        when(addressLookupService.initJourney(any(), any(), any())(any[HeaderCarrier])).thenReturn(Future.successful(Right(redirectUrl)))
         val sessionRepository = stubSessionRepository()
-        val connector = mock[NovaImportsBackendConnector]
+        val connector         = mock[NovaImportsBackendConnector]
         when(connector.getEuMemberStates()(any[HeaderCarrier])).thenReturn(Future.successful(Right(EuMemberStates(Set()))))
-        val application       = applicationForSubmit(Some(answersWithJourneyId), connector, sessionRepository, addressLookupService)
+        val application = applicationForSubmit(Some(answersWithJourneyId), connector, sessionRepository, addressLookupService)
 
         running(application) {
           val request = FakeRequest(GET, supplierDetailsCheckYourAnswersRouteOnChangeAddress())
