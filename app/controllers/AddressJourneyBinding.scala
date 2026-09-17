@@ -25,7 +25,7 @@ import pages.sections.initialquestions.{NotifyingAsPurchaserPage, VehicleFromEuP
 import pages.sections.notifieraddress.{AddressJourneyIdPage, AddressPage}
 import pages.sections.purchaseraddress.{PurchaserAddressJourneyIdPage, PurchaserAddressPage}
 import pages.sections.supplieraddress.{SupplierAddressJourneyIdPage, SupplierAddressPage}
-import pages.sections.supplierdetails.SupplierBusinessOrIndividualPage
+import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessOrIndividualPage}
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
 import services.SupplierService
@@ -37,7 +37,7 @@ final case class AddressJourneyBinding(
   sectionId: String,
   payload: Address => JsObject,
   guard: DataRequest[?] => Boolean,
-  onComplete: Call,
+  onComplete: DataRequest[?] => Call,
   addressChangedPage: Call,
   addressChangedSubmit: Call,
   changeAddressLink: Call,
@@ -60,7 +60,7 @@ object AddressJourneyBinding {
     sectionId = "notifier-address",
     payload = address => Json.toJson(NotifierAddress.fromAddress(address)).as[JsObject],
     guard = !_.userContext.isAgent,
-    onComplete = routes.NotificationTaskListController.onPageLoad(),
+    onComplete = request => routes.NotificationTaskListController.onPageLoad(),
     addressChangedPage = routes.AddressChangedController.onPageLoad(),
     addressChangedSubmit = routes.AddressChangedController.onSubmit(),
     changeAddressLink = routes.AddressChangedController.onChangeAddress(),
@@ -79,7 +79,12 @@ object AddressJourneyBinding {
         request.userAnswers.get(VehicleFromEuPage).contains(true) &&
         request.userAnswers.get(SupplierBusinessOrIndividualPage(number)).isDefined &&
         supplierService.numberExists(request.userAnswers, number),
-    onComplete = supplierdetails.routes.IsSupplierVatRegisteredController.onPageLoad(number, NormalMode),
+    onComplete = request =>
+      if (request.userAnswers.get(IsSupplierVatRegisteredPage(number)).isDefined) {
+        supplierdetails.routes.SupplierDetailsCheckYourAnswersController.onPageLoad(number)
+      } else {
+        supplierdetails.routes.IsSupplierVatRegisteredController.onPageLoad(number, NormalMode)
+      },
     addressChangedPage = routes.AddressChangedController.supplierOnPageLoad(number),
     addressChangedSubmit = routes.AddressChangedController.supplierOnSubmit(number),
     changeAddressLink = routes.AddressChangedController.supplierOnChangeAddress(number),
@@ -108,7 +113,7 @@ object AddressJourneyBinding {
           IsDraftIdDefined(request.userAnswers) &&
           request.userAnswers.get(NotifyingAsPurchaserPage).contains(PurchaserOrOnBehalf.OnBehalfOfPurchaser)
       },
-    onComplete = routes.NotificationTaskListController.onPageLoad(),
+    onComplete = request => routes.NotificationTaskListController.onPageLoad(),
     addressChangedPage = routes.AddressChangedController.purchaserOnPageLoad(),
     addressChangedSubmit = routes.AddressChangedController.purchaserOnSubmit(),
     changeAddressLink = routes.AddressChangedController.purchaserOnChangeAddress(),

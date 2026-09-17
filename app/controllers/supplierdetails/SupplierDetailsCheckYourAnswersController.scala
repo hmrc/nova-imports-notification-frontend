@@ -20,19 +20,20 @@ import connectors.NovaImportsBackendConnector
 import controllers.BaseController
 import controllers.actions.*
 import controllers.utils.IsDraftIdDefined
+import controllers.utils.SupplierAlfUtil.initialiseAlfJourney
 import models.BusinessOrPrivateIndividual.{Business, PrivateIndividual}
 import models.draftsections.{SupplierDetails, SupplierSelfSupplyDetails}
 import models.requests.DataRequest
 import models.{Address, BusinessOrPrivateIndividual, NameDetails, SupplierNumber, UserAnswers, VatNumberDetails}
 import pages.*
 import pages.sections.initialquestions.VehicleFromEuPage
-import pages.sections.supplieraddress.{SupplierAddressJourneyIdPage, SupplierAddressPage}
+import pages.sections.supplieraddress.SupplierAddressPage
 import pages.sections.supplierdetails.*
 import play.api.Logging
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
-import services.SupplierService
+import services.{AddressLookupService, SupplierService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import views.html.SupplierDetailsCheckYourAnswersView
@@ -46,7 +47,8 @@ class SupplierDetailsCheckYourAnswersController @Inject() (
   backendConnector: NovaImportsBackendConnector,
   sessionRepository: SessionRepository,
   view: SupplierDetailsCheckYourAnswersView,
-  supplierService: SupplierService
+  supplierService: SupplierService,
+  addressLookupService: AddressLookupService
 )(implicit ec: ExecutionContext)
     extends BaseController
     with Logging {
@@ -60,12 +62,7 @@ class SupplierDetailsCheckYourAnswersController @Inject() (
 
   def onChangeAddress(supplierNumber: SupplierNumber): Action[AnyContent] =
     actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierService, supplierNumber)).async { implicit request =>
-      for {
-        cleared <- Future.fromTry(
-                     request.userAnswers.remove(SupplierAddressPage(supplierNumber)).flatMap(_.remove(SupplierAddressJourneyIdPage(supplierNumber)))
-                   )
-        _ <- sessionRepository.set(cleared)
-      } yield Redirect(controllers.AddressJourneyBinding.supplierAlfRestart(supplierNumber, request))
+      initialiseAlfJourney(backendConnector, addressLookupService, sessionRepository, supplierNumber, request.userAnswers)
     }
 
   def onSubmit(supplierNumber: SupplierNumber): Action[AnyContent] =

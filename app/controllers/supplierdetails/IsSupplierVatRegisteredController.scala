@@ -16,12 +16,12 @@
 
 package controllers.supplierdetails
 
-import controllers.BaseController
+import controllers.{BaseController, routes, supplierdetails}
 import controllers.actions.*
 import controllers.utils.IsDraftIdDefined
 import forms.IsSupplierVatRegisteredFormProvider
 import models.requests.DataRequest
-import models.{Mode, NovaUserType, SupplierNumber, UserAnswers}
+import models.{CheckMode, Mode, SupplierNumber, UserAnswers}
 import navigation.Navigator
 import pages.sections.initialquestions.VehicleFromEuPage
 import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierVatRegistrationNumberPage}
@@ -63,16 +63,19 @@ class IsSupplierVatRegisteredController @Inject() (
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, supplierNumber, mode))),
           value =>
             for {
-              updatedAnswers  <- Future.fromTry(request.userAnswers.set(IsSupplierVatRegisteredPage(supplierNumber), value))
+              updatedAnswers  <- Future.fromTry(saveSessionDataOnAnswerChange(value, request.userAnswers, supplierNumber, mode))
               updatedAnswers2 <- Future.fromTry(clearSessionDataOnAnswerChange(value, updatedAnswers, supplierNumber))
               _               <- sessionRepository.set(updatedAnswers2)
             } yield Redirect(
-              navigator.nextPage(
-                IsSupplierVatRegisteredPage(supplierNumber),
-                mode,
-                updatedAnswers2,
-                NovaUserType.from(request.affinityGroup, request.enrolments)
-              )
+              value match {
+                case true =>
+                  supplierdetails.routes.SupplierVatRegistrationDetailsController
+                    .onPageLoad(supplierNumber, CheckMode)
+                case false =>
+                  supplierdetails.routes.SupplierDetailsCheckYourAnswersController
+                    .onPageLoad(supplierNumber)
+                case _ => routes.JourneyRecoveryController.onPageLoad()
+              }
             )
         )
     }
@@ -91,6 +94,21 @@ object IsSupplierVatRegisteredController {
       userAnswers.remove(SupplierVatRegistrationNumberPage(supplierNumber))
     } else {
       Try(userAnswers)
+    }
+  }
+
+  private def saveSessionDataOnAnswerChange(
+    isVatRegisteredValue: Boolean,
+    userAnswers: UserAnswers,
+    supplierNumber: SupplierNumber,
+    mode: Mode
+  ): Try[UserAnswers] = {
+    // Do not save answer if in Check Mode and answer is yes.
+    // We will save in the vat details screen before returning to CYA screen to prevent issues with back navigation.
+    if (isVatRegisteredValue && mode.equals(CheckMode)) {
+      Try(userAnswers)
+    } else {
+      userAnswers.set(IsSupplierVatRegisteredPage(supplierNumber), isVatRegisteredValue)
     }
   }
 

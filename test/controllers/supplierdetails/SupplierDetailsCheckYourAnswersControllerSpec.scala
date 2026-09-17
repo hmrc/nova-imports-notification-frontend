@@ -20,7 +20,7 @@ import base.SpecBase
 import connectors.{NovaImportsBackendConnector, UpdateSectionError}
 import controllers.supplierdetails.SupplierDetailsCheckYourAnswersControllerSpec.*
 import controllers.{routes, supplierdetails}
-import models.{Address, BusinessOrPrivateIndividual, CheckMode, Country, DraftId, NameDetails, SupplierNumber, UserAnswers, VatNumberDetails}
+import models.{Address, BusinessOrPrivateIndividual, CheckMode, Country, DraftId, EuMemberStates, NameDetails, SupplierNumber, UserAnswers, VatNumberDetails}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{atLeastOnce, verify, when}
@@ -41,6 +41,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import queries.AllSuppliersQuery
 import repositories.SessionRepository
+import services.AddressLookupService
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
@@ -71,12 +72,14 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
   private def applicationForSubmit(
     userAnswers: Option[UserAnswers],
     connector: NovaImportsBackendConnector,
-    sessionRepository: SessionRepository = stubSessionRepository()
+    sessionRepository: SessionRepository = stubSessionRepository(),
+    addressLookupService: AddressLookupService = mock[AddressLookupService]
   ): Application =
     applicationBuilder(userAnswers)
       .overrides(
         bind[SessionRepository].toInstance(sessionRepository),
-        bind[NovaImportsBackendConnector].toInstance(connector)
+        bind[NovaImportsBackendConnector].toInstance(connector),
+        bind[AddressLookupService].toInstance(addressLookupService)
       )
       .build()
 
@@ -708,26 +711,31 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
     }
 
     "onChangeAddress" - {
-      "must clear the stored supplier address and supplier journey id from the session and redirect back to AVD-S4.0 (individual supplier) to restart the ALF journey" in {
+      "must retain the stored supplier address and supplier journey id from the session and redirect back to ALF /country-picker to restart the ALF journey" in {
         val answersWithJourneyId =
           individualVatRegisteredSupplierDetailsAnswers.unsafeSet(SupplierAddressJourneyIdPage(supplierNumber), "journey-123")
 
+        val redirectUrl = "/country-picker"
+        val addressLookupService = mock[AddressLookupService]
+        when(addressLookupService.initJourney(any(), any(), any())(any[HeaderCarrier])).thenReturn(
+          Future.successful(Right(redirectUrl)))
         val sessionRepository = stubSessionRepository()
-        val application       = applicationForSubmit(Some(answersWithJourneyId), mock[NovaImportsBackendConnector], sessionRepository)
+        val connector = mock[NovaImportsBackendConnector]
+        when(connector.getEuMemberStates()(any[HeaderCarrier])).thenReturn(Future.successful(Right(EuMemberStates(Set()))))
+        val application       = applicationForSubmit(Some(answersWithJourneyId), connector, sessionRepository, addressLookupService)
 
         running(application) {
           val request = FakeRequest(GET, supplierDetailsCheckYourAnswersRouteOnChangeAddress())
           val result  = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual controllers.supplierdetails.routes.SupplierNameController
-            .onPageLoad(supplierNumber, CheckMode)
-            .url
+          redirectLocation(result).value mustEqual redirectUrl
 
           val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
           verify(sessionRepository).set(captor.capture())
           captor.getValue.get(AddressPage) mustBe None
-          captor.getValue.get(SupplierAddressJourneyIdPage(supplierNumber)) mustBe None
+          captor.getValue.get(SupplierAddressJourneyIdPage(supplierNumber)) mustBe Some("journey-123")
+
         }
       }
 

@@ -23,7 +23,7 @@ import controllers.utils.IsDraftIdDefined
 import controllers.{BaseController, routes}
 import forms.SupplierVatRegistrationDetailsFormProvider
 import models.requests.DataRequest
-import models.{Country, Mode, NovaUserType, SupplierNumber, UserAnswers, VatNumberDetails}
+import models.{CheckMode, Country, Mode, NovaUserType, SupplierNumber, UserAnswers, VatNumberDetails}
 import navigation.Navigator
 import pages.sections.initialquestions.VehicleFromEuPage
 import pages.sections.supplieraddress.SupplierAddressJourneyIdPage
@@ -39,6 +39,7 @@ import views.html.SupplierVatRegistrationDetailsView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
 
 class SupplierVatRegistrationDetailsController @Inject() (
   val controllerComponents: MessagesControllerComponents,
@@ -59,7 +60,7 @@ class SupplierVatRegistrationDetailsController @Inject() (
   private def form(euCountries: Seq[Country]): Form[VatNumberDetails] = formProvider(euCountries, appConfig.vrnValidationList)
 
   def onPageLoad(supplierNumber: SupplierNumber, mode: Mode): Action[AnyContent] =
-    actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierService, supplierNumber)).async { implicit request =>
+    actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierService, supplierNumber, mode)).async { implicit request =>
       withEuMemberStates(supplierNumber, request.userAnswers) { (euCountries, answers) =>
         Future.successful(
           Ok(
@@ -75,7 +76,7 @@ class SupplierVatRegistrationDetailsController @Inject() (
     }
 
   def onSubmit(supplierNumber: SupplierNumber, mode: Mode): Action[AnyContent] =
-    actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierService, supplierNumber)).async { implicit request =>
+    actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierService, supplierNumber, mode)).async { implicit request =>
       withEuMemberStates(supplierNumber, request.userAnswers) { (euCountries, answers) =>
         form(euCountries)
           .bindFromRequest()
@@ -83,14 +84,15 @@ class SupplierVatRegistrationDetailsController @Inject() (
             formWithErrors => Future.successful(BadRequest(view(euCountries, formWithErrors, supplierNumber, mode))),
             supplierVatNumberDetails =>
               for {
-                updatedAnswers <- Future.fromTry(answers.set(SupplierVatRegistrationNumberPage(supplierNumber), supplierVatNumberDetails))
-                _              <- sessionRepository.set(updatedAnswers)
+                updatedAnswers  <- Future.fromTry(answers.set(SupplierVatRegistrationNumberPage(supplierNumber), supplierVatNumberDetails))
+                updatedAnswers2 <- Future.fromTry(saveIsSupplierVatRegistered(updatedAnswers, supplierNumber, mode))
+                _               <- sessionRepository.set(updatedAnswers2)
               } yield Redirect(
                 navigator
                   .nextPage(
                     SupplierVatRegistrationNumberPage(supplierNumber),
                     mode,
-                    updatedAnswers,
+                    updatedAnswers2,
                     NovaUserType.from(request.affinityGroup, request.enrolments)
                   )
               )
@@ -121,10 +123,20 @@ class SupplierVatRegistrationDetailsController @Inject() (
 }
 
 object SupplierVatRegistrationDetailsController {
-  def guardPredicate(supplierService: SupplierService, supplierNumber: SupplierNumber)(request: DataRequest[?]): Boolean =
+  def guardPredicate(supplierService: SupplierService, supplierNumber: SupplierNumber, mode: Mode)(request: DataRequest[?]): Boolean =
     IsDraftIdDefined(request.userAnswers) &&
       request.userAnswers.get(VehicleFromEuPage).contains(true) &&
-      request.userAnswers.get(IsSupplierVatRegisteredPage(supplierNumber)).contains(true) &&
+      (mode.equals(CheckMode) || request.userAnswers.get(IsSupplierVatRegisteredPage(supplierNumber)).contains(true)) &&
       supplierService.numberExists(request.userAnswers, supplierNumber) &&
       request.userAnswers.get(SupplierAddressJourneyIdPage(supplierNumber)).isDefined
+
+  private def saveIsSupplierVatRegistered(userAnswers: UserAnswers, supplierNumber: SupplierNumber, mode: Mode): Try[UserAnswers] = {
+    // If in Check Mode and then also save IsSupplierVatRegisteredPage.
+    // We save both the VAT details and is supplier VAT registered details on the last page in case the user navigates with the back button to the CYA.
+    if (mode.equals(CheckMode)) {
+      userAnswers.set(IsSupplierVatRegisteredPage(supplierNumber), true)
+    } else {
+      Try(userAnswers)
+    }
+  }
 }
