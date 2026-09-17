@@ -1000,3 +1000,17 @@ uploadSpreadsheetErrorRejected.caption = Add vehicle details
 uploadSpreadsheetErrorRejected.paragraph = You must save the spreadsheet as an ODS file and try uploading it again.
 uploadSpreadsheetErrorRejected.link = Return to create a vehicle notification
 uploadSpreadsheetErrorRejected.buttonLabel = Upload again
+
+##################################################################
+# UVS4.0 - There is a problem with the data                     #
+##################################################################
+
+uploadSpreadsheetErrorData.title = There is a problem with the data
+uploadSpreadsheetErrorData.heading = There is a problem with the data
+uploadSpreadsheetErrorData.caption = Add vehicle details
+uploadSpreadsheetErrorData.paragraph = Correct the following errors in your spreadsheet, then upload it again.
+uploadSpreadsheetErrorData.table.caption = Spreadsheet validation errors
+uploadSpreadsheetErrorData.table.itemNumber = Item number
+uploadSpreadsheetErrorData.table.problem = Error
+uploadSpreadsheetErrorData.link = Return to create a vehicle notification
+uploadSpreadsheetErrorData.buttonLabel = Upload an updated spreadsheet

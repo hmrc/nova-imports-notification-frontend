@@ -137,6 +137,7 @@ GET         /upload-vehicle-spreadsheet                                         
 GET         /file-contains-virus                                                         controllers.vehicledetails.UploadSpreadsheetErrorQuarantineController.onPageLoad()
 GET         /problem-uploading-file                                                      controllers.vehicledetails.UploadSpreadsheetErrorUnknownController.onPageLoad()
 GET         /file-rejected                                                               controllers.vehicledetails.UploadSpreadsheetErrorRejectedController.onPageLoad()
+GET         /problem-with-the-data                                                       controllers.vehicledetails.UploadSpreadsheetErrorDataController.onPageLoad()
 
 GET         /check-answers/your-details                                                  controllers.notifierdetails.YourDetailsCheckYourAnswersController.onPageLoad()
 POST        /check-answers/your-details                                                  controllers.notifierdetails.YourDetailsCheckYourAnswersController.onSubmit()
