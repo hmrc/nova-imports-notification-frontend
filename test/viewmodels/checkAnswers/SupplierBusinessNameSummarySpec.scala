@@ -20,7 +20,7 @@ import base.SpecBase
 import controllers.supplierdetails.routes
 import models.BusinessOrPrivateIndividual.{Business, PrivateIndividual}
 import models.PurchaserBusinessOrIndividual.{NonVatRegisteredBusiness, NonVatRegisteredPrivateIndividual}
-import models.{CheckMode, SupplierNumber, UserAnswers}
+import models.{CheckMode, NormalMode, SupplierNumber, UserAnswers}
 import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage}
 import pages.sections.notifierdetails.BusinessNamePage
 import pages.sections.purchaserdetails.PurchaserBusinessNamePage
@@ -44,7 +44,7 @@ class SupplierBusinessNameSummarySpec extends SpecBase {
 
       result.key.content.asHtml.toString   must include(msgs("supplierBusinessName.checkYourAnswersLabel"))
       result.value.content.asHtml.toString must include("Acme Trading Ltd")
-      result.actions.value.items.head.href mustBe routes.SupplierBusinessNameController.onPageLoad(SupplierNumber(1), CheckMode).url
+      result.actions.value.items.head.href mustBe routes.UsePersonalDetailsAsSupplierController.onPageLoad(SupplierNumber(1), NormalMode).url
     }
 
     "must return a summary row with the business name and a change link when using purchaser details for a Business" in {
@@ -56,7 +56,7 @@ class SupplierBusinessNameSummarySpec extends SpecBase {
 
       result.key.content.asHtml.toString   must include(msgs("supplierBusinessName.checkYourAnswersLabel"))
       result.value.content.asHtml.toString must include("Acme Trading Ltd")
-      result.actions.value.items.head.href mustBe routes.SupplierBusinessNameController.onPageLoad(SupplierNumber(1), CheckMode).url
+      result.actions.value.items.head.href mustBe routes.UsePurchaserDetailsAsSupplierController.onPageLoad(SupplierNumber(1), NormalMode).url
     }
 
     "must return a summary row with the business name and a change link when using supplier details for a Business" in {
