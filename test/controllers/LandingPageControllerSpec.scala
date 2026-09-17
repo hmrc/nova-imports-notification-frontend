@@ -21,6 +21,7 @@ import com.google.inject.name.Names
 import connectors.{GetNotificationSummaryError, NovaImportsBackendConnector}
 import controllers.actions.*
 import models.{AgentSelectedClient, NotificationSummary, UserAnswers}
+import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
@@ -36,6 +37,7 @@ import repositories.SessionRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
+import scala.jdk.CollectionConverters.*
 
 class LandingPageControllerSpec extends SpecBase with MockitoSugar {
 
@@ -102,6 +104,12 @@ class LandingPageControllerSpec extends SpecBase with MockitoSugar {
       clientHasDraftNotifications = true,
       clientIsDeregistered = false
     )
+
+  private val agentSummaryWithClientNoDrafts =
+    agentSummaryWithClient.copy(clientHasDraftNotifications = false)
+
+  private val agentSummaryWithClientNoTraderName =
+    agentSummaryWithClient.copy(clientTraderName = None)
 
   private val userAnswersWithClient =
     emptyUserAnswers.set(AgentSelectedClientPage, AgentSelectedClient(vrn = "700011916", name = Some("Client Co"))).success.value
@@ -438,6 +446,115 @@ class LandingPageControllerSpec extends SpecBase with MockitoSugar {
           status(result) mustEqual OK
           body must include("ABC Consultancy")
           verify(connector).getNotificationSummary(eqTo(Some("700011916")))(using any[HeaderCarrier])
+        }
+      }
+
+      "for an Agent with a selected client and drafts renders LP3.1 with the agent caption, client details and an enabled saved-notification link" in {
+        given application: Application =
+          applicationWith(classOf[FakeAgentIdentifierAction], stubConnector(agentSummaryWithClient), userAnswers = Some(userAnswersWithClient))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, landingPageRoute)
+
+          val result   = route(application, request).value
+          val document = Jsoup.parse(contentAsString(result))
+
+          status(result) mustEqual OK
+          document.select(".govuk-caption-l").text mustEqual "ABC Consultancy"
+          document.select(".govuk-summary-card__title").text mustEqual "Notifying on behalf of"
+          document.select(".govuk-summary-list__value").eachText.asScala.toSeq mustEqual Seq("Client Co", "GB700011916")
+          document.select("a:containsOwn(Manage a saved notification)").attr("href") mustEqual routes.JourneyRecoveryController.onPageLoad().url
+          document.text must include("View, continue or delete a notification you’ve started but not yet submitted")
+          document.text must not include "You do not have a saved notification"
+        }
+      }
+
+      "for an Agent with a selected client and no drafts renders the saved-notification heading disabled with the empty copy" in {
+        given application: Application =
+          applicationWith(
+            classOf[FakeAgentIdentifierAction],
+            stubConnector(agentSummaryWithClientNoDrafts),
+            userAnswers = Some(userAnswersWithClient)
+          )
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, landingPageRoute)
+
+          val result   = route(application, request).value
+          val document = Jsoup.parse(contentAsString(result))
+
+          status(result) mustEqual OK
+          document.select("a:containsOwn(Manage a saved notification)").isEmpty mustBe true
+          document.select("h2.app-text-secondary").text mustEqual "Manage a saved notification"
+          document.text must include("You do not have a saved notification")
+        }
+      }
+
+      "for an Agent with a selected client falls back to the session client name when the summary has no client trader name" in {
+        given application: Application =
+          applicationWith(
+            classOf[FakeAgentIdentifierAction],
+            stubConnector(agentSummaryWithClientNoTraderName),
+            userAnswers = Some(userAnswersWithClient)
+          )
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, landingPageRoute)
+
+          val result   = route(application, request).value
+          val document = Jsoup.parse(contentAsString(result))
+
+          status(result) mustEqual OK
+          document.select(".govuk-summary-list__value").eachText.asScala.toSeq mustEqual Seq("Client Co", "GB700011916")
+        }
+      }
+
+      "for an Agent with a selected client when the summary call fails renders LP3.1 from the session client with no drafts and no caption" in {
+        given application: Application =
+          applicationWith(classOf[FakeAgentIdentifierAction], failingSummaryConnector, userAnswers = Some(userAnswersWithClient))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, landingPageRoute)
+
+          val result   = route(application, request).value
+          val document = Jsoup.parse(contentAsString(result))
+
+          status(result) mustEqual OK
+          document.select(".govuk-caption-l").isEmpty mustBe true
+          document.select(".govuk-summary-card__title").text mustEqual "Notifying on behalf of"
+          document.select(".govuk-summary-list__value").eachText.asScala.toSeq mustEqual Seq("Client Co", "GB700011916")
+          document.text must include("You do not have a saved notification")
+        }
+      }
+
+      "for an Agent with a selected client when the summary returns an unexpected shape renders LP3.1 from the session client with no drafts" in {
+        given application: Application =
+          applicationWith(classOf[FakeAgentIdentifierAction], stubConnector(agentSummaryWithDrafts), userAnswers = Some(userAnswersWithClient))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, landingPageRoute)
+
+          val result   = route(application, request).value
+          val document = Jsoup.parse(contentAsString(result))
+
+          status(result) mustEqual OK
+          document.select(".govuk-summary-list__value").eachText.asScala.toSeq mustEqual Seq("Client Co", "GB700011916")
+          document.text must include("You do not have a saved notification")
+        }
+      }
+
+      "for an Agent with no client does not render the client summary card" in {
+        given application: Application =
+          applicationWith(classOf[FakeAgentIdentifierAction], stubConnector(agentSummaryWithoutDrafts))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, landingPageRoute)
+
+          val result   = route(application, request).value
+          val document = Jsoup.parse(contentAsString(result))
+
+          status(result) mustEqual OK
+          document.select(".govuk-summary-card").isEmpty mustBe true
         }
       }
     }

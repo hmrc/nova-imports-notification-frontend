@@ -158,6 +158,15 @@ landingPage.agent.saved.body.has = View, continue or delete a notification youâ€
 landingPage.agent.clients.link = Manage your clients
 landingPage.agent.clients.body = View, search for, or remove a client, or select one to act on their behalf
 
+################################################################
+# LP3.1 - Landing page for Agent with selected client          #
+################################################################
+
+landingPage.agent.client.heading = Notifying on behalf of
+landingPage.agent.client.change = Change client
+landingPage.agent.client.name = Client name
+landingPage.agent.client.vrn = VAT registration number
+
 ##################################################################
 # IQ1.0 - Initial Question 1.0: Vehicle brought into NI from EU  #
 ##################################################################
