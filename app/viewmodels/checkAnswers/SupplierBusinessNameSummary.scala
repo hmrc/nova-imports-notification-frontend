@@ -19,7 +19,7 @@ package viewmodels.checkAnswers
 import controllers.supplierdetails.routes
 import models.BusinessOrPrivateIndividual.Business
 import models.PurchaserBusinessOrIndividual.NonVatRegisteredBusiness
-import models.{CheckMode, SupplierNumber, UserAnswers}
+import models.{CheckMode, NormalMode, SupplierNumber, UserAnswers}
 import pages.QuestionPage
 import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage}
 import pages.sections.notifierdetails.BusinessNamePage
@@ -36,7 +36,7 @@ object SupplierBusinessNameSummary {
   def rowFromPersonalDetails(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages): Option[SummaryListRow] = {
     if (answers.get(BusinessOrPrivatePage).contains(Business)) {
       val nameValue = extractNameDetailsValue(answers, BusinessNamePage)
-      Some(row(nameValue, supplierNumber))
+      Some(row(nameValue, supplierNumber, routes.UsePersonalDetailsAsSupplierController.onPageLoad(supplierNumber, NormalMode).url))
     } else {
       None
     }
@@ -45,7 +45,7 @@ object SupplierBusinessNameSummary {
   def rowFromPurchaserDetails(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages): Option[SummaryListRow] = {
     if (answers.get(PurchaserBusinessOrIndividualPage).contains(NonVatRegisteredBusiness)) {
       val nameValue = extractNameDetailsValue(answers, PurchaserBusinessNamePage)
-      Some(row(nameValue, supplierNumber))
+      Some(row(nameValue, supplierNumber, routes.UsePurchaserDetailsAsSupplierController.onPageLoad(supplierNumber, NormalMode).url))
     } else {
       None
     }
@@ -54,7 +54,7 @@ object SupplierBusinessNameSummary {
   def rowFromSupplierDetails(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages): Option[SummaryListRow] = {
     if (answers.get(SupplierBusinessOrIndividualPage(supplierNumber)).contains(Business)) {
       val nameValue = extractNameDetailsValue(answers, SupplierBusinessNamePage(supplierNumber))
-      Some(row(nameValue, supplierNumber))
+      Some(row(nameValue, supplierNumber, routes.SupplierBusinessNameController.onPageLoad(supplierNumber, CheckMode).url))
     } else {
       None
     }
@@ -62,12 +62,12 @@ object SupplierBusinessNameSummary {
 
   // TODO: Add rowFromClientDetails once AVD-S1.2 page is added
 
-  private def row(supplierBusinessName: String, supplierNumber: SupplierNumber)(implicit messages: Messages): SummaryListRow = {
+  private def row(supplierBusinessName: String, supplierNumber: SupplierNumber, redirectUrl: String)(implicit messages: Messages): SummaryListRow = {
     SummaryListRowViewModel(
       key = "supplierBusinessName.checkYourAnswersLabel",
       value = ValueViewModel(Text(supplierBusinessName)),
       actions = Seq(
-        ActionItemViewModel("site.change", routes.SupplierBusinessNameController.onPageLoad(supplierNumber, CheckMode).url)
+        ActionItemViewModel("site.change", redirectUrl)
           .withVisuallyHiddenText(messages("supplierBusinessName.change.hidden"))
       )
     )
