@@ -169,11 +169,6 @@ POST        /supplier/:supplierNumber/supplier-business-name                    
 GET         /supplier/:supplierNumber/supplier-business-name/change                      controllers.supplierdetails.SupplierBusinessNameController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = CheckMode)
 POST        /supplier/:supplierNumber/supplier-business-name/change                      controllers.supplierdetails.SupplierBusinessNameController.onSubmit(supplierNumber: SupplierNumber, mode: Mode = CheckMode)
 
-GET         /supplier/:supplierNumber/is-supplier-address-in-uk                          controllers.supplieraddress.IsSupplierAddressInTheUKController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = NormalMode)
-POST        /supplier/:supplierNumber/is-supplier-address-in-uk                          controllers.supplieraddress.IsSupplierAddressInTheUKController.onSubmit(supplierNumber: SupplierNumber, mode: Mode = NormalMode)
-GET         /supplier/:supplierNumber/is-supplier-address-in-uk/change                   controllers.supplieraddress.IsSupplierAddressInTheUKController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = CheckMode)
-POST        /supplier/:supplierNumber/is-supplier-address-in-uk/change                   controllers.supplieraddress.IsSupplierAddressInTheUKController.onSubmit(supplierNumber: SupplierNumber, mode: Mode = CheckMode)
-
 GET         /supplier/:supplierNumber/is-supplier-vat-registered                         controllers.supplierdetails.IsSupplierVatRegisteredController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = NormalMode)
 POST        /supplier/:supplierNumber/is-supplier-vat-registered                         controllers.supplierdetails.IsSupplierVatRegisteredController.onSubmit(supplierNumber: SupplierNumber, mode: Mode = NormalMode)
 GET         /supplier/:supplierNumber/is-supplier-vat-registered/change                  controllers.supplierdetails.IsSupplierVatRegisteredController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = CheckMode)
@@ -208,6 +203,11 @@ GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/purchase-invoice-da
 POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/purchase-invoice-date       controllers.vehicledetails.PurchaseInvoiceDateController.onSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
 GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/purchase-invoice-date/change controllers.vehicledetails.PurchaseInvoiceDateController.onPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
 POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/purchase-invoice-date/change controllers.vehicledetails.PurchaseInvoiceDateController.onSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
+
+GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/date-of-availability            controllers.vehicledetails.DateOfAvailabilityController.onPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/date-of-availability            controllers.vehicledetails.DateOfAvailabilityController.onSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/date-of-availability/change     controllers.vehicledetails.DateOfAvailabilityController.onPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
+POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/date-of-availability/change     controllers.vehicledetails.DateOfAvailabilityController.onSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
 
 GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/purchase-invoice-number     controllers.vehicledetails.PurchaseInvoiceNumberController.onPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
 POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/purchase-invoice-number     controllers.vehicledetails.PurchaseInvoiceNumberController.onSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)

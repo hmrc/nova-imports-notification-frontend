@@ -17,7 +17,7 @@
 package navigation
 
 import base.SpecBase
-import controllers.{initialquestions, notifierdetails, purchaserdetails, routes, supplieraddress, supplierdetails, vehicledetails}
+import controllers.{initialquestions, notifierdetails, purchaserdetails, routes, supplierdetails, vehicledetails}
 import pages.*
 import models.*
 import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, NotifyingAsPurchaserPage, PurchaserBusinessOrIndividualPage, VehicleBusinessUsePage, VehicleFromEuPage}
@@ -26,7 +26,7 @@ import pages.sections.vehicledetails.{AddImportVehicleDetailsPage, AddVehicleDet
 import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierVatRegistrationNumberPage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
-import pages.sections.vehicledetails.{PurchaseInvoiceDatePage, PurchaseInvoiceNumberPage, VehicleDatesPage}
+import pages.sections.vehicledetails.{DateOfAvailabilityPage, PurchaseInvoiceDatePage, PurchaseInvoiceNumberPage, VehicleDatesPage}
 
 import java.time.LocalDate
 
@@ -535,7 +535,7 @@ class NavigatorSpec extends SpecBase {
           NormalMode,
           ua,
           NovaUserType.PrivateIndividual
-        ) mustBe routes.LandingPageController.onPageLoad()
+        ) mustBe vehicledetails.routes.DateOfAvailabilityController.onPageLoad(SupplierNumber(1), VehicleNumber(1), NormalMode)
       }
 
       "must go from PurchaseInvoiceNumberPage AVD4.1 to TotalPricePaid AVD7.0 when only the purchase invoice date was selected on AVD3.0" in {
@@ -585,7 +585,26 @@ class NavigatorSpec extends SpecBase {
           NormalMode,
           ua,
           NovaUserType.PrivateIndividual
-        ) mustBe routes.LandingPageController.onPageLoad()
+        ) mustBe vehicledetails.routes.DateOfAvailabilityController.onPageLoad(SupplierNumber(1), VehicleNumber(1), NormalMode)
+      }
+
+      "must go from DateOfAvailabilityPage AVD5.0 to LandingPage when a date is entered" in {
+        val ua = userAnswers.set(DateOfAvailabilityPage(SupplierNumber(1), VehicleNumber(1)), LocalDate.of(2026, 3, 27)).success.value
+        navigator.nextPage(
+          DateOfAvailabilityPage(SupplierNumber(1), VehicleNumber(1)),
+          NormalMode,
+          ua,
+          NovaUserType.PrivateIndividual
+        ) mustBe routes.LandingPageController.onPageLoad() // TODO: update when AVD5.1 is built
+      }
+
+      "must go from DateOfAvailabilityPage AVD5.0 to JourneyRecovery when no answer is found" in {
+        navigator.nextPage(
+          DateOfAvailabilityPage(SupplierNumber(1), VehicleNumber(1)),
+          NormalMode,
+          userAnswers,
+          NovaUserType.PrivateIndividual
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
 
       "must go from VehicleDatesPage AVD3.0 to PurchaseInvoiceDate AVD4.0 when both dates are selected" in {
@@ -670,31 +689,34 @@ class NavigatorSpec extends SpecBase {
         ) mustBe supplierdetails.routes.SupplierNameController.onPageLoad(SupplierNumber(3), NormalMode)
       }
 
-      "must go from SupplierNamePage AVD-S4.0 to the supplier address page AVD-S5.0" in {
+      // AVD-S5.0 no longer exists: AVD-S4.0/AVD-S3.0 now initiate the ALF journey directly from
+      // SupplierNameController/SupplierBusinessNameController rather than routing via the Navigator,
+      // so these pages are never looked up here in practice - the catch-all applies.
+      "must go from SupplierNamePage AVD-S4.0 to the landing page (unused - navigation handled by the controller)" in {
         navigator.nextPage(
           SupplierNamePage(SupplierNumber(1)),
           NormalMode,
           userAnswers,
           NovaUserType.VatRegisteredOrganisation
-        ) mustBe supplieraddress.routes.IsSupplierAddressInTheUKController.onPageLoad(SupplierNumber(1), NormalMode)
+        ) mustBe routes.LandingPageController.onPageLoad()
       }
 
-      "must go from SupplierBusinessNamePage to the supplier address page" in {
+      "must go from SupplierBusinessNamePage to the landing page (unused - navigation handled by the controller)" in {
         navigator.nextPage(
           SupplierBusinessNamePage(SupplierNumber(1)),
           NormalMode,
           userAnswers,
           NovaUserType.VatRegisteredOrganisation
-        ) mustBe supplieraddress.routes.IsSupplierAddressInTheUKController.onPageLoad(SupplierNumber(1), NormalMode)
+        ) mustBe routes.LandingPageController.onPageLoad()
       }
 
-      "must go from SupplierBusinessNamePage AVD-S3.0 to the supplier address page AVD-S5.0 for supplier 3" in {
+      "must go from SupplierBusinessNamePage AVD-S3.0 to the landing page for supplier 3 (unused - navigation handled by the controller)" in {
         navigator.nextPage(
           SupplierBusinessNamePage(SupplierNumber(3)),
           NormalMode,
           userAnswers,
           NovaUserType.VatRegisteredOrganisation
-        ) mustBe supplieraddress.routes.IsSupplierAddressInTheUKController.onPageLoad(SupplierNumber(3), NormalMode)
+        ) mustBe routes.LandingPageController.onPageLoad()
       }
 
       "must go from SupplierBusinessOrIndividualPage AVD-S2.0 to JourneyRecovery when no answer is found" in {
@@ -894,6 +916,16 @@ class NavigatorSpec extends SpecBase {
         val ua = userAnswers.set(PurchaseInvoiceNumberPage(SupplierNumber(1), VehicleNumber(1)), "INV-001").success.value
         navigator.nextPage(
           PurchaseInvoiceNumberPage(SupplierNumber(1), VehicleNumber(1)),
+          CheckMode,
+          ua,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from DateOfAvailabilityPage AVD5.0 to LandingPage" in {
+        val ua = userAnswers.set(DateOfAvailabilityPage(SupplierNumber(1), VehicleNumber(1)), LocalDate.of(2026, 3, 27)).success.value
+        navigator.nextPage(
+          DateOfAvailabilityPage(SupplierNumber(1), VehicleNumber(1)),
           CheckMode,
           ua,
           NovaUserType.VatRegisteredOrganisation

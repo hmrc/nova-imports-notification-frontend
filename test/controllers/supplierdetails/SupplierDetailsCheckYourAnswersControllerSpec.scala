@@ -20,7 +20,7 @@ import base.SpecBase
 import connectors.{NovaImportsBackendConnector, UpdateSectionError}
 import controllers.supplierdetails.SupplierDetailsCheckYourAnswersControllerSpec.*
 import controllers.{routes, supplierdetails}
-import models.{Address, BusinessOrPrivateIndividual, Country, DraftId, NameDetails, NormalMode, SupplierNumber, UserAnswers, VatNumberDetails}
+import models.{Address, BusinessOrPrivateIndividual, CheckMode, Country, DraftId, NameDetails, SupplierNumber, UserAnswers, VatNumberDetails}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{atLeastOnce, verify, when}
@@ -31,7 +31,7 @@ import pages.sections.notifieraddress.AddressPage
 import pages.sections.notifierdetails.NameDetailsPage
 import pages.sections.purchaseraddress.PurchaserAddressPage
 import pages.sections.purchaserdetails.PurchaserNamePage
-import pages.sections.supplieraddress.{IsSupplierAddressInTheUkPage, SupplierAddressJourneyIdPage, SupplierAddressPage}
+import pages.sections.supplieraddress.{SupplierAddressJourneyIdPage, SupplierAddressPage}
 import pages.sections.supplierdetails.*
 import play.api.Application
 import play.api.inject.bind
@@ -343,7 +343,6 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
         val ua = baseUserAnswers
           .unsafeSet(UsePersonalDetailsAsSupplierPage(supplierNumber), false)
           .unsafeSet(SupplierNamePage(supplierNumber), name)
-          .unsafeSet(IsSupplierAddressInTheUkPage(supplierNumber), true)
           .unsafeSet(SupplierAddressPage(supplierNumber), address)
           .unsafeSet(IsSupplierVatRegisteredPage(supplierNumber), true)
           .unsafeSet(SupplierVatRegistrationNumberPage(supplierNumber), vatDetails)
@@ -364,7 +363,6 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
         val ua = baseUserAnswers
           .unsafeSet(UsePersonalDetailsAsSupplierPage(supplierNumber), false)
           .unsafeSet(SupplierBusinessOrIndividualPage(supplierNumber), BusinessOrPrivateIndividual.PrivateIndividual)
-          .unsafeSet(IsSupplierAddressInTheUkPage(supplierNumber), true)
           .unsafeSet(SupplierAddressPage(supplierNumber), address)
           .unsafeSet(IsSupplierVatRegisteredPage(supplierNumber), true)
           .unsafeSet(SupplierVatRegistrationNumberPage(supplierNumber), vatDetails)
@@ -385,7 +383,6 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
         val ua = baseUserAnswers
           .unsafeSet(UsePersonalDetailsAsSupplierPage(supplierNumber), false)
           .unsafeSet(SupplierBusinessOrIndividualPage(supplierNumber), BusinessOrPrivateIndividual.Business)
-          .unsafeSet(IsSupplierAddressInTheUkPage(supplierNumber), true)
           .unsafeSet(SupplierAddressPage(supplierNumber), address)
           .unsafeSet(IsSupplierVatRegisteredPage(supplierNumber), true)
           .unsafeSet(SupplierVatRegistrationNumberPage(supplierNumber), vatDetails)
@@ -402,7 +399,7 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
         }
       }
 
-      "for a User providing supplier details with no answer for IsSupplierAddressInTheUkPage must redirect to Unauthorised" in {
+      "for a User resuming a previous draft, with supplier details restored from FormP but no answer for IsSupplierAddressInTheUkPage, must return OK" in {
         val ua = baseUserAnswers
           .unsafeSet(UsePersonalDetailsAsSupplierPage(supplierNumber), false)
           .unsafeSet(SupplierBusinessOrIndividualPage(supplierNumber), BusinessOrPrivateIndividual.PrivateIndividual)
@@ -418,8 +415,7 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
 
           val result = route(application, request).value
 
-          status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+          status(result) mustEqual OK
         }
       }
 
@@ -428,7 +424,6 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
           .unsafeSet(UsePersonalDetailsAsSupplierPage(supplierNumber), false)
           .unsafeSet(SupplierBusinessOrIndividualPage(supplierNumber), BusinessOrPrivateIndividual.PrivateIndividual)
           .unsafeSet(SupplierNamePage(supplierNumber), name)
-          .unsafeSet(IsSupplierAddressInTheUkPage(supplierNumber), true)
           .unsafeSet(IsSupplierVatRegisteredPage(supplierNumber), true)
           .unsafeSet(SupplierVatRegistrationNumberPage(supplierNumber), vatDetails)
 
@@ -449,7 +444,6 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
           .unsafeSet(UsePersonalDetailsAsSupplierPage(supplierNumber), false)
           .unsafeSet(SupplierBusinessOrIndividualPage(supplierNumber), BusinessOrPrivateIndividual.PrivateIndividual)
           .unsafeSet(SupplierNamePage(supplierNumber), name)
-          .unsafeSet(IsSupplierAddressInTheUkPage(supplierNumber), true)
           .unsafeSet(SupplierAddressPage(supplierNumber), address)
           .unsafeSet(SupplierVatRegistrationNumberPage(supplierNumber), vatDetails)
 
@@ -470,7 +464,6 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
           .unsafeSet(UsePersonalDetailsAsSupplierPage(supplierNumber), false)
           .unsafeSet(SupplierBusinessOrIndividualPage(supplierNumber), BusinessOrPrivateIndividual.PrivateIndividual)
           .unsafeSet(SupplierNamePage(supplierNumber), name)
-          .unsafeSet(IsSupplierAddressInTheUkPage(supplierNumber), true)
           .unsafeSet(SupplierAddressPage(supplierNumber), address)
           .unsafeSet(IsSupplierVatRegisteredPage(supplierNumber), true)
 
@@ -715,7 +708,7 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
     }
 
     "onChangeAddress" - {
-      "must clear the stored supplier address and supplier journey id from the session and redirect to AVD-S5.0 on change address" in {
+      "must clear the stored supplier address and supplier journey id from the session and redirect back to AVD-S4.0 (individual supplier) to restart the ALF journey" in {
         val answersWithJourneyId =
           individualVatRegisteredSupplierDetailsAnswers.unsafeSet(SupplierAddressJourneyIdPage(supplierNumber), "journey-123")
 
@@ -727,8 +720,8 @@ class SupplierDetailsCheckYourAnswersControllerSpec extends SpecBase with Mockit
           val result  = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual controllers.supplieraddress.routes.IsSupplierAddressInTheUKController
-            .onPageLoad(supplierNumber, NormalMode)
+          redirectLocation(result).value mustEqual controllers.supplierdetails.routes.SupplierNameController
+            .onPageLoad(supplierNumber, CheckMode)
             .url
 
           val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
@@ -825,9 +818,6 @@ object SupplierDetailsCheckYourAnswersControllerSpec {
     .set(SupplierNamePage(supplierNumber), name)
     .success
     .value
-    .set(IsSupplierAddressInTheUkPage(supplierNumber), true)
-    .success
-    .value
     .set(SupplierAddressPage(supplierNumber), address)
     .success
     .value
@@ -849,9 +839,6 @@ object SupplierDetailsCheckYourAnswersControllerSpec {
     .set(SupplierNamePage(supplierNumber), name)
     .success
     .value
-    .set(IsSupplierAddressInTheUkPage(supplierNumber), true)
-    .success
-    .value
     .set(SupplierAddressPage(supplierNumber), address)
     .success
     .value
@@ -868,9 +855,6 @@ object SupplierDetailsCheckYourAnswersControllerSpec {
     .success
     .value
     .set(SupplierBusinessNamePage(supplierNumber), businessName)
-    .success
-    .value
-    .set(IsSupplierAddressInTheUkPage(supplierNumber), true)
     .success
     .value
     .set(SupplierAddressPage(supplierNumber), address)
@@ -892,9 +876,6 @@ object SupplierDetailsCheckYourAnswersControllerSpec {
     .success
     .value
     .set(SupplierBusinessNamePage(supplierNumber), businessName)
-    .success
-    .value
-    .set(IsSupplierAddressInTheUkPage(supplierNumber), true)
     .success
     .value
     .set(SupplierAddressPage(supplierNumber), address)

@@ -32,7 +32,8 @@ import pages.AgentSelectedClientPage
 import pages.sections.notifierdetails.{BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 import pages.sections.purchaseraddress.{IsPurchaserAddressInTheUkPage, PurchaserAddressPage}
-import pages.sections.supplierdetails.{UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
+import pages.sections.supplieraddress.SupplierAddressPage
+import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierVatRegistrationNumberPage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -67,10 +68,12 @@ class UserDataServiceImpl @Inject() (
           u2 <- storeNotifierDetailsPages(draft, u1, repository)
           u3 <- storeNotifierAddressPages(draft, u2, repository)
           u4 <- storePurchaserDetailsPages(draft, u3, repository)
-          u5 <- storeSupplierSelfSupplyPages(draft, u4, repository)
-          u6 <- u5.get(BusinessOrPrivatePage)
-                  .fold(Future.successful(u5))(businessOrPrivate => repository.setPage(u5, BusinessOrPrivatePage, businessOrPrivate))
-        } yield Right(u6)
+          u5 <- storePurchaserAddressPages(draft, u4, repository)
+          u6 <- storeSupplierSelfSupplyPages(draft, u5, repository)
+          u7 <- storeSupplierDetailsPages(draft, u6, repository)
+          u8 <- u7.get(BusinessOrPrivatePage)
+                  .fold(Future.successful(u7))(businessOrPrivate => repository.setPage(u7, BusinessOrPrivatePage, businessOrPrivate))
+        } yield Right(u8)
     }
 
   def determineAndUpdateStatus(userAnswers: UserAnswers, userContext: UserContext): Map[String, SectionStatus] =
@@ -185,6 +188,20 @@ object UserDataService {
         }
     }
 
+  def storePurchaserAddressPages(draft: DraftNotification, answers: UserAnswers, sessionRepository: SessionRepository)(implicit
+    ec: ExecutionContext
+  ): Future[UserAnswers] =
+    draft.sections.get(SectionId.PurchaserAddress).flatMap(_.data).flatMap(_.asOpt[PurchaserAddress]) match {
+      case Some(a) =>
+        val address = Address(
+          lines = Seq(Option(a.line1), Option(a.line2), a.line3, a.line4).flatten,
+          postcode = a.postCode,
+          country = a.country
+        )
+        sessionRepository.setPage(answers, PurchaserAddressPage, address)
+      case None => Future.successful(answers)
+    }
+
   private val SupplierSelfSupplySectionRe = raw"supplier/(\d+)/self-supply".r
 
   def storeSupplierSelfSupplyPages(draft: DraftNotification, answers: UserAnswers, sessionRepository: SessionRepository)(implicit
@@ -200,6 +217,42 @@ object UserDataService {
       answersF.flatMap { a =>
         if notifyingAsSelf then sessionRepository.setPage(a, UsePersonalDetailsAsSupplierPage(supplierNumber), value)
         else sessionRepository.setPage(a, UsePurchaserDetailsAsSupplierPage(supplierNumber), value)
+      }
+    }
+  }
+
+  private val SupplierDetailsSectionRe = raw"supplier/(\d+)/details".r
+
+  def storeSupplierDetailsPages(draft: DraftNotification, answers: UserAnswers, sessionRepository: SessionRepository)(implicit
+    ec: ExecutionContext
+  ): Future[UserAnswers] = {
+    val supplierDetails = draft.sections.toSeq.collect { case (SupplierDetailsSectionRe(supplierNumber), section) =>
+      section.data.flatMap(_.asOpt[SupplierDetails]).map(SupplierNumber(supplierNumber.toInt) -> _)
+    }.flatten
+
+    supplierDetails.foldLeft(Future.successful(answers)) { case (answersF, (supplierNumber, d)) =>
+      answersF.flatMap { a =>
+        val address = Address(
+          lines = Seq(Option(d.addressLine1), Option(d.addressLine2), d.addressLine3, d.addressLine4, d.addressLine5).flatten,
+          postcode = d.postcode,
+          country = Country(d.country, d.countryName)
+        )
+        for {
+          a1 <- sessionRepository.setPage(a, SupplierBusinessOrIndividualPage(supplierNumber), d.supplierBusinessIndividual)
+          a2 <- sessionRepository.setPage(a1, SupplierAddressPage(supplierNumber), address)
+          a3 <- sessionRepository.setPage(a2, IsSupplierVatRegisteredPage(supplierNumber), d.isSupplierVatReg)
+          a4 <- d.supplierBusinessName.fold(Future.successful(a3))(sessionRepository.setPage(a3, SupplierBusinessNamePage(supplierNumber), _))
+          a5 <- (d.supplierTitle, d.supplierFirstName, d.supplierLastName) match {
+                  case (Some(title), Some(firstName), Some(lastName)) =>
+                    sessionRepository.setPage(a4, SupplierNamePage(supplierNumber), NameDetails(title, firstName, lastName))
+                  case _ => Future.successful(a4)
+                }
+          a6 <- (d.euStateVatReg, d.vatRegistrationNumber) match {
+                  case (Some(countryCode), Some(vatNumber)) =>
+                    sessionRepository.setPage(a5, SupplierVatRegistrationNumberPage(supplierNumber), VatNumberDetails(countryCode, vatNumber))
+                  case _ => Future.successful(a5)
+                }
+        } yield a6
       }
     }
   }

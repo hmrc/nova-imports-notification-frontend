@@ -18,7 +18,7 @@ package navigation
 
 import javax.inject.{Inject, Singleton}
 import play.api.mvc.Call
-import controllers.{initialquestions, notifierdetails, purchaserdetails, routes, supplieraddress, supplierdetails, vehicledetails}
+import controllers.{initialquestions, notifierdetails, purchaserdetails, routes, supplierdetails, vehicledetails}
 import pages.*
 import models.*
 import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, NotifyingAsPurchaserPage, PurchaserBusinessOrIndividualPage, VehicleBusinessUsePage, VehicleFromEuPage}
@@ -28,8 +28,7 @@ import pages.sections.notifieraddress.IsYourAddressInTheUkPage
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierQuestionPage, SupplierVatRegistrationNumberPage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
-import pages.sections.supplieraddress.IsSupplierAddressInTheUkPage
-import pages.sections.vehicledetails.{PurchaseInvoiceDatePage, PurchaseInvoiceNumberPage, VehicleDatesPage}
+import pages.sections.vehicledetails.{DateOfAvailabilityPage, PurchaseInvoiceDatePage, PurchaseInvoiceNumberPage, VehicleDatesPage}
 
 @Singleton
 class Navigator @Inject() () {
@@ -147,14 +146,6 @@ class Navigator @Inject() () {
           case _ =>
             routes.JourneyRecoveryController.onPageLoad()
         }
-    case page: SupplierNamePage =>
-      (_, _) =>
-        supplieraddress.routes.IsSupplierAddressInTheUKController
-          .onPageLoad(page.supplierNumber, NormalMode)
-    case page: SupplierBusinessNamePage =>
-      (_, _) =>
-        supplieraddress.routes.IsSupplierAddressInTheUKController
-          .onPageLoad(page.supplierNumber, NormalMode)
     case IsPurchaserAddressInTheUkPage =>
       (userAnswers, _) =>
         userAnswers.get(IsPurchaserAddressInTheUkPage) match {
@@ -186,7 +177,7 @@ class Navigator @Inject() () {
           case Some(dates) if dates.contains(VehicleDates.PurchaseInvoiceDate) =>
             vehicledetails.routes.PurchaseInvoiceDateController.onPageLoad(page.supplierNumber, page.vehicleNumber, NormalMode)
           case Some(dates) if dates.contains(VehicleDates.AvailabilityAndFirstRegistration) =>
-            routes.LandingPageController.onPageLoad() // TODO: navigate to AVD5.0 when built
+            vehicledetails.routes.DateOfAvailabilityController.onPageLoad(page.supplierNumber, page.vehicleNumber, NormalMode)
           case Some(dates) if dates.contains(VehicleDates.NoDates) =>
             vehicledetails.routes.NoVehicleDatesController.onPageLoad(page.supplierNumber, page.vehicleNumber)
           case _ => routes.JourneyRecoveryController.onPageLoad()
@@ -202,10 +193,16 @@ class Navigator @Inject() () {
       (userAnswers, _) =>
         (userAnswers.get(page), userAnswers.get(VehicleDatesPage(page.supplierNumber, page.vehicleNumber))) match {
           case (Some(_), Some(dates)) if dates.contains(VehicleDates.AvailabilityAndFirstRegistration) =>
-            routes.LandingPageController.onPageLoad()
+            vehicledetails.routes.DateOfAvailabilityController.onPageLoad(page.supplierNumber, page.vehicleNumber, NormalMode)
           case (Some(_), Some(dates)) if dates.contains(VehicleDates.PurchaseInvoiceDate) =>
             routes.LandingPageController.onPageLoad()
           case _ => routes.JourneyRecoveryController.onPageLoad()
+        }
+    case page: DateOfAvailabilityPage =>
+      (userAnswers, _) =>
+        userAnswers.get(page) match {
+          case Some(_) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD5.1 when built
+          case _       => routes.JourneyRecoveryController.onPageLoad()
         }
     case _ => (_, _) => routes.LandingPageController.onPageLoad()
   }
@@ -267,10 +264,9 @@ class Navigator @Inject() () {
     case page: SupplierQuestionPage[?]
         if page.isInstanceOf[SupplierNamePage] ||
           page.isInstanceOf[SupplierBusinessNamePage] ||
-          page.isInstanceOf[IsSupplierAddressInTheUkPage] ||
           page.isInstanceOf[SupplierVatRegistrationNumberPage] =>
       (_, _) => supplierdetails.routes.SupplierDetailsCheckYourAnswersController.onPageLoad(page.supplierNumber)
-    case _: VehicleDatesPage | _: PurchaseInvoiceDatePage | _: PurchaseInvoiceNumberPage =>
+    case _: VehicleDatesPage | _: PurchaseInvoiceDatePage | _: DateOfAvailabilityPage | _: PurchaseInvoiceNumberPage =>
       (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to the vehicle details CYA when built
     case _ =>
       (_, _) => routes.LandingPageController.onPageLoad()

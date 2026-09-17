@@ -19,13 +19,13 @@ package controllers
 import controllers.utils.IsDraftIdDefined
 import models.draftsections.{NotifierAddress, PurchaserAddress, SupplierAddress}
 import models.requests.DataRequest
-import models.{Address, AddressJourney, NormalMode, PurchaserOrOnBehalf, SupplierNumber}
+import models.{Address, AddressJourney, BusinessOrPrivateIndividual, CheckMode, NormalMode, PurchaserOrOnBehalf, SupplierNumber}
 import pages.QuestionPage
-import pages.sections.initialquestions.NotifyingAsPurchaserPage
+import pages.sections.initialquestions.{NotifyingAsPurchaserPage, VehicleFromEuPage}
 import pages.sections.notifieraddress.{AddressJourneyIdPage, AddressPage}
 import pages.sections.purchaseraddress.{PurchaserAddressJourneyIdPage, PurchaserAddressPage}
-import pages.sections.supplieraddress.IsSupplierAddressInTheUkPage
 import pages.sections.supplieraddress.{SupplierAddressJourneyIdPage, SupplierAddressPage}
+import pages.sections.supplierdetails.SupplierBusinessOrIndividualPage
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
 import services.SupplierService
@@ -41,7 +41,7 @@ final case class AddressJourneyBinding(
   addressChangedPage: Call,
   addressChangedSubmit: Call,
   changeAddressLink: Call,
-  restartAt: Call,
+  restartAt: DataRequest[?] => Call,
   messageKeyPrefix: String,
   saveAddressToFormP: Boolean
 )
@@ -64,7 +64,7 @@ object AddressJourneyBinding {
     addressChangedPage = routes.AddressChangedController.onPageLoad(),
     addressChangedSubmit = routes.AddressChangedController.onSubmit(),
     changeAddressLink = routes.AddressChangedController.onChangeAddress(),
-    restartAt = notifieraddress.routes.IsYourAddressInTheUkController.onPageLoad(NormalMode),
+    restartAt = _ => notifieraddress.routes.IsYourAddressInTheUkController.onPageLoad(NormalMode),
     messageKeyPrefix = "addressChanged",
     saveAddressToFormP = true
   )
@@ -76,16 +76,25 @@ object AddressJourneyBinding {
     payload = address => Json.toJson(SupplierAddress.fromAddress(address)).as[JsObject],
     guard = request =>
       IsDraftIdDefined(request.userAnswers) &&
-        request.userAnswers.get(IsSupplierAddressInTheUkPage(number)).isDefined &&
+        request.userAnswers.get(VehicleFromEuPage).contains(true) &&
+        request.userAnswers.get(SupplierBusinessOrIndividualPage(number)).isDefined &&
         supplierService.numberExists(request.userAnswers, number),
     onComplete = supplierdetails.routes.IsSupplierVatRegisteredController.onPageLoad(number, NormalMode),
     addressChangedPage = routes.AddressChangedController.supplierOnPageLoad(number),
     addressChangedSubmit = routes.AddressChangedController.supplierOnSubmit(number),
     changeAddressLink = routes.AddressChangedController.supplierOnChangeAddress(number),
-    restartAt = supplieraddress.routes.IsSupplierAddressInTheUKController.onPageLoad(number, NormalMode),
+    restartAt = request => supplierAlfRestart(number, request),
     messageKeyPrefix = "supplierAddressChanged",
     saveAddressToFormP = false
   )
+
+  def supplierAlfRestart(number: SupplierNumber, request: DataRequest[?]): Call =
+    request.userAnswers.get(SupplierBusinessOrIndividualPage(number)) match {
+      case Some(BusinessOrPrivateIndividual.Business) =>
+        supplierdetails.routes.SupplierBusinessNameController.onPageLoad(number, CheckMode)
+      case _ =>
+        supplierdetails.routes.SupplierNameController.onPageLoad(number, CheckMode)
+    }
 
   private val purchaser: AddressJourneyBinding = AddressJourneyBinding(
     addressPage = PurchaserAddressPage,
@@ -103,7 +112,7 @@ object AddressJourneyBinding {
     addressChangedPage = routes.AddressChangedController.purchaserOnPageLoad(),
     addressChangedSubmit = routes.AddressChangedController.purchaserOnSubmit(),
     changeAddressLink = routes.AddressChangedController.purchaserOnChangeAddress(),
-    restartAt = purchaseraddress.routes.IsPurchaserAddressInTheUkController.onPageLoad(NormalMode),
+    restartAt = _ => purchaseraddress.routes.IsPurchaserAddressInTheUkController.onPageLoad(NormalMode),
     messageKeyPrefix = "purchaserAddressChanged",
     saveAddressToFormP = true
   )

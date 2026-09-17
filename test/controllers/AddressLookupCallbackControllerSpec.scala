@@ -19,7 +19,7 @@ package controllers
 import base.SpecBase
 import connectors.{AddressLookupConnector, AddressLookupError, NovaImportsBackendConnector, UpdateSectionError}
 import models.draftsections.{NotifierAddress, PurchaserAddress}
-import models.{Address, Country, DraftId, PurchaserOrOnBehalf, SupplierNumber, UserAnswers}
+import models.{Address, BusinessOrPrivateIndividual, Country, DraftId, PurchaserOrOnBehalf, SupplierNumber, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{never, verify, when}
@@ -29,7 +29,9 @@ import pages.sections.initialquestions.NotifyingAsPurchaserPage
 import pages.sections.notifieraddress.{AddressJourneyIdPage, AddressPage}
 import pages.sections.purchaseraddress.{PurchaserAddressJourneyIdPage, PurchaserAddressPage}
 import queries.AllSuppliersQuery
-import pages.sections.supplieraddress.{IsSupplierAddressInTheUkPage, SupplierAddressJourneyIdPage, SupplierAddressPage}
+import pages.sections.initialquestions.VehicleFromEuPage
+import pages.sections.supplieraddress.{SupplierAddressJourneyIdPage, SupplierAddressPage}
+import pages.sections.supplierdetails.SupplierBusinessOrIndividualPage
 import play.api.Application
 import play.api.inject.bind
 import play.api.libs.json.{JsObject, Json}
@@ -238,7 +240,10 @@ class AddressLookupCallbackControllerSpec extends SpecBase with MockitoSugar {
         .set(AllSuppliersQuery, Map("1" -> Json.obj()))
         .success
         .value
-        .set(IsSupplierAddressInTheUkPage(supplierNumber), true)
+        .set(VehicleFromEuPage, true)
+        .success
+        .value
+        .set(SupplierBusinessOrIndividualPage(supplierNumber), BusinessOrPrivateIndividual.Business)
         .success
         .value
 
@@ -312,8 +317,8 @@ class AddressLookupCallbackControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to Unauthorised when the supplier address-in-UK question is unanswered" in {
-      val answers = supplierAnswers.remove(IsSupplierAddressInTheUkPage(supplierNumber)).success.value
+    "must redirect to Unauthorised when the supplier business-or-individual question is unanswered" in {
+      val answers = supplierAnswers.remove(SupplierBusinessOrIndividualPage(supplierNumber)).success.value
       val app     = applicationWith(userAnswers = Some(answers), sessionRepository = stubSessionRepository(answers))
 
       running(app) {

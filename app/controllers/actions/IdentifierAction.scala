@@ -87,7 +87,7 @@ class StandardIdentifierAction @Inject() (
   }
 }
 
-/** Requires Organisation with HMRC-MTD-VAT or HMCE-VATDEC-ORG enrolment. */
+/** Requires Organisation or Individual (Sole Trader) with HMRC-MTD-VAT or HMCE-VATDEC-ORG enrolment. */
 class VatTraderIdentifierAction @Inject() (
   override val authConnector: AuthConnector,
   config: FrontendAppConfig,
@@ -107,6 +107,11 @@ class VatTraderIdentifierAction @Inject() (
             if hasActiveEnrolment(enrolments, NovaEnrolments.vatMtd) ||
               hasActiveEnrolment(enrolments, NovaEnrolments.vatDec) =>
           block(IdentifierRequest(request, internalId, AffinityGroup.Organisation, enrolments))
+
+        case Some(internalId) ~ Some(AffinityGroup.Individual) ~ enrolments
+            if hasActiveEnrolment(enrolments, NovaEnrolments.vatMtd) ||
+              hasActiveEnrolment(enrolments, NovaEnrolments.vatDec) =>
+          block(IdentifierRequest(request, internalId, AffinityGroup.Individual, enrolments))
 
         case Some(_) ~ _ ~ _ =>
           logger.warn("VAT trader route accessed without required Organisation enrolment")

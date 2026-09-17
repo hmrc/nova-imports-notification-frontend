@@ -19,7 +19,7 @@ package controllers
 import base.SpecBase
 import connectors.{NovaImportsBackendConnector, UpdateSectionError}
 import models.draftsections.{NotifierAddress, PurchaserAddress}
-import models.{Address, Country, DraftId, NormalMode, PurchaserOrOnBehalf, SupplierNumber, UserAnswers}
+import models.{Address, BusinessOrPrivateIndividual, CheckMode, Country, DraftId, NormalMode, PurchaserOrOnBehalf, SupplierNumber, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{never, verify, when}
@@ -29,7 +29,9 @@ import pages.sections.initialquestions.NotifyingAsPurchaserPage
 import pages.sections.notifieraddress.{AddressJourneyIdPage, AddressPage}
 import pages.sections.purchaseraddress.{PurchaserAddressJourneyIdPage, PurchaserAddressPage}
 import queries.AllSuppliersQuery
-import pages.sections.supplieraddress.{IsSupplierAddressInTheUkPage, SupplierAddressJourneyIdPage, SupplierAddressPage}
+import pages.sections.initialquestions.VehicleFromEuPage
+import pages.sections.supplieraddress.{SupplierAddressJourneyIdPage, SupplierAddressPage}
+import pages.sections.supplierdetails.SupplierBusinessOrIndividualPage
 import play.api.Application
 import play.api.inject.bind
 import play.api.libs.json.{JsObject, Json}
@@ -221,7 +223,10 @@ class AddressChangedControllerSpec extends SpecBase with MockitoSugar {
         .set(SupplierAddressPage(supplierNumber), address)
         .success
         .value
-        .set(IsSupplierAddressInTheUkPage(supplierNumber), true)
+        .set(VehicleFromEuPage, true)
+        .success
+        .value
+        .set(SupplierBusinessOrIndividualPage(supplierNumber), BusinessOrPrivateIndividual.Business)
         .success
         .value
         .set(DraftIdPage, draftId)
@@ -284,7 +289,7 @@ class AddressChangedControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, FakeRequest(GET, supplierChangeAddressRoute)).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual supplieraddress.routes.IsSupplierAddressInTheUKController.onPageLoad(supplierNumber, NormalMode).url
+        redirectLocation(result).value mustEqual supplierdetails.routes.SupplierBusinessNameController.onPageLoad(supplierNumber, CheckMode).url
 
         val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(sessionRepository).set(captor.capture())

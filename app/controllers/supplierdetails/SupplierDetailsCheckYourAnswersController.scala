@@ -23,10 +23,10 @@ import controllers.utils.IsDraftIdDefined
 import models.BusinessOrPrivateIndividual.{Business, PrivateIndividual}
 import models.draftsections.{SupplierDetails, SupplierSelfSupplyDetails}
 import models.requests.DataRequest
-import models.{Address, BusinessOrPrivateIndividual, NameDetails, NormalMode, SupplierNumber, UserAnswers, VatNumberDetails}
+import models.{Address, BusinessOrPrivateIndividual, NameDetails, SupplierNumber, UserAnswers, VatNumberDetails}
 import pages.*
 import pages.sections.initialquestions.VehicleFromEuPage
-import pages.sections.supplieraddress.{IsSupplierAddressInTheUkPage, SupplierAddressJourneyIdPage, SupplierAddressPage}
+import pages.sections.supplieraddress.{SupplierAddressJourneyIdPage, SupplierAddressPage}
 import pages.sections.supplierdetails.*
 import play.api.Logging
 import play.api.libs.json.{JsObject, Json}
@@ -65,7 +65,7 @@ class SupplierDetailsCheckYourAnswersController @Inject() (
                      request.userAnswers.remove(SupplierAddressPage(supplierNumber)).flatMap(_.remove(SupplierAddressJourneyIdPage(supplierNumber)))
                    )
         _ <- sessionRepository.set(cleared)
-      } yield Redirect(controllers.supplieraddress.routes.IsSupplierAddressInTheUKController.onPageLoad(supplierNumber, NormalMode))
+      } yield Redirect(controllers.AddressJourneyBinding.supplierAlfRestart(supplierNumber, request))
     }
 
   def onSubmit(supplierNumber: SupplierNumber): Action[AnyContent] =
@@ -176,7 +176,6 @@ object SupplierDetailsCheckYourAnswersController {
       || answers.get(SupplierBusinessNamePage(supplierNumber)).isDefined)
     && (answers.get(SupplierBusinessOrIndividualPage(supplierNumber)).contains(Business)
       || answers.get(SupplierNamePage(supplierNumber)).isDefined)
-    && answers.get(IsSupplierAddressInTheUkPage(supplierNumber)).isDefined
     && answers.get(SupplierAddressPage(supplierNumber)).isDefined
     && answers.get(IsSupplierVatRegisteredPage(supplierNumber)).isDefined
     && (answers.get(IsSupplierVatRegisteredPage(supplierNumber)).contains(false)
