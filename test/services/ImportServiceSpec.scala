@@ -205,5 +205,11 @@ class ImportServiceSpec extends SpecBase with MockitoSugar {
     "must return false when there are no imports" in {
       newService(mock[SessionRepository]).numberExists(emptyUserAnswers, ImportNumber(1)) mustBe false
     }
+
+    "must return false when import 3 is marked deleted" in {
+      val answers = emptyUserAnswers.unsafeSet(AllImportsQuery, Map("3" -> Json.obj("deleted" -> true)))
+
+      newService(mock[SessionRepository]).numberExists(answers, ImportNumber(3)) mustBe false
+    }
   }
 }

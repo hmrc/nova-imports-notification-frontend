@@ -18,11 +18,10 @@ package controllers.vehicledetails
 
 import controllers.BaseController
 import controllers.actions.*
-import controllers.supplierdetails
 import controllers.utils.IsDraftIdDefined
 import controllers.vehicledetails.VehiclesBroughtFromEuAvd13PlaceholderController.*
 import models.requests.DataRequest
-import models.{NormalMode, SupplierNumber}
+import models.SupplierNumber
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{SupplierService, VehicleService}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -59,7 +58,7 @@ class VehiclesBroughtFromEuAvd13PlaceholderController @Inject() (
         suppliersWithNames.map(suppliers => BadRequest(view(suppliers, limitReached = true)))
       else
         supplierService.add(request.userAnswers).map { supplierNumber =>
-          Redirect(supplierdetails.routes.UsePersonalDetailsAsSupplierController.onPageLoad(supplierNumber, NormalMode))
+          AddVehicleDetailsController.redirectToSupplierDetails(supplierNumber, request.userAnswers)
         }
     }
 

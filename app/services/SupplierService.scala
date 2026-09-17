@@ -36,7 +36,7 @@ trait SupplierService {
 
   def add(answers: UserAnswers): Future[SupplierNumber]
 
-  // checks the numbered collection exists but may be empty, so used on the first question only
+  // checks the numbered collection exists and is not deleted, may be empty, so used on the first question only
   def numberExists(answers: UserAnswers, supplierNumber: SupplierNumber): Boolean
 
   def numberHasValues(answers: UserAnswers, supplierNumber: SupplierNumber): Boolean
@@ -72,7 +72,7 @@ class SupplierServiceImpl @Inject() (
   }
 
   def numberExists(answers: UserAnswers, supplierNumber: SupplierNumber): Boolean =
-    allSuppliers(answers).contains(supplierNumber.value.toString)
+    allSuppliers(answers).get(supplierNumber.value.toString).exists(supplier => !isDeleted(supplier))
 
   def numberHasValues(answers: UserAnswers, supplierNumber: SupplierNumber): Boolean =
     suppliersWithValues(answers).contains(supplierNumber.value.toString)

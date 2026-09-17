@@ -18,12 +18,13 @@ package controllers.vehicledetails
 
 import base.SpecBase
 import controllers.{supplierdetails, vehicledetails}
-import models.{DraftId, NormalMode, SupplierNumber, UserAnswers}
+import models.{DraftId, NormalMode, PurchaserOrOnBehalf, SupplierNumber, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{never, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.DraftIdPage
+import pages.sections.initialquestions.NotifyingAsPurchaserPage
 import play.api.inject.bind
 import play.api.libs.json.{JsObject, Json}
 import play.api.test.FakeRequest
@@ -72,6 +73,22 @@ class VehiclesBroughtFromEuAvd13PlaceholderControllerSpec extends SpecBase with 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual
           supplierdetails.routes.UsePersonalDetailsAsSupplierController.onPageLoad(SupplierNumber(2), NormalMode).url
+      }
+    }
+
+    "must add supplier 2 and send the user to AVD-S1.1 for supplier 2 when IQ3 is OnBehalfOfPurchaser" in {
+
+      val answers = answersWithDraftId
+        .unsafeSet(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+        .unsafeSet(AllSuppliersQuery, Map("1" -> supplierWithAnswers))
+      val application = applicationWith(answers, mockSessionRepository(answers))
+
+      running(application) {
+        val result = route(application, FakeRequest(POST, suppliersRoute)).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual
+          supplierdetails.routes.UsePurchaserDetailsAsSupplierController.onPageLoad(SupplierNumber(2), NormalMode).url
       }
     }
 

@@ -29,7 +29,7 @@ trait ImportService {
 
   def add(answers: UserAnswers): Future[ImportNumber]
 
-  // checks the numbered collection exists but may be empty, so used on the first question only
+  // checks the numbered collection exists and is not deleted, may be empty, so used on the first question only
   def numberExists(answers: UserAnswers, importNumber: ImportNumber): Boolean
 
   def numberHasValues(answers: UserAnswers, importNumber: ImportNumber): Boolean
@@ -59,7 +59,7 @@ class ImportServiceImpl @Inject() (
   }
 
   def numberExists(answers: UserAnswers, importNumber: ImportNumber): Boolean =
-    allImports(answers).contains(importNumber.value.toString)
+    allImports(answers).get(importNumber.value.toString).exists(anImport => !isDeleted(anImport))
 
   def numberHasValues(answers: UserAnswers, importNumber: ImportNumber): Boolean =
     importsWithValues(answers).contains(importNumber.value.toString)

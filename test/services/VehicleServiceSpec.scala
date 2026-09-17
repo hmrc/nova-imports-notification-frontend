@@ -299,6 +299,12 @@ class VehicleServiceSpec extends SpecBase with MockitoSugar {
     "must return false when there are no vehicles" in {
       newService(mock[SessionRepository]).numberExists(emptyUserAnswers, VehicleNumber(1)) mustBe false
     }
+
+    "must return false when vehicle 3 is marked deleted" in {
+      val answers = emptyUserAnswers.unsafeSet(AllVehiclesQuery, Map("3" -> Json.obj("deleted" -> true)))
+
+      newService(mock[SessionRepository]).numberExists(answers, VehicleNumber(3)) mustBe false
+    }
   }
 
   "VehicleService.belongsToSupplier" - {

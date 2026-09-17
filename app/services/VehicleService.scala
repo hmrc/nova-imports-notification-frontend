@@ -33,7 +33,7 @@ trait VehicleService {
 
   def addForImport(answers: UserAnswers, importNumber: ImportNumber): Future[VehicleNumber]
 
-  // checks the numbered collection exists but may be empty, so used on the first question only
+  // checks the numbered collection exists and is not deleted, may be empty, so used on the first question only
   def numberExists(answers: UserAnswers, vehicleNumber: VehicleNumber): Boolean
 
   def numberHasValues(answers: UserAnswers, vehicleNumber: VehicleNumber): Boolean
@@ -75,7 +75,7 @@ class VehicleServiceImpl @Inject() (
     add(answers, Json.obj(ImportNumberKey -> importNumber.value))
 
   def numberExists(answers: UserAnswers, vehicleNumber: VehicleNumber): Boolean =
-    allVehicles(answers).contains(vehicleNumber.value.toString)
+    allVehicles(answers).get(vehicleNumber.value.toString).exists(vehicle => !isDeleted(vehicle))
 
   def numberHasValues(answers: UserAnswers, vehicleNumber: VehicleNumber): Boolean =
     vehiclesWithValues(answers).contains(vehicleNumber.value.toString)

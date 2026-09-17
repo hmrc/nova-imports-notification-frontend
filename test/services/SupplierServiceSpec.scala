@@ -244,6 +244,12 @@ class SupplierServiceSpec extends SpecBase with MockitoSugar {
     "must return false when there are no suppliers" in {
       newService(mock[SessionRepository]).numberExists(emptyUserAnswers, SupplierNumber(1)) mustBe false
     }
+
+    "must return false when supplier 3 is marked deleted" in {
+      val answers = emptyUserAnswers.unsafeSet(AllSuppliersQuery, Map("3" -> Json.obj("deleted" -> true)))
+
+      newService(mock[SessionRepository]).numberExists(answers, SupplierNumber(3)) mustBe false
+    }
   }
 
   "SupplierService.supplierName" - {
