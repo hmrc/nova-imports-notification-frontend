@@ -33,9 +33,11 @@
     autocompleteJavascript: HmrcAccessibleAutocompleteJavascript
 )
 
-@(pageTitle: String, showBackLink: Boolean = true, timeout: Boolean = true, showSignOut: Boolean = true, showHmrcBanner: Boolean = false)(contentBlock: Html)(implicit rh: RequestHeader, messages: Messages)
+@(pageTitle: String, showBackLink: Boolean = true, timeout: Boolean = true, showSignOut: Boolean = true, showHmrcBanner: Boolean = false, headBlock: Option[Html] = None, fullWidth: Boolean = false)(contentBlock: Html)(implicit rh: RequestHeader, messages: Messages)
 
 @head = {
+
+    @headBlock
 
     <link rel="stylesheet" href='@routes.Assets.versioned("stylesheets/application.css")' media="all" />
 
@@ -64,7 +66,8 @@
     pageTitle = Some(pageTitle),
     templateOverrides = TemplateOverrides(
         additionalHeadBlock = Some(head),
-        additionalScriptsBlock = Some(autocompleteJavascript())
+        additionalScriptsBlock = Some(autocompleteJavascript()),
+        mainContentLayout = if (fullWidth) Some(TemplateOverrides.noMainContentLayout) else None
     ),
     serviceURLs = ServiceURLs(
         serviceUrl = Some(routes.LandingPageController.onPageLoad().url),

@@ -32,7 +32,11 @@ POST        /vehicle-from-eu-to-northern-ireland/change                         
 
 GET         /vehicle-outside-eu-to-northern-ireland                                      controllers.initialquestions.VehicleOutsideEUController.onPageLoad()
 
-GET         /load-client-list                                                            controllers.clientselection.LoadingClientListController.onPageLoad()
+GET         /load-client-list                                                            controllers.clientselection.LoadingClientListController.onPageLoad(interval: Option[Int] ?= None, attempt: Int ?= 0)
+
+GET         /clients                                                                     controllers.clientselection.ViewClientsController.onPageLoad(searchBy: Option[String] ?= None, search: Option[String] ?= None, page: Int ?= 1)
+POST        /clients                                                                     controllers.clientselection.ViewClientsController.onSubmit()
+GET         /clients/select/:vrn                                                         controllers.clientselection.SelectClientController.select(vrn: String)
 
 GET         /no-clients                                                                  controllers.clientselection.NoAuthorisedClientsController.onPageLoad()
 

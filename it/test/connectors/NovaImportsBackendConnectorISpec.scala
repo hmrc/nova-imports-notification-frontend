@@ -17,8 +17,8 @@
 package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock.*
-import models.{DraftId, NotificationSummary, SpreadsheetValidationType, TraderInformation}
-import models.responses.{CreateDraftResponse, CreateUploadTrackingResponse}
+import models.{ClientList, ClientListQuery, ClientListStatus, ClientSummary, DraftId, NotificationSummary, SpreadsheetValidationType, TraderInformation}
+import models.responses.{ClientListRefresh, CreateDraftResponse, CreateUploadTrackingResponse}
 import play.api.libs.json.Json
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
@@ -126,6 +126,15 @@ class NovaImportsBackendConnectorISpec
           isDeregistered = false
         )
       )
+    }
+
+    "returns ClientNotFound on 403" in {
+      wireMockServer.stubFor(
+        get(urlEqualTo("/nova-imports/notification-summary"))
+          .willReturn(aResponse().withStatus(403).withBody("""{"code":"CLIENT_NOT_FOUND","message":"no relationship"}"""))
+      )
+
+      connector.getNotificationSummary(Some("123456789")).futureValue mustEqual Left(GetNotificationSummaryError.ClientNotFound)
     }
 
     "returns IndividualOrOrganisation with vrn when the backend includes an enrolment" in {
@@ -450,6 +459,96 @@ class NovaImportsBackendConnectorISpec
         case other =>
           fail(s"expected UpstreamError(201, ...) but got $other")
       }
+    }
+  }
+
+  "getClientListStatus" - {
+
+    val url = "/nova-imports/client-list-status"
+
+    "returns the status on 200" in {
+      wireMockServer.stubFor(get(urlEqualTo(url)).willReturn(okJson("""{"status":"InProgress"}""")))
+
+      connector.getClientListStatus().futureValue mustEqual Right(ClientListStatus.InProgress)
+    }
+
+    "returns UpstreamError on an unknown status" in {
+      wireMockServer.stubFor(get(urlEqualTo(url)).willReturn(okJson("""{"status":"Pending"}""")))
+
+      connector.getClientListStatus().futureValue match {
+        case Left(GetClientListStatusError.UpstreamError(200, message)) => message must include("Malformed client list status")
+        case other                                                      => fail(s"expected UpstreamError(200, ...) but got $other")
+      }
+    }
+
+    "returns UpstreamError on 500" in {
+      wireMockServer.stubFor(get(urlEqualTo(url)).willReturn(aResponse().withStatus(500).withBody("boom")))
+
+      connector.getClientListStatus().futureValue mustEqual Left(GetClientListStatusError.UpstreamError(500, "boom"))
+    }
+  }
+
+  "refreshClientList" - {
+
+    val url = "/nova-imports/client/refresh"
+
+    "returns the browser interval when the refresh started" in {
+      wireMockServer.stubFor(post(urlEqualTo(url)).willReturn(okJson("""{"success":true,"browserInterval":8000}""")))
+
+      connector.refreshClientList().futureValue mustEqual Right(ClientListRefresh(success = true, browserInterval = Some(8000)))
+    }
+
+    "returns success false without an interval when the refresh did not start" in {
+      wireMockServer.stubFor(post(urlEqualTo(url)).willReturn(okJson("""{"success":false}""")))
+
+      connector.refreshClientList().futureValue mustEqual Right(ClientListRefresh(success = false, browserInterval = None))
+    }
+
+    "returns UpstreamError on 500" in {
+      wireMockServer.stubFor(post(urlEqualTo(url)).willReturn(aResponse().withStatus(500).withBody("boom")))
+
+      connector.refreshClientList().futureValue mustEqual Left(RefreshClientListError.UpstreamError(500, "boom"))
+    }
+  }
+
+  "getClientList" - {
+
+    val body =
+      """{"clients":[{"name":"TARI Limited","vatRegistrationNumber":"123456789"}],"totalCount":42,"clientNameStartingCharacters":["B","T"]}"""
+
+    val expected = ClientList(Seq(ClientSummary("TARI Limited", "123456789")), 42, Seq("B", "T"))
+
+    "requests a page of all clients when there is no search" in {
+      wireMockServer.stubFor(get(urlEqualTo("/nova-imports/clients?start=10&count=10")).willReturn(okJson(body)))
+
+      connector.getClientList(ClientListQuery(start = 10, count = 10)).futureValue mustEqual Right(expected)
+    }
+
+    "searches by name" in {
+      wireMockServer.stubFor(get(urlEqualTo("/nova-imports/clients?name=TARI+Limited&start=0&count=10")).willReturn(okJson(body)))
+
+      connector.getClientList(ClientListQuery(name = Some("TARI Limited"), start = 0, count = 10)).futureValue mustEqual Right(expected)
+    }
+
+    "searches by vrn" in {
+      wireMockServer.stubFor(get(urlEqualTo("/nova-imports/clients?vrn=123456789&start=0&count=10")).willReturn(okJson(body)))
+
+      connector.getClientList(ClientListQuery(vrn = Some("123456789"), start = 0, count = 10)).futureValue mustEqual Right(expected)
+    }
+
+    "returns UpstreamError on a malformed body" in {
+      wireMockServer.stubFor(get(urlPathEqualTo("/nova-imports/clients")).willReturn(okJson("""{"clients":[]}""")))
+
+      connector.getClientList(ClientListQuery()).futureValue match {
+        case Left(GetClientListError.UpstreamError(200, message)) => message must include("Malformed client list")
+        case other                                                => fail(s"expected UpstreamError(200, ...) but got $other")
+      }
+    }
+
+    "returns UpstreamError on 502" in {
+      wireMockServer.stubFor(get(urlPathEqualTo("/nova-imports/clients")).willReturn(aResponse().withStatus(502).withBody("down")))
+
+      connector.getClientList(ClientListQuery()).futureValue mustEqual Left(GetClientListError.UpstreamError(502, "down"))
     }
   }
 }

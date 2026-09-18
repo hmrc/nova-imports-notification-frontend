@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,23 +12,24 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@this(
-    layout: templates.Layout
-)
+package models
 
-@(pollUrl: String, intervalSeconds: Int)(implicit request: Request[?], messages: Messages)
+import play.api.libs.json.*
 
-@refresh = {
-    <meta http-equiv="refresh" content="@intervalSeconds;url=@pollUrl">
+enum ClientListStatus(val jsonValue: String) {
+  case InitiateDownload extends ClientListStatus("InitiateDownload")
+  case InProgress extends ClientListStatus("InProgress")
+  case Succeeded extends ClientListStatus("Succeeded")
+  case Failed extends ClientListStatus("Failed")
 }
 
-@layout(pageTitle = titleNoForm(messages("loadingClientList.title")), showBackLink = true, headBlock = Some(refresh)) {
+object ClientListStatus {
 
-    <h1 class="govuk-heading-l">@messages("loadingClientList.heading")</h1>
-
-    <p class="govuk-body">@messages("loadingClientList.paragraph")</p>
-
-    <h2 class="govuk-heading-s">@messages("loadingClientList.warning")</h2>
+  implicit val reads: Reads[ClientListStatus] = Reads {
+    case JsString(value) =>
+      values.find(_.jsonValue == value).map(JsSuccess(_)).getOrElse(JsError(s"unknown client list status: $value"))
+    case _ => JsError("expected a string")
+  }
 }
