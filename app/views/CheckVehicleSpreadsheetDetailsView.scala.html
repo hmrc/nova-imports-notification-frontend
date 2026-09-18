@@ -1,0 +1,79 @@
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import models.responses.VehicleSummary
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.table.{HeadCell, Table, TableRow}
+@import viewmodels.{Pager, PageOf}
+
+@this(
+    layout: templates.Layout,
+    govukTable: GovukTable,
+    govukPagination: GovukPagination,
+    govukButton: GovukButton
+)
+
+@(vehicles: PageOf[VehicleSummary], urlForPage: Int => String)(implicit request: Request[?], messages: Messages)
+
+@layout(pageTitle = titleNoForm(messages("checkVehicleSpreadsheetDetails.title")), fullWidth = true) {
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <span class="govuk-caption-l">@messages("checkVehicleSpreadsheetDetails.caption")</span>
+            <h1 class="govuk-heading-l">@messages("checkVehicleSpreadsheetDetails.heading")</h1>
+        </div>
+    <div class="govuk-grid-column-full">
+
+            @govukTable(Table(
+                rows = vehicles.items.map { vehicle =>
+                    Seq(
+                        TableRow(content = Text(vehicle.itemNumber.map(_.toString).getOrElse(""))),
+                        TableRow(content = Text(vehicle.vin.getOrElse(""))),
+                        TableRow(content = Text(vehicle.make.getOrElse(""))),
+                        TableRow(content = Text(vehicle.model.getOrElse("")))
+                    )
+                },
+                head = Some(Seq(
+                    HeadCell(content = Text(messages("checkVehicleSpreadsheetDetails.table.item"))),
+                    HeadCell(content = Text(messages("checkVehicleSpreadsheetDetails.table.vin"))),
+                    HeadCell(content = Text(messages("checkVehicleSpreadsheetDetails.table.make"))),
+                    HeadCell(content = Text(messages("checkVehicleSpreadsheetDetails.table.model")))
+                )),
+                caption = Some(messages("checkVehicleSpreadsheetDetails.table.caption", vehicles.from, vehicles.to, vehicles.total)),
+                captionClasses = "govuk-table__caption--m",
+                classes = "govuk-table--small-text-until-tablet"
+            ))
+
+            @Pager.paginationFor(vehicles, urlForPage).map { pagination =>
+                @govukPagination(pagination)
+            }
+
+            @* TODO: link to the notification summary download when built *@
+            <p class="govuk-body">
+                <a class="govuk-link" href="@controllers.routes.LandingPageController.onPageLoad().url">@messages("checkVehicleSpreadsheetDetails.downloadLink")</a>
+            </p>
+
+            @* Save and continue: TODO navigate to UVS6.0 when built *@
+            <div class="govuk-button-group">
+                @govukButton(
+                    ButtonViewModel(messages("checkVehicleSpreadsheetDetails.saveAndContinue"))
+                        .asLink(controllers.routes.LandingPageController.onPageLoad().url)
+                )
+                @* Update spreadsheet: TODO navigate to UVS5.1 when built *@
+                <a class="govuk-link" href="@controllers.routes.LandingPageController.onPageLoad().url">@messages("checkVehicleSpreadsheetDetails.updateSpreadsheetLink")</a>
+            </div>
+        </div>
+    </div>
+}

@@ -1076,3 +1076,33 @@ uploadSpreadsheetErrorRejected.caption = Add vehicle details
 uploadSpreadsheetErrorRejected.paragraph = You must save the spreadsheet as an ODS file and try uploading it again.
 uploadSpreadsheetErrorRejected.link = Return to create a vehicle notification
 uploadSpreadsheetErrorRejected.buttonLabel = Upload again
+
+##################################################################
+# UVS4.0 - Errors found in this vehicle spreadsheet              #
+##################################################################
+
+spreadsheetErrors.title = Errors found in this vehicle spreadsheet
+spreadsheetErrors.heading = Errors found in this vehicle spreadsheet
+spreadsheetErrors.caption = Add vehicle details
+spreadsheetErrors.paragraph = Fix these errors and upload the updated spreadsheet to continue.
+spreadsheetErrors.table.item = Item
+spreadsheetErrors.table.error = Error
+spreadsheetErrors.table.caption = Showing {0} to {1} of {2} records
+spreadsheetErrors.uploadButton = Upload updated spreadsheet
+spreadsheetErrors.returnLink = Return to create a vehicle notification
+
+##################################################################
+# UVS5.0 - Check the vehicle spreadsheet details                 #
+##################################################################
+
+checkVehicleSpreadsheetDetails.title = Check the vehicle spreadsheet details
+checkVehicleSpreadsheetDetails.heading = Check the vehicle spreadsheet details
+checkVehicleSpreadsheetDetails.caption = Add vehicle details
+checkVehicleSpreadsheetDetails.table.item = Item
+checkVehicleSpreadsheetDetails.table.vin = Vehicle identification number
+checkVehicleSpreadsheetDetails.table.make = Make
+checkVehicleSpreadsheetDetails.table.model = Model
+checkVehicleSpreadsheetDetails.table.caption = Showing {0} to {1} of {2} records
+checkVehicleSpreadsheetDetails.downloadLink = Download notification summary
+checkVehicleSpreadsheetDetails.saveAndContinue = Save and continue
+checkVehicleSpreadsheetDetails.updateSpreadsheetLink = Update spreadsheet
