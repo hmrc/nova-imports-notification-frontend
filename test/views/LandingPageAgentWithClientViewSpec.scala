@@ -154,6 +154,10 @@ class LandingPageAgentWithClientViewSpec extends SpecBase with Matchers with Bef
       document.select("p.govuk-visually-hidden").text mustEqual msgs("landingPage.content.disabled.body")
     }
 
+    "must render a back link" in {
+      render().select(".govuk-back-link").isEmpty mustBe false
+    }
+
     "must render the Manage your clients link to CS1.0" in {
       val document = render()
 
