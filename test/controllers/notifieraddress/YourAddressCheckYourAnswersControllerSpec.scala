@@ -19,9 +19,9 @@ package controllers.notifieraddress
 import base.SpecBase
 import controllers.{notifieraddress, routes}
 import models.{Address, Country, DraftId, NormalMode, UserAnswers}
-import org.mockito.ArgumentCaptor
+
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{never, verify, when}
+import org.mockito.Mockito.{never, verify, verifyNoInteractions, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.DraftIdPage
 import pages.sections.notifieraddress.{AddressJourneyIdPage, AddressPage}
@@ -131,7 +131,7 @@ class YourAddressCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
       }
     }
 
-    "must clear the stored address and journey id from the session and redirect to AYA1.0 on change address" in {
+    "must retain the stored address and journey id from the session and redirect to AYA1.0 on change address" in {
       val answersWithJourneyId = answersWithAddress.unsafeSet(AddressJourneyIdPage, "journey-123")
 
       val sessionRepository = stubSessionRepository()
@@ -144,10 +144,7 @@ class YourAddressCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual notifieraddress.routes.IsYourAddressInTheUkController.onPageLoad(NormalMode).url
 
-        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
-        verify(sessionRepository).set(captor.capture())
-        captor.getValue.get(AddressPage) mustBe None
-        captor.getValue.get(AddressJourneyIdPage) mustBe None
+        verifyNoInteractions(sessionRepository)
       }
     }
 

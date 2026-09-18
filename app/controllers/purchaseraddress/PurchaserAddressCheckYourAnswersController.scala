@@ -22,7 +22,6 @@ import controllers.{BaseController, purchaseraddress, routes}
 import models.{NormalMode, PurchaserOrOnBehalf}
 import models.requests.DataRequest
 import pages.sections.initialquestions.NotifyingAsPurchaserPage
-import pages.sections.purchaseraddress.{PurchaserAddressJourneyIdPage, PurchaserAddressPage}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import views.html.PurchaserAddressCheckYourAnswersView
@@ -45,10 +44,7 @@ class PurchaserAddressCheckYourAnswersController @Inject() (
   }
 
   def onChangeAddress: Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate).async { implicit request =>
-    for {
-      cleared <- Future.fromTry(request.userAnswers.remove(PurchaserAddressPage).flatMap(_.remove(PurchaserAddressJourneyIdPage)))
-      _       <- sessionRepository.set(cleared)
-    } yield Redirect(purchaseraddress.routes.IsPurchaserAddressInTheUkController.onPageLoad(NormalMode))
+    Future.successful(Redirect(purchaseraddress.routes.IsPurchaserAddressInTheUkController.onPageLoad(NormalMode)))
   }
 
   def onSubmit: Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate) { _ =>
