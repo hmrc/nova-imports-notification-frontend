@@ -1,0 +1,133 @@
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import controllers.clientselection.routes
+@import models.{ClientSearch, ClientSearchBy, ClientSummary}
+@import uk.gov.hmrc.govukfrontend.views.Implicits.RichSelect
+@import viewmodels.ClientListPage
+
+@this(
+    layout: templates.Layout,
+    formHelper: FormWithCSRF,
+    govukErrorSummary: GovukErrorSummary,
+    govukSelect: GovukSelect,
+    govukInput: GovukInput,
+    govukButton: GovukButton,
+    govukTable: GovukTable,
+    govukPagination: GovukPagination,
+    govukDetails: GovukDetails
+)
+
+@(form: Form[ClientSearch], results: Option[ClientListPage], technicalSupportUrl: String)(implicit request: Request[?], messages: Messages)
+
+@errorSummary = @{
+    if (form("searchBy").hasErrors && form("search").hasErrors)
+        ErrorSummary(
+            errorList = Seq(ErrorLink(href = Some("#searchBy"), content = Text(messages("viewClients.error.required")))),
+            title = Text(messages("error.summary.title"))
+        )
+    else ErrorSummaryViewModel(form)
+}
+
+@* TODO DTR-7178: add the Remove link once RC1.0 exists *@
+@actions(client: ClientSummary) = {
+    <a class="govuk-link" href="@routes.SelectClientController.select(client.vatRegistrationNumber)">@messages("viewClients.select")<span class="govuk-visually-hidden"> @client.name</span></a>
+}
+
+@table(page: ClientListPage) = {
+    <p class="govuk-body">@Html(messages("viewClients.showing", s"<strong>${page.from}</strong>", s"<strong>${page.to}</strong>", s"<strong>${page.totalCount}</strong>"))</p>
+
+    @govukTable(Table(
+        head = Some(Seq(
+            HeadCell(content = Text(messages("viewClients.table.name"))),
+            HeadCell(content = Text(messages("viewClients.table.vrn"))),
+            HeadCell(content = Text(messages("viewClients.table.actions")))
+        )),
+        rows = page.clients.map { client =>
+            Seq(
+                TableRow(content = Text(client.name)),
+                TableRow(content = Text(client.vatRegistrationNumber)),
+                TableRow(content = HtmlContent(actions(client)))
+            )
+        }
+    ))
+
+    @page.pagination.map(govukPagination(_))
+}
+
+@downloadDetails = {
+    <p class="govuk-body">@messages("viewClients.download.body.1")</p>
+    <p class="govuk-body">@messages("viewClients.download.body.2")</p>
+    <p class="govuk-body">@messages("viewClients.download.body.3") <a class="govuk-link" href="@technicalSupportUrl" target="_blank" rel="noreferrer noopener">@messages("viewClients.download.body.3.link")</a>.</p>
+    @* TODO DTR-7715: add the CSV download link once BFA5 is built *@
+}
+
+@layout(pageTitle = title(form, messages("viewClients.title")), showBackLink = true, fullWidth = true) {
+
+    @if(form.errors.nonEmpty) {
+        @govukErrorSummary(errorSummary)
+    }
+
+    <h1 class="govuk-heading-l">@messages("viewClients.heading")</h1>
+
+    <p class="govuk-body">@messages("viewClients.body")</p>
+
+    @formHelper(action = routes.ViewClientsController.onSubmit()) {
+
+        @govukSelect(
+            Select(
+                label = Label(content = Text(messages("viewClients.searchBy.label")), classes = "govuk-label--m"),
+                hint = Some(Hint(content = Text(messages("viewClients.searchBy.hint")))),
+                items = Seq(
+                    SelectItem(value = Some(""), text = messages("viewClients.searchBy.placeholder")),
+                    SelectItem(value = Some(ClientSearchBy.Name.jsonValue), text = messages("viewClients.searchBy.name")),
+                    SelectItem(value = Some(ClientSearchBy.Vrn.jsonValue), text = messages("viewClients.searchBy.vrn"))
+                )
+            ).withFormField(form("searchBy"))
+        )
+
+        @govukInput(
+            InputViewModel(
+                field = form("search"),
+                label = LabelViewModel(messages("viewClients.search.label"))
+            ).withCssClass("govuk-!-width-one-half")
+        )
+
+        <div class="govuk-button-group">
+            @govukButton(ButtonViewModel(messages("viewClients.searchButton")).asSecondaryButton())
+            <a class="govuk-link" href="@routes.ViewClientsController.onPageLoad(None, None, 1)">@messages("viewClients.viewAll")</a>
+        </div>
+    }
+
+    @results.map { page =>
+        <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
+
+        @if(page.clients.isEmpty) {
+            <p class="govuk-body govuk-!-font-weight-bold">@messages("viewClients.noResults")</p>
+        } else {
+            @table(page)
+        }
+    }
+
+    @govukDetails(Details(
+        summary = Text(messages("viewClients.download.summary")),
+        content = HtmlContent(downloadDetails)
+    ))
+
+    <p class="govuk-body">
+        <a class="govuk-link" href="@controllers.routes.LandingPageController.onPageLoad()">@messages("viewClients.returnHome")</a>
+    </p>
+}
