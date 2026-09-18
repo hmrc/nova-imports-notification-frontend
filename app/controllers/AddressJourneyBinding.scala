@@ -78,7 +78,7 @@ object AddressJourneyBinding {
       IsDraftIdDefined(request.userAnswers) &&
         request.userAnswers.get(VehicleFromEuPage).contains(true) &&
         request.userAnswers.get(SupplierBusinessOrIndividualPage(number)).isDefined &&
-        supplierService.numberExists(request.userAnswers, number),
+        supplierService.numberHasValues(request.userAnswers, number),
     onComplete = supplierdetails.routes.IsSupplierVatRegisteredController.onPageLoad(number, NormalMode),
     addressChangedPage = routes.AddressChangedController.supplierOnPageLoad(number),
     addressChangedSubmit = routes.AddressChangedController.supplierOnSubmit(number),

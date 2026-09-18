@@ -58,7 +58,7 @@ class IsSupplierVatRegisteredControllerSpec extends SpecBase with MockitoSugar {
     .set(VehicleFromEuPage, true)
     .success
     .value
-    .set(AllSuppliersQuery, Map("1" -> Json.obj()))
+    .set(AllSuppliersQuery, Map("1" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
     .success
     .value
 
@@ -141,7 +141,8 @@ class IsSupplierVatRegisteredControllerSpec extends SpecBase with MockitoSugar {
 
     "must save the answer matching that of the supplier number in the URL" in {
 
-      val answersForSupplierThree              = userAnswersWithGuardData.set(AllSuppliersQuery, Map("3" -> Json.obj())).success.value
+      val answersForSupplierThree =
+        userAnswersWithGuardData.set(AllSuppliersQuery, Map("3" -> Json.obj("usePersonalDetailsAsSupplier" -> false))).success.value
       val (application, mockSessionRepository) = applicationWithMockRepository(answersForSupplierThree)
 
       running(application) {

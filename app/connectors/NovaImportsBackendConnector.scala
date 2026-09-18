@@ -18,8 +18,8 @@ package connectors
 
 import com.google.inject.Inject
 import config.FrontendAppConfig
-import models.responses.{CreateDraftResponse, CreateUploadTrackingResponse}
-import models.{DraftId, DraftNotification, EuMemberStates, NotificationSummary, SpreadsheetValidationType, TraderInformation}
+import models.responses.{ClientListRefresh, CreateDraftResponse, CreateUploadTrackingResponse}
+import models.{ClientList, ClientListQuery, ClientListStatus, DraftId, DraftNotification, EuMemberStates, NotificationSummary, SpreadsheetValidationType, TraderInformation}
 import play.api.libs.json.{JsObject, JsSuccess, Json}
 import play.api.libs.ws.writeableOf_JsValue
 import uk.gov.hmrc.http.HttpReads.Implicits.*
@@ -36,6 +36,7 @@ object CreateDraftError {
 
 sealed trait GetNotificationSummaryError
 object GetNotificationSummaryError {
+  case object ClientNotFound extends GetNotificationSummaryError
   final case class UpstreamError(status: Int, message: String) extends GetNotificationSummaryError
 }
 
@@ -73,6 +74,21 @@ object GetEuMemberStatesError {
   final case class UpstreamError(status: Int, message: String) extends GetEuMemberStatesError
 }
 
+sealed trait GetClientListStatusError
+object GetClientListStatusError {
+  final case class UpstreamError(status: Int, message: String) extends GetClientListStatusError
+}
+
+sealed trait RefreshClientListError
+object RefreshClientListError {
+  final case class UpstreamError(status: Int, message: String) extends RefreshClientListError
+}
+
+sealed trait GetClientListError
+object GetClientListError {
+  final case class UpstreamError(status: Int, message: String) extends GetClientListError
+}
+
 trait NovaImportsBackendConnector {
 
   def createDraft(clientVrn: Option[String])(implicit hc: HeaderCarrier): Future[Either[CreateDraftError, CreateDraftResponse]]
@@ -92,6 +108,12 @@ trait NovaImportsBackendConnector {
   def createUploadTracking(draftId: DraftId, validationType: SpreadsheetValidationType)(implicit
     hc: HeaderCarrier
   ): Future[Either[CreateUploadTrackingError, CreateUploadTrackingResponse]]
+
+  def getClientListStatus()(implicit hc: HeaderCarrier): Future[Either[GetClientListStatusError, ClientListStatus]]
+
+  def refreshClientList()(implicit hc: HeaderCarrier): Future[Either[RefreshClientListError, ClientListRefresh]]
+
+  def getClientList(query: ClientListQuery)(implicit hc: HeaderCarrier): Future[Either[GetClientListError, ClientList]]
 }
 
 class NovaImportsBackendConnectorImpl @Inject() (
@@ -145,7 +167,8 @@ class NovaImportsBackendConnectorImpl @Inject() (
               .validate[NotificationSummary]
               .map(Right(_))
               .recoverTotal(err => Left(UpstreamError(200, s"Malformed notification summary: $err")))
-          case s => Left(UpstreamError(s, response.body))
+          case 403 => Left(ClientNotFound)
+          case s   => Left(UpstreamError(s, response.body))
         }
       }
   }
@@ -249,4 +272,58 @@ class NovaImportsBackendConnectorImpl @Inject() (
           case s   => Left(CreateUploadTrackingError.UpstreamError(s, response.body))
         }
       }
+
+  override def getClientListStatus()(implicit hc: HeaderCarrier): Future[Either[GetClientListStatusError, ClientListStatus]] = {
+    import GetClientListStatusError.*
+
+    httpClient
+      .get(url"${serviceUrl("/client-list-status")}")
+      .execute[HttpResponse]
+      .map { response =>
+        response.status match {
+          case 200 =>
+            (response.json \ "status")
+              .validate[ClientListStatus]
+              .map(Right(_))
+              .recoverTotal(err => Left(UpstreamError(200, s"Malformed client list status: $err")))
+          case s => Left(UpstreamError(s, response.body))
+        }
+      }
+  }
+
+  override def refreshClientList()(implicit hc: HeaderCarrier): Future[Either[RefreshClientListError, ClientListRefresh]] = {
+    import RefreshClientListError.*
+
+    httpClient
+      .post(url"${serviceUrl("/client/refresh")}")
+      .execute[HttpResponse]
+      .map { response =>
+        response.status match {
+          case 200 =>
+            response.json
+              .validate[ClientListRefresh]
+              .map(Right(_))
+              .recoverTotal(err => Left(UpstreamError(200, s"Malformed client list refresh response: $err")))
+          case s => Left(UpstreamError(s, response.body))
+        }
+      }
+  }
+
+  override def getClientList(query: ClientListQuery)(implicit hc: HeaderCarrier): Future[Either[GetClientListError, ClientList]] = {
+    import GetClientListError.*
+
+    httpClient
+      .get(url"${serviceUrl("/clients")}?vrn=${query.vrn}&name=${query.name}&start=${query.start}&count=${query.count}")
+      .execute[HttpResponse]
+      .map { response =>
+        response.status match {
+          case 200 =>
+            response.json
+              .validate[ClientList]
+              .map(Right(_))
+              .recoverTotal(err => Left(UpstreamError(200, s"Malformed client list: $err")))
+          case s => Left(UpstreamError(s, response.body))
+        }
+      }
+  }
 }

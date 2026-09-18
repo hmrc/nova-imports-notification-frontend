@@ -18,9 +18,13 @@
     layout: templates.Layout
 )
 
-@()(implicit request: Request[?], messages: Messages)
+@(pollUrl: String, intervalSeconds: Int)(implicit request: Request[?], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("loadingClientList.title")), showBackLink = true) {
+@refresh = {
+    <meta http-equiv="refresh" content="@intervalSeconds;url=@pollUrl">
+}
+
+@layout(pageTitle = titleNoForm(messages("loadingClientList.title")), showBackLink = true, headBlock = Some(refresh)) {
 
     <h1 class="govuk-heading-l">@messages("loadingClientList.heading")</h1>
 

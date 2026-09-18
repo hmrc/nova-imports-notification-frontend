@@ -81,6 +81,10 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
 
   val cacheTtl: Long = configuration.get[Int]("mongodb.timeToLiveInSeconds")
 
+  val clientListPageSize: Int           = configuration.get[Int]("client-list.page-size")
+  val clientListMaxRetries: Int         = configuration.get[Int]("client-list.max-retries")
+  val clientListFallbackIntervalMs: Int = configuration.get[Int]("client-list.fallback-interval-ms")
+
   lazy val vrnValidationList: Seq[CountryVrnValidation]          = loadVrnValidationList()
   private def loadVrnValidationList(): Seq[CountryVrnValidation] = {
     configuration.get[Seq[Configuration]]("euVrnRegistrationValidationList").map { config =>

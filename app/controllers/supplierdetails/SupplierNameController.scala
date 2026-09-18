@@ -91,5 +91,5 @@ object SupplierNameController {
     IsDraftIdDefined(request.userAnswers) &&
       request.userAnswers.get(VehicleFromEuPage).contains(true) &&
       request.userAnswers.get(SupplierBusinessOrIndividualPage(supplierNumber)).contains(BusinessOrPrivateIndividual.PrivateIndividual) &&
-      supplierService.numberExists(request.userAnswers, supplierNumber)
+      supplierService.numberHasValues(request.userAnswers, supplierNumber)
 }

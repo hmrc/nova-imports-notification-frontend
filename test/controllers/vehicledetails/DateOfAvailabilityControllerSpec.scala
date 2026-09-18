@@ -60,10 +60,13 @@ class DateOfAvailabilityControllerSpec extends SpecBase with MockitoSugar {
     .set(VehicleFromEuPage, true)
     .success
     .value
-    .set(AllSuppliersQuery, Map("1" -> Json.obj()))
+    .set(AllSuppliersQuery, Map("1" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
     .success
     .value
     .set(AllVehiclesQuery, Map("1" -> Json.obj("supplierNumber" -> 1)))
+    .success
+    .value
+    .set(VehicleDatesPage(SupplierNumber(1), VehicleNumber(1)), Set[VehicleDates](VehicleDates.AvailabilityAndFirstRegistration))
     .success
     .value
 
@@ -432,16 +435,31 @@ class DateOfAvailabilityControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must return OK for a GET when AVD3.0 has not been answered at all" in {
+    "must redirect to Unauthorised for a GET when AVD3.0 has not been answered for vehicle 1" in {
 
-      val application = applicationBuilder(userAnswers = Some(userAnswersWithGuardData)).build()
+      val answers = emptyUserAnswers
+        .set(DraftIdPage, DraftId("DRAFT-001"))
+        .success
+        .value
+        .set(VehicleFromEuPage, true)
+        .success
+        .value
+        .set(AllSuppliersQuery, Map("1" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
+        .success
+        .value
+        .set(AllVehiclesQuery, Map("1" -> Json.obj("supplierNumber" -> 1)))
+        .success
+        .value
+
+      val application = applicationBuilder(userAnswers = Some(answers)).build()
 
       running(application) {
         val request = FakeRequest(GET, dateOfAvailabilityRoute)
 
         val result = route(application, request).value
 
-        status(result) mustEqual OK
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
       }
     }
 
