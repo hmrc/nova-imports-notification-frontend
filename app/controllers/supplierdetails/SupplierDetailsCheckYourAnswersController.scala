@@ -164,7 +164,7 @@ object SupplierDetailsCheckYourAnswersController {
     && supplierDetailsQuestionsAnswered
     && avdQuestionAnswered
     && request.userAnswers.get(VehicleFromEuPage).contains(true)
-    && supplierService.numberExists(request.userAnswers, supplierNumber)
+    && supplierService.numberHasValues(request.userAnswers, supplierNumber)
   }
 
   private def supplierDetailsDefined(answers: UserAnswers, supplierNumber: SupplierNumber): Boolean = {

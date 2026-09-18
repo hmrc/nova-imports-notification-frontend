@@ -66,7 +66,7 @@ class SupplierNameControllerSpec extends SpecBase with MockitoSugar {
   private val requiredPreviousAnswers = emptyUserAnswers
     .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
     .unsafeSet(VehicleFromEuPage, true)
-    .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj()))
+    .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
     .unsafeSet(SupplierBusinessOrIndividualPage(supplierOne), BusinessOrPrivateIndividual.PrivateIndividual)
 
   private def applicationWithMockRepository(
@@ -311,7 +311,7 @@ class SupplierNameControllerSpec extends SpecBase with MockitoSugar {
         .set(SupplierBusinessOrIndividualPage(supplierOne), BusinessOrPrivateIndividual.PrivateIndividual)
         .success
         .value
-        .set(AllSuppliersQuery, Map("1" -> Json.obj()))
+        .set(AllSuppliersQuery, Map("1" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
         .success
         .value
 
@@ -336,7 +336,7 @@ class SupplierNameControllerSpec extends SpecBase with MockitoSugar {
         .set(SupplierBusinessOrIndividualPage(supplierOne), BusinessOrPrivateIndividual.PrivateIndividual)
         .success
         .value
-        .set(AllSuppliersQuery, Map("1" -> Json.obj()))
+        .set(AllSuppliersQuery, Map("1" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
         .success
         .value
 
@@ -415,7 +415,7 @@ class SupplierNameControllerSpec extends SpecBase with MockitoSugar {
         .set(VehicleFromEuPage, true)
         .success
         .value
-        .set(AllSuppliersQuery, Map("1" -> Json.obj()))
+        .set(AllSuppliersQuery, Map("1" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
         .success
         .value
 

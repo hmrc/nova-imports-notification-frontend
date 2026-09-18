@@ -93,7 +93,7 @@ object SupplierBusinessNameController {
       (mode.equals(CheckMode) || request.userAnswers
         .get(SupplierBusinessOrIndividualPage(supplierNumber))
         .contains(BusinessOrPrivateIndividual.Business)) &&
-      supplierService.numberExists(request.userAnswers, supplierNumber)
+      supplierService.numberHasValues(request.userAnswers, supplierNumber)
 
   private def saveBusinessOrIndividual(userAnswers: UserAnswers, supplierNumber: SupplierNumber, mode: Mode): Try[UserAnswers] = {
     // If in Check Mode and then also save IsSupplierVatRegisteredPage.

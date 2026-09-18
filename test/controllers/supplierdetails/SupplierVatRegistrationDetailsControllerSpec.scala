@@ -65,7 +65,7 @@ class SupplierVatRegistrationDetailsControllerSpec extends SpecBase with Mockito
     .set(VehicleFromEuPage, true)
     .success
     .value
-    .set(AllSuppliersQuery, Map("1" -> Json.obj()))
+    .set(AllSuppliersQuery, Map("1" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
     .success
     .value
     .set(IsSupplierVatRegisteredPage(SupplierNumber(1)), true)
@@ -203,7 +203,7 @@ class SupplierVatRegistrationDetailsControllerSpec extends SpecBase with Mockito
       val answersForSupplierThree = emptyUserAnswers
         .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
         .unsafeSet(VehicleFromEuPage, true)
-        .unsafeSet(AllSuppliersQuery, Map("3" -> Json.obj()))
+        .unsafeSet(AllSuppliersQuery, Map("3" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
         .unsafeSet(IsSupplierVatRegisteredPage(SupplierNumber(3)), true)
         .unsafeSet(SupplierAddressJourneyIdPage(SupplierNumber(3)), "journey-id-3")
         .unsafeSet(SupplierEuMemberStatesPage(SupplierNumber(3)), testEuCountries)
@@ -312,7 +312,7 @@ class SupplierVatRegistrationDetailsControllerSpec extends SpecBase with Mockito
         .set(VehicleFromEuPage, false)
         .success
         .value
-        .set(AllSuppliersQuery, Map("1" -> Json.obj()))
+        .set(AllSuppliersQuery, Map("1" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
         .success
         .value
         .set(IsSupplierVatRegisteredPage(SupplierNumber(1)), true)
@@ -339,7 +339,7 @@ class SupplierVatRegistrationDetailsControllerSpec extends SpecBase with Mockito
         .set(VehicleFromEuPage, true)
         .success
         .value
-        .set(AllSuppliersQuery, Map("1" -> Json.obj()))
+        .set(AllSuppliersQuery, Map("1" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
         .success
         .value
         .set(IsSupplierVatRegisteredPage(SupplierNumber(1)), false) // No on AVD-S8.0

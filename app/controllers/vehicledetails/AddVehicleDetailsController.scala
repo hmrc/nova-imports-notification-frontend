@@ -30,7 +30,7 @@ import navigation.Navigator
 import pages.sections.initialquestions.{NotifyingAsPurchaserPage, VehicleFromEuPage}
 import pages.sections.vehicledetails.AddVehicleDetailsPage
 import play.api.data.Form
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result, Results}
 import repositories.SessionRepository
 import services.SupplierService
 import views.html.{AddVehicleDetailsBySupplierOnlyView, AddVehicleDetailsView}
@@ -94,10 +94,17 @@ class AddVehicleDetailsController @Inject() (
       updatedAnswers <- Future.fromTry(request.userAnswers.set(AddVehicleDetailsPage, AddVehicleDetails.BySupplier))
       supplierNumber <- supplierService.add(updatedAnswers)
     } yield redirectToSupplierDetails(supplierNumber, updatedAnswers)
+}
+
+object AddVehicleDetailsController {
+
+  def guardPredicate(request: DataRequest[?]): Boolean =
+    IsDraftIdDefined(request.userAnswers) &&
+      request.userAnswers.get(VehicleFromEuPage).contains(true)
 
   // non-VAT-registered users who bought on behalf of the purchaser (or an agent without a
   // selected client) supply the purchaser's details as the supplier; everyone else supplies their own
-  private def redirectToSupplierDetails(supplierNumber: SupplierNumber, updatedAnswers: UserAnswers)(implicit
+  def redirectToSupplierDetails(supplierNumber: SupplierNumber, updatedAnswers: UserAnswers)(implicit
     request: DataRequest[?]
   ): Result =
     if (
@@ -105,15 +112,7 @@ class AddVehicleDetailsController @Inject() (
       (updatedAnswers.get(NotifyingAsPurchaserPage).contains(PurchaserOrOnBehalf.OnBehalfOfPurchaser) ||
         request.userContext.isAgentWithoutClient)
     )
-      Redirect(supplierdetails.routes.UsePurchaserDetailsAsSupplierController.onPageLoad(supplierNumber, NormalMode))
+      Results.Redirect(supplierdetails.routes.UsePurchaserDetailsAsSupplierController.onPageLoad(supplierNumber, NormalMode))
     else
-      Redirect(supplierdetails.routes.UsePersonalDetailsAsSupplierController.onPageLoad(supplierNumber, NormalMode))
-}
-
-object AddVehicleDetailsController {
-
-  // Allow user access if IQ1.0 = Yes. User types 7 & 8 (HMRC-NOVRN-AGNT) are rejected by StandardIdentifierAction.
-  def guardPredicate(request: DataRequest[?]): Boolean =
-    IsDraftIdDefined(request.userAnswers) &&
-      request.userAnswers.get(VehicleFromEuPage).contains(true)
+      Results.Redirect(supplierdetails.routes.UsePersonalDetailsAsSupplierController.onPageLoad(supplierNumber, NormalMode))
 }

@@ -78,7 +78,7 @@ object AddressJourneyBinding {
       IsDraftIdDefined(request.userAnswers) &&
         request.userAnswers.get(VehicleFromEuPage).contains(true) &&
         request.userAnswers.get(SupplierBusinessOrIndividualPage(number)).isDefined &&
-        supplierService.numberExists(request.userAnswers, number),
+        supplierService.numberHasValues(request.userAnswers, number),
     onComplete = request =>
       if (request.userAnswers.get(IsSupplierVatRegisteredPage(number)).isDefined) {
         supplierdetails.routes.SupplierDetailsCheckYourAnswersController.onPageLoad(number)

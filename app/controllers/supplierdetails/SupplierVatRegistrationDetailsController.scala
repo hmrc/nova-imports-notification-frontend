@@ -127,7 +127,7 @@ object SupplierVatRegistrationDetailsController {
     IsDraftIdDefined(request.userAnswers) &&
       request.userAnswers.get(VehicleFromEuPage).contains(true) &&
       (mode.equals(CheckMode) || request.userAnswers.get(IsSupplierVatRegisteredPage(supplierNumber)).contains(true)) &&
-      supplierService.numberExists(request.userAnswers, supplierNumber) &&
+      supplierService.numberHasValues(request.userAnswers, supplierNumber) &&
       request.userAnswers.get(SupplierAddressJourneyIdPage(supplierNumber)).isDefined
 
   private def saveIsSupplierVatRegistered(userAnswers: UserAnswers, supplierNumber: SupplierNumber, mode: Mode): Try[UserAnswers] = {

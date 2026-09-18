@@ -159,6 +159,15 @@ landingPage.agent.saved.body.has = View, continue or delete a notification you�
 landingPage.agent.clients.link = Manage your clients
 landingPage.agent.clients.body = View, search for, or remove a client, or select one to act on their behalf
 
+################################################################
+# LP3.1 - Landing page for Agent with selected client          #
+################################################################
+
+landingPage.agent.client.heading = Notifying on behalf of
+landingPage.agent.client.change = Change client
+landingPage.agent.client.name = Client name
+landingPage.agent.client.vrn = VAT registration number
+
 ##################################################################
 # IQ1.0 - Initial Question 1.0: Vehicle brought into NI from EU  #
 ##################################################################
@@ -329,6 +338,41 @@ loadingClientList.title = Retrieving your client list
 loadingClientList.heading = Retrieving your client list
 loadingClientList.paragraph = Please wait while we retrieve your authorised clients. This should only take a few moments.
 loadingClientList.warning = Do not refresh this page or use the back button.
+
+##############################
+# VC1.0 - View clients       #
+##############################
+
+viewClients.title = Client list
+viewClients.heading = Client list
+viewClients.body = Manage the clients linked to your account.
+viewClients.searchBy.label = What do you want to search by?
+viewClients.searchBy.hint = Search by client name or VAT registration number
+viewClients.searchBy.placeholder = Select an option
+viewClients.searchBy.name = Client name
+viewClients.searchBy.vrn = VAT registration number
+viewClients.search.label = Enter your search
+viewClients.searchButton = Search
+viewClients.viewAll = View all clients
+viewClients.showing = Showing {0} to {1} of {2} records
+viewClients.table.name = Client name
+viewClients.table.vrn = VAT registration number
+viewClients.table.actions = Actions
+viewClients.select = Select
+viewClients.pagination.previous = Previous
+viewClients.pagination.next = Next
+viewClients.noResults = No clients found using this search criteria
+viewClients.download.summary = Download your client list
+viewClients.download.body.1 = You can download a copy of your client list as a CSV file.
+viewClients.download.body.2 = Do not download client information to a computer you do not manage or control.
+viewClients.download.body.3 = If you have many clients, the download may take longer. If you have problems downloading your client list,
+viewClients.download.body.3.link = contact HMRC technical support (opens in new tab)
+viewClients.returnHome = Return to home
+viewClients.error.required = Select what you want to search by and enter a client name or VAT registration number
+viewClients.searchBy.error.required = Select what you want to search by
+viewClients.search.error.required = Enter a client name or VAT registration number
+viewClients.search.error.required.name = Enter the client’s name
+viewClients.search.error.required.vrn = Enter the client’s VAT registration number
 
 ##########################################################
 # CS2.0 - Client State 2: Could not retrieve client list #
@@ -925,6 +969,47 @@ vehiclesBoughtFromSupplier.whereToFindDates.heading = Where to find these dates
 vehiclesBoughtFromSupplier.whereToFindDates.paragraph.1 = You can usually find the date of first registration in the vehicle log book. You can find the invoice date on the purchase invoice.
 vehiclesBoughtFromSupplier.addVehicle = Add vehicle
 
+###############################################################################
+# PLACEHOLDER for AVD13.0, for testing supplier and vehicle numbers.          #
+# TODO: DELETE this block when AVD13.0 is built into the AVD1.0 screen        #
+###############################################################################
+
+vehiclesBroughtFromEuAvd13Placeholder.title = Suppliers (AVD13.0 placeholder)
+vehiclesBroughtFromEuAvd13Placeholder.heading = Suppliers (AVD13.0 placeholder)
+vehiclesBroughtFromEuAvd13Placeholder.supplierNumber = Supplier number
+vehiclesBroughtFromEuAvd13Placeholder.name = Name
+vehiclesBroughtFromEuAvd13Placeholder.vehicles = Vehicles
+vehiclesBroughtFromEuAvd13Placeholder.notProvided = Not provided
+vehiclesBroughtFromEuAvd13Placeholder.delete = Delete
+vehiclesBroughtFromEuAvd13Placeholder.addSupplier = Add supplier
+vehiclesBroughtFromEuAvd13Placeholder.noSuppliers = There are no suppliers yet
+vehiclesBroughtFromEuAvd13Placeholder.error.limitReached = You cannot add another supplier, maximum 100 vehicles reached
+
+###############################################################################
+# PLACEHOLDER for AVD12.0, for testing vehicle and supplier numbers.          #
+# TODO: DELETE this whole block when AVD12.0 is built into the AVD2.0 screen  #
+###############################################################################
+
+vehiclesBoughtFromSupplierAvd12Placeholder.title = Vehicles from this supplier (AVD12.0 placeholder)
+vehiclesBoughtFromSupplierAvd12Placeholder.heading = Vehicles from {0} (AVD12.0 placeholder)
+vehiclesBoughtFromSupplierAvd12Placeholder.notProvided = Not provided
+vehiclesBoughtFromSupplierAvd12Placeholder.backToSuppliers = Back to suppliers
+vehiclesBoughtFromSupplierAvd12Placeholder.vehicleNumber = Vehicle number
+vehiclesBoughtFromSupplierAvd12Placeholder.edit = Edit
+vehiclesBoughtFromSupplierAvd12Placeholder.delete = Delete
+vehiclesBoughtFromSupplierAvd12Placeholder.addVehicle = Add vehicle
+vehiclesBoughtFromSupplierAvd12Placeholder.noVehicles = There are no vehicles for this supplier yet
+vehiclesBoughtFromSupplierAvd12Placeholder.error.limitReached = You cannot add another vehicle, maximum 100 vehicles reached
+
+####################################################################################
+# AVD-IE1.0 - Import entry number. Part built for testing import number.           #
+# TODO: update and finish messages here when AVD-IE1.0 is built. Do not delete it  #
+####################################################################################
+
+importEntryNumber.title = Import entry number
+importEntryNumber.heading = Import entry number
+importEntryNumber.importNumber = Import number: {0}
+
 #########################################################################################
 # AVD3.1 - Add vehicle details 3.1: If you do not have any of the dates for the vehicle #
 #########################################################################################
@@ -1001,3 +1086,33 @@ uploadSpreadsheetErrorRejected.caption = Add vehicle details
 uploadSpreadsheetErrorRejected.paragraph = You must save the spreadsheet as an ODS file and try uploading it again.
 uploadSpreadsheetErrorRejected.link = Return to create a vehicle notification
 uploadSpreadsheetErrorRejected.buttonLabel = Upload again
+
+##################################################################
+# UVS4.0 - Errors found in this vehicle spreadsheet              #
+##################################################################
+
+spreadsheetErrors.title = Errors found in this vehicle spreadsheet
+spreadsheetErrors.heading = Errors found in this vehicle spreadsheet
+spreadsheetErrors.caption = Add vehicle details
+spreadsheetErrors.paragraph = Fix these errors and upload the updated spreadsheet to continue.
+spreadsheetErrors.table.item = Item
+spreadsheetErrors.table.error = Error
+spreadsheetErrors.table.caption = Showing {0} to {1} of {2} records
+spreadsheetErrors.uploadButton = Upload updated spreadsheet
+spreadsheetErrors.returnLink = Return to create a vehicle notification
+
+##################################################################
+# UVS5.0 - Check the vehicle spreadsheet details                 #
+##################################################################
+
+checkVehicleSpreadsheetDetails.title = Check the vehicle spreadsheet details
+checkVehicleSpreadsheetDetails.heading = Check the vehicle spreadsheet details
+checkVehicleSpreadsheetDetails.caption = Add vehicle details
+checkVehicleSpreadsheetDetails.table.item = Item
+checkVehicleSpreadsheetDetails.table.vin = Vehicle identification number
+checkVehicleSpreadsheetDetails.table.make = Make
+checkVehicleSpreadsheetDetails.table.model = Model
+checkVehicleSpreadsheetDetails.table.caption = Showing {0} to {1} of {2} records
+checkVehicleSpreadsheetDetails.downloadLink = Download notification summary
+checkVehicleSpreadsheetDetails.saveAndContinue = Save and continue
+checkVehicleSpreadsheetDetails.updateSpreadsheetLink = Update spreadsheet

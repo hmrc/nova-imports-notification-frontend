@@ -27,6 +27,7 @@ import models.{SpreadsheetUploadError, SpreadsheetValidationType, UserAnswers}
 import models.requests.DataRequest
 import pages.DraftIdPage
 import pages.sections.initialquestions.VehicleFromEuPage
+import pages.sections.introduction.AmendSubmittedNotificationPage
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import views.html.UploadVehicleSpreadsheetView
@@ -46,11 +47,9 @@ class UploadVehicleSpreadsheetController @Inject() (
 
   def onPageLoad(): Action[AnyContent] =
     actions.authAndGetDataWithUserTypeGuard(guardPredicate).async { implicit request =>
-      // TODO - Will update once spreadsheet selection page is done
-      val validationType = spreadsheetValidationTypeFor(request.userAnswers)
-      val uploadError    = request.getQueryString("errorCode").map(SpreadsheetUploadError.fromUpscanErrorCode)
+      val uploadError = request.getQueryString("errorCode").map(SpreadsheetUploadError.fromUpscanErrorCode)
 
-      connector.createUploadTracking(request.userAnswers.get(DraftIdPage).get, validationType).map {
+      connector.createUploadTracking(request.userAnswers.get(DraftIdPage).get, request.userAnswers.get(AmendSubmittedNotificationPage)).map {
         case Right(uploadTracking) =>
           Ok(view(uploadTracking.uploadUrl, uploadTracking.fields, appConfig.multipleVehiclesSpreadsheetsUrl, uploadError))
         case Left(error) =>
