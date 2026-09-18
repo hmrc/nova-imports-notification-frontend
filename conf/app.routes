@@ -134,6 +134,12 @@ POST        /vehicles-brought-from-eu/change                                    
 
 GET         /upload-vehicle-spreadsheet                                                  controllers.vehicledetails.UploadVehicleSpreadsheetController.onPageLoad()
 
+GET         /vehicle-spreadsheet-upload-result                                          controllers.vehicledetails.SpreadsheetUploadResultController.onPageLoad()
+
+GET         /vehicle-spreadsheet-errors                                                 controllers.vehicledetails.CheckVehicleSpreadsheetErrorsController.onPageLoad(page: Int ?= 1)
+
+GET         /check-vehicle-spreadsheet-details                                          controllers.vehicledetails.CheckVehicleSpreadsheetDetailsController.onPageLoad(page: Int ?= 1)
+
 GET         /file-contains-virus                                                         controllers.vehicledetails.UploadSpreadsheetErrorQuarantineController.onPageLoad()
 GET         /problem-uploading-file                                                      controllers.vehicledetails.UploadSpreadsheetErrorUnknownController.onPageLoad()
 GET         /file-rejected                                                               controllers.vehicledetails.UploadSpreadsheetErrorRejectedController.onPageLoad()

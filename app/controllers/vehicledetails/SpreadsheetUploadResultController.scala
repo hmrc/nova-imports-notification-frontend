@@ -16,56 +16,54 @@
 
 package controllers.vehicledetails
 
-import config.FrontendAppConfig
 import connectors.NovaImportsBackendConnector
 import controllers.BaseController
 import controllers.actions.Actions
-import controllers.routes
 import controllers.utils.IsDraftIdDefined
-import controllers.vehicledetails.UploadVehicleSpreadsheetController.{guardPredicate, spreadsheetValidationTypeFor}
-import models.{SpreadsheetUploadError, SpreadsheetValidationType, UserAnswers}
+import controllers.vehicledetails.SpreadsheetUploadResultController.guardPredicate
 import models.requests.DataRequest
 import pages.DraftIdPage
 import pages.sections.initialquestions.VehicleFromEuPage
-import pages.sections.introduction.AmendSubmittedNotificationPage
 import play.api.Logging
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import views.html.UploadVehicleSpreadsheetView
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class UploadVehicleSpreadsheetController @Inject() (
+// TODO - Delete when UVS-2.0 is built
+class SpreadsheetUploadResultController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   actions: Actions,
-  view: UploadVehicleSpreadsheetView,
-  connector: NovaImportsBackendConnector,
-  appConfig: FrontendAppConfig
+  connector: NovaImportsBackendConnector
 )(implicit ec: ExecutionContext)
     extends BaseController
     with Logging {
 
   def onPageLoad(): Action[AnyContent] =
     actions.authAndGetDataWithUserTypeGuard(guardPredicate).async { implicit request =>
-      val uploadError = request.getQueryString("errorCode").map(SpreadsheetUploadError.fromUpscanErrorCode)
+      implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
-      connector.createUploadTracking(request.userAnswers.get(DraftIdPage).get, request.userAnswers.get(AmendSubmittedNotificationPage)).map {
-        case Right(uploadTracking) =>
-          Ok(view(uploadTracking.uploadUrl, uploadTracking.fields, appConfig.multipleVehiclesSpreadsheetsUrl, uploadError))
-        case Left(error) =>
-          logger.warn(s"Could not start a vehicle spreadsheet upload: $error")
-          Redirect(routes.JourneyRecoveryController.onPageLoad())
+      connector.getUploadResult(request.userAnswers.get(DraftIdPage).get).map {
+        case Right(result) => redirectFor(result.fileStatus)
+        case Left(error)   =>
+          logger.warn(s"Could not retrieve the vehicle spreadsheet upload result: $error")
+          Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
       }
     }
+
+  private def redirectFor(fileStatus: String): Result = fileStatus match {
+    case "VALIDATED"          => Redirect(routes.CheckVehicleSpreadsheetDetailsController.onPageLoad())
+    case "VALIDATION_FAILED"  => Redirect(routes.CheckVehicleSpreadsheetErrorsController.onPageLoad())
+    case _                    => Redirect(controllers.routes.LandingPageController.onPageLoad()) // TODO: navigate to UVS-2.0 when built
+  }
 }
 
-object UploadVehicleSpreadsheetController {
+object SpreadsheetUploadResultController {
 
   def guardPredicate(request: DataRequest[?]): Boolean =
     IsDraftIdDefined(request.userAnswers) &&
       request.userAnswers.get(VehicleFromEuPage).isDefined &&
       (request.userContext.isVatRegisteredOrganisation || request.userContext.isAgentWithClient)
-
-  private def spreadsheetValidationTypeFor(answers: UserAnswers): SpreadsheetValidationType =
-    if (answers.get(VehicleFromEuPage).contains(true)) SpreadsheetValidationType.CarsEu else SpreadsheetValidationType.CarsNonEu
 }

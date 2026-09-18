@@ -1,0 +1,71 @@
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import models.responses.ValidationError
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.table.{HeadCell, Table, TableRow}
+@import viewmodels.{Pager, PageOf}
+
+@this(
+    layout: templates.Layout,
+    govukTable: GovukTable,
+    govukPagination: GovukPagination,
+    govukButton: GovukButton
+)
+
+@(errors: PageOf[ValidationError], urlForPage: Int => String)(implicit request: Request[?], messages: Messages)
+
+@layout(pageTitle = titleNoForm(messages("spreadsheetErrors.title")), fullWidth = true) {
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <span class="govuk-caption-l">@messages("spreadsheetErrors.caption")</span>
+            <h1 class="govuk-heading-l">@messages("spreadsheetErrors.heading")</h1>
+            <p class="govuk-body">@messages("spreadsheetErrors.paragraph")</p>
+        </div>
+    <div class="govuk-grid-column-full">
+            @govukTable(Table(
+                rows = errors.items.map { error =>
+                    Seq(
+                        TableRow(content = Text(error.itemNumber.map(_.toString).getOrElse(""))),
+                        TableRow(content = HtmlContent(Html(
+                            s"<b>${HtmlFormat.escape(error.label).body}:</b><br>${HtmlFormat.escape(error.error).body}"
+                        )))
+                    )
+                },
+                head = Some(Seq(
+                    HeadCell(content = Text(messages("spreadsheetErrors.table.item"))),
+                    HeadCell(content = Text(messages("spreadsheetErrors.table.error")))
+                )),
+                caption = Some(messages("spreadsheetErrors.table.caption", errors.from, errors.to, errors.total)),
+                captionClasses = "govuk-table__caption--m",
+                classes = "govuk-table--small-text-until-tablet"
+            ))
+
+            @Pager.paginationFor(errors, urlForPage).map { pagination =>
+                @govukPagination(pagination)
+            }
+            <div class="govuk-button-group">
+                @govukButton(
+                    ButtonViewModel(messages("spreadsheetErrors.uploadButton"))
+                        .asLink(controllers.vehicledetails.routes.UploadVehicleSpreadsheetController.onPageLoad().url)
+                )
+                <a class="govuk-link" href="@controllers.routes.NotificationTaskListController.onPageLoad().url">@messages("spreadsheetErrors.returnLink")</a>
+            </div>
+        </div>
+    </div>
+
+}

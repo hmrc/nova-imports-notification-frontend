@@ -18,8 +18,8 @@ package connectors
 
 import com.google.inject.Inject
 import config.FrontendAppConfig
-import models.responses.{CreateDraftResponse, CreateUploadTrackingResponse}
-import models.{DraftId, DraftNotification, EuMemberStates, NotificationSummary, SpreadsheetValidationType, TraderInformation}
+import models.responses.{CreateDraftResponse, CreateUploadTrackingResponse, UploadResultResponse}
+import models.{DraftId, DraftNotification, EuMemberStates, NotificationSummary, TraderInformation}
 import play.api.libs.json.{JsObject, JsSuccess, Json}
 import play.api.libs.ws.writeableOf_JsValue
 import uk.gov.hmrc.http.HttpReads.Implicits.*
@@ -60,6 +60,13 @@ object CreateUploadTrackingError {
   final case class UpstreamError(status: Int, message: String) extends CreateUploadTrackingError
 }
 
+sealed trait GetUploadResultError
+object GetUploadResultError {
+  case object Forbidden extends GetUploadResultError
+  case object NotFound extends GetUploadResultError
+  final case class UpstreamError(status: Int, message: String) extends GetUploadResultError
+}
+
 sealed trait GetTraderInformationError
 object GetTraderInformationError {
   case object NotFound extends GetTraderInformationError
@@ -89,9 +96,11 @@ trait NovaImportsBackendConnector {
 
   def getEuMemberStates()(implicit hc: HeaderCarrier): Future[Either[GetEuMemberStatesError, EuMemberStates]]
 
-  def createUploadTracking(draftId: DraftId, validationType: SpreadsheetValidationType)(implicit
+  def createUploadTracking(draftId: DraftId, isAmendment: Option[Boolean])(implicit
     hc: HeaderCarrier
   ): Future[Either[CreateUploadTrackingError, CreateUploadTrackingResponse]]
+
+  def getUploadResult(draftId: DraftId)(implicit hc: HeaderCarrier): Future[Either[GetUploadResultError, UploadResultResponse]]
 }
 
 class NovaImportsBackendConnectorImpl @Inject() (
@@ -230,12 +239,11 @@ class NovaImportsBackendConnectorImpl @Inject() (
       }
   }
 
-  override def createUploadTracking(draftId: DraftId, validationType: SpreadsheetValidationType)(implicit
+  override def createUploadTracking(draftId: DraftId, isAmendment: Option[Boolean])(implicit
     hc: HeaderCarrier
   ): Future[Either[CreateUploadTrackingError, CreateUploadTrackingResponse]] =
     httpClient
-      .post(url"${serviceUrl(s"/draft-notifications/${draftId.value}/create-upload-tracking")}")
-      .withBody(Json.obj("validationType" -> validationType))
+      .post(url"${serviceUrl(s"/draft-notifications/${draftId.value}/create-upload-tracking?isAmendment=${isAmendment.getOrElse(false)}")}")
       .execute[HttpResponse]
       .map { response =>
         response.status match {
@@ -249,4 +257,24 @@ class NovaImportsBackendConnectorImpl @Inject() (
           case s   => Left(CreateUploadTrackingError.UpstreamError(s, response.body))
         }
       }
+
+  override def getUploadResult(draftId: DraftId)(implicit hc: HeaderCarrier): Future[Either[GetUploadResultError, UploadResultResponse]] = {
+    import GetUploadResultError.*
+
+    httpClient
+      .get(url"${serviceUrl(s"/draft-notifications/${draftId.value}/upload-result")}")
+      .execute[HttpResponse]
+      .map { response =>
+        response.status match {
+          case 200 =>
+            response.json
+              .validate[UploadResultResponse]
+              .map(Right(_))
+              .recoverTotal(err => Left(UpstreamError(200, s"Malformed upload result response: $err")))
+          case 403 => Left(Forbidden)
+          case 404 => Left(NotFound)
+          case s   => Left(UpstreamError(s, response.body))
+        }
+      }
+  }
 }
