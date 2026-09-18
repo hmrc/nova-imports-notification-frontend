@@ -152,6 +152,29 @@ class SupplierBusinessNameControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
+    "must save the supplier's business name and save the SupplierOrBusiness as Business when answer is submitted in CheckMode" in {
+
+      val existingAnswers = emptyUserAnswers
+        .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
+        .unsafeSet(VehicleFromEuPage, true)
+        .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj()))
+      val (application, mockSessionRepository) = applicationWithMockRepository(existingAnswers)
+
+      running(application) {
+        val request = FakeRequest(POST, supplierBusinessNameChangeRoute).withFormUrlEncodedBody(("value", validName))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual journeyUrl
+
+        val answers = savedAnswers(mockSessionRepository)
+        answers.get(SupplierBusinessNamePage(supplierOne)) mustEqual Some(validName)
+        answers.get(SupplierBusinessOrIndividualPage(supplierOne)) mustEqual Some(BusinessOrPrivateIndividual.Business)
+        answers.get(SupplierEuMemberStatesPage(supplierOne)) mustEqual Some(testEuCountries)
+      }
+    }
+
     "must save the business name and redirect back to CYA, without going through ALF, when an address is already on file (CYA change-name edit)" in {
 
       val answersWithExistingAddress = requiredAnswers.unsafeSet(SupplierAddressPage(supplierOne), existingAddress)

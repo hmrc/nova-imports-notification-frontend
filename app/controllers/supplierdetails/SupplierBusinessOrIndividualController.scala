@@ -68,9 +68,9 @@ class SupplierBusinessOrIndividualController @Inject() (
             } yield Redirect(
               value match {
                 case BusinessOrPrivateIndividual.Business =>
-                  controllers.supplierdetails.routes.SupplierBusinessNameController.onPageLoad(supplierNumber, CheckMode)
+                  controllers.supplierdetails.routes.SupplierBusinessNameController.onPageLoad(supplierNumber, mode)
                 case BusinessOrPrivateIndividual.PrivateIndividual =>
-                  controllers.supplierdetails.routes.SupplierNameController.onPageLoad(supplierNumber, CheckMode)
+                  controllers.supplierdetails.routes.SupplierNameController.onPageLoad(supplierNumber, mode)
                 case _ =>
                   controllers.routes.JourneyRecoveryController.onPageLoad()
               }

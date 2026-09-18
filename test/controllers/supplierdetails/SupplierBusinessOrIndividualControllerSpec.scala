@@ -19,7 +19,7 @@ package controllers.supplierdetails
 import base.SpecBase
 import controllers.{routes, supplierdetails}
 import forms.SupplierBusinessOrIndividualFormProvider
-import models.{BusinessOrPrivateIndividual, DraftId, NameDetails, NormalMode, SupplierNumber, UserAnswers}
+import models.{BusinessOrPrivateIndividual, CheckMode, DraftId, NameDetails, NormalMode, SupplierNumber, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
@@ -141,7 +141,7 @@ class SupplierBusinessOrIndividualControllerSpec extends SpecBase with MockitoSu
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRoute.url
+        redirectLocation(result).value mustEqual supplierdetails.routes.SupplierBusinessNameController.onPageLoad(SupplierNumber(1), NormalMode).url
       }
     }
 
@@ -322,7 +322,7 @@ class SupplierBusinessOrIndividualControllerSpec extends SpecBase with MockitoSu
       }
     }
 
-    "must clear the stored supplier name from the session when the answer is Business" in {
+    "must clear the stored supplier name from the session when the answer is Business and in NormalMode" in {
 
       val answersWithVatNumberDetails = userAnswersWithGuardData
         .unsafeSet(SupplierNamePage(SupplierNumber(1)), NameDetails("Mr", "First Name", "Last Name"))
@@ -339,7 +339,7 @@ class SupplierBusinessOrIndividualControllerSpec extends SpecBase with MockitoSu
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRoute.url
+        redirectLocation(result).value mustEqual supplierdetails.routes.SupplierBusinessNameController.onPageLoad(SupplierNumber(1), NormalMode).url
 
         val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(sessionRepository).set(captor.capture())
@@ -348,7 +348,35 @@ class SupplierBusinessOrIndividualControllerSpec extends SpecBase with MockitoSu
       }
     }
 
-    "must clear the stored supplier business name from the session when the answer is Private Individual" in {
+    "must not clear names or save answer when the answer is Business and in CheckMode" in {
+
+      val nameDetails                 = NameDetails("Mr", "First Name", "Last Name")
+      val answersWithVatNumberDetails = userAnswersWithGuardData
+        .unsafeSet(SupplierNamePage(SupplierNumber(1)), nameDetails)
+        .unsafeSet(SupplierBusinessNamePage(SupplierNumber(1)), "SupplierBusinessName")
+
+      val sessionRepository = stubSessionRepository()
+      val (application, _)  = applicationWithMockRepository(answersWithVatNumberDetails, sessionRepository)
+
+      running(application) {
+        val request =
+          FakeRequest(POST, supplierdetails.routes.SupplierBusinessOrIndividualController.onPageLoad(SupplierNumber(1), CheckMode).url)
+            .withFormUrlEncodedBody(("value", BusinessOrPrivateIndividual.Business.toString))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual supplierdetails.routes.SupplierBusinessNameController.onPageLoad(SupplierNumber(1), CheckMode).url
+
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
+        verify(sessionRepository).set(captor.capture())
+        captor.getValue.get(SupplierNamePage(SupplierNumber(1))) mustBe Some(nameDetails)
+        captor.getValue.get(SupplierBusinessNamePage(SupplierNumber(1))) mustBe Some("SupplierBusinessName")
+        captor.getValue.get(SupplierBusinessOrIndividualPage(SupplierNumber(1))) mustBe None
+      }
+    }
+
+    "must clear the stored supplier business name from the session when the answer is Private Individual and in NormalMode" in {
 
       val nameDetails                 = NameDetails("Mr", "First Name", "Last Name")
       val answersWithVatNumberDetails = userAnswersWithGuardData
@@ -366,12 +394,40 @@ class SupplierBusinessOrIndividualControllerSpec extends SpecBase with MockitoSu
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRoute.url
+        redirectLocation(result).value mustEqual supplierdetails.routes.SupplierNameController.onPageLoad(SupplierNumber(1), NormalMode).url
 
         val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(sessionRepository).set(captor.capture())
         captor.getValue.get(SupplierNamePage(SupplierNumber(1))) mustBe Some(nameDetails)
         captor.getValue.get(SupplierBusinessNamePage(SupplierNumber(1))) mustBe None
+      }
+    }
+
+    "must not clear names or save answer when the answer is Private Individual and in CheckMode" in {
+
+      val nameDetails                 = NameDetails("Mr", "First Name", "Last Name")
+      val answersWithVatNumberDetails = userAnswersWithGuardData
+        .unsafeSet(SupplierNamePage(SupplierNumber(1)), nameDetails)
+        .unsafeSet(SupplierBusinessNamePage(SupplierNumber(1)), "SupplierBusinessName")
+
+      val sessionRepository = stubSessionRepository()
+      val (application, _)  = applicationWithMockRepository(answersWithVatNumberDetails, sessionRepository)
+
+      running(application) {
+        val request =
+          FakeRequest(POST, supplierdetails.routes.SupplierBusinessOrIndividualController.onPageLoad(SupplierNumber(1), CheckMode).url)
+            .withFormUrlEncodedBody(("value", BusinessOrPrivateIndividual.PrivateIndividual.toString))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual supplierdetails.routes.SupplierNameController.onPageLoad(SupplierNumber(1), CheckMode).url
+
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
+        verify(sessionRepository).set(captor.capture())
+        captor.getValue.get(SupplierNamePage(SupplierNumber(1))) mustBe Some(nameDetails)
+        captor.getValue.get(SupplierBusinessNamePage(SupplierNumber(1))) mustBe Some("SupplierBusinessName")
+        captor.getValue.get(SupplierBusinessOrIndividualPage(SupplierNumber(1))) mustBe None
       }
     }
 

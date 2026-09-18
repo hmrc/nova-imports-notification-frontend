@@ -19,7 +19,7 @@ package controllers.supplierdetails
 import base.SpecBase
 import controllers.{routes, supplierdetails}
 import forms.IsSupplierVatRegisteredFormProvider
-import models.{DraftId, Mode, NormalMode, SupplierNumber, UserAnswers, VatNumberDetails}
+import models.{CheckMode, DraftId, Mode, NormalMode, SupplierNumber, UserAnswers, VatNumberDetails}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
@@ -135,7 +135,9 @@ class IsSupplierVatRegisteredControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRoute.url
+        redirectLocation(result).value mustEqual supplierdetails.routes.SupplierVatRegistrationDetailsController
+          .onPageLoad(SupplierNumber(1), NormalMode)
+          .url
       }
     }
 
@@ -301,7 +303,7 @@ class IsSupplierVatRegisteredControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must clear the stored supplier vat details from the session when the answer is no" in {
+    "must clear the stored supplier vat details from the session when the answer is no and in NormalMode" in {
 
       val answersWithVatNumberDetails = userAnswersWithGuardData
         .unsafeSet(SupplierVatRegistrationNumberPage(SupplierNumber(1)), VatNumberDetails("FR", "12345678911"))
@@ -317,11 +319,63 @@ class IsSupplierVatRegisteredControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRoute.url
+        redirectLocation(result).value mustEqual supplierdetails.routes.SupplierDetailsCheckYourAnswersController.onPageLoad(SupplierNumber(1)).url
 
         val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
         verify(sessionRepository).set(captor.capture())
         captor.getValue.get(SupplierVatRegistrationNumberPage(SupplierNumber(1))) mustBe None
+      }
+    }
+
+    "must clear the stored supplier vat details from the session when the answer is no and in CheckMode" in {
+
+      val answersWithVatNumberDetails = userAnswersWithGuardData
+        .unsafeSet(SupplierVatRegistrationNumberPage(SupplierNumber(1)), VatNumberDetails("FR", "12345678911"))
+
+      val sessionRepository = stubSessionRepository()
+      val (application, _)  = applicationWithMockRepository(answersWithVatNumberDetails, sessionRepository)
+
+      running(application) {
+        val request =
+          FakeRequest(POST, isSupplierVatRegisteredSubmitRoute(SupplierNumber(1), CheckMode))
+            .withFormUrlEncodedBody("value" -> "false")
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual supplierdetails.routes.SupplierDetailsCheckYourAnswersController.onPageLoad(SupplierNumber(1)).url
+
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
+        verify(sessionRepository).set(captor.capture())
+        captor.getValue.get(SupplierVatRegistrationNumberPage(SupplierNumber(1))) mustBe None
+      }
+    }
+
+    "must not save answer to is vat registered or clear supplier details if the answer is yes and in CheckMode" in {
+
+      val vatDetails                  = VatNumberDetails("FR", "12345678911")
+      val answersWithVatNumberDetails = userAnswersWithGuardData
+        .unsafeSet(SupplierVatRegistrationNumberPage(SupplierNumber(1)), vatDetails)
+
+      val sessionRepository = stubSessionRepository()
+      val (application, _)  = applicationWithMockRepository(answersWithVatNumberDetails, sessionRepository)
+
+      running(application) {
+        val request =
+          FakeRequest(POST, isSupplierVatRegisteredSubmitRoute(SupplierNumber(1), CheckMode))
+            .withFormUrlEncodedBody("value" -> "true")
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual supplierdetails.routes.SupplierVatRegistrationDetailsController
+          .onPageLoad(SupplierNumber(1), CheckMode)
+          .url
+
+        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
+        verify(sessionRepository).set(captor.capture())
+        captor.getValue.get(SupplierVatRegistrationNumberPage(SupplierNumber(1))) mustBe Some(vatDetails)
+        captor.getValue.get(IsSupplierVatRegisteredPage(SupplierNumber(1))) mustBe None
       }
     }
 

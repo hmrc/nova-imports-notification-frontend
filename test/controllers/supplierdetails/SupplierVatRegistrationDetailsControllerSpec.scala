@@ -21,7 +21,7 @@ import config.FrontendAppConfig
 import connectors.NovaImportsBackendConnector
 import controllers.{routes, supplierdetails}
 import forms.SupplierVatRegistrationDetailsFormProvider
-import models.{Country, DraftId, EuMemberStates, Mode, NormalMode, SupplierNumber, UserAnswers, VatNumberDetails}
+import models.{CheckMode, Country, DraftId, EuMemberStates, Mode, NormalMode, SupplierNumber, UserAnswers, VatNumberDetails}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
@@ -201,24 +201,12 @@ class SupplierVatRegistrationDetailsControllerSpec extends SpecBase with Mockito
     "must save the answer matching that of the supplier number in the URL" in {
 
       val answersForSupplierThree = emptyUserAnswers
-        .set(DraftIdPage, DraftId("DRAFT-001"))
-        .success
-        .value
-        .set(VehicleFromEuPage, true)
-        .success
-        .value
-        .set(AllSuppliersQuery, Map("3" -> Json.obj()))
-        .success
-        .value
-        .set(IsSupplierVatRegisteredPage(SupplierNumber(3)), true)
-        .success
-        .value
-        .set(SupplierAddressJourneyIdPage(SupplierNumber(3)), "journey-id-3")
-        .success
-        .value
-        .set(SupplierEuMemberStatesPage(SupplierNumber(3)), testEuCountries)
-        .success
-        .value
+        .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
+        .unsafeSet(VehicleFromEuPage, true)
+        .unsafeSet(AllSuppliersQuery, Map("3" -> Json.obj()))
+        .unsafeSet(IsSupplierVatRegisteredPage(SupplierNumber(3)), true)
+        .unsafeSet(SupplierAddressJourneyIdPage(SupplierNumber(3)), "journey-id-3")
+        .unsafeSet(SupplierEuMemberStatesPage(SupplierNumber(3)), testEuCountries)
       val (application, mockSessionRepository) = applicationWithMockRepository(answersForSupplierThree)
 
       running(application) {
@@ -235,6 +223,34 @@ class SupplierVatRegistrationDetailsControllerSpec extends SpecBase with Mockito
         val answers = savedAnswers(mockSessionRepository)
 
         answers.get(SupplierVatRegistrationNumberPage(SupplierNumber(3))) mustEqual Some(validVatNumberDetails)
+      }
+    }
+
+    "must save the answer and isSupplierVatRegistered as yes when saving in CheckMode" in {
+
+      val answersForSupplierThree = emptyUserAnswers
+        .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
+        .unsafeSet(VehicleFromEuPage, true)
+        .unsafeSet(AllSuppliersQuery, Map("3" -> Json.obj()))
+        .unsafeSet(SupplierAddressJourneyIdPage(SupplierNumber(3)), "journey-id-3")
+        .unsafeSet(SupplierEuMemberStatesPage(SupplierNumber(3)), testEuCountries)
+      val (application, mockSessionRepository) = applicationWithMockRepository(answersForSupplierThree)
+
+      running(application) {
+        val request =
+          FakeRequest(POST, supplierVatRegistrationDetailsSubmitRoute(SupplierNumber(3), CheckMode))
+            .withFormUrlEncodedBody(
+              ("countryCode", validVatNumberDetails.countryCode),
+              ("vatNumber", validVatNumberDetails.vatNumber)
+            )
+
+        val result = route(application, request).value
+        status(result) mustEqual SEE_OTHER
+
+        val answers = savedAnswers(mockSessionRepository)
+
+        answers.get(SupplierVatRegistrationNumberPage(SupplierNumber(3))) mustEqual Some(validVatNumberDetails)
+        answers.get(IsSupplierVatRegisteredPage(SupplierNumber(3))) mustEqual Some(true)
       }
     }
 

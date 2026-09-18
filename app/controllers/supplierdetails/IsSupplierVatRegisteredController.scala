@@ -70,7 +70,7 @@ class IsSupplierVatRegisteredController @Inject() (
               value match {
                 case true =>
                   supplierdetails.routes.SupplierVatRegistrationDetailsController
-                    .onPageLoad(supplierNumber, CheckMode)
+                    .onPageLoad(supplierNumber, mode)
                 case false =>
                   supplierdetails.routes.SupplierDetailsCheckYourAnswersController
                     .onPageLoad(supplierNumber)
