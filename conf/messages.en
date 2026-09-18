@@ -158,6 +158,15 @@ landingPage.agent.saved.body.has = View, continue or delete a notification youâ€
 landingPage.agent.clients.link = Manage your clients
 landingPage.agent.clients.body = View, search for, or remove a client, or select one to act on their behalf
 
+################################################################
+# LP3.1 - Landing page for Agent with selected client          #
+################################################################
+
+landingPage.agent.client.heading = Notifying on behalf of
+landingPage.agent.client.change = Change client
+landingPage.agent.client.name = Client name
+landingPage.agent.client.vrn = VAT registration number
+
 ##################################################################
 # IQ1.0 - Initial Question 1.0: Vehicle brought into NI from EU  #
 ##################################################################
@@ -1093,3 +1102,33 @@ uploadSpreadsheetErrorRejected.caption = Add vehicle details
 uploadSpreadsheetErrorRejected.paragraph = You must save the spreadsheet as an ODS file and try uploading it again.
 uploadSpreadsheetErrorRejected.link = Return to create a vehicle notification
 uploadSpreadsheetErrorRejected.buttonLabel = Upload again
+
+##################################################################
+# UVS4.0 - Errors found in this vehicle spreadsheet              #
+##################################################################
+
+spreadsheetErrors.title = Errors found in this vehicle spreadsheet
+spreadsheetErrors.heading = Errors found in this vehicle spreadsheet
+spreadsheetErrors.caption = Add vehicle details
+spreadsheetErrors.paragraph = Fix these errors and upload the updated spreadsheet to continue.
+spreadsheetErrors.table.item = Item
+spreadsheetErrors.table.error = Error
+spreadsheetErrors.table.caption = Showing {0} to {1} of {2} records
+spreadsheetErrors.uploadButton = Upload updated spreadsheet
+spreadsheetErrors.returnLink = Return to create a vehicle notification
+
+##################################################################
+# UVS5.0 - Check the vehicle spreadsheet details                 #
+##################################################################
+
+checkVehicleSpreadsheetDetails.title = Check the vehicle spreadsheet details
+checkVehicleSpreadsheetDetails.heading = Check the vehicle spreadsheet details
+checkVehicleSpreadsheetDetails.caption = Add vehicle details
+checkVehicleSpreadsheetDetails.table.item = Item
+checkVehicleSpreadsheetDetails.table.vin = Vehicle identification number
+checkVehicleSpreadsheetDetails.table.make = Make
+checkVehicleSpreadsheetDetails.table.model = Model
+checkVehicleSpreadsheetDetails.table.caption = Showing {0} to {1} of {2} records
+checkVehicleSpreadsheetDetails.downloadLink = Download notification summary
+checkVehicleSpreadsheetDetails.saveAndContinue = Save and continue
+checkVehicleSpreadsheetDetails.updateSpreadsheetLink = Update spreadsheet

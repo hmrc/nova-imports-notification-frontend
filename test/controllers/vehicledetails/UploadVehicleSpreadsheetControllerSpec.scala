@@ -23,11 +23,12 @@ import connectors.{CreateUploadTrackingError, NovaImportsBackendConnector}
 import controllers.actions.*
 import controllers.{routes, vehicledetails}
 import models.responses.CreateUploadTrackingResponse
-import models.{AgentSelectedClient, DraftId, SpreadsheetUploadError, SpreadsheetValidationType, UserAnswers}
+import models.{AgentSelectedClient, DraftId, SpreadsheetUploadError, UserAnswers}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.sections.initialquestions.VehicleFromEuPage
+import pages.sections.introduction.AmendSubmittedNotificationPage
 import pages.{AgentSelectedClientPage, DraftIdPage}
 import play.api.Application
 import play.api.inject.bind
@@ -54,14 +55,11 @@ class UploadVehicleSpreadsheetControllerSpec extends SpecBase with MockitoSugar 
   private val acquisitionAnswers: UserAnswers =
     emptyUserAnswers.unsafeSet(DraftIdPage, draftId).unsafeSet(VehicleFromEuPage, true)
 
-  private val importAnswers: UserAnswers =
-    emptyUserAnswers.unsafeSet(DraftIdPage, draftId).unsafeSet(VehicleFromEuPage, false)
-
   private def connectorReturning(
     result: Either[CreateUploadTrackingError, CreateUploadTrackingResponse]
   ): NovaImportsBackendConnector = {
     val connector = mock[NovaImportsBackendConnector]
-    when(connector.createUploadTracking(any[DraftId], any[SpreadsheetValidationType])(using any[HeaderCarrier]))
+    when(connector.createUploadTracking(any[DraftId], any[Option[Boolean]])(using any[HeaderCarrier]))
       .thenReturn(Future.successful(result))
     connector
   }
@@ -144,7 +142,7 @@ class UploadVehicleSpreadsheetControllerSpec extends SpecBase with MockitoSugar 
       }
     }
 
-    "must ask the backend for a CarsEu upload when the vehicles came from the EU" in {
+    "must ask the backend to start an upload for the current draft" in {
       val connector   = connectorReturning(Right(uploadTracking))
       val application = applicationFor(classOf[FakeVatTraderIdentifierAction], Some(acquisitionAnswers), connector)
 
@@ -152,19 +150,20 @@ class UploadVehicleSpreadsheetControllerSpec extends SpecBase with MockitoSugar 
         val result = route(application, FakeRequest(GET, onPageLoadRoute)).value
 
         status(result) mustEqual OK
-        verify(connector).createUploadTracking(eqTo(draftId), eqTo(SpreadsheetValidationType.CarsEu))(using any[HeaderCarrier])
+        verify(connector).createUploadTracking(eqTo(draftId), eqTo(None))(using any[HeaderCarrier])
       }
     }
 
-    "must ask the backend for a CarsNonEu upload when the vehicles came from outside the EU" in {
+    "must forward the amendment flag from AmendSubmittedNotificationPage to the backend" in {
       val connector   = connectorReturning(Right(uploadTracking))
-      val application = applicationFor(classOf[FakeVatTraderIdentifierAction], Some(importAnswers), connector)
+      val answers     = acquisitionAnswers.unsafeSet(AmendSubmittedNotificationPage, true)
+      val application = applicationFor(classOf[FakeVatTraderIdentifierAction], Some(answers), connector)
 
       running(application) {
         val result = route(application, FakeRequest(GET, onPageLoadRoute)).value
 
         status(result) mustEqual OK
-        verify(connector).createUploadTracking(eqTo(draftId), eqTo(SpreadsheetValidationType.CarsNonEu))(using any[HeaderCarrier])
+        verify(connector).createUploadTracking(eqTo(draftId), eqTo(Some(true)))(using any[HeaderCarrier])
       }
     }
 
