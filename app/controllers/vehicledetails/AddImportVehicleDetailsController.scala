@@ -29,8 +29,9 @@ import navigation.Navigator
 import pages.sections.vehicledetails.AddImportVehicleDetailsPage
 import pages.sections.initialquestions.VehicleFromEuPage
 import play.api.data.Form
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
+import services.ImportService
 import views.html.AddImportVehicleDetailsView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -42,6 +43,7 @@ class AddImportVehicleDetailsController @Inject() (
   actions: Actions,
   formProvider: AddImportVehicleDetailsFormProvider,
   view: AddImportVehicleDetailsView,
+  importService: ImportService,
   appConfig: FrontendAppConfig
 )(implicit ec: ExecutionContext)
     extends BaseController {
@@ -59,15 +61,26 @@ class AddImportVehicleDetailsController @Inject() (
       .bindFromRequest()
       .fold(
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, appConfig.multipleVehiclesSpreadsheetsUrl))),
-        value =>
-          for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(AddImportVehicleDetailsPage, value))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(
-            navigator.nextPage(AddImportVehicleDetailsPage, mode, updatedAnswers, NovaUserType.from(request.affinityGroup, request.enrolments))
-          )
+        {
+          // choosing to add by import entry number sets up a new import collection in the session,
+          // bypasses the Navigator, which cannot allocate the import number
+          case AddImportVehicleDetails.ByImportEntryNumber => addImportAndRedirect()
+          case value                                       =>
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(AddImportVehicleDetailsPage, value))
+              _              <- sessionRepository.set(updatedAnswers)
+            } yield Redirect(
+              navigator.nextPage(AddImportVehicleDetailsPage, mode, updatedAnswers, NovaUserType.from(request.affinityGroup, request.enrolments))
+            )
+        }
       )
   }
+
+  private def addImportAndRedirect()(implicit request: DataRequest[?]): Future[Result] =
+    for {
+      updatedAnswers <- Future.fromTry(request.userAnswers.set(AddImportVehicleDetailsPage, AddImportVehicleDetails.ByImportEntryNumber))
+      importNumber   <- importService.add(updatedAnswers)
+    } yield Redirect(routes.ImportEntryNumberController.onPageLoad(importNumber))
 }
 
 object AddImportVehicleDetailsController {

@@ -100,9 +100,7 @@ class Navigator @Inject() () {
     case AddImportVehicleDetailsPage =>
       (userAnswers, _) =>
         userAnswers.get(AddImportVehicleDetailsPage) match {
-          // AVD1.1 continue navigation is TBC - both options land on a placeholder until those screens are built.
-          case Some(AddImportVehicleDetails.ByImportEntryNumber) =>
-            routes.LandingPageController.onPageLoad() // TODO: navigate to the import entry number flow when built
+          // ByImportEntryNumber is handled in AddImportVehicleDetailsController, it needs an import number allocated
           case Some(AddImportVehicleDetails.BySpreadsheet) =>
             vehicledetails.routes.UploadVehicleSpreadsheetController.onPageLoad()
           case _ => routes.JourneyRecoveryController.onPageLoad()

@@ -18,17 +18,14 @@ package controllers.vehicledetails
 
 import base.SpecBase
 import config.FrontendAppConfig
-import connectors.{GetTraderInformationError, NovaImportsBackendConnector}
 import controllers.{routes, vehicledetails}
-import models.{BusinessOrPrivateIndividual, DraftId, NameDetails, NormalMode, SupplierNumber, TraderInformation, UserAnswers, VehicleNumber}
+import models.{BusinessOrPrivateIndividual, DraftId, NormalMode, SupplierNumber, UserAnswers, VehicleNumber}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
-import org.mockito.Mockito.{never, verify, when}
+import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.DraftIdPage
-import pages.sections.initialquestions.{BusinessOrPrivatePage, VehicleBusinessUsePage, VehicleFromEuPage}
-import pages.sections.notifierdetails.{BusinessNamePage, NameDetailsPage}
-import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
-import pages.sections.supplierdetails.{SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
+import pages.sections.initialquestions.VehicleFromEuPage
+import pages.sections.supplierdetails.{SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, UsePersonalDetailsAsSupplierPage}
 import play.api.inject.bind
 import play.api.libs.json.Json
 import queries.{AllSuppliersQuery, AllVehiclesQuery}
@@ -46,20 +43,10 @@ class VehiclesBoughtFromSupplierControllerSpec extends SpecBase with MockitoSuga
   val userAnswersWithGuardData: UserAnswers = emptyUserAnswers
     .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
     .unsafeSet(VehicleFromEuPage, true)
-    .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj()))
+    .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
 
   lazy val vehiclesBoughtFromSupplierRoute: String =
     vehicledetails.routes.VehiclesBoughtFromSupplierController.onPageLoad(supplierNumber).url
-
-  private val traderInformation: TraderInformation = TraderInformation(
-    traderName = Some("Acme Trading Ltd"),
-    tradingName = Some("Acme Trading"),
-    addressLine1 = Some("1 High Street"),
-    addressLine2 = Some("Testtown"),
-    addressLine3 = None,
-    addressLine4 = None,
-    postcode = Some("TF3 4ER")
-  )
 
   private def mockSessionRepository(userAnswers: UserAnswers): SessionRepository = {
     val repo = mock[SessionRepository]
@@ -74,15 +61,6 @@ class VehiclesBoughtFromSupplierControllerSpec extends SpecBase with MockitoSuga
 
   private def applicationWithMockRepository(userAnswers: UserAnswers): play.api.Application =
     applicationWith(userAnswers, mockSessionRepository(userAnswers))
-
-  private def connectorReturning(result: Either[GetTraderInformationError, TraderInformation]): NovaImportsBackendConnector = {
-    val connector = mock[NovaImportsBackendConnector]
-    when(connector.getTraderInformation()(any())) thenReturn Future.successful(result)
-    connector
-  }
-
-  private val vatTraderAnswersUsingPersonalDetails: UserAnswers =
-    userAnswersWithGuardData.unsafeSet(UsePersonalDetailsAsSupplierPage(supplierNumber), true)
 
   "VehiclesBoughtFromSupplierController" - {
 
@@ -117,9 +95,10 @@ class VehiclesBoughtFromSupplierControllerSpec extends SpecBase with MockitoSuga
       }
     }
 
-    "must add the next vehicle when the notification already has one" in {
+    "must add the next vehicle when the notification already has one with an answer" in {
 
-      val answers     = userAnswersWithGuardData.unsafeSet(AllVehiclesQuery, Map("1" -> Json.obj("supplierNumber" -> 1)))
+      val vehicleOne  = Json.obj("supplierNumber" -> 1, "details" -> Json.obj("purchaseInvoiceNumber" -> "INV-2026-001"))
+      val answers     = userAnswersWithGuardData.unsafeSet(AllVehiclesQuery, Map("1" -> vehicleOne))
       val application = applicationWithMockRepository(answers)
 
       running(application) {
@@ -147,7 +126,7 @@ class VehiclesBoughtFromSupplierControllerSpec extends SpecBase with MockitoSuga
 
       val answers = emptyUserAnswers
         .unsafeSet(VehicleFromEuPage, true)
-        .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj()))
+        .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
 
       val application = applicationBuilder(userAnswers = Some(answers)).build()
 
@@ -163,7 +142,7 @@ class VehiclesBoughtFromSupplierControllerSpec extends SpecBase with MockitoSuga
 
       val answers = emptyUserAnswers
         .unsafeSet(VehicleFromEuPage, true)
-        .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj()))
+        .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
 
       val application = applicationBuilder(userAnswers = Some(answers)).build()
 
@@ -215,172 +194,31 @@ class VehiclesBoughtFromSupplierControllerSpec extends SpecBase with MockitoSuga
       }
     }
 
-    "must render the purchaser's name in the heading when using purchaser details as the supplier" in {
-
-      val answers = userAnswersWithGuardData
-        .unsafeSet(UsePurchaserDetailsAsSupplierPage(supplierNumber), true)
-        .unsafeSet(PurchaserNamePage, NameDetails("Mr", "John", "Smith"))
-
-      val application = applicationBuilder(userAnswers = Some(answers)).build()
-
-      running(application) {
-        val result = route(application, FakeRequest(GET, vehiclesBoughtFromSupplierRoute)).value
-
-        contentAsString(result) must include("Vehicles bought from Mr John Smith")
-      }
-    }
-
-    "must render the purchaser's business name in the heading when using purchaser details as the supplier" in {
-
-      val answers = userAnswersWithGuardData
-        .unsafeSet(UsePurchaserDetailsAsSupplierPage(supplierNumber), true)
-        .unsafeSet(PurchaserBusinessNamePage, "ABC Ltd")
-
-      val application = applicationBuilder(userAnswers = Some(answers)).build()
-
-      running(application) {
-        val result = route(application, FakeRequest(GET, vehiclesBoughtFromSupplierRoute)).value
-
-        contentAsString(result) must include("Vehicles bought from ABC Ltd")
-      }
-    }
-
-    "must render the supplier business name in the heading" in {
+    "must render the supplier name in the heading" in {
 
       val answers = userAnswersWithGuardData
         .unsafeSet(UsePersonalDetailsAsSupplierPage(supplierNumber), false)
         .unsafeSet(SupplierBusinessOrIndividualPage(supplierNumber), BusinessOrPrivateIndividual.Business)
-        .unsafeSet(SupplierBusinessNamePage(supplierNumber), "ABC Ltd")
+        .unsafeSet(SupplierBusinessNamePage(supplierNumber), "Test Co")
 
       val application = applicationBuilder(userAnswers = Some(answers)).build()
 
       running(application) {
         val result = route(application, FakeRequest(GET, vehiclesBoughtFromSupplierRoute)).value
 
-        contentAsString(result) must include("Vehicles bought from ABC Ltd")
+        contentAsString(result) must include("Vehicles bought from Test Co")
       }
     }
 
-    "must render the supplier's own name in the heading" in {
+    "must render the fallback heading when there is no supplier name" in {
 
-      val answers = userAnswersWithGuardData
-        .unsafeSet(UsePersonalDetailsAsSupplierPage(supplierNumber), false)
-        .unsafeSet(SupplierBusinessOrIndividualPage(supplierNumber), BusinessOrPrivateIndividual.PrivateIndividual)
-        .unsafeSet(SupplierNamePage(supplierNumber), NameDetails("Mr", "John", "Smith"))
-
-      val application = applicationBuilder(userAnswers = Some(answers)).build()
+      val application = applicationBuilder(userAnswers = Some(userAnswersWithGuardData)).build()
 
       running(application) {
         val result = route(application, FakeRequest(GET, vehiclesBoughtFromSupplierRoute)).value
 
-        contentAsString(result) must include("Vehicles bought from Mr John Smith")
-      }
-    }
-
-    "must render the notifier's business name in the heading when they use their own details as the supplier for a business" in {
-
-      val answers = userAnswersWithGuardData
-        .unsafeSet(UsePersonalDetailsAsSupplierPage(supplierNumber), true)
-        .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business)
-        .unsafeSet(BusinessNamePage, "Acme Trading Co Ltd")
-
-      val application = applicationBuilder(userAnswers = Some(answers)).build()
-
-      running(application) {
-        val result = route(application, FakeRequest(GET, vehiclesBoughtFromSupplierRoute)).value
-
-        contentAsString(result) must include("Vehicles bought from Acme Trading Co Ltd")
-      }
-    }
-
-    "must render the notifier's own name in the heading when they use their own details as the supplier as a private individual" in {
-
-      val answers = userAnswersWithGuardData
-        .unsafeSet(UsePersonalDetailsAsSupplierPage(supplierNumber), true)
-        .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
-        .unsafeSet(NameDetailsPage, NameDetails("Mr", "John", "Smith"))
-
-      val application = applicationBuilder(userAnswers = Some(answers)).build()
-
-      running(application) {
-        val result = route(application, FakeRequest(GET, vehiclesBoughtFromSupplierRoute)).value
-
-        contentAsString(result) must include("Vehicles bought from Mr John Smith")
-      }
-    }
-
-    "for a VAT-registered organisation using their own details as the supplier" - {
-
-      "must render the trader name from the RDS record when the vehicle is for business use" in {
-
-        val answers   = vatTraderAnswersUsingPersonalDetails.unsafeSet(VehicleBusinessUsePage, true)
-        val connector = connectorReturning(Right(traderInformation))
-
-        val application = applicationBuilderWithVatTrader(userAnswers = Some(answers))
-          .overrides(bind[NovaImportsBackendConnector].toInstance(connector))
-          .build()
-
-        running(application) {
-          val result = route(application, FakeRequest(GET, vehiclesBoughtFromSupplierRoute)).value
-
-          status(result) mustEqual OK
-          contentAsString(result) must include("Vehicles bought from Acme Trading Ltd")
-        }
-      }
-
-      "must render the fallback heading when the trader lookup finds no record" in {
-
-        val answers   = vatTraderAnswersUsingPersonalDetails.unsafeSet(VehicleBusinessUsePage, true)
-        val connector = connectorReturning(Left(GetTraderInformationError.NotFound))
-
-        val application = applicationBuilderWithVatTrader(userAnswers = Some(answers))
-          .overrides(bind[NovaImportsBackendConnector].toInstance(connector))
-          .build()
-
-        running(application) {
-          val result = route(application, FakeRequest(GET, vehiclesBoughtFromSupplierRoute)).value
-
-          status(result) mustEqual OK
-          contentAsString(result) must include("""<h1 class="govuk-heading-l">Vehicles bought from this supplier</h1>""")
-        }
-      }
-
-      "must render the fallback heading when the trader lookup throws" in {
-
-        val answers   = vatTraderAnswersUsingPersonalDetails.unsafeSet(VehicleBusinessUsePage, true)
-        val connector = mock[NovaImportsBackendConnector]
-        when(connector.getTraderInformation()(any())) thenReturn Future.failed(new RuntimeException("connection reset"))
-
-        val application = applicationBuilderWithVatTrader(userAnswers = Some(answers))
-          .overrides(bind[NovaImportsBackendConnector].toInstance(connector))
-          .build()
-
-        running(application) {
-          val result = route(application, FakeRequest(GET, vehiclesBoughtFromSupplierRoute)).value
-
-          status(result) mustEqual OK
-          contentAsString(result) must include("""<h1 class="govuk-heading-l">Vehicles bought from this supplier</h1>""")
-        }
-      }
-
-      "must render the name from the notifier's details when the vehicle is not for business use" in {
-
-        val answers = vatTraderAnswersUsingPersonalDetails
-          .unsafeSet(VehicleBusinessUsePage, false)
-          .unsafeSet(NameDetailsPage, NameDetails("Mr", "John", "Smith"))
-
-        val connector = connectorReturning(Right(traderInformation))
-
-        val application = applicationBuilderWithVatTrader(userAnswers = Some(answers))
-          .overrides(bind[NovaImportsBackendConnector].toInstance(connector))
-          .build()
-
-        running(application) {
-          val result = route(application, FakeRequest(GET, vehiclesBoughtFromSupplierRoute)).value
-
-          contentAsString(result) must include("Vehicles bought from Mr John Smith")
-          verify(connector, never).getTraderInformation()(any())
-        }
+        status(result) mustEqual OK
+        contentAsString(result) must include("""<h1 class="govuk-heading-l">Vehicles bought from this supplier</h1>""")
       }
     }
   }

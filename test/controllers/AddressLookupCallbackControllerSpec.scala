@@ -237,7 +237,7 @@ class AddressLookupCallbackControllerSpec extends SpecBase with MockitoSugar {
         .set(DraftIdPage, draftId)
         .success
         .value
-        .set(AllSuppliersQuery, Map("1" -> Json.obj()))
+        .set(AllSuppliersQuery, Map("1" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
         .success
         .value
         .set(VehicleFromEuPage, true)

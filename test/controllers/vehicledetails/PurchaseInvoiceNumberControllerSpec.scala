@@ -21,7 +21,7 @@ import com.google.inject.name.Names
 import controllers.actions.{DataRequiredAction, DataRequiredActionImpl, DataRetrievalAction, FakeAgentNoEnrolmentsIdentifierAction, FakeDataRetrievalAction, FakeIdentifierAction, FakeOrganisationIdentifierAction, IdentifierAction}
 import controllers.{routes, vehicledetails}
 import forms.PurchaseInvoiceNumberFormProvider
-import models.{DraftId, NormalMode, SupplierNumber, UserAnswers, VehicleNumber}
+import models.{DraftId, NormalMode, SupplierNumber, UserAnswers, VehicleDates, VehicleNumber}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
@@ -29,7 +29,7 @@ import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.DraftIdPage
 import pages.sections.initialquestions.VehicleFromEuPage
-import pages.sections.vehicledetails.PurchaseInvoiceNumberPage
+import pages.sections.vehicledetails.{PurchaseInvoiceNumberPage, VehicleDatesPage}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
@@ -64,10 +64,13 @@ class PurchaseInvoiceNumberControllerSpec extends SpecBase with MockitoSugar {
     .set(VehicleFromEuPage, true)
     .success
     .value
-    .set(AllSuppliersQuery, Map("1" -> Json.obj()))
+    .set(AllSuppliersQuery, Map("1" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
     .success
     .value
     .set(AllVehiclesQuery, Map("1" -> Json.obj("supplierNumber" -> 1)))
+    .success
+    .value
+    .set(VehicleDatesPage(SupplierNumber(1), VehicleNumber(1)), Set[VehicleDates](VehicleDates.PurchaseInvoiceDate))
     .success
     .value
 
@@ -387,10 +390,16 @@ class PurchaseInvoiceNumberControllerSpec extends SpecBase with MockitoSugar {
     "must save the invoice number against the vehicle in the URL" in {
 
       val answers = userAnswersWithGuardData
-        .set(AllSuppliersQuery, Map("1" -> Json.obj(), "2" -> Json.obj()))
+        .set(
+          AllSuppliersQuery,
+          Map("1" -> Json.obj("usePersonalDetailsAsSupplier" -> false), "2" -> Json.obj("usePersonalDetailsAsSupplier" -> false))
+        )
         .success
         .value
         .set(AllVehiclesQuery, Map("1" -> Json.obj("supplierNumber" -> 1), "3" -> Json.obj("supplierNumber" -> 2)))
+        .success
+        .value
+        .set(VehicleDatesPage(SupplierNumber(2), VehicleNumber(3)), Set[VehicleDates](VehicleDates.PurchaseInvoiceDate))
         .success
         .value
 
