@@ -48,7 +48,7 @@ class CheckVehicleSpreadsheetDetailsController @Inject() (
         case Right(result) if result.fileStatus == "VALIDATED" =>
           Ok(view(Pager.page(result.vehicles, page), p => routes.CheckVehicleSpreadsheetDetailsController.onPageLoad(p).url))
         case Right(result) if result.fileStatus == "VALIDATION_FAILED" => Redirect(routes.CheckVehicleSpreadsheetErrorsController.onPageLoad())
-        case Right(_) => Redirect(controllers.routes.NotificationTaskListController.onPageLoad()) // TODO: navigate to UVS-2.0 when built
+        case Right(_)    => Redirect(controllers.routes.NotificationTaskListController.onPageLoad()) // TODO: navigate to UVS-2.0 when built
         case Left(error) =>
           logger.warn(s"Could not retrieve the vehicle spreadsheet details: $error")
           Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())

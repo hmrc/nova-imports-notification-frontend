@@ -31,7 +31,7 @@ import views.html.CheckVehicleSpreadsheetErrorsView
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class CheckVehicleSpreadsheetErrorsController @Inject()(
+class CheckVehicleSpreadsheetErrorsController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   actions: Actions,
   connector: NovaImportsBackendConnector,

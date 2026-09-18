@@ -117,7 +117,7 @@ class CheckVehicleSpreadsheetDetailsViewSpec extends SpecBase with Matchers with
 
     "must render pagination linking back to this page when there is more than one page of vehicles" in {
       val manyVehicles = (1 to 15).map(n => vehicle.copy(itemNumber = Some(n)))
-      val paginated     = htmlFor(manyVehicles, page = 1)
+      val paginated    = htmlFor(manyVehicles, page = 1)
 
       paginated must include("govuk-pagination")
       paginated must include(s"""href="${urlForPage(2)}"""")

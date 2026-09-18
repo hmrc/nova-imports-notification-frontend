@@ -320,9 +320,10 @@ class AddVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must add the next supplier when the user already has one" in {
+    "must add the next highest supplier when the user already has a supplier in session with an answer" in {
 
-      val answersWithSupplier = userAnswersWithIQ1Yes.set(AllSuppliersQuery, Map("1" -> Json.obj())).success.value
+      val supplierOne         = Json.obj("usePersonalDetailsAsSupplier" -> false)
+      val answersWithSupplier = userAnswersWithIQ1Yes.set(AllSuppliersQuery, Map("1" -> supplierOne)).success.value
       val (application, _)    = applicationWithMockRepository(answersWithSupplier)
 
       running(application) {

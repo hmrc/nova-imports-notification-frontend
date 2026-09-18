@@ -54,9 +54,9 @@ class SpreadsheetUploadResultController @Inject() (
     }
 
   private def redirectFor(fileStatus: String): Result = fileStatus match {
-    case "VALIDATED"          => Redirect(routes.CheckVehicleSpreadsheetDetailsController.onPageLoad())
-    case "VALIDATION_FAILED"  => Redirect(routes.CheckVehicleSpreadsheetErrorsController.onPageLoad())
-    case _                    => Redirect(controllers.routes.LandingPageController.onPageLoad()) // TODO: navigate to UVS-2.0 when built
+    case "VALIDATED"         => Redirect(routes.CheckVehicleSpreadsheetDetailsController.onPageLoad())
+    case "VALIDATION_FAILED" => Redirect(routes.CheckVehicleSpreadsheetErrorsController.onPageLoad())
+    case _                   => Redirect(controllers.routes.LandingPageController.onPageLoad()) // TODO: navigate to UVS-2.0 when built
   }
 }
 

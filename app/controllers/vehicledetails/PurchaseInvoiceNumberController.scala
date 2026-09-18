@@ -89,6 +89,7 @@ object PurchaseInvoiceNumberController {
   )(request: DataRequest[?]): Boolean =
     IsDraftIdDefined(request.userAnswers) &&
       request.userAnswers.get(VehicleFromEuPage).contains(true) &&
-      supplierService.numberExists(request.userAnswers, supplierNumber) &&
-      vehicleService.belongsToSupplier(request.userAnswers, vehicleNumber, supplierNumber)
+      supplierService.numberHasValues(request.userAnswers, supplierNumber) &&
+      vehicleService.belongsToSupplier(request.userAnswers, vehicleNumber, supplierNumber) &&
+      vehicleService.numberHasValues(request.userAnswers, vehicleNumber)
 }

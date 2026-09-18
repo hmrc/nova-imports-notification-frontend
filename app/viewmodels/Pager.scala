@@ -20,7 +20,7 @@ import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination.{Pagination, Pagina
 
 final case class PageOf[A](items: Seq[A], page: Int, pageSize: Int, total: Int) {
   val totalPages: Int = math.max(1, math.ceil(total.toDouble / pageSize).toInt)
-  val  from: Int       = if (total == 0) 0 else (page - 1) * pageSize + 1
+  val from: Int       = if (total == 0) 0 else (page - 1) * pageSize + 1
   val to: Int         = math.min(page * pageSize, total)
 }
 
