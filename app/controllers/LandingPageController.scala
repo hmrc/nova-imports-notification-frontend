@@ -25,7 +25,7 @@ import services.NotificationSummaryService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
-import views.html.{LandingPageAgentView, LandingPageOrganisationView, LandingPagePrivateView}
+import views.html.{LandingPageAgentView, LandingPageAgentWithClientView, LandingPageOrganisationView, LandingPagePrivateView}
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
@@ -36,7 +36,8 @@ class LandingPageController @Inject() (
   notificationSummaryService: NotificationSummaryService,
   privateView: LandingPagePrivateView,
   organisationView: LandingPageOrganisationView,
-  agentView: LandingPageAgentView
+  agentView: LandingPageAgentView,
+  agentWithClientView: LandingPageAgentWithClientView
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport
@@ -73,16 +74,36 @@ class LandingPageController @Inject() (
         }
 
       case NovaUserType.Agent =>
-        notificationSummaryService.getSummaryAndStoreDeregisteredStatus(answers, context.selectedClient.map(_.vrn)).map {
-          case Right((summary: NotificationSummary.AgentWithClient, _)) =>
-            Ok(agentView(traderName = summary.agentName, hasDraftNotifications = summary.clientHasDraftNotifications))
-          case Right((summary: NotificationSummary.AgentWithoutClient, _)) =>
-            Ok(agentView(traderName = summary.agentName, hasDraftNotifications = summary.hasDraftNotifications))
-          case Right(_) =>
-            Ok(agentView(traderName = None, hasDraftNotifications = false))
-          case Left(error) =>
-            logger.warn(s"failed to fetch notification summary; defaulting hasDraftNotifications=false: $error")
-            Ok(agentView(traderName = None, hasDraftNotifications = false))
+        context.selectedClient match {
+          case Some(client) =>
+            notificationSummaryService.getSummaryAndStoreDeregisteredStatus(answers, Some(client.vrn)).map {
+              case Right((summary: NotificationSummary.AgentWithClient, _)) =>
+                Ok(
+                  agentWithClientView(
+                    agentName = summary.agentName,
+                    clientName = summary.clientTraderName.orElse(client.name),
+                    clientVrn = summary.clientVrn,
+                    hasDraftNotifications = summary.clientHasDraftNotifications
+                  )
+                )
+              case Right((other, _)) =>
+                logger.warn(s"unexpected notification summary shape for Agent with selected client; defaulting hasDraftNotifications=false: $other")
+                Ok(agentWithClientView(agentName = None, clientName = client.name, clientVrn = client.vrn, hasDraftNotifications = false))
+              case Left(error) =>
+                logger.warn(s"failed to fetch notification summary for Agent with selected client; defaulting hasDraftNotifications=false: $error")
+                Ok(agentWithClientView(agentName = None, clientName = client.name, clientVrn = client.vrn, hasDraftNotifications = false))
+            }
+
+          case None =>
+            notificationSummaryService.getSummaryAndStoreDeregisteredStatus(answers, None).map {
+              case Right((summary: NotificationSummary.AgentWithoutClient, _)) =>
+                Ok(agentView(traderName = summary.agentName, hasDraftNotifications = summary.hasDraftNotifications))
+              case Right(_) =>
+                Ok(agentView(traderName = None, hasDraftNotifications = false))
+              case Left(error) =>
+                logger.warn(s"failed to fetch notification summary; defaulting hasDraftNotifications=false: $error")
+                Ok(agentView(traderName = None, hasDraftNotifications = false))
+            }
         }
     }
   }

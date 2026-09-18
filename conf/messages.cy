@@ -84,6 +84,12 @@ beforeYouContinueOrg.multiple.link.text = Find the spreadsheet (opens in new tab
 beforeYouContinueOrg.multiple.body.3 = you need for the type of vehicles you’ve brought into the UK.
 
 ######################################################
+# LPs - Landing page common information              #
+######################################################
+
+landingPage.content.disabled.body = Hyd nes bod gennych hysbysiad wedi’i gadw, nid yw’r rhan hon o’r gwasanaeth ar gael
+
+######################################################
 # LP1.0 - Landing page for Private individual                  #
 ######################################################
 # TODO: Welsh translations to be supplied by content team.
@@ -131,6 +137,16 @@ landingPage.agent.saved.body.empty = Nid oes gennych hysbysiad wedi’i gadw
 landingPage.agent.saved.body.has = Gweld, parhau neu ddileu hysbysiad rydych wedi’i ddechrau ond heb ei gyflwyno eto
 landingPage.agent.clients.link = Rheoli eich cleientiaid
 landingPage.agent.clients.body = Gweld, chwilio, dileu neu ddewis cleient i weithredu ar ei ran
+
+################################################################
+# LP3.1 - Landing page for Agent with selected client          #
+################################################################
+# TODO: Welsh translations to be supplied by content team.
+
+landingPage.agent.client.heading = Notifying on behalf of
+landingPage.agent.client.change = Change client
+landingPage.agent.client.name = Client name
+landingPage.agent.client.vrn = VAT registration number
 
 ######################################################
 # AYA1.0 - Add Your Address: Is your address in the UK #
