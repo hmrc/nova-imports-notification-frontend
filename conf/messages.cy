@@ -479,6 +479,41 @@ loadingClientList.heading = Adalw rhestr o’ch cleientiaid
 loadingClientList.paragraph = Arhoswch tra byddwn yn adfer eich cleientiaid awdurdodedig. Dim ond ychydig eiliadau y dylai hyn eu cymryd.
 loadingClientList.warning = Peidiwch ag adfywio’r dudalen hon na defnyddio’r botwm yn ôl.
 
+##############################
+# VC1.0 - View clients       #
+##############################
+# TODO: Welsh translations to be supplied by content team.
+viewClients.title = Client list
+viewClients.heading = Client list
+viewClients.body = Manage the clients linked to your account.
+viewClients.searchBy.label = What do you want to search by?
+viewClients.searchBy.hint = Search by client name or VAT registration number
+viewClients.searchBy.placeholder = Select an option
+viewClients.searchBy.name = Client name
+viewClients.searchBy.vrn = VAT registration number
+viewClients.search.label = Enter your search
+viewClients.searchButton = Search
+viewClients.viewAll = View all clients
+viewClients.showing = Showing {0} to {1} of {2} records
+viewClients.table.name = Client name
+viewClients.table.vrn = VAT registration number
+viewClients.table.actions = Actions
+viewClients.select = Select
+viewClients.pagination.previous = Previous
+viewClients.pagination.next = Next
+viewClients.noResults = No clients found using this search criteria
+viewClients.download.summary = Download your client list
+viewClients.download.body.1 = You can download a copy of your client list as a CSV file.
+viewClients.download.body.2 = Do not download client information to a computer you do not manage or control.
+viewClients.download.body.3 = If you have many clients, the download may take longer. If you have problems downloading your client list,
+viewClients.download.body.3.link = contact HMRC technical support (opens in new tab)
+viewClients.returnHome = Return to home
+viewClients.error.required = Select what you want to search by and enter a client name or VAT registration number
+viewClients.searchBy.error.required = Select what you want to search by
+viewClients.search.error.required = Enter a client name or VAT registration number
+viewClients.search.error.required.name = Enter the client’s name
+viewClients.search.error.required.vrn = Enter the client’s VAT registration number
+
 ##########################################################
 # CS2.0 - Client State 2: Could not retrieve client list #
 ##########################################################

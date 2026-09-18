@@ -36,6 +36,8 @@ class LoadingClientListViewSpec extends SpecBase with Matchers with BeforeAndAft
 
   val view: LoadingClientListView = app.injector.instanceOf[LoadingClientListView]
 
+  val pollUrl = "/nova-imports/load-client-list?interval=8000&attempt=1"
+
   override def afterAll(): Unit = {
     Await.result(app.stop(), 10.seconds)
     super.afterAll()
@@ -44,37 +46,43 @@ class LoadingClientListViewSpec extends SpecBase with Matchers with BeforeAndAft
   "LoadingClientListView" - {
 
     "must render the correct heading" in {
-      val html: String = view()(request, msgs).toString
+      val html: String = view(pollUrl, 8)(request, msgs).toString
 
       html must include(msgs("loadingClientList.heading"))
     }
 
     "must render the correct page title" in {
-      val html: String = view()(request, msgs).toString
+      val html: String = view(pollUrl, 8)(request, msgs).toString
 
       html must include(msgs("loadingClientList.title"))
     }
 
     "must render the paragraph" in {
-      val html: String = view()(request, msgs).toString
+      val html: String = view(pollUrl, 8)(request, msgs).toString
 
       html must include(msgs("loadingClientList.paragraph"))
     }
 
     "must render the warning message" in {
-      val html: String = view()(request, msgs).toString
+      val html: String = view(pollUrl, 8)(request, msgs).toString
 
       html must include(msgs("loadingClientList.warning"))
     }
 
+    "must refresh to the poll url after the interval" in {
+      val html: String = view(pollUrl, 8)(request, msgs).toString
+
+      html must include("""<meta http-equiv="refresh" content="8;url=/nova-imports/load-client-list?interval=8000&amp;attempt=1">""")
+    }
+
     "must render the same content via the render method" in {
-      val html: String = view.render(request, msgs).toString
+      val html: String = view.render(pollUrl, 8, request, msgs).toString
 
       html must include(msgs("loadingClientList.heading"))
     }
 
     "must render the same content via the f method" in {
-      val html: String = view.f()(request, msgs).toString
+      val html: String = view.f(pollUrl, 8)(request, msgs).toString
 
       html must include(msgs("loadingClientList.heading"))
     }
