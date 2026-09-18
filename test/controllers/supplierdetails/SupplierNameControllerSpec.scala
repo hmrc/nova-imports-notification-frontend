@@ -164,7 +164,7 @@ class SupplierNameControllerSpec extends SpecBase with MockitoSugar {
       val existingAnswers = emptyUserAnswers
         .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
         .unsafeSet(VehicleFromEuPage, true)
-        .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj()))
+        .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
       val (application, mockSessionRepository) = applicationWithMockRepository(existingAnswers)
 
       running(application) {
