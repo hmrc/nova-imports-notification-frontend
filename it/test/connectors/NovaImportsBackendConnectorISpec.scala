@@ -17,8 +17,8 @@
 package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock.*
-import models.{ClientList, ClientListQuery, ClientListStatus, ClientSummary, DraftId, NotificationSummary, SpreadsheetValidationType, TraderInformation}
-import models.responses.{ClientListRefresh, CreateDraftResponse, CreateUploadTrackingResponse}
+import models.{ClientList, ClientListQuery, ClientListStatus, ClientSummary, DraftId, NotificationSummary, TraderInformation}
+import models.responses.{ClientListRefresh, CreateDraftResponse}
 import play.api.libs.json.Json
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
@@ -380,43 +380,7 @@ class NovaImportsBackendConnectorISpec
   "createUploadTracking" - {
 
     val draftId = DraftId("DRAFT-001")
-    val url     = s"/nova-imports/draft-notifications/${draftId.value}/create-upload-tracking"
-
-    "returns the upscan upload details on 201 and sends CarsEu for the acquisition journey" in {
-      wireMockServer.stubFor(
-        post(urlEqualTo(url))
-          .withRequestBody(equalToJson("""{"validationType":"CarsEu"}"""))
-          .willReturn(
-            aResponse()
-              .withStatus(201)
-              .withBody(
-                """{"reference":"11370e18-6e24-453e-b45a-76d3e32ea33d",
-                  |"uploadUrl":"https://bucketName.s3.eu-west-2.amazonaws.com",
-                  |"fields":{"key":"11370e18-6e24-453e-b45a-76d3e32ea33d","policy":"xxxxxxxx=="}}""".stripMargin
-              )
-          )
-      )
-
-      connector.createUploadTracking(draftId, SpreadsheetValidationType.CarsEu).futureValue mustEqual Right(
-        CreateUploadTrackingResponse(
-          reference = "11370e18-6e24-453e-b45a-76d3e32ea33d",
-          uploadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com",
-          fields = Map("key" -> "11370e18-6e24-453e-b45a-76d3e32ea33d", "policy" -> "xxxxxxxx==")
-        )
-      )
-    }
-
-    "sends CarsNonEu for the import journey" in {
-      wireMockServer.stubFor(
-        post(urlEqualTo(url))
-          .withRequestBody(equalToJson("""{"validationType":"CarsNonEu"}"""))
-          .willReturn(aResponse().withStatus(201).withBody("""{"reference":"ref","uploadUrl":"https://s3","fields":{}}"""))
-      )
-
-      connector.createUploadTracking(draftId, SpreadsheetValidationType.CarsNonEu).futureValue mustEqual Right(
-        CreateUploadTrackingResponse("ref", "https://s3", Map.empty)
-      )
-    }
+    val url     = s"/nova-imports/draft-notifications/${draftId.value}/create-upload-tracking?isAmendment=false"
 
     "returns NotFound on 404 when there is no draft with that id" in {
       wireMockServer.stubFor(
@@ -424,7 +388,7 @@ class NovaImportsBackendConnectorISpec
           .willReturn(aResponse().withStatus(404).withBody("""{"errorCode":"DRAFT_NOTIFICATION_NOT_FOUND"}"""))
       )
 
-      connector.createUploadTracking(draftId, SpreadsheetValidationType.CarsEu).futureValue mustEqual Left(CreateUploadTrackingError.NotFound)
+      connector.createUploadTracking(draftId, None).futureValue mustEqual Left(CreateUploadTrackingError.NotFound)
     }
 
     "returns Forbidden on 403 when the draft belongs to another user" in {
@@ -433,7 +397,7 @@ class NovaImportsBackendConnectorISpec
           .willReturn(aResponse().withStatus(403).withBody("""{"errorCode":"FORBIDDEN"}"""))
       )
 
-      connector.createUploadTracking(draftId, SpreadsheetValidationType.CarsEu).futureValue mustEqual Left(CreateUploadTrackingError.Forbidden)
+      connector.createUploadTracking(draftId, None).futureValue mustEqual Left(CreateUploadTrackingError.Forbidden)
     }
 
     "returns UpstreamError on 502 when upscan-initiate fails" in {
@@ -442,7 +406,7 @@ class NovaImportsBackendConnectorISpec
           .willReturn(aResponse().withStatus(502).withBody("upscan unavailable"))
       )
 
-      connector.createUploadTracking(draftId, SpreadsheetValidationType.CarsEu).futureValue mustEqual Left(
+      connector.createUploadTracking(draftId, None).futureValue mustEqual Left(
         CreateUploadTrackingError.UpstreamError(502, "upscan unavailable")
       )
     }
@@ -453,7 +417,7 @@ class NovaImportsBackendConnectorISpec
           .willReturn(aResponse().withStatus(201).withBody("""{"unexpected":"shape"}"""))
       )
 
-      connector.createUploadTracking(draftId, SpreadsheetValidationType.CarsEu).futureValue match {
+      connector.createUploadTracking(draftId, None).futureValue match {
         case Left(CreateUploadTrackingError.UpstreamError(201, message)) =>
           message must startWith("Malformed create upload tracking response")
         case other =>
