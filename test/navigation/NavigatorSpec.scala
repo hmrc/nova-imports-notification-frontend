@@ -26,7 +26,7 @@ import pages.sections.vehicledetails.{AddImportVehicleDetailsPage, AddVehicleDet
 import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierVatRegistrationNumberPage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
-import pages.sections.vehicledetails.{DateOfAvailabilityPage, PurchaseInvoiceDatePage, PurchaseInvoiceNumberPage, VehicleDatesPage}
+import pages.sections.vehicledetails.{DateOfAvailabilityPage, DateOfFirstRegistrationPage, PurchaseInvoiceDatePage, PurchaseInvoiceNumberPage, VehicleDatesPage}
 
 import java.time.LocalDate
 
@@ -577,19 +577,34 @@ class NavigatorSpec extends SpecBase {
         ) mustBe vehicledetails.routes.DateOfAvailabilityController.onPageLoad(SupplierNumber(1), VehicleNumber(1), NormalMode)
       }
 
-      "must go from DateOfAvailabilityPage AVD5.0 to LandingPage when a date is entered" in {
+      "must go from DateOfAvailabilityPage to the date of first registration page for the same supplier and vehicle when a date is entered" in {
         val ua = userAnswers.set(DateOfAvailabilityPage(SupplierNumber(1), VehicleNumber(1)), LocalDate.of(2026, 3, 27)).success.value
         navigator.nextPage(
           DateOfAvailabilityPage(SupplierNumber(1), VehicleNumber(1)),
           NormalMode,
           ua,
           NovaUserType.PrivateIndividual
-        ) mustBe routes.LandingPageController.onPageLoad() // TODO: update when AVD5.1 is built
+        ) mustBe vehicledetails.routes.DateOfFirstRegistrationController.supplierOnPageLoad(SupplierNumber(1), VehicleNumber(1), NormalMode)
       }
 
       "must go from DateOfAvailabilityPage AVD5.0 to JourneyRecovery when no answer is found" in {
         navigator.nextPage(
           DateOfAvailabilityPage(SupplierNumber(1), VehicleNumber(1)),
+          NormalMode,
+          userAnswers,
+          NovaUserType.PrivateIndividual
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from DateOfFirstRegistrationPage to the landing page until the country of first registration page is built" in {
+        val page = DateOfFirstRegistrationPage(VehicleNumber(1))
+        val ua   = userAnswers.unsafeSet(page, LocalDate.of(2026, 3, 27))
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from DateOfFirstRegistrationPage to JourneyRecovery when no answer is found" in {
+        navigator.nextPage(
+          DateOfFirstRegistrationPage(VehicleNumber(1)),
           NormalMode,
           userAnswers,
           NovaUserType.PrivateIndividual
@@ -919,6 +934,12 @@ class NavigatorSpec extends SpecBase {
           ua,
           NovaUserType.VatRegisteredOrganisation
         ) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from DateOfFirstRegistrationPage to the landing page until the vehicle details check your answers page is built" in {
+        val page = DateOfFirstRegistrationPage(VehicleNumber(1))
+        val ua   = userAnswers.unsafeSet(page, LocalDate.of(2026, 3, 27))
+        navigator.nextPage(page, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
       }
 
       "must go from SupplierBusinessNamePage to the supplier details check your answers page" in {
