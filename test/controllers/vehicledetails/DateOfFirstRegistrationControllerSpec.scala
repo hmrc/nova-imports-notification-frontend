@@ -127,22 +127,22 @@ class DateOfFirstRegistrationControllerSpec extends SpecBase with MockitoSugar {
     }
   }
 
-  private def applicationFor(standardIdentifier: Class[? <: IdentifierAction], userAnswers: Option[UserAnswers]): Application =
+  private def unauthorisedIdentifierApplication(userAnswers: UserAnswers): Application =
     new GuiceApplicationBuilder()
       .overrides(
         bind[DataRequiredAction].to[DataRequiredActionImpl],
         bind[IdentifierAction].to[FakeIdentifierAction],
-        bind[IdentifierAction].qualifiedWith(Names.named("standard")).to(standardIdentifier),
+        bind[IdentifierAction].qualifiedWith(Names.named("standard")).to[UnauthorisedIdentifierAction],
         bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeIdentifierAction],
         bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeIdentifierAction],
         bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
-        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
+        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(Some(userAnswers)))
       )
       .build()
 
   private def assertUnauthorisedWhenIdentifierRejectsOnGet(userAnswers: UserAnswers, url: String) = {
 
-    val application = applicationFor(classOf[UnauthorisedIdentifierAction], Some(userAnswers))
+    val application = unauthorisedIdentifierApplication(userAnswers)
 
     running(application) {
       val result = route(application, FakeRequest(GET, url)).value
