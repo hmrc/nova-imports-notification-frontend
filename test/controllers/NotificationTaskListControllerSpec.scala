@@ -21,7 +21,8 @@ import com.google.inject.name.Names
 import connectors.{GetDraftNotificationError, GetNotificationSummaryError, NovaImportsBackendConnector}
 import controllers.actions.*
 import models.NormalMode
-import models.{Address, AgentSelectedClient, BusinessOrPrivateIndividual, ContactNumbers, Country, DraftId, DraftNotification, DraftNotificationSection, NotificationSummary, PurchaserBusinessOrIndividual, PurchaserOrOnBehalf, UserAnswers}
+import models.{Address, AgentSelectedClient, BusinessOrPrivateIndividual, ContactNumbers, Country, DraftId, DraftNotification, DraftNotificationSection, NotificationSummary, NovaUserType, PurchaserBusinessOrIndividual, PurchaserOrOnBehalf, SectionStatus, UserAnswers, UserContext}
+import org.jsoup.Jsoup
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{never, verify, when}
@@ -94,6 +95,24 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
   private val agentWithSelectedClient = baseAnswers
     .unsafeSet(VehicleFromEuPage, true)
     .unsafeSet(AgentSelectedClientPage, AgentSelectedClient(vrn = "123456789", name = Some("Client Ltd")))
+
+  private def vehiclesLinkHref(body: String): String =
+    Jsoup.parse(body).select("a:contains(Add vehicle details)").attr("href")
+
+  private def userContextFor(userType: NovaUserType, selectedClient: Option[AgentSelectedClient] = None): UserContext =
+    UserContext(
+      userType = userType,
+      selectedClient = selectedClient,
+      notDeregistered = true,
+      isAgentWithClientNoEnrolments = false,
+      agentHasVatAgentEnrolment = false,
+      isForBusinessUse = false
+    )
+
+  private val vehiclesSection = Map(DraftNotification.SectionId.Vehicles -> SectionStatus.NotYetSaved)
+
+  private def avd10Url = vehicledetails.routes.AddVehicleDetailsController.onPageLoad(NormalMode).url
+  private def avd11Url = vehicledetails.routes.AddImportVehicleDetailsController.onPageLoad(NormalMode).url
 
   private val orgSummary = NotificationSummary.IndividualOrOrganisation(
     traderName = Some("Harbourview Limited"),
@@ -349,6 +368,51 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual OK
           body must include("Completed")
+        }
+      }
+
+      "for a VAT-registered organisation that answered No to IQ1.0 links Add vehicle details to AVD1.1" in {
+        given application: Application =
+          applicationWith(classOf[FakeVatTraderIdentifierAction], Some(answersBusinessUse.unsafeSet(VehicleFromEuPage, false)))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual OK
+          vehiclesLinkHref(contentAsString(result)) mustEqual avd11Url
+        }
+      }
+
+      "for a VAT-registered organisation that answered Yes to IQ1.0 links Add vehicle details to AVD1.0" in {
+        given application: Application =
+          applicationWith(classOf[FakeVatTraderIdentifierAction], Some(answersBusinessUse.unsafeSet(VehicleFromEuPage, true)))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual OK
+          vehiclesLinkHref(contentAsString(result)) mustEqual avd10Url
+        }
+      }
+
+      "for a PrivateIndividual links Add vehicle details to AVD1.0" in {
+        given application: Application =
+          applicationWith(classOf[FakeIdentifierAction], Some(individualAsPurchaserPrivate))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual OK
+          vehiclesLinkHref(contentAsString(result)) mustEqual avd10Url
         }
       }
 
@@ -741,6 +805,51 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
           status(result) mustEqual SEE_OTHER
           redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
           verify(sessionRepo, never).set(any())
+        }
+      }
+    }
+
+    "determineSectionLink" - {
+
+      val answeredNo  = baseAnswers.unsafeSet(VehicleFromEuPage, false)
+      val answeredYes = baseAnswers.unsafeSet(VehicleFromEuPage, true)
+      val client      = Some(AgentSelectedClient(vrn = "123456789", name = Some("Client Ltd")))
+
+      "must link Add vehicle details to AVD1.1 for a VAT-registered organisation that answered No to IQ1.0" in {
+        NotificationTaskListController
+          .determineSectionLink(vehiclesSection, answeredNo, userContextFor(NovaUserType.VatRegisteredOrganisation))
+          .apply(DraftNotification.SectionId.Vehicles) mustEqual avd11Url
+      }
+
+      "must link Add vehicle details to AVD1.1 for an agent without a client that answered No to IQ1.0" in {
+        NotificationTaskListController
+          .determineSectionLink(vehiclesSection, answeredNo, userContextFor(NovaUserType.Agent))
+          .apply(DraftNotification.SectionId.Vehicles) mustEqual avd11Url
+      }
+
+      "must link Add vehicle details to AVD1.1 for an agent with a client that answered No to IQ1.0" in {
+        NotificationTaskListController
+          .determineSectionLink(vehiclesSection, answeredNo, userContextFor(NovaUserType.Agent, client))
+          .apply(DraftNotification.SectionId.Vehicles) mustEqual avd11Url
+      }
+
+      "must link Add vehicle details to AVD1.0 for an agent that answered Yes to IQ1.0" in {
+        NotificationTaskListController
+          .determineSectionLink(vehiclesSection, answeredYes, userContextFor(NovaUserType.Agent))
+          .apply(DraftNotification.SectionId.Vehicles) mustEqual avd10Url
+      }
+
+      "must link Add vehicle details to AVD1.0 for a VAT-registered organisation that has not answered IQ1.0" in {
+        NotificationTaskListController
+          .determineSectionLink(vehiclesSection, baseAnswers, userContextFor(NovaUserType.VatRegisteredOrganisation))
+          .apply(DraftNotification.SectionId.Vehicles) mustEqual avd10Url
+      }
+
+      "must link Add vehicle details to AVD1.0 for private individuals and non-VAT organisations" in {
+        Seq(NovaUserType.PrivateIndividual, NovaUserType.NonVatOrganisation).foreach { userType =>
+          NotificationTaskListController
+            .determineSectionLink(vehiclesSection, answeredNo, userContextFor(userType))
+            .apply(DraftNotification.SectionId.Vehicles) mustEqual avd10Url
         }
       }
     }
