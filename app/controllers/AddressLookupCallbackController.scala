@@ -19,6 +19,7 @@ package controllers
 import com.google.inject.Inject
 import connectors.{AddressLookupConnector, NovaImportsBackendConnector}
 import controllers.actions.*
+import models.requests.DataRequest
 import models.{Address, AddressJourney, SupplierNumber, UserAnswers}
 import pages.{DraftIdPage, DraftVersionIdPage}
 import play.api.Logging
@@ -73,7 +74,8 @@ class AddressLookupCallbackController @Inject() (
 
   private def confirmAddress(binding: AddressJourneyBinding, journeyId: String, userAnswers: UserAnswers)(implicit
     ec: ExecutionContext,
-    hc: HeaderCarrier
+    hc: HeaderCarrier,
+    request: DataRequest[?]
   ): Future[Result] = {
     addressLookupConnector.confirmedAddress(journeyId).flatMap {
       case Left(error) =>
@@ -103,7 +105,8 @@ class AddressLookupCallbackController @Inject() (
   }
 
   private def saveViaF4(binding: AddressJourneyBinding, address: Address, userAnswers: UserAnswers)(implicit
-    hc: HeaderCarrier
+    hc: HeaderCarrier,
+    request: DataRequest[?]
   ): Future[Result] =
     val versionId = userAnswers.get(DraftVersionIdPage).getOrElse(0L)
 
@@ -114,14 +117,14 @@ class AddressLookupCallbackController @Inject() (
 
       case Some(draftId) =>
         if (!binding.saveAddressToFormP) {
-          Future successful Redirect(binding.onComplete)
+          Future successful Redirect(binding.onComplete(request))
         } else {
           val body = binding.payload(address) + ("versionId", Json.toJson(versionId))
           backendConnector.updateDraftSection(draftId, binding.sectionId, body).flatMap {
             case Right(versionId) =>
               for {
                 _      <- sessionRepository.setPage(userAnswers, DraftVersionIdPage, versionId)
-                result <- Future successful Redirect(binding.onComplete)
+                result <- Future successful Redirect(binding.onComplete(request))
               } yield result
             case Left(error) =>
               logger.warn(s"Failed to update ${binding.sectionId} section for draftId ${draftId.value}: $error")

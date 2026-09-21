@@ -92,7 +92,7 @@ class AddressChangedController @Inject() (
 
     actions.authAndGetDataWithUserTypeGuard(dataGuard(binding)).async { implicit request =>
       if (!binding.saveAddressToFormP) {
-        Future.successful(Redirect(binding.onComplete))
+        Future.successful(Redirect(binding.onComplete(request)))
       } else {
         implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
         lazy val versionId             = request.userAnswers.get(DraftVersionIdPage).getOrElse(0L)
@@ -103,7 +103,7 @@ class AddressChangedController @Inject() (
             backendConnector.updateDraftSection(draftId, binding.sectionId, body).map {
               case Right(vId) =>
                 sessionRepository.setPage(request.userAnswers, DraftVersionIdPage, vId)
-                Redirect(binding.onComplete)
+                Redirect(binding.onComplete(request))
               case Left(error) =>
                 logger.warn(s"Failed to update ${binding.sectionId} section for draftId ${draftId.value}: $error")
                 Redirect(routes.JourneyRecoveryController.onPageLoad())

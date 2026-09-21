@@ -45,10 +45,7 @@ class YourAddressCheckYourAnswersController @Inject() (
   }
 
   def onChangeAddress: Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate).async { implicit request =>
-    for {
-      cleared <- Future.fromTry(request.userAnswers.remove(AddressPage).flatMap(_.remove(AddressJourneyIdPage)))
-      _       <- sessionRepository.set(cleared)
-    } yield Redirect(notifieraddress.routes.IsYourAddressInTheUkController.onPageLoad(NormalMode))
+    Future.successful(Redirect(notifieraddress.routes.IsYourAddressInTheUkController.onPageLoad(NormalMode)))
   }
 
   def onSubmit: Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate) { _ =>

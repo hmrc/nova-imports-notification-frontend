@@ -64,18 +64,10 @@ class SupplierNameControllerSpec extends SpecBase with MockitoSugar {
 
   // A user reaches /supplier-name only after answering IQ1 "Yes" and AVD-S2.0 "Private individual"
   private val requiredPreviousAnswers = emptyUserAnswers
-    .set(DraftIdPage, DraftId("DRAFT-001"))
-    .success
-    .value
-    .set(VehicleFromEuPage, true)
-    .success
-    .value
-    .set(AllSuppliersQuery, Map("1" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
-    .success
-    .value
-    .set(SupplierBusinessOrIndividualPage(supplierOne), BusinessOrPrivateIndividual.PrivateIndividual)
-    .success
-    .value
+    .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
+    .unsafeSet(VehicleFromEuPage, true)
+    .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
+    .unsafeSet(SupplierBusinessOrIndividualPage(supplierOne), BusinessOrPrivateIndividual.PrivateIndividual)
 
   private def applicationWithMockRepository(
     userAnswers: UserAnswers,
@@ -163,6 +155,31 @@ class SupplierNameControllerSpec extends SpecBase with MockitoSugar {
 
         val answers = savedAnswers(mockSessionRepository)
         answers.get(SupplierNamePage(supplierOne)) mustEqual Some(supplierName)
+        answers.get(SupplierEuMemberStatesPage(supplierOne)) mustEqual Some(testEuCountries)
+      }
+    }
+
+    "must save the supplier's name and save the SupplierOrBusiness as PrivateIndividual when answer is submitted in CheckMode" in {
+
+      val existingAnswers = emptyUserAnswers
+        .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
+        .unsafeSet(VehicleFromEuPage, true)
+        .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
+      val (application, mockSessionRepository) = applicationWithMockRepository(existingAnswers)
+
+      running(application) {
+        val request =
+          FakeRequest(POST, supplierdetails.routes.SupplierNameController.onPageLoad(SupplierNumber(1), CheckMode).url)
+            .withFormUrlEncodedBody(("title", validTitle), ("firstName", validFirstName), ("lastName", validLastName))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual journeyUrl
+
+        val answers = savedAnswers(mockSessionRepository)
+        answers.get(SupplierNamePage(supplierOne)) mustEqual Some(supplierName)
+        answers.get(SupplierBusinessOrIndividualPage(supplierOne)) mustEqual Some(BusinessOrPrivateIndividual.PrivateIndividual)
         answers.get(SupplierEuMemberStatesPage(supplierOne)) mustEqual Some(testEuCountries)
       }
     }

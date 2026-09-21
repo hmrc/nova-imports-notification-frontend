@@ -20,20 +20,18 @@ import controllers.BaseController
 import controllers.actions.*
 import controllers.utils.IsDraftIdDefined
 import forms.SupplierBusinessOrIndividualFormProvider
-import models.BusinessOrPrivateIndividual.Business
 import models.requests.DataRequest
-
-import javax.inject.Inject
-import models.{BusinessOrPrivateIndividual, Mode, NovaUserType, SupplierNumber, UserAnswers}
+import models.{BusinessOrPrivateIndividual, CheckMode, Mode, SupplierNumber, UserAnswers}
 import navigation.Navigator
 import pages.sections.initialquestions.VehicleFromEuPage
-import pages.sections.supplierdetails.{SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage}
+import pages.sections.supplierdetails.SupplierBusinessOrIndividualPage
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import services.SupplierService
 import views.html.SupplierBusinessOrIndividualView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
@@ -65,16 +63,17 @@ class SupplierBusinessOrIndividualController @Inject() (
           formWithErrors => Future.successful(BadRequest(view(formWithErrors, supplierNumber, mode))),
           value =>
             for {
-              updatedAnswers  <- Future.fromTry(request.userAnswers.set(SupplierBusinessOrIndividualPage(supplierNumber), value))
-              updatedAnswers2 <- Future.fromTry(clearSessionDataOnAnswerChange(value, updatedAnswers, supplierNumber))
-              _               <- sessionRepository.set(updatedAnswers2)
+              updatedAnswers <- Future.fromTry(saveSessionDataOnAnswerChange(value, request.userAnswers, supplierNumber, mode))
+              _              <- sessionRepository.set(updatedAnswers)
             } yield Redirect(
-              navigator.nextPage(
-                SupplierBusinessOrIndividualPage(supplierNumber),
-                mode,
-                updatedAnswers2,
-                NovaUserType.from(request.affinityGroup, request.enrolments)
-              )
+              value match {
+                case BusinessOrPrivateIndividual.Business =>
+                  controllers.supplierdetails.routes.SupplierBusinessNameController.onPageLoad(supplierNumber, mode)
+                case BusinessOrPrivateIndividual.PrivateIndividual =>
+                  controllers.supplierdetails.routes.SupplierNameController.onPageLoad(supplierNumber, mode)
+                case _ =>
+                  controllers.routes.JourneyRecoveryController.onPageLoad()
+              }
             )
         )
     }
@@ -82,17 +81,18 @@ class SupplierBusinessOrIndividualController @Inject() (
 
 object SupplierBusinessOrIndividualController {
 
-  private def clearSessionDataOnAnswerChange(
+  private def saveSessionDataOnAnswerChange(
     businessOrPrivateIndividual: BusinessOrPrivateIndividual,
     userAnswers: UserAnswers,
-    supplierNumber: SupplierNumber
+    supplierNumber: SupplierNumber,
+    mode: Mode
   ): Try[UserAnswers] = {
-    if (businessOrPrivateIndividual == Business) {
-      // Clear individual name
-      userAnswers.remove(SupplierNamePage(supplierNumber))
+    // Do not save answer if in Check Mode and answer is yes.
+    // We will save in the next screen before returning to CYA screen to prevent issues with back navigation.
+    if (mode.equals(CheckMode)) {
+      Try(userAnswers)
     } else {
-      // Clear business name
-      userAnswers.remove(SupplierBusinessNamePage(supplierNumber))
+      userAnswers.set(SupplierBusinessOrIndividualPage(supplierNumber), businessOrPrivateIndividual)
     }
   }
 

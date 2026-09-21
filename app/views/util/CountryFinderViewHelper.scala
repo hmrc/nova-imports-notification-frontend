@@ -37,6 +37,7 @@ object CountryFinderViewHelper {
     SelectItem() +: euCountries
       .sortBy(displayName)
       .map(country => countryToSelectItem(country.code, displayName(country)))
+      .distinctBy(_.text)
   }
 
 }
