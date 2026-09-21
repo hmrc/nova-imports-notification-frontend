@@ -19,7 +19,7 @@ package viewmodels.checkAnswers
 import controllers.supplierdetails.routes
 import models.BusinessOrPrivateIndividual.Business
 import models.PurchaserBusinessOrIndividual.NonVatRegisteredBusiness
-import models.{CheckMode, NameDetails, NormalMode, SupplierNumber, UserAnswers}
+import models.{CheckMode, NameDetails, NormalMode, SupplierNumber, TraderInformation, UserAnswers}
 import pages.QuestionPage
 import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage}
 import pages.sections.notifierdetails.NameDetailsPage
@@ -34,20 +34,24 @@ import viewmodels.implicits.*
 
 object SupplierNameSummary {
 
-  def rowFromPersonalDetails(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages): Option[SummaryListRow] = {
+  def rowFromPersonalDetails(answers: UserAnswers, supplierNumber: SupplierNumber, traderDetails: Option[TraderInformation])(implicit
+    messages: Messages
+  ): Option[SummaryListRow] = {
     if (answers.get(BusinessOrPrivatePage).contains(Business)) {
       None
     } else {
-      val nameValue = extractNameDetailsValue(answers, NameDetailsPage)
+      val nameValue = extractNameDetailsValue(answers, NameDetailsPage, traderDetails)
       row(nameValue, routes.UsePersonalDetailsAsSupplierController.onPageLoad(supplierNumber, NormalMode).url)
     }
   }
 
-  def rowFromPurchaserDetails(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages): Option[SummaryListRow] = {
+  def rowFromPurchaserDetails(answers: UserAnswers, supplierNumber: SupplierNumber, traderDetails: Option[TraderInformation])(implicit
+    messages: Messages
+  ): Option[SummaryListRow] = {
     if (answers.get(PurchaserBusinessOrIndividualPage).contains(NonVatRegisteredBusiness)) {
       None
     } else {
-      val nameValue = extractNameDetailsValue(answers, PurchaserNamePage)
+      val nameValue = extractNameDetailsValue(answers, PurchaserNamePage, traderDetails)
       row(nameValue, routes.UsePurchaserDetailsAsSupplierController.onPageLoad(supplierNumber, NormalMode).url)
     }
   }
@@ -56,7 +60,7 @@ object SupplierNameSummary {
     if (answers.get(SupplierBusinessOrIndividualPage(supplierNumber)).contains(Business)) {
       None
     } else {
-      val nameValue = extractNameDetailsValue(answers, SupplierNamePage(supplierNumber))
+      val nameValue = extractNameDetailsValue(answers, SupplierNamePage(supplierNumber), None)
       row(nameValue, routes.SupplierNameController.onPageLoad(supplierNumber, CheckMode).url)
     }
   }
@@ -78,14 +82,20 @@ object SupplierNameSummary {
     )
   }
 
-  private def extractNameDetailsValue(answers: UserAnswers, nameDetailsPage: QuestionPage[NameDetails])(implicit messages: Messages) = {
-    answers.get(nameDetailsPage) match {
-      case Some(name) =>
-        Seq(name.title, name.firstName, name.lastName)
-          .map(part => HtmlFormat.escape(part).body)
-          .mkString("<br>")
-      case None =>
-        messages("supplierDetailsCheckYourAnswers.notProvided")
+  private def extractNameDetailsValue(answers: UserAnswers, nameDetailsPage: QuestionPage[NameDetails], traderDetails: Option[TraderInformation])(
+    implicit messages: Messages
+  ) = {
+    if (traderDetails.isDefined) {
+      traderDetails.flatMap(_.name).getOrElse("")
+    } else {
+      answers.get(nameDetailsPage) match {
+        case Some(name) =>
+          Seq(name.title, name.firstName, name.lastName)
+            .map(part => HtmlFormat.escape(part).body)
+            .mkString("<br>")
+        case None =>
+          messages("supplierDetailsCheckYourAnswers.notProvided")
+      }
     }
   }
 

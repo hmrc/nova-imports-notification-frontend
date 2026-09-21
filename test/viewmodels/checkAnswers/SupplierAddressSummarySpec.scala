@@ -18,7 +18,7 @@ package viewmodels.checkAnswers
 
 import controllers.supplierdetails.routes
 import base.SpecBase
-import models.{Address, Country, NormalMode, SupplierNumber, UserAnswers}
+import models.{Address, Country, NormalMode, SupplierNumber, TraderInformation, UserAnswers}
 import pages.sections.notifieraddress.AddressPage
 import pages.sections.purchaseraddress.PurchaserAddressPage
 import pages.sections.supplieraddress.SupplierAddressPage
@@ -43,7 +43,7 @@ class SupplierAddressSummarySpec extends SpecBase {
 
       val userAnswers = UserAnswers(userAnswersId).unsafeSet(AddressPage, address)
 
-      val result = SupplierAddressSummary.rowFromPersonalDetails(userAnswers, SupplierNumber(1)).value
+      val result = SupplierAddressSummary.rowFromPersonalDetails(userAnswers, SupplierNumber(1), None).value
       val value  = result.value.content.asHtml.toString
 
       result.key.content.asHtml.toString must include(msgs("supplierAddressCheckYourAnswers.checkYourAnswersLabel"))
@@ -60,7 +60,7 @@ class SupplierAddressSummarySpec extends SpecBase {
 
       val userAnswers = UserAnswers(userAnswersId).unsafeSet(PurchaserAddressPage, address)
 
-      val result = SupplierAddressSummary.rowFromPurchaserDetails(userAnswers, SupplierNumber(2)).value
+      val result = SupplierAddressSummary.rowFromPurchaserDetails(userAnswers, SupplierNumber(2), None).value
       val value  = result.value.content.asHtml.toString
 
       result.key.content.asHtml.toString must include(msgs("supplierAddressCheckYourAnswers.checkYourAnswersLabel"))
@@ -94,7 +94,7 @@ class SupplierAddressSummarySpec extends SpecBase {
 
       val userAnswers = UserAnswers(userAnswersId).unsafeSet(AddressPage, address)
 
-      val value = SupplierAddressSummary.rowFromPersonalDetails(userAnswers, SupplierNumber(1)).value.value.content.asHtml.toString
+      val value = SupplierAddressSummary.rowFromPersonalDetails(userAnswers, SupplierNumber(1), None).value.value.content.asHtml.toString
 
       value mustBe "Musterstrasse 12<br>Mitte<br>Berlin<br>10115<br>Germany"
     }
@@ -108,7 +108,7 @@ class SupplierAddressSummarySpec extends SpecBase {
 
       val userAnswers = UserAnswers(userAnswersId).unsafeSet(PurchaserAddressPage, address)
 
-      val value = SupplierAddressSummary.rowFromPurchaserDetails(userAnswers, SupplierNumber(2)).value.value.content.asHtml.toString
+      val value = SupplierAddressSummary.rowFromPurchaserDetails(userAnswers, SupplierNumber(2), None).value.value.content.asHtml.toString
 
       value mustBe "Musterstrasse 13<br>Mitte<br>Berlin<br>10115<br>Germany"
     }
@@ -136,7 +136,7 @@ class SupplierAddressSummarySpec extends SpecBase {
 
       val userAnswers = UserAnswers(userAnswersId).unsafeSet(AddressPage, address)
 
-      val value = SupplierAddressSummary.rowFromPersonalDetails(userAnswers, SupplierNumber(1)).value.value.content.asHtml.toString
+      val value = SupplierAddressSummary.rowFromPersonalDetails(userAnswers, SupplierNumber(1), None).value.value.content.asHtml.toString
 
       value mustBe "24 Rue de Rivoli<br>Paris<br>France"
     }
@@ -150,7 +150,7 @@ class SupplierAddressSummarySpec extends SpecBase {
 
       val userAnswers = UserAnswers(userAnswersId).unsafeSet(PurchaserAddressPage, address)
 
-      val value = SupplierAddressSummary.rowFromPurchaserDetails(userAnswers, SupplierNumber(2)).value.value.content.asHtml.toString
+      val value = SupplierAddressSummary.rowFromPurchaserDetails(userAnswers, SupplierNumber(2), None).value.value.content.asHtml.toString
 
       value mustBe "25 Rue de Rivoli<br>Paris<br>France"
     }
@@ -170,13 +170,13 @@ class SupplierAddressSummarySpec extends SpecBase {
     }
 
     "must return Not Provided when the answer is not present in personal address details" in {
-      val result = SupplierAddressSummary.rowFromPersonalDetails(UserAnswers(userAnswersId), SupplierNumber(1)).value
+      val result = SupplierAddressSummary.rowFromPersonalDetails(UserAnswers(userAnswersId), SupplierNumber(1), None).value
       val value  = result.value.content.asHtml.toString
       result.key.content.asHtml.toString must include(msgs("supplierAddressCheckYourAnswers.checkYourAnswersLabel"))
       value                              must include(msgs("supplierDetailsCheckYourAnswers.notProvided"))
     }
     "must return Not Provided when the answer is not present in purchaser address details" in {
-      val result = SupplierAddressSummary.rowFromPurchaserDetails(UserAnswers(userAnswersId), SupplierNumber(2)).value
+      val result = SupplierAddressSummary.rowFromPurchaserDetails(UserAnswers(userAnswersId), SupplierNumber(2), None).value
       val value  = result.value.content.asHtml.toString
       result.key.content.asHtml.toString must include(msgs("supplierAddressCheckYourAnswers.checkYourAnswersLabel"))
       value                              must include(msgs("supplierDetailsCheckYourAnswers.notProvided"))
@@ -187,5 +187,32 @@ class SupplierAddressSummarySpec extends SpecBase {
       result.key.content.asHtml.toString must include(msgs("supplierAddressCheckYourAnswers.checkYourAnswersLabel"))
       value                              must include(msgs("supplierDetailsCheckYourAnswers.notProvided"))
     }
+
+    "must display trader information address if provided" in {
+      val address = Address(
+        lines = Seq("12 High Street", "Reading"),
+        postcode = Some("RE12 9GC"),
+        country = Country("GB", "United Kingdom")
+      )
+      val traderInfo = TraderInformation(
+        traderName = Some("Trader Name"),
+        tradingName = None,
+        addressLine1 = Some("55 Low Street"),
+        addressLine2 = Some("Derby"),
+        addressLine3 = None,
+        addressLine4 = None,
+        postcode = Some("DE21 9GC")
+      )
+
+      val userAnswers = UserAnswers(userAnswersId).unsafeSet(AddressPage, address)
+
+      val result = SupplierAddressSummary.rowFromPersonalDetails(userAnswers, SupplierNumber(1), Some(traderInfo)).value
+      val value  = result.value.content.asHtml.toString
+
+      result.key.content.asHtml.toString must include(msgs("supplierAddressCheckYourAnswers.checkYourAnswersLabel"))
+      value mustBe "55 Low Street<br>Derby<br>DE21 9GC"
+      result.actions.value.items.head.href mustBe routes.UsePersonalDetailsAsSupplierController.onPageLoad(SupplierNumber(1), NormalMode).url
+    }
+
   }
 }

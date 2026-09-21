@@ -23,14 +23,14 @@
     govukButton: GovukButton
 )
 
-@(userContext: models.UserContext, answers: models.UserAnswers, supplierNumber: models.SupplierNumber)(implicit request: Request[_], messages: Messages)
+@(userContext: models.UserContext, answers: models.UserAnswers, supplierNumber: models.SupplierNumber, traderDetails: Option[TraderInformation])(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("supplierDetailsCheckYourAnswers.title"))) {
 
     <span class="govuk-caption-l">@messages("supplierDetailsCheckYourAnswers.caption")</span>
     <h1 class="govuk-heading-l">@messages("supplierDetailsCheckYourAnswers.heading")</h1>
 
-    @govukSummaryList(viewmodels.checkAnswers.SupplierDetailsCheckYourAnswersHelper.buildSummaryList(userContext, answers, supplierNumber))
+    @govukSummaryList(viewmodels.checkAnswers.SupplierDetailsCheckYourAnswersHelper.buildSummaryList(userContext, answers, supplierNumber, traderDetails))
 
     @formHelper(action = routes.SupplierDetailsCheckYourAnswersController.onSubmit(supplierNumber)) {
         @govukButton(

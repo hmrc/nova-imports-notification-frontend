@@ -20,7 +20,7 @@ import base.SpecBase
 import controllers.supplierdetails.routes
 import models.BusinessOrPrivateIndividual.{Business, PrivateIndividual}
 import models.PurchaserBusinessOrIndividual.NonVatRegisteredBusiness
-import models.{CheckMode, NameDetails, NormalMode, SupplierNumber, UserAnswers}
+import models.{CheckMode, NameDetails, NormalMode, SupplierNumber, TraderInformation, UserAnswers}
 import pages.sections.initialquestions.{BusinessOrPrivatePage, PurchaserBusinessOrIndividualPage}
 import pages.sections.notifierdetails.{BusinessNamePage, NameDetailsPage}
 import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
@@ -41,7 +41,7 @@ class SupplierNameSummarySpec extends SpecBase {
       val userAnswers = UserAnswers(userAnswersId)
         .unsafeSet(NameDetailsPage, NameDetails("Mr", "John", "Smith"))
 
-      val result = SupplierNameSummary.rowFromPersonalDetails(userAnswers, SupplierNumber(1)).value
+      val result = SupplierNameSummary.rowFromPersonalDetails(userAnswers, SupplierNumber(1), None).value
       val value  = result.value.content.asHtml.toString
 
       result.key.content.asHtml.toString must include(msgs("supplierName.checkYourAnswersLabel"))
@@ -54,7 +54,7 @@ class SupplierNameSummarySpec extends SpecBase {
         .unsafeSet(BusinessNamePage, "Bis")
         .unsafeSet(BusinessOrPrivatePage, Business)
 
-      val result = SupplierNameSummary.rowFromPersonalDetails(userAnswers, SupplierNumber(3))
+      val result = SupplierNameSummary.rowFromPersonalDetails(userAnswers, SupplierNumber(3), None)
       result mustBe None
     }
 
@@ -62,7 +62,7 @@ class SupplierNameSummarySpec extends SpecBase {
       val userAnswers = UserAnswers(userAnswersId)
         .unsafeSet(PurchaserNamePage, NameDetails("Mr", "Adam", "Smith"))
 
-      val result = SupplierNameSummary.rowFromPurchaserDetails(userAnswers, SupplierNumber(2)).value
+      val result = SupplierNameSummary.rowFromPurchaserDetails(userAnswers, SupplierNumber(2), None).value
       val value  = result.value.content.asHtml.toString
 
       result.key.content.asHtml.toString must include(msgs("supplierName.checkYourAnswersLabel"))
@@ -75,7 +75,7 @@ class SupplierNameSummarySpec extends SpecBase {
         .unsafeSet(PurchaserBusinessNamePage, "Bis")
         .unsafeSet(PurchaserBusinessOrIndividualPage, NonVatRegisteredBusiness)
 
-      val result = SupplierNameSummary.rowFromPurchaserDetails(userAnswers, SupplierNumber(3))
+      val result = SupplierNameSummary.rowFromPurchaserDetails(userAnswers, SupplierNumber(3), None)
       result mustBe None
     }
 
@@ -103,14 +103,14 @@ class SupplierNameSummarySpec extends SpecBase {
     }
 
     "must return Not Provided when the answer is not present when using personal name details" in {
-      val result = SupplierNameSummary.rowFromPersonalDetails(UserAnswers(userAnswersId), SupplierNumber(1)).value
+      val result = SupplierNameSummary.rowFromPersonalDetails(UserAnswers(userAnswersId), SupplierNumber(1), None).value
       val value  = result.value.content.asHtml.toString
       result.key.content.asHtml.toString must include(msgs("supplierName.checkYourAnswersLabel"))
       value                              must include(msgs("supplierDetailsCheckYourAnswers.notProvided"))
     }
 
     "must return Not Provided when the answer is not present when using purchaser name details" in {
-      val result = SupplierNameSummary.rowFromPurchaserDetails(UserAnswers(userAnswersId), SupplierNumber(2)).value
+      val result = SupplierNameSummary.rowFromPurchaserDetails(UserAnswers(userAnswersId), SupplierNumber(2), None).value
       val value  = result.value.content.asHtml.toString
       result.key.content.asHtml.toString must include(msgs("supplierName.checkYourAnswersLabel"))
       value                              must include(msgs("supplierDetailsCheckYourAnswers.notProvided"))
@@ -124,5 +124,27 @@ class SupplierNameSummarySpec extends SpecBase {
       result.key.content.asHtml.toString must include(msgs("supplierName.checkYourAnswersLabel"))
       value                              must include(msgs("supplierDetailsCheckYourAnswers.notProvided"))
     }
+
+    "must display trader information name if provided" in {
+      val userAnswers = UserAnswers(userAnswersId)
+        .unsafeSet(NameDetailsPage, NameDetails("Mr", "John", "Smith"))
+      val traderInfo = TraderInformation(
+        traderName = Some("Trader Name"),
+        tradingName = None,
+        addressLine1 = Some("55 Low Street"),
+        addressLine2 = Some("Derby"),
+        addressLine3 = None,
+        addressLine4 = None,
+        postcode = Some("DE21 9GC")
+      )
+
+      val result = SupplierNameSummary.rowFromPersonalDetails(userAnswers, SupplierNumber(1), Some(traderInfo)).value
+      val value  = result.value.content.asHtml.toString
+
+      result.key.content.asHtml.toString must include(msgs("supplierName.checkYourAnswersLabel"))
+      value                              must include("Trader Name")
+      result.actions.value.items.head.href mustBe routes.UsePersonalDetailsAsSupplierController.onPageLoad(SupplierNumber(1), NormalMode).url
+    }
+
   }
 }

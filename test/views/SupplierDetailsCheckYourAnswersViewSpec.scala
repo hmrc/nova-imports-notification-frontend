@@ -50,33 +50,33 @@ class SupplierDetailsCheckYourAnswersViewSpec extends SpecBase with Matchers wit
   "SupplierDetailsCheckYourAnswersView" - {
 
     "must render the correct heading" in {
-      val html: String = view(userContext, answers, SupplierNumber(1))(request, msgs).toString
+      val html: String = view(userContext, answers, SupplierNumber(1), None)(request, msgs).toString
 
       html must include(msgs("supplierDetailsCheckYourAnswers.heading"))
     }
 
     "must render the correct page title" in {
-      val html: String = view(userContext, answers, SupplierNumber(1))(request, msgs).toString
+      val html: String = view(userContext, answers, SupplierNumber(1), None)(request, msgs).toString
 
       html must include(msgs("supplierDetailsCheckYourAnswers.title"))
       html must include("<title>Check the supplier details before adding vehicles - Notification of Vehicle Arrivals - GOV.UK</title>")
     }
 
     "must render the caption" in {
-      val html: String = view(userContext, answers, SupplierNumber(1))(request, msgs).toString
+      val html: String = view(userContext, answers, SupplierNumber(1), None)(request, msgs).toString
 
       html must include(msgs("supplierDetailsCheckYourAnswers.caption"))
       html must include("govuk-caption-l")
     }
 
     "must render the same content via the render method" in {
-      val html: String = view.render(userContext, answers, SupplierNumber(1), request, msgs).toString
+      val html: String = view.render(userContext, answers, SupplierNumber(1), None, request, msgs).toString
 
       html must include(msgs("supplierDetailsCheckYourAnswers.heading"))
     }
 
     "must render the same content via the f method" in {
-      val html: String = view.f(userContext, answers, SupplierNumber(1))(request, msgs).toString
+      val html: String = view.f(userContext, answers, SupplierNumber(1), None)(request, msgs).toString
 
       html must include(msgs("supplierDetailsCheckYourAnswers.heading"))
     }
