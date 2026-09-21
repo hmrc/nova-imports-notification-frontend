@@ -28,7 +28,7 @@ import pages.sections.notifieraddress.IsYourAddressInTheUkPage
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierQuestionPage, SupplierVatRegistrationNumberPage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
-import pages.sections.vehicledetails.{DateOfAvailabilityPage, DateOfFirstRegistrationPage, PurchaseInvoiceDatePage, PurchaseInvoiceNumberPage, VehicleDatesPage}
+import pages.sections.vehicledetails.{DateOfAvailabilityPage, DateOfFirstRegistrationPage, PurchaseInvoiceDatePage, PurchaseInvoiceNumberPage, TotalAmountPaidPage, VehicleDatesPage}
 
 @Singleton
 class Navigator @Inject() () {
@@ -193,7 +193,7 @@ class Navigator @Inject() () {
           case (Some(_), Some(dates)) if dates.contains(VehicleDates.AvailabilityAndFirstRegistration) =>
             vehicledetails.routes.DateOfAvailabilityController.onPageLoad(page.supplierNumber, page.vehicleNumber, NormalMode)
           case (Some(_), Some(dates)) if dates.contains(VehicleDates.PurchaseInvoiceDate) =>
-            routes.LandingPageController.onPageLoad()
+            vehicledetails.routes.TotalAmountPaidController.onPageLoadSupplier(page.supplierNumber, page.vehicleNumber, NormalMode)
           case _ => routes.JourneyRecoveryController.onPageLoad()
         }
     case page: DateOfAvailabilityPage =>
@@ -207,6 +207,12 @@ class Navigator @Inject() () {
       (userAnswers, _) =>
         userAnswers.get(page) match {
           case Some(_) => routes.LandingPageController.onPageLoad()
+          case _       => routes.JourneyRecoveryController.onPageLoad()
+        }
+    case page: TotalAmountPaidPage =>
+      (userAnswers, _) =>
+        userAnswers.get(page) match {
+          case Some(_) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD7.1 - Currency when built
           case _       => routes.JourneyRecoveryController.onPageLoad()
         }
     case _ => (_, _) => routes.LandingPageController.onPageLoad()
@@ -272,7 +278,7 @@ class Navigator @Inject() () {
           page.isInstanceOf[SupplierVatRegistrationNumberPage] =>
       (_, _) => supplierdetails.routes.SupplierDetailsCheckYourAnswersController.onPageLoad(page.supplierNumber)
     case _: VehicleDatesPage | _: PurchaseInvoiceDatePage | _: DateOfAvailabilityPage | _: DateOfFirstRegistrationPage |
-        _: PurchaseInvoiceNumberPage =>
+        _: PurchaseInvoiceNumberPage | _: TotalAmountPaidPage =>
       (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to the vehicle details CYA when built
     case _ =>
       (_, _) => routes.LandingPageController.onPageLoad()
