@@ -24,7 +24,7 @@ import controllers.utils.SupplierAlfUtil.initialiseAlfJourney
 import models.BusinessOrPrivateIndividual.{Business, PrivateIndividual}
 import models.draftsections.{SupplierDetails, SupplierSelfSupplyDetails}
 import models.requests.DataRequest
-import models.{Address, BusinessOrPrivateIndividual, NameDetails, SupplierNumber, UserAnswers, VatNumberDetails}
+import models.{Address, BusinessOrPrivateIndividual, NameDetails, SupplierNumber, TraderInformation, UserAnswers, VatNumberDetails}
 import pages.*
 import pages.sections.initialquestions.VehicleFromEuPage
 import pages.sections.supplieraddress.SupplierAddressPage
@@ -40,6 +40,7 @@ import views.html.SupplierDetailsCheckYourAnswersView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
 
 class SupplierDetailsCheckYourAnswersController @Inject() (
   val controllerComponents: MessagesControllerComponents,
@@ -55,10 +56,17 @@ class SupplierDetailsCheckYourAnswersController @Inject() (
 
   import SupplierDetailsCheckYourAnswersController.*
 
-  def onPageLoad(supplierNumber: SupplierNumber): Action[AnyContent] =
-    actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierService, supplierNumber)) { implicit request =>
-      Ok(view(request.userContext, request.userAnswers, supplierNumber))
+  def onPageLoad(supplierNumber: SupplierNumber): Action[AnyContent] = {
+    actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierService, supplierNumber)).async { implicit request =>
+      if (request.userContext.usesTraderDetails) {
+        traderInformation(HeaderCarrierConverter.fromRequestAndSession(request, request.session)).flatMap { traderInfoOpt =>
+          Future.successful(Ok(view(request.userContext, request.userAnswers, supplierNumber, traderInfoOpt)))
+        }
+      } else {
+        Future.successful(Ok(view(request.userContext, request.userAnswers, supplierNumber, None)))
+      }
     }
+  }
 
   def onChangeAddress(supplierNumber: SupplierNumber): Action[AnyContent] =
     actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierService, supplierNumber)).async { implicit request =>
@@ -135,6 +143,19 @@ class SupplierDetailsCheckYourAnswersController @Inject() (
       }
     }
 
+  private def traderInformation(implicit hc: HeaderCarrier): Future[Option[TraderInformation]] =
+    backendConnector
+      .getTraderInformation()
+      .map {
+        case Right(traderInformation) => Some(traderInformation)
+        case Left(error)              =>
+          logger.warn(s"Failed to fetch trader information for the supplier details: $error")
+          None
+      }
+      .recover { case NonFatal(e) =>
+        logger.warn("Failed to fetch trader information for the supplier details", e)
+        None
+      }
 }
 
 object SupplierDetailsCheckYourAnswersController {

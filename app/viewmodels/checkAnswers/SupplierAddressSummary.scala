@@ -17,7 +17,7 @@
 package viewmodels.checkAnswers
 
 import controllers.supplierdetails.routes
-import models.{Address, NormalMode, SupplierNumber, UserAnswers}
+import models.{Address, NormalMode, SupplierNumber, TraderInformation, UserAnswers}
 import pages.QuestionPage
 import pages.sections.notifieraddress.AddressPage
 import pages.sections.purchaseraddress.PurchaserAddressPage
@@ -31,36 +31,56 @@ import viewmodels.implicits.*
 
 object SupplierAddressSummary {
 
-  def rowFromPersonalDetails(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages): Option[SummaryListRow] = {
-    row(answers, AddressPage, routes.UsePersonalDetailsAsSupplierController.onPageLoad(supplierNumber, NormalMode).url)
+  def rowFromPersonalDetails(answers: UserAnswers, supplierNumber: SupplierNumber, traderDetails: Option[TraderInformation])(implicit
+    messages: Messages
+  ): Option[SummaryListRow] = {
+
+    row(answers, AddressPage, routes.UsePersonalDetailsAsSupplierController.onPageLoad(supplierNumber, NormalMode).url, traderDetails)
   }
 
-  def rowFromPurchaserDetails(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages): Option[SummaryListRow] = {
-    row(answers, PurchaserAddressPage, routes.UsePurchaserDetailsAsSupplierController.onPageLoad(supplierNumber, NormalMode).url)
+  def rowFromPurchaserDetails(answers: UserAnswers, supplierNumber: SupplierNumber, traderDetails: Option[TraderInformation])(implicit
+    messages: Messages
+  ): Option[SummaryListRow] = {
+    row(answers, PurchaserAddressPage, routes.UsePurchaserDetailsAsSupplierController.onPageLoad(supplierNumber, NormalMode).url, traderDetails)
   }
 
   def rowFromSupplierDetails(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages): Option[SummaryListRow] = {
-    row(answers, SupplierAddressPage(supplierNumber), routes.SupplierDetailsCheckYourAnswersController.onChangeAddress(supplierNumber).url)
+    row(answers, SupplierAddressPage(supplierNumber), routes.SupplierDetailsCheckYourAnswersController.onChangeAddress(supplierNumber).url, None)
   }
 
   // TODO: Add rowFromClientDetails once AVD-S1.2 page is added
 
-  private def row(answers: UserAnswers, addressPage: QuestionPage[Address], redirectUrl: String)(implicit
+  private def row(answers: UserAnswers, addressPage: QuestionPage[Address], redirectUrl: String, traderDetails: Option[TraderInformation])(implicit
     messages: Messages
   ): Option[SummaryListRow] = {
 
-    val value = answers.get(addressPage) match {
-      case Some(address) =>
-        val countryLine = if (address.country.code == "GB") None else address.country.name
+    val value = if (traderDetails.isDefined) {
+      traderDetails match {
+        case Some(traderInfo) =>
+          Seq(traderInfo.addressLine1, traderInfo.addressLine2, traderInfo.addressLine3, traderInfo.addressLine4, traderInfo.postcode)
+            .map(_.getOrElse(""))
+            .filter(_.nonEmpty)
+            .map(line => HtmlFormat.escape(line).body)
+            .mkString("<br>")
+        case None =>
+          Seq(messages("supplierDetailsCheckYourAnswers.notProvided"))
+            .map(part => HtmlFormat.escape(part).body)
+            .mkString("<br>")
+      }
+    } else {
+      answers.get(addressPage) match {
+        case Some(address) =>
+          val countryLine = if (address.country.code == "GB") None else address.country.name
 
-        (address.lines ++ address.postcode.toSeq ++ countryLine)
-          .filter(_.nonEmpty)
-          .map(line => HtmlFormat.escape(line).body)
-          .mkString("<br>")
-      case None =>
-        Seq(messages("supplierDetailsCheckYourAnswers.notProvided"))
-          .map(part => HtmlFormat.escape(part).body)
-          .mkString("<br>")
+          (address.lines ++ address.postcode.toSeq ++ countryLine)
+            .filter(_.nonEmpty)
+            .map(line => HtmlFormat.escape(line).body)
+            .mkString("<br>")
+        case None =>
+          Seq(messages("supplierDetailsCheckYourAnswers.notProvided"))
+            .map(part => HtmlFormat.escape(part).body)
+            .mkString("<br>")
+      }
     }
 
     Some(

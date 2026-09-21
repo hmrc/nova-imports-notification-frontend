@@ -16,7 +16,7 @@
 
 package viewmodels.checkAnswers
 
-import models.{SupplierNumber, UserAnswers, UserContext}
+import models.{SupplierNumber, TraderInformation, UserAnswers, UserContext}
 import pages.QuestionPage
 import pages.sections.supplierdetails.{UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
 import play.api.i18n.Messages
@@ -25,24 +25,30 @@ import viewmodels.govuk.summarylist.*
 
 object SupplierDetailsCheckYourAnswersHelper {
 
-  def buildSummaryList(userContext: UserContext, answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages): SummaryList =
-    SummaryListViewModel(rows = buildRows(answers, supplierNumber))
+  def buildSummaryList(userContext: UserContext, answers: UserAnswers, supplierNumber: SupplierNumber, traderDetails: Option[TraderInformation])(
+    implicit messages: Messages
+  ): SummaryList =
+    SummaryListViewModel(rows = buildRows(answers, supplierNumber, traderDetails))
 
-  private def buildRows(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages) = {
+  private def buildRows(
+    answers: UserAnswers,
+    supplierNumber: SupplierNumber,
+    traderDetails: Option[TraderInformation]
+  )(implicit messages: Messages) = {
 
     // TODO: Add is using client details branch once AVD-S1.2 page is added
 
     if (isUsingPersonalDetails(answers, supplierNumber)) {
       Seq(
         SupplierBusinessNameSummary.rowFromPersonalDetails(answers, supplierNumber),
-        SupplierNameSummary.rowFromPersonalDetails(answers, supplierNumber),
-        SupplierAddressSummary.rowFromPersonalDetails(answers, supplierNumber)
+        SupplierNameSummary.rowFromPersonalDetails(answers, supplierNumber, traderDetails),
+        SupplierAddressSummary.rowFromPersonalDetails(answers, supplierNumber, traderDetails)
       ).flatten
     } else if (isUsingPurchaserDetails(answers, supplierNumber)) {
       Seq(
         SupplierBusinessNameSummary.rowFromPurchaserDetails(answers, supplierNumber),
-        SupplierNameSummary.rowFromPurchaserDetails(answers, supplierNumber),
-        SupplierAddressSummary.rowFromPurchaserDetails(answers, supplierNumber)
+        SupplierNameSummary.rowFromPurchaserDetails(answers, supplierNumber, traderDetails),
+        SupplierAddressSummary.rowFromPurchaserDetails(answers, supplierNumber, traderDetails)
       ).flatten
     } else {
       Seq(
