@@ -51,8 +51,9 @@ class SupplierVatRegistrationDetailsControllerSpec extends SpecBase with Mockito
 
   private val validVatNumberDetails = VatNumberDetails("FR", "AB123456789")
 
-  private val testEuCountries: Set[Country] = Set(Country("FR", "France"), Country("DE", "Germany"))
-  private val allEuCountries: Set[EUCountry] = Set(EUCountry("FR", "France"), EUCountry("DE", "Germany"), EUCountry("BG", Some("United Kingdom"), Some("2020-01-31")))
+  private val testEuCountries: Set[Country]  = Set(Country("FR", "France"), Country("DE", "Germany"))
+  private val allEuCountries: Set[EUCountry] =
+    Set(EUCountry("FR", "France"), EUCountry("DE", "Germany"), EUCountry("BG", Some("United Kingdom"), Some("2020-01-31")))
 
   private lazy val supplierVatRegistrationDetailsRoute =
     supplierdetails.routes.SupplierVatRegistrationDetailsController.onPageLoad(SupplierNumber(1), NormalMode).url
