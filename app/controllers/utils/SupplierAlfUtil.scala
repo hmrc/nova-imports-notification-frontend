@@ -51,7 +51,7 @@ object SupplierAlfUtil extends Logging {
         addressLookupService.initJourney(journey, false, states.countries.map(_.code).toSeq).flatMap {
           case Right(journeyUrl) =>
             for {
-              ua <- Future.fromTry(userAnswers.set(SupplierEuMemberStatesPage(supplierNumber), states.countries))
+              ua <- Future.fromTry(userAnswers.set(SupplierEuMemberStatesPage(supplierNumber), states.getCountriesCurrentlyInEu()))
               _  <- sessionRepository.set(ua)
             } yield Redirect(journeyUrl)
           case Left(error) =>

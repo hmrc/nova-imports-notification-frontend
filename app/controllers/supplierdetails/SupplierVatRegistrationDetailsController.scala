@@ -109,10 +109,11 @@ class SupplierVatRegistrationDetailsController @Inject() (
         implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
         backendConnector.getEuMemberStates().flatMap {
           case Right(states) =>
+            val euCountries = states.getCountriesCurrentlyInEu()
             for {
-              updatedAnswers <- Future.fromTry(userAnswers.set(SupplierEuMemberStatesPage(supplierNumber), states.countries))
+              updatedAnswers <- Future.fromTry(userAnswers.set(SupplierEuMemberStatesPage(supplierNumber), euCountries))
               _              <- sessionRepository.set(updatedAnswers)
-              result         <- block(states.countries.toSeq, updatedAnswers)
+              result         <- block(euCountries.toSeq, updatedAnswers)
             } yield result
           case Left(error) =>
             logger.warn(s"Failed to retrieve EU member states for supplier ${supplierNumber.value}: $error")

@@ -18,13 +18,30 @@ package models
 
 import play.api.libs.json.{Json, OFormat}
 
-final case class EuMemberStates(countries: Set[EUCountry]) {
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import scala.util.Try
 
-  def getCountriesCurrentlyInEu() = {
-    countries.filter(!_.hasLeftEU()).map(_.toCountry())
+final case class EUCountry(code: String, name: Option[String], euLeavingDate: Option[String]) {
+
+  def hasLeftEU(): Boolean = {
+    euLeavingDate
+      .flatMap { dateStr =>
+        Try(LocalDate.parse(dateStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"))).toOption
+          .map(_.isBefore(LocalDate.now))
+      }
+      .getOrElse(false)
+  }
+
+  def toCountry() = {
+    Country(code, name)
   }
 
 }
 
-object EuMemberStates:
-  implicit val format: OFormat[EuMemberStates] = Json.format[EuMemberStates]
+object EUCountry {
+  implicit val format: OFormat[EUCountry] = Json.format[EUCountry]
+
+  def apply(code: String, name: String): EUCountry = EUCountry(code, Some(name), None)
+
+}
