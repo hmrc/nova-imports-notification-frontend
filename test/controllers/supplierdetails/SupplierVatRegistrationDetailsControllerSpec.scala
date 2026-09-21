@@ -21,7 +21,7 @@ import config.FrontendAppConfig
 import connectors.NovaImportsBackendConnector
 import controllers.{routes, supplierdetails}
 import forms.SupplierVatRegistrationDetailsFormProvider
-import models.{CheckMode, Country, DraftId, EuMemberStates, Mode, NormalMode, SupplierNumber, UserAnswers, VatNumberDetails}
+import models.{CheckMode, Country, DraftId, EUCountry, EuMemberStates, Mode, NormalMode, SupplierNumber, UserAnswers, VatNumberDetails}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
@@ -52,6 +52,7 @@ class SupplierVatRegistrationDetailsControllerSpec extends SpecBase with Mockito
   private val validVatNumberDetails = VatNumberDetails("FR", "AB123456789")
 
   private val testEuCountries: Set[Country] = Set(Country("FR", "France"), Country("DE", "Germany"))
+  private val allEuCountries: Set[EUCountry] = Set(EUCountry("FR", "France"), EUCountry("DE", "Germany"), EUCountry("BG", Some("United Kingdom"), Some("2020-01-31")))
 
   private lazy val supplierVatRegistrationDetailsRoute =
     supplierdetails.routes.SupplierVatRegistrationDetailsController.onPageLoad(SupplierNumber(1), NormalMode).url
@@ -150,7 +151,7 @@ class SupplierVatRegistrationDetailsControllerSpec extends SpecBase with Mockito
 
       val mockConnector         = mock[NovaImportsBackendConnector]
       val mockSessionRepository = mock[SessionRepository]
-      when(mockConnector.getEuMemberStates()(any())) thenReturn Future.successful(Right(EuMemberStates(testEuCountries)))
+      when(mockConnector.getEuMemberStates()(any())) thenReturn Future.successful(Right(EuMemberStates(allEuCountries)))
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val application =

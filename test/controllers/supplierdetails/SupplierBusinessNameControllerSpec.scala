@@ -20,7 +20,7 @@ import base.SpecBase
 import connectors.NovaImportsBackendConnector
 import controllers.{routes, supplierdetails}
 import forms.SupplierBusinessNameFormProvider
-import models.{Address, AddressJourney, BusinessOrPrivateIndividual, CheckMode, Country, DraftId, EuMemberStates, NormalMode, SupplierNumber, UserAnswers}
+import models.{Address, AddressJourney, BusinessOrPrivateIndividual, CheckMode, Country, DraftId, EUCountry, EuMemberStates, NormalMode, SupplierNumber, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{atLeastOnce, never, verify, when}
@@ -53,7 +53,7 @@ class SupplierBusinessNameControllerSpec extends SpecBase with MockitoSugar {
 
   private val supplierOne = SupplierNumber(1)
 
-  private val testEuCountries = Set(Country("FR", "France"))
+  private val testEuCountries = Set(EUCountry("FR", "France"))
   private val journeyUrl      = "http://alf.example.com/lookup/journey-123"
 
   private val existingAddress =
@@ -148,7 +148,7 @@ class SupplierBusinessNameControllerSpec extends SpecBase with MockitoSugar {
 
         val answers = savedAnswers(mockSessionRepository)
         answers.get(SupplierBusinessNamePage(supplierOne)) mustEqual Some(validName)
-        answers.get(SupplierEuMemberStatesPage(supplierOne)) mustEqual Some(testEuCountries)
+        answers.get(SupplierEuMemberStatesPage(supplierOne)) mustEqual Some(testEuCountries.map(_.toCountry()))
       }
     }
 
@@ -171,7 +171,7 @@ class SupplierBusinessNameControllerSpec extends SpecBase with MockitoSugar {
         val answers = savedAnswers(mockSessionRepository)
         answers.get(SupplierBusinessNamePage(supplierOne)) mustEqual Some(validName)
         answers.get(SupplierBusinessOrIndividualPage(supplierOne)) mustEqual Some(BusinessOrPrivateIndividual.Business)
-        answers.get(SupplierEuMemberStatesPage(supplierOne)) mustEqual Some(testEuCountries)
+        answers.get(SupplierEuMemberStatesPage(supplierOne)) mustEqual Some(testEuCountries.map(_.toCountry()))
       }
     }
 

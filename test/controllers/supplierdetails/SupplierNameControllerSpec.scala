@@ -20,7 +20,7 @@ import base.SpecBase
 import connectors.NovaImportsBackendConnector
 import controllers.{routes, supplierdetails}
 import forms.SupplierNameFormProvider
-import models.{Address, AddressJourney, BusinessOrPrivateIndividual, CheckMode, Country, DraftId, EuMemberStates, NameDetails, NormalMode, SupplierNumber, UserAnswers}
+import models.{Address, AddressJourney, BusinessOrPrivateIndividual, CheckMode, Country, DraftId, EUCountry, EuMemberStates, NameDetails, NormalMode, SupplierNumber, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{atLeastOnce, never, verify, when}
@@ -56,7 +56,7 @@ class SupplierNameControllerSpec extends SpecBase with MockitoSugar {
 
   private val supplierOne = SupplierNumber(1)
 
-  private val testEuCountries = Set(Country("FR", "France"))
+  private val testEuCountries = Set(EUCountry("FR", "France"))
   private val journeyUrl      = "http://alf.example.com/lookup/journey-123"
 
   private val existingAddress =
@@ -155,7 +155,7 @@ class SupplierNameControllerSpec extends SpecBase with MockitoSugar {
 
         val answers = savedAnswers(mockSessionRepository)
         answers.get(SupplierNamePage(supplierOne)) mustEqual Some(supplierName)
-        answers.get(SupplierEuMemberStatesPage(supplierOne)) mustEqual Some(testEuCountries)
+        answers.get(SupplierEuMemberStatesPage(supplierOne)) mustEqual Some(testEuCountries.map(_.toCountry()))
       }
     }
 
@@ -180,7 +180,7 @@ class SupplierNameControllerSpec extends SpecBase with MockitoSugar {
         val answers = savedAnswers(mockSessionRepository)
         answers.get(SupplierNamePage(supplierOne)) mustEqual Some(supplierName)
         answers.get(SupplierBusinessOrIndividualPage(supplierOne)) mustEqual Some(BusinessOrPrivateIndividual.PrivateIndividual)
-        answers.get(SupplierEuMemberStatesPage(supplierOne)) mustEqual Some(testEuCountries)
+        answers.get(SupplierEuMemberStatesPage(supplierOne)) mustEqual Some(testEuCountries.map(_.toCountry()))
       }
     }
 
