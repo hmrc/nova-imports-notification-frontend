@@ -1039,6 +1039,23 @@ dateOfAvailability.error.required.two = The date the vehicle was made available 
 dateOfAvailability.error.invalid = Enter the date the vehicle was made available to you in the correct format
 dateOfAvailability.error.notARealDate = The date the vehicle was made available to you must be a real date
 
+######################################################################
+# AVD5.1 - Add vehicle details 5.1: Date of first registration       #
+######################################################################
+
+dateOfFirstRegistration.title = Date of first registration
+dateOfFirstRegistration.heading = Date of first registration
+dateOfFirstRegistration.caption = Add vehicle details
+dateOfFirstRegistration.paragraph.1 = You can usually find this information in the vehicle log book. If there is more than one date, you must enter the earliest one.
+dateOfFirstRegistration.question.heading = When was the vehicle first registered for road use?
+dateOfFirstRegistration.hint = For example, 27 03 2026
+dateOfFirstRegistration.error.required.all = Enter the date the vehicle was first registered
+dateOfFirstRegistration.error.required = The date the vehicle was first registered must include a {0}
+dateOfFirstRegistration.error.required.two = The date the vehicle was first registered must include a {0} and {1}
+dateOfFirstRegistration.error.invalid = Enter the date the vehicle was first registered in the correct format
+dateOfFirstRegistration.error.notARealDate = The date the vehicle was first registered must be a real date
+dateOfFirstRegistration.error.future = The date the vehicle was first registered must be today or in the past
+
 ##################################################
 # UVS1.0 - Upload a vehicle spreadsheet 1.0      #
 ##################################################
