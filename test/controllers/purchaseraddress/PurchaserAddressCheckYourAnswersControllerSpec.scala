@@ -19,9 +19,8 @@ package controllers.purchaseraddress
 import base.SpecBase
 import controllers.{purchaseraddress, routes}
 import models.{Address, Country, DraftId, NormalMode, PurchaserOrOnBehalf, UserAnswers}
-import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{never, verify, when}
+import org.mockito.Mockito.{never, verify, verifyNoInteractions, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.DraftIdPage
 import pages.sections.initialquestions.NotifyingAsPurchaserPage
@@ -133,7 +132,7 @@ class PurchaserAddressCheckYourAnswersControllerSpec extends SpecBase with Mocki
       }
     }
 
-    "must clear the stored address and journey id from the session and redirect to APA1.0 on change address" in {
+    "must retain the stored address and journey id from the session and redirect to APA1.0 on change address" in {
       val answersWithJourneyId = answersWithAddress.unsafeSet(PurchaserAddressJourneyIdPage, "journey-123")
 
       val sessionRepository = stubSessionRepository()
@@ -146,10 +145,7 @@ class PurchaserAddressCheckYourAnswersControllerSpec extends SpecBase with Mocki
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual purchaseraddress.routes.IsPurchaserAddressInTheUkController.onPageLoad(NormalMode).url
 
-        val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
-        verify(sessionRepository).set(captor.capture())
-        captor.getValue.get(PurchaserAddressPage) mustBe None
-        captor.getValue.get(PurchaserAddressJourneyIdPage) mustBe None
+        verifyNoInteractions(sessionRepository)
       }
     }
 

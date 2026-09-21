@@ -38,6 +38,7 @@ country.DE = Yr Almaen
 country.DK = Denmarc
 country.EE = Estonia
 country.EL = Gwlad Groeg
+country.GR = Gwlad Groeg
 country.ES = Sbaen
 country.FI = Y Ffindir
 country.FR = Ffrainc
