@@ -26,7 +26,7 @@ import pages.sections.vehicledetails.{AddImportVehicleDetailsPage, AddVehicleDet
 import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierVatRegistrationNumberPage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
-import pages.sections.vehicledetails.{DateOfAvailabilityPage, DateOfFirstRegistrationPage, PurchaseInvoiceDatePage, PurchaseInvoiceNumberPage, VehicleDatesPage}
+import pages.sections.vehicledetails.{DateOfAvailabilityPage, DateOfFirstRegistrationPage, PurchaseInvoiceDatePage, PurchaseInvoiceNumberPage, TotalAmountPaidPage, VehicleDatesPage}
 
 import java.time.LocalDate
 
@@ -527,7 +527,7 @@ class NavigatorSpec extends SpecBase {
         ) mustBe vehicledetails.routes.DateOfAvailabilityController.onPageLoad(SupplierNumber(1), VehicleNumber(1), NormalMode)
       }
 
-      "must go from PurchaseInvoiceNumberPage AVD4.1 to TotalPricePaid AVD7.0 when only the purchase invoice date was selected on AVD3.0" in {
+      "must go from PurchaseInvoiceNumberPage AVD4.1 to TotalAmountPaid AVD7.0 when only the purchase invoice date was selected on AVD3.0" in {
         val ua = userAnswers
           .set(VehicleDatesPage(SupplierNumber(1), VehicleNumber(1)), Set(VehicleDates.PurchaseInvoiceDate))
           .success
@@ -540,7 +540,7 @@ class NavigatorSpec extends SpecBase {
           NormalMode,
           ua,
           NovaUserType.PrivateIndividual
-        ) mustBe routes.LandingPageController.onPageLoad()
+        ) mustBe vehicledetails.routes.TotalAmountPaidController.onPageLoadSupplier(SupplierNumber(1), VehicleNumber(1), NormalMode)
       }
 
       "must go from PurchaseInvoiceNumberPage AVD4.1 to JourneyRecovery when no invoice number is found" in {
@@ -605,6 +605,25 @@ class NavigatorSpec extends SpecBase {
       "must go from DateOfFirstRegistrationPage to JourneyRecovery when no answer is found" in {
         navigator.nextPage(
           DateOfFirstRegistrationPage(VehicleNumber(1)),
+          NormalMode,
+          userAnswers,
+          NovaUserType.PrivateIndividual
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from TotalAmountPaidPage AVD7.0 to LandingPage when an answer is entered" in {
+        val ua = userAnswers.set(TotalAmountPaidPage(VehicleNumber(1)), "15000").success.value
+        navigator.nextPage(
+          TotalAmountPaidPage(VehicleNumber(1)),
+          NormalMode,
+          ua,
+          NovaUserType.PrivateIndividual
+        ) mustBe routes.LandingPageController.onPageLoad() // TODO: update when AVD7.1 - Currency is built
+      }
+
+      "must go from TotalAmountPaidPage AVD7.0 to JourneyRecovery when no answer is found" in {
+        navigator.nextPage(
+          TotalAmountPaidPage(VehicleNumber(1)),
           NormalMode,
           userAnswers,
           NovaUserType.PrivateIndividual
@@ -930,6 +949,16 @@ class NavigatorSpec extends SpecBase {
         val ua = userAnswers.set(DateOfAvailabilityPage(SupplierNumber(1), VehicleNumber(1)), LocalDate.of(2026, 3, 27)).success.value
         navigator.nextPage(
           DateOfAvailabilityPage(SupplierNumber(1), VehicleNumber(1)),
+          CheckMode,
+          ua,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from TotalAmountPaidPage AVD7.0 to LandingPage" in {
+        val ua = userAnswers.set(TotalAmountPaidPage(VehicleNumber(1)), "15000").success.value
+        navigator.nextPage(
+          TotalAmountPaidPage(VehicleNumber(1)),
           CheckMode,
           ua,
           NovaUserType.VatRegisteredOrganisation

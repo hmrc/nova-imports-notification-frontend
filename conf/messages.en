@@ -941,6 +941,25 @@ purchaseInvoiceNumber.error.required = Enter the purchase invoice number
 purchaseInvoiceNumber.error.invalid = Enter the purchase invoice number in the correct format
 purchaseInvoiceNumber.error.length = The purchase invoice number must be 20 characters or less
 
+##############################################################
+# AVD7.0 - Add vehicle details 7.0: Total amount paid        #
+##############################################################
+
+totalAmountPaid.title = Total amount paid
+totalAmountPaid.heading = Total amount paid
+totalAmountPaid.caption = Add vehicle details
+totalAmountPaid.paragraph.1 = This is the total invoice amount, including delivery charges. It does not include:
+totalAmountPaid.bullet.1 = all trade-ins
+totalAmountPaid.bullet.2 = part exchanges
+totalAmountPaid.bullet.3 = deposits
+totalAmountPaid.paragraph.2 = Remove any currency symbol, commas or decimal points, and round down always. If the vehicle was inherited or a gift, enter 0 (zero) as the total amount.
+totalAmountPaid.label = How much did you pay for the vehicle?
+totalAmountPaid.hint = Enter whole numbers only, for example 12000
+totalAmountPaid.error.required = Enter the total amount paid for the vehicle
+totalAmountPaid.error.length = The total amount paid for the vehicle must be 14 characters or less
+totalAmountPaid.error.commaOrDecimalPoint = Enter the total amount paid for the vehicle as a whole number, without commas or decimal points
+totalAmountPaid.error.invalid = Enter the total amount paid for the vehicle in the correct format
+
 ######################################################
 # CYA3.0 - Check your answers 3.0 - Your address     #
 ######################################################
