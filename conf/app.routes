@@ -140,7 +140,7 @@ GET         /upload-vehicle-spreadsheet                                         
 
 GET         /vehicle-spreadsheet-upload-result                                          controllers.vehicledetails.SpreadsheetUploadResultController.onPageLoad()
 
-GET         /vehicle-spreadsheet-errors                                                 controllers.vehicledetails.CheckVehicleSpreadsheetErrorsController.onPageLoad(page: Int ?= 1)
+GET         /errors-found-in-vehicle-spreadsheet                                                controllers.vehicledetails.CheckVehicleSpreadsheetErrorsController.onPageLoad(page: Int ?= 1)
 
 GET         /check-vehicle-spreadsheet-details                                          controllers.vehicledetails.CheckVehicleSpreadsheetDetailsController.onPageLoad(page: Int ?= 1)
 
