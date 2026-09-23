@@ -102,16 +102,15 @@ object NotificationTaskListController {
       case NovaUserType.VatRegisteredOrganisation =>
         request.userAnswers.get(VehicleBusinessUsePage).isDefined
       case NovaUserType.PrivateIndividual | NovaUserType.NonVatOrganisation =>
-        standardInitialQuestionsComplete(request.userAnswers)
+        request.userAnswers.get(VehicleFromEuPage).contains(true) && purchaserQuestionsComplete(request.userAnswers)
       case NovaUserType.Agent if request.userContext.isAgentWithoutClient =>
-        standardInitialQuestionsComplete(request.userAnswers)
+        request.userAnswers.get(VehicleFromEuPage).isDefined && purchaserQuestionsComplete(request.userAnswers)
       case NovaUserType.Agent =>
         false
     })
 
-  private def standardInitialQuestionsComplete(answers: UserAnswers): Boolean =
-    answers.get(VehicleFromEuPage).contains(true) &&
-      answers.get(BusinessOrPrivatePage).isDefined &&
+  private def purchaserQuestionsComplete(answers: UserAnswers): Boolean =
+    answers.get(BusinessOrPrivatePage).isDefined &&
       answers.get(NotifyingAsPurchaserPage).exists {
         case PurchaserOrOnBehalf.Purchaser           => true
         case PurchaserOrOnBehalf.OnBehalfOfPurchaser => answers.get(PurchaserBusinessOrIndividualPage).isDefined
