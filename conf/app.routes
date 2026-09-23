@@ -140,7 +140,7 @@ GET         /upload-vehicle-spreadsheet                                         
 
 GET         /vehicle-spreadsheet-upload-result                                          controllers.vehicledetails.SpreadsheetUploadResultController.onPageLoad()
 
-GET         /vehicle-spreadsheet-errors                                                 controllers.vehicledetails.CheckVehicleSpreadsheetErrorsController.onPageLoad(page: Int ?= 1)
+GET         /errors-found-in-vehicle-spreadsheet                                                controllers.vehicledetails.CheckVehicleSpreadsheetErrorsController.onPageLoad(page: Int ?= 1)
 
 GET         /check-vehicle-spreadsheet-details                                          controllers.vehicledetails.CheckVehicleSpreadsheetDetailsController.onPageLoad(page: Int ?= 1)
 
@@ -246,6 +246,16 @@ GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/purchase-invoice-nu
 POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/purchase-invoice-number           controllers.vehicledetails.PurchaseInvoiceNumberController.onSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
 GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/purchase-invoice-number/change    controllers.vehicledetails.PurchaseInvoiceNumberController.onPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
 POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/purchase-invoice-number/change    controllers.vehicledetails.PurchaseInvoiceNumberController.onSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
+
+GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/total-amount-paid                  controllers.vehicledetails.TotalAmountPaidController.onPageLoadSupplier(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/total-amount-paid                  controllers.vehicledetails.TotalAmountPaidController.onSubmitSupplier(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/total-amount-paid/change           controllers.vehicledetails.TotalAmountPaidController.onPageLoadSupplier(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
+POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/total-amount-paid/change           controllers.vehicledetails.TotalAmountPaidController.onSubmitSupplier(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
+
+GET         /import/:importNumber/vehicle/:vehicleNumber/total-amount-paid                      controllers.vehicledetails.TotalAmountPaidController.onPageLoadImport(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+POST        /import/:importNumber/vehicle/:vehicleNumber/total-amount-paid                      controllers.vehicledetails.TotalAmountPaidController.onSubmitImport(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+GET         /import/:importNumber/vehicle/:vehicleNumber/total-amount-paid/change               controllers.vehicledetails.TotalAmountPaidController.onPageLoadImport(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
+POST        /import/:importNumber/vehicle/:vehicleNumber/total-amount-paid/change               controllers.vehicledetails.TotalAmountPaidController.onSubmitImport(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
 
 GET         /check-answers/your-address                                                  controllers.notifieraddress.YourAddressCheckYourAnswersController.onPageLoad()
 POST        /check-answers/your-address                                                  controllers.notifieraddress.YourAddressCheckYourAnswersController.onSubmit()
