@@ -1,0 +1,133 @@
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import controllers.vehicledetails.routes
+@import views.html.helper.CSPNonce
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
+
+@this(
+    layout: templates.Layout,
+    govukButton: GovukButton,
+    govukSummaryList: GovukSummaryList,
+    govukTag: GovukTag
+)
+
+@(isFinal: Boolean, fileName: Option[String], removeUrl: Call, statusUrl: String, refreshIntervalSeconds: Int)(implicit request: Request[?], messages: Messages)
+
+@statusTag = @{
+    val base = TagViewModel(Text(messages(if (isFinal) "vehicleSpreadsheetUpload.status.uploaded" else "vehicleSpreadsheetUpload.status.uploading")))
+        .withAttribute("id" -> "upload-status-tag")
+        .withAttribute("aria-live" -> "polite")
+    if (isFinal) base.green() else base.yellow()
+}
+
+@actionItem = @{
+    val (text, href) =
+        if (isFinal) (messages("site.remove"), removeUrl.url)
+        else (messages("site.cancel"), routes.UploadVehicleSpreadsheetController.onPageLoad().url)
+
+    ActionItemViewModel(Text(text), href)
+        .withVisuallyHiddenText(messages("vehicleSpreadsheetUpload.heading"))
+        .withAttribute("id" -> "upload-action-link")
+        .withAttribute("data-cancel-href" -> routes.UploadVehicleSpreadsheetController.onPageLoad().url)
+        .withAttribute("data-remove-href" -> removeUrl.url)
+        .withAttribute("data-cancel-text" -> messages("site.cancel"))
+        .withAttribute("data-remove-text" -> messages("site.remove"))
+}
+
+@layout(pageTitle = titleNoForm(messages("vehicleSpreadsheetUpload.heading"))) {
+
+    <span class="govuk-caption-l">@messages("vehicleSpreadsheetUpload.caption")</span>
+    <h1 class="govuk-heading-l">@messages("vehicleSpreadsheetUpload.heading")</h1>
+
+    @govukSummaryList(SummaryListViewModel(
+        rows = Seq(
+            SummaryListRowViewModel(
+                key = KeyViewModel(Text(fileName.getOrElse(messages("vehicleSpreadsheetUpload.defaultFileName")))).withCssClass("upload-file-name"),
+                value = ValueViewModel(HtmlContent(govukTag(statusTag))),
+                actions = Seq(actionItem)
+            )
+        )
+    ).withCssClass("govuk-summary-list--long-key"))
+
+    @if(isFinal) {
+        @govukButton(ButtonViewModel(Text(messages("site.continue"))).withAttribute("id" -> "continueButton"))
+    } else {
+        @govukButton(ButtonViewModel(Text(messages("site.continue"))).disabled().withAttribute("id" -> "continueButton"))
+    }
+
+    <script @{CSPNonce.attr}>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!@isFinal) {
+                window.setTimeout(checkUploadStatus, @refreshIntervalSeconds * 1000);
+            }
+        });
+
+        function checkUploadStatus() {
+            fetch('@statusUrl')
+                .then(function(response) { return response.json(); })
+                .then(function(data) {
+                    if (data.redirectUrl) {
+                        window.location.href = data.redirectUrl;
+                        return;
+                    }
+
+                    var tag = document.getElementById('upload-status-tag');
+                    var continueButton = document.getElementById('continueButton');
+                    var actionLink = document.getElementById('upload-action-link');
+                    var fileNameCell = document.querySelector('.upload-file-name');
+
+                    if (tag && data.statusText) {
+                        tag.textContent = data.statusText;
+                    }
+
+                    if (fileNameCell && data.fileName) {
+                        fileNameCell.textContent = data.fileName;
+                    }
+
+                    if (data.isFinal) {
+                        if (tag) {
+                            tag.classList.remove('govuk-tag--yellow');
+                            tag.classList.add('govuk-tag--green');
+                        }
+                        if (continueButton) {
+                            continueButton.removeAttribute('disabled');
+                            continueButton.removeAttribute('aria-disabled');
+                            if (data.continueUrl) {
+                                continueButton.addEventListener('click', function() {
+                                    window.location.href = data.continueUrl;
+                                });
+                            }
+                        }
+                        if (actionLink) {
+                            actionLink.href = actionLink.getAttribute('data-remove-href');
+                            for (var i = 0; i < actionLink.childNodes.length; i++) {
+                                if (actionLink.childNodes[i].nodeType === Node.TEXT_NODE) {
+                                    actionLink.childNodes[i].textContent = actionLink.getAttribute('data-remove-text');
+                                    break;
+                                }
+                            }
+                        }
+                    } else {
+                        window.setTimeout(checkUploadStatus, @refreshIntervalSeconds * 1000);
+                    }
+                })
+                .catch(function() {
+                    window.setTimeout(checkUploadStatus, @refreshIntervalSeconds * 1000);
+                });
+        }
+    </script>
+}

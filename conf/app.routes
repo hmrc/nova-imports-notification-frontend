@@ -138,7 +138,8 @@ POST        /vehicles-brought-from-eu/change                                    
 
 GET         /upload-vehicle-spreadsheet                                                  controllers.vehicledetails.UploadVehicleSpreadsheetController.onPageLoad()
 
-GET         /vehicle-spreadsheet-upload-result                                          controllers.vehicledetails.SpreadsheetUploadResultController.onPageLoad()
+GET         /vehicle-spreadsheet-upload                                                  controllers.vehicledetails.VehicleSpreadsheetUploadController.onPageLoad()
+GET         /vehicle-spreadsheet-upload/summary                                          controllers.vehicledetails.VehicleSpreadsheetUploadController.status()
 
 GET         /errors-found-in-vehicle-spreadsheet                                                controllers.vehicledetails.CheckVehicleSpreadsheetErrorsController.onPageLoad(page: Int ?= 1)
 

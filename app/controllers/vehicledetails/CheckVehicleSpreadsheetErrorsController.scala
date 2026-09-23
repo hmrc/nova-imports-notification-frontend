@@ -19,7 +19,7 @@ package controllers.vehicledetails
 import connectors.NovaImportsBackendConnector
 import controllers.BaseController
 import controllers.actions.Actions
-import controllers.vehicledetails.SpreadsheetUploadResultController.guardPredicate
+import controllers.vehicledetails.VehicleSpreadsheetUploadController.guardPredicate
 import pages.DraftIdPage
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -49,7 +49,7 @@ class CheckVehicleSpreadsheetErrorsController @Inject() (
           Ok(view(Pager.page(result.errors, page), p => routes.CheckVehicleSpreadsheetErrorsController.onPageLoad(p).url))
         case Right(result) if result.fileStatus == "VALIDATED" =>
           Redirect(routes.CheckVehicleSpreadsheetDetailsController.onPageLoad())
-        case Right(_)    => Redirect(controllers.routes.NotificationTaskListController.onPageLoad()) // TODO: navigate to UVS-2.0 when built
+        case Right(_)    => Redirect(routes.VehicleSpreadsheetUploadController.onPageLoad())
         case Left(error) =>
           logger.warn(s"Could not retrieve the vehicle spreadsheet errors: $error")
           Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
