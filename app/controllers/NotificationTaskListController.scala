@@ -151,10 +151,16 @@ object NotificationTaskListController {
         if (status == SectionStatus.Completed) Map(section -> purchaseraddress.routes.PurchaserAddressCheckYourAnswersController.onPageLoad().url)
         else Map(section                                   -> purchaseraddress.routes.IsPurchaserAddressInTheUkController.onPageLoad(NormalMode).url)
 
-      case (section @ SectionId.Vehicles, _) => Map(section -> vehicledetails.routes.AddVehicleDetailsController.onPageLoad(NormalMode).url)
+      case (section @ SectionId.Vehicles, _) => Map(section -> vehiclesStartLink(userContext, userAnswers))
 
       case _ => Map.empty[String, String]
     }
+
+  private def vehiclesStartLink(userContext: UserContext, answers: UserAnswers): String =
+    if (answers.get(VehicleFromEuPage).contains(false) && (userContext.isVatRegisteredOrganisation || userContext.isAgent))
+      vehicledetails.routes.AddImportVehicleDetailsController.onPageLoad(NormalMode).url
+    else
+      vehicledetails.routes.AddVehicleDetailsController.onPageLoad(NormalMode).url
 
   private def notifierDetailsStartLink(userContext: UserContext, answers: UserAnswers): String =
     userContext.userType match {
