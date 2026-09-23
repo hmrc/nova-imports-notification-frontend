@@ -539,6 +539,45 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
+      "for an agent without a client who answered No to IQ1.0 must render OK" in {
+        given application: Application =
+          applicationWith(
+            classOf[FakeAgentNoEnrolmentsIdentifierAction],
+            Some(agentAsPurchaser.unsafeSet(VehicleFromEuPage, false)),
+            stubConnector(summary = Right(agentSummary))
+          )
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual OK
+        }
+      }
+
+      "for a PrivateIndividual who answered No to IQ1.0 must redirect to Unauthorised" in {
+        val sessionRepo                = stubSessionRepository()
+        given application: Application =
+          applicationWith(
+            classOf[FakeIdentifierAction],
+            Some(individualAsPurchaserPrivate.unsafeSet(VehicleFromEuPage, false)),
+            sessionRepo = sessionRepo
+          )
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+          verify(sessionRepo, never).set(any())
+        }
+      }
+
       "for a non-VAT agent without a client who answered business links Add your details to the contact numbers page" in {
         given application: Application =
           applicationWith(
