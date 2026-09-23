@@ -30,6 +30,8 @@ class ValidationErrorSpec extends AnyFreeSpec with Matchers {
       ValidationError("supplierBusinessPrivate[0]", "error").label mustBe "Is the supplier a business or private individual?"
       ValidationError("addressLine1[0]", "error").label mustBe "Address line 1"
       ValidationError("importEntryNumber[0]", "error").label mustBe "Import entry number"
+      ValidationError("lcvBodyType[0]", "error").label mustBe "Light commercial vehicle body type"
+      ValidationError("bodyType[0]", "error").label mustBe "Body type"
     }
 
     "must fall back to the field key with the index stripped when the key is not recognised" in {

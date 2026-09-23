@@ -71,7 +71,8 @@ object ValidationError {
     "model"                          -> "Model",
     "derivative"                     -> "Derivative",
     "trim"                           -> "Trim",
-    "bodyType"                       -> "Body type"
+    "bodyType"                       -> "Body type",
+    "lcvBodyType"                    -> "Light commercial vehicle body type"
   )
 
   private val indexSuffix = "\\[\\d+\\]$".r
