@@ -1087,6 +1087,16 @@ dateOfFirstRegistration.error.invalid = Enter the date the vehicle was first reg
 dateOfFirstRegistration.error.notARealDate = The date the vehicle was first registered must be a real date
 dateOfFirstRegistration.error.future = The date the vehicle was first registered must be today or in the past
 
+##########################################################################
+# AVD5.2 - Add vehicle details 5.2: Country of first registration        #
+##########################################################################
+
+countryOfFirstRegistration.title = Enter the country where the vehicle was first registered
+countryOfFirstRegistration.heading = Enter the country where the vehicle was first registered
+countryOfFirstRegistration.caption = Add vehicle details
+countryOfFirstRegistration.hint = You can find this in the vehicle log book
+countryOfFirstRegistration.error.required = Enter the country where the vehicle was first registered
+
 ##################################################
 # UVS1.0 - Upload a vehicle spreadsheet 1.0      #
 ##################################################
