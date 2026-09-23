@@ -2,6 +2,7 @@ service.name = Notification of Vehicle Arrivals
 
 site.back = Back
 site.remove = Remove
+site.cancel = Cancel
 site.change = Change
 site.no = No
 site.yes = Yes
@@ -1089,6 +1090,16 @@ uploadVehicleSpreadsheet.hint = Must be an OpenDocument Spreadsheet (ODS) file
 uploadVehicleSpreadsheet.error.required = Select a file
 uploadVehicleSpreadsheet.error.tooLarge = The selected file must be smaller than 100MB
 uploadVehicleSpreadsheet.error.unknown = The selected file could not be uploaded. Try again.
+
+##################################################################
+# UVS2.0 - Upload vehicle spreadsheet 2.0 - Upload status        #
+##################################################################
+
+vehicleSpreadsheetUpload.heading = Vehicle spreadsheet upload
+vehicleSpreadsheetUpload.caption = Add vehicle details
+vehicleSpreadsheetUpload.defaultFileName = Vehicle spreadsheet
+vehicleSpreadsheetUpload.status.uploading = Uploading
+vehicleSpreadsheetUpload.status.uploaded = Uploaded
 
 ###############################################################
 # UVS3.0 - Upload vehicle spreadsheet 3.0 - Error: Virus      #

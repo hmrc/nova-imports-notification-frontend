@@ -18,7 +18,7 @@ package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import models.{ClientList, ClientListQuery, ClientListStatus, ClientSummary, DraftId, NotificationSummary, TraderInformation}
-import models.responses.{ClientListRefresh, CreateDraftResponse}
+import models.responses.{ClientListRefresh, CreateDraftResponse, GetFileUploadSummaryResponse}
 import play.api.libs.json.Json
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
@@ -513,6 +513,61 @@ class NovaImportsBackendConnectorISpec
       wireMockServer.stubFor(get(urlPathEqualTo("/nova-imports/clients")).willReturn(aResponse().withStatus(502).withBody("down")))
 
       connector.getClientList(ClientListQuery()).futureValue mustEqual Left(GetClientListError.UpstreamError(502, "down"))
+    }
+  }
+
+  "getFileUploadSummary" - {
+
+    val draftId = DraftId("12345")
+    val url     = s"/nova-imports/draft-notifications/${draftId.value}/upload-results"
+
+    "returns the summary on 200" in {
+      wireMockServer.stubFor(get(urlEqualTo(url)).willReturn(okJson("""{"fileStatus":"VALIDATING"}""")))
+
+      connector.getFileUploadSummary(draftId).futureValue mustEqual Right(GetFileUploadSummaryResponse("VALIDATING", None, None))
+    }
+
+    "returns the failure reason when verification failed" in {
+      wireMockServer.stubFor(
+        get(urlEqualTo(url)).willReturn(
+          okJson("""{"fileStatus":"VERIFICATION_FAILED","failureDetails":{"failureReason":"QUARANTINE","message":"virus found"}}""")
+        )
+      )
+
+      connector.getFileUploadSummary(draftId).futureValue mustEqual Right(GetFileUploadSummaryResponse("VERIFICATION_FAILED", Some("QUARANTINE"), None))
+    }
+
+    "returns the fileName once known" in {
+      wireMockServer.stubFor(get(urlEqualTo(url)).willReturn(okJson("""{"fileStatus":"VALIDATING","fileName":"car_spreadsheet.ods"}""")))
+
+      connector.getFileUploadSummary(draftId).futureValue mustEqual Right(GetFileUploadSummaryResponse("VALIDATING", None, Some("car_spreadsheet.ods")))
+    }
+
+    "returns Forbidden on 403" in {
+      wireMockServer.stubFor(get(urlEqualTo(url)).willReturn(aResponse().withStatus(403)))
+
+      connector.getFileUploadSummary(draftId).futureValue mustEqual Left(GetFileUploadSummaryError.Forbidden)
+    }
+
+    "returns NotFound on 404" in {
+      wireMockServer.stubFor(get(urlEqualTo(url)).willReturn(aResponse().withStatus(404)))
+
+      connector.getFileUploadSummary(draftId).futureValue mustEqual Left(GetFileUploadSummaryError.NotFound)
+    }
+
+    "returns UpstreamError on a malformed body" in {
+      wireMockServer.stubFor(get(urlEqualTo(url)).willReturn(okJson("""{"unexpected":"shape"}""")))
+
+      connector.getFileUploadSummary(draftId).futureValue match {
+        case Left(GetFileUploadSummaryError.UpstreamError(200, message)) => message must include("Malformed upload summary response")
+        case other                                                       => fail(s"expected UpstreamError(200, ...) but got $other")
+      }
+    }
+
+    "returns UpstreamError on 500" in {
+      wireMockServer.stubFor(get(urlEqualTo(url)).willReturn(aResponse().withStatus(500).withBody("boom")))
+
+      connector.getFileUploadSummary(draftId).futureValue mustEqual Left(GetFileUploadSummaryError.UpstreamError(500, "boom"))
     }
   }
 }
