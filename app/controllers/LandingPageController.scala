@@ -97,12 +97,12 @@ class LandingPageController @Inject() (
           case None =>
             notificationSummaryService.getSummaryAndStoreDeregisteredStatus(answers, None).map {
               case Right((summary: NotificationSummary.AgentWithoutClient, _)) =>
-                Ok(agentView(traderName = summary.agentName, hasDraftNotifications = summary.hasDraftNotifications))
+                Ok(agentView(agentName = summary.agentName, hasDraftNotifications = summary.hasDraftNotifications))
               case Right(_) =>
-                Ok(agentView(traderName = None, hasDraftNotifications = false))
+                Ok(agentView(agentName = None, hasDraftNotifications = false))
               case Left(error) =>
                 logger.warn(s"failed to fetch notification summary; defaulting hasDraftNotifications=false: $error")
-                Ok(agentView(traderName = None, hasDraftNotifications = false))
+                Ok(agentView(agentName = None, hasDraftNotifications = false))
             }
         }
     }

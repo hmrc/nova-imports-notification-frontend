@@ -30,7 +30,7 @@ import scala.concurrent.duration.DurationInt
 
 class LandingPageAgentViewSpec extends SpecBase with Matchers with BeforeAndAfterAll {
 
-  private val traderName = "ABC Consultancy"
+  private val agentName = "ABC Consultancy"
 
   private val app: Application             = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
   implicit private val request: Request[?] = FakeRequest()
@@ -46,34 +46,34 @@ class LandingPageAgentViewSpec extends SpecBase with Matchers with BeforeAndAfte
   "LandingPageAgentView" - {
 
     "must render the correct page title and H1 heading" in {
-      val html: String = view(Some(traderName), hasDraftNotifications = false).toString
+      val html: String = view(Some(agentName), hasDraftNotifications = false).toString
 
       html must include(msgs("landingPage.agent.title"))
       html must include(msgs("landingPage.agent.heading"))
     }
 
     "must render the trader name caption when supplied" in {
-      val html: String = view(Some(traderName), hasDraftNotifications = false).toString
+      val html: String = view(Some(agentName), hasDraftNotifications = false).toString
 
       html must include("""class="govuk-caption-l"""")
-      html must include(traderName)
+      html must include(agentName)
     }
 
     "must omit the trader name caption when not supplied" in {
       val html: String = view(None, hasDraftNotifications = false).toString
 
-      html must not include traderName
+      html must not include agentName
       html must not include """class="govuk-caption-l""""
     }
 
     "must render the intro body" in {
-      val html: String = view(Some(traderName), hasDraftNotifications = false).toString
+      val html: String = view(Some(agentName), hasDraftNotifications = false).toString
 
       html must include(msgs("landingPage.agent.body"))
     }
 
     "must render the Create a new notification link routing to StartController" in {
-      val html: String = view(Some(traderName), hasDraftNotifications = false).toString
+      val html: String = view(Some(agentName), hasDraftNotifications = false).toString
 
       html must include(msgs("landingPage.agent.create.link"))
       html must include(msgs("landingPage.agent.create.body"))
@@ -81,7 +81,7 @@ class LandingPageAgentViewSpec extends SpecBase with Matchers with BeforeAndAfte
     }
 
     "must render the Update a submitted notification link routing to StartController" in {
-      val html: String = view(Some(traderName), hasDraftNotifications = false).toString
+      val html: String = view(Some(agentName), hasDraftNotifications = false).toString
 
       html must include(msgs("landingPage.agent.update.link"))
       html must include(msgs("landingPage.agent.update.body"))
@@ -89,7 +89,7 @@ class LandingPageAgentViewSpec extends SpecBase with Matchers with BeforeAndAfte
     }
 
     "must render the empty saved-notification copy when the user has no drafts" in {
-      val html: String = view(Some(traderName), hasDraftNotifications = false).toString
+      val html: String = view(Some(agentName), hasDraftNotifications = false).toString
 
       html must include(msgs("landingPage.agent.saved.heading"))
       html must include(msgs("landingPage.agent.saved.body.empty"))
@@ -97,7 +97,7 @@ class LandingPageAgentViewSpec extends SpecBase with Matchers with BeforeAndAfte
     }
 
     "must render the has-drafts saved-notification copy when the user has drafts" in {
-      val html: String = view(Some(traderName), hasDraftNotifications = true).toString
+      val html: String = view(Some(agentName), hasDraftNotifications = true).toString
 
       html must include(msgs("landingPage.agent.saved.heading"))
       html must include(msgs("landingPage.agent.saved.body.has"))
@@ -105,7 +105,7 @@ class LandingPageAgentViewSpec extends SpecBase with Matchers with BeforeAndAfte
     }
 
     "must render the saved-notification heading as a link to JourneyRecovery (VS1.0 placeholder) when drafts exist" in {
-      val html: String = view(Some(traderName), hasDraftNotifications = true).toString
+      val html: String = view(Some(agentName), hasDraftNotifications = true).toString
 
       html must include(controllers.routes.JourneyRecoveryController.onPageLoad().url)
       html must include(s"""<a class="govuk-link" href="${controllers.routes.JourneyRecoveryController.onPageLoad().url}">${msgs(
@@ -114,13 +114,13 @@ class LandingPageAgentViewSpec extends SpecBase with Matchers with BeforeAndAfte
     }
 
     "must render the saved-notification heading as plain text (no link) when no drafts" in {
-      val html: String = view(Some(traderName), hasDraftNotifications = false).toString
+      val html: String = view(Some(agentName), hasDraftNotifications = false).toString
 
       html must not include controllers.routes.JourneyRecoveryController.onPageLoad().url
     }
 
     "must render the Manage your clients link routing to LoadingClientListController (CS1.0)" in {
-      val html: String = view(Some(traderName), hasDraftNotifications = false).toString
+      val html: String = view(Some(agentName), hasDraftNotifications = false).toString
 
       html must include(msgs("landingPage.agent.clients.link"))
       html must include(msgs("landingPage.agent.clients.body"))
@@ -128,13 +128,13 @@ class LandingPageAgentViewSpec extends SpecBase with Matchers with BeforeAndAfte
     }
 
     "must render the same content via the render method" in {
-      val html: String = view.render(Some(traderName), false, request, msgs).toString
+      val html: String = view.render(Some(agentName), false, request, msgs).toString
 
       html must include(msgs("landingPage.agent.heading"))
     }
 
     "must render the same content via the f method" in {
-      val html: String = view.f(Some(traderName), false)(request, msgs).toString
+      val html: String = view.f(Some(agentName), false)(request, msgs).toString
 
       html must include(msgs("landingPage.agent.heading"))
     }
