@@ -24,5 +24,5 @@ final case class NoPurchaseInvoiceReasonPage(supplierNumber: SupplierNumber, veh
 
   override def path: JsPath = JsPath \ "vehicles" \ vehicleNumber.value.toString \ "details" \ toString
 
-  override def toString: String = "noPurchaseInvoiceReason"
+  override def toString: String = "noPurchaseInvoiceReasonMax"
 }
