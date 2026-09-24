@@ -22,7 +22,7 @@ import play.api.libs.json.JsPath
 
 final case class NoPurchaseInvoiceReasonPage(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber) extends QuestionPage[String] {
 
-  override def path: JsPath = JsPath \ "vehicles" \ vehicleNumber.value.toString \ "type" \ toString
+  override def path: JsPath = JsPath \ "vehicles" \ vehicleNumber.value.toString \ "details" \ toString
 
   override def toString: String = "noPurchaseInvoiceReasonMax"
 }
