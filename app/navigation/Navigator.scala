@@ -28,7 +28,7 @@ import pages.sections.notifieraddress.IsYourAddressInTheUkPage
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierQuestionPage, SupplierVatRegistrationNumberPage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
-import pages.sections.vehicledetails.{DateOfAvailabilityPage, DateOfFirstRegistrationPage, PurchaseInvoiceDatePage, PurchaseInvoiceNumberPage, TotalAmountPaidPage, VehicleDatesPage}
+import pages.sections.vehicledetails.{DateOfAvailabilityPage, DateOfFirstRegistrationPage, NoPurchaseInvoiceReasonPage, PurchaseInvoiceDatePage, PurchaseInvoiceNumberPage, TotalAmountPaidPage, VehicleDatesPage}
 
 @Singleton
 class Navigator @Inject() () {
@@ -209,6 +209,13 @@ class Navigator @Inject() () {
           case Some(_) => routes.LandingPageController.onPageLoad()
           case _       => routes.JourneyRecoveryController.onPageLoad()
         }
+    case page: NoPurchaseInvoiceReasonPage =>
+      (userAnswers, _) =>
+        userAnswers.get(page) match {
+          case Some(_) =>
+            vehicledetails.routes.TotalAmountPaidController.onPageLoadSupplier(page.supplierNumber, page.vehicleNumber, NormalMode)
+          case _ => routes.JourneyRecoveryController.onPageLoad()
+        }
     case page: TotalAmountPaidPage =>
       (userAnswers, _) =>
         userAnswers.get(page) match {
@@ -278,7 +285,7 @@ class Navigator @Inject() () {
           page.isInstanceOf[SupplierVatRegistrationNumberPage] =>
       (_, _) => supplierdetails.routes.SupplierDetailsCheckYourAnswersController.onPageLoad(page.supplierNumber)
     case _: VehicleDatesPage | _: PurchaseInvoiceDatePage | _: DateOfAvailabilityPage | _: DateOfFirstRegistrationPage |
-        _: PurchaseInvoiceNumberPage | _: TotalAmountPaidPage =>
+        _: PurchaseInvoiceNumberPage | _: NoPurchaseInvoiceReasonPage | _: TotalAmountPaidPage =>
       (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to the vehicle details CYA when built
     case _ =>
       (_, _) => routes.LandingPageController.onPageLoad()

@@ -825,6 +825,17 @@ purchaseInvoiceNumber.error.invalid = Enter the purchase invoice number in the c
 purchaseInvoiceNumber.error.length = The purchase invoice number must be 20 characters or less
 
 ##############################################################
+# AVD6.0 - Add vehicle details 6.0: Reason for no invoice    #
+##############################################################
+# TODO: Welsh translations to be supplied by content team.
+noPurchaseInvoiceReason.title = Provide a reason why a purchase invoice is not available
+noPurchaseInvoiceReason.heading = Provide a reason why a purchase invoice is not available
+noPurchaseInvoiceReason.caption = Add vehicle details
+noPurchaseInvoiceReason.error.required = Enter a reason why a purchase invoice is not available
+noPurchaseInvoiceReason.error.length = The reason must be 160 characters or less
+noPurchaseInvoiceReason.error.invalid = The reason must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
+
+##############################################################
 # AVD7.0 - Add vehicle details 7.0: Total amount paid        #
 ##############################################################
 # TODO: Welsh translations to be supplied by content team.
