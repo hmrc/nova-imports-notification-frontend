@@ -17,7 +17,7 @@
 package config
 
 import base.SpecBase
-import models.{AddressJourney, SupplierNumber}
+import models.{AddressJourney, Country, SupplierNumber}
 import org.scalatest.BeforeAndAfterAll
 import play.api.Application
 
@@ -44,6 +44,22 @@ class FrontendAppConfigSpec extends SpecBase with BeforeAndAfterAll {
     "must be the supplier callback for the supplier number given" in {
       appConfig.addressLookupCallbackUrl(AddressJourney.Supplier(SupplierNumber(2))) mustEqual
         s"${appConfig.host}/nova-imports/supplier/2/address-lookup-callback"
+    }
+  }
+
+  "countries" - {
+
+    "must load every country from the bundled list" in {
+      appConfig.countries.size mustEqual 195
+    }
+
+    "must load each entry as a code and a name" in {
+      appConfig.countries must contain(Country("FR", "France"))
+      appConfig.countries must contain(Country("XK", "Kosovo"))
+    }
+
+    "must not offer the United Kingdom" in {
+      appConfig.countries.map(_.code) must not contain "GB"
     }
   }
 }

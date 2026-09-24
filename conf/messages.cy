@@ -967,6 +967,16 @@ dateOfFirstRegistration.error.notARealDate = The date the vehicle was first regi
 dateOfFirstRegistration.error.future = The date the vehicle was first registered must be today or in the past
 
 ##########################################################################
+# AVD5.2 - Add vehicle details 5.2: Country of first registration        #
+##########################################################################
+
+countryOfFirstRegistration.title = Enter the country where the vehicle was first registered
+countryOfFirstRegistration.heading = Enter the country where the vehicle was first registered
+countryOfFirstRegistration.caption = Add vehicle details
+countryOfFirstRegistration.hint = You can find this in the vehicle log book
+countryOfFirstRegistration.error.required = Enter the country where the vehicle was first registered
+
+##########################################################################
 # AVD-S8.0 - Add vehicle details - Supplier 8.0: Supplier VAT Registered #
 ##########################################################################
 # TODO: Welsh translations to be supplied by content team.
