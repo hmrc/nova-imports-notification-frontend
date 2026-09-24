@@ -84,6 +84,26 @@ class NoPurchaseInvoiceReasonFormProviderSpec extends StringFieldBehaviours {
       }
     }
 
+    "must accept line breaks from the text area and store the reason on one line" in {
+      val result = form.bind(Map(fieldName -> "No invoice was issued\r\nThe supplier closed"))
+
+      result.errors mustBe empty
+      result.value.value mustEqual "No invoice was issued The supplier closed"
+    }
+
+    "must accept a reason with a trailing line break" in {
+      val result = form.bind(Map(fieldName -> "No invoice was issued\n"))
+
+      result.errors mustBe empty
+      result.value.value mustEqual "No invoice was issued"
+    }
+
+    "must measure the length after collapsing line breaks" in {
+      val result = form.bind(Map(fieldName -> ("A" * 80 + "\n" + "B" * 79)))
+
+      result.errors mustBe empty
+    }
+
     "must report the length error rather than the format error when a long reason also has invalid characters" in {
 
       val result = form.bind(Map(fieldName -> ("#" * 161)))

@@ -26,6 +26,7 @@ class NoPurchaseInvoiceReasonFormProvider @Inject() extends Mappings {
   def apply(): Form[String] =
     Form(
       "value" -> text("noPurchaseInvoiceReason.error.required")
+        .transform[String](collapseWhitespace, identity)
         .verifying(
           firstError(
             maxLength(NoPurchaseInvoiceReasonFormProvider.MaxLength, "noPurchaseInvoiceReason.error.length"),
@@ -33,6 +34,9 @@ class NoPurchaseInvoiceReasonFormProvider @Inject() extends Mappings {
           )
         )
     )
+
+  // the text area lets users press enter, but line breaks are not valid in the reason
+  private def collapseWhitespace(value: String): String = value.replaceAll("\\s+", " ").trim
 }
 
 object NoPurchaseInvoiceReasonFormProvider {
