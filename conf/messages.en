@@ -1160,6 +1160,7 @@ uploadSpreadsheetErrorRejected.buttonLabel = Upload again
 ##################################################################
 
 spreadsheetErrors.title = Errors found in this vehicle spreadsheet
+spreadsheetErrors.pagination.title = Errors found in this vehicle spreadsheet (page {0} of {1})
 spreadsheetErrors.heading = Errors found in this vehicle spreadsheet
 spreadsheetErrors.caption = Add vehicle details
 spreadsheetErrors.paragraph = Fix these errors and upload the updated spreadsheet to continue.
