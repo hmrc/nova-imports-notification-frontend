@@ -25,7 +25,7 @@
     govukTag: GovukTag
 )
 
-@(isFinal: Boolean, fileName: Option[String], removeUrl: Call, statusUrl: String, refreshIntervalSeconds: Int)(implicit request: Request[?], messages: Messages)
+@(isFinal: Boolean, fileName: Option[String], removeUrl: Call, statusUrl: String, refreshIntervalSeconds: Int, maxPollSeconds: Int)(implicit request: Request[?], messages: Messages)
 
 @statusTag = @{
     val base = TagViewModel(Text(messages(if (isFinal) "vehicleSpreadsheetUpload.status.uploaded" else "vehicleSpreadsheetUpload.status.uploading")))
@@ -37,12 +37,12 @@
 @actionItem = @{
     val (text, href) =
         if (isFinal) (messages("site.remove"), removeUrl.url)
-        else (messages("site.cancel"), routes.UploadVehicleSpreadsheetController.onPageLoad().url)
+        else (messages("site.cancel"), routes.UploadVehicleSpreadsheetController.onPageLoad(restart = true).url)
 
     ActionItemViewModel(Text(text), href)
         .withVisuallyHiddenText(messages("vehicleSpreadsheetUpload.heading"))
         .withAttribute("id" -> "upload-action-link")
-        .withAttribute("data-cancel-href" -> routes.UploadVehicleSpreadsheetController.onPageLoad().url)
+        .withAttribute("data-cancel-href" -> routes.UploadVehicleSpreadsheetController.onPageLoad(restart = true).url)
         .withAttribute("data-remove-href" -> removeUrl.url)
         .withAttribute("data-cancel-text" -> messages("site.cancel"))
         .withAttribute("data-remove-text" -> messages("site.remove"))
@@ -70,11 +70,23 @@
     }
 
     <script @{CSPNonce.attr}>
+        var pollStartedAt = Date.now();
+        var refreshIntervalMs = @refreshIntervalSeconds * 1000;
+        var maxPollDurationMs = @maxPollSeconds * 1000;
+
         document.addEventListener('DOMContentLoaded', function() {
             if (!@isFinal) {
-                window.setTimeout(checkUploadStatus, @refreshIntervalSeconds * 1000);
+                window.setTimeout(checkUploadStatus, refreshIntervalMs);
             }
         });
+
+        function scheduleNextCheck() {
+            if (Date.now() - pollStartedAt >= maxPollDurationMs) {
+                window.location.href = '@routes.UploadSpreadsheetErrorUnknownController.onPageLoad().url';
+                return;
+            }
+            window.setTimeout(checkUploadStatus, refreshIntervalMs);
+        }
 
         function checkUploadStatus() {
             fetch('@statusUrl')
@@ -122,11 +134,11 @@
                             }
                         }
                     } else {
-                        window.setTimeout(checkUploadStatus, @refreshIntervalSeconds * 1000);
+                        scheduleNextCheck();
                     }
                 })
                 .catch(function() {
-                    window.setTimeout(checkUploadStatus, @refreshIntervalSeconds * 1000);
+                    scheduleNextCheck();
                 });
         }
     </script>

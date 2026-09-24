@@ -61,7 +61,7 @@
             <div class="govuk-button-group">
                 @govukButton(
                     ButtonViewModel(messages("spreadsheetErrors.uploadButton"))
-                        .asLink(controllers.vehicledetails.routes.UploadVehicleSpreadsheetController.onPageLoad().url)
+                        .asLink(controllers.vehicledetails.routes.UploadVehicleSpreadsheetController.onPageLoad(restart = true).url)
                 )
                 <a class="govuk-link" href="@controllers.routes.NotificationTaskListController.onPageLoad().url">@messages("spreadsheetErrors.returnLink")</a>
             </div>

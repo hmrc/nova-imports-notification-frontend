@@ -45,10 +45,12 @@ class VehicleSpreadsheetUploadViewSpec extends SpecBase with Matchers with Befor
   private val removeUrl              = routes.AddVehicleDetailsController.onPageLoad(models.NormalMode)
   private val statusUrl              = routes.VehicleSpreadsheetUploadController.status().url
   private val refreshIntervalSeconds = 3
+  private val maxPollSeconds         = 120
   private val cancelUrl              = routes.UploadVehicleSpreadsheetController.onPageLoad().url
+  private val problemUploadingUrl    = routes.UploadSpreadsheetErrorUnknownController.onPageLoad().url
 
   private def htmlFor(isFinal: Boolean, fileName: Option[String] = None): String =
-    view(isFinal, fileName, removeUrl, statusUrl, refreshIntervalSeconds).toString
+    view(isFinal, fileName, removeUrl, statusUrl, refreshIntervalSeconds, maxPollSeconds).toString
 
   "VehicleSpreadsheetUploadView" - {
 
@@ -96,6 +98,13 @@ class VehicleSpreadsheetUploadViewSpec extends SpecBase with Matchers with Befor
 
       html must include(statusUrl)
       html must include(s"$refreshIntervalSeconds * 1000")
+    }
+
+    "must give up polling and redirect to the problem uploading page once the max poll duration is reached" in {
+      val html = htmlFor(isFinal = false)
+
+      html must include(s"$maxPollSeconds * 1000")
+      html must include(problemUploadingUrl)
     }
   }
 }
