@@ -16,13 +16,12 @@
 
 package controllers.supplierdetails
 
-import controllers.{BaseController, routes, supplierdetails}
 import controllers.actions.*
 import controllers.utils.IsDraftIdDefined
+import controllers.{BaseController, supplierdetails}
 import forms.IsSupplierVatRegisteredFormProvider
 import models.requests.DataRequest
 import models.{CheckMode, Mode, SupplierNumber, UserAnswers}
-import navigation.Navigator
 import pages.sections.initialquestions.VehicleFromEuPage
 import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierVatRegistrationNumberPage}
 import play.api.data.Form
@@ -38,7 +37,6 @@ import scala.util.Try
 class IsSupplierVatRegisteredController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   sessionRepository: SessionRepository,
-  navigator: Navigator,
   actions: Actions,
   formProvider: IsSupplierVatRegisteredFormProvider,
   supplierService: SupplierService,
@@ -74,7 +72,6 @@ class IsSupplierVatRegisteredController @Inject() (
                 case false =>
                   supplierdetails.routes.SupplierDetailsCheckYourAnswersController
                     .onPageLoad(supplierNumber)
-                case _ => routes.JourneyRecoveryController.onPageLoad()
               }
             )
         )

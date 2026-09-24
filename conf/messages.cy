@@ -975,3 +975,12 @@ uploadSpreadsheetErrorRejected.caption = Add vehicle details
 uploadSpreadsheetErrorRejected.paragraph = You must save the spreadsheet as an ODS file and try uploading it again.
 uploadSpreadsheetErrorRejected.link = Return to create a vehicle notification
 uploadSpreadsheetErrorRejected.buttonLabel = Upload again
+
+#######################################################
+# DN2.0 - Delete current notification                 #
+#######################################################
+# TODO: Welsh translations to be supplied by content team.
+deleteCurrentNotification.title = Are you sure you want to delete this notification?
+deleteCurrentNotification.heading = Are you sure you want to delete this notification?
+deleteCurrentNotification.paragraph = You’ll lose all the details for this notification.
+deleteCurrentNotification.error.required = Select yes if you want to delete this notification

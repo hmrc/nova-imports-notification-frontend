@@ -19,23 +19,20 @@ package controllers.purchaseraddress
 import controllers.actions.*
 import controllers.utils.IsDraftIdDefined
 import controllers.{BaseController, purchaseraddress, routes}
-import models.{NormalMode, PurchaserOrOnBehalf}
 import models.requests.DataRequest
+import models.{NormalMode, PurchaserOrOnBehalf}
 import pages.sections.initialquestions.NotifyingAsPurchaserPage
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import repositories.SessionRepository
 import views.html.PurchaserAddressCheckYourAnswersView
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class PurchaserAddressCheckYourAnswersController @Inject() (
   val controllerComponents: MessagesControllerComponents,
-  sessionRepository: SessionRepository,
   actions: Actions,
   view: PurchaserAddressCheckYourAnswersView
-)(implicit ec: ExecutionContext)
-    extends BaseController {
+) extends BaseController {
 
   import PurchaserAddressCheckYourAnswersController.*
 

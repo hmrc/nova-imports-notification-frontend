@@ -265,3 +265,6 @@ GET         /check-answers/your-address/change                                  
 GET         /check-answers/purchaser-address                                             controllers.purchaseraddress.PurchaserAddressCheckYourAnswersController.onPageLoad()
 POST        /check-answers/purchaser-address                                             controllers.purchaseraddress.PurchaserAddressCheckYourAnswersController.onSubmit()
 GET         /check-answers/purchaser-address/change                                      controllers.purchaseraddress.PurchaserAddressCheckYourAnswersController.onChangeAddress()
+
+GET         /delete-notification                                                         controllers.notification.DeleteCurrentNotificationController.onPageLoad()
+POST        /delete-notification                                                         controllers.notification.DeleteCurrentNotificationController.onSubmit()

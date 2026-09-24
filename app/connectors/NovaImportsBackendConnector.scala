@@ -53,6 +53,12 @@ object GetDraftNotificationError {
   case object NotFound extends GetDraftNotificationError
   final case class UpstreamError(status: Int, message: String) extends GetDraftNotificationError
 }
+sealed trait DeleteDraftNotificationError
+object DeleteDraftNotificationError {
+  case object Forbidden extends DeleteDraftNotificationError
+  case object NotFound extends DeleteDraftNotificationError
+  final case class UpstreamError(status: Int, message: String) extends DeleteDraftNotificationError
+}
 
 sealed trait CreateUploadTrackingError
 object CreateUploadTrackingError {
@@ -114,6 +120,8 @@ trait NovaImportsBackendConnector {
   def updateDraftSection(draftId: DraftId, sectionId: String, body: JsObject)(implicit hc: HeaderCarrier): Future[Either[UpdateSectionError, Long]]
 
   def getDraftNotification(draftId: DraftId)(implicit hc: HeaderCarrier): Future[Either[GetDraftNotificationError, DraftNotification]]
+
+  def deleteDraftNotification(draftId: DraftId)(implicit hc: HeaderCarrier): Future[Either[DeleteDraftNotificationError, Boolean]]
 
   def getTraderInformation()(implicit hc: HeaderCarrier): Future[Either[GetTraderInformationError, TraderInformation]]
 
@@ -246,6 +254,25 @@ class NovaImportsBackendConnectorImpl @Inject() (
               .validate[DraftNotification]
               .map(Right(_))
               .recoverTotal(err => Left(UpstreamError(200, s"Malformed draft notification: $err")))
+          case 403 => Left(Forbidden)
+          case 404 => Left(NotFound)
+          case s   => Left(UpstreamError(s, response.body))
+        }
+      }
+  }
+
+  override def deleteDraftNotification(draftId: DraftId)(implicit
+    hc: HeaderCarrier
+  ): Future[Either[DeleteDraftNotificationError, Boolean]] = {
+    import DeleteDraftNotificationError.*
+
+    httpClient
+      .delete(url"${serviceUrl(s"/draft-notifications/${draftId.value}")}")
+      .execute[HttpResponse]
+      .map { response =>
+        response.status match {
+          case 204 =>
+            Right(true)
           case 403 => Left(Forbidden)
           case 404 => Left(NotFound)
           case s   => Left(UpstreamError(s, response.body))

@@ -18,13 +18,12 @@ package controllers.vehicledetails
 
 import config.FrontendAppConfig
 import connectors.NovaImportsBackendConnector
-import controllers.BaseController
 import controllers.actions.Actions
-import controllers.routes
+import controllers.{BaseController, routes}
 import controllers.utils.IsDraftIdDefined
-import controllers.vehicledetails.UploadVehicleSpreadsheetController.{guardPredicate, spreadsheetValidationTypeFor}
-import models.{SpreadsheetUploadError, SpreadsheetValidationType, UserAnswers}
+import controllers.vehicledetails.UploadVehicleSpreadsheetController.guardPredicate
 import models.requests.DataRequest
+import models.{SpreadsheetUploadError, SpreadsheetValidationType, UserAnswers}
 import pages.DraftIdPage
 import pages.sections.initialquestions.VehicleFromEuPage
 import pages.sections.introduction.AmendSubmittedNotificationPage
