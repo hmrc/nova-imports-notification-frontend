@@ -57,6 +57,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
     configuration.get[Service]("microservice.services.nova-imports-backend").baseUrl
 
   val uploadStatusRefreshIntervalSeconds: Int = configuration.get[Int]("uploadStatusRefreshIntervalSeconds")
+  val uploadStatusMaxPollSeconds: Int         = configuration.get[Int]("uploadStatusMaxPollSeconds")
 
   val addressLookupFrontendBaseUrl: String =
     configuration.get[Service]("microservice.services.address-lookup-frontend").baseUrl

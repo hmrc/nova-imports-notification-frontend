@@ -46,30 +46,43 @@ class VehicleSpreadsheetUploadController @Inject() (
     extends BaseController
     with Logging {
 
-  def onPageLoad(): Action[AnyContent] =
+  def onPageLoad(remove: Boolean): Action[AnyContent] =
     actions.authAndGetDataWithUserTypeGuard(guardPredicate).async { implicit request =>
       implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
-      val removeUrl = removeUrlFor(request.userAnswers.get(VehicleFromEuPage).contains(true))
+      val draftId = request.userAnswers.get(DraftIdPage).get
 
-      connector.getFileUploadSummary(request.userAnswers.get(DraftIdPage).get).map {
-        case Right(summary) =>
-          errorRedirectFor(summary.fileStatus, summary.failureReason) match {
-            case Some(call) => Redirect(call)
-            case None       =>
-              Ok(
-                view(
-                  isFinal = isFinal(summary.fileStatus),
-                  fileName = summary.fileName,
-                  removeUrl = removeUrl,
-                  statusUrl = routes.VehicleSpreadsheetUploadController.status().url,
-                  refreshIntervalSeconds = appConfig.uploadStatusRefreshIntervalSeconds
-                )
-              )
+      if (remove) {
+        val removeUrl = removeUrlFor(request.userAnswers.get(VehicleFromEuPage).contains(true))
+        connector
+          .deleteFileUpload(draftId)
+          .map {
+            case Right(_)    => ()
+            case Left(error) =>
+              logger.warn(s"Could not delete the vehicle spreadsheet upload: $error")
           }
-        case Left(error) =>
-          logger.warn(s"Could not retrieve the vehicle spreadsheet upload summary: $error")
-          Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+          .map(_ => Redirect(removeUrl))
+      } else {
+        connector.getFileUploadSummary(draftId).map {
+          case Right(summary) =>
+            errorRedirectFor(summary.fileStatus, summary.failureReason) match {
+              case Some(call) => Redirect(call)
+              case None       =>
+                Ok(
+                  view(
+                    isFinal = isFinal(summary.fileStatus),
+                    fileName = summary.fileName,
+                    removeUrl = routes.VehicleSpreadsheetUploadController.onPageLoad(remove = true),
+                    statusUrl = routes.VehicleSpreadsheetUploadController.status().url,
+                    refreshIntervalSeconds = appConfig.uploadStatusRefreshIntervalSeconds,
+                    maxPollSeconds = appConfig.uploadStatusMaxPollSeconds
+                  )
+                )
+            }
+          case Left(error) =>
+            logger.warn(s"Could not retrieve the vehicle spreadsheet upload summary: $error")
+            Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+        }
       }
     }
 

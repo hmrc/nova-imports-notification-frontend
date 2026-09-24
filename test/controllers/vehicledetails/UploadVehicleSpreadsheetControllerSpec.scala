@@ -19,13 +19,13 @@ package controllers.vehicledetails
 import base.SpecBase
 import com.google.inject.name.Names
 import config.FrontendAppConfig
-import connectors.{CreateUploadTrackingError, NovaImportsBackendConnector}
+import connectors.{CreateUploadTrackingError, DeleteFileUploadError, GetFileUploadSummaryError, NovaImportsBackendConnector}
 import controllers.actions.*
 import controllers.{routes, vehicledetails}
-import models.responses.CreateUploadTrackingResponse
+import models.responses.{CreateUploadTrackingResponse, DeleteFileUploadResponse, GetFileUploadSummaryResponse}
 import models.{AgentSelectedClient, DraftId, SpreadsheetUploadError, UserAnswers}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
-import org.mockito.Mockito.{verify, when}
+import org.mockito.Mockito.{never, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.sections.initialquestions.VehicleFromEuPage
 import pages.sections.introduction.AmendSubmittedNotificationPage
@@ -43,6 +43,7 @@ import scala.concurrent.Future
 class UploadVehicleSpreadsheetControllerSpec extends SpecBase with MockitoSugar {
 
   private lazy val onPageLoadRoute = vehicledetails.routes.UploadVehicleSpreadsheetController.onPageLoad().url
+  private lazy val restartRoute    = vehicledetails.routes.UploadVehicleSpreadsheetController.onPageLoad(restart = true).url
 
   private val draftId = DraftId("DRAFT-001")
 
@@ -56,18 +57,24 @@ class UploadVehicleSpreadsheetControllerSpec extends SpecBase with MockitoSugar 
     emptyUserAnswers.unsafeSet(DraftIdPage, draftId).unsafeSet(VehicleFromEuPage, true)
 
   private def connectorReturning(
-    result: Either[CreateUploadTrackingError, CreateUploadTrackingResponse]
+    createResult: Either[CreateUploadTrackingError, CreateUploadTrackingResponse] = Right(uploadTracking),
+    summaryResult: Either[GetFileUploadSummaryError, GetFileUploadSummaryResponse] = Left(GetFileUploadSummaryError.NotFound),
+    deleteResult: Either[DeleteFileUploadError, DeleteFileUploadResponse] = Right(DeleteFileUploadResponse(true))
   ): NovaImportsBackendConnector = {
     val connector = mock[NovaImportsBackendConnector]
     when(connector.createUploadTracking(any[DraftId], any[Option[Boolean]])(using any[HeaderCarrier]))
-      .thenReturn(Future.successful(result))
+      .thenReturn(Future.successful(createResult))
+    when(connector.getFileUploadSummary(any[DraftId])(using any[HeaderCarrier]))
+      .thenReturn(Future.successful(summaryResult))
+    when(connector.deleteFileUpload(any[DraftId])(using any[HeaderCarrier]))
+      .thenReturn(Future.successful(deleteResult))
     connector
   }
 
   private def applicationFor(
     standardIdentifier: Class[? <: IdentifierAction],
     userAnswers: Option[UserAnswers],
-    connector: NovaImportsBackendConnector = connectorReturning(Right(uploadTracking))
+    connector: NovaImportsBackendConnector = connectorReturning()
   ): Application =
     new GuiceApplicationBuilder()
       .overrides(
@@ -82,7 +89,7 @@ class UploadVehicleSpreadsheetControllerSpec extends SpecBase with MockitoSugar 
       )
       .build()
 
-  "UploadVehicleSpreadsheetController" - {
+  "UploadVehicleSpreadsheetController.onPageLoad" - {
 
     "must return OK and render the upload form from the upscan details for a VAT-registered organisation" in {
       val application = applicationFor(classOf[FakeVatTraderIdentifierAction], Some(acquisitionAnswers))
@@ -142,8 +149,8 @@ class UploadVehicleSpreadsheetControllerSpec extends SpecBase with MockitoSugar 
       }
     }
 
-    "must ask the backend to start an upload for the current draft" in {
-      val connector   = connectorReturning(Right(uploadTracking))
+    "must ask the backend to start an upload for the current draft when none exists yet" in {
+      val connector   = connectorReturning()
       val application = applicationFor(classOf[FakeVatTraderIdentifierAction], Some(acquisitionAnswers), connector)
 
       running(application) {
@@ -155,7 +162,7 @@ class UploadVehicleSpreadsheetControllerSpec extends SpecBase with MockitoSugar 
     }
 
     "must forward the amendment flag from AmendSubmittedNotificationPage to the backend" in {
-      val connector   = connectorReturning(Right(uploadTracking))
+      val connector   = connectorReturning()
       val answers     = acquisitionAnswers.unsafeSet(AmendSubmittedNotificationPage, true)
       val application = applicationFor(classOf[FakeVatTraderIdentifierAction], Some(answers), connector)
 
@@ -164,6 +171,97 @@ class UploadVehicleSpreadsheetControllerSpec extends SpecBase with MockitoSugar 
 
         status(result) mustEqual OK
         verify(connector).createUploadTracking(eqTo(draftId), eqTo(Some(true)))(using any[HeaderCarrier])
+      }
+    }
+
+    "must render the form when the existing upload for this draft is still AwaitingUpload" in {
+      val connector   = connectorReturning(summaryResult = Right(GetFileUploadSummaryResponse("AWAITING_UPLOAD", None, None)))
+      val application = applicationFor(classOf[FakeVatTraderIdentifierAction], Some(acquisitionAnswers), connector)
+
+      running(application) {
+        val result = route(application, FakeRequest(GET, onPageLoadRoute)).value
+
+        status(result) mustEqual OK
+        verify(connector).createUploadTracking(eqTo(draftId), eqTo(None))(using any[HeaderCarrier])
+      }
+    }
+
+    "must redirect to the upload status page instead of starting a new upload when one is already in progress or resolved" in {
+      val connector   = connectorReturning(summaryResult = Right(GetFileUploadSummaryResponse("VALIDATED", None, Some("car.ods"))))
+      val application = applicationFor(classOf[FakeVatTraderIdentifierAction], Some(acquisitionAnswers), connector)
+
+      running(application) {
+        val result = route(application, FakeRequest(GET, onPageLoadRoute)).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual vehicledetails.routes.VehicleSpreadsheetUploadController.onPageLoad().url
+        verify(connector, never).createUploadTracking(any[DraftId], any[Option[Boolean]])(using any[HeaderCarrier])
+      }
+    }
+
+    "must redirect to Unauthorised when the existing upload summary lookup returns Forbidden" in {
+      val connector   = connectorReturning(summaryResult = Left(GetFileUploadSummaryError.Forbidden))
+      val application = applicationFor(classOf[FakeVatTraderIdentifierAction], Some(acquisitionAnswers), connector)
+
+      running(application) {
+        val result = route(application, FakeRequest(GET, onPageLoadRoute)).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Journey Recovery when the existing upload summary lookup fails upstream" in {
+      val connector   = connectorReturning(summaryResult = Left(GetFileUploadSummaryError.UpstreamError(502, "boom")))
+      val application = applicationFor(classOf[FakeVatTraderIdentifierAction], Some(acquisitionAnswers), connector)
+
+      running(application) {
+        val result = route(application, FakeRequest(GET, onPageLoadRoute)).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must not delete anything when restart is not requested" in {
+      val connector   = connectorReturning()
+      val application = applicationFor(classOf[FakeVatTraderIdentifierAction], Some(acquisitionAnswers), connector)
+
+      running(application) {
+        val result = route(application, FakeRequest(GET, onPageLoadRoute)).value
+
+        status(result) mustEqual OK
+        verify(connector, never).deleteFileUpload(any[DraftId])(using any[HeaderCarrier])
+      }
+    }
+
+    "must delete the existing upload before starting a fresh one when restart is requested" in {
+      // the mocked getFileUploadSummary can't dynamically reflect the delete happening, so it's set up
+      // as NotFound throughout - representing the real backend state once the delete has taken effect
+      val connector   = connectorReturning(summaryResult = Left(GetFileUploadSummaryError.NotFound))
+      val application = applicationFor(classOf[FakeVatTraderIdentifierAction], Some(acquisitionAnswers), connector)
+
+      running(application) {
+        val result = route(application, FakeRequest(GET, restartRoute)).value
+
+        status(result) mustEqual OK
+        verify(connector).deleteFileUpload(eqTo(draftId))(using any[HeaderCarrier])
+        verify(connector).createUploadTracking(eqTo(draftId), eqTo(None))(using any[HeaderCarrier])
+      }
+    }
+
+    "must still start a fresh upload when restart is requested but the delete call fails" in {
+      val connector = connectorReturning(
+        summaryResult = Left(GetFileUploadSummaryError.NotFound),
+        deleteResult = Left(DeleteFileUploadError.UpstreamError(502, "boom"))
+      )
+      val application = applicationFor(classOf[FakeVatTraderIdentifierAction], Some(acquisitionAnswers), connector)
+
+      running(application) {
+        val result = route(application, FakeRequest(GET, restartRoute)).value
+
+        status(result) mustEqual OK
+        verify(connector).createUploadTracking(eqTo(draftId), eqTo(None))(using any[HeaderCarrier])
       }
     }
 
@@ -248,7 +346,11 @@ class UploadVehicleSpreadsheetControllerSpec extends SpecBase with MockitoSugar 
 
     "must redirect to Journey Recovery when the backend has no draft with that id" in {
       val application =
-        applicationFor(classOf[FakeVatTraderIdentifierAction], Some(acquisitionAnswers), connectorReturning(Left(CreateUploadTrackingError.NotFound)))
+        applicationFor(
+          classOf[FakeVatTraderIdentifierAction],
+          Some(acquisitionAnswers),
+          connectorReturning(createResult = Left(CreateUploadTrackingError.NotFound))
+        )
 
       running(application) {
         val result = route(application, FakeRequest(GET, onPageLoadRoute)).value
@@ -263,7 +365,7 @@ class UploadVehicleSpreadsheetControllerSpec extends SpecBase with MockitoSugar 
         applicationFor(
           classOf[FakeVatTraderIdentifierAction],
           Some(acquisitionAnswers),
-          connectorReturning(Left(CreateUploadTrackingError.Forbidden))
+          connectorReturning(createResult = Left(CreateUploadTrackingError.Forbidden))
         )
 
       running(application) {
@@ -278,7 +380,7 @@ class UploadVehicleSpreadsheetControllerSpec extends SpecBase with MockitoSugar 
       val application = applicationFor(
         classOf[FakeVatTraderIdentifierAction],
         Some(acquisitionAnswers),
-        connectorReturning(Left(CreateUploadTrackingError.UpstreamError(502, "upscan unavailable")))
+        connectorReturning(createResult = Left(CreateUploadTrackingError.UpstreamError(502, "upscan unavailable")))
       )
 
       running(application) {
