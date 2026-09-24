@@ -26,7 +26,7 @@ import pages.sections.vehicledetails.{AddImportVehicleDetailsPage, AddVehicleDet
 import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierVatRegistrationNumberPage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
-import pages.sections.vehicledetails.{DateOfAvailabilityPage, DateOfFirstRegistrationPage, PurchaseInvoiceDatePage, PurchaseInvoiceNumberPage, TotalAmountPaidPage, VehicleDatesPage}
+import pages.sections.vehicledetails.{DateOfAvailabilityPage, DateOfFirstRegistrationPage, NoPurchaseInvoiceReasonPage, PurchaseInvoiceDatePage, PurchaseInvoiceNumberPage, TotalAmountPaidPage, VehicleDatesPage}
 
 import java.time.LocalDate
 
@@ -611,6 +611,25 @@ class NavigatorSpec extends SpecBase {
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
 
+      "must go from NoPurchaseInvoiceReasonPage AVD6.0 to TotalAmountPaid AVD7.0 when a reason is entered" in {
+        val ua = userAnswers.set(NoPurchaseInvoiceReasonPage(SupplierNumber(1), VehicleNumber(1)), "No invoice was issued").success.value
+        navigator.nextPage(
+          NoPurchaseInvoiceReasonPage(SupplierNumber(1), VehicleNumber(1)),
+          NormalMode,
+          ua,
+          NovaUserType.PrivateIndividual
+        ) mustBe vehicledetails.routes.TotalAmountPaidController.onPageLoadSupplier(SupplierNumber(1), VehicleNumber(1), NormalMode)
+      }
+
+      "must go from NoPurchaseInvoiceReasonPage AVD6.0 to JourneyRecovery when no reason is found" in {
+        navigator.nextPage(
+          NoPurchaseInvoiceReasonPage(SupplierNumber(1), VehicleNumber(1)),
+          NormalMode,
+          userAnswers,
+          NovaUserType.PrivateIndividual
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
       "must go from TotalAmountPaidPage AVD7.0 to LandingPage when an answer is entered" in {
         val ua = userAnswers.set(TotalAmountPaidPage(VehicleNumber(1)), "15000").success.value
         navigator.nextPage(
@@ -949,6 +968,16 @@ class NavigatorSpec extends SpecBase {
         val ua = userAnswers.set(DateOfAvailabilityPage(SupplierNumber(1), VehicleNumber(1)), LocalDate.of(2026, 3, 27)).success.value
         navigator.nextPage(
           DateOfAvailabilityPage(SupplierNumber(1), VehicleNumber(1)),
+          CheckMode,
+          ua,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from NoPurchaseInvoiceReasonPage AVD6.0 to LandingPage" in {
+        val ua = userAnswers.set(NoPurchaseInvoiceReasonPage(SupplierNumber(1), VehicleNumber(1)), "No invoice was issued").success.value
+        navigator.nextPage(
+          NoPurchaseInvoiceReasonPage(SupplierNumber(1), VehicleNumber(1)),
           CheckMode,
           ua,
           NovaUserType.VatRegisteredOrganisation

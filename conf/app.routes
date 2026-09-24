@@ -248,6 +248,11 @@ POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/purchase-invoice-nu
 GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/purchase-invoice-number/change    controllers.vehicledetails.PurchaseInvoiceNumberController.onPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
 POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/purchase-invoice-number/change    controllers.vehicledetails.PurchaseInvoiceNumberController.onSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
 
+GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/no-purchase-invoice-reason        controllers.vehicledetails.NoPurchaseInvoiceReasonController.onPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/no-purchase-invoice-reason        controllers.vehicledetails.NoPurchaseInvoiceReasonController.onSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/no-purchase-invoice-reason/change controllers.vehicledetails.NoPurchaseInvoiceReasonController.onPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
+POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/no-purchase-invoice-reason/change controllers.vehicledetails.NoPurchaseInvoiceReasonController.onSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
+
 GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/total-amount-paid                  controllers.vehicledetails.TotalAmountPaidController.onPageLoadSupplier(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
 POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/total-amount-paid                  controllers.vehicledetails.TotalAmountPaidController.onSubmitSupplier(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
 GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/total-amount-paid/change           controllers.vehicledetails.TotalAmountPaidController.onPageLoadSupplier(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
