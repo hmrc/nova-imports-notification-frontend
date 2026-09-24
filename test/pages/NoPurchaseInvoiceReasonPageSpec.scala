@@ -27,7 +27,7 @@ class NoPurchaseInvoiceReasonPageSpec extends SpecBase {
     "must store the reason under the vehicle's details" in {
       val answers = emptyUserAnswers.unsafeSet(NoPurchaseInvoiceReasonPage(SupplierNumber(1), VehicleNumber(2)), "No invoice was issued")
 
-      (answers.data \ "vehicles" \ "2" \ "details" \ "noPurchaseInvoiceReasonMax").as[String] mustBe "No invoice was issued"
+      (answers.data \ "vehicles" \ "2" \ "type" \ "noPurchaseInvoiceReasonMax").as[String] mustBe "No invoice was issued"
     }
   }
 }
