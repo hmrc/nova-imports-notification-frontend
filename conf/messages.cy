@@ -191,18 +191,18 @@ supplierAddressChanged.saveAndContinue = Confirm address
 # APA1.0 - Add purchaser address: Is the purchaser's address in the UK #
 ##################################################################
 
-isPurchaserAddressInTheUk.title = Is the purchaser’s address in the UK?
-isPurchaserAddressInTheUk.heading = Is the purchaser’s address in the UK?
-isPurchaserAddressInTheUk.caption = Add purchaser address
-isPurchaserAddressInTheUk.error.required = Select yes if the purchaser’s address is in the UK
+isPurchaserAddressInTheUk.title = A yw cyfeiriad y prynwr yn y DU?
+isPurchaserAddressInTheUk.heading = A yw cyfeiriad y prynwr yn y DU?
+isPurchaserAddressInTheUk.caption = Ychwanegu cyfeiriad y prynwr
+isPurchaserAddressInTheUk.error.required = Dewiswch ‘Iawn’ os yw cyfeiriad y prynwr yn y DU
 
 ##################################################################
 # APA2.0 - Add purchaser address 2.0: We've changed their address #
 ##################################################################
 
-purchaserAddressChanged.title = We’ve changed the purchaser’s address
-purchaserAddressChanged.caption = Add purchaser address
-purchaserAddressChanged.heading = We’ve changed the purchaser’s address
+purchaserAddressChanged.title = Rydym wedi newid cyfeiriad y prynwr
+purchaserAddressChanged.caption = Ychwanegu cyfeiriad y prynwr
+purchaserAddressChanged.heading = Rydym wedi newid cyfeiriad y prynwr
 purchaserAddressChanged.body = Gallai hyn fod oherwydd nodau annilys neu fod rhai llinellau’n rhy hir
 purchaserAddressChanged.checkHeading = Gwiriwch y cyfeiriad wedi’i ddiweddaru
 purchaserAddressChanged.changeAddress = Newid y cyfeiriad
@@ -416,9 +416,8 @@ purchaserName.lastName = Enw olaf
 purchaserName.lastName.error.format = Nodwch enw olaf y prynwr yn y fformat cywir
 purchaserName.lastName.error.length = Mae’n rhaid i enw olaf y prynwr fod yn 100 o gymeriadau neu lai
 purchaserName.lastName.error.required = Nodwch enw olaf y prynwr
-# TODO: Welsh translations to be supplied by content team:
-purchaserName.checkYourAnswersLabel = Purchaser’s name
-purchaserName.change.hidden = the purchaser’s name
+purchaserName.checkYourAnswersLabel = Enw’r prynwr
+purchaserName.change.hidden = Enw’r prynwr
 
 ###########################################################################
 # APD2.0 - Add purchaser details 2.0: Purchaser business name             #
@@ -430,9 +429,8 @@ purchaserBusinessName.caption = Ychwanegu manylion y prynwr
 purchaserBusinessName.error.required = Nodwch enw busnes y prynwr
 purchaserBusinessName.error.length = Mae’n rhaid i enw busnes y prynwr fod yn 160 o gymeriadau neu lai
 purchaserBusinessName.error.invalid = Nodwch enw busnes y prynwr yn y fformat cywir
-# TODO: Welsh translations to be supplied by content team:
-purchaserBusinessName.checkYourAnswersLabel = Purchaser’s business name
-purchaserBusinessName.change.hidden = the purchaser’s business name
+purchaserBusinessName.checkYourAnswersLabel = Enw busnes y prynwr
+purchaserBusinessName.change.hidden = Enw busnes y prynwr
 
 ######################################################
 # ERR2.0 - Error message - System error              #
@@ -471,10 +469,9 @@ notificationTaskList.aboutYou.heading = Amdanoch chi
 notificationTaskList.aboutYou.addYourDetails = Ychwanegu eich manylion chi
 notificationTaskList.aboutYou.addYourAddress = Ychwanegwch eich cyfeiriad
 
-# TODO: Welsh translations to be supplied by content team.
-notificationTaskList.aboutThePurchaser.heading = About the purchaser
-notificationTaskList.aboutThePurchaser.addPurchaserDetails = Add purchaser details
-notificationTaskList.aboutThePurchaser.addPurchaserAddress = Add purchaser address
+notificationTaskList.aboutThePurchaser.heading = Ynglŷn â’r prynwr
+notificationTaskList.aboutThePurchaser.addPurchaserDetails = Ychwanegu manylion y prynwr
+notificationTaskList.aboutThePurchaser.addPurchaserAddress = Ychwanegu cyfeiriad y prynwr
 
 notificationTaskList.aboutTheVehicles.heading = Ynglŷn â’r cerbydau
 notificationTaskList.aboutTheVehicles.addVehicleDetails = Ychwanegwch fanylion cerbyd
@@ -657,38 +654,96 @@ purchaserBusinessOrIndividual.checkYourAnswersLabel = Math o brynwr rydych yn hy
 purchaserBusinessOrIndividual.change.hidden = P’un a yw’r prynwr rydych yn hysbysu ar ei ran yn fusnes neu’n unigolyn preifat
 
 ###########################################################################################
+# AVD-S1.0 - Add vehicle details - Supplier 1.0: Use personal details as supplier details #
+###########################################################################################
+# TODO: Welsh translations to be supplied by content team.
+usePersonalDetailsAsSupplier.title = Use your personal details as the supplier details
+usePersonalDetailsAsSupplier.caption = Add vehicle details
+usePersonalDetailsAsSupplier.heading = Use your personal details as the supplier details
+usePersonalDetailsAsSupplier.paragraph.1 = If you take goods from your own stock to use in your business, this is known as self-supply.
+usePersonalDetailsAsSupplier.paragraph.2 = If you’re a self-supplier, you can use your personal details as the supplier details. You must:
+usePersonalDetailsAsSupplier.bullet.1 = be VAT registered in the UK
+usePersonalDetailsAsSupplier.bullet.2 = have bought and used a road vehicle for your business activity in another EU country where you’re also VAT registered
+usePersonalDetailsAsSupplier.bullet.3 = have brought the road vehicle to the UK, and it belongs to the same business
+usePersonalDetailsAsSupplier.bullet.4 = not have bought a new means of transport,
+usePersonalDetailsAsSupplier.bullet.4.linkText = read VAT Notice 728
+usePersonalDetailsAsSupplier.personalDetails = Your personal details are:
+usePersonalDetailsAsSupplier.name = Name
+usePersonalDetailsAsSupplier.address = Address
+usePersonalDetailsAsSupplier.notProvided = Not provided
+usePersonalDetailsAsSupplier.question = Do you want to use your personal details as the supplier details?
+usePersonalDetailsAsSupplier.yes.hint = I meet all the required conditions and I want to use my personal details as the supplier details
+usePersonalDetailsAsSupplier.no.hint = I want to add different supplier details
+usePersonalDetailsAsSupplier.error.required = Select yes if you want to use your personal details as the supplier details
+
+###########################################################################################
+# AVD-S1.1 - Add vehicle details - Supplier 1.1: Use purchaser details as supplier details #
+###########################################################################################
+# TODO: Welsh translations to be supplied by content team.
+usePurchaserDetailsAsSupplier.title = Use the purchaser details as the supplier details
+usePurchaserDetailsAsSupplier.caption = Add vehicle details
+usePurchaserDetailsAsSupplier.heading = Use the purchaser details as the supplier details
+usePurchaserDetailsAsSupplier.paragraph.1 = If the purchaser is VAT registered, you can use their details as the supplier details.
+usePurchaserDetailsAsSupplier.purchaserDetails = The purchaser’s details are:
+usePurchaserDetailsAsSupplier.name = Name
+usePurchaserDetailsAsSupplier.address = Address
+usePurchaserDetailsAsSupplier.notProvided = Not provided
+usePurchaserDetailsAsSupplier.question = Do you want to use the purchaser details as the supplier details?
+usePurchaserDetailsAsSupplier.yes.hint = The purchaser is VAT registered and I want to use their details as the supplier details
+usePurchaserDetailsAsSupplier.no.hint = I want to add different supplier details
+usePurchaserDetailsAsSupplier.error.required = Select yes if you want to use the purchaser details as the supplier details
+
+###########################################################################################
+# AVD-S2.0 - Add vehicle details - Supplier 2.0: Supplier business or private individual  #
+###########################################################################################
+
+supplierBusinessOrIndividual.title = A yw’r cyflenwr yn fusnes neu’n unigolyn preifat?
+supplierBusinessOrIndividual.heading = A yw’r cyflenwr yn fusnes neu’n unigolyn preifat?
+supplierBusinessOrIndividual.caption = Ychwanegu manylion y cerbyd
+supplierBusinessOrIndividual.hint = Yn cynnwys busnesau nad ydynt wedi’u cofrestru ar gyfer TAW
+supplierBusinessOrIndividual.error.required = Dewiswch a yw’r cyflenwr yn fusnes neu’n unigolyn preifat
+supplierBusinessOrIndividual.radio.business = Busnes
+supplierBusinessOrIndividual.radio.privateIndividual = Unigolyn preifat
+# TODO: Welsh translations to be supplied by content team.
+supplierBusinessOrIndividual.checkYourAnswersLabel = Is the supplier a business or private individual?
+supplierBusinessOrIndividual.change.hidden = Is the supplier a business or private individual?
+
+###########################################################################################
 # AVD-S3.0 - Add vehicle details - Supplier 3.0: Supplier business name                   #
 ###########################################################################################
 
-supplierBusinessName.title = What is the supplier’s business name?
-supplierBusinessName.heading = What is the supplier’s business name?
-supplierBusinessName.caption = Add vehicle details
-supplierBusinessName.error.required = Enter the supplier’s business name
-supplierBusinessName.error.length = The supplier’s business name must be 160 characters or less
-supplierBusinessName.error.invalid = Enter the supplier’s business name in the correct format
+supplierBusinessName.title = Beth yw enw busnes y cyflenwr?
+supplierBusinessName.heading = Beth yw enw busnes y cyflenwr?
+supplierBusinessName.caption = Ychwanegu manylion y cerbyd
+supplierBusinessName.error.required = Nodwch enw busnes y cyflenwr
+supplierBusinessName.error.length = Mae’n rhaid i enw busnes y cyflenwr fod yn 160 o gymeriadau neu lai
+supplierBusinessName.error.invalid = Nodwch enw busnes y cyflenwr yn y fformat cywir
+
+# TODO: Welsh translations to be supplied by content team.
 supplierBusinessName.checkYourAnswersLabel = Supplier’s business name
 supplierBusinessName.change.hidden = supplier’s business name
 
 ###########################################################################################
 # AVD-S4.0 - Add vehicle details - Supplier 4.0: Supplier name                            #
 ###########################################################################################
-# TODO: Welsh translations to be supplied by content team.
 
-supplierName.title = What is the supplier’s name?
-supplierName.caption = Add vehicle details
-supplierName.heading = What is the supplier’s name?
-supplierName.titleField = Title
-supplierName.titleField.error.format = Enter the supplier’s title in the correct format
-supplierName.titleField.error.length = The supplier’s title must be 20 characters or less
-supplierName.titleField.error.required = Enter the supplier’s title
-supplierName.firstName = First name
-supplierName.firstName.error.format = Enter the supplier’s first name in the correct format
-supplierName.firstName.error.length = The supplier’s first name must be 100 characters or less
-supplierName.firstName.error.required = Enter the supplier’s first name
-supplierName.lastName = Last name
-supplierName.lastName.error.format = Enter the supplier’s last name in the correct format
-supplierName.lastName.error.length = The supplier’s last name must be 100 characters or less
-supplierName.lastName.error.required = Enter the supplier’s last name
+supplierName.title = Beth yw enw’r cyflenwr?
+supplierName.caption = Ychwanegu manylion y cerbyd
+supplierName.heading = Beth yw enw’r cyflenwr?
+supplierName.titleField = Teitl
+supplierName.titleField.error.format = Nodwch deitl y cyflenwr yn y fformat cywir
+supplierName.titleField.error.length = Mae’n rhaid i deitl y cyflenwr fod yn 20 o gymeriadau neu lai
+supplierName.titleField.error.required = Nodwch deitl y cyflenwr
+supplierName.firstName = Enw cyntaf
+supplierName.firstName.error.format = Nodwch enw cyntaf y cyflenwr yn y fformat cywir
+supplierName.firstName.error.length = Mae’n rhaid i enw cyntaf y cyflenwr fod yn 100 o gymeriadau neu lai
+supplierName.firstName.error.required = Nodwch enw cyntaf y cyflenwr
+supplierName.lastName = Enw olaf
+supplierName.lastName.error.format = Nodwch enw olaf y cyflenwr yn y fformat cywir
+supplierName.lastName.error.length = Mae’n rhaid i enw olaf y cyflenwr fod yn 100 o gymeriadau neu lai
+supplierName.lastName.error.required = Nodwch enw olaf y cyflenwr
+
+# TODO: Welsh translations to be supplied by content team.
 supplierName.checkYourAnswersLabel = Supplier’s name
 supplierName.change.hidden = supplier’s name
 
@@ -717,6 +772,14 @@ yourAddressCheckYourAnswers.title = Gwiriwch eich atebion - eich cyfeiriad
 yourAddressCheckYourAnswers.heading = Gwiriwch eich atebion
 yourAddressCheckYourAnswers.change.hidden = eich cyfeiriad
 yourAddressCheckYourAnswers.checkYourAnswersLabel = Cyfeiriad
+
+######################################################
+# CYA4.0 - Check your answers 4 - Purchaser details  #
+######################################################
+
+purchaserDetailsCheckYourAnswers.caption = Ychwanegu manylion y prynwr
+purchaserDetailsCheckYourAnswers.title = Gwiriwch eich atebion - Manylion y prynwr
+purchaserDetailsCheckYourAnswers.heading = Gwiriwch eich atebion
 
 #####################################################################
 # AVD3.0 - Add vehicle details 3.0: Which vehicle dates do you have #
