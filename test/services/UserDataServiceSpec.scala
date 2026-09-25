@@ -25,7 +25,7 @@ import org.mockito.Mockito.when
 import org.scalatest.EitherValues
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
-import pages.DraftIdPage
+import pages.{DraftIdPage, VehiclesSectionStatusPage}
 import pages.sections.initialquestions.{BusinessOrPrivatePage, NotifyingAsPurchaserPage, VehicleBusinessUsePage}
 import pages.sections.notifierdetails.{BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 import pages.sections.notifieraddress.AddressPage
@@ -280,6 +280,79 @@ class UserDataServiceSpec extends SpecBase with MockitoSugar with ScalaFutures w
     }
   }
 
+  "UserDataService.storeVehiclesSectionStatusPage" - {
+
+    "must mark NotYetSaved when the draft has no vehicle-related sections at all" in {
+      val result = UserDataService.storeVehiclesSectionStatusPage(draftWith(Map.empty), emptyUserAnswers, stubSessionRepository()).futureValue
+
+      result.get(VehiclesSectionStatusPage) mustBe Some(SectionStatus.NotYetSaved)
+    }
+
+    "must mark Completed once a single supplier/vehicle group has all three formDataIds" in {
+      val draft = draftWith(
+        Map(
+          "supplier/1/vehicle/1/type"                   -> DraftNotificationSection(Some(Json.obj())),
+          "supplier/1/vehicle/1/details"                -> DraftNotificationSection(Some(Json.obj())),
+          "supplier/1/vehicle/1/additional-information" -> DraftNotificationSection(Some(Json.obj()))
+        )
+      )
+      val result = UserDataService.storeVehiclesSectionStatusPage(draft, emptyUserAnswers, stubSessionRepository()).futureValue
+
+      result.get(VehiclesSectionStatusPage) mustBe Some(SectionStatus.Completed)
+    }
+
+    "must mark Completed once a single import/vehicle group has all three formDataIds" in {
+      val draft = draftWith(
+        Map(
+          "import/1/vehicle/1/type"                   -> DraftNotificationSection(Some(Json.obj())),
+          "import/1/vehicle/1/details"                -> DraftNotificationSection(Some(Json.obj())),
+          "import/1/vehicle/1/additional-information" -> DraftNotificationSection(Some(Json.obj()))
+        )
+      )
+      val result = UserDataService.storeVehiclesSectionStatusPage(draft, emptyUserAnswers, stubSessionRepository()).futureValue
+
+      result.get(VehiclesSectionStatusPage) mustBe Some(SectionStatus.Completed)
+    }
+
+    "must mark Incomplete when a vehicle group exists but is missing one of the three formDataIds" in {
+      val draft = draftWith(
+        Map(
+          "supplier/1/vehicle/1/type"    -> DraftNotificationSection(Some(Json.obj())),
+          "supplier/1/vehicle/1/details" -> DraftNotificationSection(Some(Json.obj()))
+        )
+      )
+      val result = UserDataService.storeVehiclesSectionStatusPage(draft, emptyUserAnswers, stubSessionRepository()).futureValue
+
+      result.get(VehiclesSectionStatusPage) mustBe Some(SectionStatus.Incomplete)
+    }
+
+    "must mark Completed when the first of several vehicle groups is complete, even if a later one is not" in {
+      val draft = draftWith(
+        Map(
+          "supplier/1/vehicle/1/type"                   -> DraftNotificationSection(Some(Json.obj())),
+          "supplier/1/vehicle/1/details"                -> DraftNotificationSection(Some(Json.obj())),
+          "supplier/1/vehicle/1/additional-information" -> DraftNotificationSection(Some(Json.obj())),
+          "supplier/2/vehicle/1/type"                   -> DraftNotificationSection(Some(Json.obj()))
+        )
+      )
+      val result = UserDataService.storeVehiclesSectionStatusPage(draft, emptyUserAnswers, stubSessionRepository()).futureValue
+
+      result.get(VehiclesSectionStatusPage) mustBe Some(SectionStatus.Completed)
+    }
+
+    "must ignore non-vehicle sections such as supplier details or self-supply" in {
+      val draft = draftWith(
+        Map(
+          "supplier/1/details"     -> DraftNotificationSection(Some(Json.obj())),
+          "supplier/1/self-supply" -> DraftNotificationSection(Some(Json.obj()))
+        )
+      )
+      val result = UserDataService.storeVehiclesSectionStatusPage(draft, emptyUserAnswers, stubSessionRepository()).futureValue
+
+      result.get(VehiclesSectionStatusPage) mustBe Some(SectionStatus.NotYetSaved)
+    }
+  }
+
   private val contactNumbers = ContactNumbers(Some("01234567890"), None)
   private val gb             = Country("GB", "United Kingdom")
   private val sampleAddress  = Address(lines = List("12 High Street", "Reading"), postcode = Some("RE12 9GC"), country = gb)
@@ -367,6 +440,13 @@ class UserDataServiceSpec extends SpecBase with MockitoSugar with ScalaFutures w
       val answers = emptyUserAnswers.unsafeSet(PhoneNumberPage, contactNumbers)
       UserDataService.privateIndividual(answers)(SectionId.NotifierDetails) mustBe SectionStatus.Incomplete
     }
+
+    "must read the Vehicles section status from VehiclesSectionStatusPage, defaulting to NotYetSaved when absent" in {
+      UserDataService.privateIndividual(emptyUserAnswers)(SectionId.Vehicles) mustBe SectionStatus.NotYetSaved
+
+      val answers = emptyUserAnswers.unsafeSet(VehiclesSectionStatusPage, SectionStatus.Completed)
+      UserDataService.privateIndividual(answers)(SectionId.Vehicles) mustBe SectionStatus.Completed
+    }
   }
 
   "UserDataService.agentWithoutClient" - {
@@ -399,6 +479,11 @@ class UserDataServiceSpec extends SpecBase with MockitoSugar with ScalaFutures w
 
     "must include the purchaser address section, NotYetSaved when unanswered" in {
       UserDataService.agentWithoutClient(emptyUserAnswers)(SectionId.PurchaserAddress) mustBe SectionStatus.NotYetSaved
+    }
+
+    "must read the Vehicles section status from VehiclesSectionStatusPage" in {
+      val answers = emptyUserAnswers.unsafeSet(VehiclesSectionStatusPage, SectionStatus.Incomplete)
+      UserDataService.agentWithoutClient(answers)(SectionId.Vehicles) mustBe SectionStatus.Incomplete
     }
   }
 
@@ -603,6 +688,25 @@ class UserDataServiceSpec extends SpecBase with MockitoSugar with ScalaFutures w
 
       result.get(VehicleBusinessUsePage) mustBe Some(true)
       result.get(EmailAddressPage) mustBe Some("acme@example.com")
+    }
+
+    "must derive the Vehicles section status from the draft's vehicle sections as part of the full pipeline" in {
+      val answers = emptyUserAnswers.unsafeSet(DraftIdPage, DraftId("1"))
+      val draft   = draftWith(
+        Map(
+          SectionId.NotifierDetails                     -> DraftNotificationSection(Some(individualNotifier)),
+          "supplier/1/vehicle/1/type"                   -> DraftNotificationSection(Some(Json.obj())),
+          "supplier/1/vehicle/1/details"                -> DraftNotificationSection(Some(Json.obj())),
+          "supplier/1/vehicle/1/additional-information" -> DraftNotificationSection(Some(Json.obj()))
+        )
+      )
+
+      val result = serviceReturning(draft)
+        .retrieveAndStoreDraftNotification(DraftId("1"), answers, testUserContext)
+        .futureValue
+        .value
+
+      result.get(VehiclesSectionStatusPage) mustBe Some(SectionStatus.Completed)
     }
   }
 }

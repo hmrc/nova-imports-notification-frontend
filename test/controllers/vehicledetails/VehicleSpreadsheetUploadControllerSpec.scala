@@ -141,7 +141,7 @@ class VehicleSpreadsheetUploadControllerSpec extends SpecBase with MockitoSugar 
       }
     }
 
-    "must wire the Continue button with its destination immediately when the page loads already validated" in {
+    "must render Continue as a real link to its destination immediately when the page loads already validated" in {
       val application = applicationFor(
         classOf[FakeVatTraderIdentifierAction],
         Some(acquisitionAnswers),
@@ -153,7 +153,7 @@ class VehicleSpreadsheetUploadControllerSpec extends SpecBase with MockitoSugar 
 
         status(result) mustEqual OK
         contentAsString(result) must include(
-          s"""data-continue-href="${vehicledetails.routes.CheckVehicleSpreadsheetDetailsController.onPageLoad().url}""""
+          s"""href="${vehicledetails.routes.CheckVehicleSpreadsheetDetailsController.onPageLoad().url}""""
         )
       }
     }
@@ -173,7 +173,7 @@ class VehicleSpreadsheetUploadControllerSpec extends SpecBase with MockitoSugar 
       }
     }
 
-    "must wire the Continue button with the errors page when the page loads already failed validation" in {
+    "must render Continue as a real link to the errors page when the page loads already failed validation" in {
       val application = applicationFor(
         classOf[FakeVatTraderIdentifierAction],
         Some(acquisitionAnswers),
@@ -185,7 +185,7 @@ class VehicleSpreadsheetUploadControllerSpec extends SpecBase with MockitoSugar 
 
         status(result) mustEqual OK
         contentAsString(result) must include(
-          s"""data-continue-href="${vehicledetails.routes.CheckVehicleSpreadsheetErrorsController.onPageLoad().url}""""
+          s"""href="${vehicledetails.routes.CheckVehicleSpreadsheetErrorsController.onPageLoad().url}""""
         )
       }
     }
