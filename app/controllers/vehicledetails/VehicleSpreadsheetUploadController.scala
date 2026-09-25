@@ -75,7 +75,8 @@ class VehicleSpreadsheetUploadController @Inject() (
                     removeUrl = routes.VehicleSpreadsheetUploadController.onPageLoad(remove = true),
                     statusUrl = routes.VehicleSpreadsheetUploadController.status().url,
                     refreshIntervalSeconds = appConfig.uploadStatusRefreshIntervalSeconds,
-                    maxPollSeconds = appConfig.uploadStatusMaxPollSeconds
+                    maxPollSeconds = appConfig.uploadStatusMaxPollSeconds,
+                    continueUrl = continueUrlFor(summary.fileStatus)
                   )
                 )
             }

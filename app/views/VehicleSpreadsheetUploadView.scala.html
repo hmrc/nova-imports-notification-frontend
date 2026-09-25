@@ -25,7 +25,7 @@
     govukTag: GovukTag
 )
 
-@(isFinal: Boolean, fileName: Option[String], removeUrl: Call, statusUrl: String, refreshIntervalSeconds: Int, maxPollSeconds: Int)(implicit request: Request[?], messages: Messages)
+@(isFinal: Boolean, fileName: Option[String], removeUrl: Call, statusUrl: String, refreshIntervalSeconds: Int, maxPollSeconds: Int, continueUrl: Option[Call] = None)(implicit request: Request[?], messages: Messages)
 
 @statusTag = @{
     val base = TagViewModel(Text(messages(if (isFinal) "vehicleSpreadsheetUpload.status.uploaded" else "vehicleSpreadsheetUpload.status.uploading")))
@@ -53,6 +53,12 @@
     <span class="govuk-caption-l">@messages("vehicleSpreadsheetUpload.caption")</span>
     <h1 class="govuk-heading-l">@messages("vehicleSpreadsheetUpload.heading")</h1>
 
+    @if(!isFinal) {
+        <p class="govuk-body" id="refreshLink">
+            <a href="@routes.VehicleSpreadsheetUploadController.onPageLoad().url" class="govuk-link">@messages("vehicleSpreadsheetUpload.refreshPageLink")</a>
+        </p>
+    }
+
     @govukSummaryList(SummaryListViewModel(
         rows = Seq(
             SummaryListRowViewModel(
@@ -64,21 +70,45 @@
     ).withCssClass("govuk-summary-list--long-key"))
 
     @if(isFinal) {
-        @govukButton(ButtonViewModel(Text(messages("site.continue"))).withAttribute("id" -> "continueButton"))
+        @govukButton(
+            ButtonViewModel(Text(messages("site.continue")))
+                .withAttribute("id" -> "continueButton")
+                .withAttribute("data-continue-href" -> continueUrl.map(_.url).getOrElse(""))
+        )
     } else {
         @govukButton(ButtonViewModel(Text(messages("site.continue"))).disabled().withAttribute("id" -> "continueButton"))
     }
 
     <script @{CSPNonce.attr}>
+        var refreshLink = document.getElementById('refreshLink');
+        if (refreshLink) {
+            refreshLink.remove();
+        }
+
         var pollStartedAt = Date.now();
         var refreshIntervalMs = @refreshIntervalSeconds * 1000;
         var maxPollDurationMs = @maxPollSeconds * 1000;
 
         document.addEventListener('DOMContentLoaded', function() {
-            if (!@isFinal) {
+            if (@isFinal) {
+                wireContinueButton();
+            } else {
                 window.setTimeout(checkUploadStatus, refreshIntervalMs);
             }
         });
+
+        function wireContinueButton() {
+            var continueButton = document.getElementById('continueButton');
+            if (!continueButton) {
+                return;
+            }
+            var href = continueButton.getAttribute('data-continue-href');
+            if (href) {
+                continueButton.addEventListener('click', function() {
+                    window.location.href = href;
+                });
+            }
+        }
 
         function scheduleNextCheck() {
             if (Date.now() - pollStartedAt >= maxPollDurationMs) {
@@ -119,10 +149,9 @@
                             continueButton.removeAttribute('disabled');
                             continueButton.removeAttribute('aria-disabled');
                             if (data.continueUrl) {
-                                continueButton.addEventListener('click', function() {
-                                    window.location.href = data.continueUrl;
-                                });
+                                continueButton.setAttribute('data-continue-href', data.continueUrl);
                             }
+                            wireContinueButton();
                         }
                         if (actionLink) {
                             actionLink.href = actionLink.getAttribute('data-remove-href');

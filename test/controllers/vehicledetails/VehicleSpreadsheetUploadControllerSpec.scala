@@ -141,6 +141,23 @@ class VehicleSpreadsheetUploadControllerSpec extends SpecBase with MockitoSugar 
       }
     }
 
+    "must wire the Continue button with its destination immediately when the page loads already validated" in {
+      val application = applicationFor(
+        classOf[FakeVatTraderIdentifierAction],
+        Some(acquisitionAnswers),
+        connectorReturning(Right(GetFileUploadSummaryResponse("VALIDATED", None, None)))
+      )
+
+      running(application) {
+        val result = route(application, FakeRequest(GET, onPageLoadRoute)).value
+
+        status(result) mustEqual OK
+        contentAsString(result) must include(
+          s"""data-continue-href="${vehicledetails.routes.CheckVehicleSpreadsheetDetailsController.onPageLoad().url}""""
+        )
+      }
+    }
+
     "must render the page as Uploaded once validation has failed with errors" in {
       val application = applicationFor(
         classOf[FakeVatTraderIdentifierAction],
@@ -153,6 +170,23 @@ class VehicleSpreadsheetUploadControllerSpec extends SpecBase with MockitoSugar 
 
         status(result) mustEqual OK
         contentAsString(result) must include("""class="govuk-tag  govuk-tag--green"""")
+      }
+    }
+
+    "must wire the Continue button with the errors page when the page loads already failed validation" in {
+      val application = applicationFor(
+        classOf[FakeVatTraderIdentifierAction],
+        Some(acquisitionAnswers),
+        connectorReturning(Right(GetFileUploadSummaryResponse("VALIDATION_FAILED", None, None)))
+      )
+
+      running(application) {
+        val result = route(application, FakeRequest(GET, onPageLoadRoute)).value
+
+        status(result) mustEqual OK
+        contentAsString(result) must include(
+          s"""data-continue-href="${vehicledetails.routes.CheckVehicleSpreadsheetErrorsController.onPageLoad().url}""""
+        )
       }
     }
 
