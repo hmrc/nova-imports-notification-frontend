@@ -42,9 +42,11 @@
     else ErrorSummaryViewModel(form)
 }
 
-@* TODO DTR-7178: add the Remove link once RC1.0 exists *@
+@* TODO DTR-7178: point Remove at RC1.0 once it exists *@
 @actions(client: ClientSummary) = {
     <a class="govuk-link" href="@routes.SelectClientController.select(client.vatRegistrationNumber)">@messages("viewClients.select")<span class="govuk-visually-hidden"> @client.name</span></a>
+    <span aria-hidden="true">|</span>
+    <a class="govuk-link" href="#">@messages("site.remove")<span class="govuk-visually-hidden"> @client.name</span></a>
 }
 
 @table(page: ClientListPage) = {
@@ -68,14 +70,20 @@
     @page.pagination.map(govukPagination(_))
 }
 
+@* TODO DTR-7715: point the CSV link at BFA5 once it is built *@
 @downloadDetails = {
     <p class="govuk-body">@messages("viewClients.download.body.1")</p>
-    <p class="govuk-body">@messages("viewClients.download.body.2")</p>
-    <p class="govuk-body">@messages("viewClients.download.body.3") <a class="govuk-link" href="@technicalSupportUrl" target="_blank" rel="noreferrer noopener">@messages("viewClients.download.body.3.link")</a>.</p>
-    @* TODO DTR-7715: add the CSV download link once BFA5 is built *@
+    <p class="govuk-body">@messages("viewClients.download.body.2") <a class="govuk-link" href="@technicalSupportUrl" target="_blank" rel="noreferrer noopener">@messages("viewClients.download.body.2.link")</a>.</p>
+    <p class="govuk-body"><a class="govuk-link" href="#">@messages("viewClients.download.link")</a></p>
 }
 
-@layout(pageTitle = title(form, messages("viewClients.title")), showBackLink = true, fullWidth = true) {
+@pageTitle = @{
+    results.filter(_.totalPages > 1)
+        .map(page => messages("viewClients.pagination.title", page.page, page.totalPages))
+        .getOrElse(messages("viewClients.title"))
+}
+
+@layout(pageTitle = title(form, pageTitle), showBackLink = true, fullWidth = true) {
 
     @if(form.errors.nonEmpty) {
         @govukErrorSummary(errorSummary)
@@ -116,7 +124,8 @@
         <hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
 
         @if(page.clients.isEmpty) {
-            <p class="govuk-body govuk-!-font-weight-bold">@messages("viewClients.noResults")</p>
+            <h2 class="govuk-heading-s">@messages("viewClients.noResults.heading")</h2>
+            <p class="govuk-body">@messages("viewClients.noResults.body")</p>
         } else {
             @table(page)
         }
