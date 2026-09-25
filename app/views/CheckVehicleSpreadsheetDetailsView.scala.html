@@ -71,8 +71,7 @@
                     ButtonViewModel(messages("checkVehicleSpreadsheetDetails.saveAndContinue"))
                         .asLink(controllers.routes.LandingPageController.onPageLoad().url)
                 )
-                @* Update spreadsheet: TODO navigate to UVS5.1 when built *@
-                <a class="govuk-link" href="@controllers.routes.LandingPageController.onPageLoad().url">@messages("checkVehicleSpreadsheetDetails.updateSpreadsheetLink")</a>
+                <a class="govuk-link" href="@controllers.vehicledetails.routes.UpdateVehicleSpreadsheetController.onPageLoad().url">@messages("checkVehicleSpreadsheetDetails.updateSpreadsheetLink")</a>
             </div>
         </div>
     </div>
