@@ -27,8 +27,11 @@
 )
 
 @(errors: PageOf[ValidationError], urlForPage: Int => String)(implicit request: Request[?], messages: Messages)
-
-@layout(pageTitle = titleNoForm(messages("spreadsheetErrors.title")), fullWidth = true) {
+@pageTitle = @{
+    if(errors.totalPages > 1) messages("spreadsheetErrors.pagination.title", errors.page, errors.totalPages)
+    else messages("spreadsheetErrors.title")
+}
+@layout(pageTitle = titleNoForm(pageTitle), fullWidth = true) {
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
