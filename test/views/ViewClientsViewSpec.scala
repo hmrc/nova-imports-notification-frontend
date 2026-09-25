@@ -20,6 +20,7 @@ import base.SpecBase
 import controllers.clientselection.routes
 import forms.ClientSearchFormProvider
 import models.{ClientSearch, ClientSearchBy, ClientSummary}
+import org.jsoup.Jsoup
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.must.Matchers
 import play.api.Application
@@ -64,6 +65,23 @@ class ViewClientsViewSpec extends SpecBase with Matchers with BeforeAndAfterAll 
       html must include(msgs("viewClients.body"))
     }
 
+    "must put the page number in the title when there is more than one page" in {
+      Jsoup.parse(render()).title mustEqual
+        "Client list (page 2 of 3) - " + msgs("service.name") + " - " + msgs("site.govuk")
+    }
+
+    "must leave the page number out of the title when there is only one page" in {
+      val singlePage = ClientListPage(clients, 2, 1, 10, None)
+
+      Jsoup.parse(render(page = Some(singlePage))).title mustEqual
+        msgs("viewClients.title") + " - " + msgs("service.name") + " - " + msgs("site.govuk")
+    }
+
+    "must leave the page number out of the title when there are no results to show" in {
+      Jsoup.parse(render(page = None)).title mustEqual
+        msgs("viewClients.title") + " - " + msgs("service.name") + " - " + msgs("site.govuk")
+    }
+
     "must render the search form" in {
       val html = render()
 
@@ -87,7 +105,7 @@ class ViewClientsViewSpec extends SpecBase with Matchers with BeforeAndAfterAll 
       html must include("""value="700000001"""")
     }
 
-    "must render the client table with a select action" in {
+    "must render the client table with select and remove actions" in {
       val html = render()
 
       html must include("Showing <strong>11</strong> to <strong>12</strong> of <strong>30</strong> records")
@@ -98,6 +116,7 @@ class ViewClientsViewSpec extends SpecBase with Matchers with BeforeAndAfterAll 
       html must include("700000001")
       html must include(routes.SelectClientController.select("700000001").url)
       html must include(s"""${msgs("viewClients.select")}<span class="govuk-visually-hidden"> Client A</span>""")
+      html must include(s"""${msgs("site.remove")}<span class="govuk-visually-hidden"> Client A</span>""")
     }
 
     "must render pagination" in {
@@ -112,7 +131,8 @@ class ViewClientsViewSpec extends SpecBase with Matchers with BeforeAndAfterAll 
     "must render the no results message instead of the table" in {
       val html = render(page = Some(ClientListPage(Nil, 0, 1, 10, Some(ClientSearch(ClientSearchBy.Name, "Nobody")))))
 
-      html must include(msgs("viewClients.noResults"))
+      html must include(msgs("viewClients.noResults.heading"))
+      html must include(msgs("viewClients.noResults.body"))
       html must not include "govuk-table"
       html must not include "govuk-pagination"
     }
@@ -120,15 +140,8 @@ class ViewClientsViewSpec extends SpecBase with Matchers with BeforeAndAfterAll 
     "must render neither results nor the no results message when there are no results to show" in {
       val html = render(page = None)
 
-      html must not include msgs("viewClients.noResults")
+      html must not include msgs("viewClients.noResults.heading")
       html must not include "govuk-table"
-    }
-
-    "must not render the remove or download links until their pages exist" in {
-      val html = render()
-
-      html must not include msgs("site.remove")
-      html must not include "Download client list (CSV)"
     }
 
     "must render the download details and the return to home link" in {
@@ -137,8 +150,8 @@ class ViewClientsViewSpec extends SpecBase with Matchers with BeforeAndAfterAll 
       html must include(msgs("viewClients.download.summary"))
       html must include(msgs("viewClients.download.body.1"))
       html must include(msgs("viewClients.download.body.2"))
-      html must include(msgs("viewClients.download.body.3"))
-      html must include(msgs("viewClients.download.body.3.link"))
+      html must include(msgs("viewClients.download.body.2.link"))
+      html must include(msgs("viewClients.download.link"))
       html must include(supportUrl)
       html must include(msgs("viewClients.returnHome"))
       html must include(controllers.routes.LandingPageController.onPageLoad().url)
