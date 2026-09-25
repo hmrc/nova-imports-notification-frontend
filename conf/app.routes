@@ -145,6 +145,9 @@ GET         /errors-found-in-vehicle-spreadsheet                                
 
 GET         /check-vehicle-spreadsheet-details                                          controllers.vehicledetails.CheckVehicleSpreadsheetDetailsController.onPageLoad(page: Int ?= 1)
 
+GET         /update-vehicle-spreadsheet                                                  controllers.vehicledetails.UpdateVehicleSpreadsheetController.onPageLoad()
+POST        /update-vehicle-spreadsheet                                                  controllers.vehicledetails.UpdateVehicleSpreadsheetController.onSubmit()
+
 GET         /file-contains-virus                                                         controllers.vehicledetails.UploadSpreadsheetErrorQuarantineController.onPageLoad()
 GET         /problem-uploading-file                                                      controllers.vehicledetails.UploadSpreadsheetErrorUnknownController.onPageLoad()
 GET         /file-rejected                                                               controllers.vehicledetails.UploadSpreadsheetErrorRejectedController.onPageLoad()

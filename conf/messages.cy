@@ -1038,3 +1038,13 @@ uploadSpreadsheetErrorRejected.caption = Add vehicle details
 uploadSpreadsheetErrorRejected.paragraph = You must save the spreadsheet as an ODS file and try uploading it again.
 uploadSpreadsheetErrorRejected.link = Return to create a vehicle notification
 uploadSpreadsheetErrorRejected.buttonLabel = Upload again
+
+##################################################################
+# UVS5.1 - Are you sure you want to update this vehicle spreadsheet #
+##################################################################
+# TODO: Welsh translations to be supplied by content team.
+updateVehicleSpreadsheet.title = Are you sure you want to update this vehicle spreadsheet?
+updateVehicleSpreadsheet.heading = Are you sure you want to update this vehicle spreadsheet?
+updateVehicleSpreadsheet.caption = Ychwanegwch fanylion cerbyd
+updateVehicleSpreadsheet.hint = You’ll lose the details you’ve already uploaded
+updateVehicleSpreadsheet.error.required = Select yes if you want to update this vehicle spreadsheet
