@@ -825,6 +825,17 @@ purchaseInvoiceNumber.error.invalid = Enter the purchase invoice number in the c
 purchaseInvoiceNumber.error.length = The purchase invoice number must be 20 characters or less
 
 ##############################################################
+# AVD6.0 - Add vehicle details 6.0: Reason for no invoice    #
+##############################################################
+# TODO: Welsh translations to be supplied by content team.
+noPurchaseInvoiceReason.title = Provide a reason why a purchase invoice is not available
+noPurchaseInvoiceReason.heading = Provide a reason why a purchase invoice is not available
+noPurchaseInvoiceReason.caption = Add vehicle details
+noPurchaseInvoiceReason.error.required = Enter a reason why a purchase invoice is not available
+noPurchaseInvoiceReason.error.length = The reason must be 160 characters or less
+noPurchaseInvoiceReason.error.invalid = The reason must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
+
+##############################################################
 # AVD7.0 - Add vehicle details 7.0: Total amount paid        #
 ##############################################################
 # TODO: Welsh translations to be supplied by content team.
@@ -954,6 +965,16 @@ dateOfFirstRegistration.error.required.two = The date the vehicle was first regi
 dateOfFirstRegistration.error.invalid = Enter the date the vehicle was first registered in the correct format
 dateOfFirstRegistration.error.notARealDate = The date the vehicle was first registered must be a real date
 dateOfFirstRegistration.error.future = The date the vehicle was first registered must be today or in the past
+
+##########################################################################
+# AVD5.2 - Add vehicle details 5.2: Country of first registration        #
+##########################################################################
+
+countryOfFirstRegistration.title = Enter the country where the vehicle was first registered
+countryOfFirstRegistration.heading = Enter the country where the vehicle was first registered
+countryOfFirstRegistration.caption = Add vehicle details
+countryOfFirstRegistration.hint = You can find this in the vehicle log book
+countryOfFirstRegistration.error.required = Enter the country where the vehicle was first registered
 
 ##########################################################################
 # AVD-S8.0 - Add vehicle details - Supplier 8.0: Supplier VAT Registered #

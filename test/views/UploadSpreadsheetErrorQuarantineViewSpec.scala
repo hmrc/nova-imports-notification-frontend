@@ -64,7 +64,7 @@ class UploadSpreadsheetErrorQuarantineViewSpec extends SpecBase with Matchers wi
 
     "must render the button as a link back to UVS1.0" in {
       html must include(msgs("uploadSpreadsheetErrorQuarantine.buttonLabel"))
-      html must include(s"""href="${vehicledetails.routes.UploadVehicleSpreadsheetController.onPageLoad().url}"""")
+      html must include(s"""href="${vehicledetails.routes.UploadVehicleSpreadsheetController.onPageLoad(restart = true).url}"""")
     }
 
     "must render the link back to the notification task list" in {

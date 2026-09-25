@@ -34,7 +34,7 @@
     <div class="govuk-button-group">
         @govukButton(
             ButtonViewModel(messages("uploadSpreadsheetErrorUnknown.buttonLabel"))
-                .asLink(routes.UploadVehicleSpreadsheetController.onPageLoad().url)
+                .asLink(routes.UploadVehicleSpreadsheetController.onPageLoad(restart = true).url)
         )
 
         <a class="govuk-link" href="@controllers.routes.NotificationTaskListController.onPageLoad().url">@messages("uploadSpreadsheetErrorUnknown.link")</a>
