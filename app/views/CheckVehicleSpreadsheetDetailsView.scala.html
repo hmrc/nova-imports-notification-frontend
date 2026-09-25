@@ -20,6 +20,7 @@
 
 @this(
     layout: templates.Layout,
+    formHelper: FormWithCSRF,
     govukTable: GovukTable,
     govukPagination: GovukPagination,
     govukButton: GovukButton
@@ -66,14 +67,13 @@
             </p>
 
             @* Save and continue: TODO navigate to UVS6.0 when built *@
-            <div class="govuk-button-group">
-                @govukButton(
-                    ButtonViewModel(messages("checkVehicleSpreadsheetDetails.saveAndContinue"))
-                        .asLink(controllers.routes.LandingPageController.onPageLoad().url)
-                )
-                @* Update spreadsheet: TODO navigate to UVS5.1 when built *@
-                <a class="govuk-link" href="@controllers.routes.LandingPageController.onPageLoad().url">@messages("checkVehicleSpreadsheetDetails.updateSpreadsheetLink")</a>
-            </div>
+            @formHelper(action = controllers.vehicledetails.routes.CheckVehicleSpreadsheetDetailsController.onSubmit()) {
+                <div class="govuk-button-group">
+                    @govukButton(ButtonViewModel(messages("checkVehicleSpreadsheetDetails.saveAndContinue")))
+                    @* Update spreadsheet: TODO navigate to UVS5.1 when built *@
+                    <a class="govuk-link" href="@controllers.routes.LandingPageController.onPageLoad().url">@messages("checkVehicleSpreadsheetDetails.updateSpreadsheetLink")</a>
+                </div>
+            }
         </div>
     </div>
 }

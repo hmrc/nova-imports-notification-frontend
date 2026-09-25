@@ -17,6 +17,7 @@
 package controllers
 
 import com.google.inject.Inject
+import connectors.{GetFileUploadSummaryError, NovaImportsBackendConnector}
 import controllers.actions.Actions
 import controllers.utils.IsDraftIdDefined
 import models.DraftNotification.SectionId
@@ -37,6 +38,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class NotificationTaskListController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   actions: Actions,
+  connector: NovaImportsBackendConnector,
   notificationSummaryService: NotificationSummaryService,
   userDataService: UserDataService,
   sessionRepository: SessionRepository,
@@ -55,9 +57,11 @@ class NotificationTaskListController @Inject() (
     def render(userName: Option[String], vrn: Option[String], answers: UserAnswers): Future[Result] = {
       val sections    = userDataService.determineAndUpdateStatus(answers, request.userContext)
       val sectionLink = determineSectionLink(sections, answers, request.userContext)
+
       for {
-        flagged <- Future.fromTry(answers.set(NotificationTaskListPage, true))
-        _       <- sessionRepository.set(flagged)
+        vehiclesUploadUrl <- vehiclesUploadOverride(draftId, request.userContext)
+        flagged           <- Future.fromTry(answers.set(NotificationTaskListPage, true))
+        _                 <- sessionRepository.set(flagged)
       } yield Ok(
         view(
           userName,
@@ -65,7 +69,7 @@ class NotificationTaskListController @Inject() (
           sections,
           showAddYourAddress(request.userContext, flagged),
           showAboutThePurchaser(request.userContext, flagged),
-          sectionLink
+          vehiclesUploadUrl.fold(sectionLink)(url => sectionLink.updated(SectionId.Vehicles, url))
         )
       )
     }
@@ -93,6 +97,19 @@ class NotificationTaskListController @Inject() (
         }
     }
   }
+
+  private def vehiclesUploadOverride(draftId: models.DraftId, userContext: UserContext)(implicit
+    hc: HeaderCarrier
+  ): Future[Option[String]] =
+    if (userContext.isVatRegisteredOrganisation || userContext.isAgent)
+      connector.getFileUploadSummary(draftId).map {
+        case Right(_)                                 => Some(vehicledetails.routes.VehicleSpreadsheetUploadController.onPageLoad().url)
+        case Left(GetFileUploadSummaryError.NotFound) => None
+        case Left(error)                              =>
+          logger.warn(s"Could not check for an existing vehicle spreadsheet upload for draftId ${draftId.value}: $error")
+          None
+      }
+    else Future.successful(None)
 }
 
 object NotificationTaskListController {

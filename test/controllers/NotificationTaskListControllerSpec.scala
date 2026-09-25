@@ -18,10 +18,11 @@ package controllers
 
 import base.SpecBase
 import com.google.inject.name.Names
-import connectors.{GetDraftNotificationError, GetNotificationSummaryError, NovaImportsBackendConnector}
+import connectors.{GetDraftNotificationError, GetFileUploadSummaryError, GetNotificationSummaryError, NovaImportsBackendConnector}
 import controllers.actions.*
 import models.NormalMode
 import models.{Address, AgentSelectedClient, BusinessOrPrivateIndividual, ContactNumbers, Country, DraftId, DraftNotification, DraftNotificationSection, NotificationSummary, NovaUserType, PurchaserBusinessOrIndividual, PurchaserOrOnBehalf, SectionStatus, UserAnswers, UserContext}
+import models.responses.GetFileUploadSummaryResponse
 import org.jsoup.Jsoup
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
@@ -148,7 +149,8 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
 
   private def stubConnector(
     summary: Either[GetNotificationSummaryError, NotificationSummary] = Right(orgSummary),
-    draft: Either[GetDraftNotificationError, DraftNotification] = Right(incompleteDraft)
+    draft: Either[GetDraftNotificationError, DraftNotification] = Right(incompleteDraft),
+    uploadSummary: Either[GetFileUploadSummaryError, GetFileUploadSummaryResponse] = Left(GetFileUploadSummaryError.NotFound)
   ): NovaImportsBackendConnector = {
     val m = mock[NovaImportsBackendConnector]
 
@@ -157,6 +159,9 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
 
     when(m.getDraftNotification(any[DraftId])(any[HeaderCarrier]))
       .thenReturn(Future.successful(draft))
+
+    when(m.getFileUploadSummary(any[DraftId])(any[HeaderCarrier]))
+      .thenReturn(Future.successful(uploadSummary))
 
     m
   }
@@ -413,6 +418,52 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual OK
           vehiclesLinkHref(contentAsString(result)) mustEqual avd10Url
+        }
+      }
+
+      "for a VAT-registered organisation with an existing, not-yet-saved vehicle spreadsheet upload, links Add vehicle details to UVS2.0 instead of AVD1.0" in {
+        val connector                  = stubConnector(uploadSummary = Right(GetFileUploadSummaryResponse("VALIDATED", None, Some("vehicles.xlsx"))))
+        given application: Application =
+          applicationWith(classOf[FakeVatTraderIdentifierAction], Some(answersBusinessUse.unsafeSet(VehicleFromEuPage, true)), connector)
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual OK
+          vehiclesLinkHref(contentAsString(result)) mustEqual vehicledetails.routes.VehicleSpreadsheetUploadController.onPageLoad().url
+        }
+      }
+
+      "for a VAT-registered organisation with an existing upload, links Add vehicle details to UVS2.0 even on the import (AVD1.1) journey" in {
+        val connector = stubConnector(uploadSummary = Right(GetFileUploadSummaryResponse("VALIDATION_FAILED", None, Some("vehicles.xlsx"))))
+        given application: Application =
+          applicationWith(classOf[FakeVatTraderIdentifierAction], Some(answersBusinessUse.unsafeSet(VehicleFromEuPage, false)), connector)
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual OK
+          vehiclesLinkHref(contentAsString(result)) mustEqual vehicledetails.routes.VehicleSpreadsheetUploadController.onPageLoad().url
+        }
+      }
+
+      "must never check for an existing upload for a PrivateIndividual, who can never use the spreadsheet option" in {
+        val connector                  = stubConnector()
+        given application: Application =
+          applicationWith(classOf[FakeIdentifierAction], Some(individualAsPurchaserPrivate), connector)
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
+
+          status(route(application, request).value) mustEqual OK
+          verify(connector, never).getFileUploadSummary(any[DraftId])(any[HeaderCarrier])
         }
       }
 
