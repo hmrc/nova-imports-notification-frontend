@@ -95,11 +95,12 @@ class VehicleSpreadsheetUploadViewSpec extends SpecBase with Matchers with Befor
       html must not include """aria-disabled="true""""
     }
 
-    "when the page loads already final (e.g. landed on directly from the task list), must wire the Continue button to navigate immediately, without waiting for a poll" in {
+    "when the page loads already final (e.g. landed on directly from the task list, or after a no-JS refresh), must render Continue as a real link, working without JS" in {
       val html = htmlFor(isFinal = true, continueUrl = Some(continueUrl))
 
-      html must include(s"""data-continue-href="${continueUrl.url}"""")
-      html must include("wireContinueButton()")
+      html must include(s"""href="${continueUrl.url}"""")
+      html must include("""class="govuk-button"""")
+      html must include("""id="continueButton"""")
     }
 
     "must include the polling script pointing at the status endpoint" in {
