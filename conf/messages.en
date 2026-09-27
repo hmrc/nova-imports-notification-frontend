@@ -969,7 +969,6 @@ totalAmountPaid.label = How much did you pay for the vehicle?
 totalAmountPaid.hint = Enter whole numbers only, for example 12000
 totalAmountPaid.error.required = Enter the total amount paid for the vehicle
 totalAmountPaid.error.length = The total amount paid for the vehicle must be 14 characters or less
-totalAmountPaid.error.commaOrDecimalPoint = Enter the total amount paid for the vehicle as a whole number, without commas or decimal points
 totalAmountPaid.error.invalid = Enter the total amount paid for the vehicle in the correct format
 
 ######################################################

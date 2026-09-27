@@ -14,8 +14,6 @@
  * limitations under the License.
  *@
 
-@import viewmodels.LabelSize
-
 @this(
         layout: templates.Layout,
         formHelper: FormWithCSRF,
@@ -49,12 +47,14 @@
 
     <p class="govuk-body">@messages("totalAmountPaid.paragraph.2")</p>
 
+    <h2 class="govuk-heading-m">@messages("totalAmountPaid.label")</h2>
+
     @formHelper(action = postAction, Symbol("autoComplete") -> "off") {
 
         @govukInput(
             InputViewModel(
                 field = form("value"),
-                label = LabelViewModel(messages("totalAmountPaid.label")).withCssClass(LabelSize.Medium.toString)
+                label = LabelViewModel(messages("totalAmountPaid.label")).withCssClass("govuk-visually-hidden")
             ).withHint(HintViewModel(Text(messages("totalAmountPaid.hint"))))
             .withCssClass("govuk-!-width-two-thirds")
             .withAutocomplete("off")
