@@ -19,6 +19,7 @@ package views
 import base.SpecBase
 import controllers.vehicledetails
 import models.responses.VehicleSummary
+import org.jsoup.Jsoup
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.must.Matchers
 import play.api.Application
@@ -30,6 +31,7 @@ import views.html.CheckVehicleSpreadsheetDetailsView
 
 import scala.concurrent.Await
 import scala.concurrent.duration.DurationInt
+import scala.jdk.CollectionConverters.*
 
 class CheckVehicleSpreadsheetDetailsViewSpec extends SpecBase with Matchers with BeforeAndAfterAll {
 
@@ -109,6 +111,12 @@ class CheckVehicleSpreadsheetDetailsViewSpec extends SpecBase with Matchers with
 
     "must render the update spreadsheet link" in {
       html must include(msgs("checkVehicleSpreadsheetDetails.updateSpreadsheetLink"))
+    }
+
+    "must link the update spreadsheet link to UVS5.1" in {
+      val link = Jsoup.parse(html).select("a.govuk-link").asScala.find(_.text == msgs("checkVehicleSpreadsheetDetails.updateSpreadsheetLink")).value
+
+      link.attr("href") mustEqual vehicledetails.routes.UpdateVehicleSpreadsheetController.onPageLoad().url
     }
 
     "must not render pagination when there is only one page of vehicles" in {
