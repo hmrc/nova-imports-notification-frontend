@@ -93,7 +93,8 @@
 
     <p class="govuk-body">@messages("viewClients.body")</p>
 
-    @formHelper(action = routes.ViewClientsController.onSubmit()) {
+    @* autocomplete="off" on each field: the search is for a client, not the user's own details *@
+    @formHelper(action = routes.ViewClientsController.onSubmit(), Symbol("autoComplete") -> "off") {
 
         @govukSelect(
             Select(
@@ -103,7 +104,8 @@
                     SelectItem(value = Some(""), text = messages("viewClients.searchBy.placeholder")),
                     SelectItem(value = Some(ClientSearchBy.Name.jsonValue), text = messages("viewClients.searchBy.name")),
                     SelectItem(value = Some(ClientSearchBy.Vrn.jsonValue), text = messages("viewClients.searchBy.vrn"))
-                )
+                ),
+                attributes = Map("autocomplete" -> "off")
             ).withFormField(form("searchBy"))
         )
 
@@ -112,6 +114,7 @@
                 field = form("search"),
                 label = LabelViewModel(messages("viewClients.search.label"))
             ).withCssClass("govuk-!-width-one-half")
+             .withAutocomplete("off")
         )
 
         <div class="govuk-button-group">

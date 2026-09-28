@@ -98,6 +98,14 @@ class ViewClientsViewSpec extends SpecBase with Matchers with BeforeAndAfterAll 
       html must include(routes.ViewClientsController.onSubmit().url)
     }
 
+    "must turn off autocomplete on the search fields" in {
+      val document = Jsoup.parse(render())
+
+      document.select("form").attr("autocomplete") mustEqual "off"
+      document.select("select#searchBy").attr("autocomplete") mustEqual "off"
+      document.select("input#search").attr("autocomplete") mustEqual "off"
+    }
+
     "must select the current search type and keep the term" in {
       val html = render(form.fill(ClientSearch(ClientSearchBy.Vrn, "700000001")))
 
