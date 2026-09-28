@@ -28,7 +28,7 @@ import play.api.libs.json.*
 import repositories.SessionRepository
 import uk.gov.hmrc.http.HeaderCarrier
 import services.UserDataService.*
-import pages.AgentSelectedClientPage
+import pages.{AgentSelectedClientPage, VehiclesSectionStatusPage}
 import pages.sections.notifierdetails.{BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 import pages.sections.purchaseraddress.{IsPurchaserAddressInTheUkPage, PurchaserAddressPage}
@@ -73,7 +73,8 @@ class UserDataServiceImpl @Inject() (
           u7 <- storeSupplierDetailsPages(draft, u6, repository)
           u8 <- u7.get(BusinessOrPrivatePage)
                   .fold(Future.successful(u7))(businessOrPrivate => repository.setPage(u7, BusinessOrPrivatePage, businessOrPrivate))
-        } yield Right(u8)
+          u9 <- storeVehiclesSectionStatusPage(draft, u8, repository)
+        } yield Right(u9)
     }
 
   def determineAndUpdateStatus(userAnswers: UserAnswers, userContext: UserContext): Map[String, SectionStatus] =
@@ -257,6 +258,27 @@ object UserDataService {
     }
   }
 
+  private val VehicleGroupRe             = raw"(?:supplier|import)/(\d+)/vehicle/(\d+)/(type|details|additional-information)".r
+  private val requiredVehicleSubSections = Set("type", "details", "additional-information")
+
+  def storeVehiclesSectionStatusPage(draft: DraftNotification, answers: UserAnswers, sessionRepository: SessionRepository)(implicit
+    ec: ExecutionContext
+  ): Future[UserAnswers] = {
+    val matchedSubSectionsByGroup = draft.sections.keys
+      .collect { case VehicleGroupRe(groupNumber, vehicleNumber, subSection) => (groupNumber, vehicleNumber) -> subSection }
+      .toSeq
+      .groupMap(_._1)(_._2)
+      .view
+      .mapValues(_.toSet)
+
+    val status =
+      if (matchedSubSectionsByGroup.isEmpty) SectionStatus.NotYetSaved
+      else if (matchedSubSectionsByGroup.values.exists(requiredVehicleSubSections.subsetOf)) SectionStatus.Completed
+      else SectionStatus.Incomplete
+
+    sessionRepository.setPage(answers, VehiclesSectionStatusPage, status)
+  }
+
   def orgWithEnrolments(answers: UserAnswers): Map[String, SectionStatus] = {
     /* Introduction */
     val acknowledged               = answers.get(IntroductionAcknowledgePage)
@@ -301,7 +323,7 @@ object UserDataService {
       SectionId.InitialQuestions -> initialQsStatus,
       SectionId.NotifierDetails  -> notifierDetailsStatus,
       SectionId.NotifierAddress  -> notifierAddressStatus,
-      SectionId.Vehicles         -> SectionStatus.NotYetSaved,
+      SectionId.Vehicles         -> answers.get(VehiclesSectionStatusPage).getOrElse(SectionStatus.NotYetSaved),
       SectionId.Declaration      -> SectionStatus.NotYetSaved
     )
   }
@@ -332,7 +354,7 @@ object UserDataService {
       SectionId.InitialQuestions -> initialQsStatus,
       SectionId.NotifierDetails  -> SectionStatus.NotYetSaved,
       SectionId.NotifierAddress  -> SectionStatus.NotYetSaved,
-      SectionId.Vehicles         -> SectionStatus.NotYetSaved,
+      SectionId.Vehicles         -> answers.get(VehiclesSectionStatusPage).getOrElse(SectionStatus.NotYetSaved),
       SectionId.Declaration      -> SectionStatus.NotYetSaved
     )
   }
@@ -364,7 +386,7 @@ object UserDataService {
       SectionId.NotifierAddress  -> notifierAddressStatus,
       SectionId.PurchaserDetails -> purchaserDetailsStatus(answers),
       SectionId.PurchaserAddress -> purchaserAddressStatus(answers),
-      SectionId.Vehicles         -> SectionStatus.NotYetSaved,
+      SectionId.Vehicles         -> answers.get(VehiclesSectionStatusPage).getOrElse(SectionStatus.NotYetSaved),
       SectionId.Declaration      -> SectionStatus.NotYetSaved
     )
   }
@@ -386,7 +408,7 @@ object UserDataService {
       SectionId.NotifierAddress  -> SectionStatus.NotYetSaved,
       SectionId.PurchaserDetails -> purchaserDetailsStatus(answers),
       SectionId.PurchaserAddress -> purchaserAddressStatus(answers),
-      SectionId.Vehicles         -> SectionStatus.NotYetSaved,
+      SectionId.Vehicles         -> answers.get(VehiclesSectionStatusPage).getOrElse(SectionStatus.NotYetSaved),
       SectionId.Declaration      -> SectionStatus.NotYetSaved
     )
   }
@@ -410,7 +432,7 @@ object UserDataService {
       SectionId.NotifierAddress  -> SectionStatus.NotYetSaved,
       SectionId.PurchaserDetails -> purchaserDetailsStatus(answers),
       SectionId.PurchaserAddress -> purchaserAddressStatus(answers),
-      SectionId.Vehicles         -> SectionStatus.NotYetSaved,
+      SectionId.Vehicles         -> answers.get(VehiclesSectionStatusPage).getOrElse(SectionStatus.NotYetSaved),
       SectionId.Declaration      -> SectionStatus.NotYetSaved
     )
   }

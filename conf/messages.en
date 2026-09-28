@@ -1121,6 +1121,7 @@ vehicleSpreadsheetUpload.caption = Add vehicle details
 vehicleSpreadsheetUpload.defaultFileName = Vehicle spreadsheet
 vehicleSpreadsheetUpload.status.uploading = Uploading
 vehicleSpreadsheetUpload.status.uploaded = Uploaded
+vehicleSpreadsheetUpload.refreshPageLink = Refresh page to see update of uploading file
 
 ###############################################################
 # UVS3.0 - Upload vehicle spreadsheet 3.0 - Error: Virus      #

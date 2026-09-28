@@ -49,8 +49,10 @@ class VehicleSpreadsheetUploadViewSpec extends SpecBase with Matchers with Befor
   private val cancelUrl              = routes.UploadVehicleSpreadsheetController.onPageLoad().url
   private val problemUploadingUrl    = routes.UploadSpreadsheetErrorUnknownController.onPageLoad().url
 
-  private def htmlFor(isFinal: Boolean, fileName: Option[String] = None): String =
-    view(isFinal, fileName, removeUrl, statusUrl, refreshIntervalSeconds, maxPollSeconds).toString
+  private val continueUrl = routes.CheckVehicleSpreadsheetDetailsController.onPageLoad()
+
+  private def htmlFor(isFinal: Boolean, fileName: Option[String] = None, continueUrl: Option[play.api.mvc.Call] = None): String =
+    view(isFinal, fileName, removeUrl, statusUrl, refreshIntervalSeconds, maxPollSeconds, continueUrl).toString
 
   "VehicleSpreadsheetUploadView" - {
 
@@ -93,6 +95,14 @@ class VehicleSpreadsheetUploadViewSpec extends SpecBase with Matchers with Befor
       html must not include """aria-disabled="true""""
     }
 
+    "when the page loads already final (e.g. landed on directly from the task list, or after a no-JS refresh), must render Continue as a real link, working without JS" in {
+      val html = htmlFor(isFinal = true, continueUrl = Some(continueUrl))
+
+      html must include(s"""href="${continueUrl.url}"""")
+      html must include("""class="govuk-button"""")
+      html must include("""id="continueButton"""")
+    }
+
     "must include the polling script pointing at the status endpoint" in {
       val html = htmlFor(isFinal = false)
 
@@ -105,6 +115,21 @@ class VehicleSpreadsheetUploadViewSpec extends SpecBase with Matchers with Befor
 
       html must include(s"$maxPollSeconds * 1000")
       html must include(problemUploadingUrl)
+    }
+
+    "while not final, must render a no-JS refresh link that the script removes immediately when JS runs" in {
+      val html = htmlFor(isFinal = false)
+
+      html must include(s"""id="refreshLink"""")
+      html must include(msgs("vehicleSpreadsheetUpload.refreshPageLink"))
+      html must include(routes.VehicleSpreadsheetUploadController.onPageLoad().url)
+      html must include("refreshLink.remove()")
+
+      html.indexOf(s"""id="refreshLink"""") must be < html.indexOf("refreshLink.remove()")
+    }
+
+    "once final, must not render the no-JS refresh link, since there's nothing left to wait for" in {
+      htmlFor(isFinal = true) must not include s"""id="refreshLink""""
     }
   }
 }
