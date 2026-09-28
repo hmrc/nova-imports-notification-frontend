@@ -47,16 +47,19 @@
 
     <p class="govuk-body">@messages("totalAmountPaid.paragraph.2")</p>
 
-    <h2 class="govuk-heading-m">@messages("totalAmountPaid.label")</h2>
-
-    @formHelper(action = postAction, Symbol("autoComplete") -> "off") {
+    @formHelper(action = postAction, Symbol("autocomplete") -> "off") {
 
         @govukInput(
             InputViewModel(
                 field = form("value"),
-                label = LabelViewModel(messages("totalAmountPaid.label")).withCssClass("govuk-visually-hidden")
-            ).withHint(HintViewModel(Text(messages("totalAmountPaid.hint"))))
-            .withCssClass("govuk-!-width-two-thirds")
+                label = LabelViewModel(
+                    HtmlContent(
+                        s"""<h2 class="govuk-label govuk-label--m">${messages("totalAmountPaid.label")}</h2>"""
+                    )
+                )
+            )
+            .withHint(HintViewModel(Text(messages("totalAmountPaid.hint"))))
+            .withCssClass("govuk-input govuk-input--width-10")
             .withAutocomplete("off")
         )
 

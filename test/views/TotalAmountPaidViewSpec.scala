@@ -69,15 +69,15 @@ class TotalAmountPaidViewSpec extends SpecBase with Matchers with BeforeAndAfter
     "must render the question as a visible h2 heading" in {
       val document = Jsoup.parse(render())
 
-      document.select("h2.govuk-heading-m").text mustEqual msgs("totalAmountPaid.label")
+      document.select("label h2.govuk-label.govuk-label--m").text mustEqual msgs("totalAmountPaid.label")
     }
 
     "must render the field label for the input as visually hidden" in {
       val document = Jsoup.parse(render())
+      val label    = document.select("""label[for="value"]""")
 
-      document.select("label").attr("for") mustEqual "value"
-      document.select("label").text mustEqual msgs("totalAmountPaid.label")
-      document.select("label").hasClass("govuk-visually-hidden") mustEqual true
+      label.text mustEqual msgs("totalAmountPaid.label")
+      label.hasClass("govuk-visually-hidden") mustEqual false
     }
 
     "must render the hint text against the input" in {
