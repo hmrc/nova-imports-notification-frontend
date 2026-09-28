@@ -71,7 +71,10 @@ object ValidationError {
     "derivative"                     -> "Derivative",
     "trim"                           -> "Trim",
     "bodyType"                       -> "Body type",
-    "lcvBodyType"                    -> "Light commercial vehicle body type"
+    "lcvBodyType"                    -> "Light commercial vehicle body type",
+    "seriesModel"                    -> "Model",
+    "versionDerivative"              -> "Version derivative",
+    "brakeHorsepower"                -> "Brake horsepower"
   )
 
   private val indexSuffix = "\\[\\d+\\]$".r
@@ -94,6 +97,8 @@ final case class UploadResultResponse(
   vehicles: Seq[VehicleSummary],
   euVehicles: Seq[SpreadsheetEuVehicle],
   nonEuVehicles: Seq[SpreadsheetNonEuVehicle],
+  agriculturalTractorEuVehicles: Seq[SpreadsheetAgriculturalTractorEuVehicle],
+  agriculturalTractorNonEuVehicles: Seq[SpreadsheetAgriculturalTractorNonEuVehicle],
   errors: Seq[ValidationError]
 )
 
@@ -119,7 +124,24 @@ object UploadResultResponse {
         if (validationType.exists(nonEuValidationTypes.contains)) rawVehicles.flatMap(_.validate[SpreadsheetNonEuVehicle].asOpt)
         else Seq.empty
 
-      UploadResultResponse(fileStatus, validationType, vehicles, euVehicles, nonEuVehicles, errors)
+      val agriculturalTractorEuVehicles =
+        if (validationType.contains("AgriculturalTractorsEu")) rawVehicles.flatMap(_.validate[SpreadsheetAgriculturalTractorEuVehicle].asOpt)
+        else Seq.empty
+
+      val agriculturalTractorNonEuVehicles =
+        if (validationType.contains("AgriculturalTractorsNonEu")) rawVehicles.flatMap(_.validate[SpreadsheetAgriculturalTractorNonEuVehicle].asOpt)
+        else Seq.empty
+
+      UploadResultResponse(
+        fileStatus,
+        validationType,
+        vehicles,
+        euVehicles,
+        nonEuVehicles,
+        agriculturalTractorEuVehicles,
+        agriculturalTractorNonEuVehicles,
+        errors
+      )
     }
   }
 }

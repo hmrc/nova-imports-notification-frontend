@@ -66,13 +66,9 @@
                 <a class="govuk-link" href="@controllers.routes.LandingPageController.onPageLoad().url">@messages("checkVehicleSpreadsheetDetails.downloadLink")</a>
             </p>
 
-            @* Save and continue: TODO navigate to UVS6.0 when built *@
         @formHelper(action = controllers.vehicledetails.routes.CheckVehicleSpreadsheetDetailsController.onSubmit()) {
         <div class="govuk-button-group">
-                @govukButton(
-                    ButtonViewModel(messages("checkVehicleSpreadsheetDetails.saveAndContinue"))
-                        .asLink(controllers.routes.LandingPageController.onPageLoad().url)
-                )
+                @govukButton(ButtonViewModel(messages("checkVehicleSpreadsheetDetails.saveAndContinue")))
                 <a class="govuk-link" href="@controllers.vehicledetails.routes.UpdateVehicleSpreadsheetController.onPageLoad().url">@messages("checkVehicleSpreadsheetDetails.updateSpreadsheetLink")</a>
             </div>
         }
