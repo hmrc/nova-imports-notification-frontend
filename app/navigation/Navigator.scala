@@ -28,7 +28,7 @@ import pages.sections.notifieraddress.IsYourAddressInTheUkPage
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierQuestionPage, SupplierVatRegistrationNumberPage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
-import pages.sections.vehicledetails.{CountryOfFirstRegistrationPage, DateOfAvailabilityPage, DateOfFirstRegistrationPage, NoPurchaseInvoiceReasonPage, PurchaseInvoiceDatePage, PurchaseInvoiceNumberPage, TotalAmountPaidPage, VehicleDatesPage}
+import pages.sections.vehicledetails.{CountryOfFirstRegistrationPage, DateOfAvailabilityPage, DateOfFirstRegistrationPage, NoPurchaseInvoiceReasonPage, PaymentCurrencyPage, PurchaseInvoiceDatePage, PurchaseInvoiceNumberPage, TotalAmountPaidPage, VehicleDatesPage}
 
 @Singleton
 class Navigator @Inject() () {
@@ -240,9 +240,27 @@ class Navigator @Inject() () {
         }
     case page: TotalAmountPaidPage =>
       (userAnswers, _) =>
-        userAnswers.get(page) match {
-          case Some(_) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD7.1 - Currency when built
-          case _       => routes.JourneyRecoveryController.onPageLoad()
+        (
+          userAnswers.get(page),
+          userAnswers.vehicleSupplierNumber(page.vehicleNumber),
+          userAnswers.vehicleImportNumber(page.vehicleNumber)
+        ) match {
+          case (Some(_), Some(supplierNumber), _) =>
+            vehicledetails.routes.PaymentCurrencyController.supplierOnPageLoad(supplierNumber, page.vehicleNumber, NormalMode)
+          case (Some(_), None, Some(importNumber)) =>
+            vehicledetails.routes.PaymentCurrencyController.importOnPageLoad(importNumber, page.vehicleNumber, NormalMode)
+          case _ => routes.JourneyRecoveryController.onPageLoad()
+        }
+    case page: PaymentCurrencyPage =>
+      (userAnswers, _) =>
+        (
+          userAnswers.get(page),
+          userAnswers.vehicleSupplierNumber(page.vehicleNumber),
+          userAnswers.vehicleImportNumber(page.vehicleNumber)
+        ) match {
+          case (Some(_), Some(_), _)    => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD8.0 - Vehicle type when built
+          case (Some(_), None, Some(_)) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.8 when built
+          case _                        => routes.JourneyRecoveryController.onPageLoad()
         }
     case _ => (_, _) => routes.LandingPageController.onPageLoad()
   }
@@ -307,7 +325,8 @@ class Navigator @Inject() () {
           page.isInstanceOf[SupplierVatRegistrationNumberPage] =>
       (_, _) => supplierdetails.routes.SupplierDetailsCheckYourAnswersController.onPageLoad(page.supplierNumber)
     case _: VehicleDatesPage | _: PurchaseInvoiceDatePage | _: DateOfAvailabilityPage | _: DateOfFirstRegistrationPage |
-        _: CountryOfFirstRegistrationPage | _: PurchaseInvoiceNumberPage | _: NoPurchaseInvoiceReasonPage | _: TotalAmountPaidPage =>
+        _: CountryOfFirstRegistrationPage | _: PurchaseInvoiceNumberPage | _: NoPurchaseInvoiceReasonPage | _: TotalAmountPaidPage |
+        _: PaymentCurrencyPage =>
       (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to the vehicle details CYA when built
     case _ =>
       (_, _) => routes.LandingPageController.onPageLoad()

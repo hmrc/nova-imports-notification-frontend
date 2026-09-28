@@ -977,6 +977,15 @@ countryOfFirstRegistration.hint = You can find this in the vehicle log book
 countryOfFirstRegistration.error.required = Enter the country where the vehicle was first registered
 
 ##########################################################################
+# AVD7.1 - Add vehicle details 7.1: Currency                             #
+##########################################################################
+
+paymentCurrency.supplier.heading = What currency was used to pay for the vehicle?
+paymentCurrency.import.heading = Enter the currency used to pay for the vehicle
+paymentCurrency.caption = Add vehicle details
+paymentCurrency.error.required = Enter the currency used to pay for the vehicle
+
+##########################################################################
 # AVD-S8.0 - Add vehicle details - Supplier 8.0: Supplier VAT Registered #
 ##########################################################################
 # TODO: Welsh translations to be supplied by content team.

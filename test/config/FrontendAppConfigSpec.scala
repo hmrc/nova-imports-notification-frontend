@@ -17,7 +17,7 @@
 package config
 
 import base.SpecBase
-import models.{AddressJourney, Country, SupplierNumber}
+import models.{AddressJourney, Country, Currency, SupplierNumber}
 import org.scalatest.BeforeAndAfterAll
 import play.api.Application
 
@@ -60,6 +60,30 @@ class FrontendAppConfigSpec extends SpecBase with BeforeAndAfterAll {
 
     "must not offer the United Kingdom" in {
       appConfig.countries.map(_.code) must not contain "GB"
+    }
+  }
+
+  "currencies" - {
+
+    "must load every currency from the bundled list" in {
+      appConfig.currencies.size mustEqual 158
+    }
+
+    "must load each entry as a code and a name" in {
+      appConfig.currencies must contain(Currency("AFN", "Afghani"))
+      appConfig.currencies must contain(Currency("ZWD", "Zimbabwean dollar"))
+    }
+
+    "must have no duplicate codes" in {
+      appConfig.currencies.map(_.code).distinct.size mustEqual appConfig.currencies.size
+    }
+  }
+
+  "supplierCurrencies" - {
+
+    "must offer only the currencies agreed for the supplier journey, in the bundled order" in {
+      appConfig.supplierCurrencies.map(_.code) mustEqual
+        List("GBP", "BGN", "CZK", "DKK", "EUR", "HUF", "LTL", "PLN", "RON", "SEK", "USD")
     }
   }
 }
