@@ -66,11 +66,18 @@ class TotalAmountPaidViewSpec extends SpecBase with Matchers with BeforeAndAfter
       Jsoup.parse(render()).title mustEqual msgs("totalAmountPaid.title") + " - " + msgs("service.name") + " - " + msgs("site.govuk")
     }
 
-    "must render the field label for the input" in {
+    "must render the question as a visible h2 heading" in {
       val document = Jsoup.parse(render())
 
-      document.select("label").attr("for") mustEqual "value"
-      document.select("label").text mustEqual msgs("totalAmountPaid.label")
+      document.select("label h2.govuk-label.govuk-label--m").text mustEqual msgs("totalAmountPaid.label")
+    }
+
+    "must render the field label for the input as visually hidden" in {
+      val document = Jsoup.parse(render())
+      val label    = document.select("""label[for="value"]""")
+
+      label.text mustEqual msgs("totalAmountPaid.label")
+      label.hasClass("govuk-visually-hidden") mustEqual false
     }
 
     "must render the hint text against the input" in {
@@ -141,7 +148,7 @@ class TotalAmountPaidViewSpec extends SpecBase with Matchers with BeforeAndAfter
     "must show the comma/decimal error when a comma is entered" in {
       val html = render(form.bind(Map("value" -> "15,000")))
 
-      html must include(msgs("totalAmountPaid.error.commaOrDecimalPoint"))
+      html must include(msgs("totalAmountPaid.error.invalid"))
       Jsoup.parse(html).getElementById("value").hasClass("govuk-input--error") mustEqual true
     }
 
