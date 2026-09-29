@@ -21,10 +21,9 @@ import connectors.{GetFileUploadSummaryError, NovaImportsBackendConnector}
 import controllers.BaseController
 import controllers.actions.Actions
 import controllers.utils.IsDraftIdDefined
-import controllers.vehicledetails.UploadVehicleSpreadsheetController.{guardPredicate, spreadsheetValidationTypeFor}
-import models.{DraftId, SpreadsheetUploadError, SpreadsheetValidationType, UserAnswers}
+import controllers.vehicledetails.UploadVehicleSpreadsheetController.guardPredicate
 import models.requests.DataRequest
-import models.{SpreadsheetUploadError, SpreadsheetValidationType, UserAnswers}
+import models.{DraftId, SpreadsheetUploadError, SpreadsheetValidationType, UserAnswers}
 import pages.DraftIdPage
 import pages.sections.initialquestions.VehicleFromEuPage
 import pages.sections.introduction.AmendSubmittedNotificationPage
