@@ -106,7 +106,7 @@
         </p>
         @govukButton(
             ButtonViewModel(messages("notificationTaskList.deleteNotification"))
-                .asLink("#")
+                .asLink(notification.routes.DeleteCurrentNotificationController.onPageLoad().url)
                 .asWarningButton()
         )
     </div>

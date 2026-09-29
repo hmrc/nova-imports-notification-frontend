@@ -63,7 +63,6 @@ class PurchaserAddressCheckYourAnswersControllerSpec extends SpecBase with Mocki
     sessionRepository: SessionRepository = stubSessionRepository()
   ): Application =
     applicationBuilder(userAnswers)
-      .overrides(bind[SessionRepository].toInstance(sessionRepository))
       .build()
 
   "PurchaserAddressCheckYourAnswers Controller" - {

@@ -1069,3 +1069,12 @@ updateVehicleSpreadsheet.heading = Are you sure you want to update this vehicle 
 updateVehicleSpreadsheet.caption = Ychwanegwch fanylion cerbyd
 updateVehicleSpreadsheet.hint = You’ll lose the details you’ve already uploaded
 updateVehicleSpreadsheet.error.required = Select yes if you want to update this vehicle spreadsheet
+
+#######################################################
+# DN2.0 - Delete current notification                 #
+#######################################################
+# TODO: Welsh translations to be supplied by content team.
+deleteCurrentNotification.title = Are you sure you want to delete this notification?
+deleteCurrentNotification.heading = Are you sure you want to delete this notification?
+deleteCurrentNotification.paragraph = You’ll lose all the details for this notification.
+deleteCurrentNotification.error.required = Select yes if you want to delete this notification
