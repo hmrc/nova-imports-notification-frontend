@@ -165,7 +165,8 @@ class ViewClientsControllerSpec extends SpecBase with MockitoSugar {
           val html   = contentAsString(result)
 
           status(result) mustEqual OK
-          html must include("No clients found using this search criteria")
+          html must include("No clients found")
+          html must include("Check the client name or VAT registration number and try again.")
           html must not include "govuk-table"
         }
       }
@@ -280,7 +281,7 @@ class ViewClientsControllerSpec extends SpecBase with MockitoSugar {
           val html   = contentAsString(result)
 
           status(result) mustEqual BAD_REQUEST
-          html must include("Select what you want to search by and enter a client name or VAT registration number")
+          html must include("Select what you want to search by, and enter a client name or VAT registration number")
           html must include("Select what you want to search by")
           html must include("Enter a client name or VAT registration number")
           html must not include "govuk-table"
@@ -300,7 +301,7 @@ class ViewClientsControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual BAD_REQUEST
           html must include("Enter the client’s name")
-          html must not include "Select what you want to search by and enter"
+          html must not include "Select what you want to search by, and enter"
         }
       }
 
@@ -330,7 +331,7 @@ class ViewClientsControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual BAD_REQUEST
           html must include("Select what you want to search by")
-          html must not include "Select what you want to search by and enter"
+          html must not include "Select what you want to search by, and enter"
         }
       }
     }
