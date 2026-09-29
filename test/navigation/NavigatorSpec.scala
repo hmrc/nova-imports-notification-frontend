@@ -732,11 +732,11 @@ class NavigatorSpec extends SpecBase {
         navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
 
-      "must go from PaymentCurrencyPage AVD7.1 to LandingPage when the vehicle belongs to a supplier" in {
+      "must go from PaymentCurrencyPage AVD7.1 to AddVehicleType AVD8.0 for supplier 1 vehicle 1" in {
         val page = PaymentCurrencyPage(VehicleNumber(1))
         val ua   = supplierVehicle.unsafeSet(page, "EUR")
         navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe
-          routes.LandingPageController.onPageLoad() // TODO: update when AVD8.0 - Vehicle type is built
+          vehicledetails.routes.AddVehicleTypeController.supplierOnPageLoad(SupplierNumber(1), VehicleNumber(1), NormalMode)
       }
 
       "must go from PaymentCurrencyPage AVD7.1 to LandingPage when the vehicle belongs to an import" in {

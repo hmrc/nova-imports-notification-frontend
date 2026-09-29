@@ -259,7 +259,8 @@ class Navigator @Inject() () {
           userAnswers.vehicleSupplierNumber(page.vehicleNumber),
           userAnswers.vehicleImportNumber(page.vehicleNumber)
         ) match {
-          case (Some(_), Some(_), _)    => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD8.0 - Vehicle type when built
+          case (Some(_), Some(supplierNumber), _) =>
+            vehicledetails.routes.AddVehicleTypeController.supplierOnPageLoad(supplierNumber, page.vehicleNumber, NormalMode)
           case (Some(_), None, Some(_)) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.8 when built
           case _                        => routes.JourneyRecoveryController.onPageLoad()
         }
