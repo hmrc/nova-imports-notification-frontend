@@ -17,6 +17,7 @@
 package views
 
 import base.SpecBase
+import config.FrontendAppConfig
 import controllers.vehicledetails
 import forms.CountryOfFirstRegistrationFormProvider
 import models.{Country, ImportNumber, NormalMode, SupplierNumber, VehicleNumber}
@@ -41,6 +42,7 @@ class CountryOfFirstRegistrationViewSpec extends SpecBase with Matchers with Bef
   implicit val msgs: Messages      = messages(app)
 
   val view: CountryOfFirstRegistrationView = app.injector.instanceOf[CountryOfFirstRegistrationView]
+  val appConfig: FrontendAppConfig         = app.injector.instanceOf[FrontendAppConfig]
 
   override def afterAll(): Unit = {
     Await.result(app.stop(), 10.seconds)
@@ -107,10 +109,41 @@ class CountryOfFirstRegistrationViewSpec extends SpecBase with Matchers with Bef
       document.select("#value option[value=DE]").text mustEqual "Germany"
     }
 
-    "must render the countries in alphabetical order by name" in {
+    "must render the countries in the order given" in {
       val options = Jsoup.parse(render(countries = List(Country("DE", "Germany"), Country("FR", "France")))).select("#value option")
 
-      options.asScala.drop(1).map(_.text).toList mustEqual List("France", "Germany")
+      options.asScala.drop(1).map(_.text).toList mustEqual List("Germany", "France")
+    }
+
+    "must render the listed name rather than the translated country name" in {
+      val document = Jsoup.parse(render(countries = List(Country("CZ", "Czech Republic"))))
+
+      document.select("#value option[value=CZ]").text mustEqual "Czech Republic"
+    }
+
+    "must render every entry that shares a code" in {
+      val vaticanEntries = List(Country("VA", "Holy See (Vatican City State)"), Country("VA", "Vatican City State"))
+      val options        = Jsoup.parse(render(countries = vaticanEntries)).select("#value option[value=VA]")
+
+      options.asScala.map(_.text).toList mustEqual List("Holy See (Vatican City State)", "Vatican City State")
+    }
+
+    "must fall back to the code when a country has no name" in {
+      val document = Jsoup.parse(render(countries = List(Country("FR", None))))
+
+      document.select("#value option[value=FR]").text mustEqual "FR"
+    }
+
+    "must render the bundled list in file order with a blank first option" in {
+      val options = Jsoup.parse(render(countries = appConfig.countries)).select("#value option")
+
+      options.size mustEqual 250
+      options.asScala.slice(1, 4).map(option => option.attr("value") -> option.text).toList mustEqual List(
+        "AF" -> "Afghanistan",
+        "AX" -> "Aland Islands",
+        "AL" -> "Albania"
+      )
+      options.select("[value=CZ]").text mustEqual "Czech Republic"
     }
 
     "must render a back link" in {

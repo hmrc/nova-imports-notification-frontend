@@ -44,7 +44,7 @@ class CountryOfFirstRegistrationFormProviderSpec extends StringFieldBehaviours {
     }
 
     "must not bind a country code that is not in the list" in {
-      val result = form.bind(Map(fieldName -> "GB")).apply(fieldName)
+      val result = form.bind(Map(fieldName -> "XK")).apply(fieldName)
 
       result.errors must contain only FormError(fieldName, requiredKey)
     }
