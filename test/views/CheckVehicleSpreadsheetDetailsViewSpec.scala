@@ -19,6 +19,7 @@ package views
 import base.SpecBase
 import controllers.vehicledetails
 import models.responses.VehicleSummary
+import org.jsoup.Jsoup
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.must.Matchers
 import play.api.Application
@@ -30,6 +31,7 @@ import views.html.CheckVehicleSpreadsheetDetailsView
 
 import scala.concurrent.Await
 import scala.concurrent.duration.DurationInt
+import scala.jdk.CollectionConverters.*
 
 class CheckVehicleSpreadsheetDetailsViewSpec extends SpecBase with Matchers with BeforeAndAfterAll {
 
@@ -107,8 +109,24 @@ class CheckVehicleSpreadsheetDetailsViewSpec extends SpecBase with Matchers with
       html must include(msgs("checkVehicleSpreadsheetDetails.saveAndContinue"))
     }
 
+    "must render the save and continue button as a real submit button inside the form, not a link" in {
+      val doc  = Jsoup.parse(html)
+      val form = doc.select("form").first()
+      form.attr("action") mustEqual vehicledetails.routes.CheckVehicleSpreadsheetDetailsController.onSubmit().url
+
+      val saveAndContinue = form.select("button").asScala.find(_.text == msgs("checkVehicleSpreadsheetDetails.saveAndContinue")).value
+      saveAndContinue.tagName mustEqual "button"
+      saveAndContinue.hasAttr("href") mustBe false
+    }
+
     "must render the update spreadsheet link" in {
       html must include(msgs("checkVehicleSpreadsheetDetails.updateSpreadsheetLink"))
+    }
+
+    "must link the update spreadsheet link to UVS5.1" in {
+      val link = Jsoup.parse(html).select("a.govuk-link").asScala.find(_.text == msgs("checkVehicleSpreadsheetDetails.updateSpreadsheetLink")).value
+
+      link.attr("href") mustEqual vehicledetails.routes.UpdateVehicleSpreadsheetController.onPageLoad().url
     }
 
     "must not render pagination when there is only one page of vehicles" in {

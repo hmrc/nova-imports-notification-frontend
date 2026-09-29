@@ -204,7 +204,7 @@ class TotalAmountPaidControllerSpec extends SpecBase with MockitoSugar {
           val result  = route(application, request).value
 
           status(result) mustEqual BAD_REQUEST
-          contentAsString(result) must include(messages(application)("totalAmountPaid.error.commaOrDecimalPoint"))
+          contentAsString(result) must include(messages(application)("totalAmountPaid.error.invalid"))
         }
       }
 
@@ -216,7 +216,7 @@ class TotalAmountPaidControllerSpec extends SpecBase with MockitoSugar {
           val result  = route(application, request).value
 
           status(result) mustEqual BAD_REQUEST
-          contentAsString(result) must include(messages(application)("totalAmountPaid.error.commaOrDecimalPoint"))
+          contentAsString(result) must include(messages(application)("totalAmountPaid.error.invalid"))
         }
       }
 

@@ -29,7 +29,7 @@ class TotalAmountPaidFormProvider @Inject() extends Mappings {
         .verifying(
           firstError(
             maxLength(TotalAmountPaidFormProvider.MaxLength, "totalAmountPaid.error.length"),
-            regexp(TotalAmountPaidFormProvider.NoCommaOrDecimalPointRegex, "totalAmountPaid.error.commaOrDecimalPoint"),
+            regexp(TotalAmountPaidFormProvider.NoCommaOrDecimalPointRegex, "totalAmountPaid.error.invalid"),
             regexp(TotalAmountPaidFormProvider.WholeNumberRegex, "totalAmountPaid.error.invalid")
           )
         )

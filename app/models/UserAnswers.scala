@@ -34,6 +34,12 @@ final case class UserAnswers(
   def purchaserName: Option[String] =
     get(PurchaserBusinessNamePage).orElse(get(PurchaserNamePage).map(_.displayName))
 
+  def vehicleSupplierNumber(vehicleNumber: VehicleNumber): Option[SupplierNumber] =
+    (data \ "vehicles" \ vehicleNumber.value.toString \ UserAnswers.VehicleSupplierNumberKey).asOpt[Int].map(SupplierNumber(_))
+
+  def vehicleImportNumber(vehicleNumber: VehicleNumber): Option[ImportNumber] =
+    (data \ "vehicles" \ vehicleNumber.value.toString \ UserAnswers.VehicleImportNumberKey).asOpt[Int].map(ImportNumber(_))
+
   def get[A](page: Gettable[A])(implicit rds: Reads[A]): Option[A] =
     Reads.optionNoError(Reads.at(page.path)).reads(data).getOrElse(None)
 
@@ -69,6 +75,10 @@ final case class UserAnswers(
 }
 
 object UserAnswers {
+
+  val VehicleSupplierNumberKey = "supplierNumber"
+
+  val VehicleImportNumberKey = "importNumber"
 
   val reads: Reads[UserAnswers] = {
 

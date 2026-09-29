@@ -111,7 +111,7 @@ class CheckVehicleSpreadsheetErrorsViewSpec extends SpecBase with Matchers with 
 
     "must render the upload updated spreadsheet button linking to UVS1.0" in {
       html must include(msgs("spreadsheetErrors.uploadButton"))
-      html must include(s"""href="${vehicledetails.routes.UploadVehicleSpreadsheetController.onPageLoad().url}"""")
+      html must include(s"""href="${vehicledetails.routes.UploadVehicleSpreadsheetController.onPageLoad(restart = true).url}"""")
     }
 
     "must render the link back to the notification task list" in {

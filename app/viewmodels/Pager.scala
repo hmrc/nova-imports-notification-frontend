@@ -33,12 +33,33 @@ object Pager {
 
   def paginationFor(pageOf: PageOf[?], urlForPage: Int => String): Option[Pagination] =
     Option.when(pageOf.totalPages > 1) {
+      val current = pageOf.page
+      val total   = pageOf.totalPages
+
+      def item(p: Int): PaginationItem =
+        PaginationItem(href = urlForPage(p), number = Some(p.toString), current = Some(p == current))
+
+      val ellipsis: PaginationItem = PaginationItem(ellipsis = Some(true))
+
+      val windowStart = math.max(1, current - 1)
+      val windowEnd   = math.min(total, current + 1)
+
+      val leading: Seq[PaginationItem] =
+        if (windowStart <= 1) Nil
+        else if (windowStart == 2) Seq(item(1))
+        else Seq(item(1), ellipsis)
+
+      val middle: Seq[PaginationItem] = (windowStart to windowEnd).map(item)
+
+      val trailing: Seq[PaginationItem] =
+        if (windowEnd >= total) Nil
+        else if (windowEnd == total - 1) Seq(item(total))
+        else Seq(ellipsis, item(total))
+
       Pagination(
-        items = Some((1 to pageOf.totalPages).map { p =>
-          PaginationItem(href = urlForPage(p), number = Some(p.toString), current = Some(p == pageOf.page))
-        }),
-        previous = Option.when(pageOf.page > 1)(PaginationLink(href = urlForPage(pageOf.page - 1))),
-        next = Option.when(pageOf.page < pageOf.totalPages)(PaginationLink(href = urlForPage(pageOf.page + 1)))
+        items = Some(leading ++ middle ++ trailing),
+        previous = Option.when(current > 1)(PaginationLink(href = urlForPage(current - 1))),
+        next = Option.when(current < total)(PaginationLink(href = urlForPage(current + 1)))
       )
     }
 }

@@ -19,13 +19,13 @@ package controllers.vehicledetails
 import base.SpecBase
 import com.google.inject.name.Names
 import config.FrontendAppConfig
-import connectors.{GetFileUploadSummaryError, NovaImportsBackendConnector}
+import connectors.{DeleteFileUploadError, GetFileUploadSummaryError, NovaImportsBackendConnector}
 import controllers.actions.*
 import controllers.{routes, vehicledetails}
-import models.responses.GetFileUploadSummaryResponse
+import models.responses.{DeleteFileUploadResponse, GetFileUploadSummaryResponse}
 import models.{AgentSelectedClient, DraftId, UserAnswers}
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{never, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.sections.initialquestions.VehicleFromEuPage
 import pages.{AgentSelectedClientPage, DraftIdPage}
@@ -43,6 +43,7 @@ import scala.concurrent.Future
 class VehicleSpreadsheetUploadControllerSpec extends SpecBase with MockitoSugar {
 
   private lazy val onPageLoadRoute = vehicledetails.routes.VehicleSpreadsheetUploadController.onPageLoad().url
+  private lazy val removeRoute     = vehicledetails.routes.VehicleSpreadsheetUploadController.onPageLoad(remove = true).url
   private lazy val statusRoute     = vehicledetails.routes.VehicleSpreadsheetUploadController.status().url
 
   private val draftId = DraftId("DRAFT-001")
@@ -53,10 +54,15 @@ class VehicleSpreadsheetUploadControllerSpec extends SpecBase with MockitoSugar 
   private val importAnswers: UserAnswers =
     emptyUserAnswers.unsafeSet(DraftIdPage, draftId).unsafeSet(VehicleFromEuPage, false)
 
-  private def connectorReturning(result: Either[GetFileUploadSummaryError, GetFileUploadSummaryResponse]): NovaImportsBackendConnector = {
+  private def connectorReturning(
+    summaryResult: Either[GetFileUploadSummaryError, GetFileUploadSummaryResponse],
+    deleteResult: Either[DeleteFileUploadError, DeleteFileUploadResponse] = Right(DeleteFileUploadResponse(true))
+  ): NovaImportsBackendConnector = {
     val connector = mock[NovaImportsBackendConnector]
     when(connector.getFileUploadSummary(any[DraftId])(using any[HeaderCarrier]))
-      .thenReturn(Future.successful(result))
+      .thenReturn(Future.successful(summaryResult))
+    when(connector.deleteFileUpload(any[DraftId])(using any[HeaderCarrier]))
+      .thenReturn(Future.successful(deleteResult))
     connector
   }
 
@@ -97,9 +103,10 @@ class VehicleSpreadsheetUploadControllerSpec extends SpecBase with MockitoSugar 
         contentAsString(result) mustEqual view(
           isFinal = false,
           fileName = None,
-          removeUrl = vehicledetails.routes.AddVehicleDetailsController.onPageLoad(models.NormalMode),
+          removeUrl = vehicledetails.routes.VehicleSpreadsheetUploadController.onPageLoad(remove = true),
           statusUrl = statusRoute,
-          refreshIntervalSeconds = appConfig.uploadStatusRefreshIntervalSeconds
+          refreshIntervalSeconds = appConfig.uploadStatusRefreshIntervalSeconds,
+          maxPollSeconds = appConfig.uploadStatusMaxPollSeconds
         )(request, messages(application)).toString
       }
     }
@@ -134,6 +141,23 @@ class VehicleSpreadsheetUploadControllerSpec extends SpecBase with MockitoSugar 
       }
     }
 
+    "must render Continue as a real link to its destination immediately when the page loads already validated" in {
+      val application = applicationFor(
+        classOf[FakeVatTraderIdentifierAction],
+        Some(acquisitionAnswers),
+        connectorReturning(Right(GetFileUploadSummaryResponse("VALIDATED", None, None)))
+      )
+
+      running(application) {
+        val result = route(application, FakeRequest(GET, onPageLoadRoute)).value
+
+        status(result) mustEqual OK
+        contentAsString(result) must include(
+          s"""href="${vehicledetails.routes.CheckVehicleSpreadsheetDetailsController.onPageLoad().url}""""
+        )
+      }
+    }
+
     "must render the page as Uploaded once validation has failed with errors" in {
       val application = applicationFor(
         classOf[FakeVatTraderIdentifierAction],
@@ -149,18 +173,20 @@ class VehicleSpreadsheetUploadControllerSpec extends SpecBase with MockitoSugar 
       }
     }
 
-    "must point Remove at the import journey question when the vehicles are not from the EU" in {
+    "must render Continue as a real link to the errors page when the page loads already failed validation" in {
       val application = applicationFor(
         classOf[FakeVatTraderIdentifierAction],
-        Some(importAnswers),
-        connectorReturning(Right(GetFileUploadSummaryResponse("VALIDATED", None, None)))
+        Some(acquisitionAnswers),
+        connectorReturning(Right(GetFileUploadSummaryResponse("VALIDATION_FAILED", None, None)))
       )
 
       running(application) {
         val result = route(application, FakeRequest(GET, onPageLoadRoute)).value
 
         status(result) mustEqual OK
-        contentAsString(result) must include(vehicledetails.routes.AddImportVehicleDetailsController.onPageLoad(models.NormalMode).url)
+        contentAsString(result) must include(
+          s"""href="${vehicledetails.routes.CheckVehicleSpreadsheetErrorsController.onPageLoad().url}""""
+        )
       }
     }
 
@@ -343,6 +369,60 @@ class VehicleSpreadsheetUploadControllerSpec extends SpecBase with MockitoSugar 
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+  }
+
+  "VehicleSpreadsheetUploadController.onPageLoad(remove = true)" - {
+
+    "must delete the tracked upload and redirect to AVD1.0 when the vehicles are from the EU" in {
+      val connector   = connectorReturning(summaryResult = Right(GetFileUploadSummaryResponse("VALIDATED", None, None)))
+      val application = applicationFor(classOf[FakeVatTraderIdentifierAction], Some(acquisitionAnswers), connector)
+
+      running(application) {
+        val result = route(application, FakeRequest(GET, removeRoute)).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual vehicledetails.routes.AddVehicleDetailsController.onPageLoad(models.NormalMode).url
+        verify(connector).deleteFileUpload(org.mockito.ArgumentMatchers.eq(draftId))(using any[HeaderCarrier])
+      }
+    }
+
+    "must delete the tracked upload and redirect to AVD1.1 when the vehicles are not from the EU" in {
+      val connector   = connectorReturning(summaryResult = Right(GetFileUploadSummaryResponse("VALIDATED", None, None)))
+      val application = applicationFor(classOf[FakeVatTraderIdentifierAction], Some(importAnswers), connector)
+
+      running(application) {
+        val result = route(application, FakeRequest(GET, removeRoute)).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual vehicledetails.routes.AddImportVehicleDetailsController.onPageLoad(models.NormalMode).url
+      }
+    }
+
+    "must still redirect away even when the delete call fails" in {
+      val connector = connectorReturning(
+        summaryResult = Right(GetFileUploadSummaryResponse("VALIDATED", None, None)),
+        deleteResult = Left(DeleteFileUploadError.UpstreamError(502, "boom"))
+      )
+      val application = applicationFor(classOf[FakeVatTraderIdentifierAction], Some(acquisitionAnswers), connector)
+
+      running(application) {
+        val result = route(application, FakeRequest(GET, removeRoute)).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual vehicledetails.routes.AddVehicleDetailsController.onPageLoad(models.NormalMode).url
+      }
+    }
+
+    "must not call getFileUploadSummary when removing" in {
+      val connector   = connectorReturning(summaryResult = Right(GetFileUploadSummaryResponse("VALIDATED", None, None)))
+      val application = applicationFor(classOf[FakeVatTraderIdentifierAction], Some(acquisitionAnswers), connector)
+
+      running(application) {
+        route(application, FakeRequest(GET, removeRoute)).value.futureValue
+
+        verify(connector, never).getFileUploadSummary(any[DraftId])(using any[HeaderCarrier])
       }
     }
   }

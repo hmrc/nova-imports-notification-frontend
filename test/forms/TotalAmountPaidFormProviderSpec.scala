@@ -62,7 +62,7 @@ class TotalAmountPaidFormProviderSpec extends StringFieldBehaviours {
 
       invalidValues.foreach { value =>
         val result = form.bind(Map(fieldName -> value))
-        result.errors must contain only FormError(fieldName, commaOrDecimalKey, Seq(TotalAmountPaidFormProvider.NoCommaOrDecimalPointRegex))
+        result.errors must contain only FormError(fieldName, invalidKey, Seq(TotalAmountPaidFormProvider.NoCommaOrDecimalPointRegex))
       }
     }
 
@@ -87,7 +87,7 @@ class TotalAmountPaidFormProviderSpec extends StringFieldBehaviours {
 
       val result = form.bind(Map(fieldName -> "15,000abc"))
 
-      result.errors must contain only FormError(fieldName, commaOrDecimalKey, Seq(TotalAmountPaidFormProvider.NoCommaOrDecimalPointRegex))
+      result.errors must contain only FormError(fieldName, invalidKey, Seq(TotalAmountPaidFormProvider.NoCommaOrDecimalPointRegex))
     }
 
     "must not bind an entry of only whitespace" in {

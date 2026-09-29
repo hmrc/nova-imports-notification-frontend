@@ -16,7 +16,6 @@
 
 package models.responses
 
-import play.api.libs.functional.syntax.*
 import play.api.libs.json.*
 
 final case class ValidationError(field: String, error: String, itemNumber: Option[Int] = None) {
@@ -72,7 +71,10 @@ object ValidationError {
     "derivative"                     -> "Derivative",
     "trim"                           -> "Trim",
     "bodyType"                       -> "Body type",
-    "lcvBodyType"                    -> "Light commercial vehicle body type"
+    "lcvBodyType"                    -> "Light commercial vehicle body type",
+    "seriesModel"                    -> "Model",
+    "versionDerivative"              -> "Version derivative",
+    "brakeHorsepower"                -> "Brake horsepower"
   )
 
   private val indexSuffix = "\\[\\d+\\]$".r
@@ -89,12 +91,57 @@ object VehicleSummary {
   implicit val reads: Reads[VehicleSummary] = Json.reads[VehicleSummary]
 }
 
-final case class UploadResultResponse(fileStatus: String, vehicles: Seq[VehicleSummary], errors: Seq[ValidationError])
+final case class UploadResultResponse(
+  fileStatus: String,
+  validationType: Option[String],
+  vehicles: Seq[VehicleSummary],
+  euVehicles: Seq[SpreadsheetEuVehicle],
+  nonEuVehicles: Seq[SpreadsheetNonEuVehicle],
+  agriculturalTractorEuVehicles: Seq[SpreadsheetAgriculturalTractorEuVehicle],
+  agriculturalTractorNonEuVehicles: Seq[SpreadsheetAgriculturalTractorNonEuVehicle],
+  errors: Seq[ValidationError]
+)
 
 object UploadResultResponse {
-  implicit val reads: Reads[UploadResultResponse] = (
-    (JsPath \ "fileStatus").read[String] and
-      (JsPath \ "data" \ "vehicles").readNullable[Seq[VehicleSummary]].map(_.getOrElse(Seq.empty)) and
-      (JsPath \ "errors").readNullable[Seq[ValidationError]].map(_.getOrElse(Seq.empty))
-  )(UploadResultResponse.apply)
+
+  private val euValidationTypes    = Set("CarsEu", "LightCommercialVehiclesEu")
+  private val nonEuValidationTypes = Set("CarsNonEu", "LightCommercialVehiclesNonEu")
+
+  implicit val reads: Reads[UploadResultResponse] = Reads { json =>
+    for {
+      fileStatus     <- (json \ "fileStatus").validate[String]
+      validationType <- (json \ "validationType").validateOpt[String]
+      vehicles       <- (json \ "data" \ "vehicles").validateOpt[Seq[VehicleSummary]].map(_.getOrElse(Seq.empty))
+      errors         <- (json \ "errors").validateOpt[Seq[ValidationError]].map(_.getOrElse(Seq.empty))
+    } yield {
+      val rawVehicles = (json \ "data" \ "vehicles").asOpt[Seq[JsValue]].getOrElse(Seq.empty)
+
+      val euVehicles =
+        if (validationType.exists(euValidationTypes.contains)) rawVehicles.flatMap(_.validate[SpreadsheetEuVehicle].asOpt)
+        else Seq.empty
+
+      val nonEuVehicles =
+        if (validationType.exists(nonEuValidationTypes.contains)) rawVehicles.flatMap(_.validate[SpreadsheetNonEuVehicle].asOpt)
+        else Seq.empty
+
+      val agriculturalTractorEuVehicles =
+        if (validationType.contains("AgriculturalTractorsEu")) rawVehicles.flatMap(_.validate[SpreadsheetAgriculturalTractorEuVehicle].asOpt)
+        else Seq.empty
+
+      val agriculturalTractorNonEuVehicles =
+        if (validationType.contains("AgriculturalTractorsNonEu")) rawVehicles.flatMap(_.validate[SpreadsheetAgriculturalTractorNonEuVehicle].asOpt)
+        else Seq.empty
+
+      UploadResultResponse(
+        fileStatus,
+        validationType,
+        vehicles,
+        euVehicles,
+        nonEuVehicles,
+        agriculturalTractorEuVehicles,
+        agriculturalTractorNonEuVehicles,
+        errors
+      )
+    }
+  }
 }

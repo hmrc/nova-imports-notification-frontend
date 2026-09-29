@@ -17,8 +17,7 @@
 package config
 
 import com.google.inject.{Inject, Singleton}
-import models.AddressJourney
-import models.CountryVrnValidation
+import models.{AddressJourney, Country, CountryVrnValidation}
 import play.api.Configuration
 import play.api.i18n.Lang
 import play.api.mvc.RequestHeader
@@ -57,6 +56,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
     configuration.get[Service]("microservice.services.nova-imports-backend").baseUrl
 
   val uploadStatusRefreshIntervalSeconds: Int = configuration.get[Int]("uploadStatusRefreshIntervalSeconds")
+  val uploadStatusMaxPollSeconds: Int         = configuration.get[Int]("uploadStatusMaxPollSeconds")
 
   val addressLookupFrontendBaseUrl: String =
     configuration.get[Service]("microservice.services.address-lookup-frontend").baseUrl
@@ -96,5 +96,10 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
       )
     }
   }
+
+  lazy val countries: List[Country] =
+    configuration.get[Seq[Configuration]]("countries").toList.map { config =>
+      Country(code = config.get[String]("code"), name = config.get[String]("name"))
+    }
 
 }

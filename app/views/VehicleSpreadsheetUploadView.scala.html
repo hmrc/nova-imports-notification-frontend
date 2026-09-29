@@ -25,7 +25,7 @@
     govukTag: GovukTag
 )
 
-@(isFinal: Boolean, fileName: Option[String], removeUrl: Call, statusUrl: String, refreshIntervalSeconds: Int)(implicit request: Request[?], messages: Messages)
+@(isFinal: Boolean, fileName: Option[String], removeUrl: Call, statusUrl: String, refreshIntervalSeconds: Int, maxPollSeconds: Int, continueUrl: Option[Call] = None)(implicit request: Request[?], messages: Messages)
 
 @statusTag = @{
     val base = TagViewModel(Text(messages(if (isFinal) "vehicleSpreadsheetUpload.status.uploaded" else "vehicleSpreadsheetUpload.status.uploading")))
@@ -37,12 +37,12 @@
 @actionItem = @{
     val (text, href) =
         if (isFinal) (messages("site.remove"), removeUrl.url)
-        else (messages("site.cancel"), routes.UploadVehicleSpreadsheetController.onPageLoad().url)
+        else (messages("site.cancel"), routes.UploadVehicleSpreadsheetController.onPageLoad(restart = true).url)
 
     ActionItemViewModel(Text(text), href)
         .withVisuallyHiddenText(messages("vehicleSpreadsheetUpload.heading"))
         .withAttribute("id" -> "upload-action-link")
-        .withAttribute("data-cancel-href" -> routes.UploadVehicleSpreadsheetController.onPageLoad().url)
+        .withAttribute("data-cancel-href" -> routes.UploadVehicleSpreadsheetController.onPageLoad(restart = true).url)
         .withAttribute("data-remove-href" -> removeUrl.url)
         .withAttribute("data-cancel-text" -> messages("site.cancel"))
         .withAttribute("data-remove-text" -> messages("site.remove"))
@@ -52,6 +52,12 @@
 
     <span class="govuk-caption-l">@messages("vehicleSpreadsheetUpload.caption")</span>
     <h1 class="govuk-heading-l">@messages("vehicleSpreadsheetUpload.heading")</h1>
+
+    @if(!isFinal) {
+        <p class="govuk-body" id="refreshLink">
+            <a href="@routes.VehicleSpreadsheetUploadController.onPageLoad().url" class="govuk-link">@messages("vehicleSpreadsheetUpload.refreshPageLink")</a>
+        </p>
+    }
 
     @govukSummaryList(SummaryListViewModel(
         rows = Seq(
@@ -64,17 +70,60 @@
     ).withCssClass("govuk-summary-list--long-key"))
 
     @if(isFinal) {
-        @govukButton(ButtonViewModel(Text(messages("site.continue"))).withAttribute("id" -> "continueButton"))
+        @* A real link, not a JS-wired button - isFinal always implies continueUrl is present (both are
+           derived from the same fileStatus in the controller), so this works with JS disabled too: a
+           no-JS user who reaches this page already final (e.g. via the refresh link above, or landing here
+           directly from the task list per DTR-7838-UVS4.0) can click Continue immediately. *@
+        @govukButton(
+            ButtonViewModel(Text(messages("site.continue")))
+                .asLink(continueUrl.map(_.url).getOrElse(""))
+                .withAttribute("id" -> "continueButton")
+        )
     } else {
         @govukButton(ButtonViewModel(Text(messages("site.continue"))).disabled().withAttribute("id" -> "continueButton"))
     }
 
     <script @{CSPNonce.attr}>
+        var refreshLink = document.getElementById('refreshLink');
+        if (refreshLink) {
+            refreshLink.remove();
+        }
+
+        var pollStartedAt = Date.now();
+        var refreshIntervalMs = @refreshIntervalSeconds * 1000;
+        var maxPollDurationMs = @maxPollSeconds * 1000;
+
         document.addEventListener('DOMContentLoaded', function() {
+            // When the page loads already final, the Continue button is rendered server-side as a real
+            // link (see the view) - it works without any JS wiring. Only the non-final case needs polling.
             if (!@isFinal) {
-                window.setTimeout(checkUploadStatus, @refreshIntervalSeconds * 1000);
+                window.setTimeout(checkUploadStatus, refreshIntervalMs);
             }
         });
+
+        // Only used when a poll (not the initial render) discovers the upload has become final - at that
+        // point the button is still the disabled <button> from the non-final initial render, so it needs
+        // wiring up here rather than being a link from the start.
+        function wireContinueButton() {
+            var continueButton = document.getElementById('continueButton');
+            if (!continueButton) {
+                return;
+            }
+            var href = continueButton.getAttribute('data-continue-href');
+            if (href) {
+                continueButton.addEventListener('click', function() {
+                    window.location.href = href;
+                });
+            }
+        }
+
+        function scheduleNextCheck() {
+            if (Date.now() - pollStartedAt >= maxPollDurationMs) {
+                window.location.href = '@routes.UploadSpreadsheetErrorUnknownController.onPageLoad().url';
+                return;
+            }
+            window.setTimeout(checkUploadStatus, refreshIntervalMs);
+        }
 
         function checkUploadStatus() {
             fetch('@statusUrl')
@@ -107,10 +156,9 @@
                             continueButton.removeAttribute('disabled');
                             continueButton.removeAttribute('aria-disabled');
                             if (data.continueUrl) {
-                                continueButton.addEventListener('click', function() {
-                                    window.location.href = data.continueUrl;
-                                });
+                                continueButton.setAttribute('data-continue-href', data.continueUrl);
                             }
+                            wireContinueButton();
                         }
                         if (actionLink) {
                             actionLink.href = actionLink.getAttribute('data-remove-href');
@@ -122,11 +170,11 @@
                             }
                         }
                     } else {
-                        window.setTimeout(checkUploadStatus, @refreshIntervalSeconds * 1000);
+                        scheduleNextCheck();
                     }
                 })
                 .catch(function() {
-                    window.setTimeout(checkUploadStatus, @refreshIntervalSeconds * 1000);
+                    scheduleNextCheck();
                 });
         }
     </script>

@@ -18,7 +18,7 @@ package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import models.{ClientList, ClientListQuery, ClientListStatus, ClientSummary, DraftId, NotificationSummary, TraderInformation}
-import models.responses.{ClientListRefresh, CreateDraftResponse, GetFileUploadSummaryResponse}
+import models.responses.{ClientListRefresh, CreateDraftResponse, DeleteFileUploadResponse, GetFileUploadSummaryResponse}
 import play.api.libs.json.Json
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
@@ -568,6 +568,45 @@ class NovaImportsBackendConnectorISpec
       wireMockServer.stubFor(get(urlEqualTo(url)).willReturn(aResponse().withStatus(500).withBody("boom")))
 
       connector.getFileUploadSummary(draftId).futureValue mustEqual Left(GetFileUploadSummaryError.UpstreamError(500, "boom"))
+    }
+  }
+
+  "deleteFileUpload" - {
+
+    val draftId = DraftId("12345")
+    val url     = s"/nova-imports/draft-notifications/${draftId.value}/upload-results"
+
+    "returns success on 200" in {
+      wireMockServer.stubFor(delete(urlEqualTo(url)).willReturn(okJson("""{"success":true}""")))
+
+      connector.deleteFileUpload(draftId).futureValue mustEqual Right(DeleteFileUploadResponse(true))
+    }
+
+    "returns Forbidden on 403" in {
+      wireMockServer.stubFor(delete(urlEqualTo(url)).willReturn(aResponse().withStatus(403)))
+
+      connector.deleteFileUpload(draftId).futureValue mustEqual Left(DeleteFileUploadError.Forbidden)
+    }
+
+    "returns NotFound on 404" in {
+      wireMockServer.stubFor(delete(urlEqualTo(url)).willReturn(aResponse().withStatus(404)))
+
+      connector.deleteFileUpload(draftId).futureValue mustEqual Left(DeleteFileUploadError.NotFound)
+    }
+
+    "returns UpstreamError on a malformed body" in {
+      wireMockServer.stubFor(delete(urlEqualTo(url)).willReturn(okJson("""{"unexpected":"shape"}""")))
+
+      connector.deleteFileUpload(draftId).futureValue match {
+        case Left(DeleteFileUploadError.UpstreamError(200, message)) => message must include("Malformed delete file upload response")
+        case other                                                   => fail(s"expected UpstreamError(200, ...) but got $other")
+      }
+    }
+
+    "returns UpstreamError on 500" in {
+      wireMockServer.stubFor(delete(urlEqualTo(url)).willReturn(aResponse().withStatus(500).withBody("boom")))
+
+      connector.deleteFileUpload(draftId).futureValue mustEqual Left(DeleteFileUploadError.UpstreamError(500, "boom"))
     }
   }
 }

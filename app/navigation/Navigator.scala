@@ -28,7 +28,7 @@ import pages.sections.notifieraddress.IsYourAddressInTheUkPage
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierQuestionPage, SupplierVatRegistrationNumberPage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
-import pages.sections.vehicledetails.{DateOfAvailabilityPage, DateOfFirstRegistrationPage, PurchaseInvoiceDatePage, PurchaseInvoiceNumberPage, TotalAmountPaidPage, VehicleDatesPage}
+import pages.sections.vehicledetails.{CountryOfFirstRegistrationPage, DateOfAvailabilityPage, DateOfFirstRegistrationPage, NoPurchaseInvoiceReasonPage, PurchaseInvoiceDatePage, PurchaseInvoiceNumberPage, TotalAmountPaidPage, VehicleDatesPage}
 
 @Singleton
 class Navigator @Inject() () {
@@ -205,9 +205,38 @@ class Navigator @Inject() () {
         }
     case page: DateOfFirstRegistrationPage =>
       (userAnswers, _) =>
+        (
+          userAnswers.get(page),
+          userAnswers.vehicleSupplierNumber(page.vehicleNumber),
+          userAnswers.vehicleImportNumber(page.vehicleNumber)
+        ) match {
+          case (Some(_), Some(supplierNumber), _) =>
+            vehicledetails.routes.CountryOfFirstRegistrationController
+              .supplierOnPageLoad(supplierNumber, page.vehicleNumber, NormalMode)
+          case (Some(_), None, Some(importNumber)) =>
+            vehicledetails.routes.CountryOfFirstRegistrationController.importOnPageLoad(importNumber, page.vehicleNumber, NormalMode)
+          case _ => routes.JourneyRecoveryController.onPageLoad()
+        }
+    case page: CountryOfFirstRegistrationPage =>
+      (userAnswers, _) =>
+        (
+          userAnswers.get(page),
+          userAnswers.vehicleSupplierNumber(page.vehicleNumber),
+          userAnswers.vehicleImportNumber(page.vehicleNumber)
+        ) match {
+          case (Some(_), Some(supplierNumber), _) if purchaseInvoiceDateSelected(userAnswers, supplierNumber, page.vehicleNumber) =>
+            vehicledetails.routes.TotalAmountPaidController.onPageLoadSupplier(supplierNumber, page.vehicleNumber, NormalMode)
+          case (Some(_), Some(supplierNumber), _) =>
+            vehicledetails.routes.NoPurchaseInvoiceReasonController.onPageLoad(supplierNumber, page.vehicleNumber, NormalMode)
+          case (Some(_), None, Some(_)) => routes.LandingPageController.onPageLoad()
+          case _                        => routes.JourneyRecoveryController.onPageLoad()
+        }
+    case page: NoPurchaseInvoiceReasonPage =>
+      (userAnswers, _) =>
         userAnswers.get(page) match {
-          case Some(_) => routes.LandingPageController.onPageLoad()
-          case _       => routes.JourneyRecoveryController.onPageLoad()
+          case Some(_) =>
+            vehicledetails.routes.TotalAmountPaidController.onPageLoadSupplier(page.supplierNumber, page.vehicleNumber, NormalMode)
+          case _ => routes.JourneyRecoveryController.onPageLoad()
         }
     case page: TotalAmountPaidPage =>
       (userAnswers, _) =>
@@ -278,7 +307,7 @@ class Navigator @Inject() () {
           page.isInstanceOf[SupplierVatRegistrationNumberPage] =>
       (_, _) => supplierdetails.routes.SupplierDetailsCheckYourAnswersController.onPageLoad(page.supplierNumber)
     case _: VehicleDatesPage | _: PurchaseInvoiceDatePage | _: DateOfAvailabilityPage | _: DateOfFirstRegistrationPage |
-        _: PurchaseInvoiceNumberPage | _: TotalAmountPaidPage =>
+        _: CountryOfFirstRegistrationPage | _: PurchaseInvoiceNumberPage | _: NoPurchaseInvoiceReasonPage | _: TotalAmountPaidPage =>
       (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to the vehicle details CYA when built
     case _ =>
       (_, _) => routes.LandingPageController.onPageLoad()
@@ -290,4 +319,7 @@ class Navigator @Inject() () {
     case CheckMode =>
       checkRouteMap(page)(userAnswers, userType)
   }
+
+  private def purchaseInvoiceDateSelected(userAnswers: UserAnswers, supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber): Boolean =
+    userAnswers.get(VehicleDatesPage(supplierNumber, vehicleNumber)).exists(_.contains(VehicleDates.PurchaseInvoiceDate))
 }
