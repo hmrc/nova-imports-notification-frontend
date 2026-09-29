@@ -17,7 +17,7 @@
 package config
 
 import com.google.inject.{Inject, Singleton}
-import models.{AddressJourney, Country, CountryVrnValidation}
+import models.{AddressJourney, Country, CountryVrnValidation, Currency}
 import play.api.Configuration
 import play.api.i18n.Lang
 import play.api.mvc.RequestHeader
@@ -101,5 +101,15 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
     configuration.get[Seq[Configuration]]("countries").toList.map { config =>
       Country(code = config.get[String]("code"), name = config.get[String]("name"))
     }
+
+  lazy val currencies: List[Currency] =
+    configuration.get[Seq[Configuration]]("currencies").toList.map { config =>
+      Currency(code = config.get[String]("code"), name = config.get[String]("name"))
+    }
+
+  lazy val supplierCurrencies: List[Currency] = {
+    val codes = configuration.get[Seq[String]]("supplierCurrencyCodes")
+    currencies.filter(currency => codes.contains(currency.code))
+  }
 
 }
