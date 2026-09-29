@@ -20,8 +20,8 @@
 @this(
     layout: templates.Layout,
     formHelper: FormWithCSRF,
-    govukInsetText: GovukInsetText,
     govukButton: GovukButton,
+    govukDetails: GovukDetails,
     hmrcNewTabLinkHelper: HmrcNewTabLinkHelper
 )
 
@@ -35,21 +35,19 @@
 
     <p class="govuk-body">@messages("vehiclesBoughtFromSupplier.paragraph.1")</p>
 
-    <p class="govuk-body">@messages("vehiclesBoughtFromSupplier.paragraph.2")</p>
-
     <ul class="govuk-list govuk-list--bullet">
         <li>@messages("vehiclesBoughtFromSupplier.bullet.1")</li>
         <li>@messages("vehiclesBoughtFromSupplier.bullet.2")</li>
     </ul>
 
-    @govukInsetText(InsetTextViewModel(
-        messages("vehiclesBoughtFromSupplier.inset.paragraph.1",
-            hmrcNewTabLinkHelper(LinkViewModel(messages("vehiclesBoughtFromSupplier.inset.contactPersonalTransportUnit.linkText"), personalTransportUnitUrl)))
+    <p class="govuk-body">@Html(messages("vehiclesBoughtFromSupplier.inset.paragraph.1",
+        hmrcNewTabLinkHelper(LinkViewModel(messages("vehiclesBoughtFromSupplier.inset.contactPersonalTransportUnit.linkText"), personalTransportUnitUrl))))</p>
+
+
+    @govukDetails(Details(
+        summary = Text(messages("vehiclesBoughtFromSupplier.whereToFindDates.heading")),
+        content = Text(messages("vehiclesBoughtFromSupplier.whereToFindDates.paragraph.1"))
     ))
-
-    <h2 class="govuk-heading-m">@messages("vehiclesBoughtFromSupplier.whereToFindDates.heading")</h2>
-
-    <p class="govuk-body">@messages("vehiclesBoughtFromSupplier.whereToFindDates.paragraph.1")</p>
 
     @formHelper(action = routes.VehiclesBoughtFromSupplierController.onSubmit(supplierNumber)) {
         @govukButton(
