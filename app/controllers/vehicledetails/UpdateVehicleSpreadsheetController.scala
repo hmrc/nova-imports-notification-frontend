@@ -50,7 +50,7 @@ class UpdateVehicleSpreadsheetController @Inject() (
         .fold(
           formWithErrors => BadRequest(view(formWithErrors)),
           {
-            case true  => Redirect(routes.UploadVehicleSpreadsheetController.onPageLoad())
+            case true  => Redirect(routes.UploadVehicleSpreadsheetController.onPageLoad(restart = true))
             case false => Redirect(routes.CheckVehicleSpreadsheetDetailsController.onPageLoad())
           }
         )
