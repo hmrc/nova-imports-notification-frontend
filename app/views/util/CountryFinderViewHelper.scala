@@ -40,4 +40,7 @@ object CountryFinderViewHelper {
       .distinctBy(_.text)
   }
 
+  def countriesToSelectItemsAsListed(countries: Seq[Country]): Seq[SelectItem] =
+    SelectItem() +: countries.map(country => countryToSelectItem(country.code, country.name.getOrElse(country.code)))
+
 }
