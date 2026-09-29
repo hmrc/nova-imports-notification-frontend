@@ -41,8 +41,6 @@ import scala.concurrent.Future
 
 class IsSupplierVatRegisteredControllerSpec extends SpecBase with MockitoSugar {
 
-  private def onwardRoute = Call("GET", "/foo")
-
   private val formProvider = new IsSupplierVatRegisteredFormProvider()
   private val form         = formProvider()
 
@@ -75,7 +73,6 @@ class IsSupplierVatRegisteredControllerSpec extends SpecBase with MockitoSugar {
     val application =
       applicationBuilder(userAnswers = Some(userAnswers))
         .overrides(
-          bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
           bind[SessionRepository].toInstance(sessionRepository)
         )
         .build()

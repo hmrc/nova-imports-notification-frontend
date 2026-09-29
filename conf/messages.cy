@@ -498,6 +498,7 @@ loadingClientList.warning = Peidiwch ag adfywio’r dudalen hon na defnyddio’r
 ##############################
 # TODO: Welsh translations to be supplied by content team.
 viewClients.title = Client list
+viewClients.pagination.title = Client list (page {0} of {1})
 viewClients.heading = Client list
 viewClients.body = Manage the clients linked to your account.
 viewClients.searchBy.label = What do you want to search by?
@@ -515,14 +516,15 @@ viewClients.table.actions = Actions
 viewClients.select = Select
 viewClients.pagination.previous = Previous
 viewClients.pagination.next = Next
-viewClients.noResults = No clients found using this search criteria
+viewClients.noResults.heading = No clients found
+viewClients.noResults.body = Check the client name or VAT registration number and try again.
 viewClients.download.summary = Download your client list
-viewClients.download.body.1 = You can download a copy of your client list as a CSV file.
-viewClients.download.body.2 = Do not download client information to a computer you do not manage or control.
-viewClients.download.body.3 = If you have many clients, the download may take longer. If you have problems downloading your client list,
-viewClients.download.body.3.link = contact HMRC technical support (opens in new tab)
+viewClients.download.body.1 = You can download a copy of your client list as a CSV file. Do not download client information to a computer you do not manage or control.
+viewClients.download.body.2 = If you have many clients, the download may take longer. If you have problems downloading your client list,
+viewClients.download.body.2.link = contact HMRC technical support (opens in new tab)
+viewClients.download.link = Download client list (CSV)
 viewClients.returnHome = Return to home
-viewClients.error.required = Select what you want to search by and enter a client name or VAT registration number
+viewClients.error.required = Select what you want to search by, and enter a client name or VAT registration number
 viewClients.searchBy.error.required = Select what you want to search by
 viewClients.search.error.required = Enter a client name or VAT registration number
 viewClients.search.error.required.name = Enter the client’s name
@@ -977,6 +979,15 @@ countryOfFirstRegistration.hint = You can find this in the vehicle log book
 countryOfFirstRegistration.error.required = Enter the country where the vehicle was first registered
 
 ##########################################################################
+# AVD7.1 - Add vehicle details 7.1: Currency                             #
+##########################################################################
+
+paymentCurrency.supplier.heading = What currency was used to pay for the vehicle?
+paymentCurrency.import.heading = Enter the currency used to pay for the vehicle
+paymentCurrency.caption = Add vehicle details
+paymentCurrency.error.required = Enter the currency used to pay for the vehicle
+
+##########################################################################
 # AVD-S8.0 - Add vehicle details - Supplier 8.0: Supplier VAT Registered #
 ##########################################################################
 # TODO: Welsh translations to be supplied by content team.
@@ -1069,3 +1080,12 @@ updateVehicleSpreadsheet.heading = Are you sure you want to update this vehicle 
 updateVehicleSpreadsheet.caption = Ychwanegwch fanylion cerbyd
 updateVehicleSpreadsheet.hint = You’ll lose the details you’ve already uploaded
 updateVehicleSpreadsheet.error.required = Select yes if you want to update this vehicle spreadsheet
+
+#######################################################
+# DN2.0 - Delete current notification                 #
+#######################################################
+# TODO: Welsh translations to be supplied by content team.
+deleteCurrentNotification.title = Are you sure you want to delete this notification?
+deleteCurrentNotification.heading = Are you sure you want to delete this notification?
+deleteCurrentNotification.paragraph = You’ll lose all the details for this notification.
+deleteCurrentNotification.error.required = Select yes if you want to delete this notification
