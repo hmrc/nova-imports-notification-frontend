@@ -47,7 +47,7 @@
                 name = "value",
                 label = LabelViewModel(messages("countryOfFirstRegistration.heading")).asPageHeading(LabelSize.Large),
                 hint = Some(HintViewModel(Text(messages("countryOfFirstRegistration.hint")))),
-                items = CountryFinderViewHelper.countriesToSelectItems(countries)
+                items = CountryFinderViewHelper.countriesToSelectItemsAsListed(countries)
             ).asAccessibleAutocomplete().withFormField(form("value"))
         )
 
