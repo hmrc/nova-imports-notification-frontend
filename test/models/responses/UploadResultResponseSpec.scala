@@ -173,5 +173,104 @@ class UploadResultResponseSpec extends AnyFreeSpec with Matchers {
       result.euVehicles mustBe Seq.empty
       result.nonEuVehicles mustBe Seq.empty
     }
+
+    "must read agriculturalTractorEuVehicles for an AgriculturalTractorsEu response and leave the other lists empty" in {
+      val json = Json.parse(
+        """{
+          |  "fileStatus": "VALIDATED",
+          |  "validationType": "AgriculturalTractorsEu",
+          |  "data": {
+          |    "vehicles": [
+          |      {
+          |        "itemNumber": 1,
+          |        "vin": "1",
+          |        "make": "Make",
+          |        "seriesModel": "Series (model)",
+          |        "versionDerivative": "Version (derivative)",
+          |        "brakeHorsepower": "154",
+          |        "supplierBusinessPrivate": "business",
+          |        "addressLine1": "Address 1",
+          |        "supplierVatRegistered": false,
+          |        "purchaseInvoice": true,
+          |        "pricePaid": "1202",
+          |        "currency": "USD",
+          |        "dateArrivedInUk": "2026-10-10",
+          |        "mileage": "100",
+          |        "mileageUnits": "miles",
+          |        "leftOrRightHandDrive": "RHD",
+          |        "totalValueOfOptions": "100",
+          |        "obtainedFromUnableToReclaimVat": false,
+          |        "soldUnderMarginScheme": false,
+          |        "claimingVatRelief": false
+          |      }
+          |    ]
+          |  },
+          |  "errors": []
+          |}""".stripMargin
+      )
+
+      val result = json.as[UploadResultResponse]
+
+      result.validationType mustBe Some("AgriculturalTractorsEu")
+      result.euVehicles mustBe Seq.empty
+      result.nonEuVehicles mustBe Seq.empty
+      result.agriculturalTractorNonEuVehicles mustBe Seq.empty
+      result.agriculturalTractorEuVehicles must have size 1
+
+      val vehicle = result.agriculturalTractorEuVehicles.head
+      vehicle.make mustBe Some("Make")
+      vehicle.seriesModel mustBe Some("Series (model)")
+      vehicle.versionDerivative mustBe Some("Version (derivative)")
+      vehicle.brakeHorsepower mustBe Some("154")
+      vehicle.pricePaid mustBe Some(BigDecimal("1202"))
+    }
+
+    "must read agriculturalTractorNonEuVehicles for an AgriculturalTractorsNonEu response and leave the other lists empty" in {
+      val json = Json.parse(
+        """{
+          |  "fileStatus": "VALIDATED",
+          |  "validationType": "AgriculturalTractorsNonEu",
+          |  "data": {
+          |    "vehicles": [
+          |      {
+          |        "itemNumber": 1,
+          |        "vin": "1",
+          |        "make": "Make",
+          |        "seriesModel": "Series (model)",
+          |        "versionDerivative": "Version (derivative)",
+          |        "brakeHorsepower": "100",
+          |        "importEntryNumber": "123-123456A",
+          |        "importEntryDate": "2026-10-10",
+          |        "knownDateFirstRegistered": false,
+          |        "dateArrivedInUk": "2026-10-10",
+          |        "commodityCode": "1234",
+          |        "mileage": "10",
+          |        "mileageUnits": "miles",
+          |        "leftOrRightHandDrive": "RHD",
+          |        "pricePaid": "1201",
+          |        "currency": "USD",
+          |        "claimingVatRelief": false
+          |      }
+          |    ]
+          |  },
+          |  "errors": []
+          |}""".stripMargin
+      )
+
+      val result = json.as[UploadResultResponse]
+
+      result.validationType mustBe Some("AgriculturalTractorsNonEu")
+      result.euVehicles mustBe Seq.empty
+      result.nonEuVehicles mustBe Seq.empty
+      result.agriculturalTractorEuVehicles mustBe Seq.empty
+      result.agriculturalTractorNonEuVehicles must have size 1
+
+      val vehicle = result.agriculturalTractorNonEuVehicles.head
+      vehicle.make mustBe Some("Make")
+      vehicle.seriesModel mustBe Some("Series (model)")
+      vehicle.versionDerivative mustBe Some("Version (derivative)")
+      vehicle.brakeHorsepower mustBe Some("100")
+      vehicle.importEntryNumber mustBe Some("123-123456A")
+    }
   }
 }
