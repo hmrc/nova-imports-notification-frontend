@@ -86,7 +86,7 @@ class VehiclesBoughtFromSupplierViewSpec extends SpecBase with Matchers with Bef
 
     "must render the where to find these dates section" in {
       val html = render()
-      
+
       html must include("govuk-details")
       html must include("govuk-details__summary")
       html must include("govuk-details__summary-text")
