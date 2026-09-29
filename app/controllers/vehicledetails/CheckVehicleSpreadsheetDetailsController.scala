@@ -231,7 +231,7 @@ object CheckVehicleSpreadsheetDetailsController {
     Json
       .toJson(
         VehicleType(
-          vehicleType = "CAR",
+          vehicleType = Some("CAR"),
           doYouHaveAPurchaseInvoice = vehicle.purchaseInvoice.getOrElse(false),
           dateRoadUseKnown = vehicle.knownDateFirstRegistered.getOrElse(false),
           currencyUsed = vehicle.currency,
@@ -289,7 +289,7 @@ object CheckVehicleSpreadsheetDetailsController {
     Json
       .toJson(
         ImportVehicleType(
-          vehicleType = if (validationType == "LightCommercialVehiclesNonEu") "LCV" else "CAR",
+          vehicleType = Some(if (validationType == "LightCommercialVehiclesNonEu") "LCV" else "CAR"),
           dateRoadUseKnown = vehicle.knownDateFirstRegistered.getOrElse(false),
           dateOfFirstRegistration = vehicle.dateOfFirstRegistration.map(formPDateFormat.format)
         )

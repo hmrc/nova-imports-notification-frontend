@@ -1196,3 +1196,30 @@ updateVehicleSpreadsheet.heading = Are you sure you want to update this vehicle 
 updateVehicleSpreadsheet.caption = Add vehicle details
 updateVehicleSpreadsheet.hint = You’ll lose the details you’ve already uploaded
 updateVehicleSpreadsheet.error.required = Select yes if you want to update this vehicle spreadsheet
+
+##################################################################
+# C-AVD1.0 - Confirm vehicle details 1.0                         #
+##################################################################
+
+confirmVehicleDetails.title = Check the vehicle details before you continue
+confirmVehicleDetails.heading = Check the vehicle details before you continue
+confirmVehicleDetails.caption = Add vehicle details
+confirmVehicleDetails.vehicleDates.label = Which dates do you have for the vehicle?
+confirmVehicleDetails.vehicleDates.firstRegistered = Date the vehicle was first registered
+confirmVehicleDetails.vehicleDates.madeAvailable = Date the vehicle was made available
+confirmVehicleDetails.vehicleDates.purchaseInvoiceDate = Purchase invoice date
+confirmVehicleDetails.vehicleDates.change.hidden = which dates you have for the vehicle
+confirmVehicleDetails.dateOfFirstRegistration.label = Date of first registration
+confirmVehicleDetails.dateOfFirstRegistration.change.hidden = date the vehicle was first registered for road use
+confirmVehicleDetails.countryOfFirstRegistration.label = Country of first registration
+confirmVehicleDetails.countryOfFirstRegistration.change.hidden = country where the vehicle was first registered
+confirmVehicleDetails.dateOfAvailability.label = Date of availability
+confirmVehicleDetails.dateOfAvailability.change.hidden = date the vehicle was made available to you
+confirmVehicleDetails.purchaseInvoiceDate.label = Purchase invoice date
+confirmVehicleDetails.purchaseInvoiceDate.change.hidden = purchase invoice date
+confirmVehicleDetails.purchaseInvoiceNumber.label = Purchase invoice number
+confirmVehicleDetails.purchaseInvoiceNumber.change.hidden = purchase invoice number
+confirmVehicleDetails.noPurchaseInvoiceReason.label = Reason for no purchase invoice
+confirmVehicleDetails.noPurchaseInvoiceReason.change.hidden = reason why a purchase invoice is not available
+confirmVehicleDetails.totalAmountPaid.label = Total amount paid
+confirmVehicleDetails.totalAmountPaid.change.hidden = total amount paid for the vehicle

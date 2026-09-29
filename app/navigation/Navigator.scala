@@ -306,10 +306,19 @@ class Navigator @Inject() () {
           page.isInstanceOf[SupplierBusinessNamePage] ||
           page.isInstanceOf[SupplierVatRegistrationNumberPage] =>
       (_, _) => supplierdetails.routes.SupplierDetailsCheckYourAnswersController.onPageLoad(page.supplierNumber)
-    case _: VehicleDatesPage | _: PurchaseInvoiceDatePage | _: DateOfAvailabilityPage | _: DateOfFirstRegistrationPage |
-        _: CountryOfFirstRegistrationPage | _: PurchaseInvoiceNumberPage | _: NoPurchaseInvoiceReasonPage | _: TotalAmountPaidPage =>
-      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to the vehicle details CYA when built
-    case _ =>
+    case page: VehicleDatesPage =>
+      (userAnswers, _) =>
+        if (userAnswers.get(page).exists(_.contains(VehicleDates.NoDates)))
+          vehicledetails.routes.NoVehicleDatesController.onPageLoad(page.supplierNumber, page.vehicleNumber)
+        else ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
+    case page: PurchaseInvoiceDatePage        => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
+    case page: PurchaseInvoiceNumberPage      => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
+    case page: DateOfAvailabilityPage         => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
+    case page: DateOfFirstRegistrationPage    => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
+    case page: CountryOfFirstRegistrationPage => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
+    case page: NoPurchaseInvoiceReasonPage    => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
+    case page: TotalAmountPaidPage            => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
+    case _                                    =>
       (_, _) => routes.LandingPageController.onPageLoad()
   }
 
