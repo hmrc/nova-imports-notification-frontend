@@ -29,8 +29,6 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.test.WireMockSupport
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
 class NovaImportsBackendConnectorISpec
     extends AnyFreeSpec
     with Matchers
