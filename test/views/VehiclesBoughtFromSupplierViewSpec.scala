@@ -77,27 +77,27 @@ class VehiclesBoughtFromSupplierViewSpec extends SpecBase with Matchers with Bef
       html must include(msgs("vehiclesBoughtFromSupplier.bullet.2"))
     }
 
-    "must render the inset text with a link to the Personal Transport Unit" in {
+    "must render the text with a link to the Personal Transport Unit" in {
       val html = render()
 
-      html must include("govuk-inset-text")
       html must include(personalTransportUnitUrl)
       html must include("""target="_blank"""")
     }
 
     "must render the where to find these dates section" in {
       val html = render()
-
-      html must include("""<h2 class="govuk-heading-m">""")
+      
+      html must include("govuk-details")
+      html must include("govuk-details__summary")
+      html must include("govuk-details__summary-text")
       html must include(msgs("vehiclesBoughtFromSupplier.whereToFindDates.heading"))
       html must include(msgs("vehiclesBoughtFromSupplier.whereToFindDates.paragraph.1"))
     }
 
-    "must render both introductory paragraphs" in {
+    "must render introductory paragraph" in {
       val html = render()
 
       html must include(msgs("vehiclesBoughtFromSupplier.paragraph.1"))
-      html must include(msgs("vehiclesBoughtFromSupplier.paragraph.2"))
     }
 
     "must render the Add vehicle button as a submit button" in {
