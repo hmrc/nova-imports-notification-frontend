@@ -352,6 +352,22 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
+      "must link 'Delete notification' to DN2.0 page" in {
+        given application: Application =
+          applicationWith(classOf[FakeVatTraderIdentifierAction], Some(answersBusinessUse))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
+
+          val result = route(application, request).value
+          val body   = contentAsString(result)
+
+          status(result) mustEqual OK
+          body must include(notification.routes.DeleteCurrentNotificationController.onPageLoad().url)
+        }
+      }
+
       "must render a Completed tag for any section whose status is completed" in {
         val answersWithPhone =
           answersBusinessUse.set(PhoneNumberPage, ContactNumbers(Some("01234567890"), None)).success.value

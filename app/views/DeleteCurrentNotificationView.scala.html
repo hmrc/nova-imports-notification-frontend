@@ -35,13 +35,11 @@
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
-        <span class="govuk-caption-l">@messages("deleteCurrentNotification.caption")</span>
-
         @govukRadios(
             RadiosViewModel.yesNo(
                 field  = form("value"),
                 legend = LegendViewModel(messages("deleteCurrentNotification.heading")).asPageHeading(LegendSize.Large)
-            )
+            ).withHint(HintViewModel(Text(messages("deleteCurrentNotification.paragraph"))))
         )
 
         @govukButton(

@@ -22,10 +22,10 @@ import controllers.actions.*
 import controllers.utils.IsDraftIdDefined
 import controllers.{BaseController, routes}
 import forms.DeleteCurrentNotificationFormProvider
-import models.DraftId
+import models.{DraftId, NovaUserType, PurchaserOrOnBehalf, UserAnswers}
 import models.requests.DataRequest
 import pages.DraftIdPage
-import pages.sections.initialquestions.VehicleFromEuPage
+import pages.sections.initialquestions.{BusinessOrPrivatePage, NotifyingAsPurchaserPage, PurchaserBusinessOrIndividualPage, VehicleBusinessUsePage, VehicleFromEuPage}
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.Messages
@@ -53,8 +53,6 @@ class DeleteCurrentNotificationController @Inject() (
 
   val form: Form[Boolean] = formProvider()
 
-  // TODO: Incoming navigation changes from NTL 1 and 3 (same page?)
-
   def onPageLoad(): Action[AnyContent] =
     actions.authAndGetDataWithUserTypeGuard(guardPredicate()) { implicit request =>
       Ok(view(form.withDefault(None)))
@@ -73,8 +71,8 @@ class DeleteCurrentNotificationController @Inject() (
                   implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
                   backendConnector.deleteDraftNotification(draftId).flatMap {
                     case Right(states) =>
-                      // Navigate back to ntl
-                      Future.successful(Redirect(routes.NotificationTaskListController.onPageLoad()))
+                      // Navigate back to landing page on success
+                      Future.successful(Redirect(routes.LandingPageController.onPageLoad()))
                     case Left(error) =>
                       handleDeleteFailure(draftId, error)
                   }
@@ -111,7 +109,22 @@ class DeleteCurrentNotificationController @Inject() (
 object DeleteCurrentNotificationController {
 
   def guardPredicate()(request: DataRequest[?]): Boolean =
-    IsDraftIdDefined(request.userAnswers) &&
-      request.userAnswers.get(VehicleFromEuPage).contains(true)
+    IsDraftIdDefined(request.userAnswers) && (request.userContext.userType match {
+      case NovaUserType.VatRegisteredOrganisation =>
+        request.userAnswers.get(VehicleBusinessUsePage).isDefined
+      case NovaUserType.PrivateIndividual | NovaUserType.NonVatOrganisation =>
+        request.userAnswers.get(VehicleFromEuPage).contains(true) && purchaserQuestionsComplete(request.userAnswers)
+      case NovaUserType.Agent if request.userContext.isAgentWithoutClient =>
+        request.userAnswers.get(VehicleFromEuPage).isDefined && purchaserQuestionsComplete(request.userAnswers)
+      case NovaUserType.Agent =>
+        false
+    })
+
+  private def purchaserQuestionsComplete(answers: UserAnswers): Boolean =
+    answers.get(BusinessOrPrivatePage).isDefined &&
+      answers.get(NotifyingAsPurchaserPage).exists {
+        case PurchaserOrOnBehalf.Purchaser           => true
+        case PurchaserOrOnBehalf.OnBehalfOfPurchaser => answers.get(PurchaserBusinessOrIndividualPage).isDefined
+      }
 
 }
