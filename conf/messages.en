@@ -700,7 +700,7 @@ notificationTaskList.deleteNotification = Delete notification
 addVehicleDetails.title = Vehicles brought from the EU
 addVehicleDetails.heading = Vehicles brought from the EU
 addVehicleDetails.caption = Add vehicle details
-addVehicleDetails.paragraph.1 = You must provide details of all vehicles bought from a supplier in the EU. You can add up to 100 vehicles in one notification.
+addVehicleDetails.paragraph.1 = You must provide details of all vehicles bought from a supplier in the EU. You can add details of up to 100 vehicles in one submission.
 addVehicleDetails.method.heading = How do you want to add vehicle details?
 addVehicleDetails.radio.bySupplier = Add by supplier
 addVehicleDetails.radio.bySupplier.hint = Provide the supplier details first, then add the vehicles bought from them
@@ -714,8 +714,8 @@ addVehicleDetails.error.required = Select how you want to add vehicle details
 # AVD1.0b - Add vehicle details: Vehicles brought from the EU (by supplier only) #
 ##################################################################################
 
-addVehicleDetails.bySupplierOnly.paragraph.1 = Provide the supplier details first, then add the vehicles bought from them.
-addVehicleDetails.bySupplierOnly.paragraph.2 = You must include all vehicles bought from a supplier in the EU. You can add up to 100 vehicles in one notification.
+addVehicleDetails.bySupplierOnly.paragraph.1 = You must provide details of all vehicles bought from a supplier in the EU.
+addVehicleDetails.bySupplierOnly.paragraph.2 = You can add details of up to 100 vehicles in one submission. Provide the supplier details first, then add the vehicles bought from them.
 addVehicleDetails.bySupplierOnly.button = Add supplier details
 
 ##################################################################################################
@@ -728,7 +728,7 @@ addImportVehicleDetails.caption = Add vehicle details
 addImportVehicleDetails.paragraph.1 = You must provide details of all vehicles imported from outside:
 addImportVehicleDetails.bullet.1 = the UK into Great Britain
 addImportVehicleDetails.bullet.2 = an EU country into Northern Ireland
-addImportVehicleDetails.paragraph.2 = You can add details of up to 100 vehicles in one notification.
+addImportVehicleDetails.paragraph.2 = You can add details of up to 100 vehicles in one submission.
 addImportVehicleDetails.method.heading = How do you want to add vehicle details?
 addImportVehicleDetails.radio.byImportEntryNumber = Add by import entry number
 addImportVehicleDetails.radio.byImportEntryNumber.hint = Provide the import entry number details first, then add the vehicles from that import
