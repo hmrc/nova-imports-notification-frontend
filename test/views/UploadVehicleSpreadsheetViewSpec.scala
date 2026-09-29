@@ -65,7 +65,7 @@ class UploadVehicleSpreadsheetViewSpec extends SpecBase with Matchers with Befor
 
     "must render the paragraph with a new tab link to the spreadsheet guidance" in {
       val html = render()
-      html must include("Add details for up to 100 vehicles of the same type in one notification.")
+      html must include("Add details for up to 100 vehicles of the same type in one submission.")
       html must include(msgs("uploadVehicleSpreadsheet.useCorrectSpreadsheet.linkText"))
       html must include(s"""href="$spreadsheetUrl"""")
       html must include("(opens in new tab)")
