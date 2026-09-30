@@ -69,19 +69,17 @@
         )
     ).withCssClass("govuk-summary-list--long-key"))
 
-    @if(isFinal) {
-        @* A real link, not a JS-wired button - isFinal always implies continueUrl is present (both are
-           derived from the same fileStatus in the controller), so this works with JS disabled too: a
-           no-JS user who reaches this page already final (e.g. via the refresh link above, or landing here
-           directly from the task list per DTR-7838-UVS4.0) can click Continue immediately. *@
-        @govukButton(
-            ButtonViewModel(Text(messages("site.continue")))
-                .asLink(continueUrl.map(_.url).getOrElse(""))
-                .withAttribute("id" -> "continueButton")
-        )
-    } else {
-        @govukButton(ButtonViewModel(Text(messages("site.continue"))).disabled().withAttribute("id" -> "continueButton"))
-    }
+    <div class="govuk-button-group">
+        @if(isFinal) {
+            @govukButton(
+                ButtonViewModel(Text(messages("site.continue")))
+                    .asLink(continueUrl.map(_.url).getOrElse(""))
+                    .withAttribute("id" -> "continueButton")
+            )
+        } else {
+            @govukButton(ButtonViewModel(Text(messages("site.continue"))).disabled().withAttribute("id" -> "continueButton"))
+        }
+    </div>
 
     <script @{CSPNonce.attr}>
         var refreshLink = document.getElementById('refreshLink');
