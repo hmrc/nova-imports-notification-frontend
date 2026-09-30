@@ -18,6 +18,7 @@ package views
 
 import base.SpecBase
 import controllers.vehicledetails.routes
+import org.jsoup.Jsoup
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.must.Matchers
 import play.api.Application
@@ -28,6 +29,7 @@ import views.html.VehicleSpreadsheetUploadView
 
 import scala.concurrent.Await
 import scala.concurrent.duration.DurationInt
+import scala.jdk.CollectionConverters.*
 
 class VehicleSpreadsheetUploadViewSpec extends SpecBase with Matchers with BeforeAndAfterAll {
 
@@ -130,6 +132,15 @@ class VehicleSpreadsheetUploadViewSpec extends SpecBase with Matchers with Befor
 
     "once final, must not render the no-JS refresh link, since there's nothing left to wait for" in {
       htmlFor(isFinal = true) must not include s"""id="refreshLink""""
+    }
+
+    "must wrap the Continue button in a govuk-button-group, so the 'report technical issue' link the layout adds afterwards renders on its own line rather than inline next to it" in {
+      List(true, false).foreach { isFinal =>
+        val doc          = Jsoup.parse(htmlFor(isFinal = isFinal, continueUrl = Some(continueUrl)))
+        val buttonGroups = doc.select("div.govuk-button-group").asScala
+
+        buttonGroups.exists(group => group.select("#continueButton").asScala.nonEmpty) mustBe true
+      }
     }
   }
 }
