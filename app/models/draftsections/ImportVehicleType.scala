@@ -19,7 +19,7 @@ package models.draftsections
 import play.api.libs.json.{Format, Json}
 
 final case class ImportVehicleType(
-  vehicleType: Option[String],
+  vehicleType: String,
   dateRoadUseKnown: Boolean,
   dateOfFirstRegistration: Option[String] = None
 )

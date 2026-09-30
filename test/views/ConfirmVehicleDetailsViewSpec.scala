@@ -18,7 +18,7 @@ package views
 
 import base.SpecBase
 import controllers.vehicledetails.routes
-import models.{CheckMode, Country, ImportNumber, SupplierNumber, UserAnswers, VehicleDates, VehicleNumber}
+import models.{AddVehicleType, CheckMode, Country, Currency, ImportNumber, SupplierNumber, UserAnswers, VehicleDates, VehicleNumber}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.scalatest.BeforeAndAfterAll
@@ -51,11 +51,12 @@ class ConfirmVehicleDetailsViewSpec extends SpecBase with Matchers with BeforeAn
     super.afterAll()
   }
 
-  private val s         = SupplierNumber(1)
-  private val i         = ImportNumber(1)
-  private val v         = VehicleNumber(1)
-  private val countries = Seq(Country("FR", "France"))
-  private val submit    = routes.ConfirmVehicleDetailsController.supplierOnSubmit(s, v)
+  private val s          = SupplierNumber(1)
+  private val i          = ImportNumber(1)
+  private val v          = VehicleNumber(1)
+  private val countries  = Seq(Country("FR", "France"))
+  private val currencies = Seq(Currency("BGN", "Bulgarian lev"))
+  private val submit     = routes.ConfirmVehicleDetailsController.supplierOnSubmit(s, v)
 
   private val bothDates: UserAnswers = emptyUserAnswers
     .unsafeSet(AllVehiclesQuery, Map("1" -> Json.obj("supplierNumber" -> 1)))
@@ -67,17 +68,30 @@ class ConfirmVehicleDetailsViewSpec extends SpecBase with Matchers with BeforeAn
     .unsafeSet(PurchaseInvoiceNumberPage(s, v), "INV-001")
     .unsafeSet(NoPurchaseInvoiceReasonPage(s, v), "Stale reason")
     .unsafeSet(TotalAmountPaidPage(v), "45000")
+    .unsafeSet(PaymentCurrencyPage(v), "BGN")
+    .unsafeSet(AddVehicleTypePage(v), AddVehicleType.Car)
 
   private def supplierDoc(answers: UserAnswers): Document =
-    Jsoup.parse(view(ConfirmVehicleDetailsHelper.supplierSummaryList(answers, s, v, countries), submit).toString)
+    Jsoup.parse(view(ConfirmVehicleDetailsHelper.supplierSummaryList(answers, s, v, countries, currencies), submit).toString)
 
   private def keys(doc: Document): Seq[String] = doc.select(".govuk-summary-list__key").eachText.asScala.toSeq
 
   private def valueFor(doc: Document, key: String): String =
-    doc.select(".govuk-summary-list__row").asScala.find(_.select(".govuk-summary-list__key").text == key).value.select(".govuk-summary-list__value").text
+    doc
+      .select(".govuk-summary-list__row")
+      .asScala
+      .find(_.select(".govuk-summary-list__key").text == key)
+      .value
+      .select(".govuk-summary-list__value")
+      .text
 
   private def changeLinkFor(doc: Document, key: String) =
-    doc.select(".govuk-summary-list__row").asScala.find(_.select(".govuk-summary-list__key").text == key).value.select(".govuk-summary-list__actions a")
+    doc
+      .select(".govuk-summary-list__row")
+      .asScala
+      .find(_.select(".govuk-summary-list__key").text == key)
+      .value
+      .select(".govuk-summary-list__actions a")
 
   private def label(field: String): String = msgs(s"confirmVehicleDetails.$field.label")
 
@@ -104,7 +118,9 @@ class ConfirmVehicleDetailsViewSpec extends SpecBase with Matchers with BeforeAn
         label("dateOfAvailability"),
         label("purchaseInvoiceDate"),
         label("purchaseInvoiceNumber"),
-        label("totalAmountPaid")
+        label("totalAmountPaid"),
+        label("currency"),
+        label("vehicleType")
       )
     }
 
@@ -123,6 +139,25 @@ class ConfirmVehicleDetailsViewSpec extends SpecBase with Matchers with BeforeAn
       valueFor(doc, label("countryOfFirstRegistration")) mustEqual "France"
     }
 
+    "must render the currency by name and code, and the vehicle type by its AVD8.0 label" in {
+      valueFor(doc, label("currency")) mustEqual "Bulgarian lev (BGN)"
+      valueFor(doc, label("vehicleType")) mustEqual msgs("addVehicleType.radio.car")
+    }
+
+    "must render each vehicle type by its AVD8.0 label" in {
+      Seq(
+        AddVehicleType.Car                 -> "addVehicleType.radio.car",
+        AddVehicleType.Lcv                 -> "addVehicleType.radio.lcv",
+        AddVehicleType.Hcv                 -> "addVehicleType.radio.hcv",
+        AddVehicleType.Motorcycle          -> "addVehicleType.radio.motorcycle",
+        AddVehicleType.MotorCaravan        -> "addVehicleType.radio.caravan",
+        AddVehicleType.AgriculturalTractor -> "addVehicleType.radio.tractor",
+        AddVehicleType.ContractorsPlant    -> "addVehicleType.radio.plant"
+      ).foreach { case (vehicleType, key) =>
+        valueFor(supplierDoc(bothDates.unsafeSet(AddVehicleTypePage(v), vehicleType)), label("vehicleType")) mustEqual msgs(key)
+      }
+    }
+
     "must render each Change link in check mode with its visually hidden text" in {
       val expected = Seq(
         "vehicleDates"               -> routes.VehicleDatesController.onPageLoad(s, v, CheckMode),
@@ -131,7 +166,9 @@ class ConfirmVehicleDetailsViewSpec extends SpecBase with Matchers with BeforeAn
         "dateOfAvailability"         -> routes.DateOfAvailabilityController.onPageLoad(s, v, CheckMode),
         "purchaseInvoiceDate"        -> routes.PurchaseInvoiceDateController.onPageLoad(s, v, CheckMode),
         "purchaseInvoiceNumber"      -> routes.PurchaseInvoiceNumberController.onPageLoad(s, v, CheckMode),
-        "totalAmountPaid"            -> routes.TotalAmountPaidController.onPageLoadSupplier(s, v, CheckMode)
+        "totalAmountPaid"            -> routes.TotalAmountPaidController.onPageLoadSupplier(s, v, CheckMode),
+        "currency"                   -> routes.PaymentCurrencyController.supplierOnPageLoad(s, v, CheckMode),
+        "vehicleType"                -> routes.AddVehicleTypeController.supplierOnPageLoad(s, v, CheckMode)
       )
 
       expected.foreach { case (field, call) =>
@@ -145,7 +182,14 @@ class ConfirmVehicleDetailsViewSpec extends SpecBase with Matchers with BeforeAn
     "must show only the purchase invoice rows when only the purchase invoice date is selected" in {
       val invoiceDoc = supplierDoc(bothDates.unsafeSet(VehicleDatesPage(s, v), Set(VehicleDates.PurchaseInvoiceDate)))
 
-      keys(invoiceDoc) mustEqual Seq(label("vehicleDates"), label("purchaseInvoiceDate"), label("purchaseInvoiceNumber"), label("totalAmountPaid"))
+      keys(invoiceDoc) mustEqual Seq(
+        label("vehicleDates"),
+        label("purchaseInvoiceDate"),
+        label("purchaseInvoiceNumber"),
+        label("totalAmountPaid"),
+        label("currency"),
+        label("vehicleType")
+      )
       valueFor(invoiceDoc, label("vehicleDates")) mustEqual msgs("confirmVehicleDetails.vehicleDates.purchaseInvoiceDate")
     }
 
@@ -158,7 +202,9 @@ class ConfirmVehicleDetailsViewSpec extends SpecBase with Matchers with BeforeAn
         label("countryOfFirstRegistration"),
         label("dateOfAvailability"),
         label("noPurchaseInvoiceReason"),
-        label("totalAmountPaid")
+        label("totalAmountPaid"),
+        label("currency"),
+        label("vehicleType")
       )
       changeLinkFor(availabilityDoc, label("noPurchaseInvoiceReason")).attr("href") mustEqual
         routes.NoPurchaseInvoiceReasonController.onPageLoad(s, v, CheckMode).url
@@ -171,26 +217,32 @@ class ConfirmVehicleDetailsViewSpec extends SpecBase with Matchers with BeforeAn
       escapedDoc.select(".govuk-summary-list__value b").size mustEqual 0
     }
 
-    "must show only the date and country of first registration for an import vehicle, with import Change links" in {
+    "must show only the date and country of first registration and the vehicle type for an import vehicle, with import Change links" in {
       val importAnswers = emptyUserAnswers
         .unsafeSet(DateOfFirstRegistrationPage(v), LocalDate.of(2026, 3, 1))
         .unsafeSet(CountryOfFirstRegistrationPage(v), "FR")
+        .unsafeSet(AddVehicleTypePage(v), AddVehicleType.Hcv)
       val importDoc = Jsoup.parse(
-        view(ConfirmVehicleDetailsHelper.importSummaryList(importAnswers, i, v, countries), routes.ConfirmVehicleDetailsController.importOnSubmit(i, v)).toString
+        view(
+          ConfirmVehicleDetailsHelper.importSummaryList(importAnswers, i, v, countries),
+          routes.ConfirmVehicleDetailsController.importOnSubmit(i, v)
+        ).toString
       )
 
-      keys(importDoc) mustEqual Seq(label("dateOfFirstRegistration"), label("countryOfFirstRegistration"))
+      keys(importDoc) mustEqual Seq(label("dateOfFirstRegistration"), label("countryOfFirstRegistration"), label("vehicleType"))
       changeLinkFor(importDoc, label("dateOfFirstRegistration")).attr("href") mustEqual
         routes.DateOfFirstRegistrationController.importOnPageLoad(i, v, CheckMode).url
       changeLinkFor(importDoc, label("countryOfFirstRegistration")).attr("href") mustEqual
         routes.CountryOfFirstRegistrationController.importOnPageLoad(i, v, CheckMode).url
+      changeLinkFor(importDoc, label("vehicleType")).attr("href") mustEqual
+        routes.AddVehicleTypeController.importOnPageLoad(i, v, CheckMode).url
     }
 
     "must render the same content via the render and f methods" in {
-      val list = ConfirmVehicleDetailsHelper.supplierSummaryList(bothDates, s, v, countries)
+      val list = ConfirmVehicleDetailsHelper.supplierSummaryList(bothDates, s, v, countries, currencies)
 
       view.render(list, submit, request, msgs).toString must include(msgs("confirmVehicleDetails.heading"))
-      view.f(list, submit)(request, msgs).toString must include(msgs("confirmVehicleDetails.heading"))
+      view.f(list, submit)(request, msgs).toString      must include(msgs("confirmVehicleDetails.heading"))
     }
 
     "must return itself via the ref method" in {

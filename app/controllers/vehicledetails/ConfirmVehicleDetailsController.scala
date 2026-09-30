@@ -63,7 +63,8 @@ class ConfirmVehicleDetailsController @Inject() (
     actions.authAndGetDataWithUserTypeGuard(supplierGuardPredicate(supplierService, vehicleService, supplierNumber, vehicleNumber)) {
       implicit request =>
         handlePageLoad(
-          ConfirmVehicleDetailsHelper.supplierSummaryList(request.userAnswers, supplierNumber, vehicleNumber, appConfig.countries),
+          ConfirmVehicleDetailsHelper
+            .supplierSummaryList(request.userAnswers, supplierNumber, vehicleNumber, appConfig.countries, appConfig.currencies),
           routes.ConfirmVehicleDetailsController.supplierOnSubmit(supplierNumber, vehicleNumber)
         )
     }
@@ -81,7 +82,8 @@ class ConfirmVehicleDetailsController @Inject() (
       implicit request =>
         handleSubmit(
           s"supplier/${supplierNumber.value}/vehicle/${vehicleNumber.value}/type",
-          supplierVehicleTypeSection(request.userAnswers, supplierNumber, vehicleNumber)
+          supplierVehicleTypeSection(request.userAnswers, supplierNumber, vehicleNumber),
+          vehicleNumber
         )
     }
 
@@ -90,7 +92,8 @@ class ConfirmVehicleDetailsController @Inject() (
       implicit request =>
         handleSubmit(
           s"import/${importNumber.value}/vehicle/${vehicleNumber.value}/type",
-          importVehicleTypeSection(request.userAnswers, vehicleNumber)
+          importVehicleTypeSection(request.userAnswers, vehicleNumber),
+          vehicleNumber
         )
     }
 
@@ -99,22 +102,26 @@ class ConfirmVehicleDetailsController @Inject() (
   ): Result =
     Ok(view(summaryList, submitCall))
 
-  private def handleSubmit(sectionId: String, sectionData: JsObject)(implicit request: DataRequest[AnyContent]): Future[Result] = {
+  private def handleSubmit(sectionId: String, sectionData: Option[JsObject], vehicleNumber: VehicleNumber)(implicit
+    request: DataRequest[AnyContent]
+  ): Future[Result] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
     val failure = Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
 
-    (request.userAnswers.get(DraftIdPage), request.userAnswers.get(DraftVersionIdPage)) match {
-      case (Some(draftId), Some(versionId)) =>
+    (request.userAnswers.get(DraftIdPage), request.userAnswers.get(DraftVersionIdPage), sectionData) match {
+      case (Some(draftId), Some(versionId), Some(sectionData)) =>
         backendConnector.updateDraftSection(draftId, sectionId, sectionData + ("versionId" -> Json.toJson(versionId))).flatMap {
           case Right(newVersionId) =>
-            sessionRepository.setPage(request.userAnswers, DraftVersionIdPage, newVersionId).map(_ => Redirect(nextPage))
+            sessionRepository
+              .setPage(request.userAnswers, DraftVersionIdPage, newVersionId)
+              .map(_ => Redirect(ConfirmVehicleDetailsJourney.confirmedRoute(request.userAnswers, vehicleNumber)))
           case Left(error) =>
             logger.warn(s"Failed to update '$sectionId' for draftId ${draftId.value}: $error")
             Future.successful(failure)
         }
       case _ =>
-        logger.warn(s"Failed to submit '$sectionId', draftId or versionId missing")
+        logger.warn(s"Failed to submit '$sectionId', draftId, versionId or vehicle type missing")
         Future.successful(failure)
     }
   }
@@ -123,8 +130,6 @@ class ConfirmVehicleDetailsController @Inject() (
 object ConfirmVehicleDetailsController {
 
   private val formPDateFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-
-  val nextPage: Call = controllers.routes.LandingPageController.onPageLoad()
 
   def supplierGuardPredicate(
     supplierService: SupplierService,
@@ -152,36 +157,41 @@ object ConfirmVehicleDetailsController {
       vehicleService.numberHasValues(request.userAnswers, vehicleNumber) &&
       ConfirmVehicleDetailsJourney.importFirstUnanswered(request.userAnswers, importNumber, vehicleNumber).isEmpty
 
-  def supplierVehicleTypeSection(answers: UserAnswers, supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber): JsObject = {
+  def supplierVehicleTypeSection(answers: UserAnswers, supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber): Option[JsObject] = {
     val dates       = answers.get(VehicleDatesPage(supplierNumber, vehicleNumber)).getOrElse(Set.empty)
     val invoiceDate = dates.contains(VehicleDates.PurchaseInvoiceDate)
 
-    Json
-      .toJson(
-        VehicleType(
-          vehicleType = None,
-          doYouHaveAPurchaseInvoice = invoiceDate,
-          dateRoadUseKnown = dates.contains(VehicleDates.AvailabilityAndFirstRegistration),
-          purchaseInvoiceNumber = Option.when(invoiceDate)(answers.get(PurchaseInvoiceNumberPage(supplierNumber, vehicleNumber))).flatten,
-          purchaseInvoiceDate =
-            Option.when(invoiceDate)(answers.get(PurchaseInvoiceDatePage(supplierNumber, vehicleNumber)).map(formPDateFormat.format)).flatten,
-          pricePaidForVehicle = answers.get(TotalAmountPaidPage(vehicleNumber))
+    answers.get(AddVehicleTypePage(vehicleNumber)).map { vehicleType =>
+      Json
+        .toJson(
+          VehicleType(
+            vehicleType = vehicleType.jsonValue,
+            doYouHaveAPurchaseInvoice = invoiceDate,
+            dateRoadUseKnown = dates.contains(VehicleDates.AvailabilityAndFirstRegistration),
+            currencyUsed = answers.get(PaymentCurrencyPage(vehicleNumber)),
+            purchaseInvoiceNumber = Option.when(invoiceDate)(answers.get(PurchaseInvoiceNumberPage(supplierNumber, vehicleNumber))).flatten,
+            purchaseInvoiceDate =
+              Option.when(invoiceDate)(answers.get(PurchaseInvoiceDatePage(supplierNumber, vehicleNumber)).map(formPDateFormat.format)).flatten,
+            pricePaidForVehicle = answers.get(TotalAmountPaidPage(vehicleNumber))
+          )
         )
-      )
-      .as[JsObject]
+        .as[JsObject]
+    }
   }
 
-  def importVehicleTypeSection(answers: UserAnswers, vehicleNumber: VehicleNumber): JsObject = {
+  def importVehicleTypeSection(answers: UserAnswers, vehicleNumber: VehicleNumber): Option[JsObject] = {
     val dateOfFirstRegistration = answers.get(DateOfFirstRegistrationPage(vehicleNumber))
 
-    Json
-      .toJson(
-        ImportVehicleType(
-          vehicleType = None,
-          dateRoadUseKnown = dateOfFirstRegistration.isDefined,
-          dateOfFirstRegistration = dateOfFirstRegistration.map(formPDateFormat.format)
+    answers.get(AddVehicleTypePage(vehicleNumber)).map { vehicleType =>
+      Json
+        .toJson(
+          ImportVehicleType(
+            vehicleType = vehicleType.jsonValue,
+            dateRoadUseKnown = dateOfFirstRegistration.isDefined,
+            dateOfFirstRegistration = dateOfFirstRegistration.map(formPDateFormat.format)
+          )
         )
-      )
-      .as[JsObject]
+        .as[JsObject]
+    }
   }
 }

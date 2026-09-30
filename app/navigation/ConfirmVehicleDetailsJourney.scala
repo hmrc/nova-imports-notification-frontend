@@ -17,7 +17,7 @@
 package navigation
 
 import controllers.vehicledetails.routes
-import models.{CheckMode, ImportNumber, SupplierNumber, UserAnswers, VehicleDates, VehicleNumber}
+import models.{AddVehicleType, CheckMode, ImportNumber, SupplierNumber, UserAnswers, VehicleDates, VehicleNumber}
 import pages.sections.vehicledetails.*
 import play.api.mvc.Call
 
@@ -69,6 +69,16 @@ object ConfirmVehicleDetailsJourney {
         true,
         answers.get(TotalAmountPaidPage(vehicleNumber)).isDefined,
         routes.TotalAmountPaidController.onPageLoadSupplier(supplierNumber, vehicleNumber, CheckMode)
+      ),
+      (
+        true,
+        answers.get(PaymentCurrencyPage(vehicleNumber)).isDefined,
+        routes.PaymentCurrencyController.supplierOnPageLoad(supplierNumber, vehicleNumber, CheckMode)
+      ),
+      (
+        true,
+        answers.get(AddVehicleTypePage(vehicleNumber)).isDefined,
+        routes.AddVehicleTypeController.supplierOnPageLoad(supplierNumber, vehicleNumber, CheckMode)
       )
     )
 
@@ -80,7 +90,9 @@ object ConfirmVehicleDetailsJourney {
       answers.get(DateOfFirstRegistrationPage(vehicleNumber)).isDefined ->
         routes.DateOfFirstRegistrationController.importOnPageLoad(importNumber, vehicleNumber, CheckMode),
       answers.get(CountryOfFirstRegistrationPage(vehicleNumber)).isDefined ->
-        routes.CountryOfFirstRegistrationController.importOnPageLoad(importNumber, vehicleNumber, CheckMode)
+        routes.CountryOfFirstRegistrationController.importOnPageLoad(importNumber, vehicleNumber, CheckMode),
+      answers.get(AddVehicleTypePage(vehicleNumber)).isDefined ->
+        routes.AddVehicleTypeController.importOnPageLoad(importNumber, vehicleNumber, CheckMode)
     ).collectFirst { case (answered, call) if !answered => call }
 
   def checkModeRoute(answers: UserAnswers, vehicleNumber: VehicleNumber): Call =
@@ -93,5 +105,17 @@ object ConfirmVehicleDetailsJourney {
           .getOrElse(routes.ConfirmVehicleDetailsController.importOnPageLoad(importNumber, vehicleNumber))
       case _ =>
         controllers.routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  def confirmedRoute(answers: UserAnswers, vehicleNumber: VehicleNumber): Call =
+    answers.get(AddVehicleTypePage(vehicleNumber)) match {
+      case Some(AddVehicleType.Car)                 => controllers.routes.LandingPageController.onPageLoad()
+      case Some(AddVehicleType.Lcv)                 => controllers.routes.LandingPageController.onPageLoad()
+      case Some(AddVehicleType.Hcv)                 => controllers.routes.LandingPageController.onPageLoad()
+      case Some(AddVehicleType.Motorcycle)          => controllers.routes.LandingPageController.onPageLoad()
+      case Some(AddVehicleType.MotorCaravan)        => controllers.routes.LandingPageController.onPageLoad()
+      case Some(AddVehicleType.AgriculturalTractor) => controllers.routes.LandingPageController.onPageLoad()
+      case Some(AddVehicleType.ContractorsPlant)    => controllers.routes.LandingPageController.onPageLoad()
+      case None                                     => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 }

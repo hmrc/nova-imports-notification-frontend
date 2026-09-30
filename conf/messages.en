@@ -1260,3 +1260,7 @@ confirmVehicleDetails.noPurchaseInvoiceReason.label = Reason for no purchase inv
 confirmVehicleDetails.noPurchaseInvoiceReason.change.hidden = reason why a purchase invoice is not available
 confirmVehicleDetails.totalAmountPaid.label = Total amount paid
 confirmVehicleDetails.totalAmountPaid.change.hidden = total amount paid for the vehicle
+confirmVehicleDetails.currency.label = Currency
+confirmVehicleDetails.currency.change.hidden = currency used to pay for the vehicle
+confirmVehicleDetails.vehicleType.label = Vehicle type
+confirmVehicleDetails.vehicleType.change.hidden = which type of vehicle you are notifying HMRC about

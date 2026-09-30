@@ -21,7 +21,7 @@ import com.google.inject.name.Names
 import connectors.{NovaImportsBackendConnector, UpdateSectionError}
 import controllers.actions.*
 import controllers.{routes, vehicledetails}
-import models.{AgentSelectedClient, DraftId, ImportNumber, SupplierNumber, UserAnswers, VehicleDates, VehicleNumber}
+import models.{AddVehicleType, AgentSelectedClient, CheckMode, DraftId, ImportNumber, SupplierNumber, UserAnswers, VehicleDates, VehicleNumber}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{never, verify, when}
@@ -57,6 +57,8 @@ class ConfirmVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
     .unsafeSet(VehicleFromEuPage, true)
     .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
     .unsafeSet(AllVehiclesQuery, Map("1" -> Json.obj("supplierNumber" -> 1)))
+    .unsafeSet(PaymentCurrencyPage(v), "EUR")
+    .unsafeSet(AddVehicleTypePage(v), AddVehicleType.Car)
 
   private val invoiceOnly: UserAnswers = supplierBase
     .unsafeSet(VehicleDatesPage(s, v), Set(VehicleDates.PurchaseInvoiceDate))
@@ -80,6 +82,7 @@ class ConfirmVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
     .unsafeSet(AllVehiclesQuery, Map("1" -> Json.obj("importNumber" -> 1)))
     .unsafeSet(DateOfFirstRegistrationPage(v), LocalDate.of(2026, 3, 1))
     .unsafeSet(CountryOfFirstRegistrationPage(v), "FR")
+    .unsafeSet(AddVehicleTypePage(v), AddVehicleType.Hcv)
 
   private def stubSessionRepository(answers: UserAnswers): SessionRepository = {
     val repository = mock[SessionRepository]
@@ -151,6 +154,21 @@ class ConfirmVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
+      "must show the currency and vehicle type rows with change links to AVD7.1 and AVD8.0 in check mode" in {
+        val app = application(Some(invoiceOnly))
+
+        running(app) {
+          val body = contentAsString(route(app, FakeRequest(GET, supplierRoute)).value)
+
+          body must include(messages(app)("confirmVehicleDetails.currency.label"))
+          body must include("Euro (EUR)")
+          body must include(messages(app)("confirmVehicleDetails.vehicleType.label"))
+          body must include(messages(app)("addVehicleType.radio.car"))
+          body must include(vehicledetails.routes.PaymentCurrencyController.supplierOnPageLoad(s, v, CheckMode).url)
+          body must include(vehicledetails.routes.AddVehicleTypeController.supplierOnPageLoad(s, v, CheckMode).url)
+        }
+      }
+
       "must return OK for an agent who has selected a client" in {
         val answers = invoiceOnly.unsafeSet(AgentSelectedClientPage, AgentSelectedClient("700011916", Some("Client Co")))
         val app     = applicationFor(classOf[FakeAgentIdentifierAction], answers)
@@ -177,7 +195,10 @@ class ConfirmVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
       }
 
       "must redirect to Unauthorised when the vehicle does not belong to the supplier" in {
-        mustBeUnauthorised(application(Some(invoiceOnly)), vehicledetails.routes.ConfirmVehicleDetailsController.supplierOnPageLoad(SupplierNumber(2), v).url)
+        mustBeUnauthorised(
+          application(Some(invoiceOnly)),
+          vehicledetails.routes.ConfirmVehicleDetailsController.supplierOnPageLoad(SupplierNumber(2), v).url
+        )
       }
 
       "must redirect to Unauthorised when the dates question has not been answered" in {
@@ -203,6 +224,14 @@ class ConfirmVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
       "must redirect to Unauthorised when the total amount paid is missing" in {
         mustBeUnauthorised(application(Some(invoiceOnly.remove(TotalAmountPaidPage(v)).success.value)), supplierRoute)
       }
+
+      "must redirect to Unauthorised when the currency is missing" in {
+        mustBeUnauthorised(application(Some(invoiceOnly.remove(PaymentCurrencyPage(v)).success.value)), supplierRoute)
+      }
+
+      "must redirect to Unauthorised when the vehicle type is missing" in {
+        mustBeUnauthorised(application(Some(invoiceOnly.remove(AddVehicleTypePage(v)).success.value)), supplierRoute)
+      }
     }
 
     "importOnPageLoad" - {
@@ -218,16 +247,35 @@ class ConfirmVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
+      "must show the vehicle type row with a change link to AVD8.0 and no currency row" in {
+        val app = application(Some(importComplete))
+
+        running(app) {
+          val body = contentAsString(route(app, FakeRequest(GET, importRoute)).value)
+
+          body must include(messages(app)("addVehicleType.radio.hcv"))
+          body must include(vehicledetails.routes.AddVehicleTypeController.importOnPageLoad(i, v, CheckMode).url)
+          body must not include messages(app)("confirmVehicleDetails.currency.label")
+        }
+      }
+
       "must redirect to Unauthorised when the vehicle was brought from the EU" in {
         mustBeUnauthorised(application(Some(importComplete.unsafeSet(VehicleFromEuPage, true))), importRoute)
       }
 
       "must redirect to Unauthorised when the vehicle does not belong to the import" in {
-        mustBeUnauthorised(application(Some(importComplete)), vehicledetails.routes.ConfirmVehicleDetailsController.importOnPageLoad(ImportNumber(2), v).url)
+        mustBeUnauthorised(
+          application(Some(importComplete)),
+          vehicledetails.routes.ConfirmVehicleDetailsController.importOnPageLoad(ImportNumber(2), v).url
+        )
       }
 
       "must redirect to Unauthorised when the country of first registration is missing" in {
         mustBeUnauthorised(application(Some(importComplete.remove(CountryOfFirstRegistrationPage(v)).success.value)), importRoute)
+      }
+
+      "must redirect to Unauthorised when the vehicle type is missing" in {
+        mustBeUnauthorised(application(Some(importComplete.remove(AddVehicleTypePage(v)).success.value)), importRoute)
       }
 
       "must redirect to Unauthorised when the supplier url is used for an import vehicle" in {
@@ -237,7 +285,7 @@ class ConfirmVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
 
     "supplierOnSubmit" - {
 
-      "must call F4 for the supplier vehicle type section, save the new version and redirect to the placeholder" in {
+      "must call F4 for the supplier vehicle type section, save the new version and redirect to the AVD8.1 placeholder for a car" in {
         val connector  = successfulConnector
         val repository = stubSessionRepository(invoiceOnly)
         val app        = application(Some(invoiceOnly), connector, repository)
@@ -246,10 +294,12 @@ class ConfirmVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
           val result = route(app, FakeRequest(POST, supplierRoute)).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual ConfirmVehicleDetailsController.nextPage.url
+          redirectLocation(result).value mustEqual routes.LandingPageController.onPageLoad().url
 
           capturedBody(connector, "supplier/1/vehicle/1/type") mustEqual Json.obj(
+            "vehicleType"               -> "CAR",
             "doYouHaveAPurchaseInvoice" -> true,
+            "currencyUsed"              -> "EUR",
             "dateRoadUseKnown"          -> false,
             "purchaseInvoiceNumber"     -> "INV-001",
             "purchaseInvoiceDate"       -> "27/03/2026",
@@ -271,8 +321,10 @@ class ConfirmVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
           status(route(app, FakeRequest(POST, supplierRoute)).value) mustEqual SEE_OTHER
 
           capturedBody(connector, "supplier/1/vehicle/1/type") mustEqual Json.obj(
+            "vehicleType"               -> "CAR",
             "doYouHaveAPurchaseInvoice" -> false,
             "dateRoadUseKnown"          -> true,
+            "currencyUsed"              -> "EUR",
             "pricePaidForVehicle"       -> "45000",
             "versionId"                 -> 3L
           )
@@ -315,7 +367,7 @@ class ConfirmVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
 
     "importOnSubmit" - {
 
-      "must call F4 for the import vehicle type section and redirect to the placeholder" in {
+      "must call F4 for the import vehicle type section and redirect to the AVD8.3 placeholder for a heavy commercial vehicle" in {
         val connector = successfulConnector
         val app       = application(Some(importComplete), connector, stubSessionRepository(importComplete))
 
@@ -323,9 +375,10 @@ class ConfirmVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
           val result = route(app, FakeRequest(POST, importRoute)).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual ConfirmVehicleDetailsController.nextPage.url
+          redirectLocation(result).value mustEqual routes.LandingPageController.onPageLoad().url
 
           capturedBody(connector, "import/1/vehicle/1/type") mustEqual Json.obj(
+            "vehicleType"             -> "HCV",
             "dateRoadUseKnown"        -> true,
             "dateOfFirstRegistration" -> "01/03/2026",
             "versionId"               -> 3L

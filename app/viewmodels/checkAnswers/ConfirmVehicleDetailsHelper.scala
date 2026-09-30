@@ -17,7 +17,7 @@
 package viewmodels.checkAnswers
 
 import controllers.vehicledetails.routes
-import models.{CheckMode, Country, ImportNumber, SupplierNumber, UserAnswers, VehicleDates, VehicleNumber}
+import models.{AddVehicleType, CheckMode, Country, Currency, ImportNumber, SupplierNumber, UserAnswers, VehicleDates, VehicleNumber}
 import pages.sections.vehicledetails.*
 import play.api.i18n.Messages
 import play.api.mvc.Call
@@ -34,9 +34,13 @@ object ConfirmVehicleDetailsHelper {
 
   private val dateFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy")
 
-  def supplierSummaryList(answers: UserAnswers, supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, countries: Seq[Country])(implicit
-    messages: Messages
-  ): SummaryList = {
+  def supplierSummaryList(
+    answers: UserAnswers,
+    supplierNumber: SupplierNumber,
+    vehicleNumber: VehicleNumber,
+    countries: Seq[Country],
+    currencies: Seq[Currency]
+  )(implicit messages: Messages): SummaryList = {
     val dates        = answers.get(VehicleDatesPage(supplierNumber, vehicleNumber)).getOrElse(Set.empty)
     val invoiceDate  = dates.contains(VehicleDates.PurchaseInvoiceDate)
     val availability = dates.contains(VehicleDates.AvailabilityAndFirstRegistration)
@@ -44,66 +48,89 @@ object ConfirmVehicleDetailsHelper {
     SummaryListViewModel(
       rows = Seq(
         vehicleDatesRow(dates, routes.VehicleDatesController.onPageLoad(supplierNumber, vehicleNumber, CheckMode)),
-        Option.when(availability)(
-          dateOfFirstRegistrationRow(
-            answers,
-            vehicleNumber,
-            routes.DateOfFirstRegistrationController.supplierOnPageLoad(supplierNumber, vehicleNumber, CheckMode)
+        Option
+          .when(availability)(
+            dateOfFirstRegistrationRow(
+              answers,
+              vehicleNumber,
+              routes.DateOfFirstRegistrationController.supplierOnPageLoad(supplierNumber, vehicleNumber, CheckMode)
+            )
           )
-        ).flatten,
-        Option.when(availability)(
-          countryOfFirstRegistrationRow(
-            answers,
-            vehicleNumber,
-            countries,
-            routes.CountryOfFirstRegistrationController.supplierOnPageLoad(supplierNumber, vehicleNumber, CheckMode)
+          .flatten,
+        Option
+          .when(availability)(
+            countryOfFirstRegistrationRow(
+              answers,
+              vehicleNumber,
+              countries,
+              routes.CountryOfFirstRegistrationController.supplierOnPageLoad(supplierNumber, vehicleNumber, CheckMode)
+            )
           )
-        ).flatten,
-        Option.when(availability)(
-          answers
-            .get(DateOfAvailabilityPage(supplierNumber, vehicleNumber))
-            .map(date =>
-              row(
-                "dateOfAvailability",
-                textValue(formatDate(date)),
-                routes.DateOfAvailabilityController.onPageLoad(supplierNumber, vehicleNumber, CheckMode)
+          .flatten,
+        Option
+          .when(availability)(
+            answers
+              .get(DateOfAvailabilityPage(supplierNumber, vehicleNumber))
+              .map(date =>
+                row(
+                  "dateOfAvailability",
+                  textValue(formatDate(date)),
+                  routes.DateOfAvailabilityController.onPageLoad(supplierNumber, vehicleNumber, CheckMode)
+                )
               )
-            )
-        ).flatten,
-        Option.when(invoiceDate)(
-          answers
-            .get(PurchaseInvoiceDatePage(supplierNumber, vehicleNumber))
-            .map(date =>
-              row(
-                "purchaseInvoiceDate",
-                textValue(formatDate(date)),
-                routes.PurchaseInvoiceDateController.onPageLoad(supplierNumber, vehicleNumber, CheckMode)
+          )
+          .flatten,
+        Option
+          .when(invoiceDate)(
+            answers
+              .get(PurchaseInvoiceDatePage(supplierNumber, vehicleNumber))
+              .map(date =>
+                row(
+                  "purchaseInvoiceDate",
+                  textValue(formatDate(date)),
+                  routes.PurchaseInvoiceDateController.onPageLoad(supplierNumber, vehicleNumber, CheckMode)
+                )
               )
-            )
-        ).flatten,
-        Option.when(invoiceDate)(
-          answers
-            .get(PurchaseInvoiceNumberPage(supplierNumber, vehicleNumber))
-            .map(number =>
-              row("purchaseInvoiceNumber", textValue(number), routes.PurchaseInvoiceNumberController.onPageLoad(supplierNumber, vehicleNumber, CheckMode))
-            )
-        ).flatten,
-        Option.when(availability && !invoiceDate)(
-          answers
-            .get(NoPurchaseInvoiceReasonPage(supplierNumber, vehicleNumber))
-            .map(reason =>
-              row(
-                "noPurchaseInvoiceReason",
-                textValue(reason),
-                routes.NoPurchaseInvoiceReasonController.onPageLoad(supplierNumber, vehicleNumber, CheckMode)
+          )
+          .flatten,
+        Option
+          .when(invoiceDate)(
+            answers
+              .get(PurchaseInvoiceNumberPage(supplierNumber, vehicleNumber))
+              .map(number =>
+                row(
+                  "purchaseInvoiceNumber",
+                  textValue(number),
+                  routes.PurchaseInvoiceNumberController.onPageLoad(supplierNumber, vehicleNumber, CheckMode)
+                )
               )
-            )
-        ).flatten,
+          )
+          .flatten,
+        Option
+          .when(availability && !invoiceDate)(
+            answers
+              .get(NoPurchaseInvoiceReasonPage(supplierNumber, vehicleNumber))
+              .map(reason =>
+                row(
+                  "noPurchaseInvoiceReason",
+                  textValue(reason),
+                  routes.NoPurchaseInvoiceReasonController.onPageLoad(supplierNumber, vehicleNumber, CheckMode)
+                )
+              )
+          )
+          .flatten,
         answers
           .get(TotalAmountPaidPage(vehicleNumber))
           .map(amount =>
             row("totalAmountPaid", textValue(amount), routes.TotalAmountPaidController.onPageLoadSupplier(supplierNumber, vehicleNumber, CheckMode))
-          )
+          ),
+        answers
+          .get(PaymentCurrencyPage(vehicleNumber))
+          .map { code =>
+            val name = currencies.find(_.code == code).map(_.displayName).getOrElse(code)
+            row("currency", textValue(name), routes.PaymentCurrencyController.supplierOnPageLoad(supplierNumber, vehicleNumber, CheckMode))
+          },
+        vehicleTypeRow(answers, vehicleNumber, routes.AddVehicleTypeController.supplierOnPageLoad(supplierNumber, vehicleNumber, CheckMode))
       ).flatten
     )
   }
@@ -123,7 +150,8 @@ object ConfirmVehicleDetailsHelper {
           vehicleNumber,
           countries,
           routes.CountryOfFirstRegistrationController.importOnPageLoad(importNumber, vehicleNumber, CheckMode)
-        )
+        ),
+        vehicleTypeRow(answers, vehicleNumber, routes.AddVehicleTypeController.importOnPageLoad(importNumber, vehicleNumber, CheckMode))
       ).flatten
     )
 
@@ -149,6 +177,22 @@ object ConfirmVehicleDetailsHelper {
     answers.get(CountryOfFirstRegistrationPage(vehicleNumber)).map { code =>
       val name = countries.find(_.code == code).flatMap(_.name).getOrElse(code)
       row("countryOfFirstRegistration", textValue(name), change)
+    }
+
+  private def vehicleTypeRow(answers: UserAnswers, vehicleNumber: VehicleNumber, change: Call)(implicit
+    messages: Messages
+  ): Option[SummaryListRow] =
+    answers.get(AddVehicleTypePage(vehicleNumber)).map { vehicleType =>
+      val key = vehicleType match {
+        case AddVehicleType.AgriculturalTractor => "addVehicleType.radio.tractor"
+        case AddVehicleType.Car                 => "addVehicleType.radio.car"
+        case AddVehicleType.ContractorsPlant    => "addVehicleType.radio.plant"
+        case AddVehicleType.Hcv                 => "addVehicleType.radio.hcv"
+        case AddVehicleType.Lcv                 => "addVehicleType.radio.lcv"
+        case AddVehicleType.Motorcycle          => "addVehicleType.radio.motorcycle"
+        case AddVehicleType.MotorCaravan        => "addVehicleType.radio.caravan"
+      }
+      row("vehicleType", textValue(messages(key)), change)
     }
 
   private def row(field: String, value: Value, change: Call)(implicit messages: Messages): SummaryListRow =
