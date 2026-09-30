@@ -1,0 +1,92 @@
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import models.AddVehicleType
+@import viewmodels.LegendSize
+
+@this(
+        layout: templates.Layout,
+        formHelper: FormWithCSRF,
+        govukErrorSummary: GovukErrorSummary,
+        govukRadios: GovukRadios,
+        govukButton: GovukButton
+)
+
+@(form: Form[?], submitCall: Call)(implicit request: Request[?], messages: Messages)
+
+@layout(
+    pageTitle = title(form, messages("addVehicleType.title")),
+    showBackLink = true
+) {
+
+    @formHelper(action = submitCall) {
+
+        @if(form.errors.nonEmpty) {
+            @govukErrorSummary(ErrorSummaryViewModel(form))
+        }
+
+        <span class="govuk-caption-l">@messages("addVehicleType.caption")</span>
+
+        @govukRadios(
+            RadiosViewModel(
+                field  = form("value"),
+                legend = LegendViewModel(messages("addVehicleType.heading")).asPageHeading(LegendSize.Large),
+                items  = Seq(
+                    RadioItem(
+                        id      = Some(form("value").id),
+                        value   = Some(AddVehicleType.AgriculturalTractor.toString),
+                        content = Text(messages("addVehicleType.radio.tractor"))
+                    ),
+                    RadioItem(
+                        id      = Some(s"${form("value").id}-2"),
+                        value   = Some(AddVehicleType.Car.toString),
+                        content = Text(messages("addVehicleType.radio.car"))
+                    ),
+                    RadioItem(
+                        id      = Some(s"${form("value").id}-3"),
+                        value   = Some(AddVehicleType.ContractorsPlant.toString),
+                        content = Text(messages("addVehicleType.radio.plant"))
+                    ),
+                    RadioItem(
+                        id      = Some(s"${form("value").id}-4"),
+                        value   = Some(AddVehicleType.Hcv.toString),
+                        content = Text(messages("addVehicleType.radio.hcv")),
+                        hint    = Some(Hint(content = Text(messages("addVehicleType.radio.hcv.hint"))))
+                    ),
+                    RadioItem(
+                        id      = Some(s"${form("value").id}-5"),
+                        value   = Some(AddVehicleType.Lcv.toString),
+                        content = Text(messages("addVehicleType.radio.lcv"))
+                    ),
+                    RadioItem(
+                        id      = Some(s"${form("value").id}-6"),
+                        value   = Some(AddVehicleType.Motorcycle.toString),
+                        content = Text(messages("addVehicleType.radio.motorcycle"))
+                    ),
+                    RadioItem(
+                        id      = Some(s"${form("value").id}-7"),
+                        value   = Some(AddVehicleType.MotorCaravan.toString),
+                        content = Text(messages("addVehicleType.radio.caravan"))
+                    )
+                )
+            )
+        )
+
+        @govukButton(
+            ButtonViewModel(messages("site.continue"))
+        )
+    }
+}

@@ -24,7 +24,6 @@ import controllers.{notification, routes}
 import forms.DeleteCurrentNotificationFormProvider
 import models.PurchaserOrOnBehalf.Purchaser
 import models.{BusinessOrPrivateIndividual, DraftId, PurchaserOrOnBehalf, UserAnswers}
-import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{never, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
@@ -92,12 +91,6 @@ class DeleteCurrentNotificationControllerSpec extends SpecBase with MockitoSugar
         .build()
 
     (application, sessionRepository, backendConnector)
-  }
-
-  private def savedAnswers(mockSessionRepository: SessionRepository): UserAnswers = {
-    val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
-    verify(mockSessionRepository).set(captor.capture())
-    captor.getValue
   }
 
   "DeleteCurrentNotificationController" - {

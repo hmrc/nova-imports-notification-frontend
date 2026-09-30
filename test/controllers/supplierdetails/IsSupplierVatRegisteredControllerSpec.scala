@@ -20,7 +20,6 @@ import base.SpecBase
 import controllers.{routes, supplierdetails}
 import forms.IsSupplierVatRegisteredFormProvider
 import models.{CheckMode, DraftId, Mode, NormalMode, SupplierNumber, UserAnswers, VatNumberDetails}
-import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
@@ -31,7 +30,6 @@ import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierVatR
 import play.api.libs.json.Json
 import queries.AllSuppliersQuery
 import play.api.inject.bind
-import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
