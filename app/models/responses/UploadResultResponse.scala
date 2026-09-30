@@ -79,7 +79,9 @@ object ValidationError {
     "modelNameNumber"                -> "Model name or number",
     "caravanVersion"                 -> "Motor caravan version",
     "caravanBody"                    -> "Motor caravan body",
-    "makeOfBaseVehicle"              -> "Make of base vehicle"
+    "makeOfBaseVehicle"              -> "Make of base vehicle",
+    "heavyCommercialVehicleType"     -> "Heavy commercial vehicle type",
+    "cabType"                        -> "Cab type"
   )
 
   private val indexSuffix = "\\[\\d+\\]$".r
@@ -106,6 +108,8 @@ final case class UploadResultResponse(
   agriculturalTractorNonEuVehicles: Seq[SpreadsheetAgriculturalTractorNonEuVehicle],
   motorCaravansEuVehicles: Seq[SpreadsheetMotorCaravansEuVehicle],
   motorCaravansNonEuVehicles: Seq[SpreadsheetMotorCaravansNonEuVehicle],
+  heavyCommercialEuVehicles: List[SpreadsheetHeavyCommercialEuVehicle],
+  heavyCommercialNonEuVehicles: List[SpreadsheetHeavyCommercialNonEuVehicle],
   errors: Seq[ValidationError]
 )
 
@@ -147,6 +151,15 @@ object UploadResultResponse {
         if (validationType.contains("MotorCaravansNonEu")) rawVehicles.flatMap(_.validate[SpreadsheetMotorCaravansNonEuVehicle].asOpt)
         else Seq.empty
 
+      val heavyCommercialEuVehicles =
+        if (validationType.contains("HeavyCommercialVehiclesEu")) rawVehicles.flatMap(_.validate[SpreadsheetHeavyCommercialEuVehicle].asOpt).toList
+        else List.empty
+
+      val heavyCommercialNonEuVehicles =
+        if (validationType.contains("HeavyCommercialVehiclesNonEu"))
+          rawVehicles.flatMap(_.validate[SpreadsheetHeavyCommercialNonEuVehicle].asOpt).toList
+        else List.empty
+
       // the raw "vehicles" summary only ever carries the "make"/"model" JSON keys, which Cars/LightCommercial
       // rows happen to use directly - other categories name these fields differently (e.g. Motor Caravans'
       // caravanMake/modelNameNumber), so the summary is instead built from the already-typed, per-category
@@ -162,6 +175,10 @@ object UploadResultResponse {
           motorCaravansEuVehicles.map(v => VehicleSummary(v.itemNumber, v.vin, v.caravanMake, v.modelNameNumber))
         case Some("MotorCaravansNonEu") =>
           motorCaravansNonEuVehicles.map(v => VehicleSummary(v.itemNumber, v.vin, v.caravanMake, v.modelNameNumber))
+        case Some("HeavyCommercialVehiclesEu") =>
+          heavyCommercialEuVehicles.map(v => VehicleSummary(v.itemNumber, v.vin, v.make, v.model))
+        case Some("HeavyCommercialVehiclesNonEu") =>
+          heavyCommercialNonEuVehicles.map(v => VehicleSummary(v.itemNumber, v.vin, v.make, v.model))
         case _ => rawVehicleSummary
       }
 
@@ -175,6 +192,8 @@ object UploadResultResponse {
         agriculturalTractorNonEuVehicles,
         motorCaravansEuVehicles,
         motorCaravansNonEuVehicles,
+        heavyCommercialEuVehicles,
+        heavyCommercialNonEuVehicles,
         errors
       )
     }

@@ -34,6 +34,11 @@ class ValidationErrorSpec extends AnyFreeSpec with Matchers {
       ValidationError("bodyType[0]", "error").label mustBe "Body type"
     }
 
+    "must label heavyCommercialVehicleType and cabType errors with the spreadsheet field names" in {
+      ValidationError("heavyCommercialVehicleType[0]", "error").label mustBe "Heavy commercial vehicle type"
+      ValidationError("cabType[0]", "error").label mustBe "Cab type"
+    }
+
     "must fall back to the field key with the index stripped when the key is not recognised" in {
       ValidationError("somethingUnexpected[0]", "error").label mustBe "somethingUnexpected"
     }
