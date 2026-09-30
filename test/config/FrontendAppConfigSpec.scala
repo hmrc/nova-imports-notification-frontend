@@ -17,7 +17,7 @@
 package config
 
 import base.SpecBase
-import models.{AddressJourney, Country, SupplierNumber}
+import models.{AddressJourney, Country, Currency, SupplierNumber}
 import org.scalatest.BeforeAndAfterAll
 import play.api.Application
 
@@ -50,16 +50,51 @@ class FrontendAppConfigSpec extends SpecBase with BeforeAndAfterAll {
   "countries" - {
 
     "must load every country from the bundled list" in {
-      appConfig.countries.size mustEqual 195
+      appConfig.countries.size mustEqual 249
     }
 
     "must load each entry as a code and a name" in {
       appConfig.countries must contain(Country("FR", "France"))
-      appConfig.countries must contain(Country("XK", "Kosovo"))
+      appConfig.countries must contain(Country("CZ", "Czech Republic"))
     }
 
-    "must not offer the United Kingdom" in {
-      appConfig.countries.map(_.code) must not contain "GB"
+    "must offer the United Kingdom" in {
+      appConfig.countries must contain(Country("GB", "United Kingdom"))
+    }
+
+    "must not offer codes missing from the official list" in {
+      appConfig.countries.map(_.code) must contain noneOf ("XK", "SS")
+    }
+
+    "must keep both names listed against the Vatican code" in {
+      appConfig.countries.filter(_.code == "VA") mustEqual List(
+        Country("VA", "Holy See (Vatican City State)"),
+        Country("VA", "Vatican City State")
+      )
+    }
+  }
+
+  "currencies" - {
+
+    "must load every currency from the bundled list" in {
+      appConfig.currencies.size mustEqual 158
+    }
+
+    "must load each entry as a code and a name" in {
+      appConfig.currencies must contain(Currency("AFN", "Afghani"))
+      appConfig.currencies must contain(Currency("ZWD", "Zimbabwean dollar"))
+    }
+
+    "must have no duplicate codes" in {
+      appConfig.currencies.map(_.code).distinct.size mustEqual appConfig.currencies.size
+    }
+  }
+
+  "supplierCurrencies" - {
+
+    "must offer only the currencies agreed for the supplier journey, in the bundled order" in {
+      appConfig.supplierCurrencies.map(_.code) mustEqual
+        List("GBP", "BGN", "CZK", "DKK", "EUR", "HUF", "LTL", "PLN", "RON", "SEK", "USD")
     }
   }
 }

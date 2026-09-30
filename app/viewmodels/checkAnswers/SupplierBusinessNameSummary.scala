@@ -36,7 +36,7 @@ object SupplierBusinessNameSummary {
   def rowFromPersonalDetails(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages): Option[SummaryListRow] = {
     if (answers.get(BusinessOrPrivatePage).contains(Business)) {
       val nameValue = extractNameDetailsValue(answers, BusinessNamePage)
-      Some(row(nameValue, supplierNumber, routes.UsePersonalDetailsAsSupplierController.onPageLoad(supplierNumber, NormalMode).url))
+      Some(row(nameValue, routes.UsePersonalDetailsAsSupplierController.onPageLoad(supplierNumber, NormalMode).url))
     } else {
       None
     }
@@ -45,7 +45,7 @@ object SupplierBusinessNameSummary {
   def rowFromPurchaserDetails(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages): Option[SummaryListRow] = {
     if (answers.get(PurchaserBusinessOrIndividualPage).contains(NonVatRegisteredBusiness)) {
       val nameValue = extractNameDetailsValue(answers, PurchaserBusinessNamePage)
-      Some(row(nameValue, supplierNumber, routes.UsePurchaserDetailsAsSupplierController.onPageLoad(supplierNumber, NormalMode).url))
+      Some(row(nameValue, routes.UsePurchaserDetailsAsSupplierController.onPageLoad(supplierNumber, NormalMode).url))
     } else {
       None
     }
@@ -54,7 +54,7 @@ object SupplierBusinessNameSummary {
   def rowFromSupplierDetails(answers: UserAnswers, supplierNumber: SupplierNumber)(implicit messages: Messages): Option[SummaryListRow] = {
     if (answers.get(SupplierBusinessOrIndividualPage(supplierNumber)).contains(Business)) {
       val nameValue = extractNameDetailsValue(answers, SupplierBusinessNamePage(supplierNumber))
-      Some(row(nameValue, supplierNumber, routes.SupplierBusinessNameController.onPageLoad(supplierNumber, CheckMode).url))
+      Some(row(nameValue, routes.SupplierBusinessNameController.onPageLoad(supplierNumber, CheckMode).url))
     } else {
       None
     }
@@ -62,7 +62,7 @@ object SupplierBusinessNameSummary {
 
   // TODO: Add rowFromClientDetails once AVD-S1.2 page is added
 
-  private def row(supplierBusinessName: String, supplierNumber: SupplierNumber, redirectUrl: String)(implicit messages: Messages): SummaryListRow = {
+  private def row(supplierBusinessName: String, redirectUrl: String)(implicit messages: Messages): SummaryListRow = {
     SummaryListRowViewModel(
       key = "supplierBusinessName.checkYourAnswersLabel",
       value = ValueViewModel(Text(supplierBusinessName)),

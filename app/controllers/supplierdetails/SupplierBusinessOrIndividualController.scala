@@ -22,7 +22,6 @@ import controllers.utils.IsDraftIdDefined
 import forms.SupplierBusinessOrIndividualFormProvider
 import models.requests.DataRequest
 import models.{BusinessOrPrivateIndividual, CheckMode, Mode, SupplierNumber, UserAnswers}
-import navigation.Navigator
 import pages.sections.initialquestions.VehicleFromEuPage
 import pages.sections.supplierdetails.SupplierBusinessOrIndividualPage
 import play.api.data.Form
@@ -38,7 +37,6 @@ import scala.util.Try
 class SupplierBusinessOrIndividualController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   sessionRepository: SessionRepository,
-  navigator: Navigator,
   actions: Actions,
   formProvider: SupplierBusinessOrIndividualFormProvider,
   supplierService: SupplierService,
@@ -71,8 +69,6 @@ class SupplierBusinessOrIndividualController @Inject() (
                   controllers.supplierdetails.routes.SupplierBusinessNameController.onPageLoad(supplierNumber, mode)
                 case BusinessOrPrivateIndividual.PrivateIndividual =>
                   controllers.supplierdetails.routes.SupplierNameController.onPageLoad(supplierNumber, mode)
-                case _ =>
-                  controllers.routes.JourneyRecoveryController.onPageLoad()
               }
             )
         )

@@ -277,6 +277,16 @@ POST        /import/:importNumber/vehicle/:vehicleNumber/country-of-first-regist
 GET         /import/:importNumber/vehicle/:vehicleNumber/country-of-first-registration/change        controllers.vehicledetails.CountryOfFirstRegistrationController.importOnPageLoad(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
 POST        /import/:importNumber/vehicle/:vehicleNumber/country-of-first-registration/change        controllers.vehicledetails.CountryOfFirstRegistrationController.importOnSubmit(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
 
+GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/payment-currency                        controllers.vehicledetails.PaymentCurrencyController.supplierOnPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/payment-currency                        controllers.vehicledetails.PaymentCurrencyController.supplierOnSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/payment-currency/change                 controllers.vehicledetails.PaymentCurrencyController.supplierOnPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
+POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/payment-currency/change                 controllers.vehicledetails.PaymentCurrencyController.supplierOnSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
+
+GET         /import/:importNumber/vehicle/:vehicleNumber/payment-currency                            controllers.vehicledetails.PaymentCurrencyController.importOnPageLoad(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+POST        /import/:importNumber/vehicle/:vehicleNumber/payment-currency                            controllers.vehicledetails.PaymentCurrencyController.importOnSubmit(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+GET         /import/:importNumber/vehicle/:vehicleNumber/payment-currency/change                     controllers.vehicledetails.PaymentCurrencyController.importOnPageLoad(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
+POST        /import/:importNumber/vehicle/:vehicleNumber/payment-currency/change                     controllers.vehicledetails.PaymentCurrencyController.importOnSubmit(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
+
 GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/confirm-vehicle-details                 controllers.vehicledetails.ConfirmVehicleDetailsController.supplierOnPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber)
 POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/confirm-vehicle-details                 controllers.vehicledetails.ConfirmVehicleDetailsController.supplierOnSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber)
 
@@ -290,3 +300,15 @@ GET         /check-answers/your-address/change                                  
 GET         /check-answers/purchaser-address                                             controllers.purchaseraddress.PurchaserAddressCheckYourAnswersController.onPageLoad()
 POST        /check-answers/purchaser-address                                             controllers.purchaseraddress.PurchaserAddressCheckYourAnswersController.onSubmit()
 GET         /check-answers/purchaser-address/change                                      controllers.purchaseraddress.PurchaserAddressCheckYourAnswersController.onChangeAddress()
+
+GET         /delete-notification                                                         controllers.notification.DeleteCurrentNotificationController.onPageLoad()
+POST        /delete-notification                                                         controllers.notification.DeleteCurrentNotificationController.onSubmit()
+GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/vehicle-type                controllers.vehicledetails.AddVehicleTypeController.supplierOnPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/vehicle-type                controllers.vehicledetails.AddVehicleTypeController.supplierOnSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/vehicle-type/change         controllers.vehicledetails.AddVehicleTypeController.supplierOnPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
+POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/vehicle-type/change         controllers.vehicledetails.AddVehicleTypeController.supplierOnSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
+
+GET         /import/:importNumber/vehicle/:vehicleNumber/vehicle-type                    controllers.vehicledetails.AddVehicleTypeController.importOnPageLoad(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+POST        /import/:importNumber/vehicle/:vehicleNumber/vehicle-type                    controllers.vehicledetails.AddVehicleTypeController.importOnSubmit(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+GET         /import/:importNumber/vehicle/:vehicleNumber/vehicle-type/change             controllers.vehicledetails.AddVehicleTypeController.importOnPageLoad(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
+POST        /import/:importNumber/vehicle/:vehicleNumber/vehicle-type/change             controllers.vehicledetails.AddVehicleTypeController.importOnSubmit(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)

@@ -26,7 +26,6 @@ import org.scalatestplus.mockito.MockitoSugar
 import pages.DraftIdPage
 import pages.sections.notifieraddress.{AddressJourneyIdPage, AddressPage}
 import play.api.Application
-import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
@@ -58,11 +57,9 @@ class YourAddressCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
   }
 
   private def applicationWith(
-    userAnswers: Option[UserAnswers] = Some(answersWithAddress),
-    sessionRepository: SessionRepository = stubSessionRepository()
+    userAnswers: Option[UserAnswers] = Some(answersWithAddress)
   ): Application =
     applicationBuilder(userAnswers)
-      .overrides(bind[SessionRepository].toInstance(sessionRepository))
       .build()
 
   "YourAddressCheckYourAnswers Controller" - {
@@ -118,7 +115,7 @@ class YourAddressCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
 
     "must redirect to the notification task list on submit, leaving the saved address alone" in {
       val sessionRepository = stubSessionRepository()
-      val application       = applicationWith(sessionRepository = sessionRepository)
+      val application       = applicationWith()
 
       running(application) {
         val request = FakeRequest(POST, onSubmitRoute)
@@ -135,7 +132,7 @@ class YourAddressCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
       val answersWithJourneyId = answersWithAddress.unsafeSet(AddressJourneyIdPage, "journey-123")
 
       val sessionRepository = stubSessionRepository()
-      val application       = applicationWith(userAnswers = Some(answersWithJourneyId), sessionRepository = sessionRepository)
+      val application       = applicationWith(userAnswers = Some(answersWithJourneyId))
 
       running(application) {
         val request = FakeRequest(GET, onChangeAddressRoute)

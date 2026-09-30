@@ -26,7 +26,6 @@ import pages.DraftIdPage
 import pages.sections.initialquestions.NotifyingAsPurchaserPage
 import pages.sections.purchaseraddress.{PurchaserAddressJourneyIdPage, PurchaserAddressPage}
 import play.api.Application
-import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
@@ -59,11 +58,9 @@ class PurchaserAddressCheckYourAnswersControllerSpec extends SpecBase with Mocki
   }
 
   private def applicationWith(
-    userAnswers: Option[UserAnswers] = Some(answersWithAddress),
-    sessionRepository: SessionRepository = stubSessionRepository()
+    userAnswers: Option[UserAnswers] = Some(answersWithAddress)
   ): Application =
     applicationBuilder(userAnswers)
-      .overrides(bind[SessionRepository].toInstance(sessionRepository))
       .build()
 
   "PurchaserAddressCheckYourAnswers Controller" - {
@@ -119,7 +116,7 @@ class PurchaserAddressCheckYourAnswersControllerSpec extends SpecBase with Mocki
 
     "must redirect to the notification task list on submit, leaving the saved address alone" in {
       val sessionRepository = stubSessionRepository()
-      val application       = applicationWith(sessionRepository = sessionRepository)
+      val application       = applicationWith()
 
       running(application) {
         val request = FakeRequest(POST, onSubmitRoute)
@@ -136,7 +133,7 @@ class PurchaserAddressCheckYourAnswersControllerSpec extends SpecBase with Mocki
       val answersWithJourneyId = answersWithAddress.unsafeSet(PurchaserAddressJourneyIdPage, "journey-123")
 
       val sessionRepository = stubSessionRepository()
-      val application       = applicationWith(userAnswers = Some(answersWithJourneyId), sessionRepository = sessionRepository)
+      val application       = applicationWith(userAnswers = Some(answersWithJourneyId))
 
       running(application) {
         val request = FakeRequest(GET, onChangeAddressRoute)

@@ -21,7 +21,7 @@ import controllers.BaseController
 import controllers.actions.Actions
 import controllers.vehicledetails.VehicleSpreadsheetUploadController.guardPredicate
 import models.draftsections.{ImportDetails, ImportVehicleAdditionalInformation, ImportVehicleType, SupplierDetails, VehicleAdditionalInformation, VehicleDetails, VehicleType}
-import models.responses.{SpreadsheetEuVehicle, SpreadsheetNonEuVehicle, UploadResultResponse}
+import models.responses.{SpreadsheetAgriculturalTractorEuVehicle, SpreadsheetAgriculturalTractorNonEuVehicle, SpreadsheetEuVehicle, SpreadsheetNonEuVehicle, UploadResultResponse}
 import models.{BusinessOrPrivateIndividual, DraftId}
 import pages.sections.introduction.AmendSubmittedNotificationPage
 import pages.{DraftIdPage, DraftVersionIdPage}
@@ -88,6 +88,14 @@ class CheckVehicleSpreadsheetDetailsController @Inject() (
               saveAllImportVehicles(draftId, result.nonEuVehicles, result.validationType.get, isAmendment, versionId)
                 .flatMap(afterSave(draftId, request.userAnswers, _))
 
+            case Right(result) if result.fileStatus == "VALIDATED" && result.validationType.contains("AgriculturalTractorsEu") =>
+              saveAllAgriculturalTractorEuVehicles(draftId, result.agriculturalTractorEuVehicles, isAmendment, versionId)
+                .flatMap(afterSave(draftId, request.userAnswers, _))
+
+            case Right(result) if result.fileStatus == "VALIDATED" && result.validationType.contains("AgriculturalTractorsNonEu") =>
+              saveAllAgriculturalTractorNonEuVehicles(draftId, result.agriculturalTractorNonEuVehicles, isAmendment, versionId)
+                .flatMap(afterSave(draftId, request.userAnswers, _))
+
             case Right(result) if result.fileStatus == "VALIDATED" =>
               logger.warn(
                 s"Saving vehicle spreadsheet sections is not yet implemented for validationType ${result.validationType} (draftId ${draftId.value})"
@@ -123,22 +131,29 @@ class CheckVehicleSpreadsheetDetailsController @Inject() (
 
   private def saveAllVehicles(draftId: DraftId, vehicles: Seq[SpreadsheetEuVehicle], isAmendment: Boolean, versionId: Long)(implicit
     hc: HeaderCarrier
-  ): Future[Either[String, Long]] =
+  ): Future[Either[String, Long]] = {
+    val supplierNumbers = groupNumbersFor(vehicles.map(supplierDetailsSection))
     vehicles.zipWithIndex.foldLeft(Future.successful(Right(versionId): Either[String, Long])) { case (acc, (vehicle, index)) =>
       acc.flatMap {
         case Left(error) => Future.successful(Left(error))
-        case Right(v)    => saveVehicle(draftId, supplierNumber = index + 1, vehicle, isAmendment, v)
+        case Right(v)    => saveVehicle(draftId, supplierNumber = supplierNumbers(index), vehicleNumber = index + 1, vehicle, isAmendment, v)
       }
     }
+  }
 
-  private def saveVehicle(draftId: DraftId, supplierNumber: Int, vehicle: SpreadsheetEuVehicle, isAmendment: Boolean, versionId: Long)(implicit
-    hc: HeaderCarrier
-  ): Future[Either[String, Long]] = {
+  private def saveVehicle(
+    draftId: DraftId,
+    supplierNumber: Int,
+    vehicleNumber: Int,
+    vehicle: SpreadsheetEuVehicle,
+    isAmendment: Boolean,
+    versionId: Long
+  )(implicit hc: HeaderCarrier): Future[Either[String, Long]] = {
     val sections = Seq(
-      s"supplier/$supplierNumber/details"                          -> supplierDetailsSection(vehicle),
-      s"supplier/$supplierNumber/vehicle/1/type"                   -> vehicleTypeSection(vehicle),
-      s"supplier/$supplierNumber/vehicle/1/details"                -> vehicleDetailsSection(vehicle),
-      s"supplier/$supplierNumber/vehicle/1/additional-information" -> vehicleAdditionalInformationSection(vehicle, isAmendment)
+      s"supplier/$supplierNumber/details"                                       -> supplierDetailsSection(vehicle),
+      s"supplier/$supplierNumber/vehicle/$vehicleNumber/type"                   -> vehicleTypeSection(vehicle),
+      s"supplier/$supplierNumber/vehicle/$vehicleNumber/details"                -> vehicleDetailsSection(vehicle),
+      s"supplier/$supplierNumber/vehicle/$vehicleNumber/additional-information" -> vehicleAdditionalInformationSection(vehicle, isAmendment)
     )
 
     saveSections(draftId, sections, versionId)
@@ -150,27 +165,105 @@ class CheckVehicleSpreadsheetDetailsController @Inject() (
     validationType: String,
     isAmendment: Boolean,
     versionId: Long
-  )(implicit hc: HeaderCarrier): Future[Either[String, Long]] =
+  )(implicit hc: HeaderCarrier): Future[Either[String, Long]] = {
+    val importNumbers = groupNumbersFor(vehicles.map(importDetailsSection))
     vehicles.zipWithIndex.foldLeft(Future.successful(Right(versionId): Either[String, Long])) { case (acc, (vehicle, index)) =>
       acc.flatMap {
         case Left(error) => Future.successful(Left(error))
-        case Right(v)    => saveImportVehicle(draftId, importNumber = index + 1, vehicle, validationType, isAmendment, v)
+        case Right(v)    =>
+          saveImportVehicle(draftId, importNumber = importNumbers(index), vehicleNumber = index + 1, vehicle, validationType, isAmendment, v)
       }
     }
+  }
 
   private def saveImportVehicle(
     draftId: DraftId,
     importNumber: Int,
+    vehicleNumber: Int,
     vehicle: SpreadsheetNonEuVehicle,
     validationType: String,
     isAmendment: Boolean,
     versionId: Long
   )(implicit hc: HeaderCarrier): Future[Either[String, Long]] = {
     val sections = Seq(
-      s"import/$importNumber/details"                          -> importDetailsSection(vehicle),
-      s"import/$importNumber/vehicle/1/type"                   -> importVehicleTypeSection(vehicle, validationType),
-      s"import/$importNumber/vehicle/1/details"                -> importVehicleDetailsSection(vehicle, validationType),
-      s"import/$importNumber/vehicle/1/additional-information" -> importVehicleAdditionalInformationSection(vehicle, isAmendment)
+      s"import/$importNumber/details"                                       -> importDetailsSection(vehicle),
+      s"import/$importNumber/vehicle/$vehicleNumber/type"                   -> importVehicleTypeSection(vehicle, validationType),
+      s"import/$importNumber/vehicle/$vehicleNumber/details"                -> importVehicleDetailsSection(vehicle, validationType),
+      s"import/$importNumber/vehicle/$vehicleNumber/additional-information" -> importVehicleAdditionalInformationSection(vehicle, isAmendment)
+    )
+
+    saveSections(draftId, sections, versionId)
+  }
+
+  private def saveAllAgriculturalTractorEuVehicles(
+    draftId: DraftId,
+    vehicles: Seq[SpreadsheetAgriculturalTractorEuVehicle],
+    isAmendment: Boolean,
+    versionId: Long
+  )(implicit hc: HeaderCarrier): Future[Either[String, Long]] = {
+    val supplierNumbers = groupNumbersFor(vehicles.map(agriculturalTractorSupplierDetailsSection))
+    vehicles.zipWithIndex.foldLeft(Future.successful(Right(versionId): Either[String, Long])) { case (acc, (vehicle, index)) =>
+      acc.flatMap {
+        case Left(error) => Future.successful(Left(error))
+        case Right(v)    =>
+          saveAgriculturalTractorEuVehicle(draftId, supplierNumber = supplierNumbers(index), vehicleNumber = index + 1, vehicle, isAmendment, v)
+      }
+    }
+  }
+
+  private def saveAgriculturalTractorEuVehicle(
+    draftId: DraftId,
+    supplierNumber: Int,
+    vehicleNumber: Int,
+    vehicle: SpreadsheetAgriculturalTractorEuVehicle,
+    isAmendment: Boolean,
+    versionId: Long
+  )(implicit hc: HeaderCarrier): Future[Either[String, Long]] = {
+    val sections = Seq(
+      s"supplier/$supplierNumber/details"                                       -> agriculturalTractorSupplierDetailsSection(vehicle),
+      s"supplier/$supplierNumber/vehicle/$vehicleNumber/type"                   -> agriculturalTractorVehicleTypeSection(vehicle),
+      s"supplier/$supplierNumber/vehicle/$vehicleNumber/details"                -> agriculturalTractorVehicleDetailsSection(vehicle),
+      s"supplier/$supplierNumber/vehicle/$vehicleNumber/additional-information" -> agriculturalTractorVehicleAdditionalInformationSection(
+        vehicle,
+        isAmendment
+      )
+    )
+
+    saveSections(draftId, sections, versionId)
+  }
+
+  private def saveAllAgriculturalTractorNonEuVehicles(
+    draftId: DraftId,
+    vehicles: Seq[SpreadsheetAgriculturalTractorNonEuVehicle],
+    isAmendment: Boolean,
+    versionId: Long
+  )(implicit hc: HeaderCarrier): Future[Either[String, Long]] = {
+    val importNumbers = groupNumbersFor(vehicles.map(agriculturalTractorImportDetailsSection))
+    vehicles.zipWithIndex.foldLeft(Future.successful(Right(versionId): Either[String, Long])) { case (acc, (vehicle, index)) =>
+      acc.flatMap {
+        case Left(error) => Future.successful(Left(error))
+        case Right(v)    =>
+          saveAgriculturalTractorNonEuVehicle(draftId, importNumber = importNumbers(index), vehicleNumber = index + 1, vehicle, isAmendment, v)
+      }
+    }
+  }
+
+  private def saveAgriculturalTractorNonEuVehicle(
+    draftId: DraftId,
+    importNumber: Int,
+    vehicleNumber: Int,
+    vehicle: SpreadsheetAgriculturalTractorNonEuVehicle,
+    isAmendment: Boolean,
+    versionId: Long
+  )(implicit hc: HeaderCarrier): Future[Either[String, Long]] = {
+    val sections = Seq(
+      s"import/$importNumber/details"                                       -> agriculturalTractorImportDetailsSection(vehicle),
+      s"import/$importNumber/vehicle/$vehicleNumber/type"                   -> agriculturalTractorImportVehicleTypeSection(vehicle),
+      s"import/$importNumber/vehicle/$vehicleNumber/details"                -> agriculturalTractorImportVehicleDetailsSection(vehicle),
+      s"import/$importNumber/vehicle/$vehicleNumber/additional-information" -> agriculturalTractorImportVehicleAdditionalInformationSection(
+        vehicle,
+        isAmendment
+      )
     )
 
     saveSections(draftId, sections, versionId)
@@ -200,7 +293,23 @@ object CheckVehicleSpreadsheetDetailsController {
   private val euValidationTypes    = Set("CarsEu", "LightCommercialVehiclesEu")
   private val nonEuValidationTypes = Set("CarsNonEu", "LightCommercialVehiclesNonEu")
 
+  private val agriculturalTractorVehicleType = "AGRICULTURAL_TRACTOR"
+
   private val formPDateFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+
+  private def groupNumbersFor(sections: Seq[JsObject]): Seq[Int] = {
+    val assigned = scala.collection.mutable.LinkedHashMap.empty[Map[String, String], Int]
+    sections.map(section => assigned.getOrElseUpdate(groupingKey(section), assigned.size + 1))
+  }
+
+  private def groupingKey(section: JsObject): Map[String, String] =
+    section.value.map { case (key, value) =>
+      val raw = value match {
+        case play.api.libs.json.JsString(s) => s
+        case other                          => Json.stringify(other)
+      }
+      key -> raw.replaceAll("\\s", "").toLowerCase
+    }.toMap
 
   private def supplierDetailsSection(vehicle: SpreadsheetEuVehicle): JsObject =
     Json
@@ -308,6 +417,127 @@ object CheckVehicleSpreadsheetDetailsController {
   }
 
   private def importVehicleAdditionalInformationSection(vehicle: SpreadsheetNonEuVehicle, isAmendment: Boolean): JsObject =
+    Json
+      .toJson(
+        ImportVehicleAdditionalInformation(
+          dateArrivedInUk = vehicle.dateArrivedInUk.map(formPDateFormat.format).getOrElse(""),
+          pricePaidForVehicleEntry = vehicle.pricePaid.map(_.toString).getOrElse(""),
+          leftOrRightHand = vehicle.leftOrRightHandDrive.getOrElse(""),
+          currencyUsed = vehicle.currency.getOrElse(""),
+          commodityCode = vehicle.commodityCode.getOrElse(""),
+          isAmendment = isAmendment,
+          vehicleIdNumber = vehicle.vin.getOrElse(""),
+          mileage = vehicle.mileage.getOrElse(""),
+          mileageUnits = vehicle.mileageUnits.getOrElse(""),
+          areYouClaimingRelief = vehicle.claimingVatRelief.getOrElse(false)
+        )
+      )
+      .as[JsObject]
+
+  private def agriculturalTractorSupplierDetailsSection(vehicle: SpreadsheetAgriculturalTractorEuVehicle): JsObject =
+    Json
+      .toJson(
+        SupplierDetails(
+          supplierBusinessIndividual =
+            if (vehicle.supplierBusinessPrivate.exists(_.equalsIgnoreCase("business"))) BusinessOrPrivateIndividual.Business
+            else BusinessOrPrivateIndividual.PrivateIndividual,
+          supplierBusinessName = vehicle.supplierBusinessName,
+          supplierTitle = vehicle.supplierTitle,
+          supplierFirstName = vehicle.supplierFirstName,
+          supplierLastName = vehicle.supplierLastName,
+          addressLine1 = vehicle.addressLine1.getOrElse(""),
+          addressLine2 = vehicle.addressLine2.getOrElse(""),
+          addressLine3 = vehicle.addressLine3,
+          addressLine4 = vehicle.addressLine4,
+          addressLine5 = vehicle.addressLine5,
+          postcode = vehicle.postcode,
+          country = vehicle.country.getOrElse(""),
+          isSupplierVatReg = vehicle.supplierVatRegistered.getOrElse(false),
+          euStateVatReg = vehicle.euMemberState,
+          vatRegistrationNumber = vehicle.supplierVatNumber
+        )
+      )
+      .as[JsObject]
+
+  private def agriculturalTractorVehicleTypeSection(vehicle: SpreadsheetAgriculturalTractorEuVehicle): JsObject =
+    Json
+      .toJson(
+        VehicleType(
+          vehicleType = agriculturalTractorVehicleType,
+          doYouHaveAPurchaseInvoice = vehicle.purchaseInvoice.getOrElse(false),
+          dateRoadUseKnown = vehicle.knownDateFirstRegistered.getOrElse(false),
+          currencyUsed = vehicle.currency,
+          purchaseInvoiceNumber = vehicle.purchaseInvoiceNumber,
+          purchaseInvoiceDate = vehicle.purchaseInvoiceDate.map(formPDateFormat.format),
+          pricePaidForVehicle = vehicle.pricePaid.map(_.toString)
+        )
+      )
+      .as[JsObject]
+
+  private def agriculturalTractorVehicleDetailsSection(vehicle: SpreadsheetAgriculturalTractorEuVehicle): JsObject =
+    Json.obj(
+      "make"              -> vehicle.make.getOrElse(""),
+      "seriesModel"       -> vehicle.seriesModel.getOrElse(""),
+      "versionDerivative" -> vehicle.versionDerivative.getOrElse(""),
+      "brakeHorsePower"   -> vehicle.brakeHorsepower.getOrElse("")
+    )
+
+  private def agriculturalTractorVehicleAdditionalInformationSection(
+    vehicle: SpreadsheetAgriculturalTractorEuVehicle,
+    isAmendment: Boolean
+  ): JsObject =
+    Json
+      .toJson(
+        VehicleAdditionalInformation(
+          dateArrivedInUk = vehicle.dateArrivedInUk.map(formPDateFormat.format).getOrElse(""),
+          businessUnableToReclaimVat = vehicle.obtainedFromUnableToReclaimVat.getOrElse(false),
+          leftOrRightHand = vehicle.leftOrRightHandDrive.getOrElse(""),
+          vehicleSoldUnderMarginScheme = vehicle.soldUnderMarginScheme.getOrElse(false),
+          confirmVehicleIdNumber = vehicle.vin.getOrElse(""),
+          isAmendment,
+          vehicleIdNumber = vehicle.vin.getOrElse(""),
+          totalValueOfOptions = vehicle.totalValueOfOptions.map(_.toString).getOrElse(""),
+          isSupplierVatReg = vehicle.supplierVatRegistered.getOrElse(false),
+          mileage = vehicle.mileage.getOrElse(""),
+          mileageUnits = vehicle.mileageUnits.getOrElse(""),
+          areYouClaimingRelief = vehicle.claimingVatRelief.getOrElse(false)
+        )
+      )
+      .as[JsObject]
+
+  private def agriculturalTractorImportDetailsSection(vehicle: SpreadsheetAgriculturalTractorNonEuVehicle): JsObject =
+    Json
+      .toJson(
+        ImportDetails(
+          importEntryNumber = vehicle.importEntryNumber.getOrElse(""),
+          importEntryDate = vehicle.importEntryDate.map(formPDateFormat.format).getOrElse("")
+        )
+      )
+      .as[JsObject]
+
+  private def agriculturalTractorImportVehicleTypeSection(vehicle: SpreadsheetAgriculturalTractorNonEuVehicle): JsObject =
+    Json
+      .toJson(
+        ImportVehicleType(
+          vehicleType = agriculturalTractorVehicleType,
+          dateRoadUseKnown = vehicle.knownDateFirstRegistered.getOrElse(false),
+          dateOfFirstRegistration = vehicle.dateOfFirstRegistration.map(formPDateFormat.format)
+        )
+      )
+      .as[JsObject]
+
+  private def agriculturalTractorImportVehicleDetailsSection(vehicle: SpreadsheetAgriculturalTractorNonEuVehicle): JsObject =
+    Json.obj(
+      "make"              -> vehicle.make.getOrElse(""),
+      "seriesModel"       -> vehicle.seriesModel.getOrElse(""),
+      "versionDerivative" -> vehicle.versionDerivative.getOrElse(""),
+      "brakeHorsePower"   -> vehicle.brakeHorsepower.getOrElse("")
+    )
+
+  private def agriculturalTractorImportVehicleAdditionalInformationSection(
+    vehicle: SpreadsheetAgriculturalTractorNonEuVehicle,
+    isAmendment: Boolean
+  ): JsObject =
     Json
       .toJson(
         ImportVehicleAdditionalInformation(

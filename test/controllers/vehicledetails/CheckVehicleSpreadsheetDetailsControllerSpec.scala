@@ -21,11 +21,11 @@ import com.google.inject.name.Names
 import connectors.{GetUploadResultError, NovaImportsBackendConnector, UpdateSectionError}
 import controllers.actions.*
 import controllers.vehicledetails
-import models.responses.{DeleteFileUploadResponse, SpreadsheetEuVehicle, SpreadsheetNonEuVehicle, UploadResultResponse, ValidationError, VehicleSummary}
+import models.responses.{DeleteFileUploadResponse, SpreadsheetAgriculturalTractorEuVehicle, SpreadsheetAgriculturalTractorNonEuVehicle, SpreadsheetEuVehicle, SpreadsheetNonEuVehicle, UploadResultResponse, ValidationError, VehicleSummary}
 import models.{DraftId, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
-import org.mockito.Mockito.{never, verify, when}
+import org.mockito.Mockito.{never, times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.sections.initialquestions.VehicleFromEuPage
 import pages.sections.introduction.AmendSubmittedNotificationPage
@@ -120,6 +120,68 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
     reasonForClaimingRelief = None
   )
 
+  private val fullAgriculturalTractorEuVehicle = SpreadsheetAgriculturalTractorEuVehicle(
+    itemNumber = Some(1),
+    supplierBusinessPrivate = Some("business"),
+    supplierBusinessName = Some("business name"),
+    supplierTitle = None,
+    supplierFirstName = None,
+    supplierLastName = None,
+    addressLine1 = Some("Address 1"),
+    addressLine2 = Some("Address 2"),
+    addressLine3 = None,
+    addressLine4 = None,
+    addressLine5 = None,
+    postcode = None,
+    country = None,
+    supplierVatRegistered = Some(false),
+    euMemberState = None,
+    supplierVatNumber = None,
+    knownDateFirstRegistered = Some(false),
+    purchaseInvoice = Some(true),
+    purchaseInvoiceDate = Some(LocalDate.of(2026, 3, 30)),
+    purchaseInvoiceNumber = Some("1"),
+    pricePaid = Some(BigDecimal("100")),
+    currency = Some("USD"),
+    make = Some("Make"),
+    seriesModel = Some("Series (model)"),
+    versionDerivative = Some("Version (derivative)"),
+    brakeHorsepower = Some("154"),
+    vin = Some("123"),
+    dateArrivedInUk = Some(LocalDate.of(2026, 3, 30)),
+    mileage = Some("100000"),
+    mileageUnits = Some("KM"),
+    leftOrRightHandDrive = Some("RHD"),
+    totalValueOfOptions = Some(BigDecimal("10000")),
+    obtainedFromUnableToReclaimVat = Some(false),
+    soldUnderMarginScheme = Some(false),
+    claimingVatRelief = Some(false)
+  )
+
+  private val fullAgriculturalTractorNonEuVehicle = SpreadsheetAgriculturalTractorNonEuVehicle(
+    itemNumber = Some(1),
+    importEntryNumber = Some("123-123456A"),
+    importEntryDate = Some(LocalDate.of(2026, 3, 30)),
+    knownDateFirstRegistered = Some(true),
+    countryOfFirstRegistration = None,
+    dateOfFirstRegistration = Some(LocalDate.of(2010, 1, 1)),
+    make = Some("Make"),
+    seriesModel = Some("Series (model)"),
+    versionDerivative = Some("Version (derivative)"),
+    brakeHorsepower = Some("100"),
+    notificationReference = None,
+    vin = Some("1"),
+    dateArrivedInUk = Some(LocalDate.of(2026, 3, 1)),
+    commodityCode = Some("1234"),
+    mileage = Some("10000"),
+    mileageUnits = Some("MILES"),
+    leftOrRightHandDrive = Some("RHD"),
+    pricePaid = Some(BigDecimal("100")),
+    currency = Some("USD"),
+    claimingVatRelief = Some(false),
+    reasonForClaimingRelief = None
+  )
+
   private def validatedResult(vehicles: Seq[SpreadsheetEuVehicle], validationType: Option[String] = Some("CarsEu")) =
     UploadResultResponse(
       fileStatus = "VALIDATED",
@@ -127,6 +189,8 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
       vehicles = vehicles.map(v => VehicleSummary(v.itemNumber, v.vin, v.make, v.model)),
       euVehicles = vehicles,
       nonEuVehicles = Seq.empty,
+      agriculturalTractorEuVehicles = Seq.empty,
+      agriculturalTractorNonEuVehicles = Seq.empty,
       errors = Seq.empty
     )
 
@@ -137,6 +201,32 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
       vehicles = vehicles.map(v => VehicleSummary(v.itemNumber, v.vin, v.make, v.model)),
       euVehicles = Seq.empty,
       nonEuVehicles = vehicles,
+      agriculturalTractorEuVehicles = Seq.empty,
+      agriculturalTractorNonEuVehicles = Seq.empty,
+      errors = Seq.empty
+    )
+
+  private def validatedAgriculturalTractorEuResult(vehicles: Seq[SpreadsheetAgriculturalTractorEuVehicle]) =
+    UploadResultResponse(
+      fileStatus = "VALIDATED",
+      validationType = Some("AgriculturalTractorsEu"),
+      vehicles = vehicles.map(v => VehicleSummary(v.itemNumber, v.vin, v.make, None)),
+      euVehicles = Seq.empty,
+      nonEuVehicles = Seq.empty,
+      agriculturalTractorEuVehicles = vehicles,
+      agriculturalTractorNonEuVehicles = Seq.empty,
+      errors = Seq.empty
+    )
+
+  private def validatedAgriculturalTractorNonEuResult(vehicles: Seq[SpreadsheetAgriculturalTractorNonEuVehicle]) =
+    UploadResultResponse(
+      fileStatus = "VALIDATED",
+      validationType = Some("AgriculturalTractorsNonEu"),
+      vehicles = vehicles.map(v => VehicleSummary(v.itemNumber, v.vin, v.make, None)),
+      euVehicles = Seq.empty,
+      nonEuVehicles = Seq.empty,
+      agriculturalTractorEuVehicles = Seq.empty,
+      agriculturalTractorNonEuVehicles = vehicles,
       errors = Seq.empty
     )
 
@@ -270,8 +360,27 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
       }
     }
 
-    "must number a second vehicle as supplier 2" in {
+    "must group a second vehicle under the same supplier number when the supplier details are identical, numbering the vehicle by its row position" in {
       val secondVehicle = fullVehicle.copy(itemNumber = Some(2), make = Some("Make 2"))
+      val connector     = stubConnector()
+      when(connector.getUploadResult(eqTo(draftId))(using any[HeaderCarrier]))
+        .thenReturn(Future.successful(Right(validatedResult(Seq(fullVehicle, secondVehicle)))))
+
+      val application = applicationFor(Some(answers), connector)
+
+      running(application) {
+        val result = route(application, FakeRequest(POST, onSubmitRoute)).value
+
+        status(result) mustEqual SEE_OTHER
+        verify(connector, times(2)).updateDraftSection(eqTo(draftId), eqTo("supplier/1/details"), any[JsObject])(using any[HeaderCarrier])
+        verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/1/vehicle/1/details"), any[JsObject])(using any[HeaderCarrier])
+        verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/1/vehicle/2/details"), any[JsObject])(using any[HeaderCarrier])
+        verify(connector, never).updateDraftSection(eqTo(draftId), eqTo("supplier/2/details"), any[JsObject])(using any[HeaderCarrier])
+      }
+    }
+
+    "must allocate a new supplier number for a second vehicle with different supplier details, while still numbering the vehicle by its row position" in {
+      val secondVehicle = fullVehicle.copy(itemNumber = Some(2), make = Some("Make 2"), supplierBusinessName = Some("A different business"))
       val connector     = stubConnector()
       when(connector.getUploadResult(eqTo(draftId))(using any[HeaderCarrier]))
         .thenReturn(Future.successful(Right(validatedResult(Seq(fullVehicle, secondVehicle)))))
@@ -284,7 +393,9 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
         status(result) mustEqual SEE_OTHER
         verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/1/details"), any[JsObject])(using any[HeaderCarrier])
         verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/2/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/2/vehicle/1/details"), any[JsObject])(using any[HeaderCarrier])
+        verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/1/vehicle/1/details"), any[JsObject])(using any[HeaderCarrier])
+        verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/2/vehicle/2/details"), any[JsObject])(using any[HeaderCarrier])
+        verify(connector, never).updateDraftSection(eqTo(draftId), eqTo("supplier/2/vehicle/1/details"), any[JsObject])(using any[HeaderCarrier])
       }
     }
 
@@ -397,8 +508,27 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
       }
     }
 
-    "must number a second import vehicle as import 2" in {
+    "must group a second import vehicle under the same import number when the import details are identical, numbering the vehicle by its row position" in {
       val secondVehicle = fullNonEuVehicle.copy(itemNumber = Some(2), make = Some("Make 2"))
+      val connector     = stubConnector()
+      when(connector.getUploadResult(eqTo(draftId))(using any[HeaderCarrier]))
+        .thenReturn(Future.successful(Right(validatedNonEuResult(Seq(fullNonEuVehicle, secondVehicle)))))
+
+      val application = applicationFor(Some(answers), connector)
+
+      running(application) {
+        val result = route(application, FakeRequest(POST, onSubmitRoute)).value
+
+        status(result) mustEqual SEE_OTHER
+        verify(connector, times(2)).updateDraftSection(eqTo(draftId), eqTo("import/1/details"), any[JsObject])(using any[HeaderCarrier])
+        verify(connector).updateDraftSection(eqTo(draftId), eqTo("import/1/vehicle/1/details"), any[JsObject])(using any[HeaderCarrier])
+        verify(connector).updateDraftSection(eqTo(draftId), eqTo("import/1/vehicle/2/details"), any[JsObject])(using any[HeaderCarrier])
+        verify(connector, never).updateDraftSection(eqTo(draftId), eqTo("import/2/details"), any[JsObject])(using any[HeaderCarrier])
+      }
+    }
+
+    "must allocate a new import number for a second import vehicle with different import details, while still numbering the vehicle by its row position" in {
+      val secondVehicle = fullNonEuVehicle.copy(itemNumber = Some(2), make = Some("Make 2"), importEntryNumber = Some("999-999999Z"))
       val connector     = stubConnector()
       when(connector.getUploadResult(eqTo(draftId))(using any[HeaderCarrier]))
         .thenReturn(Future.successful(Right(validatedNonEuResult(Seq(fullNonEuVehicle, secondVehicle)))))
@@ -411,7 +541,119 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
         status(result) mustEqual SEE_OTHER
         verify(connector).updateDraftSection(eqTo(draftId), eqTo("import/1/details"), any[JsObject])(using any[HeaderCarrier])
         verify(connector).updateDraftSection(eqTo(draftId), eqTo("import/2/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("import/2/vehicle/1/details"), any[JsObject])(using any[HeaderCarrier])
+        verify(connector).updateDraftSection(eqTo(draftId), eqTo("import/1/vehicle/1/details"), any[JsObject])(using any[HeaderCarrier])
+        verify(connector).updateDraftSection(eqTo(draftId), eqTo("import/2/vehicle/2/details"), any[JsObject])(using any[HeaderCarrier])
+        verify(connector, never).updateDraftSection(eqTo(draftId), eqTo("import/2/vehicle/1/details"), any[JsObject])(using any[HeaderCarrier])
+      }
+    }
+
+    "must save a supplier and vehicle section set for a single-vehicle AgriculturalTractorsEu upload, using seriesModel/versionDerivative/brakeHorsePower and the AGRICULTURAL_TRACTOR vehicleType" in {
+      val connector = stubConnector()
+      when(connector.getUploadResult(eqTo(draftId))(using any[HeaderCarrier]))
+        .thenReturn(Future.successful(Right(validatedAgriculturalTractorEuResult(Seq(fullAgriculturalTractorEuVehicle)))))
+
+      val sessionRepository = stubSessionRepository()
+      val application       = applicationFor(Some(answers), connector, sessionRepository)
+      val typeCaptor        = ArgumentCaptor.forClass(classOf[JsObject])
+      val detailsCaptor     = ArgumentCaptor.forClass(classOf[JsObject])
+
+      running(application) {
+        val result = route(application, FakeRequest(POST, onSubmitRoute)).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.NotificationTaskListController.onPageLoad().url
+
+        verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/1/details"), any[JsObject])(using any[HeaderCarrier])
+        verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/1/vehicle/1/type"), typeCaptor.capture())(using any[HeaderCarrier])
+        verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/1/vehicle/1/details"), detailsCaptor.capture())(using any[HeaderCarrier])
+        verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/1/vehicle/1/additional-information"), any[JsObject])(using
+          any[HeaderCarrier]
+        )
+        verify(sessionRepository).setPage(eqTo(answers), eqTo(DraftVersionIdPage), eqTo(newVersion))(using any())
+        verify(connector).deleteFileUpload(eqTo(draftId))(using any[HeaderCarrier])
+
+        (typeCaptor.getValue \ "vehicleType").as[String] mustEqual "AGRICULTURAL_TRACTOR"
+
+        val vehicleDetails = detailsCaptor.getValue
+        (vehicleDetails \ "make").as[String] mustEqual "Make"
+        (vehicleDetails \ "seriesModel").as[String] mustEqual "Series (model)"
+        (vehicleDetails \ "versionDerivative").as[String] mustEqual "Version (derivative)"
+        (vehicleDetails \ "brakeHorsePower").as[String] mustEqual "154"
+        (vehicleDetails \ "model").asOpt[String] mustBe None
+        (vehicleDetails \ "bodyType").asOpt[String] mustBe None
+      }
+    }
+
+    "must save an import and vehicle section set for a single-vehicle AgriculturalTractorsNonEu upload, using seriesModel/versionDerivative/brakeHorsePower and the AGRICULTURAL_TRACTOR vehicleType" in {
+      val connector = stubConnector()
+      when(connector.getUploadResult(eqTo(draftId))(using any[HeaderCarrier]))
+        .thenReturn(Future.successful(Right(validatedAgriculturalTractorNonEuResult(Seq(fullAgriculturalTractorNonEuVehicle)))))
+
+      val sessionRepository = stubSessionRepository()
+      val application       = applicationFor(Some(answers), connector, sessionRepository)
+      val typeCaptor        = ArgumentCaptor.forClass(classOf[JsObject])
+      val detailsCaptor     = ArgumentCaptor.forClass(classOf[JsObject])
+
+      running(application) {
+        val result = route(application, FakeRequest(POST, onSubmitRoute)).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.NotificationTaskListController.onPageLoad().url
+
+        verify(connector).updateDraftSection(eqTo(draftId), eqTo("import/1/details"), any[JsObject])(using any[HeaderCarrier])
+        verify(connector).updateDraftSection(eqTo(draftId), eqTo("import/1/vehicle/1/type"), typeCaptor.capture())(using any[HeaderCarrier])
+        verify(connector).updateDraftSection(eqTo(draftId), eqTo("import/1/vehicle/1/details"), detailsCaptor.capture())(using any[HeaderCarrier])
+        verify(connector).updateDraftSection(eqTo(draftId), eqTo("import/1/vehicle/1/additional-information"), any[JsObject])(using
+          any[HeaderCarrier]
+        )
+        verify(sessionRepository).setPage(eqTo(answers), eqTo(DraftVersionIdPage), eqTo(newVersion))(using any())
+        verify(connector).deleteFileUpload(eqTo(draftId))(using any[HeaderCarrier])
+
+        (typeCaptor.getValue \ "vehicleType").as[String] mustEqual "AGRICULTURAL_TRACTOR"
+
+        val vehicleDetails = detailsCaptor.getValue
+        (vehicleDetails \ "make").as[String] mustEqual "Make"
+        (vehicleDetails \ "seriesModel").as[String] mustEqual "Series (model)"
+        (vehicleDetails \ "versionDerivative").as[String] mustEqual "Version (derivative)"
+        (vehicleDetails \ "brakeHorsePower").as[String] mustEqual "100"
+      }
+    }
+
+    "must group a second AgriculturalTractorsEu vehicle under the same supplier number when the supplier details are identical, numbering the vehicle by its row position" in {
+      val secondVehicle = fullAgriculturalTractorEuVehicle.copy(itemNumber = Some(2), make = Some("Make 2"))
+      val connector     = stubConnector()
+      when(connector.getUploadResult(eqTo(draftId))(using any[HeaderCarrier]))
+        .thenReturn(Future.successful(Right(validatedAgriculturalTractorEuResult(Seq(fullAgriculturalTractorEuVehicle, secondVehicle)))))
+
+      val application = applicationFor(Some(answers), connector)
+
+      running(application) {
+        val result = route(application, FakeRequest(POST, onSubmitRoute)).value
+
+        status(result) mustEqual SEE_OTHER
+        verify(connector, times(2)).updateDraftSection(eqTo(draftId), eqTo("supplier/1/details"), any[JsObject])(using any[HeaderCarrier])
+        verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/1/vehicle/1/details"), any[JsObject])(using any[HeaderCarrier])
+        verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/1/vehicle/2/details"), any[JsObject])(using any[HeaderCarrier])
+        verify(connector, never).updateDraftSection(eqTo(draftId), eqTo("supplier/2/details"), any[JsObject])(using any[HeaderCarrier])
+      }
+    }
+
+    "must group a second AgriculturalTractorsNonEu vehicle under the same import number when the import details are identical, numbering the vehicle by its row position" in {
+      val secondVehicle = fullAgriculturalTractorNonEuVehicle.copy(itemNumber = Some(2), make = Some("Make 2"))
+      val connector     = stubConnector()
+      when(connector.getUploadResult(eqTo(draftId))(using any[HeaderCarrier]))
+        .thenReturn(Future.successful(Right(validatedAgriculturalTractorNonEuResult(Seq(fullAgriculturalTractorNonEuVehicle, secondVehicle)))))
+
+      val application = applicationFor(Some(answers), connector)
+
+      running(application) {
+        val result = route(application, FakeRequest(POST, onSubmitRoute)).value
+
+        status(result) mustEqual SEE_OTHER
+        verify(connector, times(2)).updateDraftSection(eqTo(draftId), eqTo("import/1/details"), any[JsObject])(using any[HeaderCarrier])
+        verify(connector).updateDraftSection(eqTo(draftId), eqTo("import/1/vehicle/1/details"), any[JsObject])(using any[HeaderCarrier])
+        verify(connector).updateDraftSection(eqTo(draftId), eqTo("import/1/vehicle/2/details"), any[JsObject])(using any[HeaderCarrier])
+        verify(connector, never).updateDraftSection(eqTo(draftId), eqTo("import/2/details"), any[JsObject])(using any[HeaderCarrier])
       }
     }
 
@@ -465,6 +707,8 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
             UploadResultResponse(
               "VALIDATION_FAILED",
               Some("CarsEu"),
+              Seq.empty,
+              Seq.empty,
               Seq.empty,
               Seq.empty,
               Seq.empty,

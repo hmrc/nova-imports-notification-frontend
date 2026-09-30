@@ -16,27 +16,23 @@
 
 package controllers.notifieraddress
 
-import controllers.BaseController
 import controllers.actions.*
 import controllers.utils.IsDraftIdDefined
-import controllers.{notifieraddress, routes}
+import controllers.{BaseController, notifieraddress, routes}
 import models.NormalMode
 import models.requests.DataRequest
-import pages.sections.notifieraddress.{AddressJourneyIdPage, AddressPage}
+import pages.sections.notifieraddress.AddressPage
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import repositories.SessionRepository
 import views.html.YourAddressCheckYourAnswersView
 
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class YourAddressCheckYourAnswersController @Inject() (
   val controllerComponents: MessagesControllerComponents,
-  sessionRepository: SessionRepository,
   actions: Actions,
   view: YourAddressCheckYourAnswersView
-)(implicit ec: ExecutionContext)
-    extends BaseController {
+) extends BaseController {
 
   import YourAddressCheckYourAnswersController.*
 

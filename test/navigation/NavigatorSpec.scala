@@ -28,7 +28,7 @@ import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusi
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 import play.api.libs.json.Json
 import queries.AllVehiclesQuery
-import pages.sections.vehicledetails.{CountryOfFirstRegistrationPage, DateOfAvailabilityPage, DateOfFirstRegistrationPage, NoPurchaseInvoiceReasonPage, PurchaseInvoiceDatePage, PurchaseInvoiceNumberPage, TotalAmountPaidPage, VehicleDatesPage}
+import pages.sections.vehicledetails.{AddVehicleTypePage, CountryOfFirstRegistrationPage, DateOfAvailabilityPage, DateOfFirstRegistrationPage, NoPurchaseInvoiceReasonPage, PaymentCurrencyPage, PurchaseInvoiceDatePage, PurchaseInvoiceNumberPage, TotalAmountPaidPage, VehicleDatesPage}
 
 import java.time.LocalDate
 
@@ -690,10 +690,11 @@ class NavigatorSpec extends SpecBase {
           vehicledetails.routes.NoPurchaseInvoiceReasonController.onPageLoad(SupplierNumber(1), VehicleNumber(1), NormalMode)
       }
 
-      "must go from CountryOfFirstRegistrationPage to the landing page until the vehicle type page is built for a vehicle brought in under an import" in {
+      "must go from CountryOfFirstRegistrationPage AVD5.2 to AddVehicleType AVD8.0 for import 1 vehicle 1" in {
         val page = CountryOfFirstRegistrationPage(VehicleNumber(1))
         val ua   = importVehicle.unsafeSet(page, "FR")
-        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+          vehicledetails.routes.AddVehicleTypeController.importOnPageLoad(ImportNumber(1), VehicleNumber(1), NormalMode)
       }
 
       "must go from CountryOfFirstRegistrationPage to JourneyRecovery when no answer is found" in {
@@ -711,14 +712,49 @@ class NavigatorSpec extends SpecBase {
         navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
 
-      "must go from TotalAmountPaidPage AVD7.0 to LandingPage when an answer is entered" in {
-        val ua = userAnswers.set(TotalAmountPaidPage(VehicleNumber(1)), "15000").success.value
-        navigator.nextPage(
-          TotalAmountPaidPage(VehicleNumber(1)),
-          NormalMode,
-          ua,
-          NovaUserType.PrivateIndividual
-        ) mustBe routes.LandingPageController.onPageLoad() // TODO: update when AVD7.1 - Currency is built
+      "must go from TotalAmountPaidPage AVD7.0 to the supplier Currency AVD7.1 when the vehicle belongs to a supplier" in {
+        val page = TotalAmountPaidPage(VehicleNumber(1))
+        val ua   = supplierVehicle.unsafeSet(page, "15000")
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe
+          vehicledetails.routes.PaymentCurrencyController.supplierOnPageLoad(SupplierNumber(1), VehicleNumber(1), NormalMode)
+      }
+
+      "must go from TotalAmountPaidPage AVD7.0 to the import Currency AVD7.1 when the vehicle belongs to an import" in {
+        val page = TotalAmountPaidPage(VehicleNumber(1))
+        val ua   = importVehicle.unsafeSet(page, "15000")
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+          vehicledetails.routes.PaymentCurrencyController.importOnPageLoad(ImportNumber(1), VehicleNumber(1), NormalMode)
+      }
+
+      "must go from TotalAmountPaidPage AVD7.0 to JourneyRecovery when the vehicle has no supplier or import" in {
+        val page = TotalAmountPaidPage(VehicleNumber(1))
+        val ua   = userAnswers.unsafeSet(page, "15000")
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from PaymentCurrencyPage AVD7.1 to AddVehicleType AVD8.0 for supplier 1 vehicle 1" in {
+        val page = PaymentCurrencyPage(VehicleNumber(1))
+        val ua   = supplierVehicle.unsafeSet(page, "EUR")
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe
+          vehicledetails.routes.AddVehicleTypeController.supplierOnPageLoad(SupplierNumber(1), VehicleNumber(1), NormalMode)
+      }
+
+      "must go from PaymentCurrencyPage AVD7.1 to LandingPage when the vehicle belongs to an import" in {
+        val page = PaymentCurrencyPage(VehicleNumber(1))
+        val ua   = importVehicle.unsafeSet(page, "JPY")
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+          routes.LandingPageController.onPageLoad() // TODO: update when AVD10.8 is built
+      }
+
+      "must go from PaymentCurrencyPage AVD7.1 to JourneyRecovery when no answer is found" in {
+        navigator.nextPage(PaymentCurrencyPage(VehicleNumber(1)), NormalMode, supplierVehicle, NovaUserType.PrivateIndividual) mustBe
+          routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from PaymentCurrencyPage AVD7.1 to JourneyRecovery when the vehicle has no supplier or import" in {
+        val page = PaymentCurrencyPage(VehicleNumber(1))
+        val ua   = userAnswers.unsafeSet(page, "EUR")
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
 
       "must go from TotalAmountPaidPage AVD7.0 to JourneyRecovery when no answer is found" in {
@@ -727,6 +763,33 @@ class NavigatorSpec extends SpecBase {
           NormalMode,
           userAnswers,
           NovaUserType.PrivateIndividual
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from AddVehicleTypePage AVD8.0 to the landing page for supplier 1 vehicle 1 until C-AVD1.0 is built" in {
+        val page = AddVehicleTypePage(VehicleNumber(1))
+        val ua   = supplierVehicle.unsafeSet(page, AddVehicleType.Lcv)
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from AddVehicleTypePage AVD8.0 to the landing page for import 1 vehicle 1 until C-AVD1.0 is built" in {
+        val page = AddVehicleTypePage(VehicleNumber(1))
+        val ua   = importVehicle.unsafeSet(page, AddVehicleType.Lcv)
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from AddVehicleTypePage AVD8.0 to JourneyRecovery when the vehicle has no supplier or import" in {
+        val page = AddVehicleTypePage(VehicleNumber(1))
+        val ua   = userAnswers.unsafeSet(page, AddVehicleType.Lcv)
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from AddVehicleTypePage AVD8.0 to JourneyRecovery when no answer is found" in {
+        navigator.nextPage(
+          AddVehicleTypePage(VehicleNumber(1)),
+          NormalMode,
+          importVehicle,
+          NovaUserType.VatRegisteredOrganisation
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
 
@@ -1105,11 +1168,23 @@ class NavigatorSpec extends SpecBase {
             supplierConfirm
         }
 
-        "must go from TotalAmountPaidPage AVD7.0 to C-AVD1.0" in {
+        "must go from AddVehicleTypePage to the landing page till C-AVD1.0 page is built in checkmode" in {
+        val page = AddVehicleTypePage(VehicleNumber(1))
+        val ua   = importVehicle.unsafeSet(page, AddVehicleType.Hcv)
+        navigator.nextPage(page, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from TotalAmountPaidPage AVD7.0 to C-AVD1.0" in {
           navigator.nextPage(TotalAmountPaidPage(v), CheckMode, invoiceOnly, NovaUserType.VatRegisteredOrganisation) mustBe supplierConfirm
         }
 
-        "must go from DateOfFirstRegistrationPage AVD5.1 to AVD5.2 in check mode for an import vehicle without a country" in {
+        "must go from PaymentCurrencyPage AVD7.1 to the landing page until the vehicle details check your answers page is built" in {
+        val page = PaymentCurrencyPage(VehicleNumber(1))
+        val ua   = supplierVehicle.unsafeSet(page, "EUR")
+        navigator.nextPage(page, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from DateOfFirstRegistrationPage AVD5.1 to AVD5.2 in check mode for an import vehicle without a country" in {
           val ua = importVehicle.unsafeSet(DateOfFirstRegistrationPage(v), LocalDate.of(2026, 3, 1))
           navigator.nextPage(DateOfFirstRegistrationPage(v), CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
             vehicledetails.routes.CountryOfFirstRegistrationController.importOnPageLoad(i, v, CheckMode)

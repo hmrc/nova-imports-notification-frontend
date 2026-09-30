@@ -109,6 +109,16 @@ class CheckVehicleSpreadsheetDetailsViewSpec extends SpecBase with Matchers with
       html must include(msgs("checkVehicleSpreadsheetDetails.saveAndContinue"))
     }
 
+    "must render the save and continue button as a real submit button inside the form, not a link" in {
+      val doc  = Jsoup.parse(html)
+      val form = doc.select("form").first()
+      form.attr("action") mustEqual vehicledetails.routes.CheckVehicleSpreadsheetDetailsController.onSubmit().url
+
+      val saveAndContinue = form.select("button").asScala.find(_.text == msgs("checkVehicleSpreadsheetDetails.saveAndContinue")).value
+      saveAndContinue.tagName mustEqual "button"
+      saveAndContinue.hasAttr("href") mustBe false
+    }
+
     "must render the update spreadsheet link" in {
       html must include(msgs("checkVehicleSpreadsheetDetails.updateSpreadsheetLink"))
     }
