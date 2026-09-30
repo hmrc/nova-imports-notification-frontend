@@ -216,6 +216,9 @@ class UploadResultResponseSpec extends AnyFreeSpec with Matchers {
       result.nonEuVehicles mustBe Seq.empty
       result.agriculturalTractorNonEuVehicles mustBe Seq.empty
       result.agriculturalTractorEuVehicles must have size 1
+      result.vehicles                      must have size 1
+      result.vehicles.head.make mustBe Some("Make")
+      result.vehicles.head.model mustBe Some("Series (model)")
 
       val vehicle = result.agriculturalTractorEuVehicles.head
       vehicle.make mustBe Some("Make")
@@ -264,12 +267,128 @@ class UploadResultResponseSpec extends AnyFreeSpec with Matchers {
       result.nonEuVehicles mustBe Seq.empty
       result.agriculturalTractorEuVehicles mustBe Seq.empty
       result.agriculturalTractorNonEuVehicles must have size 1
+      result.vehicles                         must have size 1
+      result.vehicles.head.make mustBe Some("Make")
+      result.vehicles.head.model mustBe Some("Series (model)")
 
       val vehicle = result.agriculturalTractorNonEuVehicles.head
       vehicle.make mustBe Some("Make")
       vehicle.seriesModel mustBe Some("Series (model)")
       vehicle.versionDerivative mustBe Some("Version (derivative)")
       vehicle.brakeHorsepower mustBe Some("100")
+      vehicle.importEntryNumber mustBe Some("123-123456A")
+    }
+
+    "must read motorCaravansEuVehicles for a MotorCaravansEu response and leave the other lists empty" in {
+      val json = Json.parse(
+        """{
+          |  "fileStatus": "VALIDATED",
+          |  "validationType": "MotorCaravansEu",
+          |  "data": {
+          |    "vehicles": [
+          |      {
+          |        "itemNumber": 1,
+          |        "vin": "1",
+          |        "caravanMake": "Make of motor caravan",
+          |        "modelNameNumber": "Motor caravan body",
+          |        "caravanVersion": "Model name/number",
+          |        "caravanBody": "Motor caravan version",
+          |        "makeOfBaseVehicle": "Make of base vehicle",
+          |        "derivative": "Derivative",
+          |        "supplierBusinessPrivate": "business",
+          |        "addressLine1": "Address 1",
+          |        "supplierVatRegistered": false,
+          |        "purchaseInvoice": true,
+          |        "pricePaid": "100",
+          |        "currency": "USD",
+          |        "dateArrivedInUk": "2026-10-10",
+          |        "mileage": "100",
+          |        "mileageUnits": "miles",
+          |        "leftOrRightHandDrive": "LHD",
+          |        "totalValueOfOptions": "100",
+          |        "obtainedFromUnableToReclaimVat": false,
+          |        "soldUnderMarginScheme": false,
+          |        "claimingVatRelief": false
+          |      }
+          |    ]
+          |  },
+          |  "errors": []
+          |}""".stripMargin
+      )
+
+      val result = json.as[UploadResultResponse]
+
+      result.validationType mustBe Some("MotorCaravansEu")
+      result.euVehicles mustBe Seq.empty
+      result.nonEuVehicles mustBe Seq.empty
+      result.motorCaravansNonEuVehicles mustBe Seq.empty
+      result.motorCaravansEuVehicles must have size 1
+      result.vehicles                must have size 1
+      result.vehicles.head.make mustBe Some("Make of motor caravan")
+      result.vehicles.head.model mustBe Some("Motor caravan body")
+
+      val vehicle = result.motorCaravansEuVehicles.head
+      vehicle.caravanMake mustBe Some("Make of motor caravan")
+      vehicle.modelNameNumber mustBe Some("Motor caravan body")
+      vehicle.caravanVersion mustBe Some("Model name/number")
+      vehicle.caravanBody mustBe Some("Motor caravan version")
+      vehicle.makeOfBaseVehicle mustBe Some("Make of base vehicle")
+      vehicle.derivative mustBe Some("Derivative")
+      vehicle.pricePaid mustBe Some(BigDecimal("100"))
+    }
+
+    "must read motorCaravansNonEuVehicles for a MotorCaravansNonEu response and leave the other lists empty" in {
+      val json = Json.parse(
+        """{
+          |  "fileStatus": "VALIDATED",
+          |  "validationType": "MotorCaravansNonEu",
+          |  "data": {
+          |    "vehicles": [
+          |      {
+          |        "itemNumber": 1,
+          |        "vin": "1",
+          |        "caravanMake": "Make of motor caravan",
+          |        "modelNameNumber": "Motor caravan body",
+          |        "caravanVersion": "Model name / number",
+          |        "caravanBody": "Motor caravan version",
+          |        "makeOfBaseVehicle": "Make of base vehicle",
+          |        "derivative": "Derivative",
+          |        "importEntryNumber": "123-123456A",
+          |        "importEntryDate": "2026-10-10",
+          |        "knownDateFirstRegistered": false,
+          |        "dateArrivedInUk": "2026-10-10",
+          |        "commodityCode": "1234",
+          |        "mileage": "154",
+          |        "mileageUnits": "miles",
+          |        "leftOrRightHandDrive": "RHD",
+          |        "pricePaid": "125.00",
+          |        "currency": "USD",
+          |        "claimingVatRelief": false
+          |      }
+          |    ]
+          |  },
+          |  "errors": []
+          |}""".stripMargin
+      )
+
+      val result = json.as[UploadResultResponse]
+
+      result.validationType mustBe Some("MotorCaravansNonEu")
+      result.euVehicles mustBe Seq.empty
+      result.nonEuVehicles mustBe Seq.empty
+      result.motorCaravansEuVehicles mustBe Seq.empty
+      result.motorCaravansNonEuVehicles must have size 1
+      result.vehicles                   must have size 1
+      result.vehicles.head.make mustBe Some("Make of motor caravan")
+      result.vehicles.head.model mustBe Some("Motor caravan body")
+
+      val vehicle = result.motorCaravansNonEuVehicles.head
+      vehicle.caravanMake mustBe Some("Make of motor caravan")
+      vehicle.modelNameNumber mustBe Some("Motor caravan body")
+      vehicle.caravanVersion mustBe Some("Model name / number")
+      vehicle.caravanBody mustBe Some("Motor caravan version")
+      vehicle.makeOfBaseVehicle mustBe Some("Make of base vehicle")
+      vehicle.derivative mustBe Some("Derivative")
       vehicle.importEntryNumber mustBe Some("123-123456A")
     }
   }
