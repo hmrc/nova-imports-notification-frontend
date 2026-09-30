@@ -20,7 +20,6 @@ import base.SpecBase
 import controllers.{routes, supplierdetails}
 import forms.SupplierBusinessOrIndividualFormProvider
 import models.{BusinessOrPrivateIndividual, CheckMode, DraftId, NameDetails, NormalMode, SupplierNumber, UserAnswers}
-import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
@@ -31,7 +30,6 @@ import pages.sections.supplierdetails.{SupplierBusinessNamePage, SupplierBusines
 import play.api.libs.json.Json
 import queries.AllSuppliersQuery
 import play.api.inject.bind
-import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository

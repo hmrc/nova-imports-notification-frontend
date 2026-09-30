@@ -297,3 +297,12 @@ GET         /check-answers/purchaser-address/change                             
 
 GET         /delete-notification                                                         controllers.notification.DeleteCurrentNotificationController.onPageLoad()
 POST        /delete-notification                                                         controllers.notification.DeleteCurrentNotificationController.onSubmit()
+GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/vehicle-type                controllers.vehicledetails.AddVehicleTypeController.supplierOnPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/vehicle-type                controllers.vehicledetails.AddVehicleTypeController.supplierOnSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/vehicle-type/change         controllers.vehicledetails.AddVehicleTypeController.supplierOnPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
+POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/vehicle-type/change         controllers.vehicledetails.AddVehicleTypeController.supplierOnSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
+
+GET         /import/:importNumber/vehicle/:vehicleNumber/vehicle-type                    controllers.vehicledetails.AddVehicleTypeController.importOnPageLoad(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+POST        /import/:importNumber/vehicle/:vehicleNumber/vehicle-type                    controllers.vehicledetails.AddVehicleTypeController.importOnSubmit(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+GET         /import/:importNumber/vehicle/:vehicleNumber/vehicle-type/change             controllers.vehicledetails.AddVehicleTypeController.importOnPageLoad(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
+POST        /import/:importNumber/vehicle/:vehicleNumber/vehicle-type/change             controllers.vehicledetails.AddVehicleTypeController.importOnSubmit(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)

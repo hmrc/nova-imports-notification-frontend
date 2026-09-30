@@ -20,7 +20,7 @@ import base.SpecBase
 import connectors.{NovaImportsBackendConnector, UpdateSectionError}
 import controllers.supplierdetails.SupplierDetailsCheckYourAnswersControllerSpec.*
 import controllers.{routes, supplierdetails}
-import models.{Address, BusinessOrPrivateIndividual, CheckMode, Country, DraftId, EuMemberStates, NameDetails, SupplierNumber, UserAnswers, VatNumberDetails}
+import models.{Address, BusinessOrPrivateIndividual, Country, DraftId, EuMemberStates, NameDetails, SupplierNumber, UserAnswers, VatNumberDetails}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{atLeastOnce, verify, when}
