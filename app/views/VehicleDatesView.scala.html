@@ -46,22 +46,28 @@
                 legend = LegendViewModel(messages("vehicleDates.heading")).asPageHeading(LegendSize.Large),
                 items  = Seq(
                     CheckboxItemViewModel(
-                        content = Text(messages("vehicleDates.checkbox.availabilityAndFirstRegistration")),
+                        content = Text(messages("vehicleDates.checkbox.firstRegistration")),
                         fieldId = "value",
                         index   = 0,
-                        value   = VehicleDates.AvailabilityAndFirstRegistration.toString
+                        value   = VehicleDates.FirstRegistration.toString
+                    ).withHint(HintViewModel(Text(messages("vehicleDates.checkbox.firstRegistration.hint")))),
+                    CheckboxItemViewModel(
+                        content = Text(messages("vehicleDates.checkbox.madeAvailable")),
+                        fieldId = "value",
+                        index   = 1,
+                        value   = VehicleDates.MadeAvailable.toString
                     ),
                     CheckboxItemViewModel(
                         content = Text(messages("vehicleDates.checkbox.purchaseInvoiceDate")),
                         fieldId = "value",
-                        index   = 1,
+                        index   = 2,
                         value   = VehicleDates.PurchaseInvoiceDate.toString
-                    ),
+                    ).withHint(HintViewModel(Text(messages("vehicleDates.checkbox.purchaseInvoiceDate.hint")))),
                     CheckboxItem(divider = Some(messages("vehicleDates.or"))),
                     CheckboxItemViewModel(
                         content = Text(messages("vehicleDates.checkbox.noDates")),
                         fieldId = "value",
-                        index   = 2,
+                        index   = 3,
                         value   = VehicleDates.NoDates.toString
                     ).withBehaviour(ExclusiveCheckbox)
                 )

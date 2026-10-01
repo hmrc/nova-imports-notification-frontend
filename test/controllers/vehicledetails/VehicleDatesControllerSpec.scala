@@ -147,7 +147,7 @@ class VehicleDatesControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must save both date options when they are submitted together" in {
+    "must save every date option when they are submitted together" in {
 
       val (application, mockSessionRepository) = applicationWithMockRepository(userAnswersWithGuardData)
 
@@ -155,15 +155,16 @@ class VehicleDatesControllerSpec extends SpecBase with MockitoSugar {
         val request =
           FakeRequest(POST, vehicleDatesRoute)
             .withFormUrlEncodedBody(
-              ("value[]", VehicleDates.PurchaseInvoiceDate.toString),
-              ("value[]", VehicleDates.AvailabilityAndFirstRegistration.toString)
+              ("value[]", VehicleDates.FirstRegistration.toString),
+              ("value[]", VehicleDates.MadeAvailable.toString),
+              ("value[]", VehicleDates.PurchaseInvoiceDate.toString)
             )
 
         val result = route(application, request).value
         status(result) mustEqual SEE_OTHER
 
         savedAnswers(mockSessionRepository).get(VehicleDatesPage(supplierNumber, vehicleNumber)) mustEqual Some(
-          Set(VehicleDates.PurchaseInvoiceDate, VehicleDates.AvailabilityAndFirstRegistration)
+          Set(VehicleDates.FirstRegistration, VehicleDates.MadeAvailable, VehicleDates.PurchaseInvoiceDate)
         )
       }
     }
