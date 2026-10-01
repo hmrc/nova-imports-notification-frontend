@@ -74,14 +74,27 @@ class VehicleDatesViewSpec extends SpecBase with Matchers with BeforeAndAfterAll
       render() must include(msgs("vehicleDates.checkbox.purchaseInvoiceDate"))
     }
 
-    "must render the date of availability checkbox" in {
-      render() must include(msgs("vehicleDates.checkbox.availabilityAndFirstRegistration"))
-    }
-
-    "must list the date of availability checkbox before the purchase invoice date" in {
+    "must render the date of first registration checkbox with its hint" in {
       val html = render()
 
-      html.indexOf(msgs("vehicleDates.checkbox.availabilityAndFirstRegistration")) must be <
+      html must include(msgs("vehicleDates.checkbox.firstRegistration"))
+      html must include(msgs("vehicleDates.checkbox.firstRegistration.hint"))
+    }
+
+    "must render the date the vehicle was made available checkbox" in {
+      render() must include(msgs("vehicleDates.checkbox.madeAvailable"))
+    }
+
+    "must render a hint under the purchase invoice date checkbox" in {
+      render() must include(msgs("vehicleDates.checkbox.purchaseInvoiceDate.hint"))
+    }
+
+    "must list the dates in the order they are asked for" in {
+      val html = render()
+
+      html.indexOf(msgs("vehicleDates.checkbox.firstRegistration")) must be <
+        html.indexOf(msgs("vehicleDates.checkbox.madeAvailable"))
+      html.indexOf(msgs("vehicleDates.checkbox.madeAvailable")) must be <
         html.indexOf(msgs("vehicleDates.checkbox.purchaseInvoiceDate"))
     }
 
@@ -100,7 +113,7 @@ class VehicleDatesViewSpec extends SpecBase with Matchers with BeforeAndAfterAll
     "must give every checkbox the same name so the exclusive behaviour can find its siblings" in {
       val names = """name="([^"]+)"""".r.findAllMatchIn(render()).map(_.group(1)).filter(_.startsWith("value")).toSeq
 
-      names must have length 3
+      names must have length 4
       names.distinct mustEqual Seq("value[]")
     }
 

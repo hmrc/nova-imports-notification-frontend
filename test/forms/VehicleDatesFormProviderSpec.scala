@@ -22,8 +22,9 @@ import play.api.data.FormError
 
 class VehicleDatesFormProviderSpec extends CheckboxFieldBehaviours {
 
-  val requiredKey = "vehicleDates.error.required"
-  val invalidKey  = "error.invalid"
+  val requiredKey    = "vehicleDates.error.required"
+  val oneMoreDateKey = "vehicleDates.error.oneMoreDate"
+  val invalidKey     = "error.invalid"
 
   val form = new VehicleDatesFormProvider()()
 
@@ -31,10 +32,11 @@ class VehicleDatesFormProviderSpec extends CheckboxFieldBehaviours {
 
     val fieldName = "value"
 
+    // the other two options are only valid alongside a second date, so they are covered below
     behave like checkboxField[VehicleDates](
       form,
       fieldName,
-      validValues = VehicleDates.values.toSeq,
+      validValues = Seq(VehicleDates.PurchaseInvoiceDate, VehicleDates.NoDates),
       invalidError = FormError(s"$fieldName[0]", invalidKey)
     )
 
@@ -44,17 +46,44 @@ class VehicleDatesFormProviderSpec extends CheckboxFieldBehaviours {
       requiredKey
     )
 
-    "must bind both date options together" in {
+    "must bind any two dates together" in {
 
-      val result = form.bind(
-        Map(
-          s"$fieldName[0]" -> VehicleDates.PurchaseInvoiceDate.toString,
-          s"$fieldName[1]" -> VehicleDates.AvailabilityAndFirstRegistration.toString
-        )
+      val pairs = Seq(
+        Set(VehicleDates.FirstRegistration, VehicleDates.MadeAvailable),
+        Set(VehicleDates.FirstRegistration, VehicleDates.PurchaseInvoiceDate),
+        Set(VehicleDates.MadeAvailable, VehicleDates.PurchaseInvoiceDate)
       )
 
-      result.get mustEqual Set(VehicleDates.PurchaseInvoiceDate, VehicleDates.AvailabilityAndFirstRegistration)
+      pairs.foreach { dates =>
+        val result = form.bind(dates.toSeq.zipWithIndex.map { case (d, i) => s"$fieldName[$i]" -> d.toString }.toMap)
+
+        result.get mustEqual dates
+        result.errors mustBe empty
+      }
+    }
+
+    "must bind all three dates together" in {
+
+      val dates = Set(VehicleDates.FirstRegistration, VehicleDates.MadeAvailable, VehicleDates.PurchaseInvoiceDate)
+
+      val result = form.bind(dates.toSeq.zipWithIndex.map { case (d, i) => s"$fieldName[$i]" -> d.toString }.toMap)
+
+      result.get mustEqual dates
       result.errors mustBe empty
+    }
+
+    "must fail to bind the date of first registration on its own" in {
+
+      val result = form.bind(Map(s"$fieldName[0]" -> VehicleDates.FirstRegistration.toString))
+
+      result.errors must contain(FormError(fieldName, oneMoreDateKey))
+    }
+
+    "must fail to bind the date the vehicle was made available on its own" in {
+
+      val result = form.bind(Map(s"$fieldName[0]" -> VehicleDates.MadeAvailable.toString))
+
+      result.errors must contain(FormError(fieldName, oneMoreDateKey))
     }
 
     "must fail to bind when a date is selected alongside no dates" in {

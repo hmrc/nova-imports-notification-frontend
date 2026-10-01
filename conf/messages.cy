@@ -792,11 +792,15 @@ vehicleDates.title = Which dates do you have for the vehicle?
 vehicleDates.heading = Which dates do you have for the vehicle?
 vehicleDates.caption = Add vehicle details
 vehicleDates.hint = Select all that apply
-vehicleDates.error.required = Select if you have the date the vehicle was made available and date of first registration, purchase invoice date or none of these dates
+vehicleDates.error.required = Select the dates you have for the vehicle
+vehicleDates.error.oneMoreDate = You must select one more date
+vehicleDates.checkbox.firstRegistration = Date the vehicle was first registered
+vehicleDates.checkbox.firstRegistration.hint = You must also provide the country where the vehicle was first registered
+vehicleDates.checkbox.madeAvailable = Date the vehicle was made available
 vehicleDates.checkbox.purchaseInvoiceDate = Purchase invoice date
-vehicleDates.checkbox.availabilityAndFirstRegistration = Date the vehicle was made available and date of first registration
+vehicleDates.checkbox.purchaseInvoiceDate.hint = Select this only if you have a purchase invoice. You must also provide the purchase invoice number
 vehicleDates.or = or
-vehicleDates.checkbox.noDates = No, I do not have any of these dates
+vehicleDates.checkbox.noDates = I do not have any of these dates
 
 ##############################################################
 # AVD4.0 - Add vehicle details 4.0: Purchase invoice date    #
@@ -912,7 +916,7 @@ vehiclesBoughtFromSupplier.caption = Add vehicle details
 vehiclesBoughtFromSupplier.heading = Vehicles bought from {0}
 vehiclesBoughtFromSupplier.heading.noSupplierName = Vehicles bought from this supplier
 vehiclesBoughtFromSupplier.paragraph.1 = Add one vehicle at a time. For each vehicle, you must provide either the:
-vehiclesBoughtFromSupplier.bullet.1 = date the vehicle was made available to you and the date it was first registered for road use
+vehiclesBoughtFromSupplier.bullet.1 = date the vehicle was made available and the date it was first registered for road use
 vehiclesBoughtFromSupplier.bullet.2 = purchase invoice date
 vehiclesBoughtFromSupplier.inset.paragraph.1 = If you cannot provide any of these dates, You cannot continue this notification online. You need to {0}.
 vehiclesBoughtFromSupplier.inset.contactPersonalTransportUnit.linkText = contact HMRC Personal Transport Unit

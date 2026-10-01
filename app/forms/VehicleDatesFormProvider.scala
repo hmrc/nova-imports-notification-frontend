@@ -25,12 +25,13 @@ import play.api.data.validation.{Constraint, Invalid, Valid}
 
 class VehicleDatesFormProvider @Inject() extends Mappings {
 
-  private val requiredKey = "vehicleDates.error.required"
+  private val requiredKey    = "vehicleDates.error.required"
+  private val oneMoreDateKey = "vehicleDates.error.oneMoreDate"
 
   def apply(): Form[Set[VehicleDates]] =
     Form(
       "value" -> set(enumerable[VehicleDates](requiredKey))
-        .verifying(firstError(nonEmptySet(requiredKey), noDatesOnItsOwn(requiredKey)))
+        .verifying(firstError(nonEmptySet(requiredKey), noDatesOnItsOwn(requiredKey), needsASecondDate(oneMoreDateKey)))
     )
 
   // Backs up the exclusive checkbox behaviour for submissions without JavaScript
@@ -38,5 +39,12 @@ class VehicleDatesFormProvider @Inject() extends Mappings {
     Constraint {
       case dates if dates.contains(VehicleDates.NoDates) && dates.size > 1 => Invalid(errorKey)
       case _                                                               => Valid
+    }
+
+  private def needsASecondDate(errorKey: String): Constraint[Set[VehicleDates]] =
+    Constraint {
+      case dates if dates == Set(VehicleDates.FirstRegistration) => Invalid(errorKey)
+      case dates if dates == Set(VehicleDates.MadeAvailable)     => Invalid(errorKey)
+      case _                                                     => Valid
     }
 }
