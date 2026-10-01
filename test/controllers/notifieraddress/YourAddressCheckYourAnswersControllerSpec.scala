@@ -26,7 +26,6 @@ import org.scalatestplus.mockito.MockitoSugar
 import pages.DraftIdPage
 import pages.sections.notifieraddress.{AddressJourneyIdPage, AddressPage}
 import play.api.Application
-import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository

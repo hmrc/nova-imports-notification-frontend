@@ -1106,6 +1106,25 @@ paymentCurrency.import.heading = Enter the currency used to pay for the vehicle
 paymentCurrency.caption = Add vehicle details
 paymentCurrency.error.required = Enter the currency used to pay for the vehicle
 
+#####################################################
+# AVD8.0 - Add vehicle details 8.0: Vehicle type    #
+#####################################################
+
+addVehicleType.title = Which type of vehicle are you notifying HMRC about?
+addVehicleType.heading = Which type of vehicle are you notifying HMRC about?
+addVehicleType.caption = Add vehicle details
+addVehicleType.radio.tractor = Agricultural tractor
+addVehicleType.radio.car = Car
+addVehicleType.radio.plant = Construction, plant and machinery or special purpose vehicle
+addVehicleType.radio.hcv = Heavy commercial vehicle
+addVehicleType.radio.hcv.hint = Designed to carry goods and weighs more than 3,500kg (3.5 tonnes) when empty
+addVehicleType.radio.lcv = Light commercial vehicle
+addVehicleType.radio.motorcycle = Motorcycle, scooter or moped
+addVehicleType.radio.caravan = Motor caravan
+addVehicleType.error.required = Select which type of vehicle you are notifying HMRC about
+addVehicleType.checkYourAnswersLabel = Vehicle type
+addVehicleType.change.hidden = which type of vehicle you are notifying HMRC about
+
 ##################################################
 # UVS1.0 - Upload a vehicle spreadsheet 1.0      #
 ##################################################
@@ -1113,8 +1132,8 @@ paymentCurrency.error.required = Enter the currency used to pay for the vehicle
 uploadVehicleSpreadsheet.title = Upload vehicle spreadsheet
 uploadVehicleSpreadsheet.heading = Upload vehicle spreadsheet
 uploadVehicleSpreadsheet.caption = Add vehicle details
-uploadVehicleSpreadsheet.paragraph.1 = Add details for up to 100 vehicles of the same type in one notification. You must {0}.
-uploadVehicleSpreadsheet.useCorrectSpreadsheet.linkText = use the correct spreadsheet
+uploadVehicleSpreadsheet.paragraph.1 = Add details for up to 100 vehicles of the same type in one submission. You must {0}.
+uploadVehicleSpreadsheet.useCorrectSpreadsheet.linkText = use the correct spreadsheet for the vehicle type
 uploadVehicleSpreadsheet.label = Upload a file
 uploadVehicleSpreadsheet.hint = Must be an OpenDocument Spreadsheet (ODS) file
 uploadVehicleSpreadsheet.error.required = Select a file

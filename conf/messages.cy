@@ -977,6 +977,25 @@ countryOfFirstRegistration.caption = Add vehicle details
 countryOfFirstRegistration.hint = You can find this in the vehicle log book
 countryOfFirstRegistration.error.required = Enter the country where the vehicle was first registered
 
+#####################################################
+# AVD8.0 - Add vehicle details 8.0: Vehicle type    #
+#####################################################
+# TODO: Welsh translations to be supplied by content team.
+addVehicleType.title = Which type of vehicle are you notifying HMRC about?
+addVehicleType.heading = Which type of vehicle are you notifying HMRC about?
+addVehicleType.caption = Add vehicle details
+addVehicleType.radio.tractor = Agricultural tractor
+addVehicleType.radio.car = Car
+addVehicleType.radio.plant = Construction, plant and machinery or special purpose vehicle
+addVehicleType.radio.hcv = Heavy commercial vehicle
+addVehicleType.radio.hcv.hint = Designed to carry goods and weighs more than 3,500kg (3.5 tonnes) when empty
+addVehicleType.radio.lcv = Light commercial vehicle
+addVehicleType.radio.motorcycle = Motorcycle, scooter or moped
+addVehicleType.radio.caravan = Motor caravan
+addVehicleType.error.required = Select which type of vehicle you are notifying HMRC about
+addVehicleType.checkYourAnswersLabel = Vehicle type
+addVehicleType.change.hidden = which type of vehicle you are notifying HMRC about
+
 ##########################################################################
 # AVD7.1 - Add vehicle details 7.1: Currency                             #
 ##########################################################################
@@ -1029,7 +1048,7 @@ supplierAddressCheckYourAnswers.change.hidden = supplier’s address
 uploadVehicleSpreadsheet.title = Upload vehicle spreadsheet
 uploadVehicleSpreadsheet.heading = Upload vehicle spreadsheet
 uploadVehicleSpreadsheet.caption = Add vehicle details
-uploadVehicleSpreadsheet.paragraph.1 = Add details for up to 100 vehicles of the same type in one notification. You must {0}.
+uploadVehicleSpreadsheet.paragraph.1 = Add details for up to 100 vehicles of the same type in one submission. You must {0}.
 uploadVehicleSpreadsheet.useCorrectSpreadsheet.linkText = use the correct spreadsheet
 uploadVehicleSpreadsheet.label = Upload a file
 uploadVehicleSpreadsheet.hint = Must be an OpenDocument Spreadsheet (ODS) file

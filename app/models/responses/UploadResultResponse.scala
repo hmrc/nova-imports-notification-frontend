@@ -74,7 +74,12 @@ object ValidationError {
     "lcvBodyType"                    -> "Light commercial vehicle body type",
     "seriesModel"                    -> "Model",
     "versionDerivative"              -> "Version derivative",
-    "brakeHorsepower"                -> "Brake horsepower"
+    "brakeHorsepower"                -> "Brake horsepower",
+    "caravanMake"                    -> "Make of motor caravan",
+    "modelNameNumber"                -> "Model name or number",
+    "caravanVersion"                 -> "Motor caravan version",
+    "caravanBody"                    -> "Motor caravan body",
+    "makeOfBaseVehicle"              -> "Make of base vehicle"
   )
 
   private val indexSuffix = "\\[\\d+\\]$".r
@@ -99,6 +104,8 @@ final case class UploadResultResponse(
   nonEuVehicles: Seq[SpreadsheetNonEuVehicle],
   agriculturalTractorEuVehicles: Seq[SpreadsheetAgriculturalTractorEuVehicle],
   agriculturalTractorNonEuVehicles: Seq[SpreadsheetAgriculturalTractorNonEuVehicle],
+  motorCaravansEuVehicles: Seq[SpreadsheetMotorCaravansEuVehicle],
+  motorCaravansNonEuVehicles: Seq[SpreadsheetMotorCaravansNonEuVehicle],
   errors: Seq[ValidationError]
 )
 
@@ -109,10 +116,10 @@ object UploadResultResponse {
 
   implicit val reads: Reads[UploadResultResponse] = Reads { json =>
     for {
-      fileStatus     <- (json \ "fileStatus").validate[String]
-      validationType <- (json \ "validationType").validateOpt[String]
-      vehicles       <- (json \ "data" \ "vehicles").validateOpt[Seq[VehicleSummary]].map(_.getOrElse(Seq.empty))
-      errors         <- (json \ "errors").validateOpt[Seq[ValidationError]].map(_.getOrElse(Seq.empty))
+      fileStatus        <- (json \ "fileStatus").validate[String]
+      validationType    <- (json \ "validationType").validateOpt[String]
+      rawVehicleSummary <- (json \ "data" \ "vehicles").validateOpt[Seq[VehicleSummary]].map(_.getOrElse(Seq.empty))
+      errors            <- (json \ "errors").validateOpt[Seq[ValidationError]].map(_.getOrElse(Seq.empty))
     } yield {
       val rawVehicles = (json \ "data" \ "vehicles").asOpt[Seq[JsValue]].getOrElse(Seq.empty)
 
@@ -132,6 +139,32 @@ object UploadResultResponse {
         if (validationType.contains("AgriculturalTractorsNonEu")) rawVehicles.flatMap(_.validate[SpreadsheetAgriculturalTractorNonEuVehicle].asOpt)
         else Seq.empty
 
+      val motorCaravansEuVehicles =
+        if (validationType.contains("MotorCaravansEu")) rawVehicles.flatMap(_.validate[SpreadsheetMotorCaravansEuVehicle].asOpt)
+        else Seq.empty
+
+      val motorCaravansNonEuVehicles =
+        if (validationType.contains("MotorCaravansNonEu")) rawVehicles.flatMap(_.validate[SpreadsheetMotorCaravansNonEuVehicle].asOpt)
+        else Seq.empty
+
+      // the raw "vehicles" summary only ever carries the "make"/"model" JSON keys, which Cars/LightCommercial
+      // rows happen to use directly - other categories name these fields differently (e.g. Motor Caravans'
+      // caravanMake/modelNameNumber), so the summary is instead built from the already-typed, per-category
+      // list above and mapped onto the same two display columns
+      val vehicles: Seq[VehicleSummary] = validationType match {
+        case Some(t) if euValidationTypes.contains(t)    => euVehicles.map(v => VehicleSummary(v.itemNumber, v.vin, v.make, v.model))
+        case Some(t) if nonEuValidationTypes.contains(t) => nonEuVehicles.map(v => VehicleSummary(v.itemNumber, v.vin, v.make, v.model))
+        case Some("AgriculturalTractorsEu")              =>
+          agriculturalTractorEuVehicles.map(v => VehicleSummary(v.itemNumber, v.vin, v.make, v.seriesModel))
+        case Some("AgriculturalTractorsNonEu") =>
+          agriculturalTractorNonEuVehicles.map(v => VehicleSummary(v.itemNumber, v.vin, v.make, v.seriesModel))
+        case Some("MotorCaravansEu") =>
+          motorCaravansEuVehicles.map(v => VehicleSummary(v.itemNumber, v.vin, v.caravanMake, v.modelNameNumber))
+        case Some("MotorCaravansNonEu") =>
+          motorCaravansNonEuVehicles.map(v => VehicleSummary(v.itemNumber, v.vin, v.caravanMake, v.modelNameNumber))
+        case _ => rawVehicleSummary
+      }
+
       UploadResultResponse(
         fileStatus,
         validationType,
@@ -140,6 +173,8 @@ object UploadResultResponse {
         nonEuVehicles,
         agriculturalTractorEuVehicles,
         agriculturalTractorNonEuVehicles,
+        motorCaravansEuVehicles,
+        motorCaravansNonEuVehicles,
         errors
       )
     }
