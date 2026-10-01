@@ -172,12 +172,14 @@ class Navigator @Inject() () {
     case page: VehicleDatesPage =>
       (userAnswers, _) =>
         userAnswers.get(page) match {
-          case Some(dates) if dates.contains(VehicleDates.PurchaseInvoiceDate) =>
-            vehicledetails.routes.PurchaseInvoiceDateController.onPageLoad(page.supplierNumber, page.vehicleNumber, NormalMode)
-          case Some(dates) if dates.contains(VehicleDates.AvailabilityAndFirstRegistration) =>
-            vehicledetails.routes.DateOfAvailabilityController.onPageLoad(page.supplierNumber, page.vehicleNumber, NormalMode)
           case Some(dates) if dates.contains(VehicleDates.NoDates) =>
             vehicledetails.routes.NoVehicleDatesController.onPageLoad(page.supplierNumber, page.vehicleNumber)
+          case Some(dates) if dates.contains(VehicleDates.FirstRegistration) =>
+            vehicledetails.routes.DateOfFirstRegistrationController.supplierOnPageLoad(page.supplierNumber, page.vehicleNumber, NormalMode)
+          case Some(dates) if dates.contains(VehicleDates.MadeAvailable) =>
+            vehicledetails.routes.DateOfAvailabilityController.onPageLoad(page.supplierNumber, page.vehicleNumber, NormalMode)
+          case Some(dates) if dates.contains(VehicleDates.PurchaseInvoiceDate) =>
+            vehicledetails.routes.PurchaseInvoiceDateController.onPageLoad(page.supplierNumber, page.vehicleNumber, NormalMode)
           case _ => routes.JourneyRecoveryController.onPageLoad()
         }
     case page: PurchaseInvoiceDatePage =>
@@ -189,18 +191,18 @@ class Navigator @Inject() () {
         }
     case page: PurchaseInvoiceNumberPage =>
       (userAnswers, _) =>
-        (userAnswers.get(page), userAnswers.get(VehicleDatesPage(page.supplierNumber, page.vehicleNumber))) match {
-          case (Some(_), Some(dates)) if dates.contains(VehicleDates.AvailabilityAndFirstRegistration) =>
-            vehicledetails.routes.DateOfAvailabilityController.onPageLoad(page.supplierNumber, page.vehicleNumber, NormalMode)
-          case (Some(_), Some(dates)) if dates.contains(VehicleDates.PurchaseInvoiceDate) =>
+        userAnswers.get(page) match {
+          case Some(_) =>
             vehicledetails.routes.TotalAmountPaidController.onPageLoadSupplier(page.supplierNumber, page.vehicleNumber, NormalMode)
           case _ => routes.JourneyRecoveryController.onPageLoad()
         }
     case page: DateOfAvailabilityPage =>
       (userAnswers, _) =>
         userAnswers.get(page) match {
+          case Some(_) if purchaseInvoiceDateSelected(userAnswers, page.supplierNumber, page.vehicleNumber) =>
+            vehicledetails.routes.PurchaseInvoiceDateController.onPageLoad(page.supplierNumber, page.vehicleNumber, NormalMode)
           case Some(_) =>
-            vehicledetails.routes.DateOfFirstRegistrationController.supplierOnPageLoad(page.supplierNumber, page.vehicleNumber, NormalMode)
+            vehicledetails.routes.NoPurchaseInvoiceReasonController.onPageLoad(page.supplierNumber, page.vehicleNumber, NormalMode)
           case _ => routes.JourneyRecoveryController.onPageLoad()
         }
     case page: DateOfFirstRegistrationPage =>
@@ -224,10 +226,10 @@ class Navigator @Inject() () {
           userAnswers.vehicleSupplierNumber(page.vehicleNumber),
           userAnswers.vehicleImportNumber(page.vehicleNumber)
         ) match {
-          case (Some(_), Some(supplierNumber), _) if purchaseInvoiceDateSelected(userAnswers, supplierNumber, page.vehicleNumber) =>
-            vehicledetails.routes.TotalAmountPaidController.onPageLoadSupplier(supplierNumber, page.vehicleNumber, NormalMode)
+          case (Some(_), Some(supplierNumber), _) if madeAvailableSelected(userAnswers, supplierNumber, page.vehicleNumber) =>
+            vehicledetails.routes.DateOfAvailabilityController.onPageLoad(supplierNumber, page.vehicleNumber, NormalMode)
           case (Some(_), Some(supplierNumber), _) =>
-            vehicledetails.routes.NoPurchaseInvoiceReasonController.onPageLoad(supplierNumber, page.vehicleNumber, NormalMode)
+            vehicledetails.routes.PurchaseInvoiceDateController.onPageLoad(supplierNumber, page.vehicleNumber, NormalMode)
           case (Some(_), None, Some(importNumber)) =>
             vehicledetails.routes.AddVehicleTypeController.importOnPageLoad(importNumber, page.vehicleNumber, NormalMode)
           case _ => routes.JourneyRecoveryController.onPageLoad()
@@ -353,5 +355,11 @@ class Navigator @Inject() () {
   }
 
   private def purchaseInvoiceDateSelected(userAnswers: UserAnswers, supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber): Boolean =
-    userAnswers.get(VehicleDatesPage(supplierNumber, vehicleNumber)).exists(_.contains(VehicleDates.PurchaseInvoiceDate))
+    dateSelected(userAnswers, supplierNumber, vehicleNumber, VehicleDates.PurchaseInvoiceDate)
+
+  private def madeAvailableSelected(userAnswers: UserAnswers, supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber): Boolean =
+    dateSelected(userAnswers, supplierNumber, vehicleNumber, VehicleDates.MadeAvailable)
+
+  private def dateSelected(userAnswers: UserAnswers, supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, date: VehicleDates): Boolean =
+    userAnswers.get(VehicleDatesPage(supplierNumber, vehicleNumber)).exists(_.contains(date))
 }

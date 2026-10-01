@@ -17,8 +17,9 @@
 package models
 
 enum VehicleDates(val jsonValue: String) {
+  case FirstRegistration extends VehicleDates("firstRegistration")
+  case MadeAvailable extends VehicleDates("madeAvailable")
   case PurchaseInvoiceDate extends VehicleDates("purchaseInvoiceDate")
-  case AvailabilityAndFirstRegistration extends VehicleDates("availabilityAndFirstRegistration")
   case NoDates extends VehicleDates("noDates")
 
   override def toString: String = jsonValue
@@ -26,8 +27,9 @@ enum VehicleDates(val jsonValue: String) {
 
 object VehicleDates extends Enumerable.Implicits {
   given Enumerable[VehicleDates] = Enumerable(
-    PurchaseInvoiceDate.jsonValue              -> PurchaseInvoiceDate,
-    AvailabilityAndFirstRegistration.jsonValue -> AvailabilityAndFirstRegistration,
-    NoDates.jsonValue                          -> NoDates
+    FirstRegistration.jsonValue   -> FirstRegistration,
+    MadeAvailable.jsonValue       -> MadeAvailable,
+    PurchaseInvoiceDate.jsonValue -> PurchaseInvoiceDate,
+    NoDates.jsonValue             -> NoDates
   )
 }
