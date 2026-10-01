@@ -25,7 +25,7 @@ import models.responses.{DeleteFileUploadResponse, SpreadsheetAgriculturalTracto
 import models.{DraftId, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
-import org.mockito.Mockito.{never, times, verify, when}
+import org.mockito.Mockito.{never, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.sections.initialquestions.VehicleFromEuPage
 import pages.sections.introduction.AmendSubmittedNotificationPage
@@ -446,7 +446,7 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
 
   private def stubConnector(): NovaImportsBackendConnector = {
     val connector = mock[NovaImportsBackendConnector]
-    when(connector.updateDraftSection(eqTo(draftId), any[String], any[JsObject])(using any[HeaderCarrier]))
+    when(connector.replaceVehicleSections(eqTo(draftId), any[Map[String, JsObject]], any[Long])(using any[HeaderCarrier]))
       .thenReturn(Future.successful(Right(newVersion)))
     when(connector.deleteFileUpload(eqTo(draftId))(using any[HeaderCarrier]))
       .thenReturn(Future.successful(Right(DeleteFileUploadResponse(success = true))))
@@ -472,9 +472,15 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
       )
       .build()
 
+  private def captureSections(connector: NovaImportsBackendConnector): Map[String, JsObject] = {
+    val captor = ArgumentCaptor.forClass(classOf[Map[String, JsObject]])
+    verify(connector).replaceVehicleSections(eqTo(draftId), captor.capture(), eqTo(versionId))(using any[HeaderCarrier])
+    captor.getValue
+  }
+
   "CheckVehicleSpreadsheetDetailsController.onSubmit" - {
 
-    "must save a supplier and vehicle section set for a single-vehicle CarsEu upload, then redirect on and delete the upload record" in {
+    "must replace vehicle sections in one call for a single-vehicle CarsEu upload, then redirect on and delete the upload record" in {
       val connector = stubConnector()
       when(connector.getUploadResult(eqTo(draftId))(using any[HeaderCarrier]))
         .thenReturn(Future.successful(Right(validatedResult(Seq(fullVehicle)))))
@@ -488,11 +494,12 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.NotificationTaskListController.onPageLoad().url
 
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/1/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/1/vehicle/1/type"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/1/vehicle/1/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/1/vehicle/1/additional-information"), any[JsObject])(using
-          any[HeaderCarrier]
+        val sections = captureSections(connector)
+        sections.keySet mustEqual Set(
+          "supplier/1/details",
+          "supplier/1/vehicle/1/type",
+          "supplier/1/vehicle/1/details",
+          "supplier/1/vehicle/1/additional-information"
         )
         verify(sessionRepository).setPage(eqTo(answers), eqTo(DraftVersionIdPage), eqTo(newVersion))(using any())
         verify(connector).deleteFileUpload(eqTo(draftId))(using any[HeaderCarrier])
@@ -505,14 +512,11 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
         .thenReturn(Future.successful(Right(validatedResult(Seq(fullVehicle)))))
 
       val application = applicationFor(Some(answers), connector)
-      val captor      = ArgumentCaptor.forClass(classOf[JsObject])
 
       running(application) {
         route(application, FakeRequest(POST, onSubmitRoute)).value.futureValue
 
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/1/vehicle/1/details"), captor.capture())(using any[HeaderCarrier])
-
-        val body = captor.getValue
+        val body = captureSections(connector)("supplier/1/vehicle/1/details")
         (body \ "make").as[String] mustEqual "Make"
         (body \ "model").as[String] mustEqual "Model"
         (body \ "derivative").as[String] mustEqual "Derivative"
@@ -528,15 +532,11 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
 
       val amendmentAnswers = answers.unsafeSet(AmendSubmittedNotificationPage, true)
       val application      = applicationFor(Some(amendmentAnswers), connector)
-      val captor           = ArgumentCaptor.forClass(classOf[JsObject])
 
       running(application) {
         route(application, FakeRequest(POST, onSubmitRoute)).value.futureValue
 
-        verify(connector)
-          .updateDraftSection(eqTo(draftId), eqTo("supplier/1/vehicle/1/additional-information"), captor.capture())(using any[HeaderCarrier])
-
-        val body = captor.getValue
+        val body = captureSections(connector)("supplier/1/vehicle/1/additional-information")
         (body \ "dateArrivedInUk").as[String] mustEqual "30/03/2026"
         (body \ "vehicleIdNumber").as[String] mustEqual "123"
         (body \ "confirmVehicleIdNumber").as[String] mustEqual "123"
@@ -546,7 +546,7 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
       }
     }
 
-    "must save a supplier and vehicle section set for a single-vehicle LightCommercialVehiclesEu upload" in {
+    "must replace vehicle sections in one call for a single-vehicle LightCommercialVehiclesEu upload" in {
       val connector = stubConnector()
       when(connector.getUploadResult(eqTo(draftId))(using any[HeaderCarrier]))
         .thenReturn(Future.successful(Right(validatedResult(Seq(fullVehicle), validationType = Some("LightCommercialVehiclesEu")))))
@@ -559,11 +559,12 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.NotificationTaskListController.onPageLoad().url
 
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/1/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/1/vehicle/1/type"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/1/vehicle/1/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/1/vehicle/1/additional-information"), any[JsObject])(using
-          any[HeaderCarrier]
+        val sections = captureSections(connector)
+        sections.keySet mustEqual Set(
+          "supplier/1/details",
+          "supplier/1/vehicle/1/type",
+          "supplier/1/vehicle/1/details",
+          "supplier/1/vehicle/1/additional-information"
         )
       }
     }
@@ -580,10 +581,11 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
         val result = route(application, FakeRequest(POST, onSubmitRoute)).value
 
         status(result) mustEqual SEE_OTHER
-        verify(connector, times(2)).updateDraftSection(eqTo(draftId), eqTo("supplier/1/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/1/vehicle/1/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/1/vehicle/2/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector, never).updateDraftSection(eqTo(draftId), eqTo("supplier/2/details"), any[JsObject])(using any[HeaderCarrier])
+        val keys = captureSections(connector).keySet
+        keys must contain("supplier/1/details")
+        keys must contain("supplier/1/vehicle/1/details")
+        keys must contain("supplier/1/vehicle/2/details")
+        keys must not contain "supplier/2/details"
       }
     }
 
@@ -599,15 +601,16 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
         val result = route(application, FakeRequest(POST, onSubmitRoute)).value
 
         status(result) mustEqual SEE_OTHER
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/1/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/2/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/1/vehicle/1/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/2/vehicle/2/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector, never).updateDraftSection(eqTo(draftId), eqTo("supplier/2/vehicle/1/details"), any[JsObject])(using any[HeaderCarrier])
+        val keys = captureSections(connector).keySet
+        keys must contain("supplier/1/details")
+        keys must contain("supplier/2/details")
+        keys must contain("supplier/1/vehicle/1/details")
+        keys must contain("supplier/2/vehicle/2/details")
+        keys must not contain "supplier/2/vehicle/1/details"
       }
     }
 
-    "must save an import and vehicle section set for a single-vehicle LightCommercialVehiclesNonEu upload, then redirect on and delete the upload record" in {
+    "must replace vehicle sections in one call for a single-vehicle LightCommercialVehiclesNonEu upload, then redirect on and delete the upload record" in {
       val connector = stubConnector()
       when(connector.getUploadResult(eqTo(draftId))(using any[HeaderCarrier]))
         .thenReturn(Future.successful(Right(validatedNonEuResult(Seq(fullNonEuVehicle)))))
@@ -621,11 +624,12 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.NotificationTaskListController.onPageLoad().url
 
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("import/1/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("import/1/vehicle/1/type"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("import/1/vehicle/1/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("import/1/vehicle/1/additional-information"), any[JsObject])(using
-          any[HeaderCarrier]
+        val sections = captureSections(connector)
+        sections.keySet mustEqual Set(
+          "import/1/details",
+          "import/1/vehicle/1/type",
+          "import/1/vehicle/1/details",
+          "import/1/vehicle/1/additional-information"
         )
         verify(sessionRepository).setPage(eqTo(answers), eqTo(DraftVersionIdPage), eqTo(newVersion))(using any())
         verify(connector).deleteFileUpload(eqTo(draftId))(using any[HeaderCarrier])
@@ -637,28 +641,22 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
       when(connector.getUploadResult(eqTo(draftId))(using any[HeaderCarrier]))
         .thenReturn(Future.successful(Right(validatedNonEuResult(Seq(fullNonEuVehicle)))))
 
-      val application   = applicationFor(Some(answers), connector)
-      val detailsCaptor = ArgumentCaptor.forClass(classOf[JsObject])
-      val typeCaptor    = ArgumentCaptor.forClass(classOf[JsObject])
-      val vehicleCaptor = ArgumentCaptor.forClass(classOf[JsObject])
+      val application = applicationFor(Some(answers), connector)
 
       running(application) {
         route(application, FakeRequest(POST, onSubmitRoute)).value.futureValue
 
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("import/1/details"), detailsCaptor.capture())(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("import/1/vehicle/1/type"), typeCaptor.capture())(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("import/1/vehicle/1/details"), vehicleCaptor.capture())(using any[HeaderCarrier])
-
-        val importDetails = detailsCaptor.getValue
+        val sections      = captureSections(connector)
+        val importDetails = sections("import/1/details")
         (importDetails \ "importEntryNumber").as[String] mustEqual "123-123456A"
         (importDetails \ "importEntryDate").as[String] mustEqual "30/03/2026"
 
-        val vehicleType = typeCaptor.getValue
+        val vehicleType = sections("import/1/vehicle/1/type")
         (vehicleType \ "vehicleType").as[String] mustEqual "LCV"
         (vehicleType \ "dateRoadUseKnown").as[Boolean] mustEqual true
         (vehicleType \ "dateOfFirstRegistration").as[String] mustEqual "01/01/2010"
 
-        val vehicleDetails = vehicleCaptor.getValue
+        val vehicleDetails = sections("import/1/vehicle/1/details")
         (vehicleDetails \ "make").as[String] mustEqual "Make"
         (vehicleDetails \ "model").as[String] mustEqual "Model"
         (vehicleDetails \ "derivative").as[String] mustEqual "Derivative"
@@ -674,14 +672,11 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
         .thenReturn(Future.successful(Right(validatedNonEuResult(Seq(fullNonEuVehicle), validationType = Some("CarsNonEu")))))
 
       val application = applicationFor(Some(answers), connector)
-      val captor      = ArgumentCaptor.forClass(classOf[JsObject])
 
       running(application) {
         route(application, FakeRequest(POST, onSubmitRoute)).value.futureValue
 
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("import/1/vehicle/1/details"), captor.capture())(using any[HeaderCarrier])
-
-        val body = captor.getValue
+        val body = captureSections(connector)("import/1/vehicle/1/details")
         (body \ "bodyType").as[String] mustEqual "Light commercial vehicle body type"
         (body \ "lcvBodyType").asOpt[String] mustBe None
       }
@@ -694,15 +689,11 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
 
       val amendmentAnswers = answers.unsafeSet(AmendSubmittedNotificationPage, true)
       val application      = applicationFor(Some(amendmentAnswers), connector)
-      val captor           = ArgumentCaptor.forClass(classOf[JsObject])
 
       running(application) {
         route(application, FakeRequest(POST, onSubmitRoute)).value.futureValue
 
-        verify(connector)
-          .updateDraftSection(eqTo(draftId), eqTo("import/1/vehicle/1/additional-information"), captor.capture())(using any[HeaderCarrier])
-
-        val body = captor.getValue
+        val body = captureSections(connector)("import/1/vehicle/1/additional-information")
         (body \ "dateArrivedInUk").as[String] mustEqual "01/03/2026"
         (body \ "pricePaidForVehicleEntry").as[String] mustEqual "100"
         (body \ "leftOrRightHand").as[String] mustEqual "RHD"
@@ -728,10 +719,11 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
         val result = route(application, FakeRequest(POST, onSubmitRoute)).value
 
         status(result) mustEqual SEE_OTHER
-        verify(connector, times(2)).updateDraftSection(eqTo(draftId), eqTo("import/1/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("import/1/vehicle/1/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("import/1/vehicle/2/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector, never).updateDraftSection(eqTo(draftId), eqTo("import/2/details"), any[JsObject])(using any[HeaderCarrier])
+        val keys = captureSections(connector).keySet
+        keys must contain("import/1/details")
+        keys must contain("import/1/vehicle/1/details")
+        keys must contain("import/1/vehicle/2/details")
+        keys must not contain "import/2/details"
       }
     }
 
@@ -747,23 +739,22 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
         val result = route(application, FakeRequest(POST, onSubmitRoute)).value
 
         status(result) mustEqual SEE_OTHER
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("import/1/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("import/2/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("import/1/vehicle/1/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("import/2/vehicle/2/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector, never).updateDraftSection(eqTo(draftId), eqTo("import/2/vehicle/1/details"), any[JsObject])(using any[HeaderCarrier])
+        val keys = captureSections(connector).keySet
+        keys must contain("import/1/details")
+        keys must contain("import/2/details")
+        keys must contain("import/1/vehicle/1/details")
+        keys must contain("import/2/vehicle/2/details")
+        keys must not contain "import/2/vehicle/1/details"
       }
     }
 
-    "must save a supplier and vehicle section set for a single-vehicle AgriculturalTractorsEu upload, using seriesModel/versionDerivative/brakeHorsePower and the AGRICULTURAL_TRACTOR vehicleType" in {
+    "must replace vehicle sections in one call for a single-vehicle AgriculturalTractorsEu upload, using seriesModel/versionDerivative/brakeHorsePower and the AGRICULTURAL_TRACTOR vehicleType" in {
       val connector = stubConnector()
       when(connector.getUploadResult(eqTo(draftId))(using any[HeaderCarrier]))
         .thenReturn(Future.successful(Right(validatedAgriculturalTractorEuResult(Seq(fullAgriculturalTractorEuVehicle)))))
 
       val sessionRepository = stubSessionRepository()
       val application       = applicationFor(Some(answers), connector, sessionRepository)
-      val typeCaptor        = ArgumentCaptor.forClass(classOf[JsObject])
-      val detailsCaptor     = ArgumentCaptor.forClass(classOf[JsObject])
 
       running(application) {
         val result = route(application, FakeRequest(POST, onSubmitRoute)).value
@@ -771,18 +762,13 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.NotificationTaskListController.onPageLoad().url
 
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/1/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/1/vehicle/1/type"), typeCaptor.capture())(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/1/vehicle/1/details"), detailsCaptor.capture())(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/1/vehicle/1/additional-information"), any[JsObject])(using
-          any[HeaderCarrier]
-        )
+        val sections = captureSections(connector)
         verify(sessionRepository).setPage(eqTo(answers), eqTo(DraftVersionIdPage), eqTo(newVersion))(using any())
         verify(connector).deleteFileUpload(eqTo(draftId))(using any[HeaderCarrier])
 
-        (typeCaptor.getValue \ "vehicleType").as[String] mustEqual "AGRICULTURAL_TRACTOR"
+        (sections("supplier/1/vehicle/1/type") \ "vehicleType").as[String] mustEqual "AGRICULTURAL_TRACTOR"
 
-        val vehicleDetails = detailsCaptor.getValue
+        val vehicleDetails = sections("supplier/1/vehicle/1/details")
         (vehicleDetails \ "make").as[String] mustEqual "Make"
         (vehicleDetails \ "seriesModel").as[String] mustEqual "Series (model)"
         (vehicleDetails \ "versionDerivative").as[String] mustEqual "Version (derivative)"
@@ -792,15 +778,13 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
       }
     }
 
-    "must save an import and vehicle section set for a single-vehicle AgriculturalTractorsNonEu upload, using seriesModel/versionDerivative/brakeHorsePower and the AGRICULTURAL_TRACTOR vehicleType" in {
+    "must replace vehicle sections in one call for a single-vehicle AgriculturalTractorsNonEu upload, using seriesModel/versionDerivative/brakeHorsePower and the AGRICULTURAL_TRACTOR vehicleType" in {
       val connector = stubConnector()
       when(connector.getUploadResult(eqTo(draftId))(using any[HeaderCarrier]))
         .thenReturn(Future.successful(Right(validatedAgriculturalTractorNonEuResult(Seq(fullAgriculturalTractorNonEuVehicle)))))
 
       val sessionRepository = stubSessionRepository()
       val application       = applicationFor(Some(answers), connector, sessionRepository)
-      val typeCaptor        = ArgumentCaptor.forClass(classOf[JsObject])
-      val detailsCaptor     = ArgumentCaptor.forClass(classOf[JsObject])
 
       running(application) {
         val result = route(application, FakeRequest(POST, onSubmitRoute)).value
@@ -808,18 +792,13 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.NotificationTaskListController.onPageLoad().url
 
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("import/1/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("import/1/vehicle/1/type"), typeCaptor.capture())(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("import/1/vehicle/1/details"), detailsCaptor.capture())(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("import/1/vehicle/1/additional-information"), any[JsObject])(using
-          any[HeaderCarrier]
-        )
+        val sections = captureSections(connector)
         verify(sessionRepository).setPage(eqTo(answers), eqTo(DraftVersionIdPage), eqTo(newVersion))(using any())
         verify(connector).deleteFileUpload(eqTo(draftId))(using any[HeaderCarrier])
 
-        (typeCaptor.getValue \ "vehicleType").as[String] mustEqual "AGRICULTURAL_TRACTOR"
+        (sections("import/1/vehicle/1/type") \ "vehicleType").as[String] mustEqual "AGRICULTURAL_TRACTOR"
 
-        val vehicleDetails = detailsCaptor.getValue
+        val vehicleDetails = sections("import/1/vehicle/1/details")
         (vehicleDetails \ "make").as[String] mustEqual "Make"
         (vehicleDetails \ "seriesModel").as[String] mustEqual "Series (model)"
         (vehicleDetails \ "versionDerivative").as[String] mustEqual "Version (derivative)"
@@ -839,10 +818,11 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
         val result = route(application, FakeRequest(POST, onSubmitRoute)).value
 
         status(result) mustEqual SEE_OTHER
-        verify(connector, times(2)).updateDraftSection(eqTo(draftId), eqTo("supplier/1/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/1/vehicle/1/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/1/vehicle/2/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector, never).updateDraftSection(eqTo(draftId), eqTo("supplier/2/details"), any[JsObject])(using any[HeaderCarrier])
+        val keys = captureSections(connector).keySet
+        keys must contain("supplier/1/details")
+        keys must contain("supplier/1/vehicle/1/details")
+        keys must contain("supplier/1/vehicle/2/details")
+        keys must not contain "supplier/2/details"
       }
     }
 
@@ -858,22 +838,21 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
         val result = route(application, FakeRequest(POST, onSubmitRoute)).value
 
         status(result) mustEqual SEE_OTHER
-        verify(connector, times(2)).updateDraftSection(eqTo(draftId), eqTo("import/1/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("import/1/vehicle/1/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("import/1/vehicle/2/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector, never).updateDraftSection(eqTo(draftId), eqTo("import/2/details"), any[JsObject])(using any[HeaderCarrier])
+        val keys = captureSections(connector).keySet
+        keys must contain("import/1/details")
+        keys must contain("import/1/vehicle/1/details")
+        keys must contain("import/1/vehicle/2/details")
+        keys must not contain "import/2/details"
       }
     }
 
-    "must save a supplier and vehicle section set for a single-vehicle MotorCaravansEu upload, using the rotated caravan fields and the MOTOR_CARAVAN vehicleType" in {
+    "must replace vehicle sections in one call for a single-vehicle MotorCaravansEu upload, using the rotated caravan fields and the MOTOR_CARAVAN vehicleType" in {
       val connector = stubConnector()
       when(connector.getUploadResult(eqTo(draftId))(using any[HeaderCarrier]))
         .thenReturn(Future.successful(Right(validatedMotorCaravansEuResult(Seq(fullMotorCaravansEuVehicle)))))
 
       val sessionRepository = stubSessionRepository()
       val application       = applicationFor(Some(answers), connector, sessionRepository)
-      val typeCaptor        = ArgumentCaptor.forClass(classOf[JsObject])
-      val detailsCaptor     = ArgumentCaptor.forClass(classOf[JsObject])
 
       running(application) {
         val result = route(application, FakeRequest(POST, onSubmitRoute)).value
@@ -881,18 +860,13 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.NotificationTaskListController.onPageLoad().url
 
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/1/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/1/vehicle/1/type"), typeCaptor.capture())(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/1/vehicle/1/details"), detailsCaptor.capture())(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/1/vehicle/1/additional-information"), any[JsObject])(using
-          any[HeaderCarrier]
-        )
+        val sections = captureSections(connector)
         verify(sessionRepository).setPage(eqTo(answers), eqTo(DraftVersionIdPage), eqTo(newVersion))(using any())
         verify(connector).deleteFileUpload(eqTo(draftId))(using any[HeaderCarrier])
 
-        (typeCaptor.getValue \ "vehicleType").as[String] mustEqual "MOTOR_CARAVAN"
+        (sections("supplier/1/vehicle/1/type") \ "vehicleType").as[String] mustEqual "MOTOR_CARAVAN"
 
-        val vehicleDetails = detailsCaptor.getValue
+        val vehicleDetails = sections("supplier/1/vehicle/1/details")
         (vehicleDetails \ "caravanMake").as[String] mustEqual "Make of motor caravan"
         (vehicleDetails \ "modelNameNumber").as[String] mustEqual "Motor caravan body"
         (vehicleDetails \ "caravanVersion").as[String] mustEqual "Model name/number"
@@ -902,15 +876,13 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
       }
     }
 
-    "must save an import and vehicle section set for a single-vehicle MotorCaravansNonEu upload, using the rotated caravan fields and the MOTOR_CARAVAN vehicleType" in {
+    "must replace vehicle sections in one call for a single-vehicle MotorCaravansNonEu upload, using the rotated caravan fields and the MOTOR_CARAVAN vehicleType" in {
       val connector = stubConnector()
       when(connector.getUploadResult(eqTo(draftId))(using any[HeaderCarrier]))
         .thenReturn(Future.successful(Right(validatedMotorCaravansNonEuResult(Seq(fullMotorCaravansNonEuVehicle)))))
 
       val sessionRepository = stubSessionRepository()
       val application       = applicationFor(Some(answers), connector, sessionRepository)
-      val typeCaptor        = ArgumentCaptor.forClass(classOf[JsObject])
-      val detailsCaptor     = ArgumentCaptor.forClass(classOf[JsObject])
 
       running(application) {
         val result = route(application, FakeRequest(POST, onSubmitRoute)).value
@@ -918,18 +890,13 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.NotificationTaskListController.onPageLoad().url
 
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("import/1/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("import/1/vehicle/1/type"), typeCaptor.capture())(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("import/1/vehicle/1/details"), detailsCaptor.capture())(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("import/1/vehicle/1/additional-information"), any[JsObject])(using
-          any[HeaderCarrier]
-        )
+        val sections = captureSections(connector)
         verify(sessionRepository).setPage(eqTo(answers), eqTo(DraftVersionIdPage), eqTo(newVersion))(using any())
         verify(connector).deleteFileUpload(eqTo(draftId))(using any[HeaderCarrier])
 
-        (typeCaptor.getValue \ "vehicleType").as[String] mustEqual "MOTOR_CARAVAN"
+        (sections("import/1/vehicle/1/type") \ "vehicleType").as[String] mustEqual "MOTOR_CARAVAN"
 
-        val vehicleDetails = detailsCaptor.getValue
+        val vehicleDetails = sections("import/1/vehicle/1/details")
         (vehicleDetails \ "caravanMake").as[String] mustEqual "Make of motor caravan"
         (vehicleDetails \ "modelNameNumber").as[String] mustEqual "Motor caravan body"
         (vehicleDetails \ "caravanVersion").as[String] mustEqual "Model name / number"
@@ -951,10 +918,11 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
         val result = route(application, FakeRequest(POST, onSubmitRoute)).value
 
         status(result) mustEqual SEE_OTHER
-        verify(connector, times(2)).updateDraftSection(eqTo(draftId), eqTo("supplier/1/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/1/vehicle/1/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/1/vehicle/2/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector, never).updateDraftSection(eqTo(draftId), eqTo("supplier/2/details"), any[JsObject])(using any[HeaderCarrier])
+        val keys = captureSections(connector).keySet
+        keys must contain("supplier/1/details")
+        keys must contain("supplier/1/vehicle/1/details")
+        keys must contain("supplier/1/vehicle/2/details")
+        keys must not contain "supplier/2/details"
       }
     }
 
@@ -970,22 +938,21 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
         val result = route(application, FakeRequest(POST, onSubmitRoute)).value
 
         status(result) mustEqual SEE_OTHER
-        verify(connector, times(2)).updateDraftSection(eqTo(draftId), eqTo("import/1/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("import/1/vehicle/1/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("import/1/vehicle/2/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector, never).updateDraftSection(eqTo(draftId), eqTo("import/2/details"), any[JsObject])(using any[HeaderCarrier])
+        val keys = captureSections(connector).keySet
+        keys must contain("import/1/details")
+        keys must contain("import/1/vehicle/1/details")
+        keys must contain("import/1/vehicle/2/details")
+        keys must not contain "import/2/details"
       }
     }
 
-    "must save a supplier and vehicle section set for a single-vehicle HeavyCommercialVehiclesEu upload, using make/model/hcvType/cabType and the HCV vehicleType" in {
+    "must replace vehicle sections in one call for a single-vehicle HeavyCommercialVehiclesEu upload, using make/model/hcvType/cabType and the HCV vehicleType" in {
       val connector = stubConnector()
       when(connector.getUploadResult(eqTo(draftId))(using any[HeaderCarrier]))
         .thenReturn(Future.successful(Right(validatedHeavyCommercialEuResult(List(fullHeavyCommercialEuVehicle)))))
 
       val sessionRepository = stubSessionRepository()
       val application       = applicationFor(Some(answers), connector, sessionRepository)
-      val typeCaptor        = ArgumentCaptor.forClass(classOf[JsObject])
-      val detailsCaptor     = ArgumentCaptor.forClass(classOf[JsObject])
 
       running(application) {
         val result = route(application, FakeRequest(POST, onSubmitRoute)).value
@@ -993,18 +960,13 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.NotificationTaskListController.onPageLoad().url
 
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/1/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/1/vehicle/1/type"), typeCaptor.capture())(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/1/vehicle/1/details"), detailsCaptor.capture())(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/1/vehicle/1/additional-information"), any[JsObject])(using
-          any[HeaderCarrier]
-        )
+        val sections = captureSections(connector)
         verify(sessionRepository).setPage(eqTo(answers), eqTo(DraftVersionIdPage), eqTo(newVersion))(using any())
         verify(connector).deleteFileUpload(eqTo(draftId))(using any[HeaderCarrier])
 
-        (typeCaptor.getValue \ "vehicleType").as[String] mustEqual "HCV"
+        (sections("supplier/1/vehicle/1/type") \ "vehicleType").as[String] mustEqual "HCV"
 
-        val vehicleDetails = detailsCaptor.getValue
+        val vehicleDetails = sections("supplier/1/vehicle/1/details")
         (vehicleDetails \ "make").as[String] mustEqual "Make"
         (vehicleDetails \ "model").as[String] mustEqual "Model"
         (vehicleDetails \ "hcvType").as[String] mustEqual "Heavy commercial vehicle type"
@@ -1014,15 +976,13 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
       }
     }
 
-    "must save an import and vehicle section set for a single-vehicle HeavyCommercialVehiclesNonEu upload, using make/model/hcvType/cabType and the HCV vehicleType" in {
+    "must replace vehicle sections in one call for a single-vehicle HeavyCommercialVehiclesNonEu upload, using make/model/hcvType/cabType and the HCV vehicleType" in {
       val connector = stubConnector()
       when(connector.getUploadResult(eqTo(draftId))(using any[HeaderCarrier]))
         .thenReturn(Future.successful(Right(validatedHeavyCommercialNonEuResult(List(fullHeavyCommercialNonEuVehicle)))))
 
       val sessionRepository = stubSessionRepository()
       val application       = applicationFor(Some(answers), connector, sessionRepository)
-      val typeCaptor        = ArgumentCaptor.forClass(classOf[JsObject])
-      val detailsCaptor     = ArgumentCaptor.forClass(classOf[JsObject])
 
       running(application) {
         val result = route(application, FakeRequest(POST, onSubmitRoute)).value
@@ -1030,19 +990,14 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.NotificationTaskListController.onPageLoad().url
 
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("import/1/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("import/1/vehicle/1/type"), typeCaptor.capture())(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("import/1/vehicle/1/details"), detailsCaptor.capture())(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("import/1/vehicle/1/additional-information"), any[JsObject])(using
-          any[HeaderCarrier]
-        )
+        val sections = captureSections(connector)
         verify(sessionRepository).setPage(eqTo(answers), eqTo(DraftVersionIdPage), eqTo(newVersion))(using any())
         verify(connector).deleteFileUpload(eqTo(draftId))(using any[HeaderCarrier])
 
-        (typeCaptor.getValue \ "vehicleType").as[String] mustEqual "HCV"
-        (typeCaptor.getValue \ "dateOfFirstRegistration").as[String] mustEqual "01/01/2010"
+        (sections("import/1/vehicle/1/type") \ "vehicleType").as[String] mustEqual "HCV"
+        (sections("import/1/vehicle/1/type") \ "dateOfFirstRegistration").as[String] mustEqual "01/01/2010"
 
-        val vehicleDetails = detailsCaptor.getValue
+        val vehicleDetails = sections("import/1/vehicle/1/details")
         (vehicleDetails \ "make").as[String] mustEqual "Make"
         (vehicleDetails \ "model").as[String] mustEqual "Model"
         (vehicleDetails \ "hcvType").as[String] mustEqual "Heavy commercial vehicle type"
@@ -1063,10 +1018,11 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
         val result = route(application, FakeRequest(POST, onSubmitRoute)).value
 
         status(result) mustEqual SEE_OTHER
-        verify(connector, times(2)).updateDraftSection(eqTo(draftId), eqTo("supplier/1/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/1/vehicle/1/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("supplier/1/vehicle/2/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector, never).updateDraftSection(eqTo(draftId), eqTo("supplier/2/details"), any[JsObject])(using any[HeaderCarrier])
+        val keys = captureSections(connector).keySet
+        keys must contain("supplier/1/details")
+        keys must contain("supplier/1/vehicle/1/details")
+        keys must contain("supplier/1/vehicle/2/details")
+        keys must not contain "supplier/2/details"
       }
     }
 
@@ -1082,20 +1038,19 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
         val result = route(application, FakeRequest(POST, onSubmitRoute)).value
 
         status(result) mustEqual SEE_OTHER
-        verify(connector, times(2)).updateDraftSection(eqTo(draftId), eqTo("import/1/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("import/1/vehicle/1/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector).updateDraftSection(eqTo(draftId), eqTo("import/1/vehicle/2/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector, never).updateDraftSection(eqTo(draftId), eqTo("import/2/details"), any[JsObject])(using any[HeaderCarrier])
+        val keys = captureSections(connector).keySet
+        keys must contain("import/1/details")
+        keys must contain("import/1/vehicle/1/details")
+        keys must contain("import/1/vehicle/2/details")
+        keys must not contain "import/2/details"
       }
     }
 
-    "must stop and redirect to Journey Recovery, without saving later sections or deleting the upload, when a section save fails" in {
+    "must stop and redirect to Journey Recovery, without deleting the upload, when the bulk replace call fails" in {
       val connector = stubConnector()
       when(connector.getUploadResult(eqTo(draftId))(using any[HeaderCarrier]))
         .thenReturn(Future.successful(Right(validatedResult(Seq(fullVehicle)))))
-      when(connector.updateDraftSection(eqTo(draftId), eqTo("supplier/1/details"), any[JsObject])(using any[HeaderCarrier]))
-        .thenReturn(Future.successful(Right(newVersion)))
-      when(connector.updateDraftSection(eqTo(draftId), eqTo("supplier/1/vehicle/1/type"), any[JsObject])(using any[HeaderCarrier]))
+      when(connector.replaceVehicleSections(eqTo(draftId), any[Map[String, JsObject]], any[Long])(using any[HeaderCarrier]))
         .thenReturn(Future.successful(Left(UpdateSectionError.UpstreamError(502, "boom"))))
 
       val application = applicationFor(Some(answers), connector)
@@ -1106,10 +1061,6 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
 
-        verify(connector, never)
-          .updateDraftSection(eqTo(draftId), eqTo("supplier/1/vehicle/1/details"), any[JsObject])(using any[HeaderCarrier])
-        verify(connector, never)
-          .updateDraftSection(eqTo(draftId), eqTo("supplier/1/vehicle/1/additional-information"), any[JsObject])(using any[HeaderCarrier])
         verify(connector, never).deleteFileUpload(any[DraftId])(using any[HeaderCarrier])
       }
     }
@@ -1126,7 +1077,7 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
-        verify(connector, never).updateDraftSection(any[DraftId], any[String], any[JsObject])(using any[HeaderCarrier])
+        verify(connector, never).replaceVehicleSections(any[DraftId], any[Map[String, JsObject]], any[Long])(using any[HeaderCarrier])
         verify(connector, never).deleteFileUpload(any[DraftId])(using any[HeaderCarrier])
       }
     }
@@ -1161,7 +1112,7 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual vehicledetails.routes.CheckVehicleSpreadsheetErrorsController.onPageLoad().url
-        verify(connector, never).updateDraftSection(any[DraftId], any[String], any[JsObject])(using any[HeaderCarrier])
+        verify(connector, never).replaceVehicleSections(any[DraftId], any[Map[String, JsObject]], any[Long])(using any[HeaderCarrier])
       }
     }
 
