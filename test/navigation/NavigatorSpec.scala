@@ -17,18 +17,17 @@
 package navigation
 
 import base.SpecBase
-import controllers.{initialquestions, notifierdetails, purchaserdetails, routes, supplierdetails, vehicledetails}
-import pages.*
+import controllers.*
 import models.*
-import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, NotifyingAsPurchaserPage, PurchaserBusinessOrIndividualPage, VehicleBusinessUsePage, VehicleFromEuPage}
-import pages.sections.notifierdetails.{AboutYourDetailsPage, BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
-import pages.sections.vehicledetails.{AddImportVehicleDetailsPage, AddVehicleDetailsPage}
-import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
-import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierVatRegistrationNumberPage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
+import pages.*
+import pages.sections.initialquestions.*
+import pages.sections.notifierdetails.*
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
+import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
+import pages.sections.supplierdetails.*
+import pages.sections.vehicledetails.*
 import play.api.libs.json.Json
 import queries.AllVehiclesQuery
-import pages.sections.vehicledetails.{AddVehicleDetailsCarPage, AddVehicleTypePage, CountryOfFirstRegistrationPage, DateOfAvailabilityPage, DateOfFirstRegistrationKnownPage, DateOfFirstRegistrationPage, NoPurchaseInvoiceReasonPage, PaymentCurrencyPage, PurchaseInvoiceDatePage, PurchaseInvoiceNumberPage, TotalAmountPaidPage, VehicleDatesPage}
 
 import java.time.LocalDate
 
@@ -1248,7 +1247,21 @@ class NavigatorSpec extends SpecBase {
           navigator.nextPage(AddVehicleTypePage(v), CheckMode, importComplete, NovaUserType.VatRegisteredOrganisation) mustBe importConfirm
         }
 
-        "must go from AddVehicleDetailsCarPage AVD8.1 to the landing page until the vehicle details check your answers page is built" in {
+        "must go from AddVehicleDetailsCarPage AVD8.1 to C-AVD1.0 for a supplier vehicle" in {
+          val page = AddVehicleDetailsCarPage(v)
+          val ua   = invoiceOnly.unsafeSet(page, AddVehicleDetailsCar("Land Rover", "Discovery 4", "3.0TD", "XS", "station wagon"))
+          navigator.nextPage(page, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe supplierConfirm
+        }
+
+        "must go from AddVehicleDetailsCarPage AVD8.1 to C-AVD1.0 for an import vehicle" in {
+          val page = AddVehicleDetailsCarPage(v)
+          val ua   = importComplete
+            .unsafeSet(AddVehicleTypePage(v), AddVehicleType.Car)
+            .unsafeSet(page, AddVehicleDetailsCar("Land Rover", "Discovery 4", "3.0TD", "XS", "station wagon"))
+          navigator.nextPage(page, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe importConfirm
+        }
+
+        "must go from AddVehicleDetailsCarPage AVD8.1 to the landing page for an import vehicle still missing an earlier answer" in {
           val page = AddVehicleDetailsCarPage(v)
           val ua   = importVehicle.unsafeSet(page, AddVehicleDetailsCar("Land Rover", "Discovery 4", "3.0TD", "XS", "station wagon"))
           navigator.nextPage(page, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
