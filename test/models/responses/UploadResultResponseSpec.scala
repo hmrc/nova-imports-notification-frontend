@@ -20,6 +20,8 @@ import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import play.api.libs.json.Json
 
+import java.time.LocalDate
+
 class UploadResultResponseSpec extends AnyFreeSpec with Matchers {
 
   "UploadResultResponse.reads" - {
@@ -390,6 +392,117 @@ class UploadResultResponseSpec extends AnyFreeSpec with Matchers {
       vehicle.makeOfBaseVehicle mustBe Some("Make of base vehicle")
       vehicle.derivative mustBe Some("Derivative")
       vehicle.importEntryNumber mustBe Some("123-123456A")
+    }
+
+    "must read heavyCommercialEuVehicles for a HeavyCommercialVehiclesEu response and leave the other lists empty" in {
+      val json = Json.parse(
+        """{
+          |  "fileStatus": "VALIDATED",
+          |  "validationType": "HeavyCommercialVehiclesEu",
+          |  "data": {
+          |    "vehicles": [
+          |      {
+          |        "itemNumber": 1,
+          |        "vin": "1",
+          |        "make": "Make",
+          |        "model": "Model",
+          |        "heavyCommercialVehicleType": "Heavy commercial vehicle type",
+          |        "cabType": "Cab type",
+          |        "supplierBusinessPrivate": "business",
+          |        "addressLine1": "address 1",
+          |        "supplierVatRegistered": false,
+          |        "purchaseInvoice": true,
+          |        "purchaseInvoiceDate": "2026-01-01",
+          |        "purchaseInvoiceNumber": "1",
+          |        "pricePaid": "10.00",
+          |        "currency": "USD",
+          |        "dateArrivedInUk": "2026-01-01",
+          |        "mileage": "10",
+          |        "mileageUnits": "miles",
+          |        "leftOrRightHandDrive": "LHD",
+          |        "totalValueOfOptions": "10.00",
+          |        "obtainedFromUnableToReclaimVat": false,
+          |        "soldUnderMarginScheme": false,
+          |        "claimingVatRelief": false
+          |      }
+          |    ]
+          |  },
+          |  "errors": []
+          |}""".stripMargin
+      )
+
+      val result = json.as[UploadResultResponse]
+
+      result.validationType mustBe Some("HeavyCommercialVehiclesEu")
+      result.euVehicles mustBe List.empty
+      result.nonEuVehicles mustBe List.empty
+      result.agriculturalTractorEuVehicles mustBe List.empty
+      result.motorCaravansEuVehicles mustBe List.empty
+      result.heavyCommercialNonEuVehicles mustBe List.empty
+      result.heavyCommercialEuVehicles must have size 1
+      result.vehicles                  must have size 1
+      result.vehicles.head.make mustBe Some("Make")
+      result.vehicles.head.model mustBe Some("Model")
+
+      val vehicle = result.heavyCommercialEuVehicles.head
+      vehicle.make mustBe Some("Make")
+      vehicle.model mustBe Some("Model")
+      vehicle.heavyCommercialVehicleType mustBe Some("Heavy commercial vehicle type")
+      vehicle.cabType mustBe Some("Cab type")
+      vehicle.pricePaid mustBe Some(BigDecimal("10.00"))
+      vehicle.dateArrivedInUk mustBe Some(LocalDate.of(2026, 1, 1))
+    }
+
+    "must read heavyCommercialNonEuVehicles for a HeavyCommercialVehiclesNonEu response and leave the other lists empty" in {
+      val json = Json.parse(
+        """{
+          |  "fileStatus": "VALIDATED",
+          |  "validationType": "HeavyCommercialVehiclesNonEu",
+          |  "data": {
+          |    "vehicles": [
+          |      {
+          |        "itemNumber": 1,
+          |        "importEntryNumber": "123-123456A",
+          |        "importEntryDate": "2026-01-01",
+          |        "knownDateFirstRegistered": false,
+          |        "make": "Make",
+          |        "model": "Model",
+          |        "heavyCommercialVehicleType": "Heavy commercial vehicle type",
+          |        "cabType": "Cab type",
+          |        "vin": "1",
+          |        "dateArrivedInUk": "2026-01-01",
+          |        "commodityCode": "1234",
+          |        "mileage": "10",
+          |        "mileageUnits": "km",
+          |        "leftOrRightHandDrive": "LHD",
+          |        "pricePaid": "10.00",
+          |        "currency": "USD",
+          |        "claimingVatRelief": false
+          |      }
+          |    ]
+          |  },
+          |  "errors": []
+          |}""".stripMargin
+      )
+
+      val result = json.as[UploadResultResponse]
+
+      result.validationType mustBe Some("HeavyCommercialVehiclesNonEu")
+      result.euVehicles mustBe List.empty
+      result.nonEuVehicles mustBe List.empty
+      result.agriculturalTractorNonEuVehicles mustBe List.empty
+      result.motorCaravansNonEuVehicles mustBe List.empty
+      result.heavyCommercialEuVehicles mustBe List.empty
+      result.heavyCommercialNonEuVehicles must have size 1
+      result.vehicles                     must have size 1
+      result.vehicles.head.make mustBe Some("Make")
+      result.vehicles.head.model mustBe Some("Model")
+
+      val vehicle = result.heavyCommercialNonEuVehicles.head
+      vehicle.importEntryNumber mustBe Some("123-123456A")
+      vehicle.commodityCode mustBe Some("1234")
+      vehicle.heavyCommercialVehicleType mustBe Some("Heavy commercial vehicle type")
+      vehicle.cabType mustBe Some("Cab type")
     }
   }
 }
