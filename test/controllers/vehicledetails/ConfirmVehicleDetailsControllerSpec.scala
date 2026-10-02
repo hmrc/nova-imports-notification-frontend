@@ -329,6 +329,7 @@ class ConfirmVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
             "purchaseInvoiceNumber"     -> "INV-001",
             "purchaseInvoiceDate"       -> "27/03/2026",
             "pricePaidForVehicle"       -> "45000",
+            "fromSupplier"              -> true,
             "versionId"                 -> 3L
           )
           verify(repository).setPage(any(), eqTo(DraftVersionIdPage), eqTo(4L))(any())
@@ -355,6 +356,7 @@ class ConfirmVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
             "dateOfFirstRegistration"     -> "01/03/2026",
             "countryOfFirstRegistration"  -> "FR",
             "noPurchaserInvoiceReasonMax" -> "No invoice was issued",
+            "fromSupplier"                -> true,
             "versionId"                   -> 3L
           )
         }
@@ -382,6 +384,7 @@ class ConfirmVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
             "dateMadeAvailableYou"       -> "27/03/2026",
             "dateOfFirstRegistration"    -> "01/03/2026",
             "countryOfFirstRegistration" -> "FR",
+            "fromSupplier"               -> true,
             "versionId"                  -> 3L
           )
         }
@@ -438,6 +441,7 @@ class ConfirmVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
             "dateRoadUseKnown"           -> true,
             "dateOfFirstRegistration"    -> "01/03/2026",
             "countryOfFirstRegistration" -> "FR",
+            "fromSupplier"               -> false,
             "versionId"                  -> 3L
           )
         }
@@ -454,6 +458,7 @@ class ConfirmVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
           capturedBody(connector, "import/1/vehicle/1/type") mustEqual Json.obj(
             "vehicleType"      -> "HCV",
             "dateRoadUseKnown" -> false,
+            "fromSupplier"     -> false,
             "versionId"        -> 3L
           )
         }

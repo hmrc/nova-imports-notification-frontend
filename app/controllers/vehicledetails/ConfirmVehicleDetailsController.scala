@@ -180,7 +180,8 @@ object ConfirmVehicleDetailsController {
               Option.when(availability)(answers.get(DateOfFirstRegistrationPage(vehicleNumber)).map(formPDateFormat.format)).flatten,
             countryOfFirstRegistration = Option.when(availability)(answers.get(CountryOfFirstRegistrationPage(vehicleNumber))).flatten,
             noPurchaserInvoiceReasonMax =
-              Option.when(availability && !invoiceDate)(answers.get(NoPurchaseInvoiceReasonPage(supplierNumber, vehicleNumber))).flatten
+              Option.when(availability && !invoiceDate)(answers.get(NoPurchaseInvoiceReasonPage(supplierNumber, vehicleNumber))).flatten,
+            fromSupplier = Some(true)
           )
         )
         .as[JsObject]
@@ -198,7 +199,9 @@ object ConfirmVehicleDetailsController {
             dateRoadUseKnown = dateOfFirstRegistrationKnown,
             dateOfFirstRegistration =
               Option.when(dateOfFirstRegistrationKnown)(answers.get(DateOfFirstRegistrationPage(vehicleNumber)).map(formPDateFormat.format)).flatten,
-            countryOfFirstRegistration = Option.when(dateOfFirstRegistrationKnown)(answers.get(CountryOfFirstRegistrationPage(vehicleNumber))).flatten
+            countryOfFirstRegistration =
+              Option.when(dateOfFirstRegistrationKnown)(answers.get(CountryOfFirstRegistrationPage(vehicleNumber))).flatten,
+            fromSupplier = Some(false)
           )
         )
         .as[JsObject]

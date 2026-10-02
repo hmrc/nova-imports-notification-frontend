@@ -22,7 +22,8 @@ final case class ImportVehicleType(
   vehicleType: String,
   dateRoadUseKnown: Boolean,
   dateOfFirstRegistration: Option[String] = None,
-  countryOfFirstRegistration: Option[String] = None
+  countryOfFirstRegistration: Option[String] = None,
+  fromSupplier: Option[Boolean] = None
 )
 
 object ImportVehicleType {

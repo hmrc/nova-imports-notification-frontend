@@ -29,7 +29,8 @@ final case class VehicleType(
   dateMadeAvailableYou: Option[String] = None,
   dateOfFirstRegistration: Option[String] = None,
   countryOfFirstRegistration: Option[String] = None,
-  noPurchaserInvoiceReasonMax: Option[String] = None
+  noPurchaserInvoiceReasonMax: Option[String] = None,
+  fromSupplier: Option[Boolean] = None
 )
 
 object VehicleType {
