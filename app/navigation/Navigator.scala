@@ -273,9 +273,11 @@ class Navigator @Inject() () {
           userAnswers.vehicleSupplierNumber(page.vehicleNumber),
           userAnswers.vehicleImportNumber(page.vehicleNumber)
         ) match {
-          case (Some(_), Some(supplierNumber), _)  => routes.LandingPageController.onPageLoad() // TODO: navigate to C-AVD1.0 when built
-          case (Some(_), None, Some(importNumber)) => routes.LandingPageController.onPageLoad() // TODO: navigate to C-AVD1.0 when built
-          case _                                   => routes.JourneyRecoveryController.onPageLoad()
+          case (Some(_), Some(supplierNumber), _) =>
+            vehicledetails.routes.ConfirmVehicleDetailsController.supplierOnPageLoad(supplierNumber, page.vehicleNumber)
+          case (Some(_), None, Some(importNumber)) =>
+            vehicledetails.routes.ConfirmVehicleDetailsController.importOnPageLoad(importNumber, page.vehicleNumber)
+          case _ => routes.JourneyRecoveryController.onPageLoad()
         }
     case _ => (_, _) => routes.LandingPageController.onPageLoad()
   }
@@ -339,11 +341,21 @@ class Navigator @Inject() () {
           page.isInstanceOf[SupplierBusinessNamePage] ||
           page.isInstanceOf[SupplierVatRegistrationNumberPage] =>
       (_, _) => supplierdetails.routes.SupplierDetailsCheckYourAnswersController.onPageLoad(page.supplierNumber)
-    case _: VehicleDatesPage | _: PurchaseInvoiceDatePage | _: DateOfAvailabilityPage | _: DateOfFirstRegistrationPage |
-        _: CountryOfFirstRegistrationPage | _: PurchaseInvoiceNumberPage | _: NoPurchaseInvoiceReasonPage | _: TotalAmountPaidPage |
-        _: PaymentCurrencyPage | _: AddVehicleTypePage =>
-      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to the vehicle details CYA when built
-    case _ =>
+    case page: VehicleDatesPage =>
+      (userAnswers, _) =>
+        if (userAnswers.get(page).exists(_.contains(VehicleDates.NoDates)))
+          vehicledetails.routes.NoVehicleDatesController.onPageLoad(page.supplierNumber, page.vehicleNumber)
+        else ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
+    case page: PurchaseInvoiceDatePage        => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
+    case page: PurchaseInvoiceNumberPage      => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
+    case page: DateOfAvailabilityPage         => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
+    case page: DateOfFirstRegistrationPage    => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
+    case page: CountryOfFirstRegistrationPage => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
+    case page: NoPurchaseInvoiceReasonPage    => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
+    case page: TotalAmountPaidPage            => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
+    case page: PaymentCurrencyPage            => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
+    case page: AddVehicleTypePage             => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
+    case _                                    =>
       (_, _) => routes.LandingPageController.onPageLoad()
   }
 

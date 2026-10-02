@@ -1111,3 +1111,36 @@ deleteCurrentNotification.title = Are you sure you want to delete this notificat
 deleteCurrentNotification.heading = Are you sure you want to delete this notification?
 deleteCurrentNotification.paragraph = You’ll lose all the details for this notification.
 deleteCurrentNotification.error.required = Select yes if you want to delete this notification
+
+##################################################################
+# C-AVD1.0 - Confirm vehicle details 1.0                         #
+##################################################################
+# TODO: Welsh translations to be supplied by content team.
+confirmVehicleDetails.title = Check the vehicle details before you continue
+confirmVehicleDetails.heading = Check the vehicle details before you continue
+confirmVehicleDetails.caption = Add vehicle details
+confirmVehicleDetails.vehicleDates.label = Which dates do you have for the vehicle?
+confirmVehicleDetails.vehicleDates.firstRegistered = Date the vehicle was first registered
+confirmVehicleDetails.vehicleDates.madeAvailable = Date the vehicle was made available
+confirmVehicleDetails.vehicleDates.purchaseInvoiceDate = Purchase invoice date
+confirmVehicleDetails.vehicleDates.change.hidden = which dates you have for the vehicle
+confirmVehicleDetails.dateOfFirstRegistrationKnown.label = Do you know the date of first registration?
+confirmVehicleDetails.dateOfFirstRegistrationKnown.change.hidden = whether you know the date this vehicle was first registered for road use
+confirmVehicleDetails.dateOfFirstRegistration.label = Date of first registration
+confirmVehicleDetails.dateOfFirstRegistration.change.hidden = date the vehicle was first registered for road use
+confirmVehicleDetails.countryOfFirstRegistration.label = Country of first registration
+confirmVehicleDetails.countryOfFirstRegistration.change.hidden = country where the vehicle was first registered
+confirmVehicleDetails.dateOfAvailability.label = Date of availability
+confirmVehicleDetails.dateOfAvailability.change.hidden = date the vehicle was made available to you
+confirmVehicleDetails.purchaseInvoiceDate.label = Purchase invoice date
+confirmVehicleDetails.purchaseInvoiceDate.change.hidden = purchase invoice date
+confirmVehicleDetails.purchaseInvoiceNumber.label = Purchase invoice number
+confirmVehicleDetails.purchaseInvoiceNumber.change.hidden = purchase invoice number
+confirmVehicleDetails.noPurchaseInvoiceReason.label = Reason for no purchase invoice
+confirmVehicleDetails.noPurchaseInvoiceReason.change.hidden = reason why a purchase invoice is not available
+confirmVehicleDetails.totalAmountPaid.label = Total amount paid
+confirmVehicleDetails.totalAmountPaid.change.hidden = total amount paid for the vehicle
+confirmVehicleDetails.currency.label = Currency
+confirmVehicleDetails.currency.change.hidden = currency used to pay for the vehicle
+confirmVehicleDetails.vehicleType.label = Vehicle type
+confirmVehicleDetails.vehicleType.change.hidden = which type of vehicle you are notifying HMRC about

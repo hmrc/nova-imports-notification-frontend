@@ -287,6 +287,12 @@ POST        /import/:importNumber/vehicle/:vehicleNumber/payment-currency       
 GET         /import/:importNumber/vehicle/:vehicleNumber/payment-currency/change                     controllers.vehicledetails.PaymentCurrencyController.importOnPageLoad(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
 POST        /import/:importNumber/vehicle/:vehicleNumber/payment-currency/change                     controllers.vehicledetails.PaymentCurrencyController.importOnSubmit(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
 
+GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/confirm-vehicle-details                 controllers.vehicledetails.ConfirmVehicleDetailsController.supplierOnPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber)
+POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/confirm-vehicle-details                 controllers.vehicledetails.ConfirmVehicleDetailsController.supplierOnSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber)
+
+GET         /import/:importNumber/vehicle/:vehicleNumber/confirm-vehicle-details                     controllers.vehicledetails.ConfirmVehicleDetailsController.importOnPageLoad(importNumber: ImportNumber, vehicleNumber: VehicleNumber)
+POST        /import/:importNumber/vehicle/:vehicleNumber/confirm-vehicle-details                     controllers.vehicledetails.ConfirmVehicleDetailsController.importOnSubmit(importNumber: ImportNumber, vehicleNumber: VehicleNumber)
+
 GET         /check-answers/your-address                                                  controllers.notifieraddress.YourAddressCheckYourAnswersController.onPageLoad()
 POST        /check-answers/your-address                                                  controllers.notifieraddress.YourAddressCheckYourAnswersController.onSubmit()
 GET         /check-answers/your-address/change                                           controllers.notifieraddress.YourAddressCheckYourAnswersController.onChangeAddress()

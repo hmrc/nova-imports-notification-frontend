@@ -14,18 +14,15 @@
  * limitations under the License.
  */
 
-package models.draftsections
+package pages.sections.vehicledetails
 
-import play.api.libs.json.{Format, Json}
+import models.VehicleNumber
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-final case class ImportVehicleType(
-  vehicleType: String,
-  dateRoadUseKnown: Boolean,
-  dateOfFirstRegistration: Option[String] = None,
-  countryOfFirstRegistration: Option[String] = None,
-  fromSupplier: Option[Boolean] = None
-)
+final case class DateOfFirstRegistrationKnownPage(vehicleNumber: VehicleNumber) extends QuestionPage[Boolean] {
 
-object ImportVehicleType {
-  implicit val format: Format[ImportVehicleType] = Json.format[ImportVehicleType]
+  override def path: JsPath = JsPath \ "vehicles" \ vehicleNumber.value.toString \ "details" \ toString
+
+  override def toString: String = "dateOfFirstRegistrationKnown"
 }
