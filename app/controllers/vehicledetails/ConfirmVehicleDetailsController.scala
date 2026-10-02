@@ -158,9 +158,10 @@ object ConfirmVehicleDetailsController {
       ConfirmVehicleDetailsJourney.importFirstUnanswered(request.userAnswers, importNumber, vehicleNumber).isEmpty
 
   def supplierVehicleTypeSection(answers: UserAnswers, supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber): Option[JsObject] = {
-    val dates        = answers.get(VehicleDatesPage(supplierNumber, vehicleNumber)).getOrElse(Set.empty)
-    val invoiceDate  = dates.contains(VehicleDates.PurchaseInvoiceDate)
-    val availability = dates.contains(VehicleDates.AvailabilityAndFirstRegistration)
+    val dates             = answers.get(VehicleDatesPage(supplierNumber, vehicleNumber)).getOrElse(Set.empty)
+    val firstRegistration = dates.contains(VehicleDates.FirstRegistration)
+    val madeAvailable     = dates.contains(VehicleDates.MadeAvailable)
+    val invoiceDate       = dates.contains(VehicleDates.PurchaseInvoiceDate)
 
     answers.get(AddVehicleTypePage(vehicleNumber)).map { vehicleType =>
       Json
@@ -168,19 +169,18 @@ object ConfirmVehicleDetailsController {
           VehicleType(
             vehicleType = vehicleType.jsonValue,
             doYouHaveAPurchaseInvoice = invoiceDate,
-            dateRoadUseKnown = availability,
+            dateRoadUseKnown = firstRegistration,
             currencyUsed = answers.get(PaymentCurrencyPage(vehicleNumber)),
             purchaseInvoiceNumber = Option.when(invoiceDate)(answers.get(PurchaseInvoiceNumberPage(supplierNumber, vehicleNumber))).flatten,
             purchaseInvoiceDate =
               Option.when(invoiceDate)(answers.get(PurchaseInvoiceDatePage(supplierNumber, vehicleNumber)).map(formPDateFormat.format)).flatten,
             pricePaidForVehicle = answers.get(TotalAmountPaidPage(vehicleNumber)),
             dateMadeAvailableYou =
-              Option.when(availability)(answers.get(DateOfAvailabilityPage(supplierNumber, vehicleNumber)).map(formPDateFormat.format)).flatten,
+              Option.when(madeAvailable)(answers.get(DateOfAvailabilityPage(supplierNumber, vehicleNumber)).map(formPDateFormat.format)).flatten,
             dateOfFirstRegistration =
-              Option.when(availability)(answers.get(DateOfFirstRegistrationPage(vehicleNumber)).map(formPDateFormat.format)).flatten,
-            countryOfFirstRegistration = Option.when(availability)(answers.get(CountryOfFirstRegistrationPage(vehicleNumber))).flatten,
-            noPurchaserInvoiceReasonMax =
-              Option.when(availability && !invoiceDate)(answers.get(NoPurchaseInvoiceReasonPage(supplierNumber, vehicleNumber))).flatten,
+              Option.when(firstRegistration)(answers.get(DateOfFirstRegistrationPage(vehicleNumber)).map(formPDateFormat.format)).flatten,
+            countryOfFirstRegistration = Option.when(firstRegistration)(answers.get(CountryOfFirstRegistrationPage(vehicleNumber))).flatten,
+            noPurchaserInvoiceReasonMax = Option.when(!invoiceDate)(answers.get(NoPurchaseInvoiceReasonPage(supplierNumber, vehicleNumber))).flatten,
             fromSupplier = Some(true)
           )
         )

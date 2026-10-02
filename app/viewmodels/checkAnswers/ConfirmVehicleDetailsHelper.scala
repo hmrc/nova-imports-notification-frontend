@@ -42,15 +42,16 @@ object ConfirmVehicleDetailsHelper {
     countries: Seq[Country],
     currencies: Seq[Currency]
   )(implicit messages: Messages): SummaryList = {
-    val dates        = answers.get(VehicleDatesPage(supplierNumber, vehicleNumber)).getOrElse(Set.empty)
-    val invoiceDate  = dates.contains(VehicleDates.PurchaseInvoiceDate)
-    val availability = dates.contains(VehicleDates.AvailabilityAndFirstRegistration)
+    val dates             = answers.get(VehicleDatesPage(supplierNumber, vehicleNumber)).getOrElse(Set.empty)
+    val firstRegistration = dates.contains(VehicleDates.FirstRegistration)
+    val madeAvailable     = dates.contains(VehicleDates.MadeAvailable)
+    val invoiceDate       = dates.contains(VehicleDates.PurchaseInvoiceDate)
 
     SummaryListViewModel(
       rows = Seq(
         vehicleDatesRow(dates, routes.VehicleDatesController.onPageLoad(supplierNumber, vehicleNumber, CheckMode)),
         Option
-          .when(availability)(
+          .when(firstRegistration)(
             dateOfFirstRegistrationRow(
               answers,
               vehicleNumber,
@@ -59,7 +60,7 @@ object ConfirmVehicleDetailsHelper {
           )
           .flatten,
         Option
-          .when(availability)(
+          .when(firstRegistration)(
             countryOfFirstRegistrationRow(
               answers,
               vehicleNumber,
@@ -69,7 +70,7 @@ object ConfirmVehicleDetailsHelper {
           )
           .flatten,
         Option
-          .when(availability)(
+          .when(madeAvailable)(
             answers
               .get(DateOfAvailabilityPage(supplierNumber, vehicleNumber))
               .map(date =>
@@ -108,7 +109,7 @@ object ConfirmVehicleDetailsHelper {
           )
           .flatten,
         Option
-          .when(availability && !invoiceDate)(
+          .when(!invoiceDate)(
             answers
               .get(NoPurchaseInvoiceReasonPage(supplierNumber, vehicleNumber))
               .map(reason =>
@@ -176,11 +177,11 @@ object ConfirmVehicleDetailsHelper {
 
   private def vehicleDatesRow(dates: Set[VehicleDates], change: Call)(implicit messages: Messages): Option[SummaryListRow] =
     Option.when(dates.nonEmpty) {
-      val lines =
-        (if (dates.contains(VehicleDates.AvailabilityAndFirstRegistration))
-           Seq("confirmVehicleDetails.vehicleDates.firstRegistered", "confirmVehicleDetails.vehicleDates.madeAvailable")
-         else Seq.empty) ++
-          (if (dates.contains(VehicleDates.PurchaseInvoiceDate)) Seq("confirmVehicleDetails.vehicleDates.purchaseInvoiceDate") else Seq.empty)
+      val lines = Seq(
+        VehicleDates.FirstRegistration   -> "confirmVehicleDetails.vehicleDates.firstRegistered",
+        VehicleDates.MadeAvailable       -> "confirmVehicleDetails.vehicleDates.madeAvailable",
+        VehicleDates.PurchaseInvoiceDate -> "confirmVehicleDetails.vehicleDates.purchaseInvoiceDate"
+      ).collect { case (date, key) if dates.contains(date) => key }
 
       row("vehicleDates", ValueViewModel(HtmlContent(lines.map(key => HtmlFormat.escape(messages(key)).body).mkString("<br>"))), change)
     }

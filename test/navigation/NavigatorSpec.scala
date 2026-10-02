@@ -1089,7 +1089,7 @@ class NavigatorSpec extends SpecBase {
           .unsafeSet(AddVehicleTypePage(v), AddVehicleType.Car)
 
         val availabilityOnly: UserAnswers = supplierVehicle
-          .unsafeSet(VehicleDatesPage(s, v), Set(VehicleDates.AvailabilityAndFirstRegistration))
+          .unsafeSet(VehicleDatesPage(s, v), Set(VehicleDates.FirstRegistration, VehicleDates.MadeAvailable))
           .unsafeSet(DateOfAvailabilityPage(s, v), LocalDate.of(2026, 3, 27))
           .unsafeSet(DateOfFirstRegistrationPage(v), LocalDate.of(2026, 3, 1))
           .unsafeSet(CountryOfFirstRegistrationPage(v), "FR")
@@ -1118,14 +1118,29 @@ class NavigatorSpec extends SpecBase {
         }
 
         "must go from VehicleDatesPage AVD3.0 to the first unanswered question in check mode when a date type is added" in {
-          val ua = invoiceOnly.unsafeSet(VehicleDatesPage(s, v), Set(VehicleDates.PurchaseInvoiceDate, VehicleDates.AvailabilityAndFirstRegistration))
+          val ua = invoiceOnly.unsafeSet(
+            VehicleDatesPage(s, v),
+            Set(VehicleDates.PurchaseInvoiceDate, VehicleDates.FirstRegistration, VehicleDates.MadeAvailable)
+          )
+          navigator.nextPage(VehicleDatesPage(s, v), CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+            vehicledetails.routes.DateOfFirstRegistrationController.supplierOnPageLoad(s, v, CheckMode)
+        }
+
+        "must go from VehicleDatesPage AVD3.0 to AVD5.0 in check mode when only the date the vehicle was made available is added" in {
+          val ua = invoiceOnly.unsafeSet(VehicleDatesPage(s, v), Set(VehicleDates.PurchaseInvoiceDate, VehicleDates.MadeAvailable))
           navigator.nextPage(VehicleDatesPage(s, v), CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
             vehicledetails.routes.DateOfAvailabilityController.onPageLoad(s, v, CheckMode)
         }
 
+        "must go from VehicleDatesPage AVD3.0 to AVD5.1 in check mode when only the date the vehicle was first registered is added" in {
+          val ua = invoiceOnly.unsafeSet(VehicleDatesPage(s, v), Set(VehicleDates.PurchaseInvoiceDate, VehicleDates.FirstRegistration))
+          navigator.nextPage(VehicleDatesPage(s, v), CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+            vehicledetails.routes.DateOfFirstRegistrationController.supplierOnPageLoad(s, v, CheckMode)
+        }
+
         "must go from VehicleDatesPage AVD3.0 to AVD6.0 in check mode when the purchase invoice date is removed" in {
           val ua = invoiceOnly
-            .unsafeSet(VehicleDatesPage(s, v), Set(VehicleDates.AvailabilityAndFirstRegistration))
+            .unsafeSet(VehicleDatesPage(s, v), Set(VehicleDates.FirstRegistration, VehicleDates.MadeAvailable))
             .unsafeSet(DateOfAvailabilityPage(s, v), LocalDate.of(2026, 3, 27))
             .unsafeSet(DateOfFirstRegistrationPage(v), LocalDate.of(2026, 3, 1))
             .unsafeSet(CountryOfFirstRegistrationPage(v), "FR")

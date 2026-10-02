@@ -67,7 +67,7 @@ class ConfirmVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
     .unsafeSet(TotalAmountPaidPage(v), "45000")
 
   private val availabilityOnly: UserAnswers = supplierBase
-    .unsafeSet(VehicleDatesPage(s, v), Set(VehicleDates.AvailabilityAndFirstRegistration))
+    .unsafeSet(VehicleDatesPage(s, v), Set(VehicleDates.FirstRegistration, VehicleDates.MadeAvailable))
     .unsafeSet(DateOfAvailabilityPage(s, v), LocalDate.of(2026, 3, 27))
     .unsafeSet(DateOfFirstRegistrationPage(v), LocalDate.of(2026, 3, 1))
     .unsafeSet(CountryOfFirstRegistrationPage(v), "FR")
@@ -364,7 +364,7 @@ class ConfirmVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
 
       "must send the availability and first registration answers but not a stale reason for no purchase invoice when both date types are selected" in {
         val answers = availabilityOnly
-          .unsafeSet(VehicleDatesPage(s, v), Set(VehicleDates.PurchaseInvoiceDate, VehicleDates.AvailabilityAndFirstRegistration))
+          .unsafeSet(VehicleDatesPage(s, v), Set(VehicleDates.PurchaseInvoiceDate, VehicleDates.FirstRegistration, VehicleDates.MadeAvailable))
           .unsafeSet(PurchaseInvoiceDatePage(s, v), LocalDate.of(2026, 3, 20))
           .unsafeSet(PurchaseInvoiceNumberPage(s, v), "INV-001")
         val connector = successfulConnector
@@ -386,6 +386,59 @@ class ConfirmVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
             "countryOfFirstRegistration" -> "FR",
             "fromSupplier"               -> true,
             "versionId"                  -> 3L
+          )
+        }
+      }
+
+      "must send first registration but not availability or a reason when only first registration and purchase invoice dates are selected" in {
+        val answers = availabilityOnly
+          .unsafeSet(VehicleDatesPage(s, v), Set(VehicleDates.FirstRegistration, VehicleDates.PurchaseInvoiceDate))
+          .unsafeSet(PurchaseInvoiceDatePage(s, v), LocalDate.of(2026, 3, 20))
+          .unsafeSet(PurchaseInvoiceNumberPage(s, v), "INV-001")
+        val connector = successfulConnector
+        val app       = application(Some(answers), connector, stubSessionRepository(answers))
+
+        running(app) {
+          status(route(app, FakeRequest(POST, supplierRoute)).value) mustEqual SEE_OTHER
+
+          capturedBody(connector, "supplier/1/vehicle/1/type") mustEqual Json.obj(
+            "vehicleType"                -> "CAR",
+            "doYouHaveAPurchaseInvoice"  -> true,
+            "dateRoadUseKnown"           -> true,
+            "currencyUsed"               -> "EUR",
+            "purchaseInvoiceNumber"      -> "INV-001",
+            "purchaseInvoiceDate"        -> "20/03/2026",
+            "pricePaidForVehicle"        -> "45000",
+            "dateOfFirstRegistration"    -> "01/03/2026",
+            "countryOfFirstRegistration" -> "FR",
+            "fromSupplier"               -> true,
+            "versionId"                  -> 3L
+          )
+        }
+      }
+
+      "must send availability but not first registration when only made available and purchase invoice dates are selected" in {
+        val answers = availabilityOnly
+          .unsafeSet(VehicleDatesPage(s, v), Set(VehicleDates.MadeAvailable, VehicleDates.PurchaseInvoiceDate))
+          .unsafeSet(PurchaseInvoiceDatePage(s, v), LocalDate.of(2026, 3, 20))
+          .unsafeSet(PurchaseInvoiceNumberPage(s, v), "INV-001")
+        val connector = successfulConnector
+        val app       = application(Some(answers), connector, stubSessionRepository(answers))
+
+        running(app) {
+          status(route(app, FakeRequest(POST, supplierRoute)).value) mustEqual SEE_OTHER
+
+          capturedBody(connector, "supplier/1/vehicle/1/type") mustEqual Json.obj(
+            "vehicleType"               -> "CAR",
+            "doYouHaveAPurchaseInvoice" -> true,
+            "dateRoadUseKnown"          -> false,
+            "currencyUsed"              -> "EUR",
+            "purchaseInvoiceNumber"     -> "INV-001",
+            "purchaseInvoiceDate"       -> "20/03/2026",
+            "pricePaidForVehicle"       -> "45000",
+            "dateMadeAvailableYou"      -> "27/03/2026",
+            "fromSupplier"              -> true,
+            "versionId"                 -> 3L
           )
         }
       }

@@ -26,14 +26,30 @@ object ConfirmVehicleDetailsJourney {
   def supplierFirstUnanswered(answers: UserAnswers, supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber): Option[Call] = {
     val dates = answers.get(VehicleDatesPage(supplierNumber, vehicleNumber)).getOrElse(Set.empty)
 
-    val invoiceDate  = dates.contains(VehicleDates.PurchaseInvoiceDate)
-    val availability = dates.contains(VehicleDates.AvailabilityAndFirstRegistration)
+    val firstRegistration = dates.contains(VehicleDates.FirstRegistration)
+    val madeAvailable     = dates.contains(VehicleDates.MadeAvailable)
+    val invoiceDate       = dates.contains(VehicleDates.PurchaseInvoiceDate)
 
     val questions: Seq[(Boolean, Boolean, Call)] = Seq(
       (
         true,
         dates.nonEmpty && !dates.contains(VehicleDates.NoDates),
         routes.VehicleDatesController.onPageLoad(supplierNumber, vehicleNumber, CheckMode)
+      ),
+      (
+        firstRegistration,
+        answers.get(DateOfFirstRegistrationPage(vehicleNumber)).isDefined,
+        routes.DateOfFirstRegistrationController.supplierOnPageLoad(supplierNumber, vehicleNumber, CheckMode)
+      ),
+      (
+        firstRegistration,
+        answers.get(CountryOfFirstRegistrationPage(vehicleNumber)).isDefined,
+        routes.CountryOfFirstRegistrationController.supplierOnPageLoad(supplierNumber, vehicleNumber, CheckMode)
+      ),
+      (
+        madeAvailable,
+        answers.get(DateOfAvailabilityPage(supplierNumber, vehicleNumber)).isDefined,
+        routes.DateOfAvailabilityController.onPageLoad(supplierNumber, vehicleNumber, CheckMode)
       ),
       (
         invoiceDate,
@@ -46,22 +62,7 @@ object ConfirmVehicleDetailsJourney {
         routes.PurchaseInvoiceNumberController.onPageLoad(supplierNumber, vehicleNumber, CheckMode)
       ),
       (
-        availability,
-        answers.get(DateOfAvailabilityPage(supplierNumber, vehicleNumber)).isDefined,
-        routes.DateOfAvailabilityController.onPageLoad(supplierNumber, vehicleNumber, CheckMode)
-      ),
-      (
-        availability,
-        answers.get(DateOfFirstRegistrationPage(vehicleNumber)).isDefined,
-        routes.DateOfFirstRegistrationController.supplierOnPageLoad(supplierNumber, vehicleNumber, CheckMode)
-      ),
-      (
-        availability,
-        answers.get(CountryOfFirstRegistrationPage(vehicleNumber)).isDefined,
-        routes.CountryOfFirstRegistrationController.supplierOnPageLoad(supplierNumber, vehicleNumber, CheckMode)
-      ),
-      (
-        availability && !invoiceDate,
+        !invoiceDate,
         answers.get(NoPurchaseInvoiceReasonPage(supplierNumber, vehicleNumber)).isDefined,
         routes.NoPurchaseInvoiceReasonController.onPageLoad(supplierNumber, vehicleNumber, CheckMode)
       ),

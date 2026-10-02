@@ -60,7 +60,7 @@ class ConfirmVehicleDetailsViewSpec extends SpecBase with Matchers with BeforeAn
 
   private val bothDates: UserAnswers = emptyUserAnswers
     .unsafeSet(AllVehiclesQuery, Map("1" -> Json.obj("supplierNumber" -> 1)))
-    .unsafeSet(VehicleDatesPage(s, v), Set(VehicleDates.PurchaseInvoiceDate, VehicleDates.AvailabilityAndFirstRegistration))
+    .unsafeSet(VehicleDatesPage(s, v), Set(VehicleDates.PurchaseInvoiceDate, VehicleDates.FirstRegistration, VehicleDates.MadeAvailable))
     .unsafeSet(DateOfFirstRegistrationPage(v), LocalDate.of(2026, 3, 1))
     .unsafeSet(CountryOfFirstRegistrationPage(v), "FR")
     .unsafeSet(DateOfAvailabilityPage(s, v), LocalDate.of(2026, 3, 27))
@@ -208,7 +208,7 @@ class ConfirmVehicleDetailsViewSpec extends SpecBase with Matchers with BeforeAn
     }
 
     "must show the reason for no purchase invoice when only the availability and first registration dates are selected" in {
-      val availabilityDoc = supplierDoc(bothDates.unsafeSet(VehicleDatesPage(s, v), Set(VehicleDates.AvailabilityAndFirstRegistration)))
+      val availabilityDoc = supplierDoc(bothDates.unsafeSet(VehicleDatesPage(s, v), Set(VehicleDates.FirstRegistration, VehicleDates.MadeAvailable)))
 
       keys(availabilityDoc) mustEqual Seq(
         label("vehicleDates"),
@@ -222,6 +222,39 @@ class ConfirmVehicleDetailsViewSpec extends SpecBase with Matchers with BeforeAn
       )
       changeLinkFor(availabilityDoc, label("noPurchaseInvoiceReason")).attr("href") mustEqual
         routes.NoPurchaseInvoiceReasonController.onPageLoad(s, v, CheckMode).url
+    }
+
+    "must show the first registration and purchase invoice rows, without the date of availability or reason, when those two dates are selected" in {
+      val doc = supplierDoc(bothDates.unsafeSet(VehicleDatesPage(s, v), Set(VehicleDates.FirstRegistration, VehicleDates.PurchaseInvoiceDate)))
+
+      keys(doc) mustEqual Seq(
+        label("vehicleDates"),
+        label("dateOfFirstRegistration"),
+        label("countryOfFirstRegistration"),
+        label("purchaseInvoiceDate"),
+        label("purchaseInvoiceNumber"),
+        label("totalAmountPaid"),
+        label("currency"),
+        label("vehicleType")
+      )
+      doc.select(".govuk-summary-list__value").first.html.split("<br>").map(_.trim).toSeq mustEqual Seq(
+        msgs("confirmVehicleDetails.vehicleDates.firstRegistered"),
+        msgs("confirmVehicleDetails.vehicleDates.purchaseInvoiceDate")
+      )
+    }
+
+    "must show the date of availability and purchase invoice rows, without first registration or the reason, when those two dates are selected" in {
+      val doc = supplierDoc(bothDates.unsafeSet(VehicleDatesPage(s, v), Set(VehicleDates.MadeAvailable, VehicleDates.PurchaseInvoiceDate)))
+
+      keys(doc) mustEqual Seq(
+        label("vehicleDates"),
+        label("dateOfAvailability"),
+        label("purchaseInvoiceDate"),
+        label("purchaseInvoiceNumber"),
+        label("totalAmountPaid"),
+        label("currency"),
+        label("vehicleType")
+      )
     }
 
     "must escape user-entered values" in {
