@@ -1125,6 +1125,41 @@ addVehicleType.error.required = Select which type of vehicle you are notifying H
 addVehicleType.checkYourAnswersLabel = Vehicle type
 addVehicleType.change.hidden = which type of vehicle you are notifying HMRC about
 
+################################################################
+# AVD8.2 - Add vehicle details 8.0:Light commercial vehicle    #
+################################################################
+
+addVehicleDetailsLightCommercial.title = Enter the light commercial vehicle details
+addVehicleDetailsLightCommercial.heading = Enter the light commercial vehicle details
+addVehicleDetailsLightCommercial.caption = Add vehicle details
+addVehicleDetailsLightCommercial.paragraph.1 = You can usually find these details on the purchase invoice or in the vehicle manual.
+addVehicleDetailsLightCommercial.label.make = Make
+addVehicleDetailsLightCommercial.hint.make = For example, Ford
+addVehicleDetailsLightCommercial.label.model = Make
+addVehicleDetailsLightCommercial.hint.model = For example, Ford
+addVehicleDetailsLightCommercial.label.derivative = Make
+addVehicleDetailsLightCommercial.hint.derivative = For example, Ford
+addVehicleDetailsLightCommercial.label.trim = Make
+addVehicleDetailsLightCommercial.hint.trim = For example, Ford
+addVehicleDetailsLightCommercial.label.bodyType = Make
+addVehicleDetailsLightCommercial.hint.bodyType = For example, Ford
+
+addVehicleDetailsLightCommercial.make.error.required = Enter the make
+addVehicleDetailsLightCommercial.make.error.format = The make must not include special characters such as #, $, ^, `, {, |, }, ~, or accented letters such as è
+addVehicleDetailsLightCommercial.make.error.length = The make must be 50 characters or less
+addVehicleDetailsLightCommercial.model.error.required = Enter the model
+addVehicleDetailsLightCommercial.model.error.format = The model must not include special characters such as #, $, ^, `, {, |, }, ~, or accented letters such as è
+addVehicleDetailsLightCommercial.model.error.length = The model must be 50 characters or less
+addVehicleDetailsLightCommercial.derivative.error.required = Enter the derivative
+addVehicleDetailsLightCommercial.derivative.error.format = The derivative must not include special characters such as #, $, ^, `, {, |, }, ~, or accented letters such as è
+addVehicleDetailsLightCommercial.derivative.error.length = The derivative must be 50 characters or less
+addVehicleDetailsLightCommercial.trim.error.required = Enter the trim
+addVehicleDetailsLightCommercial.trim.error.format = The trim must not include special characters such as #, $, ^, `, {, |, }, ~, or accented letters such as è
+addVehicleDetailsLightCommercial.trim.error.length = The trim must be 50 characters or less
+addVehicleDetailsLightCommercial.bodyType.error.required = Enter the body type
+addVehicleDetailsLightCommercial.bodyType.error.format = The body type must not include special characters such as #, $, ^, `, {, |, }, ~, or accented letters such as è
+addVehicleDetailsLightCommercial.bodyType.error.length = The body type must be 20 characters or less
+
 ##################################################
 # UVS1.0 - Upload a vehicle spreadsheet 1.0      #
 ##################################################

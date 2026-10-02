@@ -1,0 +1,86 @@
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import controllers.supplierdetails.routes
+
+@this(
+    layout: templates.Layout,
+    formHelper: FormWithCSRF,
+    govukButton: GovukButton,
+    govukInput: GovukInput,
+    govukErrorSummary: GovukErrorSummary
+)
+
+@(form: Form[?], submitCall: Call)(implicit request: Request[?], messages: Messages)
+
+@layout(
+    pageTitle = title(form, messages("addVehicleDetailsLightCommercial.title")),
+    showBackLink = true
+) {
+    @if(form.errors.nonEmpty) {
+        @govukErrorSummary(ErrorSummaryViewModel(form))
+    }
+
+    <span class="govuk-caption-l">@messages("addVehicleDetailsLightCommercial.caption")</span>
+    <h1 class="govuk-heading-l">@messages("addVehicleDetailsLightCommercial.heading")</h1>
+    <p class="govuk-body">@messages("addVehicleDetailsLightCommercial.paragraph.1")</p>
+
+    @formHelper(action = submitCall, Symbol("autoComplete") -> "off") {
+
+        @govukInput(
+            InputViewModel(
+                field = form("make"),
+                label = LabelViewModel(messages("addVehicleDetailsLightCommercial.label.make"))
+            ).withCssClass("govuk-input--width-50")
+             .withAutocomplete("off")
+             .withHint(HintViewModel(Text(messages("addVehicleDetailsLightCommercial.hint.model"))))
+        )
+        @govukInput(
+            InputViewModel(
+                field = form("model"),
+                label = LabelViewModel(messages("addVehicleDetailsLightCommercial.label.model"))
+            ).withCssClass("govuk-input--width-50")
+             .withAutocomplete("off")
+             .withHint(HintViewModel(Text(messages("addVehicleDetailsLightCommercial.hint.model"))))
+        )
+        @govukInput(
+            InputViewModel(
+                field = form("derivative"),
+                label = LabelViewModel(messages("addVehicleDetailsLightCommercial.label.derivative"))
+            ).withCssClass("govuk-input--width-50")
+             .withAutocomplete("off")
+             .withHint(HintViewModel(Text(messages("addVehicleDetailsLightCommercial.hint.derivative"))))
+        )
+        @govukInput(
+            InputViewModel(
+                field = form("trim"),
+                label = LabelViewModel(messages("addVehicleDetailsLightCommercial.label.trim"))
+            ).withCssClass("govuk-input--width-50")
+             .withAutocomplete("off")
+             .withHint(HintViewModel(Text(messages("addVehicleDetailsLightCommercial.hint.trim"))))
+        )
+        @govukInput(
+            InputViewModel(
+                field = form("bodyType"),
+                label = LabelViewModel(messages("addVehicleDetailsLightCommercial.label.bodyType"))
+            ).withCssClass("govuk-input--width-20")
+             .withAutocomplete("off")
+             .withHint(HintViewModel(Text(messages("addVehicleDetailsLightCommercial.hint.bodyType"))))
+        )
+
+        @govukButton(ButtonViewModel(messages("site.continue")))
+    }
+}

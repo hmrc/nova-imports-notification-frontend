@@ -23,12 +23,11 @@ import pages.*
 import models.*
 import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, NotifyingAsPurchaserPage, PurchaserBusinessOrIndividualPage, VehicleBusinessUsePage, VehicleFromEuPage}
 import pages.sections.notifierdetails.{AboutYourDetailsPage, BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
-import pages.sections.vehicledetails.{AddImportVehicleDetailsPage, AddVehicleDetailsPage}
+import pages.sections.vehicledetails.{AddImportVehicleDetailsPage, AddVehicleDetailsLightCommercialPage, AddVehicleDetailsPage, AddVehicleTypePage, CountryOfFirstRegistrationPage, DateOfAvailabilityPage, DateOfFirstRegistrationPage, NoPurchaseInvoiceReasonPage, PaymentCurrencyPage, PurchaseInvoiceDatePage, PurchaseInvoiceNumberPage, TotalAmountPaidPage, VehicleDatesPage}
 import pages.sections.notifieraddress.IsYourAddressInTheUkPage
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierQuestionPage, SupplierVatRegistrationNumberPage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
-import pages.sections.vehicledetails.{AddVehicleTypePage, CountryOfFirstRegistrationPage, DateOfAvailabilityPage, DateOfFirstRegistrationPage, NoPurchaseInvoiceReasonPage, PaymentCurrencyPage, PurchaseInvoiceDatePage, PurchaseInvoiceNumberPage, TotalAmountPaidPage, VehicleDatesPage}
 
 @Singleton
 class Navigator @Inject() () {
@@ -271,9 +270,26 @@ class Navigator @Inject() () {
           userAnswers.vehicleSupplierNumber(page.vehicleNumber),
           userAnswers.vehicleImportNumber(page.vehicleNumber)
         ) match {
+          case (Some(AddVehicleType.Car), Some(supplierNumber), _) =>
+            // TODO: Navigate From C-AVD1.0 when built instead of from add vehicle type
+            vehicledetails.routes.AddVehicleDetailsLightCommercialController.supplierOnPageLoad(supplierNumber, page.vehicleNumber, NormalMode)
+          case (Some(AddVehicleType.Car), None, Some(importNumber)) =>
+            // TODO: Navigate From C-AVD1.0 when built instead of from add vehicle type
+            vehicledetails.routes.AddVehicleDetailsLightCommercialController.importOnPageLoad(importNumber, page.vehicleNumber, NormalMode)
           case (Some(_), Some(supplierNumber), _)  => routes.LandingPageController.onPageLoad() // TODO: navigate to C-AVD1.0 when built
           case (Some(_), None, Some(importNumber)) => routes.LandingPageController.onPageLoad() // TODO: navigate to C-AVD1.0 when built
           case _                                   => routes.JourneyRecoveryController.onPageLoad()
+        }
+    case page: AddVehicleDetailsLightCommercialPage =>
+      (userAnswers, _) =>
+        (
+          userAnswers.get(page),
+          userAnswers.vehicleSupplierNumber(page.vehicleNumber),
+          userAnswers.vehicleImportNumber(page.vehicleNumber)
+        ) match {
+          case (Some(_), Some(_), _)    => routes.LandingPageController.onPageLoad() // TODO: navigate to C-AVD2.0 when built
+          case (Some(_), None, Some(_)) => routes.LandingPageController.onPageLoad() // TODO: navigate to C-AVD2.0 when built
+          case _                        => routes.JourneyRecoveryController.onPageLoad()
         }
     case _ => (_, _) => routes.LandingPageController.onPageLoad()
   }
