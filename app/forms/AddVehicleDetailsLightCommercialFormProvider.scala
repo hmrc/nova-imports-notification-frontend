@@ -25,49 +25,42 @@ import javax.inject.Inject
 
 class AddVehicleDetailsLightCommercialFormProvider @Inject() extends Mappings {
 
-  private val makeRegex       = "^[A-Za-z0-9 .()/&'-;!%*_+:@<>?=\\\\[\\\\],\\\\\\\\]{1,50}$"
-  private val modelNameRegex  = "^[A-Za-z0-9 .()/&'-;!%*_+:@<>?=\\\\[\\\\],\\\\\\\\]{1,50}$"
-  private val derivativeRegex = "^[A-Za-z0-9 .()/&'-;!%*_+:@<>?=\\\\[\\\\],\\\\\\\\]{1,50}$"
-  private val trimRegex       = "^[A-Za-z0-9 .()/&'-;!%*_+:@<>?=\\\\[\\\\],\\\\\\\\]{1,50}$"
-  private val bodyTypeRegex   = "^[A-Za-z0-9 .()/&'-;!%*_+:@<>?=\\\\[\\\\],\\\\\\\\]{1,20}$"
+  import AddVehicleDetailsLightCommercialFormProvider.*
 
   def apply(): Form[LightCommercialVehicleDetails] = Form(
     mapping(
-      "make" -> text("addVehicleDetailsLightCommercial.make.error.required")
-        .verifying(
-          firstError(
-            maxLength(50, "addVehicleDetailsLightCommercial.make.error.length"),
-            regexp(makeRegex, "addVehicleDetailsLightCommercial.make.error.format")
-          )
-        ),
-      "model" -> text("addVehicleDetailsLightCommercial.model.error.required")
-        .verifying(
-          firstError(
-            maxLength(50, "addVehicleDetailsLightCommercial.model.error.length"),
-            regexp(modelNameRegex, "addVehicleDetailsLightCommercial.model.error.format")
-          )
-        ),
-      "derivative" -> text("addVehicleDetailsLightCommercial.derivative.error.required")
-        .verifying(
-          firstError(
-            maxLength(50, "addVehicleDetailsLightCommercial.derivative.error.length"),
-            regexp(derivativeRegex, "addVehicleDetailsLightCommercial.derivative.error.format")
-          )
-        ),
-      "trim" -> text("addVehicleDetailsLightCommercial.trim.error.required")
-        .verifying(
-          firstError(
-            maxLength(50, "addVehicleDetailsLightCommercial.trim.error.length"),
-            regexp(trimRegex, "addVehicleDetailsLightCommercial.trim.error.format")
-          )
-        ),
-      "bodyType" -> text("addVehicleDetailsLightCommercial.bodyType.error.required")
-        .verifying(
-          firstError(
-            maxLength(20, "addVehicleDetailsLightCommercial.bodyType.error.length"),
-            regexp(bodyTypeRegex, "addVehicleDetailsLightCommercial.bodyType.error.format")
-          )
+      "make"       -> fieldMapping("make", MaxLength, StandardFieldRegex),
+      "model"      -> fieldMapping("model", MaxLength, StandardFieldRegex),
+      "derivative" -> fieldMapping("derivative", MaxLength, StandardFieldRegex),
+      "trim"       -> fieldMapping("trim", MaxLength, StandardFieldRegex),
+      "bodyType"   -> fieldMapping("bodyType", BodyTypeMaxLength, BodyTypeRegex)
+    )(LightCommercialVehicleDetails.apply)(addVehicleDetailsLightCommercial =>
+      Some(
+        (
+          addVehicleDetailsLightCommercial.make,
+          addVehicleDetailsLightCommercial.model,
+          addVehicleDetailsLightCommercial.derivative,
+          addVehicleDetailsLightCommercial.trim,
+          addVehicleDetailsLightCommercial.bodyType
         )
-    )(LightCommercialVehicleDetails.apply)(details => Some((details.make, details.model, details.derivative, details.trim, details.bodyType)))
+      )
+    )
   )
+
+  private def fieldMapping(field: String, maxLen: Int, regex: String) =
+    text(s"addVehicleDetailsLightCommercial.$field.error.required")
+      .verifying(
+        firstError(
+          maxLength(maxLen, s"addVehicleDetailsLightCommercial.$field.error.length"),
+          regexp(regex, s"addVehicleDetailsLightCommercial.$field.error.format")
+        )
+      )
+}
+
+object AddVehicleDetailsLightCommercialFormProvider {
+  val MaxLength: Int         = 50
+  val BodyTypeMaxLength: Int = 20
+
+  val StandardFieldRegex: String = """^[A-Za-z0-9 .()/&'\-;!%*_+:@<>?=\[\],\\]{1,50}$"""
+  val BodyTypeRegex: String      = """^[A-Za-z0-9 .()/&'\-;!%*_+:@<>?=\[\],\\]{1,20}$"""
 }
