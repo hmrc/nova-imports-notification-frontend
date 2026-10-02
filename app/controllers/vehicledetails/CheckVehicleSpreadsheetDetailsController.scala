@@ -149,30 +149,17 @@ class CheckVehicleSpreadsheetDetailsController @Inject() (
     hc: HeaderCarrier
   ): Future[Either[String, Long]] = {
     val supplierNumbers = groupNumbersFor(vehicles.map(supplierDetailsSection))
-    vehicles.zipWithIndex.foldLeft(Future.successful(Right(versionId): Either[String, Long])) { case (acc, (vehicle, index)) =>
-      acc.flatMap {
-        case Left(error) => Future.successful(Left(error))
-        case Right(v)    => saveVehicle(draftId, supplierNumber = supplierNumbers(index), vehicleNumber = index + 1, vehicle, isAmendment, v)
-      }
+    val sections        = vehicles.zipWithIndex.flatMap { case (vehicle, index) =>
+      val supplierNumber = supplierNumbers(index)
+      val vehicleNumber  = index + 1
+      Seq(
+        s"supplier/$supplierNumber/details"                                       -> supplierDetailsSection(vehicle),
+        s"supplier/$supplierNumber/vehicle/$vehicleNumber/type"                   -> vehicleTypeSection(vehicle),
+        s"supplier/$supplierNumber/vehicle/$vehicleNumber/details"                -> vehicleDetailsSection(vehicle),
+        s"supplier/$supplierNumber/vehicle/$vehicleNumber/additional-information" -> vehicleAdditionalInformationSection(vehicle, isAmendment)
+      )
     }
-  }
-
-  private def saveVehicle(
-    draftId: DraftId,
-    supplierNumber: Int,
-    vehicleNumber: Int,
-    vehicle: SpreadsheetEuVehicle,
-    isAmendment: Boolean,
-    versionId: Long
-  )(implicit hc: HeaderCarrier): Future[Either[String, Long]] = {
-    val sections = Seq(
-      s"supplier/$supplierNumber/details"                                       -> supplierDetailsSection(vehicle),
-      s"supplier/$supplierNumber/vehicle/$vehicleNumber/type"                   -> vehicleTypeSection(vehicle),
-      s"supplier/$supplierNumber/vehicle/$vehicleNumber/details"                -> vehicleDetailsSection(vehicle),
-      s"supplier/$supplierNumber/vehicle/$vehicleNumber/additional-information" -> vehicleAdditionalInformationSection(vehicle, isAmendment)
-    )
-
-    saveSections(draftId, sections, versionId)
+    replaceSections(draftId, sections, versionId)
   }
 
   private def saveAllImportVehicles(
@@ -183,32 +170,17 @@ class CheckVehicleSpreadsheetDetailsController @Inject() (
     versionId: Long
   )(implicit hc: HeaderCarrier): Future[Either[String, Long]] = {
     val importNumbers = groupNumbersFor(vehicles.map(importDetailsSection))
-    vehicles.zipWithIndex.foldLeft(Future.successful(Right(versionId): Either[String, Long])) { case (acc, (vehicle, index)) =>
-      acc.flatMap {
-        case Left(error) => Future.successful(Left(error))
-        case Right(v)    =>
-          saveImportVehicle(draftId, importNumber = importNumbers(index), vehicleNumber = index + 1, vehicle, validationType, isAmendment, v)
-      }
+    val sections      = vehicles.zipWithIndex.flatMap { case (vehicle, index) =>
+      val importNumber  = importNumbers(index)
+      val vehicleNumber = index + 1
+      Seq(
+        s"import/$importNumber/details"                                       -> importDetailsSection(vehicle),
+        s"import/$importNumber/vehicle/$vehicleNumber/type"                   -> importVehicleTypeSection(vehicle, validationType),
+        s"import/$importNumber/vehicle/$vehicleNumber/details"                -> importVehicleDetailsSection(vehicle, validationType),
+        s"import/$importNumber/vehicle/$vehicleNumber/additional-information" -> importVehicleAdditionalInformationSection(vehicle, isAmendment)
+      )
     }
-  }
-
-  private def saveImportVehicle(
-    draftId: DraftId,
-    importNumber: Int,
-    vehicleNumber: Int,
-    vehicle: SpreadsheetNonEuVehicle,
-    validationType: String,
-    isAmendment: Boolean,
-    versionId: Long
-  )(implicit hc: HeaderCarrier): Future[Either[String, Long]] = {
-    val sections = Seq(
-      s"import/$importNumber/details"                                       -> importDetailsSection(vehicle),
-      s"import/$importNumber/vehicle/$vehicleNumber/type"                   -> importVehicleTypeSection(vehicle, validationType),
-      s"import/$importNumber/vehicle/$vehicleNumber/details"                -> importVehicleDetailsSection(vehicle, validationType),
-      s"import/$importNumber/vehicle/$vehicleNumber/additional-information" -> importVehicleAdditionalInformationSection(vehicle, isAmendment)
-    )
-
-    saveSections(draftId, sections, versionId)
+    replaceSections(draftId, sections, versionId)
   }
 
   private def saveAllAgriculturalTractorEuVehicles(
@@ -218,34 +190,20 @@ class CheckVehicleSpreadsheetDetailsController @Inject() (
     versionId: Long
   )(implicit hc: HeaderCarrier): Future[Either[String, Long]] = {
     val supplierNumbers = groupNumbersFor(vehicles.map(agriculturalTractorSupplierDetailsSection))
-    vehicles.zipWithIndex.foldLeft(Future.successful(Right(versionId): Either[String, Long])) { case (acc, (vehicle, index)) =>
-      acc.flatMap {
-        case Left(error) => Future.successful(Left(error))
-        case Right(v)    =>
-          saveAgriculturalTractorEuVehicle(draftId, supplierNumber = supplierNumbers(index), vehicleNumber = index + 1, vehicle, isAmendment, v)
-      }
-    }
-  }
-
-  private def saveAgriculturalTractorEuVehicle(
-    draftId: DraftId,
-    supplierNumber: Int,
-    vehicleNumber: Int,
-    vehicle: SpreadsheetAgriculturalTractorEuVehicle,
-    isAmendment: Boolean,
-    versionId: Long
-  )(implicit hc: HeaderCarrier): Future[Either[String, Long]] = {
-    val sections = Seq(
-      s"supplier/$supplierNumber/details"                                       -> agriculturalTractorSupplierDetailsSection(vehicle),
-      s"supplier/$supplierNumber/vehicle/$vehicleNumber/type"                   -> agriculturalTractorVehicleTypeSection(vehicle),
-      s"supplier/$supplierNumber/vehicle/$vehicleNumber/details"                -> agriculturalTractorVehicleDetailsSection(vehicle),
-      s"supplier/$supplierNumber/vehicle/$vehicleNumber/additional-information" -> agriculturalTractorVehicleAdditionalInformationSection(
-        vehicle,
-        isAmendment
+    val sections        = vehicles.zipWithIndex.flatMap { case (vehicle, index) =>
+      val supplierNumber = supplierNumbers(index)
+      val vehicleNumber  = index + 1
+      Seq(
+        s"supplier/$supplierNumber/details"                                       -> agriculturalTractorSupplierDetailsSection(vehicle),
+        s"supplier/$supplierNumber/vehicle/$vehicleNumber/type"                   -> agriculturalTractorVehicleTypeSection(vehicle),
+        s"supplier/$supplierNumber/vehicle/$vehicleNumber/details"                -> agriculturalTractorVehicleDetailsSection(vehicle),
+        s"supplier/$supplierNumber/vehicle/$vehicleNumber/additional-information" -> agriculturalTractorVehicleAdditionalInformationSection(
+          vehicle,
+          isAmendment
+        )
       )
-    )
-
-    saveSections(draftId, sections, versionId)
+    }
+    replaceSections(draftId, sections, versionId)
   }
 
   private def saveAllAgriculturalTractorNonEuVehicles(
@@ -255,34 +213,20 @@ class CheckVehicleSpreadsheetDetailsController @Inject() (
     versionId: Long
   )(implicit hc: HeaderCarrier): Future[Either[String, Long]] = {
     val importNumbers = groupNumbersFor(vehicles.map(agriculturalTractorImportDetailsSection))
-    vehicles.zipWithIndex.foldLeft(Future.successful(Right(versionId): Either[String, Long])) { case (acc, (vehicle, index)) =>
-      acc.flatMap {
-        case Left(error) => Future.successful(Left(error))
-        case Right(v)    =>
-          saveAgriculturalTractorNonEuVehicle(draftId, importNumber = importNumbers(index), vehicleNumber = index + 1, vehicle, isAmendment, v)
-      }
-    }
-  }
-
-  private def saveAgriculturalTractorNonEuVehicle(
-    draftId: DraftId,
-    importNumber: Int,
-    vehicleNumber: Int,
-    vehicle: SpreadsheetAgriculturalTractorNonEuVehicle,
-    isAmendment: Boolean,
-    versionId: Long
-  )(implicit hc: HeaderCarrier): Future[Either[String, Long]] = {
-    val sections = Seq(
-      s"import/$importNumber/details"                                       -> agriculturalTractorImportDetailsSection(vehicle),
-      s"import/$importNumber/vehicle/$vehicleNumber/type"                   -> agriculturalTractorImportVehicleTypeSection(vehicle),
-      s"import/$importNumber/vehicle/$vehicleNumber/details"                -> agriculturalTractorImportVehicleDetailsSection(vehicle),
-      s"import/$importNumber/vehicle/$vehicleNumber/additional-information" -> agriculturalTractorImportVehicleAdditionalInformationSection(
-        vehicle,
-        isAmendment
+    val sections      = vehicles.zipWithIndex.flatMap { case (vehicle, index) =>
+      val importNumber  = importNumbers(index)
+      val vehicleNumber = index + 1
+      Seq(
+        s"import/$importNumber/details"                                       -> agriculturalTractorImportDetailsSection(vehicle),
+        s"import/$importNumber/vehicle/$vehicleNumber/type"                   -> agriculturalTractorImportVehicleTypeSection(vehicle),
+        s"import/$importNumber/vehicle/$vehicleNumber/details"                -> agriculturalTractorImportVehicleDetailsSection(vehicle),
+        s"import/$importNumber/vehicle/$vehicleNumber/additional-information" -> agriculturalTractorImportVehicleAdditionalInformationSection(
+          vehicle,
+          isAmendment
+        )
       )
-    )
-
-    saveSections(draftId, sections, versionId)
+    }
+    replaceSections(draftId, sections, versionId)
   }
 
   private def saveAllMotorCaravansEuVehicles(
@@ -292,34 +236,20 @@ class CheckVehicleSpreadsheetDetailsController @Inject() (
     versionId: Long
   )(implicit hc: HeaderCarrier): Future[Either[String, Long]] = {
     val supplierNumbers = groupNumbersFor(vehicles.map(motorCaravansSupplierDetailsSection))
-    vehicles.zipWithIndex.foldLeft(Future.successful(Right(versionId): Either[String, Long])) { case (acc, (vehicle, index)) =>
-      acc.flatMap {
-        case Left(error) => Future.successful(Left(error))
-        case Right(v)    =>
-          saveMotorCaravansEuVehicle(draftId, supplierNumber = supplierNumbers(index), vehicleNumber = index + 1, vehicle, isAmendment, v)
-      }
-    }
-  }
-
-  private def saveMotorCaravansEuVehicle(
-    draftId: DraftId,
-    supplierNumber: Int,
-    vehicleNumber: Int,
-    vehicle: SpreadsheetMotorCaravansEuVehicle,
-    isAmendment: Boolean,
-    versionId: Long
-  )(implicit hc: HeaderCarrier): Future[Either[String, Long]] = {
-    val sections = Seq(
-      s"supplier/$supplierNumber/details"                                       -> motorCaravansSupplierDetailsSection(vehicle),
-      s"supplier/$supplierNumber/vehicle/$vehicleNumber/type"                   -> motorCaravansVehicleTypeSection(vehicle),
-      s"supplier/$supplierNumber/vehicle/$vehicleNumber/details"                -> motorCaravansVehicleDetailsSection(vehicle),
-      s"supplier/$supplierNumber/vehicle/$vehicleNumber/additional-information" -> motorCaravansVehicleAdditionalInformationSection(
-        vehicle,
-        isAmendment
+    val sections        = vehicles.zipWithIndex.flatMap { case (vehicle, index) =>
+      val supplierNumber = supplierNumbers(index)
+      val vehicleNumber  = index + 1
+      Seq(
+        s"supplier/$supplierNumber/details"                                       -> motorCaravansSupplierDetailsSection(vehicle),
+        s"supplier/$supplierNumber/vehicle/$vehicleNumber/type"                   -> motorCaravansVehicleTypeSection(vehicle),
+        s"supplier/$supplierNumber/vehicle/$vehicleNumber/details"                -> motorCaravansVehicleDetailsSection(vehicle),
+        s"supplier/$supplierNumber/vehicle/$vehicleNumber/additional-information" -> motorCaravansVehicleAdditionalInformationSection(
+          vehicle,
+          isAmendment
+        )
       )
-    )
-
-    saveSections(draftId, sections, versionId)
+    }
+    replaceSections(draftId, sections, versionId)
   }
 
   private def saveAllMotorCaravansNonEuVehicles(
@@ -329,34 +259,20 @@ class CheckVehicleSpreadsheetDetailsController @Inject() (
     versionId: Long
   )(implicit hc: HeaderCarrier): Future[Either[String, Long]] = {
     val importNumbers = groupNumbersFor(vehicles.map(motorCaravansImportDetailsSection))
-    vehicles.zipWithIndex.foldLeft(Future.successful(Right(versionId): Either[String, Long])) { case (acc, (vehicle, index)) =>
-      acc.flatMap {
-        case Left(error) => Future.successful(Left(error))
-        case Right(v)    =>
-          saveMotorCaravansNonEuVehicle(draftId, importNumber = importNumbers(index), vehicleNumber = index + 1, vehicle, isAmendment, v)
-      }
-    }
-  }
-
-  private def saveMotorCaravansNonEuVehicle(
-    draftId: DraftId,
-    importNumber: Int,
-    vehicleNumber: Int,
-    vehicle: SpreadsheetMotorCaravansNonEuVehicle,
-    isAmendment: Boolean,
-    versionId: Long
-  )(implicit hc: HeaderCarrier): Future[Either[String, Long]] = {
-    val sections = Seq(
-      s"import/$importNumber/details"                                       -> motorCaravansImportDetailsSection(vehicle),
-      s"import/$importNumber/vehicle/$vehicleNumber/type"                   -> motorCaravansImportVehicleTypeSection(vehicle),
-      s"import/$importNumber/vehicle/$vehicleNumber/details"                -> motorCaravansImportVehicleDetailsSection(vehicle),
-      s"import/$importNumber/vehicle/$vehicleNumber/additional-information" -> motorCaravansImportVehicleAdditionalInformationSection(
-        vehicle,
-        isAmendment
+    val sections      = vehicles.zipWithIndex.flatMap { case (vehicle, index) =>
+      val importNumber  = importNumbers(index)
+      val vehicleNumber = index + 1
+      Seq(
+        s"import/$importNumber/details"                                       -> motorCaravansImportDetailsSection(vehicle),
+        s"import/$importNumber/vehicle/$vehicleNumber/type"                   -> motorCaravansImportVehicleTypeSection(vehicle),
+        s"import/$importNumber/vehicle/$vehicleNumber/details"                -> motorCaravansImportVehicleDetailsSection(vehicle),
+        s"import/$importNumber/vehicle/$vehicleNumber/additional-information" -> motorCaravansImportVehicleAdditionalInformationSection(
+          vehicle,
+          isAmendment
+        )
       )
-    )
-
-    saveSections(draftId, sections, versionId)
+    }
+    replaceSections(draftId, sections, versionId)
   }
 
   private def saveAllHeavyCommercialEuVehicles(
@@ -366,34 +282,20 @@ class CheckVehicleSpreadsheetDetailsController @Inject() (
     versionId: Long
   )(implicit hc: HeaderCarrier): Future[Either[String, Long]] = {
     val supplierNumbers = groupNumbersFor(vehicles.map(heavyCommercialSupplierDetailsSection))
-    vehicles.zipWithIndex.foldLeft(Future.successful(Right(versionId): Either[String, Long])) { case (acc, (vehicle, index)) =>
-      acc.flatMap {
-        case Left(error) => Future.successful(Left(error))
-        case Right(v)    =>
-          saveHeavyCommercialEuVehicle(draftId, supplierNumber = supplierNumbers(index), vehicleNumber = index + 1, vehicle, isAmendment, v)
-      }
-    }
-  }
-
-  private def saveHeavyCommercialEuVehicle(
-    draftId: DraftId,
-    supplierNumber: Int,
-    vehicleNumber: Int,
-    vehicle: SpreadsheetHeavyCommercialEuVehicle,
-    isAmendment: Boolean,
-    versionId: Long
-  )(implicit hc: HeaderCarrier): Future[Either[String, Long]] = {
-    val sections = List(
-      s"supplier/$supplierNumber/details"                                       -> heavyCommercialSupplierDetailsSection(vehicle),
-      s"supplier/$supplierNumber/vehicle/$vehicleNumber/type"                   -> heavyCommercialVehicleTypeSection(vehicle),
-      s"supplier/$supplierNumber/vehicle/$vehicleNumber/details"                -> heavyCommercialVehicleDetailsSection(vehicle),
-      s"supplier/$supplierNumber/vehicle/$vehicleNumber/additional-information" -> heavyCommercialVehicleAdditionalInformationSection(
-        vehicle,
-        isAmendment
+    val sections        = vehicles.zipWithIndex.flatMap { case (vehicle, index) =>
+      val supplierNumber = supplierNumbers(index)
+      val vehicleNumber  = index + 1
+      Seq(
+        s"supplier/$supplierNumber/details"                                       -> heavyCommercialSupplierDetailsSection(vehicle),
+        s"supplier/$supplierNumber/vehicle/$vehicleNumber/type"                   -> heavyCommercialVehicleTypeSection(vehicle),
+        s"supplier/$supplierNumber/vehicle/$vehicleNumber/details"                -> heavyCommercialVehicleDetailsSection(vehicle),
+        s"supplier/$supplierNumber/vehicle/$vehicleNumber/additional-information" -> heavyCommercialVehicleAdditionalInformationSection(
+          vehicle,
+          isAmendment
+        )
       )
-    )
-
-    saveSections(draftId, sections, versionId)
+    }
+    replaceSections(draftId, sections, versionId)
   }
 
   private def saveAllHeavyCommercialNonEuVehicles(
@@ -403,52 +305,28 @@ class CheckVehicleSpreadsheetDetailsController @Inject() (
     versionId: Long
   )(implicit hc: HeaderCarrier): Future[Either[String, Long]] = {
     val importNumbers = groupNumbersFor(vehicles.map(heavyCommercialImportDetailsSection))
-    vehicles.zipWithIndex.foldLeft(Future.successful(Right(versionId): Either[String, Long])) { case (acc, (vehicle, index)) =>
-      acc.flatMap {
-        case Left(error) => Future.successful(Left(error))
-        case Right(v)    =>
-          saveHeavyCommercialNonEuVehicle(draftId, importNumber = importNumbers(index), vehicleNumber = index + 1, vehicle, isAmendment, v)
-      }
-    }
-  }
-
-  private def saveHeavyCommercialNonEuVehicle(
-    draftId: DraftId,
-    importNumber: Int,
-    vehicleNumber: Int,
-    vehicle: SpreadsheetHeavyCommercialNonEuVehicle,
-    isAmendment: Boolean,
-    versionId: Long
-  )(implicit hc: HeaderCarrier): Future[Either[String, Long]] = {
-    val sections = List(
-      s"import/$importNumber/details"                                       -> heavyCommercialImportDetailsSection(vehicle),
-      s"import/$importNumber/vehicle/$vehicleNumber/type"                   -> heavyCommercialImportVehicleTypeSection(vehicle),
-      s"import/$importNumber/vehicle/$vehicleNumber/details"                -> heavyCommercialImportVehicleDetailsSection(vehicle),
-      s"import/$importNumber/vehicle/$vehicleNumber/additional-information" -> heavyCommercialImportVehicleAdditionalInformationSection(
-        vehicle,
-        isAmendment
+    val sections      = vehicles.zipWithIndex.flatMap { case (vehicle, index) =>
+      val importNumber  = importNumbers(index)
+      val vehicleNumber = index + 1
+      Seq(
+        s"import/$importNumber/details"                                       -> heavyCommercialImportDetailsSection(vehicle),
+        s"import/$importNumber/vehicle/$vehicleNumber/type"                   -> heavyCommercialImportVehicleTypeSection(vehicle),
+        s"import/$importNumber/vehicle/$vehicleNumber/details"                -> heavyCommercialImportVehicleDetailsSection(vehicle),
+        s"import/$importNumber/vehicle/$vehicleNumber/additional-information" -> heavyCommercialImportVehicleAdditionalInformationSection(
+          vehicle,
+          isAmendment
+        )
       )
-    )
-
-    saveSections(draftId, sections, versionId)
+    }
+    replaceSections(draftId, sections, versionId)
   }
 
-  private def saveSections(draftId: DraftId, sections: Seq[(String, JsObject)], versionId: Long)(implicit
+  private def replaceSections(draftId: DraftId, sections: Seq[(String, JsObject)], versionId: Long)(implicit
     hc: HeaderCarrier
   ): Future[Either[String, Long]] =
-    sections.foldLeft(Future.successful(Right(versionId): Either[String, Long])) { case (acc, (sectionId, data)) =>
-      acc.flatMap {
-        case Left(error) => Future.successful(Left(error))
-        case Right(v)    => saveSection(draftId, sectionId, data, v)
-      }
-    }
-
-  private def saveSection(draftId: DraftId, sectionId: String, data: JsObject, versionId: Long)(implicit
-    hc: HeaderCarrier
-  ): Future[Either[String, Long]] =
-    connector.updateDraftSection(draftId, sectionId, data + ("versionId" -> Json.toJson(versionId))).map {
+    connector.replaceVehicleSections(draftId, sections.toMap, versionId).map {
       case Right(newVersionId) => Right(newVersionId)
-      case Left(error)         => Left(s"failed to update '$sectionId': $error")
+      case Left(error)         => Left(s"failed to replace vehicle sections: $error")
     }
 }
 
