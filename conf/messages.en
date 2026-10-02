@@ -1149,19 +1149,19 @@ addVehicleDetailsLightCommercial.label.bodyType = Body type
 addVehicleDetailsLightCommercial.hint.bodyType = For example, an 8-seat bus
 
 addVehicleDetailsLightCommercial.make.error.required = Enter the make
-addVehicleDetailsLightCommercial.make.error.format = The make must not include special characters such as #, $, ^, `, {, |, }, ~, or accented letters such as è
+addVehicleDetailsLightCommercial.make.error.format = The make must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
 addVehicleDetailsLightCommercial.make.error.length = The make must be 50 characters or less
 addVehicleDetailsLightCommercial.model.error.required = Enter the model
-addVehicleDetailsLightCommercial.model.error.format = The model must not include special characters such as #, $, ^, `, {, |, }, ~, or accented letters such as è
+addVehicleDetailsLightCommercial.model.error.format = The model must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
 addVehicleDetailsLightCommercial.model.error.length = The model must be 50 characters or less
 addVehicleDetailsLightCommercial.derivative.error.required = Enter the derivative
-addVehicleDetailsLightCommercial.derivative.error.format = The derivative must not include special characters such as #, $, ^, `, {, |, }, ~, or accented letters such as è
+addVehicleDetailsLightCommercial.derivative.error.format = The derivative must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
 addVehicleDetailsLightCommercial.derivative.error.length = The derivative must be 50 characters or less
 addVehicleDetailsLightCommercial.trim.error.required = Enter the trim
-addVehicleDetailsLightCommercial.trim.error.format = The trim must not include special characters such as #, $, ^, `, {, |, }, ~, or accented letters such as è
+addVehicleDetailsLightCommercial.trim.error.format = The trim must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
 addVehicleDetailsLightCommercial.trim.error.length = The trim must be 50 characters or less
 addVehicleDetailsLightCommercial.bodyType.error.required = Enter the body type
-addVehicleDetailsLightCommercial.bodyType.error.format = The body type must not include special characters such as #, $, ^, `, {, |, }, ~, or accented letters such as è
+addVehicleDetailsLightCommercial.bodyType.error.format = The bodyType must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
 addVehicleDetailsLightCommercial.bodyType.error.length = The body type must be 20 characters or less
 
 ##################################################
