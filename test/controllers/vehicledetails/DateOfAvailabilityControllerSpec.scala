@@ -66,7 +66,7 @@ class DateOfAvailabilityControllerSpec extends SpecBase with MockitoSugar {
     .set(AllVehiclesQuery, Map("1" -> Json.obj("supplierNumber" -> 1)))
     .success
     .value
-    .set(VehicleDatesPage(SupplierNumber(1), VehicleNumber(1)), Set[VehicleDates](VehicleDates.AvailabilityAndFirstRegistration))
+    .set(VehicleDatesPage(SupplierNumber(1), VehicleNumber(1)), Set[VehicleDates](VehicleDates.FirstRegistration, VehicleDates.MadeAvailable))
     .success
     .value
 

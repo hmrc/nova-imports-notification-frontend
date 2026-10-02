@@ -303,7 +303,7 @@ class PurchaseInvoiceDateControllerSpec extends SpecBase with MockitoSugar {
     "must return OK for a GET when the purchase invoice date was not one of the dates selected on AVD3.0" in {
 
       val answersWithoutInvoiceDate = userAnswersWithGuardData
-        .set(VehicleDatesPage(supplierNumber, vehicleNumber), Set(VehicleDates.AvailabilityAndFirstRegistration))
+        .set(VehicleDatesPage(supplierNumber, vehicleNumber), Set(VehicleDates.FirstRegistration, VehicleDates.MadeAvailable))
         .success
         .value
 

@@ -70,7 +70,7 @@ class NoPurchaseInvoiceReasonControllerSpec extends SpecBase with MockitoSugar {
     .set(AllVehiclesQuery, Map("1" -> Json.obj("supplierNumber" -> 1)))
     .success
     .value
-    .set(VehicleDatesPage(SupplierNumber(1), VehicleNumber(1)), Set[VehicleDates](VehicleDates.AvailabilityAndFirstRegistration))
+    .set(VehicleDatesPage(SupplierNumber(1), VehicleNumber(1)), Set[VehicleDates](VehicleDates.FirstRegistration, VehicleDates.MadeAvailable))
     .success
     .value
 
@@ -392,7 +392,7 @@ class NoPurchaseInvoiceReasonControllerSpec extends SpecBase with MockitoSugar {
         .set(AllVehiclesQuery, Map("1" -> Json.obj("supplierNumber" -> 1), "3" -> Json.obj("supplierNumber" -> 2)))
         .success
         .value
-        .set(VehicleDatesPage(SupplierNumber(2), VehicleNumber(3)), Set[VehicleDates](VehicleDates.AvailabilityAndFirstRegistration))
+        .set(VehicleDatesPage(SupplierNumber(2), VehicleNumber(3)), Set[VehicleDates](VehicleDates.FirstRegistration, VehicleDates.MadeAvailable))
         .success
         .value
 

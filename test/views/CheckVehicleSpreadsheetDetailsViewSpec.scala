@@ -79,6 +79,16 @@ class CheckVehicleSpreadsheetDetailsViewSpec extends SpecBase with Matchers with
       html must include(s"<title>${msgs("checkVehicleSpreadsheetDetails.title")} - Notification of Vehicle Arrivals - GOV.UK")
     }
 
+    "must include the page number in the title when there is more than one page of vehicles" in {
+      val manyVehicles = (1 to 15).map(n => vehicle.copy(itemNumber = Some(n)))
+      val paginated    = htmlFor(manyVehicles, page = 2)
+
+      paginated must include(
+        s"<title>${msgs("checkVehicleSpreadsheetDetails.pagination.title", 2, 2)} - Notification of Vehicle Arrivals - GOV.UK"
+      )
+      paginated must not include s"<title>${msgs("checkVehicleSpreadsheetDetails.title")} - Notification of Vehicle Arrivals - GOV.UK"
+    }
+
     "must render the table headers" in {
       html must include(msgs("checkVehicleSpreadsheetDetails.table.item"))
       html must include(msgs("checkVehicleSpreadsheetDetails.table.vin"))

@@ -28,7 +28,7 @@ import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusi
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 import play.api.libs.json.Json
 import queries.AllVehiclesQuery
-import pages.sections.vehicledetails.{AddVehicleTypePage, CountryOfFirstRegistrationPage, DateOfAvailabilityPage, DateOfFirstRegistrationPage, NoPurchaseInvoiceReasonPage, PaymentCurrencyPage, PurchaseInvoiceDatePage, PurchaseInvoiceNumberPage, TotalAmountPaidPage, VehicleDatesPage}
+import pages.sections.vehicledetails.{AddVehicleTypePage, CountryOfFirstRegistrationPage, DateOfAvailabilityPage, DateOfFirstRegistrationKnownPage, DateOfFirstRegistrationPage, NoPurchaseInvoiceReasonPage, PaymentCurrencyPage, PurchaseInvoiceDatePage, PurchaseInvoiceNumberPage, TotalAmountPaidPage, VehicleDatesPage}
 
 import java.time.LocalDate
 
@@ -513,26 +513,7 @@ class NavigatorSpec extends SpecBase {
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
 
-      "must go from PurchaseInvoiceNumberPage AVD4.1 to DateOfAvailability AVD5.0 when both dates were selected on AVD3.0" in {
-        val ua = userAnswers
-          .set(
-            VehicleDatesPage(SupplierNumber(1), VehicleNumber(1)),
-            Set(VehicleDates.PurchaseInvoiceDate, VehicleDates.AvailabilityAndFirstRegistration)
-          )
-          .success
-          .value
-          .set(PurchaseInvoiceNumberPage(SupplierNumber(1), VehicleNumber(1)), "INV-001")
-          .success
-          .value
-        navigator.nextPage(
-          PurchaseInvoiceNumberPage(SupplierNumber(1), VehicleNumber(1)),
-          NormalMode,
-          ua,
-          NovaUserType.PrivateIndividual
-        ) mustBe vehicledetails.routes.DateOfAvailabilityController.onPageLoad(SupplierNumber(1), VehicleNumber(1), NormalMode)
-      }
-
-      "must go from PurchaseInvoiceNumberPage AVD4.1 to TotalAmountPaid AVD7.0 when only the purchase invoice date was selected on AVD3.0" in {
+      "must go from PurchaseInvoiceNumberPage AVD4.1 to TotalAmountPaid AVD7.0" in {
         val ua = userAnswers
           .set(VehicleDatesPage(SupplierNumber(1), VehicleNumber(1)), Set(VehicleDates.PurchaseInvoiceDate))
           .success
@@ -561,19 +542,27 @@ class NavigatorSpec extends SpecBase {
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
 
-      "must go from PurchaseInvoiceNumberPage AVD4.1 to JourneyRecovery when AVD3.0 has not been answered" in {
-        val ua = userAnswers.set(PurchaseInvoiceNumberPage(SupplierNumber(1), VehicleNumber(1)), "INV-001").success.value
-        navigator.nextPage(
-          PurchaseInvoiceNumberPage(SupplierNumber(1), VehicleNumber(1)),
-          NormalMode,
-          ua,
-          NovaUserType.PrivateIndividual
-        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      "must go from VehicleDatesPage AVD3.0 to DateOfFirstRegistration AVD5.1 when the date of first registration is selected" in {
+        Seq(
+          Set(VehicleDates.FirstRegistration, VehicleDates.MadeAvailable),
+          Set(VehicleDates.FirstRegistration, VehicleDates.PurchaseInvoiceDate),
+          Set(VehicleDates.FirstRegistration, VehicleDates.MadeAvailable, VehicleDates.PurchaseInvoiceDate)
+        ).foreach { dates =>
+          val ua = userAnswers.set(VehicleDatesPage(SupplierNumber(1), VehicleNumber(1)), dates).success.value
+          navigator.nextPage(
+            VehicleDatesPage(SupplierNumber(1), VehicleNumber(1)),
+            NormalMode,
+            ua,
+            NovaUserType.PrivateIndividual
+          ) mustBe vehicledetails.routes.DateOfFirstRegistrationController.supplierOnPageLoad(SupplierNumber(1), VehicleNumber(1), NormalMode)
+        }
       }
 
-      "must go from VehicleDatesPage AVD3.0 to DateOfAvailability AVD5.0 when only the date of availability is selected" in {
-        val ua =
-          userAnswers.set(VehicleDatesPage(SupplierNumber(1), VehicleNumber(1)), Set(VehicleDates.AvailabilityAndFirstRegistration)).success.value
+      "must go from VehicleDatesPage AVD3.0 to DateOfAvailability AVD5.0 when the vehicle was made available and there is an invoice" in {
+        val ua = userAnswers
+          .set(VehicleDatesPage(SupplierNumber(1), VehicleNumber(1)), Set(VehicleDates.MadeAvailable, VehicleDates.PurchaseInvoiceDate))
+          .success
+          .value
         navigator.nextPage(
           VehicleDatesPage(SupplierNumber(1), VehicleNumber(1)),
           NormalMode,
@@ -582,14 +571,36 @@ class NavigatorSpec extends SpecBase {
         ) mustBe vehicledetails.routes.DateOfAvailabilityController.onPageLoad(SupplierNumber(1), VehicleNumber(1), NormalMode)
       }
 
-      "must go from DateOfAvailabilityPage to the date of first registration page for the same supplier and vehicle when a date is entered" in {
-        val ua = userAnswers.set(DateOfAvailabilityPage(SupplierNumber(1), VehicleNumber(1)), LocalDate.of(2026, 3, 27)).success.value
+      "must go from DateOfAvailabilityPage AVD5.0 to PurchaseInvoiceDate AVD4.0 when the purchase invoice date was selected" in {
+        val ua = userAnswers
+          .set(VehicleDatesPage(SupplierNumber(1), VehicleNumber(1)), Set(VehicleDates.MadeAvailable, VehicleDates.PurchaseInvoiceDate))
+          .success
+          .value
+          .set(DateOfAvailabilityPage(SupplierNumber(1), VehicleNumber(1)), LocalDate.of(2026, 3, 27))
+          .success
+          .value
         navigator.nextPage(
           DateOfAvailabilityPage(SupplierNumber(1), VehicleNumber(1)),
           NormalMode,
           ua,
           NovaUserType.PrivateIndividual
-        ) mustBe vehicledetails.routes.DateOfFirstRegistrationController.supplierOnPageLoad(SupplierNumber(1), VehicleNumber(1), NormalMode)
+        ) mustBe vehicledetails.routes.PurchaseInvoiceDateController.onPageLoad(SupplierNumber(1), VehicleNumber(1), NormalMode)
+      }
+
+      "must go from DateOfAvailabilityPage AVD5.0 to NoPurchaseInvoiceReason AVD6.0 when the purchase invoice date was not selected" in {
+        val ua = userAnswers
+          .set(VehicleDatesPage(SupplierNumber(1), VehicleNumber(1)), Set(VehicleDates.FirstRegistration, VehicleDates.MadeAvailable))
+          .success
+          .value
+          .set(DateOfAvailabilityPage(SupplierNumber(1), VehicleNumber(1)), LocalDate.of(2026, 3, 27))
+          .success
+          .value
+        navigator.nextPage(
+          DateOfAvailabilityPage(SupplierNumber(1), VehicleNumber(1)),
+          NormalMode,
+          ua,
+          NovaUserType.PrivateIndividual
+        ) mustBe vehicledetails.routes.NoPurchaseInvoiceReasonController.onPageLoad(SupplierNumber(1), VehicleNumber(1), NormalMode)
       }
 
       "must go from DateOfAvailabilityPage AVD5.0 to JourneyRecovery when no answer is found" in {
@@ -649,45 +660,34 @@ class NavigatorSpec extends SpecBase {
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
 
-      "must go from CountryOfFirstRegistrationPage to the total amount paid page when purchase invoice date was selected" in {
+      "must go from CountryOfFirstRegistrationPage AVD5.2 to DateOfAvailability AVD5.0 when the vehicle was made available" in {
+        val page = CountryOfFirstRegistrationPage(VehicleNumber(1))
+        val ua   = supplierVehicle
+          .unsafeSet(VehicleDatesPage(SupplierNumber(1), VehicleNumber(1)), Set(VehicleDates.FirstRegistration, VehicleDates.MadeAvailable))
+          .unsafeSet(page, "FR")
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe
+          vehicledetails.routes.DateOfAvailabilityController.onPageLoad(SupplierNumber(1), VehicleNumber(1), NormalMode)
+      }
+
+      "must go from CountryOfFirstRegistrationPage AVD5.2 to DateOfAvailability AVD5.0 when all three dates were selected" in {
         val page = CountryOfFirstRegistrationPage(VehicleNumber(1))
         val ua   = supplierVehicle
           .unsafeSet(
             VehicleDatesPage(SupplierNumber(1), VehicleNumber(1)),
-            Set(VehicleDates.PurchaseInvoiceDate, VehicleDates.AvailabilityAndFirstRegistration)
+            Set(VehicleDates.FirstRegistration, VehicleDates.MadeAvailable, VehicleDates.PurchaseInvoiceDate)
           )
-          .unsafeSet(PurchaseInvoiceDatePage(SupplierNumber(1), VehicleNumber(1)), LocalDate.of(2026, 3, 27))
-          .unsafeSet(PurchaseInvoiceNumberPage(SupplierNumber(1), VehicleNumber(1)), "INV-001")
           .unsafeSet(page, "FR")
         navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe
-          vehicledetails.routes.TotalAmountPaidController.onPageLoadSupplier(SupplierNumber(1), VehicleNumber(1), NormalMode)
+          vehicledetails.routes.DateOfAvailabilityController.onPageLoad(SupplierNumber(1), VehicleNumber(1), NormalMode)
       }
 
-      "must go from CountryOfFirstRegistrationPage to the no purchase invoice reason page when purchase invoice date was deselected after being answered" in {
+      "must go from CountryOfFirstRegistrationPage AVD5.2 to PurchaseInvoiceDate AVD4.0 when the vehicle was not made available" in {
         val page = CountryOfFirstRegistrationPage(VehicleNumber(1))
         val ua   = supplierVehicle
-          .unsafeSet(VehicleDatesPage(SupplierNumber(1), VehicleNumber(1)), Set(VehicleDates.AvailabilityAndFirstRegistration))
-          .unsafeSet(PurchaseInvoiceDatePage(SupplierNumber(1), VehicleNumber(1)), LocalDate.of(2026, 3, 27))
-          .unsafeSet(PurchaseInvoiceNumberPage(SupplierNumber(1), VehicleNumber(1)), "INV-001")
+          .unsafeSet(VehicleDatesPage(SupplierNumber(1), VehicleNumber(1)), Set(VehicleDates.FirstRegistration, VehicleDates.PurchaseInvoiceDate))
           .unsafeSet(page, "FR")
         navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe
-          vehicledetails.routes.NoPurchaseInvoiceReasonController.onPageLoad(SupplierNumber(1), VehicleNumber(1), NormalMode)
-      }
-
-      "must go from CountryOfFirstRegistrationPage to the no purchase invoice reason page when purchase invoice date was not selected" in {
-        val page = CountryOfFirstRegistrationPage(VehicleNumber(1))
-        val ua   = supplierVehicle
-          .unsafeSet(VehicleDatesPage(SupplierNumber(1), VehicleNumber(1)), Set(VehicleDates.AvailabilityAndFirstRegistration))
-          .unsafeSet(page, "FR")
-        navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe
-          vehicledetails.routes.NoPurchaseInvoiceReasonController.onPageLoad(SupplierNumber(1), VehicleNumber(1), NormalMode)
-      }
-
-      "must go from CountryOfFirstRegistrationPage to the no purchase invoice reason page when no vehicle dates were selected" in {
-        val page = CountryOfFirstRegistrationPage(VehicleNumber(1))
-        val ua   = supplierVehicle.unsafeSet(page, "FR")
-        navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe
-          vehicledetails.routes.NoPurchaseInvoiceReasonController.onPageLoad(SupplierNumber(1), VehicleNumber(1), NormalMode)
+          vehicledetails.routes.PurchaseInvoiceDateController.onPageLoad(SupplierNumber(1), VehicleNumber(1), NormalMode)
       }
 
       "must go from CountryOfFirstRegistrationPage AVD5.2 to AddVehicleType AVD8.0 for import 1 vehicle 1" in {
@@ -766,16 +766,18 @@ class NavigatorSpec extends SpecBase {
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
 
-      "must go from AddVehicleTypePage AVD8.0 to the landing page for supplier 1 vehicle 1 until C-AVD1.0 is built" in {
+      "must go from AddVehicleTypePage AVD8.0 to C-AVD1.0 for supplier 1 vehicle 1" in {
         val page = AddVehicleTypePage(VehicleNumber(1))
         val ua   = supplierVehicle.unsafeSet(page, AddVehicleType.Lcv)
-        navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController.onPageLoad()
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe
+          vehicledetails.routes.ConfirmVehicleDetailsController.supplierOnPageLoad(SupplierNumber(1), VehicleNumber(1))
       }
 
-      "must go from AddVehicleTypePage AVD8.0 to the landing page for import 1 vehicle 1 until C-AVD1.0 is built" in {
+      "must go from AddVehicleTypePage AVD8.0 to C-AVD1.0 for import 1 vehicle 1" in {
         val page = AddVehicleTypePage(VehicleNumber(1))
         val ua   = importVehicle.unsafeSet(page, AddVehicleType.Lcv)
-        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+          vehicledetails.routes.ConfirmVehicleDetailsController.importOnPageLoad(ImportNumber(1), VehicleNumber(1))
       }
 
       "must go from AddVehicleTypePage AVD8.0 to JourneyRecovery when the vehicle has no supplier or import" in {
@@ -791,22 +793,6 @@ class NavigatorSpec extends SpecBase {
           importVehicle,
           NovaUserType.VatRegisteredOrganisation
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
-      }
-
-      "must go from VehicleDatesPage AVD3.0 to PurchaseInvoiceDate AVD4.0 when both dates are selected" in {
-        val ua = userAnswers
-          .set(
-            VehicleDatesPage(SupplierNumber(1), VehicleNumber(1)),
-            Set(VehicleDates.PurchaseInvoiceDate, VehicleDates.AvailabilityAndFirstRegistration)
-          )
-          .success
-          .value
-        navigator.nextPage(
-          VehicleDatesPage(SupplierNumber(1), VehicleNumber(1)),
-          NormalMode,
-          ua,
-          NovaUserType.PrivateIndividual
-        ) mustBe vehicledetails.routes.PurchaseInvoiceDateController.onPageLoad(SupplierNumber(1), VehicleNumber(1), NormalMode)
       }
 
       "must go from VehicleDatesPage AVD3.0 to NoVehicleDates AVD3.1 when no dates are held" in {
@@ -1088,78 +1074,174 @@ class NavigatorSpec extends SpecBase {
         ) mustBe supplierdetails.routes.SupplierDetailsCheckYourAnswersController.onPageLoad(SupplierNumber(1))
       }
 
-      "must go from VehicleDatesPage AVD3.0 to LandingPage" in {
-        val ua = userAnswers.set(VehicleDatesPage(SupplierNumber(1), VehicleNumber(1)), Set(VehicleDates.PurchaseInvoiceDate)).success.value
-        navigator.nextPage(
-          VehicleDatesPage(SupplierNumber(1), VehicleNumber(1)),
-          CheckMode,
-          ua,
-          NovaUserType.VatRegisteredOrganisation
-        ) mustBe routes.LandingPageController.onPageLoad()
-      }
+      "for the vehicle details questions" - {
 
-      "must go from PurchaseInvoiceNumberPage AVD4.1 to LandingPage" in {
-        val ua = userAnswers.set(PurchaseInvoiceNumberPage(SupplierNumber(1), VehicleNumber(1)), "INV-001").success.value
-        navigator.nextPage(
-          PurchaseInvoiceNumberPage(SupplierNumber(1), VehicleNumber(1)),
-          CheckMode,
-          ua,
-          NovaUserType.VatRegisteredOrganisation
-        ) mustBe routes.LandingPageController.onPageLoad()
-      }
+        val s = SupplierNumber(1)
+        val v = VehicleNumber(1)
+        val i = ImportNumber(1)
 
-      "must go from DateOfAvailabilityPage AVD5.0 to LandingPage" in {
-        val ua = userAnswers.set(DateOfAvailabilityPage(SupplierNumber(1), VehicleNumber(1)), LocalDate.of(2026, 3, 27)).success.value
-        navigator.nextPage(
-          DateOfAvailabilityPage(SupplierNumber(1), VehicleNumber(1)),
-          CheckMode,
-          ua,
-          NovaUserType.VatRegisteredOrganisation
-        ) mustBe routes.LandingPageController.onPageLoad()
-      }
+        val invoiceOnly: UserAnswers = supplierVehicle
+          .unsafeSet(VehicleDatesPage(s, v), Set(VehicleDates.PurchaseInvoiceDate))
+          .unsafeSet(PurchaseInvoiceDatePage(s, v), LocalDate.of(2026, 3, 27))
+          .unsafeSet(PurchaseInvoiceNumberPage(s, v), "INV-001")
+          .unsafeSet(TotalAmountPaidPage(v), "15000")
+          .unsafeSet(PaymentCurrencyPage(v), "EUR")
+          .unsafeSet(AddVehicleTypePage(v), AddVehicleType.Car)
 
-      "must go from NoPurchaseInvoiceReasonPage AVD6.0 to LandingPage" in {
-        val ua = userAnswers.set(NoPurchaseInvoiceReasonPage(SupplierNumber(1), VehicleNumber(1)), "No invoice was issued").success.value
-        navigator.nextPage(
-          NoPurchaseInvoiceReasonPage(SupplierNumber(1), VehicleNumber(1)),
-          CheckMode,
-          ua,
-          NovaUserType.VatRegisteredOrganisation
-        ) mustBe routes.LandingPageController.onPageLoad()
-      }
+        val availabilityOnly: UserAnswers = supplierVehicle
+          .unsafeSet(VehicleDatesPage(s, v), Set(VehicleDates.FirstRegistration, VehicleDates.MadeAvailable))
+          .unsafeSet(DateOfAvailabilityPage(s, v), LocalDate.of(2026, 3, 27))
+          .unsafeSet(DateOfFirstRegistrationPage(v), LocalDate.of(2026, 3, 1))
+          .unsafeSet(CountryOfFirstRegistrationPage(v), "FR")
+          .unsafeSet(NoPurchaseInvoiceReasonPage(s, v), "No invoice was issued")
+          .unsafeSet(TotalAmountPaidPage(v), "15000")
+          .unsafeSet(PaymentCurrencyPage(v), "EUR")
+          .unsafeSet(AddVehicleTypePage(v), AddVehicleType.Car)
 
-      "must go from AddVehicleTypePage to the landing page till C-AVD1.0 page is built in checkmode" in {
-        val page = AddVehicleTypePage(VehicleNumber(1))
-        val ua   = importVehicle.unsafeSet(page, AddVehicleType.Hcv)
-        navigator.nextPage(page, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
-      }
+        val importComplete: UserAnswers = importVehicle
+          .unsafeSet(DateOfFirstRegistrationKnownPage(v), true)
+          .unsafeSet(DateOfFirstRegistrationPage(v), LocalDate.of(2026, 3, 1))
+          .unsafeSet(CountryOfFirstRegistrationPage(v), "FR")
+          .unsafeSet(AddVehicleTypePage(v), AddVehicleType.Hcv)
 
-      "must go from TotalAmountPaidPage AVD7.0 to LandingPage" in {
-        val ua = userAnswers.set(TotalAmountPaidPage(VehicleNumber(1)), "15000").success.value
-        navigator.nextPage(
-          TotalAmountPaidPage(VehicleNumber(1)),
-          CheckMode,
-          ua,
-          NovaUserType.VatRegisteredOrganisation
-        ) mustBe routes.LandingPageController.onPageLoad()
-      }
+        val supplierConfirm = vehicledetails.routes.ConfirmVehicleDetailsController.supplierOnPageLoad(s, v)
+        val importConfirm   = vehicledetails.routes.ConfirmVehicleDetailsController.importOnPageLoad(i, v)
 
-      "must go from PaymentCurrencyPage AVD7.1 to the landing page until the vehicle details check your answers page is built" in {
-        val page = PaymentCurrencyPage(VehicleNumber(1))
-        val ua   = supplierVehicle.unsafeSet(page, "EUR")
-        navigator.nextPage(page, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
-      }
+        "must go from VehicleDatesPage AVD3.0 to C-AVD1.0 when every required question is answered" in {
+          navigator.nextPage(VehicleDatesPage(s, v), CheckMode, invoiceOnly, NovaUserType.VatRegisteredOrganisation) mustBe supplierConfirm
+        }
 
-      "must go from DateOfFirstRegistrationPage to the landing page until the vehicle details check your answers page is built" in {
-        val page = DateOfFirstRegistrationPage(VehicleNumber(1))
-        val ua   = userAnswers.unsafeSet(page, LocalDate.of(2026, 3, 27))
-        navigator.nextPage(page, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
-      }
+        "must go from VehicleDatesPage AVD3.0 to AVD3.1 when no dates is selected" in {
+          val ua = invoiceOnly.unsafeSet(VehicleDatesPage(s, v), Set(VehicleDates.NoDates))
+          navigator.nextPage(VehicleDatesPage(s, v), CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+            vehicledetails.routes.NoVehicleDatesController.onPageLoad(s, v)
+        }
 
-      "must go from CountryOfFirstRegistrationPage to the landing page until the vehicle details check your answers page is built" in {
-        val page = CountryOfFirstRegistrationPage(VehicleNumber(1))
-        val ua   = supplierVehicle.unsafeSet(page, "FR")
-        navigator.nextPage(page, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
+        "must go from VehicleDatesPage AVD3.0 to the first unanswered question in check mode when a date type is added" in {
+          val ua = invoiceOnly.unsafeSet(
+            VehicleDatesPage(s, v),
+            Set(VehicleDates.PurchaseInvoiceDate, VehicleDates.FirstRegistration, VehicleDates.MadeAvailable)
+          )
+          navigator.nextPage(VehicleDatesPage(s, v), CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+            vehicledetails.routes.DateOfFirstRegistrationController.supplierOnPageLoad(s, v, CheckMode)
+        }
+
+        "must go from VehicleDatesPage AVD3.0 to AVD5.0 in check mode when only the date the vehicle was made available is added" in {
+          val ua = invoiceOnly.unsafeSet(VehicleDatesPage(s, v), Set(VehicleDates.PurchaseInvoiceDate, VehicleDates.MadeAvailable))
+          navigator.nextPage(VehicleDatesPage(s, v), CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+            vehicledetails.routes.DateOfAvailabilityController.onPageLoad(s, v, CheckMode)
+        }
+
+        "must go from VehicleDatesPage AVD3.0 to AVD5.1 in check mode when only the date the vehicle was first registered is added" in {
+          val ua = invoiceOnly.unsafeSet(VehicleDatesPage(s, v), Set(VehicleDates.PurchaseInvoiceDate, VehicleDates.FirstRegistration))
+          navigator.nextPage(VehicleDatesPage(s, v), CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+            vehicledetails.routes.DateOfFirstRegistrationController.supplierOnPageLoad(s, v, CheckMode)
+        }
+
+        "must go from VehicleDatesPage AVD3.0 to AVD6.0 in check mode when the purchase invoice date is removed" in {
+          val ua = invoiceOnly
+            .unsafeSet(VehicleDatesPage(s, v), Set(VehicleDates.FirstRegistration, VehicleDates.MadeAvailable))
+            .unsafeSet(DateOfAvailabilityPage(s, v), LocalDate.of(2026, 3, 27))
+            .unsafeSet(DateOfFirstRegistrationPage(v), LocalDate.of(2026, 3, 1))
+            .unsafeSet(CountryOfFirstRegistrationPage(v), "FR")
+          navigator.nextPage(VehicleDatesPage(s, v), CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+            vehicledetails.routes.NoPurchaseInvoiceReasonController.onPageLoad(s, v, CheckMode)
+        }
+
+        "must go from PurchaseInvoiceDatePage AVD4.0 to C-AVD1.0" in {
+          navigator.nextPage(PurchaseInvoiceDatePage(s, v), CheckMode, invoiceOnly, NovaUserType.VatRegisteredOrganisation) mustBe supplierConfirm
+        }
+
+        "must go from PurchaseInvoiceNumberPage AVD4.1 to C-AVD1.0" in {
+          navigator.nextPage(PurchaseInvoiceNumberPage(s, v), CheckMode, invoiceOnly, NovaUserType.VatRegisteredOrganisation) mustBe supplierConfirm
+        }
+
+        "must go from DateOfAvailabilityPage AVD5.0 to C-AVD1.0" in {
+          navigator.nextPage(DateOfAvailabilityPage(s, v), CheckMode, availabilityOnly, NovaUserType.VatRegisteredOrganisation) mustBe supplierConfirm
+        }
+
+        "must go from DateOfFirstRegistrationPage AVD5.1 to C-AVD1.0 for a supplier vehicle" in {
+          navigator.nextPage(
+            DateOfFirstRegistrationPage(v),
+            CheckMode,
+            availabilityOnly,
+            NovaUserType.VatRegisteredOrganisation
+          ) mustBe supplierConfirm
+        }
+
+        "must go from CountryOfFirstRegistrationPage AVD5.2 to C-AVD1.0 for a supplier vehicle" in {
+          navigator.nextPage(CountryOfFirstRegistrationPage(v), CheckMode, availabilityOnly, NovaUserType.VatRegisteredOrganisation) mustBe
+            supplierConfirm
+        }
+
+        "must go from NoPurchaseInvoiceReasonPage AVD6.0 to C-AVD1.0" in {
+          navigator.nextPage(NoPurchaseInvoiceReasonPage(s, v), CheckMode, availabilityOnly, NovaUserType.VatRegisteredOrganisation) mustBe
+            supplierConfirm
+        }
+
+        "must go from TotalAmountPaidPage AVD7.0 to C-AVD1.0" in {
+          navigator.nextPage(TotalAmountPaidPage(v), CheckMode, invoiceOnly, NovaUserType.VatRegisteredOrganisation) mustBe supplierConfirm
+        }
+
+        "must go from TotalAmountPaidPage AVD7.0 to AVD7.1 in check mode when the currency is missing" in {
+          val ua = invoiceOnly.remove(PaymentCurrencyPage(v)).success.value
+          navigator.nextPage(TotalAmountPaidPage(v), CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+            vehicledetails.routes.PaymentCurrencyController.supplierOnPageLoad(s, v, CheckMode)
+        }
+
+        "must go from PaymentCurrencyPage AVD7.1 to C-AVD1.0" in {
+          navigator.nextPage(PaymentCurrencyPage(v), CheckMode, invoiceOnly, NovaUserType.VatRegisteredOrganisation) mustBe supplierConfirm
+        }
+
+        "must go from PaymentCurrencyPage AVD7.1 to AVD8.0 in check mode when the vehicle type is missing" in {
+          val ua = invoiceOnly.remove(AddVehicleTypePage(v)).success.value
+          navigator.nextPage(PaymentCurrencyPage(v), CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+            vehicledetails.routes.AddVehicleTypeController.supplierOnPageLoad(s, v, CheckMode)
+        }
+
+        "must go from AddVehicleTypePage AVD8.0 to C-AVD1.0 for a supplier vehicle" in {
+          navigator.nextPage(AddVehicleTypePage(v), CheckMode, invoiceOnly, NovaUserType.VatRegisteredOrganisation) mustBe supplierConfirm
+        }
+
+        "must go from AddVehicleTypePage AVD8.0 to C-AVD1.0 for an import vehicle" in {
+          navigator.nextPage(AddVehicleTypePage(v), CheckMode, importComplete, NovaUserType.VatRegisteredOrganisation) mustBe importConfirm
+        }
+
+        "must go from DateOfFirstRegistrationPage AVD5.1 to AVD5.2 in check mode for an import vehicle without a country" in {
+          val ua = importComplete.remove(CountryOfFirstRegistrationPage(v)).success.value
+          navigator.nextPage(DateOfFirstRegistrationPage(v), CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+            vehicledetails.routes.CountryOfFirstRegistrationController.importOnPageLoad(i, v, CheckMode)
+        }
+
+        "must go from CountryOfFirstRegistrationPage AVD5.2 to C-AVD1.0 for an import vehicle" in {
+          navigator.nextPage(CountryOfFirstRegistrationPage(v), CheckMode, importComplete, NovaUserType.VatRegisteredOrganisation) mustBe
+            importConfirm
+        }
+
+        "must go to the AVD-IE4.0 placeholder in check mode for an import vehicle when whether the date of first registration is known has not been answered" in {
+          val ua = importComplete.remove(DateOfFirstRegistrationKnownPage(v)).success.value
+          navigator.nextPage(AddVehicleTypePage(v), CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+            routes.LandingPageController.onPageLoad()
+        }
+
+        "must go from AddVehicleTypePage AVD8.0 to C-AVD1.0 for an import vehicle when the date of first registration is not known" in {
+          val ua = importVehicle
+            .unsafeSet(DateOfFirstRegistrationKnownPage(v), false)
+            .unsafeSet(AddVehicleTypePage(v), AddVehicleType.Hcv)
+          navigator.nextPage(AddVehicleTypePage(v), CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe importConfirm
+        }
+
+        "must go from CountryOfFirstRegistrationPage AVD5.2 to AVD8.0 in check mode for an import vehicle without a vehicle type" in {
+          val ua = importComplete.remove(AddVehicleTypePage(v)).success.value
+          navigator.nextPage(CountryOfFirstRegistrationPage(v), CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+            vehicledetails.routes.AddVehicleTypeController.importOnPageLoad(i, v, CheckMode)
+        }
+
+        "must go to JourneyRecovery when the vehicle belongs to neither a supplier nor an import" in {
+          val ua = userAnswers.unsafeSet(TotalAmountPaidPage(v), "15000")
+          navigator.nextPage(TotalAmountPaidPage(v), CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+            routes.JourneyRecoveryController.onPageLoad()
+        }
       }
 
       "must go from SupplierBusinessNamePage to the supplier details check your answers page" in {

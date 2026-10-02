@@ -14,18 +14,11 @@
  * limitations under the License.
  */
 
-package models.draftsections
+package models.formats
 
-import play.api.libs.json.{Format, Json}
+import play.api.libs.json.Reads
 
-final case class ImportVehicleType(
-  vehicleType: String,
-  dateRoadUseKnown: Boolean,
-  dateOfFirstRegistration: Option[String] = None,
-  countryOfFirstRegistration: Option[String] = None,
-  fromSupplier: Option[Boolean] = None
-)
+object JsonImplicits {
 
-object ImportVehicleType {
-  implicit val format: Format[ImportVehicleType] = Json.format[ImportVehicleType]
+  implicit val bigDecimalReads: Reads[BigDecimal] = Reads.StringReads.map(BigDecimal(_))
 }

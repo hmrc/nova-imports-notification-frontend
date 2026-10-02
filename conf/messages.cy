@@ -792,11 +792,15 @@ vehicleDates.title = Which dates do you have for the vehicle?
 vehicleDates.heading = Which dates do you have for the vehicle?
 vehicleDates.caption = Add vehicle details
 vehicleDates.hint = Select all that apply
-vehicleDates.error.required = Select if you have the date the vehicle was made available and date of first registration, purchase invoice date or none of these dates
+vehicleDates.error.required = Select the dates you have for the vehicle
+vehicleDates.error.oneMoreDate = You must select one more date
+vehicleDates.checkbox.firstRegistration = Date the vehicle was first registered
+vehicleDates.checkbox.firstRegistration.hint = You must also provide the country where the vehicle was first registered
+vehicleDates.checkbox.madeAvailable = Date the vehicle was made available
 vehicleDates.checkbox.purchaseInvoiceDate = Purchase invoice date
-vehicleDates.checkbox.availabilityAndFirstRegistration = Date the vehicle was made available and date of first registration
+vehicleDates.checkbox.purchaseInvoiceDate.hint = Select this only if you have a purchase invoice. You must also provide the purchase invoice number
 vehicleDates.or = or
-vehicleDates.checkbox.noDates = No, I do not have any of these dates
+vehicleDates.checkbox.noDates = I do not have any of these dates
 
 ##############################################################
 # AVD4.0 - Add vehicle details 4.0: Purchase invoice date    #
@@ -912,7 +916,7 @@ vehiclesBoughtFromSupplier.caption = Add vehicle details
 vehiclesBoughtFromSupplier.heading = Vehicles bought from {0}
 vehiclesBoughtFromSupplier.heading.noSupplierName = Vehicles bought from this supplier
 vehiclesBoughtFromSupplier.paragraph.1 = Add one vehicle at a time. For each vehicle, you must provide either the:
-vehiclesBoughtFromSupplier.bullet.1 = date the vehicle was made available to you and the date it was first registered for road use
+vehiclesBoughtFromSupplier.bullet.1 = date the vehicle was made available and the date it was first registered for road use
 vehiclesBoughtFromSupplier.bullet.2 = purchase invoice date
 vehiclesBoughtFromSupplier.inset.paragraph.1 = If you cannot provide any of these dates, You cannot continue this notification online. You need to {0}.
 vehiclesBoughtFromSupplier.inset.contactPersonalTransportUnit.linkText = contact HMRC Personal Transport Unit
@@ -1107,3 +1111,36 @@ deleteCurrentNotification.title = Are you sure you want to delete this notificat
 deleteCurrentNotification.heading = Are you sure you want to delete this notification?
 deleteCurrentNotification.paragraph = You’ll lose all the details for this notification.
 deleteCurrentNotification.error.required = Select yes if you want to delete this notification
+
+##################################################################
+# C-AVD1.0 - Confirm vehicle details 1.0                         #
+##################################################################
+# TODO: Welsh translations to be supplied by content team.
+confirmVehicleDetails.title = Check the vehicle details before you continue
+confirmVehicleDetails.heading = Check the vehicle details before you continue
+confirmVehicleDetails.caption = Add vehicle details
+confirmVehicleDetails.vehicleDates.label = Which dates do you have for the vehicle?
+confirmVehicleDetails.vehicleDates.firstRegistered = Date the vehicle was first registered
+confirmVehicleDetails.vehicleDates.madeAvailable = Date the vehicle was made available
+confirmVehicleDetails.vehicleDates.purchaseInvoiceDate = Purchase invoice date
+confirmVehicleDetails.vehicleDates.change.hidden = which dates you have for the vehicle
+confirmVehicleDetails.dateOfFirstRegistrationKnown.label = Do you know the date of first registration?
+confirmVehicleDetails.dateOfFirstRegistrationKnown.change.hidden = whether you know the date this vehicle was first registered for road use
+confirmVehicleDetails.dateOfFirstRegistration.label = Date of first registration
+confirmVehicleDetails.dateOfFirstRegistration.change.hidden = date the vehicle was first registered for road use
+confirmVehicleDetails.countryOfFirstRegistration.label = Country of first registration
+confirmVehicleDetails.countryOfFirstRegistration.change.hidden = country where the vehicle was first registered
+confirmVehicleDetails.dateOfAvailability.label = Date of availability
+confirmVehicleDetails.dateOfAvailability.change.hidden = date the vehicle was made available to you
+confirmVehicleDetails.purchaseInvoiceDate.label = Purchase invoice date
+confirmVehicleDetails.purchaseInvoiceDate.change.hidden = purchase invoice date
+confirmVehicleDetails.purchaseInvoiceNumber.label = Purchase invoice number
+confirmVehicleDetails.purchaseInvoiceNumber.change.hidden = purchase invoice number
+confirmVehicleDetails.noPurchaseInvoiceReason.label = Reason for no purchase invoice
+confirmVehicleDetails.noPurchaseInvoiceReason.change.hidden = reason why a purchase invoice is not available
+confirmVehicleDetails.totalAmountPaid.label = Total amount paid
+confirmVehicleDetails.totalAmountPaid.change.hidden = total amount paid for the vehicle
+confirmVehicleDetails.currency.label = Currency
+confirmVehicleDetails.currency.change.hidden = currency used to pay for the vehicle
+confirmVehicleDetails.vehicleType.label = Vehicle type
+confirmVehicleDetails.vehicleType.change.hidden = which type of vehicle you are notifying HMRC about
