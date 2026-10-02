@@ -273,10 +273,6 @@ class Navigator @Inject() () {
           userAnswers.vehicleSupplierNumber(page.vehicleNumber),
           userAnswers.vehicleImportNumber(page.vehicleNumber)
         ) match {
-          case (Some(AddVehicleType.Car), Some(supplierNumber), _) =>
-            vehicledetails.routes.AddVehicleDetailsCarController.supplierOnPageLoad(supplierNumber, page.vehicleNumber, NormalMode)
-          case (Some(AddVehicleType.Car), None, Some(importNumber)) =>
-            vehicledetails.routes.AddVehicleDetailsCarController.importOnPageLoad(importNumber, page.vehicleNumber, NormalMode)
           case (Some(_), Some(supplierNumber), _) =>
             vehicledetails.routes.ConfirmVehicleDetailsController.supplierOnPageLoad(supplierNumber, page.vehicleNumber)
           case (Some(_), None, Some(importNumber)) =>
@@ -290,11 +286,9 @@ class Navigator @Inject() () {
           userAnswers.vehicleSupplierNumber(page.vehicleNumber),
           userAnswers.vehicleImportNumber(page.vehicleNumber)
         ) match {
-          case (Some(_), Some(supplierNumber), _) =>
-            vehicledetails.routes.ConfirmVehicleDetailsController.supplierOnPageLoad(supplierNumber, page.vehicleNumber)
-          case (Some(_), None, Some(importNumber)) =>
-            vehicledetails.routes.ConfirmVehicleDetailsController.importOnPageLoad(importNumber, page.vehicleNumber)
-          case _ => routes.JourneyRecoveryController.onPageLoad()
+          case (Some(_), Some(_), _)    => routes.LandingPageController.onPageLoad() // TODO: navigate to C-AVD2.0 when built
+          case (Some(_), None, Some(_)) => routes.LandingPageController.onPageLoad() // TODO: navigate to C-AVD2.0 when built
+          case _                        => routes.JourneyRecoveryController.onPageLoad()
         }
     case _ => (_, _) => routes.LandingPageController.onPageLoad()
   }
@@ -372,7 +366,6 @@ class Navigator @Inject() () {
     case page: TotalAmountPaidPage            => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
     case page: PaymentCurrencyPage            => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
     case page: AddVehicleTypePage             => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
-    case page: AddVehicleDetailsCarPage       => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
     case _                                    =>
       (_, _) => routes.LandingPageController.onPageLoad()
   }
