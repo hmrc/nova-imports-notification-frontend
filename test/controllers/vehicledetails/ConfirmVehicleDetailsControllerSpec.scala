@@ -21,7 +21,7 @@ import com.google.inject.name.Names
 import connectors.{NovaImportsBackendConnector, UpdateSectionError}
 import controllers.actions.*
 import controllers.{routes, vehicledetails}
-import models.{AddVehicleType, AgentSelectedClient, CheckMode, DraftId, ImportNumber, SupplierNumber, UserAnswers, VehicleDates, VehicleNumber}
+import models.{AddVehicleType, AgentSelectedClient, CheckMode, DraftId, ImportNumber, NormalMode, SupplierNumber, UserAnswers, VehicleDates, VehicleNumber}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{never, verify, when}
@@ -310,7 +310,7 @@ class ConfirmVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
 
     "supplierOnSubmit" - {
 
-      "must call F4 for the supplier vehicle type section, save the new version and redirect to the AVD8.1 placeholder for a car" in {
+      "must call F4 for the supplier vehicle type section, save the new version and redirect to AVD8.1 for a car" in {
         val connector  = successfulConnector
         val repository = stubSessionRepository(invoiceOnly)
         val app        = application(Some(invoiceOnly), connector, repository)
@@ -319,7 +319,9 @@ class ConfirmVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
           val result = route(app, FakeRequest(POST, supplierRoute)).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.LandingPageController.onPageLoad().url
+          redirectLocation(result).value mustEqual vehicledetails.routes.AddVehicleDetailsCarController
+            .supplierOnPageLoad(s, v, NormalMode)
+            .url
 
           capturedBody(connector, "supplier/1/vehicle/1/type") mustEqual Json.obj(
             "vehicleType"               -> "CAR",
