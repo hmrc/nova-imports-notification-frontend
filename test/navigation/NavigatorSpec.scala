@@ -28,7 +28,7 @@ import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusi
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 import play.api.libs.json.Json
 import queries.AllVehiclesQuery
-import pages.sections.vehicledetails.{AddVehicleTypePage, CountryOfFirstRegistrationPage, DateOfAvailabilityPage, DateOfFirstRegistrationPage, NoPurchaseInvoiceReasonPage, PaymentCurrencyPage, PurchaseInvoiceDatePage, PurchaseInvoiceNumberPage, TotalAmountPaidPage, VehicleDatesPage}
+import pages.sections.vehicledetails.{AddVehicleTypePage, CountryOfFirstRegistrationPage, DateOfAvailabilityPage, DateOfFirstRegistrationKnownPage, DateOfFirstRegistrationPage, NoPurchaseInvoiceReasonPage, PaymentCurrencyPage, PurchaseInvoiceDatePage, PurchaseInvoiceNumberPage, TotalAmountPaidPage, VehicleDatesPage}
 
 import java.time.LocalDate
 
@@ -1115,6 +1115,7 @@ class NavigatorSpec extends SpecBase {
           .unsafeSet(AddVehicleTypePage(v), AddVehicleType.Car)
 
         val importComplete: UserAnswers = importVehicle
+          .unsafeSet(DateOfFirstRegistrationKnownPage(v), true)
           .unsafeSet(DateOfFirstRegistrationPage(v), LocalDate.of(2026, 3, 1))
           .unsafeSet(CountryOfFirstRegistrationPage(v), "FR")
           .unsafeSet(AddVehicleTypePage(v), AddVehicleType.Hcv)
@@ -1208,7 +1209,7 @@ class NavigatorSpec extends SpecBase {
         }
 
         "must go from DateOfFirstRegistrationPage AVD5.1 to AVD5.2 in check mode for an import vehicle without a country" in {
-          val ua = importVehicle.unsafeSet(DateOfFirstRegistrationPage(v), LocalDate.of(2026, 3, 1))
+          val ua = importComplete.remove(CountryOfFirstRegistrationPage(v)).success.value
           navigator.nextPage(DateOfFirstRegistrationPage(v), CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
             vehicledetails.routes.CountryOfFirstRegistrationController.importOnPageLoad(i, v, CheckMode)
         }
@@ -1216,6 +1217,19 @@ class NavigatorSpec extends SpecBase {
         "must go from CountryOfFirstRegistrationPage AVD5.2 to C-AVD1.0 for an import vehicle" in {
           navigator.nextPage(CountryOfFirstRegistrationPage(v), CheckMode, importComplete, NovaUserType.VatRegisteredOrganisation) mustBe
             importConfirm
+        }
+
+        "must go to the AVD-IE4.0 placeholder in check mode for an import vehicle when whether the date of first registration is known has not been answered" in {
+          val ua = importComplete.remove(DateOfFirstRegistrationKnownPage(v)).success.value
+          navigator.nextPage(AddVehicleTypePage(v), CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+            routes.LandingPageController.onPageLoad()
+        }
+
+        "must go from AddVehicleTypePage AVD8.0 to C-AVD1.0 for an import vehicle when the date of first registration is not known" in {
+          val ua = importVehicle
+            .unsafeSet(DateOfFirstRegistrationKnownPage(v), false)
+            .unsafeSet(AddVehicleTypePage(v), AddVehicleType.Hcv)
+          navigator.nextPage(AddVehicleTypePage(v), CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe importConfirm
         }
 
         "must go from CountryOfFirstRegistrationPage AVD5.2 to AVD8.0 in check mode for an import vehicle without a vehicle type" in {

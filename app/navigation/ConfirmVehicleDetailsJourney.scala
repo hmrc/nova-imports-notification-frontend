@@ -85,15 +85,36 @@ object ConfirmVehicleDetailsJourney {
     questions.collectFirst { case (required, answered, call) if required && !answered => call }
   }
 
-  def importFirstUnanswered(answers: UserAnswers, importNumber: ImportNumber, vehicleNumber: VehicleNumber): Option[Call] =
-    Seq(
-      answers.get(DateOfFirstRegistrationPage(vehicleNumber)).isDefined ->
-        routes.DateOfFirstRegistrationController.importOnPageLoad(importNumber, vehicleNumber, CheckMode),
-      answers.get(CountryOfFirstRegistrationPage(vehicleNumber)).isDefined ->
-        routes.CountryOfFirstRegistrationController.importOnPageLoad(importNumber, vehicleNumber, CheckMode),
-      answers.get(AddVehicleTypePage(vehicleNumber)).isDefined ->
+  def importFirstUnanswered(answers: UserAnswers, importNumber: ImportNumber, vehicleNumber: VehicleNumber): Option[Call] = {
+    val dateOfFirstRegistrationKnown = answers.get(DateOfFirstRegistrationKnownPage(vehicleNumber))
+
+    val questions: Seq[(Boolean, Boolean, Call)] = Seq(
+      (
+        true,
+        dateOfFirstRegistrationKnown.isDefined,
+        dateOfFirstRegistrationKnownChange
+      ),
+      (
+        dateOfFirstRegistrationKnown.contains(true),
+        answers.get(DateOfFirstRegistrationPage(vehicleNumber)).isDefined,
+        routes.DateOfFirstRegistrationController.importOnPageLoad(importNumber, vehicleNumber, CheckMode)
+      ),
+      (
+        dateOfFirstRegistrationKnown.contains(true),
+        answers.get(CountryOfFirstRegistrationPage(vehicleNumber)).isDefined,
+        routes.CountryOfFirstRegistrationController.importOnPageLoad(importNumber, vehicleNumber, CheckMode)
+      ),
+      (
+        true,
+        answers.get(AddVehicleTypePage(vehicleNumber)).isDefined,
         routes.AddVehicleTypeController.importOnPageLoad(importNumber, vehicleNumber, CheckMode)
-    ).collectFirst { case (answered, call) if !answered => call }
+      )
+    )
+
+    questions.collectFirst { case (required, answered, call) if required && !answered => call }
+  }
+
+  def dateOfFirstRegistrationKnownChange: Call = controllers.routes.LandingPageController.onPageLoad()
 
   def checkModeRoute(answers: UserAnswers, vehicleNumber: VehicleNumber): Call =
     (answers.vehicleSupplierNumber(vehicleNumber), answers.vehicleImportNumber(vehicleNumber)) match {

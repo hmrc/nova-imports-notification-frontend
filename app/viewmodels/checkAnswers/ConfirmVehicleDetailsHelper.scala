@@ -18,6 +18,7 @@ package viewmodels.checkAnswers
 
 import controllers.vehicledetails.routes
 import models.{AddVehicleType, CheckMode, Country, Currency, ImportNumber, SupplierNumber, UserAnswers, VehicleDates, VehicleNumber}
+import navigation.ConfirmVehicleDetailsJourney
 import pages.sections.vehicledetails.*
 import play.api.i18n.Messages
 import play.api.mvc.Call
@@ -137,23 +138,41 @@ object ConfirmVehicleDetailsHelper {
 
   def importSummaryList(answers: UserAnswers, importNumber: ImportNumber, vehicleNumber: VehicleNumber, countries: Seq[Country])(implicit
     messages: Messages
-  ): SummaryList =
+  ): SummaryList = {
+    val dateOfFirstRegistrationKnown = answers.get(DateOfFirstRegistrationKnownPage(vehicleNumber))
+
     SummaryListViewModel(
       rows = Seq(
-        dateOfFirstRegistrationRow(
-          answers,
-          vehicleNumber,
-          routes.DateOfFirstRegistrationController.importOnPageLoad(importNumber, vehicleNumber, CheckMode)
+        dateOfFirstRegistrationKnown.map(known =>
+          row(
+            "dateOfFirstRegistrationKnown",
+            textValue(messages(if (known) "site.yes" else "site.no")),
+            ConfirmVehicleDetailsJourney.dateOfFirstRegistrationKnownChange
+          )
         ),
-        countryOfFirstRegistrationRow(
-          answers,
-          vehicleNumber,
-          countries,
-          routes.CountryOfFirstRegistrationController.importOnPageLoad(importNumber, vehicleNumber, CheckMode)
-        ),
+        Option
+          .when(dateOfFirstRegistrationKnown.contains(true))(
+            dateOfFirstRegistrationRow(
+              answers,
+              vehicleNumber,
+              routes.DateOfFirstRegistrationController.importOnPageLoad(importNumber, vehicleNumber, CheckMode)
+            )
+          )
+          .flatten,
+        Option
+          .when(dateOfFirstRegistrationKnown.contains(true))(
+            countryOfFirstRegistrationRow(
+              answers,
+              vehicleNumber,
+              countries,
+              routes.CountryOfFirstRegistrationController.importOnPageLoad(importNumber, vehicleNumber, CheckMode)
+            )
+          )
+          .flatten,
         vehicleTypeRow(answers, vehicleNumber, routes.AddVehicleTypeController.importOnPageLoad(importNumber, vehicleNumber, CheckMode))
       ).flatten
     )
+  }
 
   private def vehicleDatesRow(dates: Set[VehicleDates], change: Call)(implicit messages: Messages): Option[SummaryListRow] =
     Option.when(dates.nonEmpty) {

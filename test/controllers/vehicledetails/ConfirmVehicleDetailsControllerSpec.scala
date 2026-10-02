@@ -80,6 +80,7 @@ class ConfirmVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
     .unsafeSet(VehicleFromEuPage, false)
     .unsafeSet(AllImportsQuery, Map("1" -> Json.obj("importEntryNumber" -> "123456789A")))
     .unsafeSet(AllVehiclesQuery, Map("1" -> Json.obj("importNumber" -> 1)))
+    .unsafeSet(DateOfFirstRegistrationKnownPage(v), true)
     .unsafeSet(DateOfFirstRegistrationPage(v), LocalDate.of(2026, 3, 1))
     .unsafeSet(CountryOfFirstRegistrationPage(v), "FR")
     .unsafeSet(AddVehicleTypePage(v), AddVehicleType.Hcv)
@@ -274,6 +275,30 @@ class ConfirmVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
         mustBeUnauthorised(application(Some(importComplete.remove(CountryOfFirstRegistrationPage(v)).success.value)), importRoute)
       }
 
+      "must redirect to Unauthorised when the date of first registration is missing" in {
+        mustBeUnauthorised(application(Some(importComplete.remove(DateOfFirstRegistrationPage(v)).success.value)), importRoute)
+      }
+
+      "must redirect to Unauthorised when whether the date of first registration is known has not been answered" in {
+        mustBeUnauthorised(application(Some(importComplete.remove(DateOfFirstRegistrationKnownPage(v)).success.value)), importRoute)
+      }
+
+      "must return OK without the date and country of first registration when the date of first registration is not known" in {
+        val answers = importComplete
+          .unsafeSet(DateOfFirstRegistrationKnownPage(v), false)
+          .remove(DateOfFirstRegistrationPage(v))
+          .success
+          .value
+          .remove(CountryOfFirstRegistrationPage(v))
+          .success
+          .value
+        val app = application(Some(answers))
+
+        running(app) {
+          status(route(app, FakeRequest(GET, importRoute)).value) mustEqual OK
+        }
+      }
+
       "must redirect to Unauthorised when the vehicle type is missing" in {
         mustBeUnauthorised(application(Some(importComplete.remove(AddVehicleTypePage(v)).success.value)), importRoute)
       }
@@ -321,12 +346,43 @@ class ConfirmVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
           status(route(app, FakeRequest(POST, supplierRoute)).value) mustEqual SEE_OTHER
 
           capturedBody(connector, "supplier/1/vehicle/1/type") mustEqual Json.obj(
-            "vehicleType"               -> "CAR",
-            "doYouHaveAPurchaseInvoice" -> false,
-            "dateRoadUseKnown"          -> true,
-            "currencyUsed"              -> "EUR",
-            "pricePaidForVehicle"       -> "45000",
-            "versionId"                 -> 3L
+            "vehicleType"                 -> "CAR",
+            "doYouHaveAPurchaseInvoice"   -> false,
+            "dateRoadUseKnown"            -> true,
+            "currencyUsed"                -> "EUR",
+            "pricePaidForVehicle"         -> "45000",
+            "dateMadeAvailableYou"        -> "27/03/2026",
+            "dateOfFirstRegistration"     -> "01/03/2026",
+            "countryOfFirstRegistration"  -> "FR",
+            "noPurchaserInvoiceReasonMax" -> "No invoice was issued",
+            "versionId"                   -> 3L
+          )
+        }
+      }
+
+      "must send the availability and first registration answers but not a stale reason for no purchase invoice when both date types are selected" in {
+        val answers = availabilityOnly
+          .unsafeSet(VehicleDatesPage(s, v), Set(VehicleDates.PurchaseInvoiceDate, VehicleDates.AvailabilityAndFirstRegistration))
+          .unsafeSet(PurchaseInvoiceDatePage(s, v), LocalDate.of(2026, 3, 20))
+          .unsafeSet(PurchaseInvoiceNumberPage(s, v), "INV-001")
+        val connector = successfulConnector
+        val app       = application(Some(answers), connector, stubSessionRepository(answers))
+
+        running(app) {
+          status(route(app, FakeRequest(POST, supplierRoute)).value) mustEqual SEE_OTHER
+
+          capturedBody(connector, "supplier/1/vehicle/1/type") mustEqual Json.obj(
+            "vehicleType"                -> "CAR",
+            "doYouHaveAPurchaseInvoice"  -> true,
+            "dateRoadUseKnown"           -> true,
+            "currencyUsed"               -> "EUR",
+            "purchaseInvoiceNumber"      -> "INV-001",
+            "purchaseInvoiceDate"        -> "20/03/2026",
+            "pricePaidForVehicle"        -> "45000",
+            "dateMadeAvailableYou"       -> "27/03/2026",
+            "dateOfFirstRegistration"    -> "01/03/2026",
+            "countryOfFirstRegistration" -> "FR",
+            "versionId"                  -> 3L
           )
         }
       }
@@ -378,10 +434,27 @@ class ConfirmVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
           redirectLocation(result).value mustEqual routes.LandingPageController.onPageLoad().url
 
           capturedBody(connector, "import/1/vehicle/1/type") mustEqual Json.obj(
-            "vehicleType"             -> "HCV",
-            "dateRoadUseKnown"        -> true,
-            "dateOfFirstRegistration" -> "01/03/2026",
-            "versionId"               -> 3L
+            "vehicleType"                -> "HCV",
+            "dateRoadUseKnown"           -> true,
+            "dateOfFirstRegistration"    -> "01/03/2026",
+            "countryOfFirstRegistration" -> "FR",
+            "versionId"                  -> 3L
+          )
+        }
+      }
+
+      "must not send a stale date or country of first registration when the date of first registration is not known" in {
+        val answers   = importComplete.unsafeSet(DateOfFirstRegistrationKnownPage(v), false)
+        val connector = successfulConnector
+        val app       = application(Some(answers), connector, stubSessionRepository(answers))
+
+        running(app) {
+          status(route(app, FakeRequest(POST, importRoute)).value) mustEqual SEE_OTHER
+
+          capturedBody(connector, "import/1/vehicle/1/type") mustEqual Json.obj(
+            "vehicleType"      -> "HCV",
+            "dateRoadUseKnown" -> false,
+            "versionId"        -> 3L
           )
         }
       }

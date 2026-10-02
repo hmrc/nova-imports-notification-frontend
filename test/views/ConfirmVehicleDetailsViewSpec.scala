@@ -74,6 +74,20 @@ class ConfirmVehicleDetailsViewSpec extends SpecBase with Matchers with BeforeAn
   private def supplierDoc(answers: UserAnswers): Document =
     Jsoup.parse(view(ConfirmVehicleDetailsHelper.supplierSummaryList(answers, s, v, countries, currencies), submit).toString)
 
+  private val importAnswers: UserAnswers = emptyUserAnswers
+    .unsafeSet(DateOfFirstRegistrationKnownPage(v), true)
+    .unsafeSet(DateOfFirstRegistrationPage(v), LocalDate.of(2026, 3, 1))
+    .unsafeSet(CountryOfFirstRegistrationPage(v), "FR")
+    .unsafeSet(AddVehicleTypePage(v), AddVehicleType.Hcv)
+
+  private def importDocFor(answers: UserAnswers): Document =
+    Jsoup.parse(
+      view(
+        ConfirmVehicleDetailsHelper.importSummaryList(answers, i, v, countries),
+        routes.ConfirmVehicleDetailsController.importOnSubmit(i, v)
+      ).toString
+    )
+
   private def keys(doc: Document): Seq[String] = doc.select(".govuk-summary-list__key").eachText.asScala.toSeq
 
   private def valueFor(doc: Document, key: String): String =
@@ -217,25 +231,33 @@ class ConfirmVehicleDetailsViewSpec extends SpecBase with Matchers with BeforeAn
       escapedDoc.select(".govuk-summary-list__value b").size mustEqual 0
     }
 
-    "must show only the date and country of first registration and the vehicle type for an import vehicle, with import Change links" in {
-      val importAnswers = emptyUserAnswers
-        .unsafeSet(DateOfFirstRegistrationPage(v), LocalDate.of(2026, 3, 1))
-        .unsafeSet(CountryOfFirstRegistrationPage(v), "FR")
-        .unsafeSet(AddVehicleTypePage(v), AddVehicleType.Hcv)
-      val importDoc = Jsoup.parse(
-        view(
-          ConfirmVehicleDetailsHelper.importSummaryList(importAnswers, i, v, countries),
-          routes.ConfirmVehicleDetailsController.importOnSubmit(i, v)
-        ).toString
-      )
+    "must show whether the date of first registration is known, the date and country of first registration and the vehicle type for an import vehicle, with import Change links" in {
+      val importDoc = importDocFor(importAnswers)
 
-      keys(importDoc) mustEqual Seq(label("dateOfFirstRegistration"), label("countryOfFirstRegistration"), label("vehicleType"))
+      keys(importDoc) mustEqual Seq(
+        label("dateOfFirstRegistrationKnown"),
+        label("dateOfFirstRegistration"),
+        label("countryOfFirstRegistration"),
+        label("vehicleType")
+      )
+      valueFor(importDoc, label("dateOfFirstRegistrationKnown")) mustEqual msgs("site.yes")
+      changeLinkFor(importDoc, label("dateOfFirstRegistrationKnown")).attr("href") mustEqual
+        controllers.routes.LandingPageController.onPageLoad().url
+      changeLinkFor(importDoc, label("dateOfFirstRegistrationKnown")).select(".govuk-visually-hidden").text mustEqual
+        msgs("confirmVehicleDetails.dateOfFirstRegistrationKnown.change.hidden")
       changeLinkFor(importDoc, label("dateOfFirstRegistration")).attr("href") mustEqual
         routes.DateOfFirstRegistrationController.importOnPageLoad(i, v, CheckMode).url
       changeLinkFor(importDoc, label("countryOfFirstRegistration")).attr("href") mustEqual
         routes.CountryOfFirstRegistrationController.importOnPageLoad(i, v, CheckMode).url
       changeLinkFor(importDoc, label("vehicleType")).attr("href") mustEqual
         routes.AddVehicleTypeController.importOnPageLoad(i, v, CheckMode).url
+    }
+
+    "must hide the date and country of first registration for an import vehicle when the date of first registration is not known" in {
+      val importDoc = importDocFor(importAnswers.unsafeSet(DateOfFirstRegistrationKnownPage(v), false))
+
+      keys(importDoc) mustEqual Seq(label("dateOfFirstRegistrationKnown"), label("vehicleType"))
+      valueFor(importDoc, label("dateOfFirstRegistrationKnown")) mustEqual msgs("site.no")
     }
 
     "must render the same content via the render and f methods" in {

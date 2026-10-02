@@ -158,8 +158,9 @@ object ConfirmVehicleDetailsController {
       ConfirmVehicleDetailsJourney.importFirstUnanswered(request.userAnswers, importNumber, vehicleNumber).isEmpty
 
   def supplierVehicleTypeSection(answers: UserAnswers, supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber): Option[JsObject] = {
-    val dates       = answers.get(VehicleDatesPage(supplierNumber, vehicleNumber)).getOrElse(Set.empty)
-    val invoiceDate = dates.contains(VehicleDates.PurchaseInvoiceDate)
+    val dates        = answers.get(VehicleDatesPage(supplierNumber, vehicleNumber)).getOrElse(Set.empty)
+    val invoiceDate  = dates.contains(VehicleDates.PurchaseInvoiceDate)
+    val availability = dates.contains(VehicleDates.AvailabilityAndFirstRegistration)
 
     answers.get(AddVehicleTypePage(vehicleNumber)).map { vehicleType =>
       Json
@@ -167,12 +168,19 @@ object ConfirmVehicleDetailsController {
           VehicleType(
             vehicleType = vehicleType.jsonValue,
             doYouHaveAPurchaseInvoice = invoiceDate,
-            dateRoadUseKnown = dates.contains(VehicleDates.AvailabilityAndFirstRegistration),
+            dateRoadUseKnown = availability,
             currencyUsed = answers.get(PaymentCurrencyPage(vehicleNumber)),
             purchaseInvoiceNumber = Option.when(invoiceDate)(answers.get(PurchaseInvoiceNumberPage(supplierNumber, vehicleNumber))).flatten,
             purchaseInvoiceDate =
               Option.when(invoiceDate)(answers.get(PurchaseInvoiceDatePage(supplierNumber, vehicleNumber)).map(formPDateFormat.format)).flatten,
-            pricePaidForVehicle = answers.get(TotalAmountPaidPage(vehicleNumber))
+            pricePaidForVehicle = answers.get(TotalAmountPaidPage(vehicleNumber)),
+            dateMadeAvailableYou =
+              Option.when(availability)(answers.get(DateOfAvailabilityPage(supplierNumber, vehicleNumber)).map(formPDateFormat.format)).flatten,
+            dateOfFirstRegistration =
+              Option.when(availability)(answers.get(DateOfFirstRegistrationPage(vehicleNumber)).map(formPDateFormat.format)).flatten,
+            countryOfFirstRegistration = Option.when(availability)(answers.get(CountryOfFirstRegistrationPage(vehicleNumber))).flatten,
+            noPurchaserInvoiceReasonMax =
+              Option.when(availability && !invoiceDate)(answers.get(NoPurchaseInvoiceReasonPage(supplierNumber, vehicleNumber))).flatten
           )
         )
         .as[JsObject]
@@ -180,15 +188,17 @@ object ConfirmVehicleDetailsController {
   }
 
   def importVehicleTypeSection(answers: UserAnswers, vehicleNumber: VehicleNumber): Option[JsObject] = {
-    val dateOfFirstRegistration = answers.get(DateOfFirstRegistrationPage(vehicleNumber))
+    val dateOfFirstRegistrationKnown = answers.get(DateOfFirstRegistrationKnownPage(vehicleNumber)).contains(true)
 
     answers.get(AddVehicleTypePage(vehicleNumber)).map { vehicleType =>
       Json
         .toJson(
           ImportVehicleType(
             vehicleType = vehicleType.jsonValue,
-            dateRoadUseKnown = dateOfFirstRegistration.isDefined,
-            dateOfFirstRegistration = dateOfFirstRegistration.map(formPDateFormat.format)
+            dateRoadUseKnown = dateOfFirstRegistrationKnown,
+            dateOfFirstRegistration =
+              Option.when(dateOfFirstRegistrationKnown)(answers.get(DateOfFirstRegistrationPage(vehicleNumber)).map(formPDateFormat.format)).flatten,
+            countryOfFirstRegistration = Option.when(dateOfFirstRegistrationKnown)(answers.get(CountryOfFirstRegistrationPage(vehicleNumber))).flatten
           )
         )
         .as[JsObject]

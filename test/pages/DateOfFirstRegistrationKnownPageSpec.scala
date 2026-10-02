@@ -14,17 +14,20 @@
  * limitations under the License.
  */
 
-package models.draftsections
+package pages
 
-import play.api.libs.json.{Format, Json}
+import base.SpecBase
+import models.VehicleNumber
+import pages.sections.vehicledetails.DateOfFirstRegistrationKnownPage
 
-final case class ImportVehicleType(
-  vehicleType: String,
-  dateRoadUseKnown: Boolean,
-  dateOfFirstRegistration: Option[String] = None,
-  countryOfFirstRegistration: Option[String] = None
-)
+class DateOfFirstRegistrationKnownPageSpec extends SpecBase {
 
-object ImportVehicleType {
-  implicit val format: Format[ImportVehicleType] = Json.format[ImportVehicleType]
+  "DateOfFirstRegistrationKnownPage" - {
+
+    "must store the answer under the vehicle's details" in {
+      val answers = emptyUserAnswers.unsafeSet(DateOfFirstRegistrationKnownPage(VehicleNumber(2)), true)
+
+      (answers.data \ "vehicles" \ "2" \ "details" \ "dateOfFirstRegistrationKnown").as[Boolean] mustBe true
+    }
+  }
 }

@@ -25,7 +25,11 @@ final case class VehicleType(
   currencyUsed: Option[String] = None,
   purchaseInvoiceNumber: Option[String] = None,
   purchaseInvoiceDate: Option[String] = None,
-  pricePaidForVehicle: Option[String] = None
+  pricePaidForVehicle: Option[String] = None,
+  dateMadeAvailableYou: Option[String] = None,
+  dateOfFirstRegistration: Option[String] = None,
+  countryOfFirstRegistration: Option[String] = None,
+  noPurchaserInvoiceReasonMax: Option[String] = None
 )
 
 object VehicleType {
