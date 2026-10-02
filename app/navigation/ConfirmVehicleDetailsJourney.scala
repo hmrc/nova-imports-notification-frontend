@@ -17,7 +17,7 @@
 package navigation
 
 import controllers.vehicledetails.routes
-import models.{AddVehicleType, CheckMode, ImportNumber, SupplierNumber, UserAnswers, VehicleDates, VehicleNumber}
+import models.{AddVehicleType, CheckMode, ImportNumber, NormalMode, SupplierNumber, UserAnswers, VehicleDates, VehicleNumber}
 import pages.sections.vehicledetails.*
 import play.api.mvc.Call
 
@@ -130,14 +130,21 @@ object ConfirmVehicleDetailsJourney {
     }
 
   def confirmedRoute(answers: UserAnswers, vehicleNumber: VehicleNumber): Call =
-    answers.get(AddVehicleTypePage(vehicleNumber)) match {
-      case Some(AddVehicleType.Car)                 => controllers.routes.LandingPageController.onPageLoad()
-      case Some(AddVehicleType.Lcv)                 => controllers.routes.LandingPageController.onPageLoad()
-      case Some(AddVehicleType.Hcv)                 => controllers.routes.LandingPageController.onPageLoad()
-      case Some(AddVehicleType.Motorcycle)          => controllers.routes.LandingPageController.onPageLoad()
-      case Some(AddVehicleType.MotorCaravan)        => controllers.routes.LandingPageController.onPageLoad()
-      case Some(AddVehicleType.AgriculturalTractor) => controllers.routes.LandingPageController.onPageLoad()
-      case Some(AddVehicleType.ContractorsPlant)    => controllers.routes.LandingPageController.onPageLoad()
-      case None                                     => controllers.routes.JourneyRecoveryController.onPageLoad()
+    (
+      answers.get(AddVehicleTypePage(vehicleNumber)),
+      answers.vehicleSupplierNumber(vehicleNumber),
+      answers.vehicleImportNumber(vehicleNumber)
+    ) match {
+      case (Some(AddVehicleType.Car), Some(supplierNumber), _) =>
+        routes.AddVehicleDetailsCarController.supplierOnPageLoad(supplierNumber, vehicleNumber, NormalMode)
+      case (Some(AddVehicleType.Car), None, Some(importNumber)) =>
+        routes.AddVehicleDetailsCarController.importOnPageLoad(importNumber, vehicleNumber, NormalMode)
+      case (Some(AddVehicleType.Lcv), _, _)                 => controllers.routes.LandingPageController.onPageLoad()
+      case (Some(AddVehicleType.Hcv), _, _)                 => controllers.routes.LandingPageController.onPageLoad()
+      case (Some(AddVehicleType.Motorcycle), _, _)          => controllers.routes.LandingPageController.onPageLoad()
+      case (Some(AddVehicleType.MotorCaravan), _, _)        => controllers.routes.LandingPageController.onPageLoad()
+      case (Some(AddVehicleType.AgriculturalTractor), _, _) => controllers.routes.LandingPageController.onPageLoad()
+      case (Some(AddVehicleType.ContractorsPlant), _, _)    => controllers.routes.LandingPageController.onPageLoad()
+      case _                                                => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 }

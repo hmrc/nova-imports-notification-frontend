@@ -17,19 +17,36 @@
 package navigation
 
 import base.SpecBase
-import controllers.routes
-import models.{AddVehicleType, VehicleNumber}
+import controllers.{routes, vehicledetails}
+import models.{AddVehicleType, ImportNumber, NormalMode, SupplierNumber, UserAnswers, VehicleNumber}
 import pages.sections.vehicledetails.AddVehicleTypePage
+import play.api.libs.json.Json
+import queries.AllVehiclesQuery
 
 class ConfirmVehicleDetailsJourneySpec extends SpecBase {
 
   private val v = VehicleNumber(1)
+  private val s = SupplierNumber(1)
+  private val i = ImportNumber(1)
+
+  private val supplierVehicle: UserAnswers = emptyUserAnswers.unsafeSet(AllVehiclesQuery, Map("1" -> Json.obj("supplierNumber" -> 1)))
+  private val importVehicle: UserAnswers   = emptyUserAnswers.unsafeSet(AllVehiclesQuery, Map("1" -> Json.obj("importNumber" -> 1)))
 
   "confirmedRoute" - {
 
-    "must go to the AVD8.1 placeholder for a car" in {
+    "must go to AVD8.1 (AddVehicleDetailsCarController) for a car on the supplier journey" in {
+      ConfirmVehicleDetailsJourney.confirmedRoute(supplierVehicle.unsafeSet(AddVehicleTypePage(v), AddVehicleType.Car), v) mustBe
+        vehicledetails.routes.AddVehicleDetailsCarController.supplierOnPageLoad(s, v, NormalMode)
+    }
+
+    "must go to AVD8.1 (AddVehicleDetailsCarController) for a car on the import journey" in {
+      ConfirmVehicleDetailsJourney.confirmedRoute(importVehicle.unsafeSet(AddVehicleTypePage(v), AddVehicleType.Car), v) mustBe
+        vehicledetails.routes.AddVehicleDetailsCarController.importOnPageLoad(i, v, NormalMode)
+    }
+
+    "must go to JourneyRecovery for a car when the vehicle has no supplier or import" in {
       ConfirmVehicleDetailsJourney.confirmedRoute(emptyUserAnswers.unsafeSet(AddVehicleTypePage(v), AddVehicleType.Car), v) mustBe
-        routes.LandingPageController.onPageLoad()
+        routes.JourneyRecoveryController.onPageLoad()
     }
 
     "must go to the AVD8.2 placeholder for a light commercial vehicle" in {
