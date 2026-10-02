@@ -21,7 +21,7 @@ import com.google.inject.name.Names
 import connectors.{NovaImportsBackendConnector, UpdateSectionError}
 import controllers.actions.*
 import controllers.{routes, vehicledetails}
-import models.{AddVehicleType, AgentSelectedClient, CheckMode, DraftId, ImportNumber, SupplierNumber, UserAnswers, VehicleDates, VehicleNumber}
+import models.{AddVehicleDetailsCar, AddVehicleType, AgentSelectedClient, CheckMode, DraftId, ImportNumber, SupplierNumber, UserAnswers, VehicleDates, VehicleNumber}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{never, verify, when}
@@ -59,6 +59,7 @@ class ConfirmVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
     .unsafeSet(AllVehiclesQuery, Map("1" -> Json.obj("supplierNumber" -> 1)))
     .unsafeSet(PaymentCurrencyPage(v), "EUR")
     .unsafeSet(AddVehicleTypePage(v), AddVehicleType.Car)
+    .unsafeSet(AddVehicleDetailsCarPage(v), AddVehicleDetailsCar("Land Rover", "Discovery 4", "3.0TD", "XS", "station wagon"))
 
   private val invoiceOnly: UserAnswers = supplierBase
     .unsafeSet(VehicleDatesPage(s, v), Set(VehicleDates.PurchaseInvoiceDate))

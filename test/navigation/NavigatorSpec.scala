@@ -809,16 +809,18 @@ class NavigatorSpec extends SpecBase {
           vehicledetails.routes.AddVehicleDetailsCarController.importOnPageLoad(ImportNumber(1), VehicleNumber(1), NormalMode)
       }
 
-      "must go from AddVehicleDetailsCarPage AVD8.1 to the landing page for supplier 1 vehicle 1 until C-AVD2.0 is built" in {
+      "must go from AddVehicleDetailsCarPage AVD8.1 to C-AVD1.0 for supplier 1 vehicle 1" in {
         val page = AddVehicleDetailsCarPage(VehicleNumber(1))
         val ua   = supplierVehicle.unsafeSet(page, AddVehicleDetailsCar("Land Rover", "Discovery 4", "3.0TD", "XS", "station wagon"))
-        navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController.onPageLoad()
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe
+          vehicledetails.routes.ConfirmVehicleDetailsController.supplierOnPageLoad(SupplierNumber(1), VehicleNumber(1))
       }
 
-      "must go from AddVehicleDetailsCarPage AVD8.1 to the landing page for import 1 vehicle 1 until C-AVD2.0 is built" in {
+      "must go from AddVehicleDetailsCarPage AVD8.1 to C-AVD1.0 for import 1 vehicle 1" in {
         val page = AddVehicleDetailsCarPage(VehicleNumber(1))
         val ua   = importVehicle.unsafeSet(page, AddVehicleDetailsCar("Land Rover", "Discovery 4", "3.0TD", "XS", "station wagon"))
-        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+          vehicledetails.routes.ConfirmVehicleDetailsController.importOnPageLoad(ImportNumber(1), VehicleNumber(1))
       }
 
       "must go from AddVehicleDetailsCarPage AVD8.1 to JourneyRecovery when the vehicle has no supplier or import" in {
@@ -1121,6 +1123,8 @@ class NavigatorSpec extends SpecBase {
         val v = VehicleNumber(1)
         val i = ImportNumber(1)
 
+        val carDetails = AddVehicleDetailsCar("Land Rover", "Discovery 4", "3.0TD", "XS", "station wagon")
+
         val invoiceOnly: UserAnswers = supplierVehicle
           .unsafeSet(VehicleDatesPage(s, v), Set(VehicleDates.PurchaseInvoiceDate))
           .unsafeSet(PurchaseInvoiceDatePage(s, v), LocalDate.of(2026, 3, 27))
@@ -1128,6 +1132,7 @@ class NavigatorSpec extends SpecBase {
           .unsafeSet(TotalAmountPaidPage(v), "15000")
           .unsafeSet(PaymentCurrencyPage(v), "EUR")
           .unsafeSet(AddVehicleTypePage(v), AddVehicleType.Car)
+          .unsafeSet(AddVehicleDetailsCarPage(v), carDetails)
 
         val availabilityOnly: UserAnswers = supplierVehicle
           .unsafeSet(VehicleDatesPage(s, v), Set(VehicleDates.FirstRegistration, VehicleDates.MadeAvailable))
@@ -1138,6 +1143,7 @@ class NavigatorSpec extends SpecBase {
           .unsafeSet(TotalAmountPaidPage(v), "15000")
           .unsafeSet(PaymentCurrencyPage(v), "EUR")
           .unsafeSet(AddVehicleTypePage(v), AddVehicleType.Car)
+          .unsafeSet(AddVehicleDetailsCarPage(v), carDetails)
 
         val importComplete: UserAnswers = importVehicle
           .unsafeSet(DateOfFirstRegistrationKnownPage(v), true)
@@ -1193,12 +1199,6 @@ class NavigatorSpec extends SpecBase {
           navigator.nextPage(PurchaseInvoiceDatePage(s, v), CheckMode, invoiceOnly, NovaUserType.VatRegisteredOrganisation) mustBe supplierConfirm
         }
 
-      "must go from AddVehicleDetailsCarPage AVD8.1 to the landing page until the vehicle details check your answers page is built" in {
-        val page = AddVehicleDetailsCarPage(VehicleNumber(1))
-        val ua   = importVehicle.unsafeSet(page, AddVehicleDetailsCar("Land Rover", "Discovery 4", "3.0TD", "XS", "station wagon"))
-        navigator.nextPage(page, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
-      }
-
         "must go from PurchaseInvoiceNumberPage AVD4.1 to C-AVD1.0" in {
           navigator.nextPage(PurchaseInvoiceNumberPage(s, v), CheckMode, invoiceOnly, NovaUserType.VatRegisteredOrganisation) mustBe supplierConfirm
         }
@@ -1252,6 +1252,29 @@ class NavigatorSpec extends SpecBase {
 
         "must go from AddVehicleTypePage AVD8.0 to C-AVD1.0 for an import vehicle" in {
           navigator.nextPage(AddVehicleTypePage(v), CheckMode, importComplete, NovaUserType.VatRegisteredOrganisation) mustBe importConfirm
+        }
+
+        "must go from AddVehicleTypePage AVD8.0 to AVD8.1 in check mode for a supplier vehicle when the vehicle type is Car and the car details are missing" in {
+          val ua = invoiceOnly.remove(AddVehicleDetailsCarPage(v)).success.value
+          navigator.nextPage(AddVehicleTypePage(v), CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+            vehicledetails.routes.AddVehicleDetailsCarController.supplierOnPageLoad(s, v, CheckMode)
+        }
+
+        "must go from AddVehicleTypePage AVD8.0 to AVD8.1 in check mode for an import vehicle when the vehicle type is Car and the car details are missing" in {
+          val ua = importComplete.unsafeSet(AddVehicleTypePage(v), AddVehicleType.Car)
+          navigator.nextPage(AddVehicleTypePage(v), CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+            vehicledetails.routes.AddVehicleDetailsCarController.importOnPageLoad(i, v, CheckMode)
+        }
+
+        "must go from AddVehicleDetailsCarPage AVD8.1 to C-AVD1.0 for a supplier vehicle" in {
+          navigator.nextPage(AddVehicleDetailsCarPage(v), CheckMode, invoiceOnly, NovaUserType.VatRegisteredOrganisation) mustBe supplierConfirm
+        }
+
+        "must go from AddVehicleDetailsCarPage AVD8.1 to C-AVD1.0 for an import vehicle" in {
+          val ua = importComplete
+            .unsafeSet(AddVehicleTypePage(v), AddVehicleType.Car)
+            .unsafeSet(AddVehicleDetailsCarPage(v), carDetails)
+          navigator.nextPage(AddVehicleDetailsCarPage(v), CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe importConfirm
         }
 
         "must go from DateOfFirstRegistrationPage AVD5.1 to AVD5.2 in check mode for an import vehicle without a country" in {

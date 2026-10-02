@@ -80,6 +80,11 @@ object ConfirmVehicleDetailsJourney {
         true,
         answers.get(AddVehicleTypePage(vehicleNumber)).isDefined,
         routes.AddVehicleTypeController.supplierOnPageLoad(supplierNumber, vehicleNumber, CheckMode)
+      ),
+      (
+        answers.get(AddVehicleTypePage(vehicleNumber)).contains(AddVehicleType.Car),
+        answers.get(AddVehicleDetailsCarPage(vehicleNumber)).isDefined,
+        routes.AddVehicleDetailsCarController.supplierOnPageLoad(supplierNumber, vehicleNumber, CheckMode)
       )
     )
 
@@ -109,6 +114,11 @@ object ConfirmVehicleDetailsJourney {
         true,
         answers.get(AddVehicleTypePage(vehicleNumber)).isDefined,
         routes.AddVehicleTypeController.importOnPageLoad(importNumber, vehicleNumber, CheckMode)
+      ),
+      (
+        answers.get(AddVehicleTypePage(vehicleNumber)).contains(AddVehicleType.Car),
+        answers.get(AddVehicleDetailsCarPage(vehicleNumber)).isDefined,
+        routes.AddVehicleDetailsCarController.importOnPageLoad(importNumber, vehicleNumber, CheckMode)
       )
     )
 

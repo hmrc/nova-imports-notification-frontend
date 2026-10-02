@@ -195,7 +195,7 @@ class AddVehicleDetailsCarControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must post back to the change URL for a GET in CheckMode" in {
+      "must return OK and the correct view for a GET in CheckMode" in {
 
         val application = applicationBuilder(userAnswers = Some(supplierJourneyAnswers)).build()
 
@@ -362,7 +362,7 @@ class AddVehicleDetailsCarControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must post back to the change URL for a GET in CheckMode" in {
+      "must return OK and the correct view for a GET in CheckMode" in {
 
         val application = applicationBuilder(userAnswers = Some(importJourneyAnswers)).build()
 
