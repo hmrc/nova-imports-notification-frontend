@@ -1208,6 +1208,7 @@ spreadsheetErrors.returnLink = Return to create a vehicle notification
 ##################################################################
 
 checkVehicleSpreadsheetDetails.title = Check the vehicle spreadsheet details
+checkVehicleSpreadsheetDetails.pagination.title = Check the vehicle spreadsheet details (page {0} of {1})
 checkVehicleSpreadsheetDetails.heading = Check the vehicle spreadsheet details
 checkVehicleSpreadsheetDetails.caption = Add vehicle details
 checkVehicleSpreadsheetDetails.table.item = Item

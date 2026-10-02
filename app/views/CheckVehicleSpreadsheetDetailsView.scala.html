@@ -27,8 +27,11 @@
 )
 
 @(vehicles: PageOf[VehicleSummary], urlForPage: Int => String)(implicit request: Request[?], messages: Messages)
-
-@layout(pageTitle = titleNoForm(messages("checkVehicleSpreadsheetDetails.title")), fullWidth = true) {
+@pageTitle = @{
+    if(vehicles.totalPages > 1) messages("checkVehicleSpreadsheetDetails.pagination.title", vehicles.page, vehicles.totalPages)
+    else messages("checkVehicleSpreadsheetDetails.title")
+}
+@layout(pageTitle = titleNoForm(pageTitle), fullWidth = true) {
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
