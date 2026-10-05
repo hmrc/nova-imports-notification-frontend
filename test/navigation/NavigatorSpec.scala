@@ -1247,24 +1247,23 @@ class NavigatorSpec extends SpecBase {
           navigator.nextPage(AddVehicleTypePage(v), CheckMode, importComplete, NovaUserType.VatRegisteredOrganisation) mustBe importConfirm
         }
 
-        "must go from AddVehicleDetailsCarPage AVD8.1 to C-AVD1.0 for a supplier vehicle" in {
+        "must go from AddVehicleDetailsCarPage AVD8.1 to the landing page for a supplier vehicle until C-AVD2.0 is built" in {
           val page = AddVehicleDetailsCarPage(v)
           val ua   = invoiceOnly.unsafeSet(page, AddVehicleDetailsCar("Land Rover", "Discovery 4", "3.0TD", "XS", "station wagon"))
-          navigator.nextPage(page, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe supplierConfirm
+          navigator.nextPage(page, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
         }
 
-        "must go from AddVehicleDetailsCarPage AVD8.1 to C-AVD1.0 for an import vehicle" in {
+        "must go from AddVehicleDetailsCarPage AVD8.1 to the landing page for an import vehicle until C-AVD2.0 is built" in {
           val page = AddVehicleDetailsCarPage(v)
           val ua   = importComplete
             .unsafeSet(AddVehicleTypePage(v), AddVehicleType.Car)
             .unsafeSet(page, AddVehicleDetailsCar("Land Rover", "Discovery 4", "3.0TD", "XS", "station wagon"))
-          navigator.nextPage(page, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe importConfirm
+          navigator.nextPage(page, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
         }
 
-        "must go from AddVehicleDetailsCarPage AVD8.1 to the landing page for an import vehicle still missing an earlier answer" in {
-          val page = AddVehicleDetailsCarPage(v)
-          val ua   = importVehicle.unsafeSet(page, AddVehicleDetailsCar("Land Rover", "Discovery 4", "3.0TD", "XS", "station wagon"))
-          navigator.nextPage(page, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
+        "must go from AddVehicleDetailsCarPage AVD8.1 to journey recovery in check mode when there is no answer" in {
+          navigator.nextPage(AddVehicleDetailsCarPage(v), CheckMode, invoiceOnly, NovaUserType.VatRegisteredOrganisation) mustBe
+            routes.JourneyRecoveryController.onPageLoad()
         }
 
         "must go from DateOfFirstRegistrationPage AVD5.1 to AVD5.2 in check mode for an import vehicle without a country" in {
