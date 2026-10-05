@@ -118,6 +118,8 @@ final case class UploadResultResponse(
   heavyCommercialNonEuVehicles: List[SpreadsheetHeavyCommercialNonEuVehicle],
   motorcyclesEuVehicles: Seq[SpreadsheetMotorcyclesEuVehicle],
   motorcyclesNonEuVehicles: Seq[SpreadsheetMotorcyclesNonEuVehicle],
+  constructionVehiclesEuVehicles: Seq[SpreadsheetConstructionVehiclesEuVehicle],
+  constructionVehiclesNonEuVehicles: Seq[SpreadsheetConstructionVehiclesNonEuVehicle],
   errors: Seq[ValidationError]
 )
 
@@ -176,6 +178,16 @@ object UploadResultResponse {
         if (validationType.contains("MotorcyclesNonEu")) rawVehicles.flatMap(_.validate[SpreadsheetMotorcyclesNonEuVehicle].asOpt)
         else Seq.empty
 
+      val constructionVehiclesEuVehicles =
+        if (validationType.contains("ConstructionVehiclesEu"))
+          rawVehicles.flatMap(_.validate[SpreadsheetConstructionVehiclesEuVehicle].asOpt)
+        else Seq.empty
+
+      val constructionVehiclesNonEuVehicles =
+        if (validationType.contains("ConstructionVehiclesNonEu"))
+          rawVehicles.flatMap(_.validate[SpreadsheetConstructionVehiclesNonEuVehicle].asOpt)
+        else Seq.empty
+
       // the raw "vehicles" summary only ever carries the "make"/"model" JSON keys, which Cars/LightCommercial
       // rows happen to use directly - other categories name these fields differently (e.g. Motor Caravans'
       // caravanMake/modelNameNumber), so the summary is instead built from the already-typed, per-category
@@ -199,6 +211,10 @@ object UploadResultResponse {
           motorcyclesEuVehicles.map(v => VehicleSummary(v.itemNumber, v.vin, v.make, v.model))
         case Some("MotorcyclesNonEu") =>
           motorcyclesNonEuVehicles.map(v => VehicleSummary(v.itemNumber, v.vin, v.make, v.model))
+        case Some("ConstructionVehiclesEu") =>
+          constructionVehiclesEuVehicles.map(v => VehicleSummary(v.itemNumber, v.vin, v.make, v.seriesModel))
+        case Some("ConstructionVehiclesNonEu") =>
+          constructionVehiclesNonEuVehicles.map(v => VehicleSummary(v.itemNumber, v.vin, v.make, v.seriesModel))
         case _ => rawVehicleSummary
       }
 
@@ -216,6 +232,8 @@ object UploadResultResponse {
         heavyCommercialNonEuVehicles,
         motorcyclesEuVehicles,
         motorcyclesNonEuVehicles,
+        constructionVehiclesEuVehicles,
+        constructionVehiclesNonEuVehicles,
         errors
       )
     }
