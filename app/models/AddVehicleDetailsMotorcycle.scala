@@ -14,14 +14,22 @@
  * limitations under the License.
  */
 
-package pages.sections.vehicledetails
+package models
 
-import models.{AddVehicleDetailsCar, VehicleNumber}
-import play.api.libs.json.JsPath
+import play.api.libs.json.{Json, OFormat}
 
-final case class AddVehicleDetailsCarPage(vehicleNumber: VehicleNumber) extends AddVehicleDetailsQuestionPage[AddVehicleDetailsCar] {
+final case class AddVehicleDetailsMotorcycle(
+  make: String,
+  model: String,
+  derivative: String,
+  motorcycleVersion: String,
+  motorcycleType: String,
+  motorcycleStyle: String,
+  transmission: MotorcycleTransmissionType,
+  fuelType: MotorcycleFuelType,
+  engineSize: String
+)
 
-  override def path: JsPath = JsPath \ "vehicles" \ vehicleNumber.value.toString \ "details" \ toString
-
-  override def toString: String = "addVehicleDetailsCar"
+object AddVehicleDetailsMotorcycle {
+  implicit val format: OFormat[AddVehicleDetailsMotorcycle] = Json.format[AddVehicleDetailsMotorcycle]
 }

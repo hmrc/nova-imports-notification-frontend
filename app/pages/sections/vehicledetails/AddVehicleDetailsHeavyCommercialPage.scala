@@ -17,10 +17,10 @@
 package pages.sections.vehicledetails
 
 import models.{AddVehicleDetailsHeavyCommercial, VehicleNumber}
-import pages.QuestionPage
 import play.api.libs.json.JsPath
 
-final case class AddVehicleDetailsHeavyCommercialPage(vehicleNumber: VehicleNumber) extends QuestionPage[AddVehicleDetailsHeavyCommercial] {
+final case class AddVehicleDetailsHeavyCommercialPage(vehicleNumber: VehicleNumber)
+    extends AddVehicleDetailsQuestionPage[AddVehicleDetailsHeavyCommercial] {
 
   override def path: JsPath = JsPath \ "vehicles" \ vehicleNumber.value.toString \ "details" \ toString
 

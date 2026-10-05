@@ -69,9 +69,19 @@ class ConfirmVehicleDetailsJourneySpec extends SpecBase {
         routes.JourneyRecoveryController.onPageLoad()
     }
 
-    "must go to the AVD8.4 placeholder for a motorcycle, scooter or moped" in {
+    "must go to AVD8.4 (AddVehicleDetailsMotorcycleController) for a motorcycle on the supplier journey" in {
+      ConfirmVehicleDetailsJourney.confirmedRoute(supplierVehicle.unsafeSet(AddVehicleTypePage(v), AddVehicleType.Motorcycle), v) mustBe
+        vehicledetails.routes.AddVehicleDetailsMotorcycleController.supplierOnPageLoad(s, v, NormalMode)
+    }
+
+    "must go to AVD8.4 (AddVehicleDetailsMotorcycleController) for a motorcycle on the import journey" in {
+      ConfirmVehicleDetailsJourney.confirmedRoute(importVehicle.unsafeSet(AddVehicleTypePage(v), AddVehicleType.Motorcycle), v) mustBe
+        vehicledetails.routes.AddVehicleDetailsMotorcycleController.importOnPageLoad(i, v, NormalMode)
+    }
+
+    "must go to JourneyRecovery for a motorcycle when the vehicle has no supplier or import" in {
       ConfirmVehicleDetailsJourney.confirmedRoute(emptyUserAnswers.unsafeSet(AddVehicleTypePage(v), AddVehicleType.Motorcycle), v) mustBe
-        routes.LandingPageController.onPageLoad()
+        routes.JourneyRecoveryController.onPageLoad()
     }
 
     "must go to the AVD8.5 placeholder for a motor caravan" in {
