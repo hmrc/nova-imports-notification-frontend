@@ -1251,3 +1251,69 @@ addVehicleDetailsAgriculturalTractor.brakeHorsepower.hint = Engine power, for ex
 addVehicleDetailsAgriculturalTractor.brakeHorsepower.error.required = Enter the brake horsepower
 addVehicleDetailsAgriculturalTractor.brakeHorsepower.error.format = Enter the brake horsepower using numbers only or with exactly 2 decimal places
 addVehicleDetailsAgriculturalTractor.brakeHorsepower.error.length = The brake horsepower must be 4 characters or less before any decimal point
+
+#######################################################
+# AVD8.4 - Add vehicle details 8.4 - Motorcycle       #
+#######################################################
+# TODO: Welsh translations to be supplied by content team.
+
+addVehicleDetailsMotorcycle.title = Enter the motorcycle, scooter or moped details
+addVehicleDetailsMotorcycle.caption = Add vehicle details
+addVehicleDetailsMotorcycle.heading = Enter the motorcycle, scooter or moped details
+addVehicleDetailsMotorcycle.paragraph.1 = You can usually find these details on the purchase invoice or in the vehicle manual.
+
+addVehicleDetailsMotorcycle.make.label = Make
+addVehicleDetailsMotorcycle.make.hint = For example, Honda
+addVehicleDetailsMotorcycle.make.error.required = Enter the make
+addVehicleDetailsMotorcycle.make.error.format = The make must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
+addVehicleDetailsMotorcycle.make.error.length = The make must be 50 characters or less
+
+addVehicleDetailsMotorcycle.model.label = Model
+addVehicleDetailsMotorcycle.model.hint = For example, GL1200
+addVehicleDetailsMotorcycle.model.error.required = Enter the model
+addVehicleDetailsMotorcycle.model.error.format = The model must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
+addVehicleDetailsMotorcycle.model.error.length = The model must be 50 characters or less
+
+addVehicleDetailsMotorcycle.derivative.label = Derivative
+addVehicleDetailsMotorcycle.derivative.hint = For example, 1200
+addVehicleDetailsMotorcycle.derivative.error.required = Enter the derivative
+addVehicleDetailsMotorcycle.derivative.error.format = The derivative must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
+addVehicleDetailsMotorcycle.derivative.error.length = The derivative must be 50 characters or less
+
+addVehicleDetailsMotorcycle.motorcycleVersion.label = Version
+addVehicleDetailsMotorcycle.motorcycleVersion.hint = For example, Gold Wing Deluxe
+addVehicleDetailsMotorcycle.motorcycleVersion.error.required = Enter the version
+addVehicleDetailsMotorcycle.motorcycleVersion.error.format = The version must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
+addVehicleDetailsMotorcycle.motorcycleVersion.error.length = The version must be 50 characters or less
+
+addVehicleDetailsMotorcycle.motorcycleType.label = Body type
+addVehicleDetailsMotorcycle.motorcycleType.hint = For example, a road motorcycle
+addVehicleDetailsMotorcycle.motorcycleType.error.required = Enter the body type
+addVehicleDetailsMotorcycle.motorcycleType.error.format = The body type must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
+addVehicleDetailsMotorcycle.motorcycleType.error.length = The body type must be 50 characters or less
+
+addVehicleDetailsMotorcycle.motorcycleStyle.label = Style
+addVehicleDetailsMotorcycle.motorcycleStyle.hint = For example, a tourer
+addVehicleDetailsMotorcycle.motorcycleStyle.error.required = Enter the style
+addVehicleDetailsMotorcycle.motorcycleStyle.error.format = The style must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
+addVehicleDetailsMotorcycle.motorcycleStyle.error.length = The style must be 20 characters or less
+
+addVehicleDetailsMotorcycle.transmission.label = Transmission type
+addVehicleDetailsMotorcycle.transmission.placeholder = Choose transmission type
+addVehicleDetailsMotorcycle.transmission.option.automatic = Automatic
+addVehicleDetailsMotorcycle.transmission.option.manual = Manual
+addVehicleDetailsMotorcycle.transmission.option.semiAutomatic = Semi-automatic
+addVehicleDetailsMotorcycle.transmission.error.required = Select a transmission type
+
+addVehicleDetailsMotorcycle.fuelType.label = Fuel type
+addVehicleDetailsMotorcycle.fuelType.placeholder = Choose the closest option
+addVehicleDetailsMotorcycle.fuelType.option.electric = Electric
+addVehicleDetailsMotorcycle.fuelType.option.hybrid = Hybrid
+addVehicleDetailsMotorcycle.fuelType.option.petrol = Petrol
+addVehicleDetailsMotorcycle.fuelType.error.required = Select the closest fuel type
+
+addVehicleDetailsMotorcycle.engineSize.label = Engine size in cubic centimetres (cc)
+addVehicleDetailsMotorcycle.engineSize.hint = For example, 1000 or 1000.12
+addVehicleDetailsMotorcycle.engineSize.error.required = Enter the engine size
+addVehicleDetailsMotorcycle.engineSize.error.format = Enter the engine size using numbers only or with exactly 2 decimal places
+addVehicleDetailsMotorcycle.engineSize.error.length = The engine size must be 5 characters or less before any decimal point
