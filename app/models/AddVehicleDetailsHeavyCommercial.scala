@@ -21,7 +21,7 @@ import play.api.libs.json.{Json, OFormat}
 final case class AddVehicleDetailsHeavyCommercial(
   make: String,
   model: String,
-  bodyType: String,
+  hcvType: String,
   cabType: String
 )
 

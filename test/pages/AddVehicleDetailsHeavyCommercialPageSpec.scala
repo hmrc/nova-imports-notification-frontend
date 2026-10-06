@@ -26,12 +26,12 @@ class AddVehicleDetailsHeavyCommercialPageSpec extends SpecBase {
 
     "must store the heavy commercial vehicle details under the vehicle's details" in {
       val addVehicleDetailsHeavyCommercial =
-        AddVehicleDetailsHeavyCommercial(make = "Renault Trucks", model = "Magnum", bodyType = "midlift axle tractor", cabType = "sleeper cab")
+        AddVehicleDetailsHeavyCommercial(make = "Renault Trucks", model = "Magnum", hcvType = "midlift axle tractor", cabType = "sleeper cab")
       val answers = emptyUserAnswers.unsafeSet(AddVehicleDetailsHeavyCommercialPage(VehicleNumber(2)), addVehicleDetailsHeavyCommercial)
 
       (answers.data \ "vehicles" \ "2" \ "details" \ "addVehicleDetailsHeavyCommercial" \ "make").as[String] mustBe "Renault Trucks"
       (answers.data \ "vehicles" \ "2" \ "details" \ "addVehicleDetailsHeavyCommercial" \ "model").as[String] mustBe "Magnum"
-      (answers.data \ "vehicles" \ "2" \ "details" \ "addVehicleDetailsHeavyCommercial" \ "bodyType").as[String] mustBe "midlift axle tractor"
+      (answers.data \ "vehicles" \ "2" \ "details" \ "addVehicleDetailsHeavyCommercial" \ "hcvType").as[String] mustBe "midlift axle tractor"
       (answers.data \ "vehicles" \ "2" \ "details" \ "addVehicleDetailsHeavyCommercial" \ "cabType").as[String] mustBe "sleeper cab"
     }
   }

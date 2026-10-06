@@ -54,13 +54,13 @@ class AddVehicleDetailsHeavyCommercialControllerSpec extends SpecBase with Mocki
   val vehicleNumber  = VehicleNumber(1)
 
   val answer: AddVehicleDetailsHeavyCommercial =
-    AddVehicleDetailsHeavyCommercial(make = "Renault Trucks", model = "Magnum", bodyType = "midlift axle tractor", cabType = "sleeper cab")
+    AddVehicleDetailsHeavyCommercial(make = "Renault Trucks", model = "Magnum", hcvType = "midlift axle tractor", cabType = "sleeper cab")
 
   val validFormData: Map[String, String] = Map(
-    "make"     -> answer.make,
-    "model"    -> answer.model,
-    "bodyType" -> answer.bodyType,
-    "cabType"  -> answer.cabType
+    "make"    -> answer.make,
+    "model"   -> answer.model,
+    "hcvType" -> answer.hcvType,
+    "cabType" -> answer.cabType
   )
 
   lazy val supplierRoute =
@@ -279,8 +279,8 @@ class AddVehicleDetailsHeavyCommercialControllerSpec extends SpecBase with Mocki
       }
 
       "must return a Bad Request and the length error when the body type is too long" in {
-        assertBadRequestWithError(supplierJourneyAnswers, supplierRoute, validFormData.updated("bodyType", "a" * 51))(msgs =>
-          msgs("addVehicleDetailsHeavyCommercial.bodyType.error.length")
+        assertBadRequestWithError(supplierJourneyAnswers, supplierRoute, validFormData.updated("hcvType", "a" * 51))(msgs =>
+          msgs("addVehicleDetailsHeavyCommercial.hcvType.error.length")
         )
       }
 

@@ -28,7 +28,7 @@ class AddVehicleDetailsHeavyCommercialFormProviderSpec extends StringFieldBehavi
   Seq(
     ("make", 50),
     ("model", 50),
-    ("bodyType", 50),
+    ("hcvType", 50),
     ("cabType", 100)
   ).foreach { case (fieldName, maxLength) =>
     s".$fieldName" - {

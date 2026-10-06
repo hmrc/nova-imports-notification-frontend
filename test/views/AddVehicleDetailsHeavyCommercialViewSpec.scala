@@ -79,7 +79,7 @@ class AddVehicleDetailsHeavyCommercialViewSpec extends SpecBase with Matchers wi
     "must render a label and hint for each field" in {
       val html: String = view(form, submitCall)(request, msgs).toString
 
-      Seq("make", "model", "bodyType", "cabType").foreach { field =>
+      Seq("make", "model", "hcvType", "cabType").foreach { field =>
         html must include(msgs(s"addVehicleDetailsHeavyCommercial.$field.label"))
         html must include(msgs(s"addVehicleDetailsHeavyCommercial.$field.hint"))
       }
@@ -104,13 +104,13 @@ class AddVehicleDetailsHeavyCommercialViewSpec extends SpecBase with Matchers wi
       html must include("govuk-error-summary")
       html must include(msgs("addVehicleDetailsHeavyCommercial.make.error.required"))
       html must include(msgs("addVehicleDetailsHeavyCommercial.model.error.required"))
-      html must include(msgs("addVehicleDetailsHeavyCommercial.bodyType.error.required"))
+      html must include(msgs("addVehicleDetailsHeavyCommercial.hcvType.error.required"))
       html must include(msgs("addVehicleDetailsHeavyCommercial.cabType.error.required"))
     }
 
     "must pre-populate the fields when the question has previously been answered" in {
       val answer =
-        AddVehicleDetailsHeavyCommercial(make = "Renault Trucks", model = "Magnum", bodyType = "midlift axle tractor", cabType = "sleeper cab")
+        AddVehicleDetailsHeavyCommercial(make = "Renault Trucks", model = "Magnum", hcvType = "midlift axle tractor", cabType = "sleeper cab")
       val html: String = view(form.fill(answer), submitCall)(request, msgs).toString
 
       html must include("Renault Trucks")

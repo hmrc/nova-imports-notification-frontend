@@ -29,16 +29,16 @@ class AddVehicleDetailsHeavyCommercialFormProvider @Inject() extends Mappings {
 
   def apply(): Form[AddVehicleDetailsHeavyCommercial] = Form(
     mapping(
-      "make"     -> fieldMapping("make", MaxLength, StandardFieldRegex),
-      "model"    -> fieldMapping("model", MaxLength, StandardFieldRegex),
-      "bodyType" -> fieldMapping("bodyType", MaxLength, StandardFieldRegex),
-      "cabType"  -> fieldMapping("cabType", CabTypeMaxLength, CabTypeRegex)
+      "make"    -> fieldMapping("make", MaxLength, StandardFieldRegex),
+      "model"   -> fieldMapping("model", MaxLength, StandardFieldRegex),
+      "hcvType" -> fieldMapping("hcvType", MaxLength, StandardFieldRegex),
+      "cabType" -> fieldMapping("cabType", CabTypeMaxLength, CabTypeRegex)
     )(AddVehicleDetailsHeavyCommercial.apply)(addVehicleDetailsHeavyCommercial =>
       Some(
         (
           addVehicleDetailsHeavyCommercial.make,
           addVehicleDetailsHeavyCommercial.model,
-          addVehicleDetailsHeavyCommercial.bodyType,
+          addVehicleDetailsHeavyCommercial.hcvType,
           addVehicleDetailsHeavyCommercial.cabType
         )
       )
