@@ -63,8 +63,10 @@ class AddVehicleDetailsAgriculturalTractorControllerSpec extends SpecBase with M
     "brakeHorsepower" -> answer.brakeHorsepower
   )
 
-  lazy val supplierRoute = vehicledetails.routes.AddVehicleDetailsAgriculturalTractorController.supplierOnPageLoad(supplierNumber, vehicleNumber, NormalMode).url
-  lazy val importRoute   = vehicledetails.routes.AddVehicleDetailsAgriculturalTractorController.importOnPageLoad(importNumber, vehicleNumber, NormalMode).url
+  lazy val supplierRoute =
+    vehicledetails.routes.AddVehicleDetailsAgriculturalTractorController.supplierOnPageLoad(supplierNumber, vehicleNumber, NormalMode).url
+  lazy val importRoute =
+    vehicledetails.routes.AddVehicleDetailsAgriculturalTractorController.importOnPageLoad(importNumber, vehicleNumber, NormalMode).url
 
   val supplierJourneyAnswers: UserAnswers = emptyUserAnswers
     .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
@@ -200,7 +202,10 @@ class AddVehicleDetailsAgriculturalTractorControllerSpec extends SpecBase with M
 
         running(application) {
           val request =
-            FakeRequest(GET, vehicledetails.routes.AddVehicleDetailsAgriculturalTractorController.supplierOnPageLoad(supplierNumber, vehicleNumber, CheckMode).url)
+            FakeRequest(
+              GET,
+              vehicledetails.routes.AddVehicleDetailsAgriculturalTractorController.supplierOnPageLoad(supplierNumber, vehicleNumber, CheckMode).url
+            )
 
           val result = route(application, request).value
 
@@ -383,7 +388,10 @@ class AddVehicleDetailsAgriculturalTractorControllerSpec extends SpecBase with M
 
         running(application) {
           val request =
-            FakeRequest(GET, vehicledetails.routes.AddVehicleDetailsAgriculturalTractorController.importOnPageLoad(importNumber, vehicleNumber, CheckMode).url)
+            FakeRequest(
+              GET,
+              vehicledetails.routes.AddVehicleDetailsAgriculturalTractorController.importOnPageLoad(importNumber, vehicleNumber, CheckMode).url
+            )
 
           val result = route(application, request).value
 
@@ -434,7 +442,9 @@ class AddVehicleDetailsAgriculturalTractorControllerSpec extends SpecBase with M
       "must return a Bad Request and the required errors when no fields are entered" in {
         val emptyData = validFormData.view.mapValues(_ => "").toMap
 
-        assertBadRequestWithError(importJourneyAnswers, importRoute, emptyData)(msgs => msgs("addVehicleDetailsAgriculturalTractor.make.error.required"))
+        assertBadRequestWithError(importJourneyAnswers, importRoute, emptyData)(msgs =>
+          msgs("addVehicleDetailsAgriculturalTractor.make.error.required")
+        )
       }
 
       "must redirect to Unauthorised for a GET if the vehicle was brought from the EU" in {

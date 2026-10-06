@@ -127,7 +127,7 @@ class AddVehicleDetailsAgriculturalTractorViewSpec extends SpecBase with Matcher
     }
 
     "must pre-populate the fields when the question has previously been answered" in {
-      val answer = AddVehicleDetailsAgriculturalTractor(make = "John Deere", model = "SR", derivative = "5090M", brakeHorsepower = "240.75")
+      val answer       = AddVehicleDetailsAgriculturalTractor(make = "John Deere", model = "SR", derivative = "5090M", brakeHorsepower = "240.75")
       val html: String = view(form.fill(answer), submitCall)(request, msgs).toString
 
       html must include("John Deere")
