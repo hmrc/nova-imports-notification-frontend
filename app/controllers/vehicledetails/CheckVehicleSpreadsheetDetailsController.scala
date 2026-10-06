@@ -22,13 +22,14 @@ import controllers.actions.Actions
 import controllers.vehicledetails.VehicleSpreadsheetUploadController.guardPredicate
 import models.draftsections.{ImportDetails, ImportVehicleAdditionalInformation, ImportVehicleType, SupplierDetails, VehicleAdditionalInformation, VehicleDetails, VehicleType}
 import models.responses.{SpreadsheetAgriculturalTractorEuVehicle, SpreadsheetAgriculturalTractorNonEuVehicle, SpreadsheetConstructionVehiclesEuVehicle, SpreadsheetConstructionVehiclesNonEuVehicle, SpreadsheetEuVehicle, SpreadsheetHeavyCommercialEuVehicle, SpreadsheetHeavyCommercialNonEuVehicle, SpreadsheetMotorCaravansEuVehicle, SpreadsheetMotorCaravansNonEuVehicle, SpreadsheetMotorcyclesEuVehicle, SpreadsheetMotorcyclesNonEuVehicle, SpreadsheetNonEuVehicle, UploadResultResponse}
-import models.{BusinessOrPrivateIndividual, DraftId}
+import models.{BusinessOrPrivateIndividual, DraftId, UserContext}
 import pages.sections.introduction.AmendSubmittedNotificationPage
 import pages.{DraftIdPage, DraftVersionIdPage}
 import play.api.Logging
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
+import services.UserDataService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import viewmodels.Pager
@@ -43,6 +44,7 @@ class CheckVehicleSpreadsheetDetailsController @Inject() (
   actions: Actions,
   connector: NovaImportsBackendConnector,
   sessionRepository: SessionRepository,
+  userDataService: UserDataService,
   view: CheckVehicleSpreadsheetDetailsView
 )(implicit ec: ExecutionContext)
     extends BaseController
@@ -82,51 +84,53 @@ class CheckVehicleSpreadsheetDetailsController @Inject() (
         case Some(versionId) =>
           connector.getUploadResult(draftId).flatMap {
             case Right(result) if result.fileStatus == "VALIDATED" && result.validationType.exists(euValidationTypes.contains) =>
-              saveAllVehicles(draftId, result.euVehicles, isAmendment, versionId).flatMap(afterSave(draftId, request.userAnswers, _))
+              saveAllVehicles(draftId, result.euVehicles, isAmendment, versionId).flatMap(
+                afterSave(draftId, request.userAnswers, request.userContext, _)
+              )
 
             case Right(result) if result.fileStatus == "VALIDATED" && result.validationType.exists(nonEuValidationTypes.contains) =>
               saveAllImportVehicles(draftId, result.nonEuVehicles, result.validationType.get, isAmendment, versionId)
-                .flatMap(afterSave(draftId, request.userAnswers, _))
+                .flatMap(afterSave(draftId, request.userAnswers, request.userContext, _))
 
             case Right(result) if result.fileStatus == "VALIDATED" && result.validationType.contains("AgriculturalTractorsEu") =>
               saveAllAgriculturalTractorEuVehicles(draftId, result.agriculturalTractorEuVehicles, isAmendment, versionId)
-                .flatMap(afterSave(draftId, request.userAnswers, _))
+                .flatMap(afterSave(draftId, request.userAnswers, request.userContext, _))
 
             case Right(result) if result.fileStatus == "VALIDATED" && result.validationType.contains("AgriculturalTractorsNonEu") =>
               saveAllAgriculturalTractorNonEuVehicles(draftId, result.agriculturalTractorNonEuVehicles, isAmendment, versionId)
-                .flatMap(afterSave(draftId, request.userAnswers, _))
+                .flatMap(afterSave(draftId, request.userAnswers, request.userContext, _))
 
             case Right(result) if result.fileStatus == "VALIDATED" && result.validationType.contains("MotorCaravansEu") =>
               saveAllMotorCaravansEuVehicles(draftId, result.motorCaravansEuVehicles, isAmendment, versionId)
-                .flatMap(afterSave(draftId, request.userAnswers, _))
+                .flatMap(afterSave(draftId, request.userAnswers, request.userContext, _))
 
             case Right(result) if result.fileStatus == "VALIDATED" && result.validationType.contains("MotorCaravansNonEu") =>
               saveAllMotorCaravansNonEuVehicles(draftId, result.motorCaravansNonEuVehicles, isAmendment, versionId)
-                .flatMap(afterSave(draftId, request.userAnswers, _))
+                .flatMap(afterSave(draftId, request.userAnswers, request.userContext, _))
 
             case Right(result) if result.fileStatus == "VALIDATED" && result.validationType.contains("HeavyCommercialVehiclesEu") =>
               saveAllHeavyCommercialEuVehicles(draftId, result.heavyCommercialEuVehicles, isAmendment, versionId)
-                .flatMap(afterSave(draftId, request.userAnswers, _))
+                .flatMap(afterSave(draftId, request.userAnswers, request.userContext, _))
 
             case Right(result) if result.fileStatus == "VALIDATED" && result.validationType.contains("HeavyCommercialVehiclesNonEu") =>
               saveAllHeavyCommercialNonEuVehicles(draftId, result.heavyCommercialNonEuVehicles, isAmendment, versionId)
-                .flatMap(afterSave(draftId, request.userAnswers, _))
+                .flatMap(afterSave(draftId, request.userAnswers, request.userContext, _))
 
             case Right(result) if result.fileStatus == "VALIDATED" && result.validationType.contains("MotorcyclesEu") =>
               saveAllMotorcyclesEuVehicles(draftId, result.motorcyclesEuVehicles, isAmendment, versionId)
-                .flatMap(afterSave(draftId, request.userAnswers, _))
+                .flatMap(afterSave(draftId, request.userAnswers, request.userContext, _))
 
             case Right(result) if result.fileStatus == "VALIDATED" && result.validationType.contains("MotorcyclesNonEu") =>
               saveAllMotorcyclesNonEuVehicles(draftId, result.motorcyclesNonEuVehicles, isAmendment, versionId)
-                .flatMap(afterSave(draftId, request.userAnswers, _))
+                .flatMap(afterSave(draftId, request.userAnswers, request.userContext, _))
 
             case Right(result) if result.fileStatus == "VALIDATED" && result.validationType.contains("ConstructionVehiclesEu") =>
               saveAllConstructionVehiclesEuVehicles(draftId, result.constructionVehiclesEuVehicles, isAmendment, versionId)
-                .flatMap(afterSave(draftId, request.userAnswers, _))
+                .flatMap(afterSave(draftId, request.userAnswers, request.userContext, _))
 
             case Right(result) if result.fileStatus == "VALIDATED" && result.validationType.contains("ConstructionVehiclesNonEu") =>
               saveAllConstructionVehiclesNonEuVehicles(draftId, result.constructionVehiclesNonEuVehicles, isAmendment, versionId)
-                .flatMap(afterSave(draftId, request.userAnswers, _))
+                .flatMap(afterSave(draftId, request.userAnswers, request.userContext, _))
 
             case Right(result) if result.fileStatus == "VALIDATED" =>
               logger.warn(
@@ -144,18 +148,24 @@ class CheckVehicleSpreadsheetDetailsController @Inject() (
       }
     }
 
-  private def afterSave(draftId: DraftId, userAnswers: models.UserAnswers, result: Either[String, Long])(implicit
+  private def afterSave(draftId: DraftId, userAnswers: models.UserAnswers, userContext: UserContext, result: Either[String, Long])(implicit
     hc: HeaderCarrier
   ): Future[Result] =
     result match {
       case Right(newVersionId) =>
         for {
-          _ <- sessionRepository.setPage(userAnswers, DraftVersionIdPage, newVersionId)
-          _ <- connector.deleteFileUpload(draftId).map {
+          updatedAnswers <- sessionRepository.setPage(userAnswers, DraftVersionIdPage, newVersionId)
+          _              <- connector.deleteFileUpload(draftId).map {
                  case Right(_)    => ()
                  case Left(error) => logger.warn(s"Could not delete the vehicle spreadsheet upload after saving for draftId ${draftId.value}: $error")
                }
-        } yield Redirect(controllers.routes.NotificationTaskListController.onPageLoad()) // TODO: navigate to UVS6.0 when built
+          refreshed <- userDataService.retrieveAndStoreDraftNotification(draftId, updatedAnswers, userContext)
+        } yield refreshed match {
+          case Right(_)    => Redirect(routes.UploadSuccessfulController.onPageLoad())
+          case Left(error) =>
+            logger.warn(s"Failed to refresh the draft notification after saving the vehicle spreadsheet for draftId ${draftId.value}: $error")
+            Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+        }
       case Left(error) =>
         logger.warn(s"Failed to save the vehicle spreadsheet sections for draftId ${draftId.value}: $error")
         Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))

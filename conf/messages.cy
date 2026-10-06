@@ -1103,6 +1103,14 @@ updateVehicleSpreadsheet.caption = Ychwanegwch fanylion cerbyd
 updateVehicleSpreadsheet.hint = You’ll lose the details you’ve already uploaded
 updateVehicleSpreadsheet.error.required = Select yes if you want to update this vehicle spreadsheet
 
+##################################################################
+# UVS6.0 - Upload successful                                     #
+##################################################################
+# TODO: Welsh translations to be supplied by content team.
+uploadSuccessful.title = Upload successful
+uploadSuccessful.heading = Upload successful
+uploadSuccessful.paragraph = You have successfully attached this vehicle spreadsheet.
+
 #######################################################
 # DN2.0 - Delete current notification                 #
 #######################################################
