@@ -1185,25 +1185,33 @@ addVehicleDetailsCar.bodyType.error.required = Enter the body type
 addVehicleDetailsCar.bodyType.error.format = The body type must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
 addVehicleDetailsCar.bodyType.error.length = The body type must be 20 characters or less
 
+###############################################################
+# AVD8.3 - Add vehicle details 8.3 - Heavy commercial vehicle #
+###############################################################
+
 addVehicleDetailsHeavyCommercial.title = Enter the heavy commercial vehicle details
 addVehicleDetailsHeavyCommercial.caption = Add vehicle details
 addVehicleDetailsHeavyCommercial.heading = Enter the heavy commercial vehicle details
 addVehicleDetailsHeavyCommercial.paragraph.1 = You can usually find these details on the purchase invoice or in the vehicle manual.
+
 addVehicleDetailsHeavyCommercial.make.label = Make
 addVehicleDetailsHeavyCommercial.make.hint = For example, Renault Trucks
 addVehicleDetailsHeavyCommercial.make.error.required = Enter the make
 addVehicleDetailsHeavyCommercial.make.error.format = The make must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
 addVehicleDetailsHeavyCommercial.make.error.length = The make must be 50 characters or less
+
 addVehicleDetailsHeavyCommercial.model.label = Model
 addVehicleDetailsHeavyCommercial.model.hint = For example, Magnum
 addVehicleDetailsHeavyCommercial.model.error.required = Enter the model
 addVehicleDetailsHeavyCommercial.model.error.format = The model must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
 addVehicleDetailsHeavyCommercial.model.error.length = The model must be 50 characters or less
+
 addVehicleDetailsHeavyCommercial.hcvType.label = Body type
 addVehicleDetailsHeavyCommercial.hcvType.hint = For example, a midlift axle tractor
 addVehicleDetailsHeavyCommercial.hcvType.error.required = Enter the body type
 addVehicleDetailsHeavyCommercial.hcvType.error.format = The body type must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
 addVehicleDetailsHeavyCommercial.hcvType.error.length = The body type must be 50 characters or less
+
 addVehicleDetailsHeavyCommercial.cabType.label = Cab type
 addVehicleDetailsHeavyCommercial.cabType.hint = For example, sleeper cab
 addVehicleDetailsHeavyCommercial.cabType.error.required = Enter the cab type
