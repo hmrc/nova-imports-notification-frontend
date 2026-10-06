@@ -279,7 +279,7 @@ class Navigator @Inject() () {
             vehicledetails.routes.ConfirmVehicleDetailsController.importOnPageLoad(importNumber, page.vehicleNumber)
           case _ => routes.JourneyRecoveryController.onPageLoad()
         }
-    case page: AddVehicleDetailsCarPage => (userAnswers, _) => addVehicleDetailsCarRoute(page, userAnswers)
+    case page: AddVehicleDetailsCarPage                 => (userAnswers, _) => addVehicleDetailsCarRoute(page, userAnswers)
     case page: AddVehicleDetailsAgriculturalTractorPage =>
       (userAnswers, _) =>
         (
@@ -291,7 +291,7 @@ class Navigator @Inject() () {
           case (Some(_), None, Some(_)) => routes.LandingPageController.onPageLoad()
           case _                        => routes.JourneyRecoveryController.onPageLoad()
         }
-    case _                              => (_, _) => routes.LandingPageController.onPageLoad()
+    case _ => (_, _) => routes.LandingPageController.onPageLoad()
   }
 
   private val checkRouteMap: Page => (UserAnswers, NovaUserType) => Call = {
