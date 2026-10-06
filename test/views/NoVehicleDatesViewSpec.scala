@@ -47,8 +47,8 @@ class NoVehicleDatesViewSpec extends SpecBase with Matchers with BeforeAndAfterA
 
   "NoVehicleDatesView" - {
 
-    "must not render a caption" in {
-      html must not include (msgs("govuk-caption-l"))
+    "must render a caption" in {
+      html must include(msgs("govuk-caption-l"))
     }
 
     "must render the heading as a page heading" in {
