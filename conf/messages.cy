@@ -169,8 +169,6 @@ viewSavedNotifications.table.delete = Delete
 viewSavedNotifications.location.withinEu = Within the EU
 viewSavedNotifications.location.outsideEu = Outside the EU
 viewSavedNotifications.notProvided = Not provided
-viewSavedNotifications.pagination.previous = Previous
-viewSavedNotifications.pagination.next = Next
 viewSavedNotifications.returnHome = Return to home
 
 #######################################################

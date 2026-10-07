@@ -16,7 +16,7 @@
 
 @import models.DraftNotificationSummary
 @import _root_.utils.{DateTimeFormats, PurchaseLocation}
-@import viewmodels.SavedNotificationsResults
+@import viewmodels.{PageOf, Pager}
 
 @this(
     layout: templates.Layout,
@@ -25,7 +25,7 @@
     govukPagination: GovukPagination
 )
 
-@(results: SavedNotificationsResults)(implicit request: Request[?], messages: Messages)
+@(results: PageOf[DraftNotificationSummary])(implicit request: Request[?], messages: Messages)
 
 @notProvided = @{ messages("viewSavedNotifications.notProvided") }
 
@@ -57,7 +57,7 @@
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-full">
-            <p class="govuk-body govuk-!-padding-bottom-3">@Html(messages("viewSavedNotifications.showing", s"<b>${results.from}</b>", s"<b>${results.to}</b>", s"<b>${results.totalCount}</b>"))</p>
+            <p class="govuk-body govuk-!-padding-bottom-3">@Html(messages("viewSavedNotifications.showing", s"<b>${results.from}</b>", s"<b>${results.to}</b>", s"<b>${results.total}</b>"))</p>
 
             @govukTable(Table(
                 head = Some(Seq(
@@ -67,7 +67,7 @@
                     HeadCell(content = Text(messages("viewSavedNotifications.table.dateCreated"))),
                     HeadCell(content = Text(messages("viewSavedNotifications.table.actions")))
                 )),
-                rows = results.drafts.map { draft =>
+                rows = results.items.map { draft =>
                     Seq(
                         TableRow(content = Text(purchaserName(draft))),
                         TableRow(content = Text(messages(PurchaseLocation.messageKey(draft.purchaseLocation)))),
@@ -79,7 +79,7 @@
                 classes = "govuk-table--small-text-until-tablet"
             ))
 
-            @results.pagination.map(govukPagination(_))
+            @Pager.paginationFor(results, p => controllers.notification.routes.ViewSavedNotificationsController.onPageLoad(p).url).map(govukPagination(_))
 
             <p class="govuk-body-s govuk-!-margin-bottom-8">
                 <a class="govuk-link" href="@controllers.routes.LandingPageController.onPageLoad()">@messages("viewSavedNotifications.returnHome")</a>

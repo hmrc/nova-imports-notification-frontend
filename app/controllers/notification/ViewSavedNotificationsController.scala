@@ -29,7 +29,7 @@ import repositories.SessionRepository
 import services.UserDataService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
-import viewmodels.SavedNotificationsResults
+import viewmodels.PageOf
 import views.html.ViewSavedNotificationsView
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -64,8 +64,8 @@ class ViewSavedNotificationsController @Inject() (
           traderOrClientSummary(ctx, clientVrn).map { summary =>
             val notificationsWithNames =
               notifications.copy(drafts = notifications.drafts.map(draft => draft.copy(purchaserName = nameForPurchaser(draft, ctx, summary))))
-            val results = SavedNotificationsResults(notificationsWithNames, currentPage, pageSize)
-            if (results.drafts.isEmpty && currentPage > results.totalPages)
+            val results = PageOf(notificationsWithNames.drafts, currentPage, pageSize, notifications.totalCount)
+            if (results.items.isEmpty && currentPage > results.totalPages)
               Redirect(routes.ViewSavedNotificationsController.onPageLoad(results.totalPages))
             else
               Ok(view(results))

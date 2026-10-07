@@ -25,7 +25,7 @@ import play.api.Application
 import play.api.i18n.Messages
 import play.api.mvc.Request
 import play.api.test.FakeRequest
-import viewmodels.SavedNotificationsResults
+import viewmodels.PageOf
 import views.html.ViewSavedNotificationsView
 
 import java.time.LocalDate
@@ -55,38 +55,38 @@ class ViewSavedNotificationsViewSpec extends SpecBase with Matchers with BeforeA
   "ViewSavedNotificationsView" - {
 
     "must put page 2 of 3 in the title when there are 30 drafts" in {
-      val html = view(SavedNotificationsResults(Seq(completeDraft), 30, 2, 10)).toString
+      val html = view(PageOf(Seq(completeDraft), 2, 10, 30)).toString
 
       Jsoup.parse(html).title mustEqual "Saved notifications (page 2 of 3) - " + msgs("service.name") + " - " + msgs("site.govuk")
     }
 
     "must leave the page number out of the title when there is one page" in {
-      val html = view(SavedNotificationsResults(Seq(completeDraft, emptyDraft), 2, 1, 10)).toString
+      val html = view(PageOf(Seq(completeDraft, emptyDraft), 1, 10, 2)).toString
 
       Jsoup.parse(html).title mustEqual "Saved notifications - " + msgs("service.name") + " - " + msgs("site.govuk")
     }
 
     "must render the five column headings" in {
-      val html = view(SavedNotificationsResults(Seq(completeDraft), 1, 1, 10)).toString
+      val html = view(PageOf(Seq(completeDraft), 1, 10, 1)).toString
 
       Jsoup.parse(html).select("thead th").eachText.asScala.toSeq mustEqual
         Seq("Purchaser name", "Purchase location", "Number of vehicles", "Date created", "Actions")
     }
 
     "must render the four cells for a draft with every field" in {
-      val html = view(SavedNotificationsResults(Seq(completeDraft), 1, 1, 10)).toString
+      val html = view(PageOf(Seq(completeDraft), 1, 10, 1)).toString
 
       cellsOfRow(html, 0).take(4) mustEqual Seq("Purchaser Company 1 Ltd", "Within the EU", "3", "14 Feb 2026")
     }
 
     "must render Not provided for an empty draft" in {
-      val html = view(SavedNotificationsResults(Seq(emptyDraft), 1, 1, 10)).toString
+      val html = view(PageOf(Seq(emptyDraft), 1, 10, 1)).toString
 
       cellsOfRow(html, 0).take(4) mustEqual Seq("Not provided", "Not provided", "Not provided", "5 Sep 2026")
     }
 
     "must link Continue to onContinue and Delete to the landing page" in {
-      val links = Jsoup.parse(view(SavedNotificationsResults(Seq(completeDraft), 1, 1, 10)).toString).select("tbody tr td").last.select("a")
+      val links = Jsoup.parse(view(PageOf(Seq(completeDraft), 1, 10, 1)).toString).select("tbody tr td").last.select("a")
 
       links.get(0).attr("href") mustEqual controllers.notification.routes.ViewSavedNotificationsController.onContinue("12345").url
       links.get(1).attr("href") mustEqual controllers.routes.LandingPageController.onPageLoad().url
