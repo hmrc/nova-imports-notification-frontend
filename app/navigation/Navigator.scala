@@ -279,8 +279,8 @@ class Navigator @Inject() () {
             vehicledetails.routes.ConfirmVehicleDetailsController.importOnPageLoad(importNumber, page.vehicleNumber)
           case _ => routes.JourneyRecoveryController.onPageLoad()
         }
-    case page: AddVehicleDetailsCarPage             => (userAnswers, _) => addVehicleDetailsCarRoute(page, userAnswers)
-    case page: AddVehicleDetailsHeavyCommercialPage => (userAnswers, _) => addVehicleDetailsHeavyCommercialRoute(page, userAnswers)
+    case page: AddVehicleDetailsCarPage                 => (userAnswers, _) => addVehicleDetailsCarRoute(page, userAnswers)
+    case page: AddVehicleDetailsHeavyCommercialPage     => (userAnswers, _) => addVehicleDetailsHeavyCommercialRoute(page, userAnswers)
     case page: AddVehicleDetailsAgriculturalTractorPage =>
       (userAnswers, _) =>
         (
