@@ -28,7 +28,7 @@ import pages.sections.notifieraddress.IsYourAddressInTheUkPage
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierQuestionPage, SupplierVatRegistrationNumberPage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
-import pages.sections.vehicledetails.{AddVehicleDetailsAgriculturalTractorPage, AddVehicleDetailsCarPage, AddVehicleTypePage, CountryOfFirstRegistrationPage, DateOfAvailabilityPage, DateOfFirstRegistrationPage, NoPurchaseInvoiceReasonPage, PaymentCurrencyPage, PurchaseInvoiceDatePage, PurchaseInvoiceNumberPage, TotalAmountPaidPage, VehicleDatesPage}
+import pages.sections.vehicledetails.{AddVehicleDetailsAgriculturalTractorPage, AddVehicleDetailsCarPage, AddVehicleDetailsHeavyCommercialPage, AddVehicleTypePage, CountryOfFirstRegistrationPage, DateOfAvailabilityPage, DateOfFirstRegistrationPage, NoPurchaseInvoiceReasonPage, PaymentCurrencyPage, PurchaseInvoiceDatePage, PurchaseInvoiceNumberPage, TotalAmountPaidPage, VehicleDatesPage}
 
 @Singleton
 class Navigator @Inject() () {
@@ -279,7 +279,8 @@ class Navigator @Inject() () {
             vehicledetails.routes.ConfirmVehicleDetailsController.importOnPageLoad(importNumber, page.vehicleNumber)
           case _ => routes.JourneyRecoveryController.onPageLoad()
         }
-    case page: AddVehicleDetailsCarPage                 => (userAnswers, _) => addVehicleDetailsCarRoute(page, userAnswers)
+    case page: AddVehicleDetailsCarPage             => (userAnswers, _) => addVehicleDetailsCarRoute(page, userAnswers)
+    case page: AddVehicleDetailsHeavyCommercialPage => (userAnswers, _) => addVehicleDetailsHeavyCommercialRoute(page, userAnswers)
     case page: AddVehicleDetailsAgriculturalTractorPage =>
       (userAnswers, _) =>
         (
@@ -368,11 +369,23 @@ class Navigator @Inject() () {
     case page: PaymentCurrencyPage            => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
     case page: AddVehicleTypePage             => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
     case page: AddVehicleDetailsCarPage       => (userAnswers, _) => addVehicleDetailsCarRoute(page, userAnswers)
-    case _                                    =>
+    case page: AddVehicleDetailsHeavyCommercialPage => (userAnswers, _) => addVehicleDetailsHeavyCommercialRoute(page, userAnswers)
+    case _                                          =>
       (_, _) => routes.LandingPageController.onPageLoad()
   }
 
   private def addVehicleDetailsCarRoute(page: AddVehicleDetailsCarPage, userAnswers: UserAnswers): Call =
+    (
+      userAnswers.get(page),
+      userAnswers.vehicleSupplierNumber(page.vehicleNumber),
+      userAnswers.vehicleImportNumber(page.vehicleNumber)
+    ) match {
+      case (Some(_), Some(_), _)    => routes.LandingPageController.onPageLoad() // TODO: navigate to C-AVD2.0 when built
+      case (Some(_), None, Some(_)) => routes.LandingPageController.onPageLoad() // TODO: navigate to C-AVD2.0 when built
+      case _                        => routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def addVehicleDetailsHeavyCommercialRoute(page: AddVehicleDetailsHeavyCommercialPage, userAnswers: UserAnswers): Call =
     (
       userAnswers.get(page),
       userAnswers.vehicleSupplierNumber(page.vehicleNumber),
