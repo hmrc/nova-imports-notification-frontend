@@ -1100,7 +1100,7 @@ uploadSpreadsheetErrorRejected.buttonLabel = Upload again
 updateVehicleSpreadsheet.title = Are you sure you want to update this vehicle spreadsheet?
 updateVehicleSpreadsheet.heading = Are you sure you want to update this vehicle spreadsheet?
 updateVehicleSpreadsheet.caption = Ychwanegwch fanylion cerbyd
-updateVehicleSpreadsheet.hint = You’ll lose the details you’ve already uploaded
+updateVehicleSpreadsheet.paragraph = You’ll lose the details you’ve already uploaded.
 updateVehicleSpreadsheet.error.required = Select yes if you want to update this vehicle spreadsheet
 
 #######################################################
