@@ -26,7 +26,7 @@ import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{AgentSelectedClientPage, DraftIdPage}
+import pages.{AgentSelectedClientPage, DraftAlreadyLoadedPage, DraftIdPage}
 import pages.sections.initialquestions.VehicleFromEuPage
 import play.api.Application
 import play.api.inject.bind
@@ -96,6 +96,7 @@ class ViewSavedNotificationsControllerSpec extends SpecBase with MockitoSugar {
     when(userDataService.retrieveAndStoreDraftNotification(any[DraftId], any[UserAnswers], any[UserContext])(using any[HeaderCarrier]))
       .thenReturn(Future.successful(loaded))
     when(sessionRepository.set(any[UserAnswers])).thenReturn(Future.successful(true))
+    when(sessionRepository.setPage(any(), any(), any())(any())).thenReturn(Future.successful(emptyUserAnswers))
 
     agentWithClientApplication(
       mock[NovaImportsBackendConnector],
@@ -235,6 +236,18 @@ class ViewSavedNotificationsControllerSpec extends SpecBase with MockitoSugar {
           captor.getValue.data.keys mustEqual Set(AgentSelectedClientPage.toString, DraftIdPage.toString)
           captor.getValue.get(DraftIdPage).value mustEqual DraftId("12345")
           captor.getValue.get(AgentSelectedClientPage).value.vrn mustEqual "700011916"
+        }
+      }
+
+      "must set DraftAlreadyLoadedPage after the draft loads" in {
+        val sessionRepository  = mock[SessionRepository]
+        given app: Application = continueApplication(Right(clientAnswers), sessionRepository)
+
+        running(app) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, continueRoute("12345"))
+
+          status(route(app, request).value) mustEqual SEE_OTHER
+          verify(sessionRepository).setPage(eqTo(clientAnswers), eqTo(DraftAlreadyLoadedPage), eqTo(true))(any())
         }
       }
 

@@ -17,13 +17,13 @@
 package controllers
 
 import com.google.inject.Inject
-import connectors.{GetFileUploadSummaryError, NovaImportsBackendConnector}
+import connectors.{GetDraftNotificationError, GetFileUploadSummaryError, NovaImportsBackendConnector}
 import controllers.actions.Actions
 import controllers.utils.IsDraftIdDefined
 import models.DraftNotification.SectionId
 import models.requests.DataRequest
 import models.{BusinessOrPrivateIndividual, NormalMode, NotificationSummary, NovaUserType, PurchaserBusinessOrIndividual, PurchaserOrOnBehalf, SectionStatus, UserAnswers, UserContext}
-import pages.{DraftIdPage, NotificationTaskListPage}
+import pages.{DraftAlreadyLoadedPage, DraftIdPage, NotificationTaskListPage}
 import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, NotifyingAsPurchaserPage, PurchaserBusinessOrIndividualPage, VehicleBusinessUsePage, VehicleFromEuPage}
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -74,7 +74,15 @@ class NotificationTaskListController @Inject() (
       )
     }
 
-    userDataService.retrieveAndStoreDraftNotification(draftId, request.userAnswers, request.userContext).flatMap {
+    val loadDraftOrSkip: Future[Either[GetDraftNotificationError, UserAnswers]] =
+      if (request.userAnswers.get(DraftAlreadyLoadedPage).contains(true))
+        for {
+          cleared <- Future.fromTry(request.userAnswers.remove(DraftAlreadyLoadedPage))
+          _       <- sessionRepository.set(cleared)
+        } yield Right(cleared)
+      else userDataService.retrieveAndStoreDraftNotification(draftId, request.userAnswers, request.userContext)
+
+    loadDraftOrSkip.flatMap {
       case Left(error) =>
         logger.warn(s"Failed to retrieve draft notification for draftId ${draftId.value}: $error")
         Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))

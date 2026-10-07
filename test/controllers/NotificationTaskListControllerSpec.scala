@@ -26,9 +26,9 @@ import models.responses.GetFileUploadSummaryResponse
 import org.jsoup.Jsoup
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
-import org.mockito.Mockito.{never, verify, when}
+import org.mockito.Mockito.{never, times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{AgentSelectedClientPage, DraftIdPage, NotificationTaskListPage}
+import pages.{AgentSelectedClientPage, DraftAlreadyLoadedPage, DraftIdPage, NotificationTaskListPage}
 import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, NotifyingAsPurchaserPage, PurchaserBusinessOrIndividualPage, VehicleBusinessUsePage, VehicleFromEuPage}
 import pages.sections.introduction.NotDeregisteredPage
 import pages.sections.notifierdetails.PhoneNumberPage
@@ -245,6 +245,38 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
 
           verify(sessionRepo).set(captor.capture())
           captor.getValue.get(NotificationTaskListPage) mustBe Some(true)
+        }
+      }
+
+      "must not call getDraftNotification when DraftAlreadyLoadedPage is set" in {
+        val connector                  = stubConnector()
+        given application: Application =
+          applicationWith(classOf[FakeVatTraderIdentifierAction], Some(answersBusinessUse.unsafeSet(DraftAlreadyLoadedPage, true)), connector)
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, notificationTaskListRoute)
+
+          status(route(application, request).value) mustEqual OK
+          verify(connector, never()).getDraftNotification(any[DraftId])(any[HeaderCarrier])
+        }
+      }
+
+      "must remove DraftAlreadyLoadedPage from the session" in {
+        val sessionRepo                = stubSessionRepository()
+        val captor                     = ArgumentCaptor.forClass(classOf[UserAnswers])
+        given application: Application =
+          applicationWith(
+            classOf[FakeVatTraderIdentifierAction],
+            Some(answersBusinessUse.unsafeSet(DraftAlreadyLoadedPage, true)),
+            sessionRepo = sessionRepo
+          )
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, notificationTaskListRoute)
+
+          status(route(application, request).value) mustEqual OK
+          verify(sessionRepo, times(2)).set(captor.capture())
+          captor.getAllValues.get(0).get(DraftAlreadyLoadedPage) mustBe None
         }
       }
 
