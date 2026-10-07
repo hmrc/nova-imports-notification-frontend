@@ -54,9 +54,19 @@ class ConfirmVehicleDetailsJourneySpec extends SpecBase {
         routes.LandingPageController.onPageLoad()
     }
 
-    "must go to the AVD8.3 placeholder for a heavy commercial vehicle" in {
+    "must go to AVD8.3 (AddVehicleDetailsHeavyCommercialController) for a heavy commercial vehicle on the supplier journey" in {
+      ConfirmVehicleDetailsJourney.confirmedRoute(supplierVehicle.unsafeSet(AddVehicleTypePage(v), AddVehicleType.Hcv), v) mustBe
+        vehicledetails.routes.AddVehicleDetailsHeavyCommercialController.supplierOnPageLoad(s, v, NormalMode)
+    }
+
+    "must go to AVD8.3 (AddVehicleDetailsHeavyCommercialController) for a heavy commercial vehicle on the import journey" in {
+      ConfirmVehicleDetailsJourney.confirmedRoute(importVehicle.unsafeSet(AddVehicleTypePage(v), AddVehicleType.Hcv), v) mustBe
+        vehicledetails.routes.AddVehicleDetailsHeavyCommercialController.importOnPageLoad(i, v, NormalMode)
+    }
+
+    "must go to JourneyRecovery for a heavy commercial vehicle when the vehicle has no supplier or import" in {
       ConfirmVehicleDetailsJourney.confirmedRoute(emptyUserAnswers.unsafeSet(AddVehicleTypePage(v), AddVehicleType.Hcv), v) mustBe
-        routes.LandingPageController.onPageLoad()
+        routes.JourneyRecoveryController.onPageLoad()
     }
 
     "must go to the AVD8.4 placeholder for a motorcycle, scooter or moped" in {
