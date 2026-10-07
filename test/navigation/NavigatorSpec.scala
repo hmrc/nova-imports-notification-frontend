@@ -835,6 +835,33 @@ class NavigatorSpec extends SpecBase {
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
 
+      "must go from AddVehicleDetailsHeavyCommercialPage AVD8.3 to the landing page for supplier 1 vehicle 1 until C-AVD2.0 is built" in {
+        val page = AddVehicleDetailsHeavyCommercialPage(VehicleNumber(1))
+        val ua = supplierVehicle.unsafeSet(page, AddVehicleDetailsHeavyCommercial("Renault Trucks", "Magnum", "midlift axle tractor", "sleeper cab"))
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from AddVehicleDetailsHeavyCommercialPage AVD8.3 to the landing page for import 1 vehicle 1 until C-AVD2.0 is built" in {
+        val page = AddVehicleDetailsHeavyCommercialPage(VehicleNumber(1))
+        val ua   = importVehicle.unsafeSet(page, AddVehicleDetailsHeavyCommercial("Renault Trucks", "Magnum", "midlift axle tractor", "sleeper cab"))
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from AddVehicleDetailsHeavyCommercialPage AVD8.3 to JourneyRecovery when the vehicle has no supplier or import" in {
+        val page = AddVehicleDetailsHeavyCommercialPage(VehicleNumber(1))
+        val ua   = userAnswers.unsafeSet(page, AddVehicleDetailsHeavyCommercial("Renault Trucks", "Magnum", "midlift axle tractor", "sleeper cab"))
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from AddVehicleDetailsHeavyCommercialPage AVD8.3 to JourneyRecovery when no answer is found" in {
+        navigator.nextPage(
+          AddVehicleDetailsHeavyCommercialPage(VehicleNumber(1)),
+          NormalMode,
+          supplierVehicle,
+          NovaUserType.PrivateIndividual
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
       "must go from VehicleDatesPage AVD3.0 to NoVehicleDates AVD3.1 when no dates are held" in {
         val ua = userAnswers.set(VehicleDatesPage(SupplierNumber(1), VehicleNumber(1)), Set(VehicleDates.NoDates)).success.value
         navigator.nextPage(VehicleDatesPage(SupplierNumber(1), VehicleNumber(1)), NormalMode, ua, NovaUserType.PrivateIndividual) mustBe
@@ -1263,6 +1290,25 @@ class NavigatorSpec extends SpecBase {
 
         "must go from AddVehicleDetailsCarPage AVD8.1 to journey recovery in check mode when there is no answer" in {
           navigator.nextPage(AddVehicleDetailsCarPage(v), CheckMode, invoiceOnly, NovaUserType.VatRegisteredOrganisation) mustBe
+            routes.JourneyRecoveryController.onPageLoad()
+        }
+
+        "must go from AddVehicleDetailsHeavyCommercialPage AVD8.3 to the landing page for a supplier vehicle until C-AVD2.0 is built" in {
+          val page = AddVehicleDetailsHeavyCommercialPage(v)
+          val ua   = invoiceOnly.unsafeSet(page, AddVehicleDetailsHeavyCommercial("Renault Trucks", "Magnum", "midlift axle tractor", "sleeper cab"))
+          navigator.nextPage(page, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
+        }
+
+        "must go from AddVehicleDetailsHeavyCommercialPage AVD8.3 to the landing page for an import vehicle until C-AVD2.0 is built" in {
+          val page = AddVehicleDetailsHeavyCommercialPage(v)
+          val ua   = importComplete
+            .unsafeSet(AddVehicleTypePage(v), AddVehicleType.Hcv)
+            .unsafeSet(page, AddVehicleDetailsHeavyCommercial("Renault Trucks", "Magnum", "midlift axle tractor", "sleeper cab"))
+          navigator.nextPage(page, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
+        }
+
+        "must go from AddVehicleDetailsHeavyCommercialPage AVD8.3 to journey recovery in check mode when there is no answer" in {
+          navigator.nextPage(AddVehicleDetailsHeavyCommercialPage(v), CheckMode, invoiceOnly, NovaUserType.VatRegisteredOrganisation) mustBe
             routes.JourneyRecoveryController.onPageLoad()
         }
 
