@@ -1136,15 +1136,6 @@ updateVehicleSpreadsheet.caption = Ychwanegwch fanylion cerbyd
 updateVehicleSpreadsheet.paragraph = You’ll lose the details you’ve already uploaded.
 updateVehicleSpreadsheet.error.required = Select yes if you want to update this vehicle spreadsheet
 
-#######################################################
-# DN2.0 - Delete current notification                 #
-#######################################################
-# TODO: Welsh translations to be supplied by content team.
-deleteCurrentNotification.title = Are you sure you want to delete this notification?
-deleteCurrentNotification.heading = Are you sure you want to delete this notification?
-deleteCurrentNotification.paragraph = You’ll lose all the details for this notification.
-deleteCurrentNotification.error.required = Select yes if you want to delete this notification
-
 ##################################################################
 # C-AVD1.0 - Confirm vehicle details 1.0                         #
 ##################################################################
