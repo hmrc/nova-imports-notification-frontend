@@ -1217,3 +1217,37 @@ addVehicleDetailsHeavyCommercial.cabType.hint = For example, sleeper cab
 addVehicleDetailsHeavyCommercial.cabType.error.required = Enter the cab type
 addVehicleDetailsHeavyCommercial.cabType.error.format = The cab type must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
 addVehicleDetailsHeavyCommercial.cabType.error.length = The cab type must be 100 characters or less
+
+#######################################################
+# AVD8.6 - Add vehicle details 8.6 - Agricultural tractor #
+#######################################################
+# TODO: Welsh translations to be supplied by content team.
+
+addVehicleDetailsAgriculturalTractor.title = Enter the agricultural tractor details
+addVehicleDetailsAgriculturalTractor.caption = Add vehicle details
+addVehicleDetailsAgriculturalTractor.heading = Enter the agricultural tractor details
+addVehicleDetailsAgriculturalTractor.paragraph.1 = You can usually find these details on the purchase invoice or in the vehicle manual.
+
+addVehicleDetailsAgriculturalTractor.make.label = Make
+addVehicleDetailsAgriculturalTractor.make.hint = For example, John Deere
+addVehicleDetailsAgriculturalTractor.make.error.required = Enter the make
+addVehicleDetailsAgriculturalTractor.make.error.format = The make must not include special characters such as #, $, ^, `, '{', '|', '}', ~, or accented letters such as è
+addVehicleDetailsAgriculturalTractor.make.error.length = The make must be 50 characters or less
+
+addVehicleDetailsAgriculturalTractor.model.label = Model
+addVehicleDetailsAgriculturalTractor.model.hint = For example, SR
+addVehicleDetailsAgriculturalTractor.model.error.required = Enter the model
+addVehicleDetailsAgriculturalTractor.model.error.format = The model must not include special characters such as #, $, ^, `, '{', '|', '}', ~, or accented letters such as è
+addVehicleDetailsAgriculturalTractor.model.error.length = The model must be 50 characters or less
+
+addVehicleDetailsAgriculturalTractor.derivative.label = Derivative
+addVehicleDetailsAgriculturalTractor.derivative.hint = For example, 5090M
+addVehicleDetailsAgriculturalTractor.derivative.error.required = Enter the derivative
+addVehicleDetailsAgriculturalTractor.derivative.error.format = The derivative must not include special characters such as #, $, ^, `, '{', '|', '}', ~, or accented letters such as è
+addVehicleDetailsAgriculturalTractor.derivative.error.length = The derivative must be 50 characters or less
+
+addVehicleDetailsAgriculturalTractor.brakeHorsepower.label = Brake horsepower (bhp)
+addVehicleDetailsAgriculturalTractor.brakeHorsepower.hint = Engine power, for example 90 or 240.75
+addVehicleDetailsAgriculturalTractor.brakeHorsepower.error.required = Enter the brake horsepower
+addVehicleDetailsAgriculturalTractor.brakeHorsepower.error.format = Enter the brake horsepower using numbers only or with exactly 2 decimal places
+addVehicleDetailsAgriculturalTractor.brakeHorsepower.error.length = The brake horsepower must be 4 characters or less before any decimal point

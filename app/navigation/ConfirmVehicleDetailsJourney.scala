@@ -144,10 +144,13 @@ object ConfirmVehicleDetailsJourney {
         routes.AddVehicleDetailsHeavyCommercialController.supplierOnPageLoad(supplierNumber, vehicleNumber, NormalMode)
       case (Some(AddVehicleType.Hcv), None, Some(importNumber)) =>
         routes.AddVehicleDetailsHeavyCommercialController.importOnPageLoad(importNumber, vehicleNumber, NormalMode)
-      case (Some(AddVehicleType.Motorcycle), _, _)          => controllers.routes.LandingPageController.onPageLoad()
-      case (Some(AddVehicleType.MotorCaravan), _, _)        => controllers.routes.LandingPageController.onPageLoad()
-      case (Some(AddVehicleType.AgriculturalTractor), _, _) => controllers.routes.LandingPageController.onPageLoad()
-      case (Some(AddVehicleType.ContractorsPlant), _, _)    => controllers.routes.LandingPageController.onPageLoad()
-      case _                                                => controllers.routes.JourneyRecoveryController.onPageLoad()
+      case (Some(AddVehicleType.AgriculturalTractor), Some(supplierNumber), _) =>
+        routes.AddVehicleDetailsAgriculturalTractorController.supplierOnPageLoad(supplierNumber, vehicleNumber, NormalMode)
+      case (Some(AddVehicleType.AgriculturalTractor), None, Some(importNumber)) =>
+        routes.AddVehicleDetailsAgriculturalTractorController.importOnPageLoad(importNumber, vehicleNumber, NormalMode)
+      case (Some(AddVehicleType.Motorcycle), _, _)       => controllers.routes.LandingPageController.onPageLoad()
+      case (Some(AddVehicleType.MotorCaravan), _, _)     => controllers.routes.LandingPageController.onPageLoad()
+      case (Some(AddVehicleType.ContractorsPlant), _, _) => controllers.routes.LandingPageController.onPageLoad()
+      case _                                             => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 }

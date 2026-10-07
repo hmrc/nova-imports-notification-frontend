@@ -28,6 +28,7 @@ import pages.sections.supplierdetails.*
 import pages.sections.vehicledetails.*
 import play.api.libs.json.Json
 import queries.AllVehiclesQuery
+import pages.sections.vehicledetails.{AddVehicleDetailsAgriculturalTractorPage, AddVehicleDetailsCarPage, AddVehicleTypePage, CountryOfFirstRegistrationPage, DateOfAvailabilityPage, DateOfFirstRegistrationKnownPage, DateOfFirstRegistrationPage, NoPurchaseInvoiceReasonPage, PaymentCurrencyPage, PurchaseInvoiceDatePage, PurchaseInvoiceNumberPage, TotalAmountPaidPage, VehicleDatesPage}
 
 import java.time.LocalDate
 
@@ -862,6 +863,33 @@ class NavigatorSpec extends SpecBase {
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
 
+      "must go from AddVehicleDetailsAgriculturalTractorPage AVD8.6 to the landing page for supplier 1 vehicle 1 until DTR-8451 is built" in {
+        val page = AddVehicleDetailsAgriculturalTractorPage(VehicleNumber(1))
+        val ua   = supplierVehicle.unsafeSet(page, AddVehicleDetailsAgriculturalTractor("John Deere", "SR", "5090M", "240.75"))
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from AddVehicleDetailsAgriculturalTractorPage AVD8.6 to the landing page for import 1 vehicle 1 until DTR-8451 is built" in {
+        val page = AddVehicleDetailsAgriculturalTractorPage(VehicleNumber(1))
+        val ua   = importVehicle.unsafeSet(page, AddVehicleDetailsAgriculturalTractor("John Deere", "SR", "5090M", "240.75"))
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from AddVehicleDetailsAgriculturalTractorPage AVD8.6 to JourneyRecovery when the vehicle has no supplier or import" in {
+        val page = AddVehicleDetailsAgriculturalTractorPage(VehicleNumber(1))
+        val ua   = userAnswers.unsafeSet(page, AddVehicleDetailsAgriculturalTractor("John Deere", "SR", "5090M", "240.75"))
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from AddVehicleDetailsAgriculturalTractorPage AVD8.6 to JourneyRecovery when no answer is found" in {
+        navigator.nextPage(
+          AddVehicleDetailsAgriculturalTractorPage(VehicleNumber(1)),
+          NormalMode,
+          supplierVehicle,
+          NovaUserType.PrivateIndividual
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
       "must go from VehicleDatesPage AVD3.0 to NoVehicleDates AVD3.1 when no dates are held" in {
         val ua = userAnswers.set(VehicleDatesPage(SupplierNumber(1), VehicleNumber(1)), Set(VehicleDates.NoDates)).success.value
         navigator.nextPage(VehicleDatesPage(SupplierNumber(1), VehicleNumber(1)), NormalMode, ua, NovaUserType.PrivateIndividual) mustBe
@@ -1285,6 +1313,12 @@ class NavigatorSpec extends SpecBase {
           val ua   = importComplete
             .unsafeSet(AddVehicleTypePage(v), AddVehicleType.Car)
             .unsafeSet(page, AddVehicleDetailsCar("Land Rover", "Discovery 4", "3.0TD", "XS", "station wagon"))
+          navigator.nextPage(page, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
+        }
+
+        "must go from AddVehicleDetailsAgriculturalTractorPage AVD8.6 to the landing page until the vehicle details check your answers page is built" in {
+          val page = AddVehicleDetailsAgriculturalTractorPage(v)
+          val ua   = importVehicle.unsafeSet(page, AddVehicleDetailsAgriculturalTractor("John Deere", "SR", "5090M", "240.75"))
           navigator.nextPage(page, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
         }
 
