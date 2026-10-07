@@ -1,0 +1,89 @@
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import models.DraftNotificationSummary
+@import _root_.utils.{DateTimeFormats, PurchaseLocation}
+@import viewmodels.SavedNotificationsResults
+
+@this(
+    layout: templates.Layout,
+    govukInsetText: GovukInsetText,
+    govukTable: GovukTable,
+    govukPagination: GovukPagination
+)
+
+@(results: SavedNotificationsResults)(implicit request: Request[?], messages: Messages)
+
+@notProvided = @{ messages("viewSavedNotifications.notProvided") }
+
+@purchaserName(draft: DraftNotificationSummary) = @{ draft.purchaserName.getOrElse(notProvided) }
+
+@actions(draft: DraftNotificationSummary) = {
+    <a class="govuk-link" href="@controllers.notification.routes.ViewSavedNotificationsController.onContinue(draft.draftId)">@messages("viewSavedNotifications.table.continue")<span class="govuk-visually-hidden"> @purchaserName(draft)</span></a>
+    <span class="table-link-separator" aria-hidden="true"> | </span>
+    @* TODO: point Delete at DN1.0 /delete-saved-notification once it is built *@
+    <a class="govuk-link" href="@controllers.routes.LandingPageController.onPageLoad()">@messages("viewSavedNotifications.table.delete")<span class="govuk-visually-hidden"> @purchaserName(draft)</span></a>
+}
+
+@pageTitle = @{
+    if (results.totalPages > 1) messages("viewSavedNotifications.pagination.title", results.page, results.totalPages)
+    else messages("viewSavedNotifications.title")
+}
+
+@layout(pageTitle = titleNoForm(pageTitle), showBackLink = true, fullWidth = true) {
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h1 class="govuk-heading-l">@messages("viewSavedNotifications.heading")</h1>
+
+            <p class="govuk-body">@messages("viewSavedNotifications.paragraph")</p>
+
+            @govukInsetText(InsetText(content = Text(messages("viewSavedNotifications.insetText"))))
+        </div>
+    </div>
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <p class="govuk-body govuk-!-padding-bottom-3">@Html(messages("viewSavedNotifications.showing", s"<b>${results.from}</b>", s"<b>${results.to}</b>", s"<b>${results.totalCount}</b>"))</p>
+
+            @govukTable(Table(
+                head = Some(Seq(
+                    HeadCell(content = Text(messages("viewSavedNotifications.table.purchaserName"))),
+                    HeadCell(content = Text(messages("viewSavedNotifications.table.purchaseLocation"))),
+                    HeadCell(content = Text(messages("viewSavedNotifications.table.numberOfVehicles"))),
+                    HeadCell(content = Text(messages("viewSavedNotifications.table.dateCreated"))),
+                    HeadCell(content = Text(messages("viewSavedNotifications.table.actions")))
+                )),
+                rows = results.drafts.map { draft =>
+                    Seq(
+                        TableRow(content = Text(purchaserName(draft))),
+                        TableRow(content = Text(messages(PurchaseLocation.messageKey(draft.purchaseLocation)))),
+                        TableRow(content = Text(draft.numberOfVehicles.map(_.toString).getOrElse(notProvided))),
+                        TableRow(content = Text(draft.createdDate.format(DateTimeFormats.shortMonthDateFormat))),
+                        TableRow(content = HtmlContent(actions(draft)))
+                    )
+                },
+                classes = "govuk-table--small-text-until-tablet"
+            ))
+
+            @results.pagination.map(govukPagination(_))
+
+            <p class="govuk-body-s govuk-!-margin-bottom-8">
+                <a class="govuk-link" href="@controllers.routes.LandingPageController.onPageLoad()">@messages("viewSavedNotifications.returnHome")</a>
+            </p>
+        </div>
+    </div>
+}

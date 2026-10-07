@@ -40,6 +40,12 @@ GET         /clients/select/:vrn                                                
 
 GET         /no-clients                                                                  controllers.clientselection.NoAuthorisedClientsController.onPageLoad()
 
+GET         /saved-notifications                                                         controllers.notification.ViewSavedNotificationsController.onPageLoad(page: Int ?= 1)
+GET         /saved-notifications/continue/:draftId                                       controllers.notification.ViewSavedNotificationsController.onContinue(draftId: String)
+
+GET         /delete-notification                                                         controllers.notification.DeleteCurrentNotificationController.onPageLoad()
+POST        /delete-notification                                                         controllers.notification.DeleteCurrentNotificationController.onSubmit()
+
 GET         /before-you-continue                                                         controllers.introduction.BeforeYouContinueController.onPageLoad()
 GET         /before-you-continue/update                                                  controllers.introduction.BeforeYouContinueController.onPageLoadAmend()
 POST        /before-you-continue                                                         controllers.introduction.BeforeYouContinueController.onSubmit()
@@ -301,8 +307,6 @@ GET         /check-answers/purchaser-address                                    
 POST        /check-answers/purchaser-address                                             controllers.purchaseraddress.PurchaserAddressCheckYourAnswersController.onSubmit()
 GET         /check-answers/purchaser-address/change                                      controllers.purchaseraddress.PurchaserAddressCheckYourAnswersController.onChangeAddress()
 
-GET         /delete-notification                                                         controllers.notification.DeleteCurrentNotificationController.onPageLoad()
-POST        /delete-notification                                                         controllers.notification.DeleteCurrentNotificationController.onSubmit()
 GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/vehicle-type                controllers.vehicledetails.AddVehicleTypeController.supplierOnPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
 POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/vehicle-type                controllers.vehicledetails.AddVehicleTypeController.supplierOnSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
 GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/vehicle-type/change         controllers.vehicledetails.AddVehicleTypeController.supplierOnPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)

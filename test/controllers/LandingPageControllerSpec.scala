@@ -206,7 +206,7 @@ class LandingPageControllerSpec extends SpecBase with MockitoSugar {
           status(result) mustEqual OK
           body must include("View, continue or delete a notification you’ve started but not yet submitted")
           body must not include "You do not have a saved notification"
-          body must include("""<a class="govuk-link" href="/nova-imports/there-is-a-problem">Manage a saved notification</a>""")
+          body must include("""<a class="govuk-link" href="/nova-imports/saved-notifications">Manage a saved notification</a>""")
         }
       }
 
@@ -394,7 +394,7 @@ class LandingPageControllerSpec extends SpecBase with MockitoSugar {
           status(result) mustEqual OK
           body must include("View, continue or delete a notification you’ve started but not yet submitted")
           body must not include "You do not have a saved notification"
-          body must include("""<a class="govuk-link" href="/nova-imports/there-is-a-problem">Manage a saved notification</a>""")
+          body must include("""<a class="govuk-link" href="/nova-imports/saved-notifications">Manage a saved notification</a>""")
         }
       }
 
@@ -463,7 +463,9 @@ class LandingPageControllerSpec extends SpecBase with MockitoSugar {
           document.select(".govuk-caption-l").text mustEqual "ABC Consultancy"
           document.select(".govuk-summary-card__title").text mustEqual "Notifying on behalf of"
           document.select(".govuk-summary-list__value").eachText.asScala.toSeq mustEqual Seq("Client Co", "GB700011916")
-          document.select("a:containsOwn(Manage a saved notification)").attr("href") mustEqual routes.JourneyRecoveryController.onPageLoad().url
+          document
+            .select("a:containsOwn(Manage a saved notification)")
+            .attr("href") mustEqual controllers.notification.routes.ViewSavedNotificationsController.onPageLoad().url
           document.text must include("View, continue or delete a notification you’ve started but not yet submitted")
           document.text must not include "You do not have a saved notification"
         }

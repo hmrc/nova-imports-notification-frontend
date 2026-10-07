@@ -36,4 +36,7 @@ object DateTimeFormats {
 
   val dateTimeHintFormat: DateTimeFormatter =
     DateTimeFormatter.ofPattern("d M yyyy")
+
+  val shortMonthDateFormat: DateTimeFormatter =
+    DateTimeFormatter.ofPattern("d MMM yyyy", Locale.ENGLISH)
 }

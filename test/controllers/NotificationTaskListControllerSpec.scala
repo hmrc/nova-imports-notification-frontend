@@ -29,7 +29,7 @@ import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{never, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.{AgentSelectedClientPage, DraftIdPage, NotificationTaskListPage}
-import pages.sections.initialquestions.{BusinessOrPrivatePage, NotifyingAsPurchaserPage, PurchaserBusinessOrIndividualPage, VehicleBusinessUsePage, VehicleFromEuPage}
+import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, NotifyingAsPurchaserPage, PurchaserBusinessOrIndividualPage, VehicleBusinessUsePage, VehicleFromEuPage}
 import pages.sections.introduction.NotDeregisteredPage
 import pages.sections.notifierdetails.PhoneNumberPage
 import pages.sections.notifieraddress.AddressPage
@@ -624,6 +624,25 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
+      "for an agent with a selected client who answered IQ1.0 and AQ1.0 must render OK without About the purchaser" in {
+        given application: Application =
+          applicationWith(
+            classOf[FakeAgentIdentifierAction],
+            Some(agentWithSelectedClient.unsafeSet(AgentClientVehicleBusinessUsePage, true)),
+            stubConnector(summary = Right(agentSummary))
+          )
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual OK
+          contentAsString(result) must not include "About the purchaser"
+        }
+      }
+
       "for a PrivateIndividual who answered No to IQ1.0 must redirect to Unauthorised" in {
         val sessionRepo                = stubSessionRepository()
         given application: Application =
@@ -759,7 +778,7 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must redirect to Unauthorised for an Agent with a selected client" in {
+      "must redirect to Unauthorised for an agent with a selected client who has not answered AQ1.0" in {
         val sessionRepo = stubSessionRepository()
 
         given application: Application =

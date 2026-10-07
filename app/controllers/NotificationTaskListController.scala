@@ -24,7 +24,7 @@ import models.DraftNotification.SectionId
 import models.requests.DataRequest
 import models.{BusinessOrPrivateIndividual, NormalMode, NotificationSummary, NovaUserType, PurchaserBusinessOrIndividual, PurchaserOrOnBehalf, SectionStatus, UserAnswers, UserContext}
 import pages.{DraftIdPage, NotificationTaskListPage}
-import pages.sections.initialquestions.{BusinessOrPrivatePage, NotifyingAsPurchaserPage, PurchaserBusinessOrIndividualPage, VehicleBusinessUsePage, VehicleFromEuPage}
+import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, NotifyingAsPurchaserPage, PurchaserBusinessOrIndividualPage, VehicleBusinessUsePage, VehicleFromEuPage}
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
@@ -123,7 +123,7 @@ object NotificationTaskListController {
       case NovaUserType.Agent if request.userContext.isAgentWithoutClient =>
         request.userAnswers.get(VehicleFromEuPage).isDefined && purchaserQuestionsComplete(request.userAnswers)
       case NovaUserType.Agent =>
-        false
+        request.userAnswers.get(VehicleFromEuPage).isDefined && request.userAnswers.get(AgentClientVehicleBusinessUsePage).isDefined
     })
 
   private def purchaserQuestionsComplete(answers: UserAnswers): Boolean =
@@ -142,7 +142,7 @@ object NotificationTaskListController {
 
   def showAboutThePurchaser(userContext: UserContext, answers: UserAnswers): Boolean =
     userContext.userType match {
-      case NovaUserType.Agent                                               => true
+      case NovaUserType.Agent                                               => !userContext.isAgentWithClient
       case NovaUserType.PrivateIndividual | NovaUserType.NonVatOrganisation =>
         answers.get(NotifyingAsPurchaserPage).contains(PurchaserOrOnBehalf.OnBehalfOfPurchaser)
       case NovaUserType.VatRegisteredOrganisation => false
