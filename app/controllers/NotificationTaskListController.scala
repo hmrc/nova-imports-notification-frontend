@@ -23,7 +23,7 @@ import controllers.utils.IsDraftIdDefined
 import models.DraftNotification.SectionId
 import models.requests.DataRequest
 import models.{BusinessOrPrivateIndividual, NormalMode, NotificationSummary, NovaUserType, PurchaserBusinessOrIndividual, PurchaserOrOnBehalf, SectionStatus, UserAnswers, UserContext}
-import pages.{DraftAlreadyLoadedPage, DraftIdPage, NotificationTaskListPage}
+import pages.{DraftIdPage, NotificationTaskListPage}
 import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, NotifyingAsPurchaserPage, PurchaserBusinessOrIndividualPage, VehicleBusinessUsePage, VehicleFromEuPage}
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -49,7 +49,7 @@ class NotificationTaskListController @Inject() (
 
   import NotificationTaskListController.*
 
-  def onPageLoad(): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate).async { implicit request =>
+  def onPageLoad(draftLoaded: Boolean): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate).async { implicit request =>
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
     val draftId = request.userAnswers.get(DraftIdPage).get
@@ -75,11 +75,7 @@ class NotificationTaskListController @Inject() (
     }
 
     val loadDraftOrSkip: Future[Either[GetDraftNotificationError, UserAnswers]] =
-      if (request.userAnswers.get(DraftAlreadyLoadedPage).contains(true))
-        for {
-          cleared <- Future.fromTry(request.userAnswers.remove(DraftAlreadyLoadedPage))
-          _       <- sessionRepository.set(cleared)
-        } yield Right(cleared)
+      if (draftLoaded) Future.successful(Right(request.userAnswers))
       else userDataService.retrieveAndStoreDraftNotification(draftId, request.userAnswers, request.userContext)
 
     loadDraftOrSkip.flatMap {
