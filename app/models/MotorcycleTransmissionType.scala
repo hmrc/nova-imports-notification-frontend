@@ -14,14 +14,20 @@
  * limitations under the License.
  */
 
-package pages.sections.vehicledetails
+package models
 
-import models.{AddVehicleDetailsCar, VehicleNumber}
-import play.api.libs.json.JsPath
+enum MotorcycleTransmissionType(val jsonValue: String) {
+  case Automatic extends MotorcycleTransmissionType("automatic")
+  case Manual extends MotorcycleTransmissionType("manual")
+  case SemiAutomatic extends MotorcycleTransmissionType("semiAutomatic")
 
-final case class AddVehicleDetailsCarPage(vehicleNumber: VehicleNumber) extends AddVehicleDetailsQuestionPage[AddVehicleDetailsCar] {
+  override def toString: String = jsonValue
+}
 
-  override def path: JsPath = JsPath \ "vehicles" \ vehicleNumber.value.toString \ "details" \ toString
-
-  override def toString: String = "addVehicleDetailsCar"
+object MotorcycleTransmissionType extends Enumerable.Implicits {
+  given Enumerable[MotorcycleTransmissionType] = Enumerable(
+    Automatic.jsonValue     -> Automatic,
+    Manual.jsonValue        -> Manual,
+    SemiAutomatic.jsonValue -> SemiAutomatic
+  )
 }
