@@ -152,7 +152,8 @@ object UserDataService {
                 for {
                   a1 <- sessionRepository.setPage(answers, EmailAddressPage, nd.emailAddress)
                   a2 <- sessionRepository.setPage(a1, PhoneNumberPage, ContactNumbers(nd.telephoneNumber, nd.mobileTelephone))
-                } yield a2
+                  a3 <- nd.businessName.fold(Future.successful(a2))(sessionRepository.setPage(a2, BusinessNamePage, _))
+                } yield a3
               case None =>
                 Future.successful(answers)
             }

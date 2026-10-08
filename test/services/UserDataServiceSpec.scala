@@ -739,6 +739,19 @@ class UserDataServiceSpec extends SpecBase with MockitoSugar with ScalaFutures w
       result.get(PhoneNumberPage) mustBe Some(contactNumbers)
     }
 
+    "must write the business name from the draft to BusinessNamePage for a business" in {
+      val answers = emptyUserAnswers
+        .unsafeSet(DraftIdPage, DraftId("1"))
+        .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business)
+
+      val result = serviceReturning(draftWithNotifier(organisationNotifier ++ Json.obj("businessName" -> "Company 1 Ltd")))
+        .retrieveAndStoreDraftNotification(DraftId("1"), answers, testUserContext)
+        .futureValue
+        .value
+
+      result.get(BusinessNamePage) mustBe Some("Company 1 Ltd")
+    }
+
     "must keep the notifier name when it is consistent with the initial questions" in {
       val answers = emptyUserAnswers
         .unsafeSet(DraftIdPage, DraftId("1"))
