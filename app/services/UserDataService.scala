@@ -25,7 +25,6 @@ import pages.sections.introduction.*
 import pages.sections.initialquestions.*
 import pages.sections.notifieraddress.*
 import play.api.libs.json.*
-import queries.{AllImportsQuery, AllSuppliersQuery, AllVehiclesQuery, Gettable, Settable}
 import repositories.SessionRepository
 import uk.gov.hmrc.http.HeaderCarrier
 import services.UserDataService.*
@@ -37,7 +36,6 @@ import pages.sections.supplieraddress.SupplierAddressPage
 import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierVatRegistrationNumberPage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.matching.Regex
 
 @ImplementedBy(classOf[UserDataServiceImpl])
 trait UserDataService {
@@ -75,9 +73,8 @@ class UserDataServiceImpl @Inject() (
           u7 <- storeSupplierDetailsPages(draft, u6, repository)
           u8 <- u7.get(BusinessOrPrivatePage)
                   .fold(Future.successful(u7))(businessOrPrivate => repository.setPage(u7, BusinessOrPrivatePage, businessOrPrivate))
-          u9  <- storeVehiclesSectionStatusPage(draft, u8, repository)
-          u10 <- storeDeletedEntries(draft, u9, repository)
-        } yield Right(u10)
+          u9 <- storeVehiclesSectionStatusPage(draft, u8, repository)
+        } yield Right(u9)
     }
 
   def determineAndUpdateStatus(userAnswers: UserAnswers, userContext: UserContext): Map[String, SectionStatus] =
@@ -281,37 +278,6 @@ object UserDataService {
       else SectionStatus.Incomplete
 
     sessionRepository.setPage(answers, VehiclesSectionStatusPage, status)
-  }
-
-  private val DeletedVehicleRe  = raw"(?:supplier|import)/\d+/vehicle/(\d+)/(?:type|details|additional-information)".r
-  private val DeletedSupplierRe = raw"supplier/(\d+)/(?:details|self-supply|vehicle/\d+/(?:type|details|additional-information))".r
-  private val DeletedImportRe   = raw"import/(\d+)/(?:details|vehicle/\d+/(?:type|details|additional-information))".r
-
-  def storeDeletedEntries(draft: DraftNotification, answers: UserAnswers, sessionRepository: SessionRepository)(implicit
-    ec: ExecutionContext
-  ): Future[UserAnswers] =
-    for {
-      a1 <- storeDeleted(draft, answers, sessionRepository, DeletedVehicleRe, AllVehiclesQuery, VehicleServiceImpl.DeletedVehicle)
-      a2 <- storeDeleted(draft, a1, sessionRepository, DeletedSupplierRe, AllSuppliersQuery, SupplierServiceImpl.DeletedSupplier)
-      a3 <- storeDeleted(draft, a2, sessionRepository, DeletedImportRe, AllImportsQuery, ImportServiceImpl.DeletedImport)
-    } yield a3
-
-  // marks a number deleted when all its sections have no data
-  private def storeDeleted(
-    draft: DraftNotification,
-    answers: UserAnswers,
-    sessionRepository: SessionRepository,
-    sectionRe: Regex,
-    query: Gettable[Map[String, JsObject]] & Settable[Map[String, JsObject]],
-    deleted: JsObject
-  ): Future[UserAnswers] = {
-    val deletedNumbers = draft.sections.toSeq
-      .collect { case (sectionRe(number), section) => number -> section.data }
-      .groupMap(_._1)(_._2)
-      .collect { case (number, data) if data.forall(_.isEmpty) => number -> deleted }
-
-    if (deletedNumbers.isEmpty) Future.successful(answers)
-    else sessionRepository.setPage(answers, query, answers.get(query).getOrElse(Map.empty) ++ deletedNumbers)
   }
 
   def orgWithEnrolments(answers: UserAnswers): Map[String, SectionStatus] = {

@@ -34,7 +34,7 @@ import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserName
 import pages.sections.supplieraddress.SupplierAddressPage
 import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierVatRegistrationNumberPage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
 import play.api.libs.json.{JsObject, Json, Writes}
-import queries.{AllImportsQuery, AllSuppliersQuery, AllVehiclesQuery}
+import queries.AllSuppliersQuery
 import repositories.SessionRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -351,82 +351,6 @@ class UserDataServiceSpec extends SpecBase with MockitoSugar with ScalaFutures w
       val result = UserDataService.storeVehiclesSectionStatusPage(draft, emptyUserAnswers, stubSessionRepository()).futureValue
 
       result.get(VehiclesSectionStatusPage) mustBe Some(SectionStatus.NotYetSaved)
-    }
-  }
-
-  "UserDataService.storeDeletedEntries" - {
-
-    "must mark vehicle 2 as deleted when all its sections are empty" in {
-      val draft = draftWith(
-        Map(
-          "supplier/1/vehicle/1/type" -> DraftNotificationSection(Some(Json.obj("vehicleType" -> "CAR"))),
-          "supplier/1/vehicle/2/type" -> DraftNotificationSection(None)
-        )
-      )
-      val result = UserDataService.storeDeletedEntries(draft, emptyUserAnswers, stubSessionRepository()).futureValue
-
-      result.get(AllVehiclesQuery) mustBe Some(Map("2" -> Json.obj("deleted" -> true)))
-    }
-
-    "must not mark vehicle 1 as deleted when one of its sections has data" in {
-      val draft = draftWith(
-        Map(
-          "supplier/1/vehicle/1/type"    -> DraftNotificationSection(None),
-          "supplier/1/vehicle/1/details" -> DraftNotificationSection(Some(Json.obj("make" -> "BMW")))
-        )
-      )
-      val result = UserDataService.storeDeletedEntries(draft, emptyUserAnswers, stubSessionRepository()).futureValue
-
-      result.get(AllVehiclesQuery) mustBe None
-    }
-
-    "must mark supplier 2 as deleted when all its sections are empty" in {
-      val draft = draftWith(
-        Map(
-          "supplier/1/details"        -> DraftNotificationSection(Some(Json.obj("supplierBusinessIndividual" -> "business"))),
-          "supplier/2/details"        -> DraftNotificationSection(None),
-          "supplier/2/vehicle/3/type" -> DraftNotificationSection(None)
-        )
-      )
-      val result = UserDataService.storeDeletedEntries(draft, emptyUserAnswers, stubSessionRepository()).futureValue
-
-      result.get(AllSuppliersQuery) mustBe Some(Map("2" -> Json.obj("deleted" -> true)))
-    }
-
-    "must not mark supplier 1 as deleted when one of its vehicles has data" in {
-      val draft = draftWith(
-        Map(
-          "supplier/1/details"        -> DraftNotificationSection(None),
-          "supplier/1/vehicle/1/type" -> DraftNotificationSection(Some(Json.obj("vehicleType" -> "CAR")))
-        )
-      )
-      val result = UserDataService.storeDeletedEntries(draft, emptyUserAnswers, stubSessionRepository()).futureValue
-
-      result.get(AllSuppliersQuery) mustBe None
-    }
-
-    "must mark import 2 as deleted when all its sections are empty" in {
-      val draft = draftWith(
-        Map(
-          "import/1/details" -> DraftNotificationSection(Some(Json.obj("importEntryNumber" -> "123456789A"))),
-          "import/2/details" -> DraftNotificationSection(None)
-        )
-      )
-      val result = UserDataService.storeDeletedEntries(draft, emptyUserAnswers, stubSessionRepository()).futureValue
-
-      result.get(AllImportsQuery) mustBe Some(Map("2" -> Json.obj("deleted" -> true)))
-    }
-
-    "must not mark import 1 as deleted when one of its vehicles has data" in {
-      val draft = draftWith(
-        Map(
-          "import/1/details"           -> DraftNotificationSection(None),
-          "import/1/vehicle/1/details" -> DraftNotificationSection(Some(Json.obj("make" -> "BMW")))
-        )
-      )
-      val result = UserDataService.storeDeletedEntries(draft, emptyUserAnswers, stubSessionRepository()).futureValue
-
-      result.get(AllImportsQuery) mustBe None
     }
   }
 
@@ -750,6 +674,31 @@ class UserDataServiceSpec extends SpecBase with MockitoSugar with ScalaFutures w
         .value
 
       result.get(BusinessNamePage) mustBe Some("Company 1 Ltd")
+    }
+
+    "must write supplier 1 and skip supplier 2 when all supplier 2 sections have no data" in {
+      val supplier1Details = Json.obj(
+        "supplierBusinessIndividual" -> "business",
+        "supplierBusinessName"       -> "Supplier Company 1 Ltd",
+        "addressLine1"               -> "1 High Street",
+        "addressLine2"               -> "Town",
+        "country"                    -> "FR",
+        "isSupplierVatReg"           -> false
+      )
+      val draft = draftWith(
+        Map(
+          "supplier/1/details"     -> DraftNotificationSection(Some(supplier1Details)),
+          "supplier/2/details"     -> DraftNotificationSection(None),
+          "supplier/2/self-supply" -> DraftNotificationSection(None)
+        )
+      )
+
+      val result = serviceReturning(draft)
+        .retrieveAndStoreDraftNotification(DraftId("1"), emptyUserAnswers.unsafeSet(DraftIdPage, DraftId("1")), testUserContext)
+        .futureValue
+        .value
+
+      result.get(AllSuppliersQuery).map(_.keySet) mustBe Some(Set("1"))
     }
 
     "must keep the notifier name when it is consistent with the initial questions" in {
