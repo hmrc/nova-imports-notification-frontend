@@ -37,6 +37,13 @@ object DateTimeFormats {
   val dateTimeHintFormat: DateTimeFormatter =
     DateTimeFormatter.ofPattern("d M yyyy")
 
-  val shortMonthDateFormat: DateTimeFormatter =
-    DateTimeFormatter.ofPattern("d MMM yyyy", Locale.ENGLISH)
+  private val shortMonthDateFormatter = DateTimeFormatter.ofPattern("d MMM yyyy", Locale.ENGLISH)
+
+  private val localisedShortMonthDateFormatters = Map(
+    "en" -> shortMonthDateFormatter,
+    "cy" -> shortMonthDateFormatter.withLocale(new Locale("cy"))
+  )
+
+  def shortMonthDateFormat()(implicit lang: Lang): DateTimeFormatter =
+    localisedShortMonthDateFormatters.getOrElse(lang.code, shortMonthDateFormatter)
 }

@@ -72,7 +72,7 @@
                         TableRow(content = Text(purchaserName(draft))),
                         TableRow(content = Text(messages(PurchaseLocation.messageKey(draft.purchaseLocation)))),
                         TableRow(content = Text(draft.numberOfVehicles.map(_.toString).getOrElse(notProvided))),
-                        TableRow(content = Text(draft.createdDate.format(DateTimeFormats.shortMonthDateFormat))),
+                        TableRow(content = Text(draft.createdDate.format(DateTimeFormats.shortMonthDateFormat()(messages.lang)))),
                         TableRow(content = HtmlContent(actions(draft)))
                     )
                 },
