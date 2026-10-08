@@ -56,7 +56,7 @@ class AddVehicleDetailsLightCommercialControllerSpec extends SpecBase with Mocki
   private val answer: LightCommercialVehicleDetails =
     LightCommercialVehicleDetails(make = "LCV Make", model = "LCV Model", derivative = "LCV Derivative", trim = "LCV Trim", bodyType = "LCV BodyType")
 
-  val validFormData: Map[String, String] = Map(
+  private val validFormData: Map[String, String] = Map(
     "make"       -> answer.make,
     "model"      -> answer.model,
     "derivative" -> answer.derivative,
@@ -69,14 +69,14 @@ class AddVehicleDetailsLightCommercialControllerSpec extends SpecBase with Mocki
   private lazy val importRoute =
     vehicledetails.routes.AddVehicleDetailsLightCommercialController.importOnPageLoad(importNumber, vehicleNumber, NormalMode).url
 
-  val supplierJourneyAnswers: UserAnswers = emptyUserAnswers
+  private val supplierJourneyAnswers: UserAnswers = emptyUserAnswers
     .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
     .unsafeSet(VehicleFromEuPage, true)
     .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
     .unsafeSet(AllVehiclesQuery, Map("1" -> Json.obj("supplierNumber" -> 1, "details" -> Json.obj("vehicleType" -> "LCV"))))
     .unsafeSet(AddVehicleTypePage(vehicleNumber), AddVehicleType.Lcv)
 
-  val importJourneyAnswers: UserAnswers = emptyUserAnswers
+  private val importJourneyAnswers: UserAnswers = emptyUserAnswers
     .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
     .unsafeSet(VehicleFromEuPage, false)
     .unsafeSet(AllImportsQuery, Map("1" -> Json.obj("importEntryNumber" -> "123456789A")))

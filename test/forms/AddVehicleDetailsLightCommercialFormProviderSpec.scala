@@ -25,8 +25,8 @@ class AddVehicleDetailsLightCommercialFormProviderSpec extends StringFieldBehavi
 
   private val invalidValues = Seq("#1", "$", "^", "`", "{1}", "~tilde", "accented è")
 
-  private val standardRegex = "^[A-Za-z0-9 .()/&'-;!%*_+:@<>?=\\\\[\\\\],\\\\\\\\]{1,50}$"
-  private val bodyTypeRegex = "^[A-Za-z0-9 .()/&'-;!%*_+:@<>?=\\\\[\\\\],\\\\\\\\]{1,20}$"
+  private val standardRegex = """^[A-Za-z0-9 .()/&'\-;!%*_+:@<>?=\[\],\\]{1,50}$"""
+  private val bodyTypeRegex = """^[A-Za-z0-9 .()/&'\-;!%*_+:@<>?=\[\],\\]{1,20}$"""
 
   private def validValue(field: String): String = field match {
     case "bodyType" => "LCV Body Type"
