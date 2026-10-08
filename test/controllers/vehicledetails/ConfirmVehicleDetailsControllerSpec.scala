@@ -349,17 +349,17 @@ class ConfirmVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
           status(route(app, FakeRequest(POST, supplierRoute)).value) mustEqual SEE_OTHER
 
           capturedBody(connector, "supplier/1/vehicle/1/type") mustEqual Json.obj(
-            "vehicleType"                -> "CAR",
-            "doYouHaveAPurchaseInvoice"  -> false,
-            "dateRoadUseKnown"           -> true,
-            "currencyUsed"               -> "EUR",
-            "pricePaidForVehicle"        -> "45000",
-            "dateMadeAvailableYou"       -> "27/03/2026",
-            "dateOfFirstRegistration"    -> "01/03/2026",
-            "countryOfFirstRegistration" -> "FR",
-            "noPurchaseInvoiceReasonMax" -> "No invoice was issued",
-            "fromSupplier"               -> true,
-            "versionId"                  -> 3L
+            "vehicleType"                 -> "CAR",
+            "doYouHaveAPurchaseInvoice"   -> false,
+            "dateRoadUseKnown"            -> true,
+            "currencyUsed"                -> "EUR",
+            "pricePaidForVehicle"         -> "45000",
+            "dateMadeAvailableYou"        -> "27/03/2026",
+            "dateOfFirstRegistration"     -> "01/03/2026",
+            "countryOfFirstRegistration"  -> "FR",
+            "noPurchaserInvoiceReasonMax" -> "No invoice was issued",
+            "fromSupplier"                -> true,
+            "versionId"                   -> 3L
           )
         }
       }
