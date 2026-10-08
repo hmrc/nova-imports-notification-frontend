@@ -1158,31 +1158,31 @@ addVehicleDetailsCar.paragraph.1 = You can usually find these details on the pur
 addVehicleDetailsCar.make.label = Make
 addVehicleDetailsCar.make.hint = For example, Land Rover
 addVehicleDetailsCar.make.error.required = Enter the make
-addVehicleDetailsCar.make.error.format = The make must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
+addVehicleDetailsCar.make.error.format = The make must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
 addVehicleDetailsCar.make.error.length = The make must be 50 characters or less
 
 addVehicleDetailsCar.model.label = Model
 addVehicleDetailsCar.model.hint = For example, Discovery 4
 addVehicleDetailsCar.model.error.required = Enter the model
-addVehicleDetailsCar.model.error.format = The model must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
+addVehicleDetailsCar.model.error.format = The model must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
 addVehicleDetailsCar.model.error.length = The model must be 50 characters or less
 
 addVehicleDetailsCar.derivative.label = Derivative
 addVehicleDetailsCar.derivative.hint = For example, 3.0TD
 addVehicleDetailsCar.derivative.error.required = Enter the derivative
-addVehicleDetailsCar.derivative.error.format = The derivative must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
+addVehicleDetailsCar.derivative.error.format = The derivative must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
 addVehicleDetailsCar.derivative.error.length = The derivative must be 50 characters or less
 
 addVehicleDetailsCar.trim.label = Trim
 addVehicleDetailsCar.trim.hint = For example, XS
 addVehicleDetailsCar.trim.error.required = Enter the trim
-addVehicleDetailsCar.trim.error.format = The trim must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
+addVehicleDetailsCar.trim.error.format = The trim must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
 addVehicleDetailsCar.trim.error.length = The trim must be 50 characters or less
 
 addVehicleDetailsCar.bodyType.label = Body type
 addVehicleDetailsCar.bodyType.hint = For example, a station wagon
 addVehicleDetailsCar.bodyType.error.required = Enter the body type
-addVehicleDetailsCar.bodyType.error.format = The body type must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
+addVehicleDetailsCar.bodyType.error.format = The body type must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
 addVehicleDetailsCar.bodyType.error.length = The body type must be 20 characters or less
 
 ###############################################################
