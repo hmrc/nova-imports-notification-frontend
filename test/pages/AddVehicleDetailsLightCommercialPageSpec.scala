@@ -34,11 +34,11 @@ class AddVehicleDetailsLightCommercialPageSpec extends SpecBase {
       )
       val answers = emptyUserAnswers.unsafeSet(AddVehicleDetailsLightCommercialPage(VehicleNumber(2)), carDetails)
 
-      (answers.data \ "vehicles" \ "2" \ "details" \ "lightCommercialVehicle" \ "make").as[String] mustBe "LCV Make"
-      (answers.data \ "vehicles" \ "2" \ "details" \ "lightCommercialVehicle" \ "model").as[String] mustBe "LCV Model"
-      (answers.data \ "vehicles" \ "2" \ "details" \ "lightCommercialVehicle" \ "derivative").as[String] mustBe "LCV Derivative"
-      (answers.data \ "vehicles" \ "2" \ "details" \ "lightCommercialVehicle" \ "trim").as[String] mustBe "LCV Trim"
-      (answers.data \ "vehicles" \ "2" \ "details" \ "lightCommercialVehicle" \ "bodyType").as[String] mustBe "LCV BodyType"
+      (answers.data \ "vehicles" \ "2" \ "details" \ "addVehicleDetailsLightCommercial" \ "make").as[String] mustBe "LCV Make"
+      (answers.data \ "vehicles" \ "2" \ "details" \ "addVehicleDetailsLightCommercial" \ "model").as[String] mustBe "LCV Model"
+      (answers.data \ "vehicles" \ "2" \ "details" \ "addVehicleDetailsLightCommercial" \ "derivative").as[String] mustBe "LCV Derivative"
+      (answers.data \ "vehicles" \ "2" \ "details" \ "addVehicleDetailsLightCommercial" \ "trim").as[String] mustBe "LCV Trim"
+      (answers.data \ "vehicles" \ "2" \ "details" \ "addVehicleDetailsLightCommercial" \ "bodyType").as[String] mustBe "LCV BodyType"
     }
   }
 }
