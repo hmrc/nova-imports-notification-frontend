@@ -180,7 +180,7 @@ object ConfirmVehicleDetailsController {
             dateOfFirstRegistration =
               Option.when(firstRegistration)(answers.get(DateOfFirstRegistrationPage(vehicleNumber)).map(formPDateFormat.format)).flatten,
             countryOfFirstRegistration = Option.when(firstRegistration)(answers.get(CountryOfFirstRegistrationPage(vehicleNumber))).flatten,
-            noPurchaserInvoiceReasonMax = Option.when(!invoiceDate)(answers.get(NoPurchaseInvoiceReasonPage(supplierNumber, vehicleNumber))).flatten,
+            noPurchaseInvoiceReasonMax = Option.when(!invoiceDate)(answers.get(NoPurchaseInvoiceReasonPage(supplierNumber, vehicleNumber))).flatten,
             fromSupplier = Some(true)
           )
         )
