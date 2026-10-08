@@ -22,9 +22,9 @@ import connectors.NovaImportsBackendConnector
 import controllers.BaseController
 import controllers.actions.*
 import models.{DraftId, DraftNotificationSummary, NotificationSummary, UserAnswers, UserContext}
-import pages.{AgentSelectedClientPage, DraftIdPage}
+import pages.{AgentSelectedClientPage, DraftIdPage, DraftVersionIdPage}
 import play.api.Logging
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
 import services.UserDataService
 import uk.gov.hmrc.http.HeaderCarrier
@@ -90,16 +90,29 @@ class ViewSavedNotificationsController @Inject() (
         case None         => Success(UserAnswers(request.userId))
       }
 
-      for {
+      val retrieved = for {
         answersWithDraftId <- Future.fromTry(clearedAnswers.flatMap(_.set(DraftIdPage, DraftId(draftId))))
         _                  <- sessionRepository.set(answersWithDraftId)
         retrievedDraft     <- userDataService.retrieveAndStoreDraftNotification(DraftId(draftId), answersWithDraftId, ctx)
-      } yield retrievedDraft match {
-        case Right(_)    => Redirect(controllers.routes.NotificationTaskListController.onPageLoad(draftLoaded = true))
-        case Left(error) =>
+      } yield retrievedDraft
+
+      retrieved.flatMap {
+        case Right(retrievedAnswers) => storeVersionIdAndRedirect(DraftId(draftId), retrievedAnswers)
+        case Left(error)             =>
           logger.warn(s"failed to load saved notification $draftId: $error")
-          Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+          Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
       }
+    }
+
+  private def storeVersionIdAndRedirect(draftId: DraftId, answers: UserAnswers)(implicit hc: HeaderCarrier): Future[Result] =
+    connector.getDraftNotification(draftId).flatMap {
+      case Right(draft) =>
+        draft.versionId
+          .fold(Future.successful(answers))(sessionRepository.setPage(answers, DraftVersionIdPage, _))
+          .map(_ => Redirect(controllers.routes.NotificationTaskListController.onPageLoad(draftLoaded = true)))
+      case Left(error) =>
+        logger.warn(s"failed to load the versionId for saved notification ${draftId.value}: $error")
+        Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
     }
 
   private def traderOrClientSummary(ctx: UserContext, clientVrn: Option[String])(implicit

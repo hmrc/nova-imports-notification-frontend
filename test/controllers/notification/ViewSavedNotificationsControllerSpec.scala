@@ -21,12 +21,12 @@ import com.google.inject.name.Names
 import connectors.{GetDraftNotificationError, GetDraftNotificationsError, GetNotificationSummaryError, NovaImportsBackendConnector}
 import controllers.actions.*
 import controllers.routes
-import models.{AgentSelectedClient, DraftId, DraftNotificationSummary, DraftNotifications, NotificationSummary, UserAnswers, UserContext}
+import models.{AgentSelectedClient, DraftId, DraftNotification, DraftNotificationSummary, DraftNotifications, NotificationSummary, UserAnswers, UserContext}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{AgentSelectedClientPage, DraftIdPage}
+import pages.{AgentSelectedClientPage, DraftIdPage, DraftVersionIdPage}
 import pages.sections.initialquestions.VehicleFromEuPage
 import play.api.Application
 import play.api.inject.bind
@@ -88,6 +88,8 @@ class ViewSavedNotificationsControllerSpec extends SpecBase with MockitoSugar {
         )
     ).build()
 
+  private val savedDraft = DraftNotification("12345", "2026-09-26", None, Map.empty, versionId = Some(7L))
+
   private def continueApplication(
     loaded: Either[GetDraftNotificationError, UserAnswers],
     sessionRepository: SessionRepository
@@ -96,9 +98,13 @@ class ViewSavedNotificationsControllerSpec extends SpecBase with MockitoSugar {
     when(userDataService.retrieveAndStoreDraftNotification(any[DraftId], any[UserAnswers], any[UserContext])(using any[HeaderCarrier]))
       .thenReturn(Future.successful(loaded))
     when(sessionRepository.set(any[UserAnswers])).thenReturn(Future.successful(true))
+    when(sessionRepository.setPage(any(), eqTo(DraftVersionIdPage), any())(any())).thenReturn(Future.successful(clientAnswers))
+
+    val connector = mock[NovaImportsBackendConnector]
+    when(connector.getDraftNotification(any[DraftId])(using any[HeaderCarrier])).thenReturn(Future.successful(Right(savedDraft)))
 
     agentWithClientApplication(
-      mock[NovaImportsBackendConnector],
+      connector,
       _.overrides(bind[SessionRepository].toInstance(sessionRepository), bind[UserDataService].toInstance(userDataService)),
       clientAnswers.set(DraftIdPage, DraftId("999")).flatMap(_.set(VehicleFromEuPage, true)).success.value
     )
@@ -235,6 +241,18 @@ class ViewSavedNotificationsControllerSpec extends SpecBase with MockitoSugar {
           captor.getValue.data.keys mustEqual Set(AgentSelectedClientPage.toString, DraftIdPage.toString)
           captor.getValue.get(DraftIdPage).value mustEqual DraftId("12345")
           captor.getValue.get(AgentSelectedClientPage).value.vrn mustEqual "700011916"
+        }
+      }
+
+      "must write versionId 7 from the draft to DraftVersionIdPage" in {
+        val sessionRepository  = mock[SessionRepository]
+        given app: Application = continueApplication(Right(clientAnswers), sessionRepository)
+
+        running(app) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, continueRoute("12345"))
+
+          status(route(app, request).value) mustEqual SEE_OTHER
+          verify(sessionRepository).setPage(any(), eqTo(DraftVersionIdPage), eqTo(7L))(any())
         }
       }
 

@@ -25,7 +25,7 @@ import org.mockito.Mockito.when
 import org.scalatest.EitherValues
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{DraftIdPage, DraftVersionIdPage, VehiclesSectionStatusPage}
+import pages.{DraftIdPage, VehiclesSectionStatusPage}
 import pages.sections.initialquestions.{BusinessOrPrivatePage, NotifyingAsPurchaserPage, VehicleBusinessUsePage}
 import pages.sections.notifierdetails.{BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 import pages.sections.notifieraddress.AddressPage
@@ -706,17 +706,6 @@ class UserDataServiceSpec extends SpecBase with MockitoSugar with ScalaFutures w
         "telephoneNumber" -> "01234567890",
         "businessName"    -> "Acme Trading Ltd"
       )
-
-    "must write the draft's versionId to DraftVersionIdPage" in {
-      val answers = emptyUserAnswers.unsafeSet(DraftIdPage, DraftId("1"))
-
-      val result = serviceReturning(draftWith(Map.empty).copy(versionId = Some(7L)))
-        .retrieveAndStoreDraftNotification(DraftId("1"), answers, testUserContext)
-        .futureValue
-        .value
-
-      result.get(DraftVersionIdPage) mustBe Some(7L)
-    }
 
     "must drop the stale notifier name re-hydrated from the draft when the user is now a business" in {
       val answers = emptyUserAnswers

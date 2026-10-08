@@ -29,7 +29,7 @@ import queries.{AllImportsQuery, AllSuppliersQuery, AllVehiclesQuery, Gettable, 
 import repositories.SessionRepository
 import uk.gov.hmrc.http.HeaderCarrier
 import services.UserDataService.*
-import pages.{AgentSelectedClientPage, DraftVersionIdPage, VehiclesSectionStatusPage}
+import pages.{AgentSelectedClientPage, VehiclesSectionStatusPage}
 import pages.sections.notifierdetails.{BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 import pages.sections.purchaseraddress.{IsPurchaserAddressInTheUkPage, PurchaserAddressPage}
@@ -77,8 +77,7 @@ class UserDataServiceImpl @Inject() (
                   .fold(Future.successful(u7))(businessOrPrivate => repository.setPage(u7, BusinessOrPrivatePage, businessOrPrivate))
           u9  <- storeVehiclesSectionStatusPage(draft, u8, repository)
           u10 <- storeDeletedEntries(draft, u9, repository)
-          u11 <- storeDraftVersionIdPage(draft, u10, repository)
-        } yield Right(u11)
+        } yield Right(u10)
     }
 
   def determineAndUpdateStatus(userAnswers: UserAnswers, userContext: UserContext): Map[String, SectionStatus] =
@@ -313,11 +312,6 @@ object UserDataService {
     if (deletedNumbers.isEmpty) Future.successful(answers)
     else sessionRepository.setPage(answers, query, answers.get(query).getOrElse(Map.empty) ++ deletedNumbers)
   }
-
-  def storeDraftVersionIdPage(draft: DraftNotification, answers: UserAnswers, sessionRepository: SessionRepository)(implicit
-    ec: ExecutionContext
-  ): Future[UserAnswers] =
-    draft.versionId.fold(Future.successful(answers))(versionId => sessionRepository.setPage(answers, DraftVersionIdPage, versionId))
 
   def orgWithEnrolments(answers: UserAnswers): Map[String, SectionStatus] = {
     /* Introduction */
