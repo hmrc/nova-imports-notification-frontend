@@ -15,7 +15,6 @@
  *@
 
 @import controllers.supplierdetails.routes
-@import viewmodels.LegendSize
 
 @this(
     layout: templates.Layout,
@@ -35,11 +34,15 @@
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
+        <h1 class="govuk-heading-l">@messages("deleteCurrentNotification.heading")</h1>
+
+        <p class="govuk-body">@messages("deleteCurrentNotification.paragraph")</p>
+
         @govukRadios(
             RadiosViewModel.yesNo(
                 field  = form("value"),
-                legend = LegendViewModel(messages("deleteCurrentNotification.heading")).asPageHeading(LegendSize.Large)
-            ).withHint(HintViewModel(Text(messages("deleteCurrentNotification.paragraph"))))
+                legend = LegendViewModel(messages("deleteCurrentNotification.heading")).withCssClass("govuk-visually-hidden")
+            )
         )
 
         @govukButton(

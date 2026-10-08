@@ -21,7 +21,7 @@ import controllers.BaseController
 import controllers.actions.Actions
 import controllers.vehicledetails.VehicleSpreadsheetUploadController.guardPredicate
 import models.draftsections.{ImportDetails, ImportVehicleAdditionalInformation, ImportVehicleType, SupplierDetails, VehicleAdditionalInformation, VehicleDetails, VehicleType}
-import models.responses.{SpreadsheetAgriculturalTractorEuVehicle, SpreadsheetAgriculturalTractorNonEuVehicle, SpreadsheetEuVehicle, SpreadsheetHeavyCommercialEuVehicle, SpreadsheetHeavyCommercialNonEuVehicle, SpreadsheetMotorCaravansEuVehicle, SpreadsheetMotorCaravansNonEuVehicle, SpreadsheetNonEuVehicle, UploadResultResponse}
+import models.responses.{SpreadsheetAgriculturalTractorEuVehicle, SpreadsheetAgriculturalTractorNonEuVehicle, SpreadsheetConstructionVehiclesEuVehicle, SpreadsheetConstructionVehiclesNonEuVehicle, SpreadsheetEuVehicle, SpreadsheetHeavyCommercialEuVehicle, SpreadsheetHeavyCommercialNonEuVehicle, SpreadsheetMotorCaravansEuVehicle, SpreadsheetMotorCaravansNonEuVehicle, SpreadsheetMotorcyclesEuVehicle, SpreadsheetMotorcyclesNonEuVehicle, SpreadsheetNonEuVehicle, UploadResultResponse}
 import models.{BusinessOrPrivateIndividual, DraftId}
 import pages.sections.introduction.AmendSubmittedNotificationPage
 import pages.{DraftIdPage, DraftVersionIdPage}
@@ -110,6 +110,22 @@ class CheckVehicleSpreadsheetDetailsController @Inject() (
 
             case Right(result) if result.fileStatus == "VALIDATED" && result.validationType.contains("HeavyCommercialVehiclesNonEu") =>
               saveAllHeavyCommercialNonEuVehicles(draftId, result.heavyCommercialNonEuVehicles, isAmendment, versionId)
+                .flatMap(afterSave(draftId, request.userAnswers, _))
+
+            case Right(result) if result.fileStatus == "VALIDATED" && result.validationType.contains("MotorcyclesEu") =>
+              saveAllMotorcyclesEuVehicles(draftId, result.motorcyclesEuVehicles, isAmendment, versionId)
+                .flatMap(afterSave(draftId, request.userAnswers, _))
+
+            case Right(result) if result.fileStatus == "VALIDATED" && result.validationType.contains("MotorcyclesNonEu") =>
+              saveAllMotorcyclesNonEuVehicles(draftId, result.motorcyclesNonEuVehicles, isAmendment, versionId)
+                .flatMap(afterSave(draftId, request.userAnswers, _))
+
+            case Right(result) if result.fileStatus == "VALIDATED" && result.validationType.contains("ConstructionVehiclesEu") =>
+              saveAllConstructionVehiclesEuVehicles(draftId, result.constructionVehiclesEuVehicles, isAmendment, versionId)
+                .flatMap(afterSave(draftId, request.userAnswers, _))
+
+            case Right(result) if result.fileStatus == "VALIDATED" && result.validationType.contains("ConstructionVehiclesNonEu") =>
+              saveAllConstructionVehiclesNonEuVehicles(draftId, result.constructionVehiclesNonEuVehicles, isAmendment, versionId)
                 .flatMap(afterSave(draftId, request.userAnswers, _))
 
             case Right(result) if result.fileStatus == "VALIDATED" =>
@@ -321,6 +337,98 @@ class CheckVehicleSpreadsheetDetailsController @Inject() (
     replaceSections(draftId, sections, versionId)
   }
 
+  private def saveAllMotorcyclesEuVehicles(
+    draftId: DraftId,
+    vehicles: Seq[SpreadsheetMotorcyclesEuVehicle],
+    isAmendment: Boolean,
+    versionId: Long
+  )(implicit hc: HeaderCarrier): Future[Either[String, Long]] = {
+    val supplierNumbers = groupNumbersFor(vehicles.map(motorcyclesSupplierDetailsSection))
+    val sections        = vehicles.zipWithIndex.flatMap { case (vehicle, index) =>
+      val supplierNumber = supplierNumbers(index)
+      val vehicleNumber  = index + 1
+      Seq(
+        s"supplier/$supplierNumber/details"                                       -> motorcyclesSupplierDetailsSection(vehicle),
+        s"supplier/$supplierNumber/vehicle/$vehicleNumber/type"                   -> motorcyclesVehicleTypeSection(vehicle),
+        s"supplier/$supplierNumber/vehicle/$vehicleNumber/details"                -> motorcyclesVehicleDetailsSection(vehicle),
+        s"supplier/$supplierNumber/vehicle/$vehicleNumber/additional-information" -> motorcyclesVehicleAdditionalInformationSection(
+          vehicle,
+          isAmendment
+        )
+      )
+    }
+    replaceSections(draftId, sections, versionId)
+  }
+
+  private def saveAllMotorcyclesNonEuVehicles(
+    draftId: DraftId,
+    vehicles: Seq[SpreadsheetMotorcyclesNonEuVehicle],
+    isAmendment: Boolean,
+    versionId: Long
+  )(implicit hc: HeaderCarrier): Future[Either[String, Long]] = {
+    val importNumbers = groupNumbersFor(vehicles.map(motorcyclesImportDetailsSection))
+    val sections      = vehicles.zipWithIndex.flatMap { case (vehicle, index) =>
+      val importNumber  = importNumbers(index)
+      val vehicleNumber = index + 1
+      Seq(
+        s"import/$importNumber/details"                                       -> motorcyclesImportDetailsSection(vehicle),
+        s"import/$importNumber/vehicle/$vehicleNumber/type"                   -> motorcyclesImportVehicleTypeSection(vehicle),
+        s"import/$importNumber/vehicle/$vehicleNumber/details"                -> motorcyclesImportVehicleDetailsSection(vehicle),
+        s"import/$importNumber/vehicle/$vehicleNumber/additional-information" -> motorcyclesImportVehicleAdditionalInformationSection(
+          vehicle,
+          isAmendment
+        )
+      )
+    }
+    replaceSections(draftId, sections, versionId)
+  }
+
+  private def saveAllConstructionVehiclesEuVehicles(
+    draftId: DraftId,
+    vehicles: Seq[SpreadsheetConstructionVehiclesEuVehicle],
+    isAmendment: Boolean,
+    versionId: Long
+  )(implicit hc: HeaderCarrier): Future[Either[String, Long]] = {
+    val supplierNumbers = groupNumbersFor(vehicles.map(constructionVehicleSupplierDetailsSection))
+    val sections        = vehicles.zipWithIndex.flatMap { case (vehicle, index) =>
+      val supplierNumber = supplierNumbers(index)
+      val vehicleNumber  = index + 1
+      Seq(
+        s"supplier/$supplierNumber/details"                                       -> constructionVehicleSupplierDetailsSection(vehicle),
+        s"supplier/$supplierNumber/vehicle/$vehicleNumber/type"                   -> constructionVehicleVehicleTypeSection(vehicle),
+        s"supplier/$supplierNumber/vehicle/$vehicleNumber/details"                -> constructionVehicleVehicleDetailsSection(vehicle),
+        s"supplier/$supplierNumber/vehicle/$vehicleNumber/additional-information" -> constructionVehicleVehicleAdditionalInformationSection(
+          vehicle,
+          isAmendment
+        )
+      )
+    }
+    replaceSections(draftId, sections, versionId)
+  }
+
+  private def saveAllConstructionVehiclesNonEuVehicles(
+    draftId: DraftId,
+    vehicles: Seq[SpreadsheetConstructionVehiclesNonEuVehicle],
+    isAmendment: Boolean,
+    versionId: Long
+  )(implicit hc: HeaderCarrier): Future[Either[String, Long]] = {
+    val importNumbers = groupNumbersFor(vehicles.map(constructionVehicleImportDetailsSection))
+    val sections      = vehicles.zipWithIndex.flatMap { case (vehicle, index) =>
+      val importNumber  = importNumbers(index)
+      val vehicleNumber = index + 1
+      Seq(
+        s"import/$importNumber/details"                                       -> constructionVehicleImportDetailsSection(vehicle),
+        s"import/$importNumber/vehicle/$vehicleNumber/type"                   -> constructionVehicleImportVehicleTypeSection(vehicle),
+        s"import/$importNumber/vehicle/$vehicleNumber/details"                -> constructionVehicleImportVehicleDetailsSection(vehicle),
+        s"import/$importNumber/vehicle/$vehicleNumber/additional-information" -> constructionVehicleImportVehicleAdditionalInformationSection(
+          vehicle,
+          isAmendment
+        )
+      )
+    }
+    replaceSections(draftId, sections, versionId)
+  }
+
   private def replaceSections(draftId: DraftId, sections: Seq[(String, JsObject)], versionId: Long)(implicit
     hc: HeaderCarrier
   ): Future[Either[String, Long]] =
@@ -338,6 +446,8 @@ object CheckVehicleSpreadsheetDetailsController {
   private val agriculturalTractorVehicleType = "AGRICULTURAL_TRACTOR"
   private val motorCaravansVehicleType       = "MOTOR_CARAVAN"
   private val hcvVehicleType                 = "HCV"
+  private val motorcycleVehicleType          = "MOTORCYCLE"
+  private val constructionVehicleType        = "CONTRACTORS_PLANT" // Matches legacy's VehicleTypeEnum.CONTRACTORS_PLANT not CONSTRUCTION_VEHICLE
 
   private val formPDateFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy")
 
@@ -826,6 +936,256 @@ object CheckVehicleSpreadsheetDetailsController {
 
   private def heavyCommercialImportVehicleAdditionalInformationSection(
     vehicle: SpreadsheetHeavyCommercialNonEuVehicle,
+    isAmendment: Boolean
+  ): JsObject =
+    Json
+      .toJson(
+        ImportVehicleAdditionalInformation(
+          dateArrivedInUk = vehicle.dateArrivedInUk.map(formPDateFormat.format).getOrElse(""),
+          pricePaidForVehicleEntry = vehicle.pricePaid.map(_.toString).getOrElse(""),
+          leftOrRightHand = vehicle.leftOrRightHandDrive.getOrElse(""),
+          currencyUsed = vehicle.currency.getOrElse(""),
+          commodityCode = vehicle.commodityCode.getOrElse(""),
+          isAmendment = isAmendment,
+          vehicleIdNumber = vehicle.vin.getOrElse(""),
+          mileage = vehicle.mileage.getOrElse(""),
+          mileageUnits = vehicle.mileageUnits.getOrElse(""),
+          areYouClaimingRelief = vehicle.claimingVatRelief.getOrElse(false)
+        )
+      )
+      .as[JsObject]
+
+  private def motorcyclesSupplierDetailsSection(vehicle: SpreadsheetMotorcyclesEuVehicle): JsObject =
+    Json
+      .toJson(
+        SupplierDetails(
+          supplierBusinessIndividual =
+            if (vehicle.supplierBusinessPrivate.exists(_.equalsIgnoreCase("business"))) BusinessOrPrivateIndividual.Business
+            else BusinessOrPrivateIndividual.PrivateIndividual,
+          supplierBusinessName = vehicle.supplierBusinessName,
+          supplierTitle = vehicle.supplierTitle,
+          supplierFirstName = vehicle.supplierFirstName,
+          supplierLastName = vehicle.supplierLastName,
+          addressLine1 = vehicle.addressLine1.getOrElse(""),
+          addressLine2 = vehicle.addressLine2.getOrElse(""),
+          addressLine3 = vehicle.addressLine3,
+          addressLine4 = vehicle.addressLine4,
+          addressLine5 = vehicle.addressLine5,
+          postcode = vehicle.postcode,
+          country = vehicle.country.getOrElse(""),
+          isSupplierVatReg = vehicle.supplierVatRegistered.getOrElse(false),
+          euStateVatReg = vehicle.euMemberState,
+          vatRegistrationNumber = vehicle.supplierVatNumber
+        )
+      )
+      .as[JsObject]
+
+  private def motorcyclesVehicleTypeSection(vehicle: SpreadsheetMotorcyclesEuVehicle): JsObject =
+    Json
+      .toJson(
+        VehicleType(
+          vehicleType = motorcycleVehicleType,
+          doYouHaveAPurchaseInvoice = vehicle.purchaseInvoice.getOrElse(false),
+          dateRoadUseKnown = vehicle.knownDateFirstRegistered.getOrElse(false),
+          currencyUsed = vehicle.currency,
+          purchaseInvoiceNumber = vehicle.purchaseInvoiceNumber,
+          purchaseInvoiceDate = vehicle.purchaseInvoiceDate.map(formPDateFormat.format),
+          pricePaidForVehicle = vehicle.pricePaid.map(_.toString)
+        )
+      )
+      .as[JsObject]
+
+  private def motorcyclesVehicleDetailsSection(vehicle: SpreadsheetMotorcyclesEuVehicle): JsObject =
+    Json.obj(
+      "make"              -> vehicle.make.getOrElse(""),
+      "model"             -> vehicle.model.getOrElse(""),
+      "derivative"        -> vehicle.derivative.getOrElse(""),
+      "motorcycleVersion" -> vehicle.version.getOrElse(""),
+      "motorcycleType"    -> vehicle.motorcycleType.getOrElse(""),
+      "motorcycleStyle"   -> vehicle.style.getOrElse(""),
+      "transmission"      -> vehicle.transmissionType.getOrElse(""),
+      "fuelType"          -> vehicle.fuelType.getOrElse(""),
+      "engineSize"        -> vehicle.engineSize.getOrElse("")
+    )
+
+  private def motorcyclesVehicleAdditionalInformationSection(
+    vehicle: SpreadsheetMotorcyclesEuVehicle,
+    isAmendment: Boolean
+  ): JsObject =
+    Json
+      .toJson(
+        VehicleAdditionalInformation(
+          dateArrivedInUk = vehicle.dateArrivedInUk.map(formPDateFormat.format).getOrElse(""),
+          businessUnableToReclaimVat = vehicle.obtainedFromUnableToReclaimVat.getOrElse(false),
+          leftOrRightHand = vehicle.leftOrRightHandDrive.getOrElse(""),
+          vehicleSoldUnderMarginScheme = vehicle.soldUnderMarginScheme.getOrElse(false),
+          confirmVehicleIdNumber = vehicle.vin.getOrElse(""),
+          isAmendment,
+          vehicleIdNumber = vehicle.vin.getOrElse(""),
+          totalValueOfOptions = vehicle.totalValueOfOptions.map(_.toString).getOrElse(""),
+          isSupplierVatReg = vehicle.supplierVatRegistered.getOrElse(false),
+          mileage = vehicle.mileage.getOrElse(""),
+          mileageUnits = vehicle.mileageUnits.getOrElse(""),
+          areYouClaimingRelief = vehicle.claimingVatRelief.getOrElse(false)
+        )
+      )
+      .as[JsObject]
+
+  private def motorcyclesImportDetailsSection(vehicle: SpreadsheetMotorcyclesNonEuVehicle): JsObject =
+    Json
+      .toJson(
+        ImportDetails(
+          importEntryNumber = vehicle.importEntryNumber.getOrElse(""),
+          importEntryDate = vehicle.importEntryDate.map(formPDateFormat.format).getOrElse("")
+        )
+      )
+      .as[JsObject]
+
+  private def motorcyclesImportVehicleTypeSection(vehicle: SpreadsheetMotorcyclesNonEuVehicle): JsObject =
+    Json
+      .toJson(
+        ImportVehicleType(
+          vehicleType = motorcycleVehicleType,
+          dateRoadUseKnown = vehicle.knownDateFirstRegistered.getOrElse(false),
+          dateOfFirstRegistration = vehicle.dateOfFirstRegistration.map(formPDateFormat.format)
+        )
+      )
+      .as[JsObject]
+
+  private def motorcyclesImportVehicleDetailsSection(vehicle: SpreadsheetMotorcyclesNonEuVehicle): JsObject =
+    Json.obj(
+      "make"              -> vehicle.make.getOrElse(""),
+      "model"             -> vehicle.model.getOrElse(""),
+      "derivative"        -> vehicle.derivative.getOrElse(""),
+      "motorcycleVersion" -> vehicle.version.getOrElse(""),
+      "motorcycleType"    -> vehicle.motorcycleType.getOrElse(""),
+      "motorcycleStyle"   -> vehicle.style.getOrElse(""),
+      "transmission"      -> vehicle.transmissionType.getOrElse(""),
+      "fuelType"          -> vehicle.fuelType.getOrElse(""),
+      "engineSize"        -> vehicle.engineSize.getOrElse("")
+    )
+
+  private def motorcyclesImportVehicleAdditionalInformationSection(
+    vehicle: SpreadsheetMotorcyclesNonEuVehicle,
+    isAmendment: Boolean
+  ): JsObject =
+    Json
+      .toJson(
+        ImportVehicleAdditionalInformation(
+          dateArrivedInUk = vehicle.dateArrivedInUk.map(formPDateFormat.format).getOrElse(""),
+          pricePaidForVehicleEntry = vehicle.pricePaid.map(_.toString).getOrElse(""),
+          leftOrRightHand = vehicle.leftOrRightHandDrive.getOrElse(""),
+          currencyUsed = vehicle.currency.getOrElse(""),
+          commodityCode = vehicle.commodityCode.getOrElse(""),
+          isAmendment = isAmendment,
+          vehicleIdNumber = vehicle.vin.getOrElse(""),
+          mileage = vehicle.mileage.getOrElse(""),
+          mileageUnits = vehicle.mileageUnits.getOrElse(""),
+          areYouClaimingRelief = vehicle.claimingVatRelief.getOrElse(false)
+        )
+      )
+      .as[JsObject]
+
+  private def constructionVehicleSupplierDetailsSection(vehicle: SpreadsheetConstructionVehiclesEuVehicle): JsObject =
+    Json
+      .toJson(
+        SupplierDetails(
+          supplierBusinessIndividual =
+            if (vehicle.supplierBusinessPrivate.exists(_.equalsIgnoreCase("business"))) BusinessOrPrivateIndividual.Business
+            else BusinessOrPrivateIndividual.PrivateIndividual,
+          supplierBusinessName = vehicle.supplierBusinessName,
+          supplierTitle = vehicle.supplierTitle,
+          supplierFirstName = vehicle.supplierFirstName,
+          supplierLastName = vehicle.supplierLastName,
+          addressLine1 = vehicle.addressLine1.getOrElse(""),
+          addressLine2 = vehicle.addressLine2.getOrElse(""),
+          addressLine3 = vehicle.addressLine3,
+          addressLine4 = vehicle.addressLine4,
+          addressLine5 = vehicle.addressLine5,
+          postcode = vehicle.postcode,
+          country = vehicle.country.getOrElse(""),
+          isSupplierVatReg = vehicle.supplierVatRegistered.getOrElse(false),
+          euStateVatReg = vehicle.euMemberState,
+          vatRegistrationNumber = vehicle.supplierVatNumber
+        )
+      )
+      .as[JsObject]
+
+  private def constructionVehicleVehicleTypeSection(vehicle: SpreadsheetConstructionVehiclesEuVehicle): JsObject =
+    Json
+      .toJson(
+        VehicleType(
+          vehicleType = constructionVehicleType,
+          doYouHaveAPurchaseInvoice = vehicle.purchaseInvoice.getOrElse(false),
+          dateRoadUseKnown = vehicle.knownDateFirstRegistered.getOrElse(false),
+          currencyUsed = vehicle.currency,
+          purchaseInvoiceNumber = vehicle.purchaseInvoiceNumber,
+          purchaseInvoiceDate = vehicle.purchaseInvoiceDate.map(formPDateFormat.format),
+          pricePaidForVehicle = vehicle.pricePaid.map(_.toString)
+        )
+      )
+      .as[JsObject]
+
+  private def constructionVehicleVehicleDetailsSection(vehicle: SpreadsheetConstructionVehiclesEuVehicle): JsObject =
+    Json.obj(
+      "make"              -> vehicle.make.getOrElse(""),
+      "seriesModel"       -> vehicle.seriesModel.getOrElse(""),
+      "versionDerivative" -> vehicle.versionDerivative.getOrElse("")
+    )
+
+  private def constructionVehicleVehicleAdditionalInformationSection(
+    vehicle: SpreadsheetConstructionVehiclesEuVehicle,
+    isAmendment: Boolean
+  ): JsObject =
+    Json
+      .toJson(
+        VehicleAdditionalInformation(
+          dateArrivedInUk = vehicle.dateArrivedInUk.map(formPDateFormat.format).getOrElse(""),
+          businessUnableToReclaimVat = vehicle.obtainedFromUnableToReclaimVat.getOrElse(false),
+          leftOrRightHand = vehicle.leftOrRightHandDrive.getOrElse(""),
+          vehicleSoldUnderMarginScheme = vehicle.soldUnderMarginScheme.getOrElse(false),
+          confirmVehicleIdNumber = vehicle.vin.getOrElse(""),
+          isAmendment,
+          vehicleIdNumber = vehicle.vin.getOrElse(""),
+          totalValueOfOptions = vehicle.totalValueOfOptions.map(_.toString).getOrElse(""),
+          isSupplierVatReg = vehicle.supplierVatRegistered.getOrElse(false),
+          mileage = vehicle.mileage.getOrElse(""),
+          mileageUnits = vehicle.mileageUnits.getOrElse(""),
+          areYouClaimingRelief = vehicle.claimingVatRelief.getOrElse(false)
+        )
+      )
+      .as[JsObject]
+
+  private def constructionVehicleImportDetailsSection(vehicle: SpreadsheetConstructionVehiclesNonEuVehicle): JsObject =
+    Json
+      .toJson(
+        ImportDetails(
+          importEntryNumber = vehicle.importEntryNumber.getOrElse(""),
+          importEntryDate = vehicle.importEntryDate.map(formPDateFormat.format).getOrElse("")
+        )
+      )
+      .as[JsObject]
+
+  private def constructionVehicleImportVehicleTypeSection(vehicle: SpreadsheetConstructionVehiclesNonEuVehicle): JsObject =
+    Json
+      .toJson(
+        ImportVehicleType(
+          vehicleType = constructionVehicleType,
+          dateRoadUseKnown = vehicle.knownDateFirstRegistered.getOrElse(false),
+          dateOfFirstRegistration = vehicle.dateOfFirstRegistration.map(formPDateFormat.format)
+        )
+      )
+      .as[JsObject]
+
+  private def constructionVehicleImportVehicleDetailsSection(vehicle: SpreadsheetConstructionVehiclesNonEuVehicle): JsObject =
+    Json.obj(
+      "make"              -> vehicle.make.getOrElse(""),
+      "seriesModel"       -> vehicle.seriesModel.getOrElse(""),
+      "versionDerivative" -> vehicle.versionDerivative.getOrElse("")
+    )
+
+  private def constructionVehicleImportVehicleAdditionalInformationSection(
+    vehicle: SpreadsheetConstructionVehiclesNonEuVehicle,
     isAmendment: Boolean
   ): JsObject =
     Json

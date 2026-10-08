@@ -21,7 +21,7 @@ import com.google.inject.name.Names
 import connectors.{GetUploadResultError, NovaImportsBackendConnector, UpdateSectionError}
 import controllers.actions.*
 import controllers.vehicledetails
-import models.responses.{DeleteFileUploadResponse, SpreadsheetAgriculturalTractorEuVehicle, SpreadsheetAgriculturalTractorNonEuVehicle, SpreadsheetEuVehicle, SpreadsheetHeavyCommercialEuVehicle, SpreadsheetHeavyCommercialNonEuVehicle, SpreadsheetMotorCaravansEuVehicle, SpreadsheetMotorCaravansNonEuVehicle, SpreadsheetNonEuVehicle, UploadResultResponse, ValidationError, VehicleSummary}
+import models.responses.{DeleteFileUploadResponse, SpreadsheetAgriculturalTractorEuVehicle, SpreadsheetAgriculturalTractorNonEuVehicle, SpreadsheetConstructionVehiclesEuVehicle, SpreadsheetConstructionVehiclesNonEuVehicle, SpreadsheetEuVehicle, SpreadsheetHeavyCommercialEuVehicle, SpreadsheetHeavyCommercialNonEuVehicle, SpreadsheetMotorCaravansEuVehicle, SpreadsheetMotorCaravansNonEuVehicle, SpreadsheetMotorcyclesEuVehicle, SpreadsheetMotorcyclesNonEuVehicle, SpreadsheetNonEuVehicle, UploadResultResponse, ValidationError, VehicleSummary}
 import models.{DraftId, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
@@ -195,6 +195,10 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
       motorCaravansNonEuVehicles = Seq.empty,
       heavyCommercialEuVehicles = List.empty,
       heavyCommercialNonEuVehicles = List.empty,
+      motorcyclesEuVehicles = Seq.empty,
+      motorcyclesNonEuVehicles = Seq.empty,
+      constructionVehiclesEuVehicles = Seq.empty,
+      constructionVehiclesNonEuVehicles = Seq.empty,
       errors = Seq.empty
     )
 
@@ -211,6 +215,10 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
       motorCaravansNonEuVehicles = Seq.empty,
       heavyCommercialEuVehicles = List.empty,
       heavyCommercialNonEuVehicles = List.empty,
+      motorcyclesEuVehicles = Seq.empty,
+      motorcyclesNonEuVehicles = Seq.empty,
+      constructionVehiclesEuVehicles = Seq.empty,
+      constructionVehiclesNonEuVehicles = Seq.empty,
       errors = Seq.empty
     )
 
@@ -227,6 +235,10 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
       motorCaravansNonEuVehicles = Seq.empty,
       heavyCommercialEuVehicles = List.empty,
       heavyCommercialNonEuVehicles = List.empty,
+      motorcyclesEuVehicles = Seq.empty,
+      motorcyclesNonEuVehicles = Seq.empty,
+      constructionVehiclesEuVehicles = Seq.empty,
+      constructionVehiclesNonEuVehicles = Seq.empty,
       errors = Seq.empty
     )
 
@@ -243,6 +255,10 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
       motorCaravansNonEuVehicles = Seq.empty,
       heavyCommercialEuVehicles = List.empty,
       heavyCommercialNonEuVehicles = List.empty,
+      motorcyclesEuVehicles = Seq.empty,
+      motorcyclesNonEuVehicles = Seq.empty,
+      constructionVehiclesEuVehicles = Seq.empty,
+      constructionVehiclesNonEuVehicles = Seq.empty,
       errors = Seq.empty
     )
 
@@ -259,6 +275,10 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
       motorCaravansNonEuVehicles = Seq.empty,
       heavyCommercialEuVehicles = List.empty,
       heavyCommercialNonEuVehicles = List.empty,
+      motorcyclesEuVehicles = Seq.empty,
+      motorcyclesNonEuVehicles = Seq.empty,
+      constructionVehiclesEuVehicles = Seq.empty,
+      constructionVehiclesNonEuVehicles = Seq.empty,
       errors = Seq.empty
     )
 
@@ -275,6 +295,10 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
       motorCaravansNonEuVehicles = vehicles,
       heavyCommercialEuVehicles = List.empty,
       heavyCommercialNonEuVehicles = List.empty,
+      motorcyclesEuVehicles = Seq.empty,
+      motorcyclesNonEuVehicles = Seq.empty,
+      constructionVehiclesEuVehicles = Seq.empty,
+      constructionVehiclesNonEuVehicles = Seq.empty,
       errors = Seq.empty
     )
 
@@ -357,6 +381,10 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
       motorCaravansNonEuVehicles = List.empty,
       heavyCommercialEuVehicles = vehicles,
       heavyCommercialNonEuVehicles = List.empty,
+      motorcyclesEuVehicles = Seq.empty,
+      motorcyclesNonEuVehicles = Seq.empty,
+      constructionVehiclesEuVehicles = Seq.empty,
+      constructionVehiclesNonEuVehicles = Seq.empty,
       errors = List.empty
     )
 
@@ -373,6 +401,10 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
       motorCaravansNonEuVehicles = List.empty,
       heavyCommercialEuVehicles = List.empty,
       heavyCommercialNonEuVehicles = vehicles,
+      motorcyclesEuVehicles = Seq.empty,
+      motorcyclesNonEuVehicles = Seq.empty,
+      constructionVehiclesEuVehicles = Seq.empty,
+      constructionVehiclesNonEuVehicles = Seq.empty,
       errors = List.empty
     )
 
@@ -425,6 +457,218 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
     model = Some("Model"),
     heavyCommercialVehicleType = Some("Heavy commercial vehicle type"),
     cabType = Some("Cab type"),
+    notificationReference = None,
+    vin = Some("1"),
+    dateArrivedInUk = Some(LocalDate.of(2026, 3, 1)),
+    commodityCode = Some("1234"),
+    mileage = Some("10000"),
+    mileageUnits = Some("MILES"),
+    leftOrRightHandDrive = Some("RHD"),
+    pricePaid = Some(BigDecimal("100")),
+    currency = Some("USD"),
+    claimingVatRelief = Some(false),
+    reasonForClaimingRelief = None
+  )
+
+  private def validatedMotorcyclesEuResult(vehicles: Seq[SpreadsheetMotorcyclesEuVehicle]) =
+    UploadResultResponse(
+      fileStatus = "VALIDATED",
+      validationType = Some("MotorcyclesEu"),
+      vehicles = vehicles.map(v => VehicleSummary(v.itemNumber, v.vin, v.make, v.model)),
+      euVehicles = Seq.empty,
+      nonEuVehicles = Seq.empty,
+      agriculturalTractorEuVehicles = Seq.empty,
+      agriculturalTractorNonEuVehicles = Seq.empty,
+      motorCaravansEuVehicles = Seq.empty,
+      motorCaravansNonEuVehicles = Seq.empty,
+      heavyCommercialEuVehicles = List.empty,
+      heavyCommercialNonEuVehicles = List.empty,
+      motorcyclesEuVehicles = vehicles,
+      motorcyclesNonEuVehicles = Seq.empty,
+      constructionVehiclesEuVehicles = Seq.empty,
+      constructionVehiclesNonEuVehicles = Seq.empty,
+      errors = Seq.empty
+    )
+
+  private def validatedMotorcyclesNonEuResult(vehicles: Seq[SpreadsheetMotorcyclesNonEuVehicle]) =
+    UploadResultResponse(
+      fileStatus = "VALIDATED",
+      validationType = Some("MotorcyclesNonEu"),
+      vehicles = vehicles.map(v => VehicleSummary(v.itemNumber, v.vin, v.make, v.model)),
+      euVehicles = Seq.empty,
+      nonEuVehicles = Seq.empty,
+      agriculturalTractorEuVehicles = Seq.empty,
+      agriculturalTractorNonEuVehicles = Seq.empty,
+      motorCaravansEuVehicles = Seq.empty,
+      motorCaravansNonEuVehicles = Seq.empty,
+      heavyCommercialEuVehicles = List.empty,
+      heavyCommercialNonEuVehicles = List.empty,
+      motorcyclesEuVehicles = Seq.empty,
+      motorcyclesNonEuVehicles = vehicles,
+      constructionVehiclesEuVehicles = Seq.empty,
+      constructionVehiclesNonEuVehicles = Seq.empty,
+      errors = Seq.empty
+    )
+
+  private val fullMotorcyclesEuVehicle = SpreadsheetMotorcyclesEuVehicle(
+    itemNumber = Some(1),
+    supplierBusinessPrivate = Some("business"),
+    supplierBusinessName = Some("business name"),
+    supplierTitle = None,
+    supplierFirstName = None,
+    supplierLastName = None,
+    addressLine1 = Some("Address 1"),
+    addressLine2 = Some("Address 2"),
+    addressLine3 = None,
+    addressLine4 = None,
+    addressLine5 = None,
+    postcode = None,
+    country = None,
+    supplierVatRegistered = Some(false),
+    euMemberState = None,
+    supplierVatNumber = None,
+    knownDateFirstRegistered = Some(false),
+    purchaseInvoice = Some(true),
+    purchaseInvoiceDate = Some(LocalDate.of(2026, 3, 30)),
+    purchaseInvoiceNumber = Some("1"),
+    pricePaid = Some(BigDecimal("100")),
+    currency = Some("USD"),
+    make = Some("Make"),
+    model = Some("Model"),
+    derivative = Some("Derivative"),
+    version = Some("Version"),
+    motorcycleType = Some("Type of motorcycle"),
+    style = Some("Style of motorcycle"),
+    transmissionType = Some("Transmission type"),
+    fuelType = Some("Fuel type"),
+    engineSize = Some("125"),
+    vin = Some("123"),
+    dateArrivedInUk = Some(LocalDate.of(2026, 3, 30)),
+    mileage = Some("100000"),
+    mileageUnits = Some("KM"),
+    leftOrRightHandDrive = Some("RHD"),
+    totalValueOfOptions = Some(BigDecimal("10000")),
+    obtainedFromUnableToReclaimVat = Some(false),
+    soldUnderMarginScheme = Some(false),
+    claimingVatRelief = Some(false)
+  )
+
+  private val fullMotorcyclesNonEuVehicle = SpreadsheetMotorcyclesNonEuVehicle(
+    itemNumber = Some(1),
+    importEntryNumber = Some("123-123456A"),
+    importEntryDate = Some(LocalDate.of(2026, 3, 30)),
+    knownDateFirstRegistered = Some(true),
+    countryOfFirstRegistration = None,
+    dateOfFirstRegistration = Some(LocalDate.of(2010, 1, 1)),
+    make = Some("Make"),
+    model = Some("Model"),
+    derivative = Some("Derivative"),
+    version = Some("Version"),
+    motorcycleType = Some("Type of motorcycle"),
+    style = Some("Style of motorcycle"),
+    transmissionType = Some("Transmission type"),
+    fuelType = Some("Fuel type"),
+    engineSize = Some("124"),
+    notificationReference = None,
+    vin = Some("1"),
+    dateArrivedInUk = Some(LocalDate.of(2026, 3, 1)),
+    commodityCode = Some("1234"),
+    mileage = Some("10000"),
+    mileageUnits = Some("MILES"),
+    leftOrRightHandDrive = Some("RHD"),
+    pricePaid = Some(BigDecimal("100")),
+    currency = Some("USD"),
+    claimingVatRelief = Some(false),
+    reasonForClaimingRelief = None
+  )
+
+  private def validatedConstructionVehiclesEuResult(vehicles: Seq[SpreadsheetConstructionVehiclesEuVehicle]) =
+    UploadResultResponse(
+      fileStatus = "VALIDATED",
+      validationType = Some("ConstructionVehiclesEu"),
+      vehicles = vehicles.map(v => VehicleSummary(v.itemNumber, v.vin, v.make, None)),
+      euVehicles = Seq.empty,
+      nonEuVehicles = Seq.empty,
+      agriculturalTractorEuVehicles = Seq.empty,
+      agriculturalTractorNonEuVehicles = Seq.empty,
+      motorCaravansEuVehicles = Seq.empty,
+      motorCaravansNonEuVehicles = Seq.empty,
+      heavyCommercialEuVehicles = List.empty,
+      heavyCommercialNonEuVehicles = List.empty,
+      motorcyclesEuVehicles = Seq.empty,
+      motorcyclesNonEuVehicles = Seq.empty,
+      constructionVehiclesEuVehicles = vehicles,
+      constructionVehiclesNonEuVehicles = Seq.empty,
+      errors = Seq.empty
+    )
+
+  private def validatedConstructionVehiclesNonEuResult(vehicles: Seq[SpreadsheetConstructionVehiclesNonEuVehicle]) =
+    UploadResultResponse(
+      fileStatus = "VALIDATED",
+      validationType = Some("ConstructionVehiclesNonEu"),
+      vehicles = vehicles.map(v => VehicleSummary(v.itemNumber, v.vin, v.make, None)),
+      euVehicles = Seq.empty,
+      nonEuVehicles = Seq.empty,
+      agriculturalTractorEuVehicles = Seq.empty,
+      agriculturalTractorNonEuVehicles = Seq.empty,
+      motorCaravansEuVehicles = Seq.empty,
+      motorCaravansNonEuVehicles = Seq.empty,
+      heavyCommercialEuVehicles = List.empty,
+      heavyCommercialNonEuVehicles = List.empty,
+      motorcyclesEuVehicles = Seq.empty,
+      motorcyclesNonEuVehicles = Seq.empty,
+      constructionVehiclesEuVehicles = Seq.empty,
+      constructionVehiclesNonEuVehicles = vehicles,
+      errors = Seq.empty
+    )
+
+  private val fullConstructionVehiclesEuVehicle = SpreadsheetConstructionVehiclesEuVehicle(
+    itemNumber = Some(1),
+    supplierBusinessPrivate = Some("business"),
+    supplierBusinessName = Some("business name"),
+    supplierTitle = None,
+    supplierFirstName = None,
+    supplierLastName = None,
+    addressLine1 = Some("Address 1"),
+    addressLine2 = Some("Address 2"),
+    addressLine3 = None,
+    addressLine4 = None,
+    addressLine5 = None,
+    postcode = None,
+    country = None,
+    supplierVatRegistered = Some(false),
+    euMemberState = None,
+    supplierVatNumber = None,
+    knownDateFirstRegistered = Some(false),
+    purchaseInvoice = Some(true),
+    purchaseInvoiceDate = Some(LocalDate.of(2026, 3, 30)),
+    purchaseInvoiceNumber = Some("1"),
+    pricePaid = Some(BigDecimal("100")),
+    currency = Some("USD"),
+    make = Some("Make"),
+    seriesModel = Some("Series (model)"),
+    versionDerivative = Some("Version (derivative)"),
+    vin = Some("123"),
+    dateArrivedInUk = Some(LocalDate.of(2026, 3, 30)),
+    mileage = Some("100000"),
+    mileageUnits = Some("KM"),
+    leftOrRightHandDrive = Some("RHD"),
+    totalValueOfOptions = Some(BigDecimal("10000")),
+    obtainedFromUnableToReclaimVat = Some(false),
+    soldUnderMarginScheme = Some(false),
+    claimingVatRelief = Some(false)
+  )
+
+  private val fullConstructionVehiclesNonEuVehicle = SpreadsheetConstructionVehiclesNonEuVehicle(
+    itemNumber = Some(1),
+    importEntryNumber = Some("123-123456A"),
+    importEntryDate = Some(LocalDate.of(2026, 3, 30)),
+    knownDateFirstRegistered = Some(true),
+    countryOfFirstRegistration = None,
+    dateOfFirstRegistration = Some(LocalDate.of(2010, 1, 1)),
+    make = Some("Make"),
+    seriesModel = Some("Series (model)"),
+    versionDerivative = Some("Version (derivative)"),
     notificationReference = None,
     vin = Some("1"),
     dateArrivedInUk = Some(LocalDate.of(2026, 3, 1)),
@@ -946,6 +1190,206 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
       }
     }
 
+    "must replace vehicle sections in one call for a single-vehicle MotorcyclesEu upload, using the motorcycle-specific detail fields and the MOTORCYCLE vehicleType" in {
+      val connector = stubConnector()
+      when(connector.getUploadResult(eqTo(draftId))(using any[HeaderCarrier]))
+        .thenReturn(Future.successful(Right(validatedMotorcyclesEuResult(Seq(fullMotorcyclesEuVehicle)))))
+
+      val sessionRepository = stubSessionRepository()
+      val application       = applicationFor(Some(answers), connector, sessionRepository)
+
+      running(application) {
+        val result = route(application, FakeRequest(POST, onSubmitRoute)).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.NotificationTaskListController.onPageLoad().url
+
+        val sections = captureSections(connector)
+        verify(sessionRepository).setPage(eqTo(answers), eqTo(DraftVersionIdPage), eqTo(newVersion))(using any())
+        verify(connector).deleteFileUpload(eqTo(draftId))(using any[HeaderCarrier])
+
+        (sections("supplier/1/vehicle/1/type") \ "vehicleType").as[String] mustEqual "MOTORCYCLE"
+
+        val vehicleDetails = sections("supplier/1/vehicle/1/details")
+        (vehicleDetails \ "make").as[String] mustEqual "Make"
+        (vehicleDetails \ "model").as[String] mustEqual "Model"
+        (vehicleDetails \ "derivative").as[String] mustEqual "Derivative"
+        (vehicleDetails \ "motorcycleVersion").as[String] mustEqual "Version"
+        (vehicleDetails \ "motorcycleType").as[String] mustEqual "Type of motorcycle"
+        (vehicleDetails \ "motorcycleStyle").as[String] mustEqual "Style of motorcycle"
+        (vehicleDetails \ "transmission").as[String] mustEqual "Transmission type"
+        (vehicleDetails \ "fuelType").as[String] mustEqual "Fuel type"
+        (vehicleDetails \ "engineSize").as[String] mustEqual "125"
+      }
+    }
+
+    "must replace vehicle sections in one call for a single-vehicle MotorcyclesNonEu upload, using the motorcycle-specific detail fields and the MOTORCYCLE vehicleType" in {
+      val connector = stubConnector()
+      when(connector.getUploadResult(eqTo(draftId))(using any[HeaderCarrier]))
+        .thenReturn(Future.successful(Right(validatedMotorcyclesNonEuResult(Seq(fullMotorcyclesNonEuVehicle)))))
+
+      val sessionRepository = stubSessionRepository()
+      val application       = applicationFor(Some(answers), connector, sessionRepository)
+
+      running(application) {
+        val result = route(application, FakeRequest(POST, onSubmitRoute)).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.NotificationTaskListController.onPageLoad().url
+
+        val sections = captureSections(connector)
+        verify(sessionRepository).setPage(eqTo(answers), eqTo(DraftVersionIdPage), eqTo(newVersion))(using any())
+        verify(connector).deleteFileUpload(eqTo(draftId))(using any[HeaderCarrier])
+
+        (sections("import/1/vehicle/1/type") \ "vehicleType").as[String] mustEqual "MOTORCYCLE"
+
+        val vehicleDetails = sections("import/1/vehicle/1/details")
+        (vehicleDetails \ "make").as[String] mustEqual "Make"
+        (vehicleDetails \ "model").as[String] mustEqual "Model"
+        (vehicleDetails \ "derivative").as[String] mustEqual "Derivative"
+        (vehicleDetails \ "motorcycleVersion").as[String] mustEqual "Version"
+        (vehicleDetails \ "motorcycleType").as[String] mustEqual "Type of motorcycle"
+        (vehicleDetails \ "motorcycleStyle").as[String] mustEqual "Style of motorcycle"
+        (vehicleDetails \ "transmission").as[String] mustEqual "Transmission type"
+        (vehicleDetails \ "fuelType").as[String] mustEqual "Fuel type"
+        (vehicleDetails \ "engineSize").as[String] mustEqual "124"
+      }
+    }
+
+    "must group a second MotorcyclesEu vehicle under the same supplier number when the supplier details are identical, numbering the vehicle by its row position" in {
+      val secondVehicle = fullMotorcyclesEuVehicle.copy(itemNumber = Some(2), make = Some("Make 2"))
+      val connector     = stubConnector()
+      when(connector.getUploadResult(eqTo(draftId))(using any[HeaderCarrier]))
+        .thenReturn(Future.successful(Right(validatedMotorcyclesEuResult(Seq(fullMotorcyclesEuVehicle, secondVehicle)))))
+
+      val application = applicationFor(Some(answers), connector)
+
+      running(application) {
+        val result = route(application, FakeRequest(POST, onSubmitRoute)).value
+
+        status(result) mustEqual SEE_OTHER
+        val keys = captureSections(connector).keySet
+        keys must contain("supplier/1/details")
+        keys must contain("supplier/1/vehicle/1/details")
+        keys must contain("supplier/1/vehicle/2/details")
+        keys must not contain "supplier/2/details"
+      }
+    }
+
+    "must group a second MotorcyclesNonEu vehicle under the same import number when the import details are identical, numbering the vehicle by its row position" in {
+      val secondVehicle = fullMotorcyclesNonEuVehicle.copy(itemNumber = Some(2), make = Some("Make 2"))
+      val connector     = stubConnector()
+      when(connector.getUploadResult(eqTo(draftId))(using any[HeaderCarrier]))
+        .thenReturn(Future.successful(Right(validatedMotorcyclesNonEuResult(Seq(fullMotorcyclesNonEuVehicle, secondVehicle)))))
+
+      val application = applicationFor(Some(answers), connector)
+
+      running(application) {
+        val result = route(application, FakeRequest(POST, onSubmitRoute)).value
+
+        status(result) mustEqual SEE_OTHER
+        val keys = captureSections(connector).keySet
+        keys must contain("import/1/details")
+        keys must contain("import/1/vehicle/1/details")
+        keys must contain("import/1/vehicle/2/details")
+        keys must not contain "import/2/details"
+      }
+    }
+
+    "must replace vehicle sections in one call for a single-vehicle ConstructionVehiclesEu upload, using make/seriesModel/versionDerivative and the CONTRACTORS_PLANT vehicleType" in {
+      val connector = stubConnector()
+      when(connector.getUploadResult(eqTo(draftId))(using any[HeaderCarrier]))
+        .thenReturn(Future.successful(Right(validatedConstructionVehiclesEuResult(Seq(fullConstructionVehiclesEuVehicle)))))
+
+      val sessionRepository = stubSessionRepository()
+      val application       = applicationFor(Some(answers), connector, sessionRepository)
+
+      running(application) {
+        val result = route(application, FakeRequest(POST, onSubmitRoute)).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.NotificationTaskListController.onPageLoad().url
+
+        val sections = captureSections(connector)
+        verify(sessionRepository).setPage(eqTo(answers), eqTo(DraftVersionIdPage), eqTo(newVersion))(using any())
+        verify(connector).deleteFileUpload(eqTo(draftId))(using any[HeaderCarrier])
+
+        (sections("supplier/1/vehicle/1/type") \ "vehicleType").as[String] mustEqual "CONTRACTORS_PLANT"
+
+        val vehicleDetails = sections("supplier/1/vehicle/1/details")
+        (vehicleDetails \ "make").as[String] mustEqual "Make"
+        (vehicleDetails \ "seriesModel").as[String] mustEqual "Series (model)"
+        (vehicleDetails \ "versionDerivative").as[String] mustEqual "Version (derivative)"
+      }
+    }
+
+    "must replace vehicle sections in one call for a single-vehicle ConstructionVehiclesNonEu upload, using make/seriesModel/versionDerivative and the CONTRACTORS_PLANT vehicleType" in {
+      val connector = stubConnector()
+      when(connector.getUploadResult(eqTo(draftId))(using any[HeaderCarrier]))
+        .thenReturn(Future.successful(Right(validatedConstructionVehiclesNonEuResult(Seq(fullConstructionVehiclesNonEuVehicle)))))
+
+      val sessionRepository = stubSessionRepository()
+      val application       = applicationFor(Some(answers), connector, sessionRepository)
+
+      running(application) {
+        val result = route(application, FakeRequest(POST, onSubmitRoute)).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual controllers.routes.NotificationTaskListController.onPageLoad().url
+
+        val sections = captureSections(connector)
+        verify(sessionRepository).setPage(eqTo(answers), eqTo(DraftVersionIdPage), eqTo(newVersion))(using any())
+        verify(connector).deleteFileUpload(eqTo(draftId))(using any[HeaderCarrier])
+
+        (sections("import/1/vehicle/1/type") \ "vehicleType").as[String] mustEqual "CONTRACTORS_PLANT"
+
+        val vehicleDetails = sections("import/1/vehicle/1/details")
+        (vehicleDetails \ "make").as[String] mustEqual "Make"
+        (vehicleDetails \ "seriesModel").as[String] mustEqual "Series (model)"
+        (vehicleDetails \ "versionDerivative").as[String] mustEqual "Version (derivative)"
+      }
+    }
+
+    "must group a second ConstructionVehiclesEu vehicle under the same supplier number when the supplier details are identical, numbering the vehicle by its row position" in {
+      val secondVehicle = fullConstructionVehiclesEuVehicle.copy(itemNumber = Some(2), make = Some("Make 2"))
+      val connector     = stubConnector()
+      when(connector.getUploadResult(eqTo(draftId))(using any[HeaderCarrier]))
+        .thenReturn(Future.successful(Right(validatedConstructionVehiclesEuResult(Seq(fullConstructionVehiclesEuVehicle, secondVehicle)))))
+
+      val application = applicationFor(Some(answers), connector)
+
+      running(application) {
+        val result = route(application, FakeRequest(POST, onSubmitRoute)).value
+
+        status(result) mustEqual SEE_OTHER
+        val keys = captureSections(connector).keySet
+        keys must contain("supplier/1/details")
+        keys must contain("supplier/1/vehicle/1/details")
+        keys must contain("supplier/1/vehicle/2/details")
+        keys must not contain "supplier/2/details"
+      }
+    }
+
+    "must group a second ConstructionVehiclesNonEu vehicle under the same import number when the import details are identical, numbering the vehicle by its row position" in {
+      val secondVehicle = fullConstructionVehiclesNonEuVehicle.copy(itemNumber = Some(2), make = Some("Make 2"))
+      val connector     = stubConnector()
+      when(connector.getUploadResult(eqTo(draftId))(using any[HeaderCarrier]))
+        .thenReturn(Future.successful(Right(validatedConstructionVehiclesNonEuResult(Seq(fullConstructionVehiclesNonEuVehicle, secondVehicle)))))
+
+      val application = applicationFor(Some(answers), connector)
+
+      running(application) {
+        val result = route(application, FakeRequest(POST, onSubmitRoute)).value
+
+        status(result) mustEqual SEE_OTHER
+        val keys = captureSections(connector).keySet
+        keys must contain("import/1/details")
+        keys must contain("import/1/vehicle/1/details")
+        keys must contain("import/1/vehicle/2/details")
+        keys must not contain "import/2/details"
+      }
+    }
+
     "must replace vehicle sections in one call for a single-vehicle HeavyCommercialVehiclesEu upload, using make/model/hcvType/cabType and the HCV vehicleType" in {
       val connector = stubConnector()
       when(connector.getUploadResult(eqTo(draftId))(using any[HeaderCarrier]))
@@ -1068,7 +1512,7 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
     "must redirect to Journey Recovery without saving anything for an unsupported validationType" in {
       val connector = stubConnector()
       when(connector.getUploadResult(eqTo(draftId))(using any[HeaderCarrier]))
-        .thenReturn(Future.successful(Right(validatedResult(List(fullVehicle), validationType = Some("ConstructionVehiclesNonEu")))))
+        .thenReturn(Future.successful(Right(validatedResult(List(fullVehicle), validationType = Some("SomeFutureVehicleTypeNotYetSupported")))))
 
       val application = applicationFor(Some(answers), connector)
 
@@ -1099,6 +1543,10 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
               Seq.empty,
               List.empty,
               List.empty,
+              Seq.empty,
+              Seq.empty,
+              Seq.empty,
+              Seq.empty,
               Seq(ValidationError("mileage", "required"))
             )
           )
