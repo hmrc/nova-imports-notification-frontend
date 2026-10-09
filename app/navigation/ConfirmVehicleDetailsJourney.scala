@@ -139,7 +139,10 @@ object ConfirmVehicleDetailsJourney {
         routes.AddVehicleDetailsCarController.supplierOnPageLoad(supplierNumber, vehicleNumber, NormalMode)
       case (Some(AddVehicleType.Car), None, Some(importNumber)) =>
         routes.AddVehicleDetailsCarController.importOnPageLoad(importNumber, vehicleNumber, NormalMode)
-      case (Some(AddVehicleType.Lcv), _, _)                    => controllers.routes.LandingPageController.onPageLoad()
+      case (Some(AddVehicleType.Lcv), Some(supplierNumber), _) =>
+        routes.AddVehicleDetailsLightCommercialController.supplierOnPageLoad(supplierNumber, vehicleNumber, NormalMode)
+      case (Some(AddVehicleType.Lcv), None, Some(importNumber)) =>
+        routes.AddVehicleDetailsLightCommercialController.importOnPageLoad(importNumber, vehicleNumber, NormalMode)
       case (Some(AddVehicleType.Hcv), Some(supplierNumber), _) =>
         routes.AddVehicleDetailsHeavyCommercialController.supplierOnPageLoad(supplierNumber, vehicleNumber, NormalMode)
       case (Some(AddVehicleType.Hcv), None, Some(importNumber)) =>
