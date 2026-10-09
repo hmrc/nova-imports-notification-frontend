@@ -18,7 +18,7 @@ package controllers.vehicledetails
 
 import base.SpecBase
 import com.google.inject.name.Names
-import connectors.{GetDraftNotificationError, GetUploadResultError, NovaImportsBackendConnector, UpdateSectionError}
+import connectors.{GetUploadResultError, NovaImportsBackendConnector, UpdateSectionError}
 import controllers.actions.*
 import controllers.vehicledetails
 import models.responses.{DeleteFileUploadResponse, SpreadsheetAgriculturalTractorEuVehicle, SpreadsheetAgriculturalTractorNonEuVehicle, SpreadsheetConstructionVehiclesEuVehicle, SpreadsheetConstructionVehiclesNonEuVehicle, SpreadsheetEuVehicle, SpreadsheetHeavyCommercialEuVehicle, SpreadsheetHeavyCommercialNonEuVehicle, SpreadsheetMotorCaravansEuVehicle, SpreadsheetMotorCaravansNonEuVehicle, SpreadsheetMotorcyclesEuVehicle, SpreadsheetMotorcyclesNonEuVehicle, SpreadsheetNonEuVehicle, UploadResultResponse, ValidationError, VehicleSummary}
@@ -37,7 +37,6 @@ import play.api.libs.json.JsObject
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
-import services.UserDataService
 import uk.gov.hmrc.http.HeaderCarrier
 
 import java.time.LocalDate
@@ -689,12 +688,6 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
     repo
   }
 
-  private def stubUserDataService(): UserDataService = {
-    val service = mock[UserDataService]
-    when(service.retrieveAndStoreDraftNotification(any(), any(), any())(using any[HeaderCarrier])).thenReturn(Future.successful(Right(answers)))
-    service
-  }
-
   private def stubConnector(): NovaImportsBackendConnector = {
     val connector = mock[NovaImportsBackendConnector]
     when(connector.replaceVehicleSections(eqTo(draftId), any[Map[String, JsObject]], any[Long])(using any[HeaderCarrier]))
@@ -707,8 +700,7 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
   private def applicationFor(
     userAnswers: Option[UserAnswers],
     connector: NovaImportsBackendConnector,
-    sessionRepository: SessionRepository = stubSessionRepository(),
-    userDataService: UserDataService = stubUserDataService()
+    sessionRepository: SessionRepository = stubSessionRepository()
   ): Application =
     new GuiceApplicationBuilder()
       .overrides(
@@ -720,8 +712,7 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
         bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers)),
         bind[NovaImportsBackendConnector].toInstance(connector),
-        bind[SessionRepository].toInstance(sessionRepository),
-        bind[UserDataService].toInstance(userDataService)
+        bind[SessionRepository].toInstance(sessionRepository)
       )
       .build()
 
@@ -756,61 +747,6 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
         )
         verify(sessionRepository).setPage(eqTo(answers), eqTo(DraftVersionIdPage), eqTo(newVersion))(using any())
         verify(connector).deleteFileUpload(eqTo(draftId))(using any[HeaderCarrier])
-      }
-    }
-
-    "must refresh the session from the draft notification, marking the vehicles section, before redirecting to UVS6.0" in {
-      val connector = stubConnector()
-      when(connector.getUploadResult(eqTo(draftId))(using any[HeaderCarrier]))
-        .thenReturn(Future.successful(Right(validatedResult(Seq(fullVehicle)))))
-
-      val userDataService = stubUserDataService()
-      val application     = applicationFor(Some(answers), connector, userDataService = userDataService)
-
-      running(application) {
-        val result = route(application, FakeRequest(POST, onSubmitRoute)).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual vehicledetails.routes.UploadSuccessfulController.onPageLoad().url
-        verify(userDataService).retrieveAndStoreDraftNotification(eqTo(draftId), eqTo(answers), any())(using any[HeaderCarrier])
-      }
-    }
-
-    "must redirect to JourneyRecovery when the draft notification cannot be refreshed after saving" in {
-      val connector = stubConnector()
-      when(connector.getUploadResult(eqTo(draftId))(using any[HeaderCarrier]))
-        .thenReturn(Future.successful(Right(validatedResult(Seq(fullVehicle)))))
-
-      val userDataService = mock[UserDataService]
-      when(userDataService.retrieveAndStoreDraftNotification(any(), any(), any())(using any[HeaderCarrier]))
-        .thenReturn(Future.successful(Left(GetDraftNotificationError.UpstreamError(500, "boom"))))
-
-      val application = applicationFor(Some(answers), connector, userDataService = userDataService)
-
-      running(application) {
-        val result = route(application, FakeRequest(POST, onSubmitRoute)).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
-      }
-    }
-
-    "must not refresh the draft notification when saving the vehicle sections fails" in {
-      val connector = stubConnector()
-      when(connector.getUploadResult(eqTo(draftId))(using any[HeaderCarrier]))
-        .thenReturn(Future.successful(Right(validatedResult(Seq(fullVehicle)))))
-      when(connector.replaceVehicleSections(eqTo(draftId), any[Map[String, JsObject]], any[Long])(using any[HeaderCarrier]))
-        .thenReturn(Future.successful(Left(UpdateSectionError.UpstreamError(500, "boom"))))
-
-      val userDataService = stubUserDataService()
-      val application     = applicationFor(Some(answers), connector, userDataService = userDataService)
-
-      running(application) {
-        val result = route(application, FakeRequest(POST, onSubmitRoute)).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
-        verify(userDataService, never()).retrieveAndStoreDraftNotification(any(), any(), any())(using any[HeaderCarrier])
       }
     }
 

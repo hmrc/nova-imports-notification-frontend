@@ -61,7 +61,10 @@ class UploadSuccessfulControllerSpec extends SpecBase {
         val view    = application.injector.instanceOf[UploadSuccessfulView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(controllers.routes.NotificationTaskListController.onPageLoad())(request, messages(application)).toString
+        contentAsString(result) mustEqual view(controllers.routes.NotificationTaskListController.onPageLoad())(
+          request,
+          messages(application)
+        ).toString
       }
     }
 
