@@ -1207,6 +1207,41 @@ addVehicleDetailsCar.bodyType.error.required = Enter the body type
 addVehicleDetailsCar.bodyType.error.format = The body type must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
 addVehicleDetailsCar.bodyType.error.length = The body type must be 20 characters or less
 
+################################################################
+# AVD8.2 - Add vehicle details 8.0:Light commercial vehicle    #
+################################################################
+# TODO: Welsh translations to be supplied by content team.
+addVehicleDetailsLightCommercial.title = Enter the light commercial vehicle details
+addVehicleDetailsLightCommercial.heading = Enter the light commercial vehicle details
+addVehicleDetailsLightCommercial.caption = Add vehicle details
+addVehicleDetailsLightCommercial.paragraph.1 = You can usually find these details on the purchase invoice or in the vehicle manual.
+addVehicleDetailsLightCommercial.label.make = Make
+addVehicleDetailsLightCommercial.hint.make = For example, Ford
+addVehicleDetailsLightCommercial.label.model = Model
+addVehicleDetailsLightCommercial.hint.model = For example, Tourneo Custom
+addVehicleDetailsLightCommercial.label.derivative = Derivative
+addVehicleDetailsLightCommercial.hint.derivative = For example, 2.2TDCi
+addVehicleDetailsLightCommercial.label.trim = Trim
+addVehicleDetailsLightCommercial.hint.trim = For example, 300 LWB Trend
+addVehicleDetailsLightCommercial.label.bodyType = Body type
+addVehicleDetailsLightCommercial.hint.bodyType = For example, an 8-seat bus
+
+addVehicleDetailsLightCommercial.make.error.required = Enter the make
+addVehicleDetailsLightCommercial.make.error.format = The make must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
+addVehicleDetailsLightCommercial.make.error.length = The make must be 50 characters or less
+addVehicleDetailsLightCommercial.model.error.required = Enter the model
+addVehicleDetailsLightCommercial.model.error.format = The model must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
+addVehicleDetailsLightCommercial.model.error.length = The model must be 50 characters or less
+addVehicleDetailsLightCommercial.derivative.error.required = Enter the derivative
+addVehicleDetailsLightCommercial.derivative.error.format = The derivative must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
+addVehicleDetailsLightCommercial.derivative.error.length = The derivative must be 50 characters or less
+addVehicleDetailsLightCommercial.trim.error.required = Enter the trim
+addVehicleDetailsLightCommercial.trim.error.format = The trim must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
+addVehicleDetailsLightCommercial.trim.error.length = The trim must be 50 characters or less
+addVehicleDetailsLightCommercial.bodyType.error.required = Enter the body type
+addVehicleDetailsLightCommercial.bodyType.error.format = The bodyType must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
+addVehicleDetailsLightCommercial.bodyType.error.length = The body type must be 20 characters or less
+
 ###############################################################
 # AVD8.3 - Add vehicle details 8.3 - Heavy commercial vehicle #
 ###############################################################
