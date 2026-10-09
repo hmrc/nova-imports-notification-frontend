@@ -47,9 +47,8 @@
     <hr class="govuk-section-break govuk-section-break--visible govuk-section-break--m">
 
     @if(hasDraftNotifications) {
-        @* TODO: point href at VS1.0 controller when that story lands. *@
         <h2 class="govuk-heading-m">
-            <a class="govuk-link" href="@routes.JourneyRecoveryController.onPageLoad().url">@messages("landingPage.private.saved.heading")</a>
+            <a class="govuk-link" href="@notification.routes.ViewSavedNotificationsController.onPageLoad().url">@messages("landingPage.private.saved.heading")</a>
         </h2>
         <p class="govuk-body">@messages("landingPage.private.saved.body.has")</p>
     } else {
