@@ -1135,6 +1135,15 @@ updateVehicleSpreadsheet.paragraph = You’ll lose the details you’ve already 
 updateVehicleSpreadsheet.error.required = Select yes if you want to update this vehicle spreadsheet
 
 ##################################################################
+# UVS6.0 - Upload successful                                     #
+##################################################################
+# TODO: Welsh translations to be supplied by content team.
+uploadSuccessful.title = Upload successful
+uploadSuccessful.heading = Upload successful
+uploadSuccessful.paragraph = You have successfully attached this vehicle spreadsheet.
+
+
+##################################################################
 # C-AVD1.0 - Confirm vehicle details 1.0                         #
 ##################################################################
 # TODO: Welsh translations to be supplied by content team.
