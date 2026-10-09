@@ -15,7 +15,6 @@
  *@
 
 @import controllers.vehicledetails.routes
-@import viewmodels.LegendSize
 
 @this(
     layout: templates.Layout,
@@ -37,12 +36,15 @@
 
         <span class="govuk-caption-l">@messages("updateVehicleSpreadsheet.caption")</span>
 
+        <h1 class="govuk-heading-l">@messages("updateVehicleSpreadsheet.heading")</h1>
+
+        <p class="govuk-body">@messages("updateVehicleSpreadsheet.paragraph")</p>
+
         @govukRadios(
             RadiosViewModel.yesNo(
                 field  = form("value"),
-                legend = LegendViewModel(messages("updateVehicleSpreadsheet.heading")).asPageHeading(LegendSize.Large)
+                legend = LegendViewModel(messages("updateVehicleSpreadsheet.heading")).withCssClass("govuk-visually-hidden")
             )
-            .withHint(HintViewModel(Text(messages("updateVehicleSpreadsheet.hint"))))
         )
 
         @govukButton(

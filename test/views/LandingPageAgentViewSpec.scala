@@ -104,11 +104,11 @@ class LandingPageAgentViewSpec extends SpecBase with Matchers with BeforeAndAfte
       html must not include msgs("landingPage.agent.saved.body.empty")
     }
 
-    "must render the saved-notification heading as a link to JourneyRecovery (VS1.0 placeholder) when drafts exist" in {
+    "must render the saved-notification heading as a link to VS1.0 when drafts exist" in {
       val html: String = view(Some(traderName), hasDraftNotifications = true).toString
 
-      html must include(controllers.routes.JourneyRecoveryController.onPageLoad().url)
-      html must include(s"""<a class="govuk-link" href="${controllers.routes.JourneyRecoveryController.onPageLoad().url}">${msgs(
+      html must include(controllers.notification.routes.ViewSavedNotificationsController.onPageLoad().url)
+      html must include(s"""<a class="govuk-link" href="${controllers.notification.routes.ViewSavedNotificationsController.onPageLoad().url}">${msgs(
           "landingPage.agent.saved.heading"
         )}</a>""")
     }
@@ -116,7 +116,7 @@ class LandingPageAgentViewSpec extends SpecBase with Matchers with BeforeAndAfte
     "must render the saved-notification heading as plain text (no link) when no drafts" in {
       val html: String = view(Some(traderName), hasDraftNotifications = false).toString
 
-      html must not include controllers.routes.JourneyRecoveryController.onPageLoad().url
+      html must not include controllers.notification.routes.ViewSavedNotificationsController.onPageLoad().url
     }
 
     "must render the Manage your clients link routing to LoadingClientListController (CS1.0)" in {

@@ -169,6 +169,37 @@ landingPage.agent.client.change = Change client
 landingPage.agent.client.name = Client name
 landingPage.agent.client.vrn = VAT registration number
 
+##########################################
+# VS1.0 - View saved notifications       #
+##########################################
+
+viewSavedNotifications.title = Saved notifications
+viewSavedNotifications.pagination.title = Saved notifications (page {0} of {1})
+viewSavedNotifications.heading = Saved notifications
+viewSavedNotifications.paragraph = These are notifications you’ve started but not yet submitted.
+viewSavedNotifications.insetText = Notifications are saved for 7 days from the date you create them. After this, they are automatically deleted.
+viewSavedNotifications.showing = Showing {0} to {1} of {2} records
+viewSavedNotifications.table.purchaserName = Purchaser name
+viewSavedNotifications.table.purchaseLocation = Purchase location
+viewSavedNotifications.table.numberOfVehicles = Number of vehicles
+viewSavedNotifications.table.dateCreated = Date created
+viewSavedNotifications.table.actions = Actions
+viewSavedNotifications.table.continue = Continue
+viewSavedNotifications.table.delete = Delete
+viewSavedNotifications.location.withinEu = Within the EU
+viewSavedNotifications.location.outsideEu = Outside the EU
+viewSavedNotifications.notProvided = Not provided
+viewSavedNotifications.returnHome = Return to home
+
+#######################################################
+# DN2.0 - Delete current notification                 #
+#######################################################
+
+deleteCurrentNotification.title = Are you sure you want to delete this notification?
+deleteCurrentNotification.heading = Are you sure you want to delete this notification?
+deleteCurrentNotification.paragraph = You’ll lose all the details for this notification.
+deleteCurrentNotification.error.required = Select yes if you want to delete this notification
+
 ##################################################################
 # IQ1.0 - Initial Question 1.0: Vehicle brought into NI from EU  #
 ##################################################################
@@ -1227,7 +1258,7 @@ checkVehicleSpreadsheetDetails.updateSpreadsheetLink = Update spreadsheet
 updateVehicleSpreadsheet.title = Are you sure you want to update this vehicle spreadsheet?
 updateVehicleSpreadsheet.heading = Are you sure you want to update this vehicle spreadsheet?
 updateVehicleSpreadsheet.caption = Add vehicle details
-updateVehicleSpreadsheet.hint = You’ll lose the details you’ve already uploaded
+updateVehicleSpreadsheet.paragraph = You’ll lose the details you’ve already uploaded.
 updateVehicleSpreadsheet.error.required = Select yes if you want to update this vehicle spreadsheet
 
 ##################################################################
@@ -1237,15 +1268,6 @@ updateVehicleSpreadsheet.error.required = Select yes if you want to update this 
 uploadSuccessful.title = Upload successful
 uploadSuccessful.heading = Upload successful
 uploadSuccessful.paragraph = You have successfully attached this vehicle spreadsheet.
-
-#######################################################
-# DN2.0 - Delete current notification                 #
-#######################################################
-
-deleteCurrentNotification.title = Are you sure you want to delete this notification?
-deleteCurrentNotification.heading = Are you sure you want to delete this notification?
-deleteCurrentNotification.paragraph = You’ll lose all the details for this notification.
-deleteCurrentNotification.error.required = Select yes if you want to delete this notification
 
 ##################################################################
 # C-AVD1.0 - Confirm vehicle details 1.0                         #
@@ -1292,29 +1314,160 @@ addVehicleDetailsCar.paragraph.1 = You can usually find these details on the pur
 addVehicleDetailsCar.make.label = Make
 addVehicleDetailsCar.make.hint = For example, Land Rover
 addVehicleDetailsCar.make.error.required = Enter the make
-addVehicleDetailsCar.make.error.format = The make must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
+addVehicleDetailsCar.make.error.format = The make must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
 addVehicleDetailsCar.make.error.length = The make must be 50 characters or less
 
 addVehicleDetailsCar.model.label = Model
 addVehicleDetailsCar.model.hint = For example, Discovery 4
 addVehicleDetailsCar.model.error.required = Enter the model
-addVehicleDetailsCar.model.error.format = The model must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
+addVehicleDetailsCar.model.error.format = The model must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
 addVehicleDetailsCar.model.error.length = The model must be 50 characters or less
 
 addVehicleDetailsCar.derivative.label = Derivative
 addVehicleDetailsCar.derivative.hint = For example, 3.0TD
 addVehicleDetailsCar.derivative.error.required = Enter the derivative
-addVehicleDetailsCar.derivative.error.format = The derivative must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
+addVehicleDetailsCar.derivative.error.format = The derivative must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
 addVehicleDetailsCar.derivative.error.length = The derivative must be 50 characters or less
 
 addVehicleDetailsCar.trim.label = Trim
 addVehicleDetailsCar.trim.hint = For example, XS
 addVehicleDetailsCar.trim.error.required = Enter the trim
-addVehicleDetailsCar.trim.error.format = The trim must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
+addVehicleDetailsCar.trim.error.format = The trim must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
 addVehicleDetailsCar.trim.error.length = The trim must be 50 characters or less
 
 addVehicleDetailsCar.bodyType.label = Body type
 addVehicleDetailsCar.bodyType.hint = For example, a station wagon
 addVehicleDetailsCar.bodyType.error.required = Enter the body type
-addVehicleDetailsCar.bodyType.error.format = The body type must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
+addVehicleDetailsCar.bodyType.error.format = The body type must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
 addVehicleDetailsCar.bodyType.error.length = The body type must be 20 characters or less
+
+###############################################################
+# AVD8.3 - Add vehicle details 8.3 - Heavy commercial vehicle #
+###############################################################
+
+addVehicleDetailsHeavyCommercial.title = Enter the heavy commercial vehicle details
+addVehicleDetailsHeavyCommercial.caption = Add vehicle details
+addVehicleDetailsHeavyCommercial.heading = Enter the heavy commercial vehicle details
+addVehicleDetailsHeavyCommercial.paragraph.1 = You can usually find these details on the purchase invoice or in the vehicle manual.
+
+addVehicleDetailsHeavyCommercial.make.label = Make
+addVehicleDetailsHeavyCommercial.make.hint = For example, Renault Trucks
+addVehicleDetailsHeavyCommercial.make.error.required = Enter the make
+addVehicleDetailsHeavyCommercial.make.error.format = The make must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
+addVehicleDetailsHeavyCommercial.make.error.length = The make must be 50 characters or less
+
+addVehicleDetailsHeavyCommercial.model.label = Model
+addVehicleDetailsHeavyCommercial.model.hint = For example, Magnum
+addVehicleDetailsHeavyCommercial.model.error.required = Enter the model
+addVehicleDetailsHeavyCommercial.model.error.format = The model must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
+addVehicleDetailsHeavyCommercial.model.error.length = The model must be 50 characters or less
+
+addVehicleDetailsHeavyCommercial.hcvType.label = Body type
+addVehicleDetailsHeavyCommercial.hcvType.hint = For example, a midlift axle tractor
+addVehicleDetailsHeavyCommercial.hcvType.error.required = Enter the body type
+addVehicleDetailsHeavyCommercial.hcvType.error.format = The body type must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
+addVehicleDetailsHeavyCommercial.hcvType.error.length = The body type must be 50 characters or less
+
+addVehicleDetailsHeavyCommercial.cabType.label = Cab type
+addVehicleDetailsHeavyCommercial.cabType.hint = For example, sleeper cab
+addVehicleDetailsHeavyCommercial.cabType.error.required = Enter the cab type
+addVehicleDetailsHeavyCommercial.cabType.error.format = The cab type must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
+addVehicleDetailsHeavyCommercial.cabType.error.length = The cab type must be 100 characters or less
+
+#######################################################
+# AVD8.6 - Add vehicle details 8.6 - Agricultural tractor #
+#######################################################
+
+addVehicleDetailsAgriculturalTractor.title = Enter the agricultural tractor details
+addVehicleDetailsAgriculturalTractor.caption = Add vehicle details
+addVehicleDetailsAgriculturalTractor.heading = Enter the agricultural tractor details
+addVehicleDetailsAgriculturalTractor.paragraph.1 = You can usually find these details on the purchase invoice or in the vehicle manual.
+
+addVehicleDetailsAgriculturalTractor.make.label = Make
+addVehicleDetailsAgriculturalTractor.make.hint = For example, John Deere
+addVehicleDetailsAgriculturalTractor.make.error.required = Enter the make
+addVehicleDetailsAgriculturalTractor.make.error.format = The make must not include special characters such as #, $, ^, `, '{', '|', '}', ~, or accented letters such as è
+addVehicleDetailsAgriculturalTractor.make.error.length = The make must be 50 characters or less
+
+addVehicleDetailsAgriculturalTractor.model.label = Model
+addVehicleDetailsAgriculturalTractor.model.hint = For example, SR
+addVehicleDetailsAgriculturalTractor.model.error.required = Enter the model
+addVehicleDetailsAgriculturalTractor.model.error.format = The model must not include special characters such as #, $, ^, `, '{', '|', '}', ~, or accented letters such as è
+addVehicleDetailsAgriculturalTractor.model.error.length = The model must be 50 characters or less
+
+addVehicleDetailsAgriculturalTractor.derivative.label = Derivative
+addVehicleDetailsAgriculturalTractor.derivative.hint = For example, 5090M
+addVehicleDetailsAgriculturalTractor.derivative.error.required = Enter the derivative
+addVehicleDetailsAgriculturalTractor.derivative.error.format = The derivative must not include special characters such as #, $, ^, `, '{', '|', '}', ~, or accented letters such as è
+addVehicleDetailsAgriculturalTractor.derivative.error.length = The derivative must be 50 characters or less
+
+addVehicleDetailsAgriculturalTractor.brakeHorsepower.label = Brake horsepower (bhp)
+addVehicleDetailsAgriculturalTractor.brakeHorsepower.hint = Engine power, for example 90 or 240.75
+addVehicleDetailsAgriculturalTractor.brakeHorsepower.error.required = Enter the brake horsepower
+addVehicleDetailsAgriculturalTractor.brakeHorsepower.error.format = Enter the brake horsepower using numbers only or with exactly 2 decimal places
+addVehicleDetailsAgriculturalTractor.brakeHorsepower.error.length = The brake horsepower must be 4 characters or less before any decimal point
+
+#######################################################
+# AVD8.4 - Add vehicle details 8.4 - Motorcycle       #
+#######################################################
+
+addVehicleDetailsMotorcycle.title = Enter the motorcycle, scooter or moped details
+addVehicleDetailsMotorcycle.caption = Add vehicle details
+addVehicleDetailsMotorcycle.heading = Enter the motorcycle, scooter or moped details
+addVehicleDetailsMotorcycle.paragraph.1 = You can usually find these details on the purchase invoice or in the vehicle manual.
+
+addVehicleDetailsMotorcycle.make.label = Make
+addVehicleDetailsMotorcycle.make.hint = For example, Honda
+addVehicleDetailsMotorcycle.make.error.required = Enter the make
+addVehicleDetailsMotorcycle.make.error.format = The make must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
+addVehicleDetailsMotorcycle.make.error.length = The make must be 50 characters or less
+
+addVehicleDetailsMotorcycle.model.label = Model
+addVehicleDetailsMotorcycle.model.hint = For example, GL1200
+addVehicleDetailsMotorcycle.model.error.required = Enter the model
+addVehicleDetailsMotorcycle.model.error.format = The model must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
+addVehicleDetailsMotorcycle.model.error.length = The model must be 50 characters or less
+
+addVehicleDetailsMotorcycle.derivative.label = Derivative
+addVehicleDetailsMotorcycle.derivative.hint = For example, 1200
+addVehicleDetailsMotorcycle.derivative.error.required = Enter the derivative
+addVehicleDetailsMotorcycle.derivative.error.format = The derivative must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
+addVehicleDetailsMotorcycle.derivative.error.length = The derivative must be 50 characters or less
+
+addVehicleDetailsMotorcycle.motorcycleVersion.label = Version
+addVehicleDetailsMotorcycle.motorcycleVersion.hint = For example, Gold Wing Deluxe
+addVehicleDetailsMotorcycle.motorcycleVersion.error.required = Enter the version
+addVehicleDetailsMotorcycle.motorcycleVersion.error.format = The version must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
+addVehicleDetailsMotorcycle.motorcycleVersion.error.length = The version must be 50 characters or less
+
+addVehicleDetailsMotorcycle.motorcycleType.label = Body type
+addVehicleDetailsMotorcycle.motorcycleType.hint = For example, a road motorcycle
+addVehicleDetailsMotorcycle.motorcycleType.error.required = Enter the body type
+addVehicleDetailsMotorcycle.motorcycleType.error.format = The body type must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
+addVehicleDetailsMotorcycle.motorcycleType.error.length = The body type must be 50 characters or less
+
+addVehicleDetailsMotorcycle.motorcycleStyle.label = Style
+addVehicleDetailsMotorcycle.motorcycleStyle.hint = For example, a tourer
+addVehicleDetailsMotorcycle.motorcycleStyle.error.required = Enter the style
+addVehicleDetailsMotorcycle.motorcycleStyle.error.format = The style must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
+addVehicleDetailsMotorcycle.motorcycleStyle.error.length = The style must be 20 characters or less
+
+addVehicleDetailsMotorcycle.transmission.label = Transmission type
+addVehicleDetailsMotorcycle.transmission.placeholder = Choose transmission type
+addVehicleDetailsMotorcycle.transmission.option.automatic = Automatic
+addVehicleDetailsMotorcycle.transmission.option.manual = Manual
+addVehicleDetailsMotorcycle.transmission.option.semiAutomatic = Semi-automatic
+addVehicleDetailsMotorcycle.transmission.error.required = Select a transmission type
+
+addVehicleDetailsMotorcycle.fuelType.label = Fuel type
+addVehicleDetailsMotorcycle.fuelType.placeholder = Choose the closest option
+addVehicleDetailsMotorcycle.fuelType.option.electric = Electric
+addVehicleDetailsMotorcycle.fuelType.option.hybrid = Hybrid
+addVehicleDetailsMotorcycle.fuelType.option.petrol = Petrol
+addVehicleDetailsMotorcycle.fuelType.error.required = Select the closest fuel type
+
+addVehicleDetailsMotorcycle.engineSize.label = Engine size in cubic centimetres (cc)
+addVehicleDetailsMotorcycle.engineSize.hint = For example, 1000 or 1000.12
+addVehicleDetailsMotorcycle.engineSize.error.required = Enter the engine size
+addVehicleDetailsMotorcycle.engineSize.error.format = Enter the engine size using numbers only or with exactly 2 decimal places
+addVehicleDetailsMotorcycle.engineSize.error.length = The engine size must be 5 characters or less before any decimal point

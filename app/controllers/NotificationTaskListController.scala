@@ -17,14 +17,14 @@
 package controllers
 
 import com.google.inject.Inject
-import connectors.{GetFileUploadSummaryError, NovaImportsBackendConnector}
+import connectors.{GetDraftNotificationError, GetFileUploadSummaryError, NovaImportsBackendConnector}
 import controllers.actions.Actions
 import controllers.utils.IsDraftIdDefined
 import models.DraftNotification.SectionId
 import models.requests.DataRequest
 import models.{BusinessOrPrivateIndividual, NormalMode, NotificationSummary, NovaUserType, PurchaserBusinessOrIndividual, PurchaserOrOnBehalf, SectionStatus, UserAnswers, UserContext}
 import pages.{DraftIdPage, NotificationTaskListPage}
-import pages.sections.initialquestions.{BusinessOrPrivatePage, NotifyingAsPurchaserPage, PurchaserBusinessOrIndividualPage, VehicleBusinessUsePage, VehicleFromEuPage}
+import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, NotifyingAsPurchaserPage, PurchaserBusinessOrIndividualPage, VehicleBusinessUsePage, VehicleFromEuPage}
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
@@ -49,7 +49,7 @@ class NotificationTaskListController @Inject() (
 
   import NotificationTaskListController.*
 
-  def onPageLoad(): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate).async { implicit request =>
+  def onPageLoad(draftLoaded: Boolean): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate).async { implicit request =>
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
     val draftId = request.userAnswers.get(DraftIdPage).get
@@ -74,7 +74,11 @@ class NotificationTaskListController @Inject() (
       )
     }
 
-    userDataService.retrieveAndStoreDraftNotification(draftId, request.userAnswers, request.userContext).flatMap {
+    val loadDraftOrSkip: Future[Either[GetDraftNotificationError, UserAnswers]] =
+      if (draftLoaded) Future.successful(Right(request.userAnswers))
+      else userDataService.retrieveAndStoreDraftNotification(draftId, request.userAnswers, request.userContext)
+
+    loadDraftOrSkip.flatMap {
       case Left(error) =>
         logger.warn(s"Failed to retrieve draft notification for draftId ${draftId.value}: $error")
         Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
@@ -123,7 +127,7 @@ object NotificationTaskListController {
       case NovaUserType.Agent if request.userContext.isAgentWithoutClient =>
         request.userAnswers.get(VehicleFromEuPage).isDefined && purchaserQuestionsComplete(request.userAnswers)
       case NovaUserType.Agent =>
-        false
+        request.userAnswers.get(VehicleFromEuPage).isDefined && request.userAnswers.get(AgentClientVehicleBusinessUsePage).isDefined
     })
 
   private def purchaserQuestionsComplete(answers: UserAnswers): Boolean =
@@ -142,7 +146,7 @@ object NotificationTaskListController {
 
   def showAboutThePurchaser(userContext: UserContext, answers: UserAnswers): Boolean =
     userContext.userType match {
-      case NovaUserType.Agent                                               => true
+      case NovaUserType.Agent                                               => !userContext.isAgentWithClient
       case NovaUserType.PrivateIndividual | NovaUserType.NonVatOrganisation =>
         answers.get(NotifyingAsPurchaserPage).contains(PurchaserOrOnBehalf.OnBehalfOfPurchaser)
       case NovaUserType.VatRegisteredOrganisation => false

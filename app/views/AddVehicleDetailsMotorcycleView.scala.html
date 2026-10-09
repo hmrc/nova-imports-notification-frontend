@@ -1,0 +1,133 @@
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import models.{MotorcycleFuelType, MotorcycleTransmissionType}
+@import uk.gov.hmrc.govukfrontend.views.Implicits.RichSelect
+
+@this(
+        layout: templates.Layout,
+        formHelper: FormWithCSRF,
+        govukButton: GovukButton,
+        govukInput: GovukInput,
+        govukSelect: GovukSelect,
+        govukErrorSummary: GovukErrorSummary
+)
+
+@(form: Form[?], submitCall: Call)(implicit request: Request[?], messages: Messages)
+
+@layout(
+    pageTitle = title(form, messages("addVehicleDetailsMotorcycle.title")),
+    showBackLink = true
+) {
+
+    @if(form.errors.nonEmpty) {
+        @govukErrorSummary(ErrorSummaryViewModel(form))
+    }
+
+    <span class="govuk-caption-l">@messages("addVehicleDetailsMotorcycle.caption")</span>
+    <h1 class="govuk-heading-l">@messages("addVehicleDetailsMotorcycle.heading")</h1>
+
+    <p class="govuk-body">@messages("addVehicleDetailsMotorcycle.paragraph.1")</p>
+
+    @formHelper(action = submitCall) {
+
+        @govukInput(
+            InputViewModel(
+                field = form("make"),
+                label = LabelViewModel(messages("addVehicleDetailsMotorcycle.make.label"))
+            ).withHint(HintViewModel(Text(messages("addVehicleDetailsMotorcycle.make.hint"))))
+             .withCssClass("govuk-input--width-20")
+        )
+
+        @govukInput(
+            InputViewModel(
+                field = form("model"),
+                label = LabelViewModel(messages("addVehicleDetailsMotorcycle.model.label"))
+            ).withHint(HintViewModel(Text(messages("addVehicleDetailsMotorcycle.model.hint"))))
+             .withCssClass("govuk-input--width-20")
+        )
+
+        @govukInput(
+            InputViewModel(
+                field = form("derivative"),
+                label = LabelViewModel(messages("addVehicleDetailsMotorcycle.derivative.label"))
+            ).withHint(HintViewModel(Text(messages("addVehicleDetailsMotorcycle.derivative.hint"))))
+             .withCssClass("govuk-input--width-20")
+        )
+
+        @govukInput(
+            InputViewModel(
+                field = form("motorcycleVersion"),
+                label = LabelViewModel(messages("addVehicleDetailsMotorcycle.motorcycleVersion.label"))
+            ).withHint(HintViewModel(Text(messages("addVehicleDetailsMotorcycle.motorcycleVersion.hint"))))
+             .withCssClass("govuk-input--width-20")
+        )
+
+        @govukInput(
+            InputViewModel(
+                field = form("motorcycleType"),
+                label = LabelViewModel(messages("addVehicleDetailsMotorcycle.motorcycleType.label"))
+            ).withHint(HintViewModel(Text(messages("addVehicleDetailsMotorcycle.motorcycleType.hint"))))
+             .withCssClass("govuk-input--width-20")
+        )
+
+        @govukInput(
+            InputViewModel(
+                field = form("motorcycleStyle"),
+                label = LabelViewModel(messages("addVehicleDetailsMotorcycle.motorcycleStyle.label"))
+            ).withHint(HintViewModel(Text(messages("addVehicleDetailsMotorcycle.motorcycleStyle.hint"))))
+             .withCssClass("govuk-input--width-20")
+        )
+
+        @govukSelect(
+            Select(
+                id = "transmission",
+                name = "transmission",
+                label = LabelViewModel(messages("addVehicleDetailsMotorcycle.transmission.label")),
+                items = Seq(
+                    SelectItem(value = Some(""), text = messages("addVehicleDetailsMotorcycle.transmission.placeholder")),
+                    SelectItem(value = Some(MotorcycleTransmissionType.Automatic.jsonValue), text = messages("addVehicleDetailsMotorcycle.transmission.option.automatic")),
+                    SelectItem(value = Some(MotorcycleTransmissionType.Manual.jsonValue), text = messages("addVehicleDetailsMotorcycle.transmission.option.manual")),
+                    SelectItem(value = Some(MotorcycleTransmissionType.SemiAutomatic.jsonValue), text = messages("addVehicleDetailsMotorcycle.transmission.option.semiAutomatic"))
+                )
+            ).withFormField(form("transmission"))
+        )
+
+        @govukSelect(
+            Select(
+                id = "fuelType",
+                name = "fuelType",
+                label = LabelViewModel(messages("addVehicleDetailsMotorcycle.fuelType.label")),
+                items = Seq(
+                    SelectItem(value = Some(""), text = messages("addVehicleDetailsMotorcycle.fuelType.placeholder")),
+                    SelectItem(value = Some(MotorcycleFuelType.Electric.jsonValue), text = messages("addVehicleDetailsMotorcycle.fuelType.option.electric")),
+                    SelectItem(value = Some(MotorcycleFuelType.Hybrid.jsonValue), text = messages("addVehicleDetailsMotorcycle.fuelType.option.hybrid")),
+                    SelectItem(value = Some(MotorcycleFuelType.Petrol.jsonValue), text = messages("addVehicleDetailsMotorcycle.fuelType.option.petrol"))
+                )
+            ).withFormField(form("fuelType"))
+        )
+
+        @govukInput(
+            InputViewModel(
+                field = form("engineSize"),
+                label = LabelViewModel(messages("addVehicleDetailsMotorcycle.engineSize.label"))
+            ).withHint(HintViewModel(Text(messages("addVehicleDetailsMotorcycle.engineSize.hint"))))
+             .withCssClass("govuk-input--width-10")
+        )
+
+        @govukButton(ButtonViewModel(messages("site.continue")))
+    }
+}

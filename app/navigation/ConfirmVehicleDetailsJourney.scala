@@ -139,12 +139,21 @@ object ConfirmVehicleDetailsJourney {
         routes.AddVehicleDetailsCarController.supplierOnPageLoad(supplierNumber, vehicleNumber, NormalMode)
       case (Some(AddVehicleType.Car), None, Some(importNumber)) =>
         routes.AddVehicleDetailsCarController.importOnPageLoad(importNumber, vehicleNumber, NormalMode)
-      case (Some(AddVehicleType.Lcv), _, _)                 => controllers.routes.LandingPageController.onPageLoad()
-      case (Some(AddVehicleType.Hcv), _, _)                 => controllers.routes.LandingPageController.onPageLoad()
-      case (Some(AddVehicleType.Motorcycle), _, _)          => controllers.routes.LandingPageController.onPageLoad()
-      case (Some(AddVehicleType.MotorCaravan), _, _)        => controllers.routes.LandingPageController.onPageLoad()
-      case (Some(AddVehicleType.AgriculturalTractor), _, _) => controllers.routes.LandingPageController.onPageLoad()
-      case (Some(AddVehicleType.ContractorsPlant), _, _)    => controllers.routes.LandingPageController.onPageLoad()
-      case _                                                => controllers.routes.JourneyRecoveryController.onPageLoad()
+      case (Some(AddVehicleType.Lcv), _, _)                    => controllers.routes.LandingPageController.onPageLoad()
+      case (Some(AddVehicleType.Hcv), Some(supplierNumber), _) =>
+        routes.AddVehicleDetailsHeavyCommercialController.supplierOnPageLoad(supplierNumber, vehicleNumber, NormalMode)
+      case (Some(AddVehicleType.Hcv), None, Some(importNumber)) =>
+        routes.AddVehicleDetailsHeavyCommercialController.importOnPageLoad(importNumber, vehicleNumber, NormalMode)
+      case (Some(AddVehicleType.AgriculturalTractor), Some(supplierNumber), _) =>
+        routes.AddVehicleDetailsAgriculturalTractorController.supplierOnPageLoad(supplierNumber, vehicleNumber, NormalMode)
+      case (Some(AddVehicleType.AgriculturalTractor), None, Some(importNumber)) =>
+        routes.AddVehicleDetailsAgriculturalTractorController.importOnPageLoad(importNumber, vehicleNumber, NormalMode)
+      case (Some(AddVehicleType.Motorcycle), Some(supplierNumber), _) =>
+        routes.AddVehicleDetailsMotorcycleController.supplierOnPageLoad(supplierNumber, vehicleNumber, NormalMode)
+      case (Some(AddVehicleType.Motorcycle), None, Some(importNumber)) =>
+        routes.AddVehicleDetailsMotorcycleController.importOnPageLoad(importNumber, vehicleNumber, NormalMode)
+      case (Some(AddVehicleType.MotorCaravan), _, _)     => controllers.routes.LandingPageController.onPageLoad()
+      case (Some(AddVehicleType.ContractorsPlant), _, _) => controllers.routes.LandingPageController.onPageLoad()
+      case _                                             => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 }

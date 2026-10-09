@@ -481,7 +481,7 @@ class ConfirmVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
 
     "importOnSubmit" - {
 
-      "must call F4 for the import vehicle type section and redirect to the AVD8.3 placeholder for a heavy commercial vehicle" in {
+      "must call F4 for the import vehicle type section and redirect to AVD8.3 for a heavy commercial vehicle" in {
         val connector = successfulConnector
         val app       = application(Some(importComplete), connector, stubSessionRepository(importComplete))
 
@@ -489,7 +489,8 @@ class ConfirmVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
           val result = route(app, FakeRequest(POST, importRoute)).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.LandingPageController.onPageLoad().url
+          redirectLocation(result).value mustEqual
+            vehicledetails.routes.AddVehicleDetailsHeavyCommercialController.importOnPageLoad(i, v, NormalMode).url
 
           capturedBody(connector, "import/1/vehicle/1/type") mustEqual Json.obj(
             "vehicleType"                -> "HCV",

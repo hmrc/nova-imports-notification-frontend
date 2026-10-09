@@ -53,20 +53,30 @@ class UpdateVehicleSpreadsheetViewSpec extends SpecBase with Matchers with Befor
       Jsoup.parse(html).title must startWith(msgs("updateVehicleSpreadsheet.title"))
     }
 
-    "must render the heading as the fieldset legend" in {
-      Jsoup.parse(html).select("legend h1").text mustEqual msgs("updateVehicleSpreadsheet.heading")
+    "must render the heading as the page heading" in {
+      Jsoup.parse(html).select("h1.govuk-heading-l").text mustEqual msgs("updateVehicleSpreadsheet.heading")
+    }
+
+    "must render the heading as a visually hidden fieldset legend" in {
+      val legend = Jsoup.parse(html).select("legend")
+
+      legend.text mustEqual msgs("updateVehicleSpreadsheet.heading")
+      legend.hasClass("govuk-visually-hidden") mustBe true
     }
 
     "must render the 'Add vehicle details' caption" in {
       Jsoup.parse(html).select("span.govuk-caption-l").text mustEqual msgs("updateVehicleSpreadsheet.caption")
     }
 
-    "must render the hint and describe the fieldset with it" in {
-      val doc  = Jsoup.parse(html)
-      val hint = doc.select(".govuk-hint")
+    "must render the paragraph as body copy rather than a hint" in {
+      val doc = Jsoup.parse(html)
 
-      hint.text mustEqual msgs("updateVehicleSpreadsheet.hint")
-      doc.select("fieldset").attr("aria-describedby") must include(hint.attr("id"))
+      doc.select("p.govuk-body").eachText must contain(msgs("updateVehicleSpreadsheet.paragraph"))
+      doc.select(".govuk-hint").size mustBe 0
+    }
+
+    "must use the paragraph copy from the ticket" in {
+      msgs("updateVehicleSpreadsheet.paragraph") mustEqual "You’ll lose the details you’ve already uploaded."
     }
 
     "must render the Yes and No radio options" in {

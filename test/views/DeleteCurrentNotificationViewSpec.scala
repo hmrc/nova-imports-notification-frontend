@@ -18,6 +18,7 @@ package views
 
 import base.SpecBase
 import forms.DeleteCurrentNotificationFormProvider
+import org.jsoup.Jsoup
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.must.Matchers
 import play.api.Application
@@ -59,10 +60,24 @@ class DeleteCurrentNotificationViewSpec extends SpecBase with Matchers with Befo
       html must include(msgs("deleteCurrentNotification.title"))
     }
 
-    "must render the correct question hint" in {
-      val html: String = view(form)(request, msgs).toString
+    "must render the heading as the page heading" in {
+      val doc = Jsoup.parse(view(form)(request, msgs).toString)
 
-      html must include(msgs("deleteCurrentNotification.paragraph"))
+      doc.select("h1.govuk-heading-l").text mustEqual msgs("deleteCurrentNotification.heading")
+    }
+
+    "must render the heading as a visually hidden fieldset legend" in {
+      val legend = Jsoup.parse(view(form)(request, msgs).toString).select("legend")
+
+      legend.text mustEqual msgs("deleteCurrentNotification.heading")
+      legend.hasClass("govuk-visually-hidden") mustBe true
+    }
+
+    "must render the paragraph as body copy rather than a hint" in {
+      val doc = Jsoup.parse(view(form)(request, msgs).toString)
+
+      doc.select("p.govuk-body").eachText must contain(msgs("deleteCurrentNotification.paragraph"))
+      doc.select(".govuk-hint").size mustBe 0
     }
 
     "must render the Yes radio option" in {
