@@ -34,6 +34,7 @@ import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserName
 import pages.sections.supplieraddress.SupplierAddressPage
 import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierVatRegistrationNumberPage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
 import play.api.libs.json.{JsObject, Json, Writes}
+import queries.AllSuppliersQuery
 import repositories.SessionRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -660,6 +661,44 @@ class UserDataServiceSpec extends SpecBase with MockitoSugar with ScalaFutures w
       result.get(BusinessNamePage) mustBe None
       result.get(EmailAddressPage) mustBe Some("acme@example.com")
       result.get(PhoneNumberPage) mustBe Some(contactNumbers)
+    }
+
+    "must write the business name from the draft to BusinessNamePage for a business" in {
+      val answers = emptyUserAnswers
+        .unsafeSet(DraftIdPage, DraftId("1"))
+        .unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.Business)
+
+      val result = serviceReturning(draftWithNotifier(organisationNotifier ++ Json.obj("businessName" -> "Company 1 Ltd")))
+        .retrieveAndStoreDraftNotification(DraftId("1"), answers, testUserContext)
+        .futureValue
+        .value
+
+      result.get(BusinessNamePage) mustBe Some("Company 1 Ltd")
+    }
+
+    "must write supplier 1 and skip supplier 2 when all supplier 2 sections have no data" in {
+      val supplier1Details = Json.obj(
+        "supplierBusinessIndividual" -> "business",
+        "supplierBusinessName"       -> "Supplier Company 1 Ltd",
+        "addressLine1"               -> "1 High Street",
+        "addressLine2"               -> "Town",
+        "country"                    -> "FR",
+        "isSupplierVatReg"           -> false
+      )
+      val draft = draftWith(
+        Map(
+          "supplier/1/details"     -> DraftNotificationSection(Some(supplier1Details)),
+          "supplier/2/details"     -> DraftNotificationSection(None),
+          "supplier/2/self-supply" -> DraftNotificationSection(None)
+        )
+      )
+
+      val result = serviceReturning(draft)
+        .retrieveAndStoreDraftNotification(DraftId("1"), emptyUserAnswers.unsafeSet(DraftIdPage, DraftId("1")), testUserContext)
+        .futureValue
+        .value
+
+      result.get(AllSuppliersQuery).map(_.keySet) mustBe Some(Set("1"))
     }
 
     "must keep the notifier name when it is consistent with the initial questions" in {

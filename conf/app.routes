@@ -17,7 +17,7 @@ GET         /there-is-a-problem                                                 
 GET         /check-answers/initial-questions                                             controllers.initialquestions.InitialQuestionsCheckYourAnswersController.onPageLoad()
 POST        /check-answers/initial-questions                                             controllers.initialquestions.InitialQuestionsCheckYourAnswersController.onSubmit()
 
-GET         /create-vehicle-notification                                                 controllers.NotificationTaskListController.onPageLoad()
+GET         /create-vehicle-notification                                                 controllers.NotificationTaskListController.onPageLoad(draftLoaded: Boolean ?= false)
 
 GET         /account/sign-out-survey                                                     controllers.auth.AuthController.signOut()
 GET         /account/sign-out                                                            controllers.auth.AuthController.signOutNoSurvey()
@@ -39,6 +39,12 @@ POST        /clients                                                            
 GET         /clients/select/:vrn                                                         controllers.clientselection.SelectClientController.select(vrn: String)
 
 GET         /no-clients                                                                  controllers.clientselection.NoAuthorisedClientsController.onPageLoad()
+
+GET         /saved-notifications                                                         controllers.notification.ViewSavedNotificationsController.onPageLoad(page: Int ?= 1)
+GET         /saved-notifications/continue/:draftId                                       controllers.notification.ViewSavedNotificationsController.onContinue(draftId: String)
+
+GET         /delete-notification                                                         controllers.notification.DeleteCurrentNotificationController.onPageLoad()
+POST        /delete-notification                                                         controllers.notification.DeleteCurrentNotificationController.onSubmit()
 
 GET         /before-you-continue                                                         controllers.introduction.BeforeYouContinueController.onPageLoad()
 GET         /before-you-continue/update                                                  controllers.introduction.BeforeYouContinueController.onPageLoadAmend()
@@ -141,10 +147,10 @@ GET         /upload-vehicle-spreadsheet                                         
 GET         /vehicle-spreadsheet-upload                                                  controllers.vehicledetails.VehicleSpreadsheetUploadController.onPageLoad(remove: Boolean ?= false)
 GET         /vehicle-spreadsheet-upload/summary                                          controllers.vehicledetails.VehicleSpreadsheetUploadController.status()
 
-GET         /errors-found-in-vehicle-spreadsheet                                                controllers.vehicledetails.CheckVehicleSpreadsheetErrorsController.onPageLoad(page: Int ?= 1)
+GET         /errors-found-in-vehicle-spreadsheet                                         controllers.vehicledetails.CheckVehicleSpreadsheetErrorsController.onPageLoad(page: Int ?= 1)
 
-GET         /check-vehicle-spreadsheet-details                                          controllers.vehicledetails.CheckVehicleSpreadsheetDetailsController.onPageLoad(page: Int ?= 1)
-POST        /check-vehicle-spreadsheet-details                                          controllers.vehicledetails.CheckVehicleSpreadsheetDetailsController.onSubmit()
+GET         /check-vehicle-spreadsheet-details                                           controllers.vehicledetails.CheckVehicleSpreadsheetDetailsController.onPageLoad(page: Int ?= 1)
+POST        /check-vehicle-spreadsheet-details                                           controllers.vehicledetails.CheckVehicleSpreadsheetDetailsController.onSubmit()
 
 GET         /update-vehicle-spreadsheet                                                  controllers.vehicledetails.UpdateVehicleSpreadsheetController.onPageLoad()
 POST        /update-vehicle-spreadsheet                                                  controllers.vehicledetails.UpdateVehicleSpreadsheetController.onSubmit()
@@ -301,8 +307,6 @@ GET         /check-answers/purchaser-address                                    
 POST        /check-answers/purchaser-address                                             controllers.purchaseraddress.PurchaserAddressCheckYourAnswersController.onSubmit()
 GET         /check-answers/purchaser-address/change                                      controllers.purchaseraddress.PurchaserAddressCheckYourAnswersController.onChangeAddress()
 
-GET         /delete-notification                                                         controllers.notification.DeleteCurrentNotificationController.onPageLoad()
-POST        /delete-notification                                                         controllers.notification.DeleteCurrentNotificationController.onSubmit()
 GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/vehicle-type                controllers.vehicledetails.AddVehicleTypeController.supplierOnPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
 POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/vehicle-type                controllers.vehicledetails.AddVehicleTypeController.supplierOnSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
 GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/vehicle-type/change         controllers.vehicledetails.AddVehicleTypeController.supplierOnPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
@@ -333,15 +337,15 @@ POST        /import/:importNumber/vehicle/:vehicleNumber/light-commercial-vehicl
 GET         /import/:importNumber/vehicle/:vehicleNumber/light-commercial-vehicle-details/change             controllers.vehicledetails.AddVehicleDetailsLightCommercialController.importOnPageLoad(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
 POST        /import/:importNumber/vehicle/:vehicleNumber/light-commercial-vehicle-details/change             controllers.vehicledetails.AddVehicleDetailsLightCommercialController.importOnSubmit(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
 
-GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/heavy-commercial-vehicle-details controllers.vehicledetails.AddVehicleDetailsHeavyCommercialController.supplierOnPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
-POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/heavy-commercial-vehicle-details controllers.vehicledetails.AddVehicleDetailsHeavyCommercialController.supplierOnSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
-GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/heavy-commercial-vehicle-details/change controllers.vehicledetails.AddVehicleDetailsHeavyCommercialController.supplierOnPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
-POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/heavy-commercial-vehicle-details/change controllers.vehicledetails.AddVehicleDetailsHeavyCommercialController.supplierOnSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
+GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/heavy-commercial-vehicle-details               controllers.vehicledetails.AddVehicleDetailsHeavyCommercialController.supplierOnPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/heavy-commercial-vehicle-details               controllers.vehicledetails.AddVehicleDetailsHeavyCommercialController.supplierOnSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/heavy-commercial-vehicle-details/change        controllers.vehicledetails.AddVehicleDetailsHeavyCommercialController.supplierOnPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
+POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/heavy-commercial-vehicle-details/change        controllers.vehicledetails.AddVehicleDetailsHeavyCommercialController.supplierOnSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
 
-GET         /import/:importNumber/vehicle/:vehicleNumber/heavy-commercial-vehicle-details controllers.vehicledetails.AddVehicleDetailsHeavyCommercialController.importOnPageLoad(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
-POST        /import/:importNumber/vehicle/:vehicleNumber/heavy-commercial-vehicle-details controllers.vehicledetails.AddVehicleDetailsHeavyCommercialController.importOnSubmit(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
-GET         /import/:importNumber/vehicle/:vehicleNumber/heavy-commercial-vehicle-details/change controllers.vehicledetails.AddVehicleDetailsHeavyCommercialController.importOnPageLoad(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
-POST        /import/:importNumber/vehicle/:vehicleNumber/heavy-commercial-vehicle-details/change controllers.vehicledetails.AddVehicleDetailsHeavyCommercialController.importOnSubmit(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
+GET         /import/:importNumber/vehicle/:vehicleNumber/heavy-commercial-vehicle-details                   controllers.vehicledetails.AddVehicleDetailsHeavyCommercialController.importOnPageLoad(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+POST        /import/:importNumber/vehicle/:vehicleNumber/heavy-commercial-vehicle-details                   controllers.vehicledetails.AddVehicleDetailsHeavyCommercialController.importOnSubmit(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+GET         /import/:importNumber/vehicle/:vehicleNumber/heavy-commercial-vehicle-details/change            controllers.vehicledetails.AddVehicleDetailsHeavyCommercialController.importOnPageLoad(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
+POST        /import/:importNumber/vehicle/:vehicleNumber/heavy-commercial-vehicle-details/change            controllers.vehicledetails.AddVehicleDetailsHeavyCommercialController.importOnSubmit(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
 
 GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/agricultural-tractor-details                 controllers.vehicledetails.AddVehicleDetailsAgriculturalTractorController.supplierOnPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
 POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/agricultural-tractor-details                 controllers.vehicledetails.AddVehicleDetailsAgriculturalTractorController.supplierOnSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)

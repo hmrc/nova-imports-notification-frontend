@@ -46,7 +46,7 @@
 
     @if(hasDraftNotifications) {
         <h2 class="govuk-heading-m">
-            <a class="govuk-link" href="@routes.JourneyRecoveryController.onPageLoad().url">@messages("landingPage.organisation.saved.heading")</a>
+            <a class="govuk-link" href="@notification.routes.ViewSavedNotificationsController.onPageLoad().url">@messages("landingPage.organisation.saved.heading")</a>
         </h2>
         <p class="govuk-body govuk-!-margin-bottom-0">@messages("landingPage.organisation.saved.body.has")</p>
     } else {

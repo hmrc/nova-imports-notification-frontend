@@ -149,6 +149,37 @@ landingPage.agent.client.change = Change client
 landingPage.agent.client.name = Client name
 landingPage.agent.client.vrn = VAT registration number
 
+##########################################
+# VS1.0 - View saved notifications       #
+##########################################
+# TODO: Welsh translations to be supplied by content team.
+viewSavedNotifications.title = Saved notifications
+viewSavedNotifications.pagination.title = Saved notifications (page {0} of {1})
+viewSavedNotifications.heading = Saved notifications
+viewSavedNotifications.paragraph = These are notifications you’ve started but not yet submitted.
+viewSavedNotifications.insetText = Notifications are saved for 7 days from the date you create them. After this, they are automatically deleted.
+viewSavedNotifications.showing = Showing {0} to {1} of {2} records
+viewSavedNotifications.table.purchaserName = Purchaser name
+viewSavedNotifications.table.purchaseLocation = Purchase location
+viewSavedNotifications.table.numberOfVehicles = Number of vehicles
+viewSavedNotifications.table.dateCreated = Date created
+viewSavedNotifications.table.actions = Actions
+viewSavedNotifications.table.continue = Continue
+viewSavedNotifications.table.delete = Delete
+viewSavedNotifications.location.withinEu = Within the EU
+viewSavedNotifications.location.outsideEu = Outside the EU
+viewSavedNotifications.notProvided = Not provided
+viewSavedNotifications.returnHome = Return to home
+
+#######################################################
+# DN2.0 - Delete current notification                 #
+#######################################################
+# TODO: Welsh translations to be supplied by content team.
+deleteCurrentNotification.title = Are you sure you want to delete this notification?
+deleteCurrentNotification.heading = Are you sure you want to delete this notification?
+deleteCurrentNotification.paragraph = You’ll lose all the details for this notification.
+deleteCurrentNotification.error.required = Select yes if you want to delete this notification
+
 ######################################################
 # AYA1.0 - Add Your Address: Is your address in the UK #
 ######################################################
@@ -1102,15 +1133,6 @@ updateVehicleSpreadsheet.heading = Are you sure you want to update this vehicle 
 updateVehicleSpreadsheet.caption = Ychwanegwch fanylion cerbyd
 updateVehicleSpreadsheet.paragraph = You’ll lose the details you’ve already uploaded.
 updateVehicleSpreadsheet.error.required = Select yes if you want to update this vehicle spreadsheet
-
-#######################################################
-# DN2.0 - Delete current notification                 #
-#######################################################
-# TODO: Welsh translations to be supplied by content team.
-deleteCurrentNotification.title = Are you sure you want to delete this notification?
-deleteCurrentNotification.heading = Are you sure you want to delete this notification?
-deleteCurrentNotification.paragraph = You’ll lose all the details for this notification.
-deleteCurrentNotification.error.required = Select yes if you want to delete this notification
 
 ##################################################################
 # C-AVD1.0 - Confirm vehicle details 1.0                         #

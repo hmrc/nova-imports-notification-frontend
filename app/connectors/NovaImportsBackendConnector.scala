@@ -19,7 +19,7 @@ package connectors
 import com.google.inject.Inject
 import config.FrontendAppConfig
 import models.responses.{ClientListRefresh, CreateDraftResponse, CreateUploadTrackingResponse, DeleteFileUploadResponse, GetFileUploadSummaryResponse, UploadResultResponse}
-import models.{ClientList, ClientListQuery, ClientListStatus, DraftId, DraftNotification, EuMemberStates, NotificationSummary, TraderInformation}
+import models.{ClientList, ClientListQuery, ClientListStatus, DraftId, DraftNotification, DraftNotifications, EuMemberStates, NotificationSummary, TraderInformation}
 import play.api.libs.json.{JsObject, JsSuccess, Json}
 import play.api.libs.ws.writeableOf_JsValue
 import uk.gov.hmrc.http.HttpReads.Implicits.*
@@ -116,6 +116,11 @@ object GetClientListError {
   final case class UpstreamError(status: Int, message: String) extends GetClientListError
 }
 
+sealed trait GetDraftNotificationsError
+object GetDraftNotificationsError {
+  final case class UpstreamError(status: Int, message: String) extends GetDraftNotificationsError
+}
+
 trait NovaImportsBackendConnector {
 
   def createDraft(clientVrn: Option[String])(implicit hc: HeaderCarrier): Future[Either[CreateDraftError, CreateDraftResponse]]
@@ -155,6 +160,10 @@ trait NovaImportsBackendConnector {
   def refreshClientList()(implicit hc: HeaderCarrier): Future[Either[RefreshClientListError, ClientListRefresh]]
 
   def getClientList(query: ClientListQuery)(implicit hc: HeaderCarrier): Future[Either[GetClientListError, ClientList]]
+
+  def getDraftNotifications(clientVrn: Option[String], page: Int, pageSize: Int)(implicit
+    hc: HeaderCarrier
+  ): Future[Either[GetDraftNotificationsError, DraftNotifications]]
 }
 
 class NovaImportsBackendConnectorImpl @Inject() (
@@ -462,6 +471,26 @@ class NovaImportsBackendConnectorImpl @Inject() (
               .validate[ClientList]
               .map(Right(_))
               .recoverTotal(err => Left(UpstreamError(200, s"Malformed client list: $err")))
+          case s => Left(UpstreamError(s, response.body))
+        }
+      }
+  }
+
+  override def getDraftNotifications(clientVrn: Option[String], page: Int, pageSize: Int)(implicit
+    hc: HeaderCarrier
+  ): Future[Either[GetDraftNotificationsError, DraftNotifications]] = {
+    import GetDraftNotificationsError.*
+
+    httpClient
+      .get(url"${serviceUrl("/draft-notifications")}?clientVrn=$clientVrn&page=$page&pageSize=$pageSize")
+      .execute[HttpResponse]
+      .map { response =>
+        response.status match {
+          case 200 =>
+            response.json
+              .validate[DraftNotifications]
+              .map(Right(_))
+              .recoverTotal(err => Left(UpstreamError(200, s"Malformed draft notifications: $err")))
           case s => Left(UpstreamError(s, response.body))
         }
       }

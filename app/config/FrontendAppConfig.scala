@@ -87,6 +87,8 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val clientListMaxRetries: Int         = configuration.get[Int]("client-list.max-retries")
   val clientListFallbackIntervalMs: Int = configuration.get[Int]("client-list.fallback-interval-ms")
 
+  val savedNotificationsPageSize: Int = configuration.get[Int]("saved-notifications.page-size")
+
   lazy val vrnValidationList: Seq[CountryVrnValidation]          = loadVrnValidationList()
   private def loadVrnValidationList(): Seq[CountryVrnValidation] = {
     configuration.get[Seq[Configuration]]("euVrnRegistrationValidationList").map { config =>
