@@ -220,6 +220,22 @@ class ViewSavedNotificationsControllerSpec extends SpecBase with MockitoSugar {
           redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
         }
       }
+
+      "must redirect to JourneyRecovery when getDraftNotifications throws" in {
+        val connector = mock[NovaImportsBackendConnector]
+        when(connector.getDraftNotifications(any[Option[String]], any[Int], any[Int])(using any[HeaderCarrier]))
+          .thenReturn(Future.failed(new java.net.ConnectException("Connection refused")))
+        given app: Application = application(connector)
+
+        running(app) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, savedNotificationsRoute())
+
+          val result = route(app, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+        }
+      }
     }
 
     "onContinue" - {
@@ -263,6 +279,27 @@ class ViewSavedNotificationsControllerSpec extends SpecBase with MockitoSugar {
           given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, continueRoute("12345"))
 
           redirectLocation(route(app, request).value).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+        }
+      }
+
+      "must redirect to JourneyRecovery when the draft load throws" in {
+        val sessionRepository = mock[SessionRepository]
+        when(sessionRepository.set(any[UserAnswers])).thenReturn(Future.successful(true))
+        val userDataService = mock[UserDataService]
+        when(userDataService.retrieveAndStoreDraftNotification(any[DraftId], any[UserAnswers], any[UserContext])(using any[HeaderCarrier]))
+          .thenReturn(Future.failed(new java.net.ConnectException("Connection refused")))
+        given app: Application = agentWithClientApplication(
+          mock[NovaImportsBackendConnector],
+          _.overrides(bind[SessionRepository].toInstance(sessionRepository), bind[UserDataService].toInstance(userDataService))
+        )
+
+        running(app) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, continueRoute("12345"))
+
+          val result = route(app, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
         }
       }
     }
