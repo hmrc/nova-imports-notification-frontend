@@ -61,7 +61,7 @@ class LandingPageAgentWithClientViewSpec extends SpecBase with Matchers with Bef
   private val beforeYouContinueUrl      = controllers.introduction.routes.BeforeYouContinueController.onPageLoad().url
   private val beforeYouContinueAmendUrl = controllers.introduction.routes.BeforeYouContinueController.onPageLoadAmend().url
   private val loadingClientListUrl      = controllers.clientselection.routes.LoadingClientListController.onPageLoad().url
-  private val savedNotificationsUrl     = controllers.routes.JourneyRecoveryController.onPageLoad().url
+  private val savedNotificationsUrl     = controllers.notification.routes.ViewSavedNotificationsController.onPageLoad().url
 
   "LandingPageAgentWithClientView" - {
 

@@ -17,7 +17,7 @@
 package connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock.*
-import models.{ClientList, ClientListQuery, ClientListStatus, ClientSummary, DraftId, NotificationSummary, TraderInformation}
+import models.{ClientList, ClientListQuery, ClientListStatus, ClientSummary, DraftId, DraftNotificationSummary, DraftNotifications, NotificationSummary, TraderInformation}
 import models.responses.{ClientListRefresh, CreateDraftResponse, DeleteFileUploadResponse, GetFileUploadSummaryResponse}
 import play.api.libs.json.Json
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
@@ -28,6 +28,8 @@ import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.test.WireMockSupport
+
+import java.time.LocalDate
 
 class NovaImportsBackendConnectorISpec
     extends AnyFreeSpec
@@ -235,7 +237,7 @@ class NovaImportsBackendConnectorISpec
       connector.getNotificationSummary(None).futureValue match {
         case Left(GetNotificationSummaryError.UpstreamError(200, message)) =>
           message must startWith("Malformed notification summary")
-        case other                                                         =>
+        case other =>
           fail(s"expected UpstreamError(200, ...) but got $other")
       }
     }
@@ -514,6 +516,46 @@ class NovaImportsBackendConnectorISpec
     }
   }
 
+  "getDraftNotifications" - {
+
+    "returns page 2 of the drafts when the backend returns status 200" in {
+      val body =
+        """{"drafts":[
+          |{"draftId":"12345","purchaserName":"Purchaser Company 1 Ltd","purchaseLocation":"withinEu","numberOfVehicles":3,"createdDate":"2026-03-01"},
+          |{"draftId":"12347","purchaserName":null,"purchaseLocation":null,"numberOfVehicles":null,"createdDate":"2026-03-05"}
+          |],"totalCount":12,"page":2,"pageSize":10}""".stripMargin
+
+      wireMockServer.stubFor(get(urlEqualTo("/nova-imports/draft-notifications?page=2&pageSize=10")).willReturn(okJson(body)))
+
+      connector.getDraftNotifications(None, 2, 10).futureValue mustEqual Right(
+        DraftNotifications(
+          Seq(
+            DraftNotificationSummary("12345", Some("Purchaser Company 1 Ltd"), Some("withinEu"), Some(3), LocalDate.of(2026, 3, 1)),
+            DraftNotificationSummary("12347", None, None, None, LocalDate.of(2026, 3, 5))
+          ),
+          totalCount = 12,
+          page = 2,
+          pageSize = 10
+        )
+      )
+    }
+
+    "returns an empty drafts list on status 200 for clientVrn 123456789" in {
+      wireMockServer.stubFor(
+        get(urlEqualTo("/nova-imports/draft-notifications?clientVrn=123456789&page=1&pageSize=10"))
+          .willReturn(okJson("""{"drafts":[],"totalCount":0,"page":1,"pageSize":10}"""))
+      )
+
+      connector.getDraftNotifications(Some("123456789"), 1, 10).futureValue mustEqual Right(DraftNotifications(Seq.empty, 0, 1, 10))
+    }
+
+    "returns UpstreamError on 500" in {
+      wireMockServer.stubFor(get(urlPathEqualTo("/nova-imports/draft-notifications")).willReturn(aResponse().withStatus(500).withBody("boom")))
+
+      connector.getDraftNotifications(None, 1, 10).futureValue mustEqual Left(GetDraftNotificationsError.UpstreamError(500, "boom"))
+    }
+  }
+
   "getFileUploadSummary" - {
 
     val draftId = DraftId("12345")
@@ -532,13 +574,17 @@ class NovaImportsBackendConnectorISpec
         )
       )
 
-      connector.getFileUploadSummary(draftId).futureValue mustEqual Right(GetFileUploadSummaryResponse("VERIFICATION_FAILED", Some("QUARANTINE"), None))
+      connector.getFileUploadSummary(draftId).futureValue mustEqual Right(
+        GetFileUploadSummaryResponse("VERIFICATION_FAILED", Some("QUARANTINE"), None)
+      )
     }
 
     "returns the fileName once known" in {
       wireMockServer.stubFor(get(urlEqualTo(url)).willReturn(okJson("""{"fileStatus":"VALIDATING","fileName":"car_spreadsheet.ods"}""")))
 
-      connector.getFileUploadSummary(draftId).futureValue mustEqual Right(GetFileUploadSummaryResponse("VALIDATING", None, Some("car_spreadsheet.ods")))
+      connector.getFileUploadSummary(draftId).futureValue mustEqual Right(
+        GetFileUploadSummaryResponse("VALIDATING", None, Some("car_spreadsheet.ods"))
+      )
     }
 
     "returns Forbidden on 403" in {

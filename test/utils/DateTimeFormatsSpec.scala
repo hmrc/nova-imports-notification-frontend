@@ -19,7 +19,7 @@ package utils
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import play.api.i18n.Lang
-import utils.DateTimeFormats.dateTimeFormat
+import utils.DateTimeFormats.{dateTimeFormat, shortMonthDateFormat}
 
 import java.time.LocalDate
 
@@ -43,6 +43,27 @@ class DateTimeFormatsSpec extends AnyFreeSpec with Matchers {
       val formatter = dateTimeFormat()(Lang("de"))
       val result    = LocalDate.of(2023, 1, 1).format(formatter)
       result mustEqual "1 January 2023"
+    }
+  }
+
+  ".shortMonthDateFormat" - {
+
+    "must format dates in English" in {
+      val formatter = shortMonthDateFormat()(Lang("en"))
+      val result    = LocalDate.of(2026, 9, 5).format(formatter)
+      result mustEqual "5 Sep 2026"
+    }
+
+    "must format dates in Welsh" in {
+      val formatter = shortMonthDateFormat()(Lang("cy"))
+      val result    = LocalDate.of(2026, 9, 5).format(formatter)
+      result mustEqual "5 Medi 2026"
+    }
+
+    "must default to English format" in {
+      val formatter = shortMonthDateFormat()(Lang("de"))
+      val result    = LocalDate.of(2026, 9, 5).format(formatter)
+      result mustEqual "5 Sep 2026"
     }
   }
 }

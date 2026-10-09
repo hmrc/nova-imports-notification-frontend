@@ -29,7 +29,8 @@ final case class DraftNotification(
   draftId: String,
   createdDate: String,
   lastUpdatedDate: Option[String],
-  sections: Map[String, DraftNotificationSection]
+  sections: Map[String, DraftNotificationSection],
+  versionId: Option[Long] = None
 )
 
 object DraftNotification {
