@@ -1254,25 +1254,25 @@ addVehicleDetailsHeavyCommercial.paragraph.1 = You can usually find these detail
 addVehicleDetailsHeavyCommercial.make.label = Make
 addVehicleDetailsHeavyCommercial.make.hint = For example, Renault Trucks
 addVehicleDetailsHeavyCommercial.make.error.required = Enter the make
-addVehicleDetailsHeavyCommercial.make.error.format = The make must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
+addVehicleDetailsHeavyCommercial.make.error.format = The make must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
 addVehicleDetailsHeavyCommercial.make.error.length = The make must be 50 characters or less
 
 addVehicleDetailsHeavyCommercial.model.label = Model
 addVehicleDetailsHeavyCommercial.model.hint = For example, Magnum
 addVehicleDetailsHeavyCommercial.model.error.required = Enter the model
-addVehicleDetailsHeavyCommercial.model.error.format = The model must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
+addVehicleDetailsHeavyCommercial.model.error.format = The model must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
 addVehicleDetailsHeavyCommercial.model.error.length = The model must be 50 characters or less
 
 addVehicleDetailsHeavyCommercial.hcvType.label = Body type
 addVehicleDetailsHeavyCommercial.hcvType.hint = For example, a midlift axle tractor
 addVehicleDetailsHeavyCommercial.hcvType.error.required = Enter the body type
-addVehicleDetailsHeavyCommercial.hcvType.error.format = The body type must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
+addVehicleDetailsHeavyCommercial.hcvType.error.format = The body type must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
 addVehicleDetailsHeavyCommercial.hcvType.error.length = The body type must be 50 characters or less
 
 addVehicleDetailsHeavyCommercial.cabType.label = Cab type
 addVehicleDetailsHeavyCommercial.cabType.hint = For example, sleeper cab
 addVehicleDetailsHeavyCommercial.cabType.error.required = Enter the cab type
-addVehicleDetailsHeavyCommercial.cabType.error.format = The cab type must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
+addVehicleDetailsHeavyCommercial.cabType.error.format = The cab type must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
 addVehicleDetailsHeavyCommercial.cabType.error.length = The cab type must be 100 characters or less
 
 #######################################################
@@ -1288,19 +1288,19 @@ addVehicleDetailsAgriculturalTractor.paragraph.1 = You can usually find these de
 addVehicleDetailsAgriculturalTractor.make.label = Make
 addVehicleDetailsAgriculturalTractor.make.hint = For example, John Deere
 addVehicleDetailsAgriculturalTractor.make.error.required = Enter the make
-addVehicleDetailsAgriculturalTractor.make.error.format = The make must not include special characters such as #, $, ^, `, '{', '|', '}', ~, or accented letters such as è
+addVehicleDetailsAgriculturalTractor.make.error.format = The make must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
 addVehicleDetailsAgriculturalTractor.make.error.length = The make must be 50 characters or less
 
 addVehicleDetailsAgriculturalTractor.model.label = Model
 addVehicleDetailsAgriculturalTractor.model.hint = For example, SR
 addVehicleDetailsAgriculturalTractor.model.error.required = Enter the model
-addVehicleDetailsAgriculturalTractor.model.error.format = The model must not include special characters such as #, $, ^, `, '{', '|', '}', ~, or accented letters such as è
+addVehicleDetailsAgriculturalTractor.model.error.format = The model must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
 addVehicleDetailsAgriculturalTractor.model.error.length = The model must be 50 characters or less
 
 addVehicleDetailsAgriculturalTractor.derivative.label = Derivative
 addVehicleDetailsAgriculturalTractor.derivative.hint = For example, 5090M
 addVehicleDetailsAgriculturalTractor.derivative.error.required = Enter the derivative
-addVehicleDetailsAgriculturalTractor.derivative.error.format = The derivative must not include special characters such as #, $, ^, `, '{', '|', '}', ~, or accented letters such as è
+addVehicleDetailsAgriculturalTractor.derivative.error.format = The derivative must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
 addVehicleDetailsAgriculturalTractor.derivative.error.length = The derivative must be 50 characters or less
 
 addVehicleDetailsAgriculturalTractor.brakeHorsepower.label = Brake horsepower (bhp)
@@ -1322,37 +1322,37 @@ addVehicleDetailsMotorcycle.paragraph.1 = You can usually find these details on 
 addVehicleDetailsMotorcycle.make.label = Make
 addVehicleDetailsMotorcycle.make.hint = For example, Honda
 addVehicleDetailsMotorcycle.make.error.required = Enter the make
-addVehicleDetailsMotorcycle.make.error.format = The make must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
+addVehicleDetailsMotorcycle.make.error.format = The make must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
 addVehicleDetailsMotorcycle.make.error.length = The make must be 50 characters or less
 
 addVehicleDetailsMotorcycle.model.label = Model
 addVehicleDetailsMotorcycle.model.hint = For example, GL1200
 addVehicleDetailsMotorcycle.model.error.required = Enter the model
-addVehicleDetailsMotorcycle.model.error.format = The model must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
+addVehicleDetailsMotorcycle.model.error.format = The model must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
 addVehicleDetailsMotorcycle.model.error.length = The model must be 50 characters or less
 
 addVehicleDetailsMotorcycle.derivative.label = Derivative
 addVehicleDetailsMotorcycle.derivative.hint = For example, 1200
 addVehicleDetailsMotorcycle.derivative.error.required = Enter the derivative
-addVehicleDetailsMotorcycle.derivative.error.format = The derivative must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
+addVehicleDetailsMotorcycle.derivative.error.format = The derivative must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
 addVehicleDetailsMotorcycle.derivative.error.length = The derivative must be 50 characters or less
 
 addVehicleDetailsMotorcycle.motorcycleVersion.label = Version
 addVehicleDetailsMotorcycle.motorcycleVersion.hint = For example, Gold Wing Deluxe
 addVehicleDetailsMotorcycle.motorcycleVersion.error.required = Enter the version
-addVehicleDetailsMotorcycle.motorcycleVersion.error.format = The version must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
+addVehicleDetailsMotorcycle.motorcycleVersion.error.format = The version must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
 addVehicleDetailsMotorcycle.motorcycleVersion.error.length = The version must be 50 characters or less
 
 addVehicleDetailsMotorcycle.motorcycleType.label = Body type
 addVehicleDetailsMotorcycle.motorcycleType.hint = For example, a road motorcycle
 addVehicleDetailsMotorcycle.motorcycleType.error.required = Enter the body type
-addVehicleDetailsMotorcycle.motorcycleType.error.format = The body type must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
+addVehicleDetailsMotorcycle.motorcycleType.error.format = The body type must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
 addVehicleDetailsMotorcycle.motorcycleType.error.length = The body type must be 50 characters or less
 
 addVehicleDetailsMotorcycle.motorcycleStyle.label = Style
 addVehicleDetailsMotorcycle.motorcycleStyle.hint = For example, a tourer
 addVehicleDetailsMotorcycle.motorcycleStyle.error.required = Enter the style
-addVehicleDetailsMotorcycle.motorcycleStyle.error.format = The style must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
+addVehicleDetailsMotorcycle.motorcycleStyle.error.format = The style must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
 addVehicleDetailsMotorcycle.motorcycleStyle.error.length = The style must be 20 characters or less
 
 addVehicleDetailsMotorcycle.transmission.label = Transmission type
