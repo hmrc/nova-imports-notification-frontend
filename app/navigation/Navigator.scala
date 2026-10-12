@@ -361,13 +361,13 @@ class Navigator @Inject() () {
     case page: TotalAmountPaidPage            => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
     case page: PaymentCurrencyPage            => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
     case page: AddVehicleTypePage             => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
-    case page: AddVehicleDetailsCarPage               => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
-    case page: AddVehicleDetailsLightCommercialPage   => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
-    case page: AddVehicleDetailsHeavyCommercialPage   => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
-    case page: AddVehicleDetailsMotorcyclePage        => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
-    case page: AddVehicleDetailsContractorsPlantPage  => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
+    case page: AddVehicleDetailsCarPage       => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
+    case page: AddVehicleDetailsLightCommercialPage  => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
+    case page: AddVehicleDetailsHeavyCommercialPage  => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
+    case page: AddVehicleDetailsMotorcyclePage       => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
+    case page: AddVehicleDetailsContractorsPlantPage => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
 
-    case _                                          =>
+    case _ =>
       (_, _) => routes.LandingPageController.onPageLoad()
   }
 

@@ -1373,7 +1373,7 @@ addVehicleDetailsLightCommercial.trim.error.required = Enter the trim
 addVehicleDetailsLightCommercial.trim.error.format = The trim must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
 addVehicleDetailsLightCommercial.trim.error.length = The trim must be 50 characters or less
 addVehicleDetailsLightCommercial.bodyType.error.required = Enter the body type
-addVehicleDetailsLightCommercial.bodyType.error.format = The bodyType must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
+addVehicleDetailsLightCommercial.bodyType.error.format = The body type must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
 addVehicleDetailsLightCommercial.bodyType.error.length = The body type must be 20 characters or less
 
 ###############################################################
