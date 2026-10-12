@@ -155,7 +155,7 @@ class CheckVehicleSpreadsheetDetailsController @Inject() (
                  case Right(_)    => ()
                  case Left(error) => logger.warn(s"Could not delete the vehicle spreadsheet upload after saving for draftId ${draftId.value}: $error")
                }
-        } yield Redirect(controllers.routes.NotificationTaskListController.onPageLoad()) // TODO: navigate to UVS6.0 when built
+        } yield Redirect(routes.UploadSuccessfulController.onPageLoad())
       case Left(error) =>
         logger.warn(s"Failed to save the vehicle spreadsheet sections for draftId ${draftId.value}: $error")
         Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))

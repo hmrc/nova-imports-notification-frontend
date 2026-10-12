@@ -23,7 +23,7 @@ import pages.*
 import models.*
 import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, NotifyingAsPurchaserPage, PurchaserBusinessOrIndividualPage, VehicleBusinessUsePage, VehicleFromEuPage}
 import pages.sections.notifierdetails.{AboutYourDetailsPage, BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
-import pages.sections.vehicledetails.{AddImportVehicleDetailsPage, AddVehicleDetailsAgriculturalTractorPage, AddVehicleDetailsCarPage, AddVehicleDetailsContractorsPlantPage, AddVehicleDetailsHeavyCommercialPage, AddVehicleDetailsMotorcyclePage, AddVehicleDetailsPage, AddVehicleDetailsQuestionPage, AddVehicleTypePage, CountryOfFirstRegistrationPage, DateOfAvailabilityPage, DateOfFirstRegistrationPage, NoPurchaseInvoiceReasonPage, PaymentCurrencyPage, PurchaseInvoiceDatePage, PurchaseInvoiceNumberPage, TotalAmountPaidPage, VehicleDatesPage}
+import pages.sections.vehicledetails.{AddImportVehicleDetailsPage, AddVehicleDetailsAgriculturalTractorPage, AddVehicleDetailsCarPage, AddVehicleDetailsContractorsPlantPage, AddVehicleDetailsHeavyCommercialPage, AddVehicleDetailsLightCommercialPage, AddVehicleDetailsMotorcyclePage, AddVehicleDetailsPage, AddVehicleDetailsQuestionPage, AddVehicleTypePage, CountryOfFirstRegistrationPage, DateOfAvailabilityPage, DateOfFirstRegistrationPage, NoPurchaseInvoiceReasonPage, PaymentCurrencyPage, PurchaseInvoiceDatePage, PurchaseInvoiceNumberPage, TotalAmountPaidPage, VehicleDatesPage}
 import pages.sections.notifieraddress.IsYourAddressInTheUkPage
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
@@ -280,6 +280,7 @@ class Navigator @Inject() () {
           case _ => routes.JourneyRecoveryController.onPageLoad()
         }
     case page: AddVehicleDetailsCarPage                 => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
+    case page: AddVehicleDetailsLightCommercialPage     => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
     case page: AddVehicleDetailsHeavyCommercialPage     => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
     case page: AddVehicleDetailsMotorcyclePage          => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
     case page: AddVehicleDetailsAgriculturalTractorPage => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
@@ -360,11 +361,13 @@ class Navigator @Inject() () {
     case page: TotalAmountPaidPage            => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
     case page: PaymentCurrencyPage            => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
     case page: AddVehicleTypePage             => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
-    case page: AddVehicleDetailsCarPage       => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
-    case page: AddVehicleDetailsHeavyCommercialPage  => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
-    case page: AddVehicleDetailsMotorcyclePage       => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
-    case page: AddVehicleDetailsContractorsPlantPage => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
-    case _                                           =>
+    case page: AddVehicleDetailsCarPage               => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
+    case page: AddVehicleDetailsLightCommercialPage   => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
+    case page: AddVehicleDetailsHeavyCommercialPage   => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
+    case page: AddVehicleDetailsMotorcyclePage        => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
+    case page: AddVehicleDetailsContractorsPlantPage  => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
+
+    case _                                          =>
       (_, _) => routes.LandingPageController.onPageLoad()
   }
 

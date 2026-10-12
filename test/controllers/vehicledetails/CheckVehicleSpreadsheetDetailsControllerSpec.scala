@@ -736,7 +736,7 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
         val result = route(application, FakeRequest(POST, onSubmitRoute)).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.NotificationTaskListController.onPageLoad().url
+        redirectLocation(result).value mustEqual vehicledetails.routes.UploadSuccessfulController.onPageLoad().url
 
         val sections = captureSections(connector)
         sections.keySet mustEqual Set(
@@ -801,7 +801,7 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
         val result = route(application, FakeRequest(POST, onSubmitRoute)).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.NotificationTaskListController.onPageLoad().url
+        redirectLocation(result).value mustEqual vehicledetails.routes.UploadSuccessfulController.onPageLoad().url
 
         val sections = captureSections(connector)
         sections.keySet mustEqual Set(
@@ -866,7 +866,7 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
         val result = route(application, FakeRequest(POST, onSubmitRoute)).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.NotificationTaskListController.onPageLoad().url
+        redirectLocation(result).value mustEqual vehicledetails.routes.UploadSuccessfulController.onPageLoad().url
 
         val sections = captureSections(connector)
         sections.keySet mustEqual Set(
@@ -1004,7 +1004,7 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
         val result = route(application, FakeRequest(POST, onSubmitRoute)).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.NotificationTaskListController.onPageLoad().url
+        redirectLocation(result).value mustEqual vehicledetails.routes.UploadSuccessfulController.onPageLoad().url
 
         val sections = captureSections(connector)
         verify(sessionRepository).setPage(eqTo(answers), eqTo(DraftVersionIdPage), eqTo(newVersion))(using any())
@@ -1034,7 +1034,7 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
         val result = route(application, FakeRequest(POST, onSubmitRoute)).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.NotificationTaskListController.onPageLoad().url
+        redirectLocation(result).value mustEqual vehicledetails.routes.UploadSuccessfulController.onPageLoad().url
 
         val sections = captureSections(connector)
         verify(sessionRepository).setPage(eqTo(answers), eqTo(DraftVersionIdPage), eqTo(newVersion))(using any())
@@ -1102,7 +1102,7 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
         val result = route(application, FakeRequest(POST, onSubmitRoute)).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.NotificationTaskListController.onPageLoad().url
+        redirectLocation(result).value mustEqual vehicledetails.routes.UploadSuccessfulController.onPageLoad().url
 
         val sections = captureSections(connector)
         verify(sessionRepository).setPage(eqTo(answers), eqTo(DraftVersionIdPage), eqTo(newVersion))(using any())
@@ -1132,7 +1132,7 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
         val result = route(application, FakeRequest(POST, onSubmitRoute)).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.NotificationTaskListController.onPageLoad().url
+        redirectLocation(result).value mustEqual vehicledetails.routes.UploadSuccessfulController.onPageLoad().url
 
         val sections = captureSections(connector)
         verify(sessionRepository).setPage(eqTo(answers), eqTo(DraftVersionIdPage), eqTo(newVersion))(using any())
@@ -1202,7 +1202,7 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
         val result = route(application, FakeRequest(POST, onSubmitRoute)).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.NotificationTaskListController.onPageLoad().url
+        redirectLocation(result).value mustEqual vehicledetails.routes.UploadSuccessfulController.onPageLoad().url
 
         val sections = captureSections(connector)
         verify(sessionRepository).setPage(eqTo(answers), eqTo(DraftVersionIdPage), eqTo(newVersion))(using any())
@@ -1235,7 +1235,7 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
         val result = route(application, FakeRequest(POST, onSubmitRoute)).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.NotificationTaskListController.onPageLoad().url
+        redirectLocation(result).value mustEqual vehicledetails.routes.UploadSuccessfulController.onPageLoad().url
 
         val sections = captureSections(connector)
         verify(sessionRepository).setPage(eqTo(answers), eqTo(DraftVersionIdPage), eqTo(newVersion))(using any())
@@ -1308,7 +1308,7 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
         val result = route(application, FakeRequest(POST, onSubmitRoute)).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.NotificationTaskListController.onPageLoad().url
+        redirectLocation(result).value mustEqual vehicledetails.routes.UploadSuccessfulController.onPageLoad().url
 
         val sections = captureSections(connector)
         verify(sessionRepository).setPage(eqTo(answers), eqTo(DraftVersionIdPage), eqTo(newVersion))(using any())
@@ -1335,7 +1335,7 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
         val result = route(application, FakeRequest(POST, onSubmitRoute)).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.NotificationTaskListController.onPageLoad().url
+        redirectLocation(result).value mustEqual vehicledetails.routes.UploadSuccessfulController.onPageLoad().url
 
         val sections = captureSections(connector)
         verify(sessionRepository).setPage(eqTo(answers), eqTo(DraftVersionIdPage), eqTo(newVersion))(using any())
@@ -1402,7 +1402,7 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
         val result = route(application, FakeRequest(POST, onSubmitRoute)).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.NotificationTaskListController.onPageLoad().url
+        redirectLocation(result).value mustEqual vehicledetails.routes.UploadSuccessfulController.onPageLoad().url
 
         val sections = captureSections(connector)
         verify(sessionRepository).setPage(eqTo(answers), eqTo(DraftVersionIdPage), eqTo(newVersion))(using any())
@@ -1432,7 +1432,7 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
         val result = route(application, FakeRequest(POST, onSubmitRoute)).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual controllers.routes.NotificationTaskListController.onPageLoad().url
+        redirectLocation(result).value mustEqual vehicledetails.routes.UploadSuccessfulController.onPageLoad().url
 
         val sections = captureSections(connector)
         verify(sessionRepository).setPage(eqTo(answers), eqTo(DraftVersionIdPage), eqTo(newVersion))(using any())
