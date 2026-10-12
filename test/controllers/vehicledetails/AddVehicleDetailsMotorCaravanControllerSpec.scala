@@ -72,8 +72,9 @@ class AddVehicleDetailsMotorCaravanControllerSpec extends SpecBase with MockitoS
     "derivative"        -> answer.derivative
   )
 
-  lazy val supplierRoute = vehicledetails.routes.AddVehicleDetailsMotorCaravanController.supplierOnPageLoad(supplierNumber, vehicleNumber, NormalMode).url
-  lazy val importRoute   = vehicledetails.routes.AddVehicleDetailsMotorCaravanController.importOnPageLoad(importNumber, vehicleNumber, NormalMode).url
+  lazy val supplierRoute =
+    vehicledetails.routes.AddVehicleDetailsMotorCaravanController.supplierOnPageLoad(supplierNumber, vehicleNumber, NormalMode).url
+  lazy val importRoute = vehicledetails.routes.AddVehicleDetailsMotorCaravanController.importOnPageLoad(importNumber, vehicleNumber, NormalMode).url
 
   val supplierJourneyAnswers: UserAnswers = emptyUserAnswers
     .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))

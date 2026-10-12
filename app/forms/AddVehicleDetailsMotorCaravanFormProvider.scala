@@ -29,8 +29,8 @@ class AddVehicleDetailsMotorCaravanFormProvider @Inject() extends Mappings {
 
   def apply(): Form[AddVehicleDetailsMotorCaravan] = Form(
     mapping(
-      "make"              -> fieldMapping("make", MaxLength, StandardFieldRegex),
-      "bodyType"           -> optional(
+      "make"     -> fieldMapping("make", MaxLength, StandardFieldRegex),
+      "bodyType" -> optional(
         text()
           .verifying(
             firstError(
@@ -39,25 +39,25 @@ class AddVehicleDetailsMotorCaravanFormProvider @Inject() extends Mappings {
             )
           )
       ),
-      "model"              -> fieldMapping("model", MaxLength, StandardFieldRegex),
-      "version"            -> fieldMapping("version", MaxLength, StandardFieldRegex),
-      "makeOfBaseVehicle"  -> fieldMapping("makeOfBaseVehicle", MaxLength, StandardFieldRegex),
-      "derivative"         -> fieldMapping("derivative", MaxLength, StandardFieldRegex)
-    )(
-      (make, bodyType, model, version, makeOfBaseVehicle, derivative) =>
-        AddVehicleDetailsMotorCaravan(
-          make = make,
-          bodyType = bodyType.getOrElse(AddVehicleDetailsMotorCaravan.NoBodyType),
-          model = model,
-          version = version,
-          makeOfBaseVehicle = makeOfBaseVehicle,
-          derivative = derivative
-        )
+      "model"             -> fieldMapping("model", MaxLength, StandardFieldRegex),
+      "version"           -> fieldMapping("version", MaxLength, StandardFieldRegex),
+      "makeOfBaseVehicle" -> fieldMapping("makeOfBaseVehicle", MaxLength, StandardFieldRegex),
+      "derivative"        -> fieldMapping("derivative", MaxLength, StandardFieldRegex)
+    )((make, bodyType, model, version, makeOfBaseVehicle, derivative) =>
+      AddVehicleDetailsMotorCaravan(
+        make = make,
+        bodyType = bodyType.getOrElse(AddVehicleDetailsMotorCaravan.NoBodyType),
+        model = model,
+        version = version,
+        makeOfBaseVehicle = makeOfBaseVehicle,
+        derivative = derivative
+      )
     )(addVehicleDetailsMotorCaravan =>
       Some(
         (
           addVehicleDetailsMotorCaravan.make,
-          if (addVehicleDetailsMotorCaravan.bodyType == AddVehicleDetailsMotorCaravan.NoBodyType) None else Some(addVehicleDetailsMotorCaravan.bodyType),
+          if (addVehicleDetailsMotorCaravan.bodyType == AddVehicleDetailsMotorCaravan.NoBodyType) None
+          else Some(addVehicleDetailsMotorCaravan.bodyType),
           addVehicleDetailsMotorCaravan.model,
           addVehicleDetailsMotorCaravan.version,
           addVehicleDetailsMotorCaravan.makeOfBaseVehicle,
