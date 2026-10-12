@@ -33,6 +33,7 @@ import viewmodels.PageOf
 import views.html.ViewSavedNotificationsView
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
 import scala.util.{Success, Try}
 
 class ViewSavedNotificationsController @Inject() (
@@ -57,23 +58,29 @@ class ViewSavedNotificationsController @Inject() (
       val currentPage = math.max(1, page)
       val pageSize    = appConfig.savedNotificationsPageSize
 
-      connector.getDraftNotifications(clientVrn, currentPage, pageSize).flatMap {
-        case Right(notifications) if notifications.totalCount == 0 =>
-          Future.successful(Redirect(controllers.routes.UnauthorisedController.onPageLoad()))
-        case Right(notifications) =>
-          traderOrClientSummary(ctx, clientVrn).map { summary =>
-            val notificationsWithNames =
-              notifications.copy(drafts = notifications.drafts.map(draft => draft.copy(purchaserName = nameForPurchaser(draft, ctx, summary))))
-            val results = PageOf(notificationsWithNames.drafts, currentPage, pageSize, notifications.totalCount)
-            if (results.items.isEmpty && currentPage > results.totalPages)
-              Redirect(routes.ViewSavedNotificationsController.onPageLoad(results.totalPages))
-            else
-              Ok(view(results))
-          }
-        case Left(error) =>
-          logger.warn(s"failed to fetch draft notifications: $error")
-          Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-      }
+      connector
+        .getDraftNotifications(clientVrn, currentPage, pageSize)
+        .flatMap {
+          case Right(notifications) if notifications.totalCount == 0 =>
+            Future.successful(Redirect(controllers.routes.UnauthorisedController.onPageLoad()))
+          case Right(notifications) =>
+            traderOrClientSummary(ctx, clientVrn).map { summary =>
+              val notificationsWithNames =
+                notifications.copy(drafts = notifications.drafts.map(draft => draft.copy(purchaserName = nameForPurchaser(draft, ctx, summary))))
+              val results = PageOf(notificationsWithNames.drafts, currentPage, pageSize, notifications.totalCount)
+              if (results.items.isEmpty && currentPage > results.totalPages)
+                Redirect(routes.ViewSavedNotificationsController.onPageLoad(results.totalPages))
+              else
+                Ok(view(results))
+            }
+          case Left(error) =>
+            logger.warn(s"failed to fetch draft notifications: $error")
+            Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+        }
+        .recover { case NonFatal(e) =>
+          logger.warn("failed to fetch draft notifications", e)
+          Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+        }
     }
 
   def onContinue(draftId: String): Action[AnyContent] =
@@ -96,12 +103,17 @@ class ViewSavedNotificationsController @Inject() (
         retrievedDraft     <- userDataService.retrieveAndStoreDraftNotification(DraftId(draftId), answersWithDraftId, ctx)
       } yield retrievedDraft
 
-      retrieved.flatMap {
-        case Right(retrievedAnswers) => storeVersionIdAndRedirect(DraftId(draftId), retrievedAnswers)
-        case Left(error)             =>
-          logger.warn(s"failed to load saved notification $draftId: $error")
-          Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-      }
+      retrieved
+        .flatMap {
+          case Right(retrievedAnswers) => storeVersionIdAndRedirect(DraftId(draftId), retrievedAnswers)
+          case Left(error)             =>
+            logger.warn(s"failed to load saved notification $draftId: $error")
+            Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
+        }
+        .recover { case NonFatal(e) =>
+          logger.warn(s"failed to load saved notification $draftId", e)
+          Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
+        }
     }
 
   private def storeVersionIdAndRedirect(draftId: DraftId, answers: UserAnswers)(implicit hc: HeaderCarrier): Future[Result] =
