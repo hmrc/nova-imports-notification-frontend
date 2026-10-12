@@ -27,7 +27,7 @@ import pages.sections.vehicledetails.{AddImportVehicleDetailsPage, AddVehicleDet
 import pages.sections.notifieraddress.IsYourAddressInTheUkPage
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
-import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierQuestionPage, SupplierVatRegistrationNumberPage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
+import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierQuestionPage, SupplierVatRegistrationNumberPage, UseClientDetailsAsSupplierPage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
 import play.api.libs.json.Reads
 
 @Singleton
@@ -115,6 +115,15 @@ class Navigator @Inject() () {
           case _ => routes.JourneyRecoveryController.onPageLoad()
         }
     case page: UsePurchaserDetailsAsSupplierPage =>
+      (userAnswers, _) =>
+        userAnswers.get(page) match {
+          case Some(true) =>
+            supplierdetails.routes.SupplierDetailsCheckYourAnswersController.onPageLoad(page.supplierNumber)
+          case Some(false) =>
+            supplierdetails.routes.SupplierBusinessOrIndividualController.onPageLoad(page.supplierNumber, NormalMode)
+          case _ => routes.JourneyRecoveryController.onPageLoad()
+        }
+    case page: UseClientDetailsAsSupplierPage =>
       (userAnswers, _) =>
         userAnswers.get(page) match {
           case Some(true) =>

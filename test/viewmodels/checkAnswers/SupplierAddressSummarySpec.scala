@@ -32,7 +32,30 @@ class SupplierAddressSummarySpec extends SpecBase {
 
   "SupplierAddressSummary" - {
 
-    // TODO: Add using client address details tests once AVD-S1.2 page is added
+    "must show the client address with a change link back to AVD-S1.2 when using client details" in {
+      val clientDetails = TraderInformation(
+        traderName = Some("ABC Ltd"),
+        tradingName = None,
+        addressLine1 = Some("1 Arundel Mews"),
+        addressLine2 = Some("Sunnymede"),
+        addressLine3 = None,
+        addressLine4 = None,
+        postcode = Some("BN11 5RG")
+      )
+
+      val result = SupplierAddressSummary.rowFromClientDetails(SupplierNumber(1), Some(clientDetails)).value
+      val value  = result.value.content.asHtml.toString
+
+      result.key.content.asHtml.toString must include(msgs("supplierAddressCheckYourAnswers.checkYourAnswersLabel"))
+      value mustBe "1 Arundel Mews<br>Sunnymede<br>BN11 5RG"
+      result.actions.value.items.head.href mustBe routes.UseClientDetailsAsSupplierController.onPageLoad(SupplierNumber(1), NormalMode).url
+    }
+
+    "must show not provided when the client address is unavailable" in {
+      val result = SupplierAddressSummary.rowFromClientDetails(SupplierNumber(1), None).value
+
+      result.value.content.asHtml.toString mustBe msgs("supplierDetailsCheckYourAnswers.notProvided")
+    }
 
     "must end a UK address with the postcode and never show the country name when using personal address details" in {
       val address = Address(

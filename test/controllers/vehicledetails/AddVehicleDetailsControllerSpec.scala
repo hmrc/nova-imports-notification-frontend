@@ -400,7 +400,7 @@ class AddVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must add supplier 1 and send an agent with a selected client to UsePersonalDetailsAsSupplierController" in {
+    "must add supplier 1 and send an agent with a selected client to UseClientDetailsAsSupplierController" in {
 
       val sampleClient     = AgentSelectedClient(vrn = "GB123456789", name = Some("Acme Ltd"))
       val answers          = userAnswersWithIQ1Yes.set(AgentSelectedClientPage, sampleClient).success.value
@@ -415,7 +415,7 @@ class AddVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual
-          supplierdetails.routes.UsePersonalDetailsAsSupplierController.onPageLoad(SupplierNumber(1), NormalMode).url
+          supplierdetails.routes.UseClientDetailsAsSupplierController.onPageLoad(SupplierNumber(1), NormalMode).url
       }
     }
 
