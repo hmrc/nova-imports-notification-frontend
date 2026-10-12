@@ -890,6 +890,33 @@ class NavigatorSpec extends SpecBase {
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
 
+      "must go from AddVehicleDetailsContractorsPlantPage AVD8.7 to the landing page for supplier 1 vehicle 1 until C-AVD2.0 is built" in {
+        val page = AddVehicleDetailsContractorsPlantPage(VehicleNumber(1))
+        val ua   = supplierVehicle.unsafeSet(page, AddVehicleDetailsContractorsPlant("Renault Trucks", "Magnum", "midlift axle tractor"))
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from AddVehicleDetailsContractorsPlantPage AVD8.7 to the landing page for import 1 vehicle 1 until C-AVD2.0 is built" in {
+        val page = AddVehicleDetailsContractorsPlantPage(VehicleNumber(1))
+        val ua   = importVehicle.unsafeSet(page, AddVehicleDetailsContractorsPlant("Renault Trucks", "Magnum", "midlift axle tractor"))
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from AddVehicleDetailsContractorsPlantPage AVD8.7 to JourneyRecovery when the vehicle has no supplier or import" in {
+        val page = AddVehicleDetailsContractorsPlantPage(VehicleNumber(1))
+        val ua   = userAnswers.unsafeSet(page, AddVehicleDetailsContractorsPlant("Renault Trucks", "Magnum", "midlift axle tractor"))
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from AddVehicleDetailsContractorsPlantPage AVD8.7 to JourneyRecovery when no answer is found" in {
+        navigator.nextPage(
+          AddVehicleDetailsContractorsPlantPage(VehicleNumber(1)),
+          NormalMode,
+          supplierVehicle,
+          NovaUserType.PrivateIndividual
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
       "must go from VehicleDatesPage AVD3.0 to NoVehicleDates AVD3.1 when no dates are held" in {
         val ua = userAnswers.set(VehicleDatesPage(SupplierNumber(1), VehicleNumber(1)), Set(VehicleDates.NoDates)).success.value
         navigator.nextPage(VehicleDatesPage(SupplierNumber(1), VehicleNumber(1)), NormalMode, ua, NovaUserType.PrivateIndividual) mustBe

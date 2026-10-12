@@ -152,8 +152,11 @@ object ConfirmVehicleDetailsJourney {
         routes.AddVehicleDetailsMotorcycleController.supplierOnPageLoad(supplierNumber, vehicleNumber, NormalMode)
       case (Some(AddVehicleType.Motorcycle), None, Some(importNumber)) =>
         routes.AddVehicleDetailsMotorcycleController.importOnPageLoad(importNumber, vehicleNumber, NormalMode)
-      case (Some(AddVehicleType.MotorCaravan), _, _)     => controllers.routes.LandingPageController.onPageLoad()
-      case (Some(AddVehicleType.ContractorsPlant), _, _) => controllers.routes.LandingPageController.onPageLoad()
-      case _                                             => controllers.routes.JourneyRecoveryController.onPageLoad()
+      case (Some(AddVehicleType.MotorCaravan), _, _)                        => controllers.routes.LandingPageController.onPageLoad()
+      case (Some(AddVehicleType.ContractorsPlant), Some(supplierNumber), _) =>
+        routes.AddVehicleDetailsContractorsPlantController.supplierOnPageLoad(supplierNumber, vehicleNumber, NormalMode)
+      case (Some(AddVehicleType.ContractorsPlant), None, Some(importNumber)) =>
+        routes.AddVehicleDetailsContractorsPlantController.importOnPageLoad(importNumber, vehicleNumber, NormalMode)
+      case _ => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 }

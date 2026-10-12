@@ -104,11 +104,14 @@ class ConfirmVehicleDetailsJourneySpec extends SpecBase {
         routes.JourneyRecoveryController.onPageLoad()
     }
 
-    "must go to the AVD8.7 placeholder for a construction, plant and machinery or special purpose vehicle" in {
-      ConfirmVehicleDetailsJourney.confirmedRoute(
-        emptyUserAnswers.unsafeSet(AddVehicleTypePage(v), AddVehicleType.ContractorsPlant),
-        v
-      ) mustBe routes.LandingPageController.onPageLoad()
+    "must go to AVD8.7 (AddVehicleDetailsContractorsPlantController) for a Contractors Plant on the supplier journey" in {
+      ConfirmVehicleDetailsJourney.confirmedRoute(supplierVehicle.unsafeSet(AddVehicleTypePage(v), AddVehicleType.ContractorsPlant), v) mustBe
+        vehicledetails.routes.AddVehicleDetailsContractorsPlantController.supplierOnPageLoad(s, v, NormalMode)
+    }
+
+    "must go to AVD8.7 (AddVehicleDetailsContractorsPlantController) for a Contractors Plant on the import journey" in {
+      ConfirmVehicleDetailsJourney.confirmedRoute(importVehicle.unsafeSet(AddVehicleTypePage(v), AddVehicleType.ContractorsPlant), v) mustBe
+        vehicledetails.routes.AddVehicleDetailsContractorsPlantController.importOnPageLoad(i, v, NormalMode)
     }
 
     "must go to JourneyRecovery when no vehicle type has been answered" in {

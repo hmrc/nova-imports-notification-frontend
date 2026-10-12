@@ -23,12 +23,11 @@ import pages.*
 import models.*
 import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, NotifyingAsPurchaserPage, PurchaserBusinessOrIndividualPage, VehicleBusinessUsePage, VehicleFromEuPage}
 import pages.sections.notifierdetails.{AboutYourDetailsPage, BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
-import pages.sections.vehicledetails.{AddImportVehicleDetailsPage, AddVehicleDetailsPage}
+import pages.sections.vehicledetails.{AddImportVehicleDetailsPage, AddVehicleDetailsAgriculturalTractorPage, AddVehicleDetailsCarPage, AddVehicleDetailsContractorsPlantPage, AddVehicleDetailsHeavyCommercialPage, AddVehicleDetailsMotorcyclePage, AddVehicleDetailsPage, AddVehicleDetailsQuestionPage, AddVehicleTypePage, CountryOfFirstRegistrationPage, DateOfAvailabilityPage, DateOfFirstRegistrationPage, NoPurchaseInvoiceReasonPage, PaymentCurrencyPage, PurchaseInvoiceDatePage, PurchaseInvoiceNumberPage, TotalAmountPaidPage, VehicleDatesPage}
 import pages.sections.notifieraddress.IsYourAddressInTheUkPage
 import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
 import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierQuestionPage, SupplierVatRegistrationNumberPage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
-import pages.sections.vehicledetails.{AddVehicleDetailsAgriculturalTractorPage, AddVehicleDetailsCarPage, AddVehicleDetailsHeavyCommercialPage, AddVehicleDetailsMotorcyclePage, AddVehicleDetailsQuestionPage, AddVehicleTypePage, CountryOfFirstRegistrationPage, DateOfAvailabilityPage, DateOfFirstRegistrationPage, NoPurchaseInvoiceReasonPage, PaymentCurrencyPage, PurchaseInvoiceDatePage, PurchaseInvoiceNumberPage, TotalAmountPaidPage, VehicleDatesPage}
 import play.api.libs.json.Reads
 
 @Singleton
@@ -283,18 +282,9 @@ class Navigator @Inject() () {
     case page: AddVehicleDetailsCarPage                 => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
     case page: AddVehicleDetailsHeavyCommercialPage     => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
     case page: AddVehicleDetailsMotorcyclePage          => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
-    case page: AddVehicleDetailsAgriculturalTractorPage =>
-      (userAnswers, _) =>
-        (
-          userAnswers.get(page),
-          userAnswers.vehicleSupplierNumber(page.vehicleNumber),
-          userAnswers.vehicleImportNumber(page.vehicleNumber)
-        ) match {
-          case (Some(_), Some(_), _)    => routes.LandingPageController.onPageLoad()
-          case (Some(_), None, Some(_)) => routes.LandingPageController.onPageLoad()
-          case _                        => routes.JourneyRecoveryController.onPageLoad()
-        }
-    case _ => (_, _) => routes.LandingPageController.onPageLoad()
+    case page: AddVehicleDetailsAgriculturalTractorPage => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
+    case page: AddVehicleDetailsContractorsPlantPage    => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
+    case _                                              => (_, _) => routes.LandingPageController.onPageLoad()
   }
 
   private val checkRouteMap: Page => (UserAnswers, NovaUserType) => Call = {
@@ -371,9 +361,10 @@ class Navigator @Inject() () {
     case page: PaymentCurrencyPage            => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
     case page: AddVehicleTypePage             => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
     case page: AddVehicleDetailsCarPage       => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
-    case page: AddVehicleDetailsHeavyCommercialPage => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
-    case page: AddVehicleDetailsMotorcyclePage      => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
-    case _                                          =>
+    case page: AddVehicleDetailsHeavyCommercialPage  => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
+    case page: AddVehicleDetailsMotorcyclePage       => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
+    case page: AddVehicleDetailsContractorsPlantPage => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
+    case _                                           =>
       (_, _) => routes.LandingPageController.onPageLoad()
   }
 
