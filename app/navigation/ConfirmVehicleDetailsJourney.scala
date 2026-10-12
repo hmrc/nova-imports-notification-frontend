@@ -163,6 +163,6 @@ object ConfirmVehicleDetailsJourney {
         routes.AddVehicleDetailsContractorsPlantController.supplierOnPageLoad(supplierNumber, vehicleNumber, NormalMode)
       case (Some(AddVehicleType.ContractorsPlant), None, Some(importNumber)) =>
         routes.AddVehicleDetailsContractorsPlantController.importOnPageLoad(importNumber, vehicleNumber, NormalMode)
-      case _                                             => controllers.routes.JourneyRecoveryController.onPageLoad()
+      case _ => controllers.routes.JourneyRecoveryController.onPageLoad()
     }
 }
