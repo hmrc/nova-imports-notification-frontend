@@ -1446,28 +1446,28 @@ addVehicleDetailsAgriculturalTractor.brakeHorsepower.error.length = The brake ho
 # AVD8.7 - Add vehicle details 8.7 - Construction, plant and machinery or special purpose vehicle #
 ###################################################################################################
 
-addVehicleDetailsSpecialPurposeVehicle.title = Enter the construction, plant and machinery or special purpose vehicle details
-addVehicleDetailsSpecialPurposeVehicle.caption = Add vehicle details
-addVehicleDetailsSpecialPurposeVehicle.heading = Enter the construction, plant and machinery or special purpose vehicle details
-addVehicleDetailsSpecialPurposeVehicle.paragraph.1 = You can usually find these details on the purchase invoice or in the vehicle manual.
+addVehicleDetailsContractorsPlant.title = Enter the construction, plant and machinery or special purpose vehicle details
+addVehicleDetailsContractorsPlant.caption = Add vehicle details
+addVehicleDetailsContractorsPlant.heading = Enter the construction, plant and machinery or special purpose vehicle details
+addVehicleDetailsContractorsPlant.paragraph.1 = You can usually find these details on the purchase invoice or in the vehicle manual.
 
-addVehicleDetailsSpecialPurposeVehicle.make.label = Make
-addVehicleDetailsSpecialPurposeVehicle.make.hint = For example, Caterpillar (CAT)
-addVehicleDetailsSpecialPurposeVehicle.make.error.required = Enter the make
-addVehicleDetailsSpecialPurposeVehicle.make.error.format = The make must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
-addVehicleDetailsSpecialPurposeVehicle.make.error.length = The make must be 50 characters or less
+addVehicleDetailsContractorsPlant.make.label = Make
+addVehicleDetailsContractorsPlant.make.hint = For example, Caterpillar (CAT)
+addVehicleDetailsContractorsPlant.make.error.required = Enter the make
+addVehicleDetailsContractorsPlant.make.error.format = The make must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
+addVehicleDetailsContractorsPlant.make.error.length = The make must be 50 characters or less
 
-addVehicleDetailsSpecialPurposeVehicle.model.label = Model
-addVehicleDetailsSpecialPurposeVehicle.model.hint = For example, 242B
-addVehicleDetailsSpecialPurposeVehicle.model.error.required = Enter the model
-addVehicleDetailsSpecialPurposeVehicle.model.error.format = The model must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
-addVehicleDetailsSpecialPurposeVehicle.model.error.length = The model must be 50 characters or less
+addVehicleDetailsContractorsPlant.model.label = Model
+addVehicleDetailsContractorsPlant.model.hint = For example, 242B
+addVehicleDetailsContractorsPlant.model.error.required = Enter the model
+addVehicleDetailsContractorsPlant.model.error.format = The model must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
+addVehicleDetailsContractorsPlant.model.error.length = The model must be 50 characters or less
 
-addVehicleDetailsSpecialPurposeVehicle.derivative.label = Derivative
-addVehicleDetailsSpecialPurposeVehicle.derivative.hint = For example, Series 3
-addVehicleDetailsSpecialPurposeVehicle.derivative.error.required = Enter the derivative
-addVehicleDetailsSpecialPurposeVehicle.derivative.error.format = The derivative must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
-addVehicleDetailsSpecialPurposeVehicle.derivative.error.length = The derivative must be 50 characters or less
+addVehicleDetailsContractorsPlant.derivative.label = Derivative
+addVehicleDetailsContractorsPlant.derivative.hint = For example, Series 3
+addVehicleDetailsContractorsPlant.derivative.error.required = Enter the derivative
+addVehicleDetailsContractorsPlant.derivative.error.format = The derivative must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
+addVehicleDetailsContractorsPlant.derivative.error.length = The derivative must be 50 characters or less
 
 #######################################################
 # AVD8.4 - Add vehicle details 8.4 - Motorcycle       #
