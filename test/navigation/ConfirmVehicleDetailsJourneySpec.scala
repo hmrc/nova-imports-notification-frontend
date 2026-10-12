@@ -89,9 +89,19 @@ class ConfirmVehicleDetailsJourneySpec extends SpecBase {
         routes.JourneyRecoveryController.onPageLoad()
     }
 
-    "must go to the AVD8.5 placeholder for a motor caravan" in {
+    "must go to AVD8.5 (AddVehicleDetailsMotorCaravanController) for a motor caravan on the supplier journey" in {
+      ConfirmVehicleDetailsJourney.confirmedRoute(supplierVehicle.unsafeSet(AddVehicleTypePage(v), AddVehicleType.MotorCaravan), v) mustBe
+        vehicledetails.routes.AddVehicleDetailsMotorCaravanController.supplierOnPageLoad(s, v, NormalMode)
+    }
+
+    "must go to AVD8.5 (AddVehicleDetailsMotorCaravanController) for a motor caravan on the import journey" in {
+      ConfirmVehicleDetailsJourney.confirmedRoute(importVehicle.unsafeSet(AddVehicleTypePage(v), AddVehicleType.MotorCaravan), v) mustBe
+        vehicledetails.routes.AddVehicleDetailsMotorCaravanController.importOnPageLoad(i, v, NormalMode)
+    }
+
+    "must go to JourneyRecovery for a motor caravan when the vehicle has no supplier or import" in {
       ConfirmVehicleDetailsJourney.confirmedRoute(emptyUserAnswers.unsafeSet(AddVehicleTypePage(v), AddVehicleType.MotorCaravan), v) mustBe
-        routes.LandingPageController.onPageLoad()
+        routes.JourneyRecoveryController.onPageLoad()
     }
 
     "must go to AVD8.6 (AddVehicleDetailsAgriculturalTractorController) for an agricultural tractor on the supplier journey" in {
