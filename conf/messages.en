@@ -1373,7 +1373,7 @@ addVehicleDetailsLightCommercial.trim.error.required = Enter the trim
 addVehicleDetailsLightCommercial.trim.error.format = The trim must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
 addVehicleDetailsLightCommercial.trim.error.length = The trim must be 50 characters or less
 addVehicleDetailsLightCommercial.bodyType.error.required = Enter the body type
-addVehicleDetailsLightCommercial.bodyType.error.format = The bodyType must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
+addVehicleDetailsLightCommercial.bodyType.error.format = The body type must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
 addVehicleDetailsLightCommercial.bodyType.error.length = The body type must be 20 characters or less
 
 ###############################################################
@@ -1441,6 +1441,33 @@ addVehicleDetailsAgriculturalTractor.brakeHorsepower.hint = Engine power, for ex
 addVehicleDetailsAgriculturalTractor.brakeHorsepower.error.required = Enter the brake horsepower
 addVehicleDetailsAgriculturalTractor.brakeHorsepower.error.format = Enter the brake horsepower using numbers only or with exactly 2 decimal places
 addVehicleDetailsAgriculturalTractor.brakeHorsepower.error.length = The brake horsepower must be 4 characters or less before any decimal point
+
+###################################################################################################
+# AVD8.7 - Add vehicle details 8.7 - Construction, plant and machinery or special purpose vehicle #
+###################################################################################################
+
+addVehicleDetailsContractorsPlant.title = Enter the construction, plant and machinery or special purpose vehicle details
+addVehicleDetailsContractorsPlant.caption = Add vehicle details
+addVehicleDetailsContractorsPlant.heading = Enter the construction, plant and machinery or special purpose vehicle details
+addVehicleDetailsContractorsPlant.paragraph.1 = You can usually find these details on the purchase invoice or in the vehicle manual.
+
+addVehicleDetailsContractorsPlant.make.label = Make
+addVehicleDetailsContractorsPlant.make.hint = For example, Caterpillar (CAT)
+addVehicleDetailsContractorsPlant.make.error.required = Enter the make
+addVehicleDetailsContractorsPlant.make.error.format = The make must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
+addVehicleDetailsContractorsPlant.make.error.length = The make must be 50 characters or less
+
+addVehicleDetailsContractorsPlant.model.label = Model
+addVehicleDetailsContractorsPlant.model.hint = For example, 242B
+addVehicleDetailsContractorsPlant.model.error.required = Enter the model
+addVehicleDetailsContractorsPlant.model.error.format = The model must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
+addVehicleDetailsContractorsPlant.model.error.length = The model must be 50 characters or less
+
+addVehicleDetailsContractorsPlant.derivative.label = Derivative
+addVehicleDetailsContractorsPlant.derivative.hint = For example, Series 3
+addVehicleDetailsContractorsPlant.derivative.error.required = Enter the derivative
+addVehicleDetailsContractorsPlant.derivative.error.format = The derivative must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
+addVehicleDetailsContractorsPlant.derivative.error.length = The derivative must be 50 characters or less
 
 #######################################################
 # AVD8.4 - Add vehicle details 8.4 - Motorcycle       #
