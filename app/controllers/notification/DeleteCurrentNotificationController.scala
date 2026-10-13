@@ -25,7 +25,7 @@ import forms.DeleteCurrentNotificationFormProvider
 import models.{DraftId, NovaUserType, PurchaserOrOnBehalf, UserAnswers}
 import models.requests.DataRequest
 import pages.DraftIdPage
-import pages.sections.initialquestions.{BusinessOrPrivatePage, NotifyingAsPurchaserPage, PurchaserBusinessOrIndividualPage, VehicleBusinessUsePage, VehicleFromEuPage}
+import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, NotifyingAsPurchaserPage, PurchaserBusinessOrIndividualPage, VehicleBusinessUsePage, VehicleFromEuPage}
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.Messages
@@ -117,7 +117,7 @@ object DeleteCurrentNotificationController {
       case NovaUserType.Agent if request.userContext.isAgentWithoutClient =>
         request.userAnswers.get(VehicleFromEuPage).isDefined && purchaserQuestionsComplete(request.userAnswers)
       case NovaUserType.Agent =>
-        false
+        request.userAnswers.get(VehicleFromEuPage).isDefined && request.userAnswers.get(AgentClientVehicleBusinessUsePage).isDefined
     })
 
   private def purchaserQuestionsComplete(answers: UserAnswers): Boolean =

@@ -350,10 +350,22 @@ object UserDataService {
       case _              => SectionStatus.Incomplete
     }
 
+    /* Notifier Details */
+    val nameDetails             = answers.get(NameDetailsPage)
+    val phoneNumber             = answers.get(PhoneNumberPage)
+    val emailAddress            = answers.get(EmailAddressPage)
+    val expectsName             = agentClientVehicleBusinessUse.contains(false)
+    val notifierDetailsAllUnset = nameDetails.isEmpty && phoneNumber.isEmpty && emailAddress.isEmpty
+
+    val notifierDetailsStatus =
+      if phoneNumber.isDefined && emailAddress.isDefined && (nameDetails.isDefined == expectsName) then SectionStatus.Completed
+      else if notifierDetailsAllUnset then SectionStatus.NotYetSaved
+      else SectionStatus.Incomplete
+
     Map(
       SectionId.Introduction     -> introStatus,
       SectionId.InitialQuestions -> initialQsStatus,
-      SectionId.NotifierDetails  -> SectionStatus.NotYetSaved,
+      SectionId.NotifierDetails  -> notifierDetailsStatus,
       SectionId.NotifierAddress  -> SectionStatus.NotYetSaved,
       SectionId.Vehicles         -> answers.get(VehiclesSectionStatusPage).getOrElse(SectionStatus.NotYetSaved),
       SectionId.Declaration      -> SectionStatus.NotYetSaved

@@ -514,6 +514,9 @@ notificationTaskList.status.completed = Wedi’i gwblhau
 notificationTaskList.status.cannotStartYet = Methu dechrau eto
 notificationTaskList.returnToHome = Dychwelyd i’r hafan
 notificationTaskList.deleteNotification = Dileu hysbysiad
+# TODO: Welsh translations to be supplied by content team.
+notificationTaskList.client.heading = Notifying on behalf of {0}
+notificationTaskList.client.vrn = VAT registration number
 
 ########################################################
 # CS1.0 - Client State 1: Retrieving your client list  #

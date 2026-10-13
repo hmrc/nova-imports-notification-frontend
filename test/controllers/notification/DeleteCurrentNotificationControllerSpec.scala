@@ -23,12 +23,12 @@ import controllers.actions.*
 import controllers.{notification, routes}
 import forms.DeleteCurrentNotificationFormProvider
 import models.PurchaserOrOnBehalf.Purchaser
-import models.{BusinessOrPrivateIndividual, DraftId, PurchaserOrOnBehalf, UserAnswers}
+import models.{AgentSelectedClient, BusinessOrPrivateIndividual, DraftId, PurchaserOrOnBehalf, UserAnswers}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{never, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.DraftIdPage
-import pages.sections.initialquestions.{BusinessOrPrivatePage, NotifyingAsPurchaserPage, VehicleBusinessUsePage, VehicleFromEuPage}
+import pages.{AgentSelectedClientPage, DraftIdPage}
+import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, NotifyingAsPurchaserPage, VehicleBusinessUsePage, VehicleFromEuPage}
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -434,6 +434,71 @@ class DeleteCurrentNotificationControllerSpec extends SpecBase with MockitoSugar
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form)(request, messages(application)).toString
+      }
+    }
+
+    "must return OK for a GET when an Agent with a selected client has required answers" in {
+
+      val answers: UserAnswers = emptyUserAnswers
+        .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
+        .unsafeSet(AgentSelectedClientPage, AgentSelectedClient(vrn = "123456789", name = Some("Client Ltd")))
+        .unsafeSet(VehicleFromEuPage, false)
+        .unsafeSet(AgentClientVehicleBusinessUsePage, true)
+
+      val (application, _, _) =
+        applicationWithMockRepository(answers, identifierAction = classOf[FakeAgentIdentifierAction])
+
+      running(application) {
+        given request: FakeRequest[AnyContentAsEmpty.type] =
+          FakeRequest(GET, deleteCurrentNotificationPageLoadRoute)
+
+        val result = route(application, request).value
+        val view   = application.injector.instanceOf[DeleteCurrentNotificationView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form)(request, messages(application)).toString
+      }
+    }
+
+    "must redirect to Unauthorised for a GET when an Agent with a selected client has no answer for AgentClientVehicleBusinessUsePage" in {
+
+      val answers: UserAnswers = emptyUserAnswers
+        .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
+        .unsafeSet(AgentSelectedClientPage, AgentSelectedClient(vrn = "123456789", name = Some("Client Ltd")))
+        .unsafeSet(VehicleFromEuPage, true)
+
+      val (application, _, _) =
+        applicationWithMockRepository(answers, identifierAction = classOf[FakeAgentIdentifierAction])
+
+      running(application) {
+        given request: FakeRequest[AnyContentAsEmpty.type] =
+          FakeRequest(GET, deleteCurrentNotificationPageLoadRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Unauthorised for a GET when an Agent with a selected client has no answer for VehicleFromEuPage" in {
+
+      val answers: UserAnswers = emptyUserAnswers
+        .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
+        .unsafeSet(AgentSelectedClientPage, AgentSelectedClient(vrn = "123456789", name = Some("Client Ltd")))
+        .unsafeSet(AgentClientVehicleBusinessUsePage, true)
+
+      val (application, _, _) =
+        applicationWithMockRepository(answers, identifierAction = classOf[FakeAgentIdentifierAction])
+
+      running(application) {
+        given request: FakeRequest[AnyContentAsEmpty.type] =
+          FakeRequest(GET, deleteCurrentNotificationPageLoadRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
       }
     }
 
