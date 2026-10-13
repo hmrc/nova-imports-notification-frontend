@@ -38,7 +38,7 @@
 
     <p class="govuk-body">@messages("addVehicleDetailsHeavyCommercial.paragraph.1")</p>
 
-    @formHelper(action = submitCall) {
+    @formHelper(action = submitCall, Symbol("autoComplete") -> "off") {
 
         @govukInput(
             InputViewModel(
@@ -46,6 +46,7 @@
                 label = LabelViewModel(messages("addVehicleDetailsHeavyCommercial.make.label"))
             ).withHint(HintViewModel(Text(messages("addVehicleDetailsHeavyCommercial.make.hint"))))
              .withCssClass("govuk-input--width-20")
+             .withAutocomplete("off")
         )
 
         @govukInput(
@@ -54,6 +55,7 @@
                 label = LabelViewModel(messages("addVehicleDetailsHeavyCommercial.model.label"))
             ).withHint(HintViewModel(Text(messages("addVehicleDetailsHeavyCommercial.model.hint"))))
              .withCssClass("govuk-input--width-20")
+             .withAutocomplete("off")
         )
 
         @govukInput(
@@ -62,6 +64,7 @@
                 label = LabelViewModel(messages("addVehicleDetailsHeavyCommercial.hcvType.label"))
             ).withHint(HintViewModel(Text(messages("addVehicleDetailsHeavyCommercial.hcvType.hint"))))
              .withCssClass("govuk-input--width-20")
+             .withAutocomplete("off")
         )
 
         @govukInput(
@@ -70,6 +73,7 @@
                 label = LabelViewModel(messages("addVehicleDetailsHeavyCommercial.cabType.label"))
             ).withHint(HintViewModel(Text(messages("addVehicleDetailsHeavyCommercial.cabType.hint"))))
              .withCssClass("govuk-input--width-20")
+             .withAutocomplete("off")
         )
 
         @govukButton(ButtonViewModel(messages("site.continue")))

@@ -42,7 +42,7 @@
 
     <p class="govuk-body">@messages("addVehicleDetailsMotorcycle.paragraph.1")</p>
 
-    @formHelper(action = submitCall) {
+    @formHelper(action = submitCall, Symbol("autoComplete") -> "off") {
 
         @govukInput(
             InputViewModel(
@@ -50,6 +50,7 @@
                 label = LabelViewModel(messages("addVehicleDetailsMotorcycle.make.label"))
             ).withHint(HintViewModel(Text(messages("addVehicleDetailsMotorcycle.make.hint"))))
              .withCssClass("govuk-input--width-20")
+             .withAutocomplete("off")
         )
 
         @govukInput(
@@ -58,6 +59,7 @@
                 label = LabelViewModel(messages("addVehicleDetailsMotorcycle.model.label"))
             ).withHint(HintViewModel(Text(messages("addVehicleDetailsMotorcycle.model.hint"))))
              .withCssClass("govuk-input--width-20")
+             .withAutocomplete("off")
         )
 
         @govukInput(
@@ -66,6 +68,7 @@
                 label = LabelViewModel(messages("addVehicleDetailsMotorcycle.derivative.label"))
             ).withHint(HintViewModel(Text(messages("addVehicleDetailsMotorcycle.derivative.hint"))))
              .withCssClass("govuk-input--width-20")
+             .withAutocomplete("off")
         )
 
         @govukInput(
@@ -74,6 +77,7 @@
                 label = LabelViewModel(messages("addVehicleDetailsMotorcycle.motorcycleVersion.label"))
             ).withHint(HintViewModel(Text(messages("addVehicleDetailsMotorcycle.motorcycleVersion.hint"))))
              .withCssClass("govuk-input--width-20")
+             .withAutocomplete("off")
         )
 
         @govukInput(
@@ -82,6 +86,7 @@
                 label = LabelViewModel(messages("addVehicleDetailsMotorcycle.motorcycleType.label"))
             ).withHint(HintViewModel(Text(messages("addVehicleDetailsMotorcycle.motorcycleType.hint"))))
              .withCssClass("govuk-input--width-20")
+             .withAutocomplete("off")
         )
 
         @govukInput(
@@ -90,6 +95,7 @@
                 label = LabelViewModel(messages("addVehicleDetailsMotorcycle.motorcycleStyle.label"))
             ).withHint(HintViewModel(Text(messages("addVehicleDetailsMotorcycle.motorcycleStyle.hint"))))
              .withCssClass("govuk-input--width-20")
+             .withAutocomplete("off")
         )
 
         @govukSelect(
@@ -126,6 +132,7 @@
                 label = LabelViewModel(messages("addVehicleDetailsMotorcycle.engineSize.label"))
             ).withHint(HintViewModel(Text(messages("addVehicleDetailsMotorcycle.engineSize.hint"))))
              .withCssClass("govuk-input--width-10")
+             .withAutocomplete("off")
         )
 
         @govukButton(ButtonViewModel(messages("site.continue")))
