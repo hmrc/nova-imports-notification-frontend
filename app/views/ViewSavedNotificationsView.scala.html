@@ -34,8 +34,7 @@
 @actions(draft: DraftNotificationSummary) = {
     <a class="govuk-link" href="@controllers.notification.routes.ViewSavedNotificationsController.onContinue(draft.draftId)">@messages("viewSavedNotifications.table.continue")<span class="govuk-visually-hidden"> @purchaserName(draft)</span></a>
     <span class="table-link-separator" aria-hidden="true"> | </span>
-    @* TODO: point Delete at DN1.0 /delete-saved-notification once it is built *@
-    <a class="govuk-link" href="@controllers.routes.LandingPageController.onPageLoad()">@messages("viewSavedNotifications.table.delete")<span class="govuk-visually-hidden"> @purchaserName(draft)</span></a>
+    <a class="govuk-link" href="@controllers.notification.routes.DeleteSavedNotificationController.onPageLoad(draft.draftId)">@messages("viewSavedNotifications.table.delete")<span class="govuk-visually-hidden"> @purchaserName(draft)</span></a>
 }
 
 @pageTitle = @{

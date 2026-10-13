@@ -653,4 +653,22 @@ class NovaImportsBackendConnectorISpec
       connector.deleteFileUpload(draftId).futureValue mustEqual Left(DeleteFileUploadError.UpstreamError(500, "boom"))
     }
   }
+
+  "deleteDraftNotification" - {
+
+    val draftId = DraftId("12345")
+    val url     = s"/nova-imports/draft-notifications/${draftId.value}"
+
+    "sends clientVrn 700700700 as a query parameter and returns success on 204" in {
+      wireMockServer.stubFor(delete(urlEqualTo(s"$url?clientVrn=700700700")).willReturn(aResponse().withStatus(204)))
+
+      connector.deleteDraftNotification(draftId, Some("700700700")).futureValue mustEqual Right(true)
+    }
+
+    "sends no query parameter when there is no clientVrn" in {
+      wireMockServer.stubFor(delete(urlEqualTo(url)).willReturn(aResponse().withStatus(204)))
+
+      connector.deleteDraftNotification(draftId, None).futureValue mustEqual Right(true)
+    }
+  }
 }
