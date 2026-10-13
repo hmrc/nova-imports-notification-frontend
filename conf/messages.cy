@@ -937,6 +937,8 @@ addImportVehicleDetails.radio.bySpreadsheet.hint = Use the spreadsheet option to
 addImportVehicleDetails.inset.paragraph.1 = If you’re uploading a spreadsheet, you must use the correct one for the same type of vehicles. {0} you must download and use.
 addImportVehicleDetails.inset.findSpreadsheet.linkText = Find the spreadsheet
 addImportVehicleDetails.error.required = Select how you want to add vehicle details
+addImportVehicleDetails.noSpreadsheet.paragraph.2 = You can add details of up to 100 vehicles in one submission. Provide the import entry number details first, then add the vehicles from that import.
+addImportVehicleDetails.noSpreadsheet.button = Add import entry number
 
 ###############################################################################
 # AVD2.0 - Add vehicle details 2.0: Vehicles bought from [supplierName]       #

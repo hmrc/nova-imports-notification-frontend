@@ -39,7 +39,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import queries.AllImportsQuery
 import repositories.SessionRepository
-import views.html.AddImportVehicleDetailsView
+import views.html.{AddImportVehicleDetailsNoSpreadsheetView, AddImportVehicleDetailsView}
 
 import scala.concurrent.Future
 
@@ -98,6 +98,19 @@ class AddImportVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode, spreadsheetUrl(application))(request, messages(application)).toString
+      }
+    }
+
+    "must return OK and the correct view for a GET (agent)" in {
+      val application = applicationFor(classOf[FakeAgentIdentifierAction], Some(answersSatisfyingGuard))
+
+      running(application) {
+        val request = FakeRequest(GET, onPageLoadRoute)
+        val result  = route(application, request).value
+        val view    = application.injector.instanceOf[AddImportVehicleDetailsNoSpreadsheetView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
       }
     }
 
@@ -184,6 +197,24 @@ class AddImportVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual
           vehicledetails.routes.ImportEntryNumberController.onPageLoad(ImportNumber(2)).url
+      }
+    }
+
+    "must add import and redirect to the next page when no data is submitted for an Agent" in {
+      val mockSessionRepository = mock[SessionRepository]
+      when(mockSessionRepository.setPage(any(), any(), any())(any())) thenReturn Future.successful(answersSatisfyingGuard)
+
+      val application = builderFor(classOf[FakeAgentIdentifierAction], Some(answersSatisfyingGuard))
+        .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
+        .build()
+
+      running(application) {
+        val request = FakeRequest(POST, onSubmitRoute).withFormUrlEncodedBody(("value", ""))
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual
+          vehicledetails.routes.ImportEntryNumberController.onPageLoad(ImportNumber(1)).url
       }
     }
 
