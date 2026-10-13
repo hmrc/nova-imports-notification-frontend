@@ -20,9 +20,9 @@ import base.SpecBase
 import com.google.inject.name.Names
 import controllers.actions.*
 import controllers.{routes, vehicledetails}
-import models.{AgentSelectedClient, DraftId, UserAnswers}
+import models.{AgentSelectedClient, DraftId, SectionStatus, UserAnswers}
 import pages.sections.initialquestions.VehicleFromEuPage
-import pages.{AgentSelectedClientPage, DraftIdPage}
+import pages.{AgentSelectedClientPage, DraftIdPage, VehiclesSectionStatusPage}
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -34,8 +34,11 @@ class UploadSuccessfulControllerSpec extends SpecBase {
 
   private lazy val onPageLoadRoute = vehicledetails.routes.UploadSuccessfulController.onPageLoad().url
 
-  private val answersWithDraftIdAndEuAnswer: UserAnswers =
+  private val answersWithoutSavedSpreadsheet: UserAnswers =
     emptyUserAnswers.unsafeSet(DraftIdPage, DraftId("DRAFT-001")).unsafeSet(VehicleFromEuPage, true)
+
+  private val answersWithDraftIdAndEuAnswer: UserAnswers =
+    answersWithoutSavedSpreadsheet.unsafeSet(VehiclesSectionStatusPage, SectionStatus.Completed)
 
   private def applicationFor(standardIdentifier: Class[? <: IdentifierAction], userAnswers: Option[UserAnswers]): Application =
     new GuiceApplicationBuilder()
@@ -68,7 +71,7 @@ class UploadSuccessfulControllerSpec extends SpecBase {
       }
     }
 
-    "must return OK for an agent who has selected a client, with Continue going to the NTL2.0 placeholder" in {
+    "must return OK for an agent who has selected a client, with Continue going to the notification task list" in {
       val answers     = answersWithDraftIdAndEuAnswer.unsafeSet(AgentSelectedClientPage, AgentSelectedClient("700011916", Some("Client Co")))
       val application = applicationFor(classOf[FakeAgentIdentifierAction], Some(answers))
 
@@ -78,7 +81,36 @@ class UploadSuccessfulControllerSpec extends SpecBase {
         val view    = application.injector.instanceOf[UploadSuccessfulView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(routes.LandingPageController.onPageLoad())(request, messages(application)).toString
+        contentAsString(result) mustEqual view(routes.NotificationTaskListController.onPageLoad())(request, messages(application)).toString
+      }
+    }
+
+    "must redirect to Unauthorised when no vehicle spreadsheet has been saved" in {
+      Seq(
+        answersWithoutSavedSpreadsheet,
+        answersWithoutSavedSpreadsheet.unsafeSet(VehiclesSectionStatusPage, SectionStatus.NotYetSaved),
+        answersWithoutSavedSpreadsheet.unsafeSet(VehiclesSectionStatusPage, SectionStatus.Incomplete)
+      ).foreach { answers =>
+        val application = applicationFor(classOf[FakeVatTraderIdentifierAction], Some(answers))
+
+        running(application) {
+          val result = route(application, FakeRequest(GET, onPageLoadRoute)).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+        }
+      }
+    }
+
+    "must redirect to Unauthorised for an agent who has selected a client but has not saved a vehicle spreadsheet" in {
+      val answers     = answersWithoutSavedSpreadsheet.unsafeSet(AgentSelectedClientPage, AgentSelectedClient("700011916", Some("Client Co")))
+      val application = applicationFor(classOf[FakeAgentIdentifierAction], Some(answers))
+
+      running(application) {
+        val result = route(application, FakeRequest(GET, onPageLoadRoute)).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
       }
     }
 

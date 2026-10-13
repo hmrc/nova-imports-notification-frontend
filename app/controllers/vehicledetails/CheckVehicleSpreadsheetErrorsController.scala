@@ -16,7 +16,7 @@
 
 package controllers.vehicledetails
 
-import connectors.NovaImportsBackendConnector
+import connectors.{GetUploadResultError, NovaImportsBackendConnector}
 import controllers.BaseController
 import controllers.actions.Actions
 import controllers.vehicledetails.VehicleSpreadsheetUploadController.guardPredicate
@@ -49,7 +49,9 @@ class CheckVehicleSpreadsheetErrorsController @Inject() (
           Ok(view(Pager.page(result.errors, page), p => routes.CheckVehicleSpreadsheetErrorsController.onPageLoad(p).url))
         case Right(result) if result.fileStatus == "VALIDATED" =>
           Redirect(routes.CheckVehicleSpreadsheetDetailsController.onPageLoad())
-        case Right(_)    => Redirect(routes.VehicleSpreadsheetUploadController.onPageLoad())
+        case Right(_)                            => Redirect(routes.VehicleSpreadsheetUploadController.onPageLoad())
+        case Left(GetUploadResultError.NotFound) =>
+          Ok(view(Pager.page(Seq.empty, page), p => routes.CheckVehicleSpreadsheetErrorsController.onPageLoad(p).url))
         case Left(error) =>
           logger.warn(s"Could not retrieve the vehicle spreadsheet errors: $error")
           Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())

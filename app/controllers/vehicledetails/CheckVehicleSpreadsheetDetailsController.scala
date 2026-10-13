@@ -16,15 +16,15 @@
 
 package controllers.vehicledetails
 
-import connectors.NovaImportsBackendConnector
+import connectors.{GetUploadResultError, NovaImportsBackendConnector}
 import controllers.BaseController
 import controllers.actions.Actions
 import controllers.vehicledetails.VehicleSpreadsheetUploadController.guardPredicate
 import models.draftsections.{ImportDetails, ImportVehicleAdditionalInformation, ImportVehicleType, SupplierDetails, VehicleAdditionalInformation, VehicleDetails, VehicleType}
 import models.responses.{SpreadsheetAgriculturalTractorEuVehicle, SpreadsheetAgriculturalTractorNonEuVehicle, SpreadsheetConstructionVehiclesEuVehicle, SpreadsheetConstructionVehiclesNonEuVehicle, SpreadsheetEuVehicle, SpreadsheetHeavyCommercialEuVehicle, SpreadsheetHeavyCommercialNonEuVehicle, SpreadsheetMotorCaravansEuVehicle, SpreadsheetMotorCaravansNonEuVehicle, SpreadsheetMotorcyclesEuVehicle, SpreadsheetMotorcyclesNonEuVehicle, SpreadsheetNonEuVehicle, UploadResultResponse}
-import models.{BusinessOrPrivateIndividual, DraftId}
+import models.{BusinessOrPrivateIndividual, DraftId, SectionStatus}
 import pages.sections.introduction.AmendSubmittedNotificationPage
-import pages.{DraftIdPage, DraftVersionIdPage}
+import pages.{DraftIdPage, DraftVersionIdPage, VehiclesSectionStatusPage}
 import play.api.Logging
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
@@ -59,6 +59,7 @@ class CheckVehicleSpreadsheetDetailsController @Inject() (
           Ok(view(Pager.page(result.vehicles, page), p => routes.CheckVehicleSpreadsheetDetailsController.onPageLoad(p).url))
         case Right(result) if result.fileStatus == "VALIDATION_FAILED" => Redirect(routes.CheckVehicleSpreadsheetErrorsController.onPageLoad())
         case Right(_)                                                  => Redirect(routes.VehicleSpreadsheetUploadController.onPageLoad())
+        case Left(GetUploadResultError.NotFound)                       => Redirect(routes.CheckVehicleSpreadsheetErrorsController.onPageLoad())
         case Left(error)                                               =>
           logger.warn(s"Could not retrieve the vehicle spreadsheet details: $error")
           Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
@@ -150,8 +151,9 @@ class CheckVehicleSpreadsheetDetailsController @Inject() (
     result match {
       case Right(newVersionId) =>
         for {
-          _ <- sessionRepository.setPage(userAnswers, DraftVersionIdPage, newVersionId)
-          _ <- connector.deleteFileUpload(draftId).map {
+          versioned <- sessionRepository.setPage(userAnswers, DraftVersionIdPage, newVersionId)
+          _         <- sessionRepository.setPage(versioned, VehiclesSectionStatusPage, SectionStatus.Completed)
+          _         <- connector.deleteFileUpload(draftId).map {
                  case Right(_)    => ()
                  case Left(error) => logger.warn(s"Could not delete the vehicle spreadsheet upload after saving for draftId ${draftId.value}: $error")
                }
