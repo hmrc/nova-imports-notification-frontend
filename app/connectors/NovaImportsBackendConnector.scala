@@ -309,7 +309,7 @@ class NovaImportsBackendConnectorImpl @Inject() (
   ): Future[Either[DeleteDraftNotificationError, Boolean]] = {
     import DeleteDraftNotificationError.*
 
-    val maybeClientVrn: Seq[(String, String)] = clientVrn.map("clientVrn" -> _).toSeq
+    val maybeClientVrn: Seq[(String, String)] = clientVrn.map(vrn => Seq("clientVrn" -> vrn)).getOrElse(Seq.empty)
 
     httpClient
       .delete(url"${serviceUrl(s"/draft-notifications/${draftId.value}")}?$maybeClientVrn")
