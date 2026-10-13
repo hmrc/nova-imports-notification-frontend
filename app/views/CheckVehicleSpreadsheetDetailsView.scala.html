@@ -69,6 +69,8 @@
                 <a class="govuk-link" href="@controllers.routes.LandingPageController.onPageLoad().url">@messages("checkVehicleSpreadsheetDetails.downloadLink")</a>
             </p>
 
+        <br>
+
         @formHelper(action = controllers.vehicledetails.routes.CheckVehicleSpreadsheetDetailsController.onSubmit()) {
         <div class="govuk-button-group">
                 @govukButton(ButtonViewModel(messages("checkVehicleSpreadsheetDetails.saveAndContinue")))
