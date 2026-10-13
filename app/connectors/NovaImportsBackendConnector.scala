@@ -137,7 +137,9 @@ trait NovaImportsBackendConnector {
 
   def getDraftNotification(draftId: DraftId)(implicit hc: HeaderCarrier): Future[Either[GetDraftNotificationError, DraftNotification]]
 
-  def deleteDraftNotification(draftId: DraftId)(implicit hc: HeaderCarrier): Future[Either[DeleteDraftNotificationError, Boolean]]
+  def deleteDraftNotification(draftId: DraftId, clientVrn: Option[String])(implicit
+    hc: HeaderCarrier
+  ): Future[Either[DeleteDraftNotificationError, Boolean]]
 
   def getTraderInformation()(implicit hc: HeaderCarrier): Future[Either[GetTraderInformationError, TraderInformation]]
 
@@ -302,13 +304,13 @@ class NovaImportsBackendConnectorImpl @Inject() (
       }
   }
 
-  override def deleteDraftNotification(draftId: DraftId)(implicit
+  override def deleteDraftNotification(draftId: DraftId, clientVrn: Option[String])(implicit
     hc: HeaderCarrier
   ): Future[Either[DeleteDraftNotificationError, Boolean]] = {
     import DeleteDraftNotificationError.*
 
     httpClient
-      .delete(url"${serviceUrl(s"/draft-notifications/${draftId.value}")}")
+      .delete(url"${serviceUrl(s"/draft-notifications/${draftId.value}")}?clientVrn=$clientVrn")
       .execute[HttpResponse]
       .map { response =>
         response.status match {

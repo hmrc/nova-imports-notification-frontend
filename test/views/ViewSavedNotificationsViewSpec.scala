@@ -85,11 +85,11 @@ class ViewSavedNotificationsViewSpec extends SpecBase with Matchers with BeforeA
       cellsOfRow(html, 0).take(4) mustEqual Seq("Not provided", "Not provided", "Not provided", "5 Sep 2026")
     }
 
-    "must link Continue to onContinue and Delete to the landing page" in {
+    "must link Continue to onContinue and Delete to DN1.0 for draft 12345" in {
       val links = Jsoup.parse(view(PageOf(Seq(completeDraft), 1, 10, 1)).toString).select("tbody tr td").last.select("a")
 
       links.get(0).attr("href") mustEqual controllers.notification.routes.ViewSavedNotificationsController.onContinue("12345").url
-      links.get(1).attr("href") mustEqual controllers.routes.LandingPageController.onPageLoad().url
+      links.get(1).attr("href") mustEqual controllers.notification.routes.DeleteSavedNotificationController.onPageLoad("12345").url
     }
   }
 }

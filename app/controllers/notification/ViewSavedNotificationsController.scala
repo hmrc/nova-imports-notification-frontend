@@ -21,8 +21,9 @@ import config.FrontendAppConfig
 import connectors.NovaImportsBackendConnector
 import controllers.BaseController
 import controllers.actions.*
-import models.{DraftId, DraftNotificationSummary, NotificationSummary, UserAnswers, UserContext}
-import pages.{AgentSelectedClientPage, DraftIdPage, DraftVersionIdPage}
+import controllers.utils.{ClearedUserAnswers, PurchaserName}
+import models.{DraftId, UserAnswers, UserContext}
+import pages.{DraftIdPage, DraftVersionIdPage}
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
@@ -34,7 +35,6 @@ import views.html.ViewSavedNotificationsView
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
-import scala.util.{Success, Try}
 
 class ViewSavedNotificationsController @Inject() (
   val controllerComponents: MessagesControllerComponents,
@@ -64,9 +64,11 @@ class ViewSavedNotificationsController @Inject() (
           case Right(notifications) if notifications.totalCount == 0 =>
             Future.successful(Redirect(controllers.routes.UnauthorisedController.onPageLoad()))
           case Right(notifications) =>
-            traderOrClientSummary(ctx, clientVrn).map { summary =>
+            PurchaserName.fetchTraderOrClientSummary(connector, ctx, clientVrn).map { summary =>
               val notificationsWithNames =
-                notifications.copy(drafts = notifications.drafts.map(draft => draft.copy(purchaserName = nameForPurchaser(draft, ctx, summary))))
+                notifications.copy(drafts =
+                  notifications.drafts.map(draft => draft.copy(purchaserName = PurchaserName.toDisplay(draft.purchaserName, ctx, summary)))
+                )
               val results = PageOf(notificationsWithNames.drafts, currentPage, pageSize, notifications.totalCount)
               if (results.items.isEmpty && currentPage > results.totalPages)
                 Redirect(routes.ViewSavedNotificationsController.onPageLoad(results.totalPages))
@@ -91,14 +93,8 @@ class ViewSavedNotificationsController @Inject() (
       val ctx     = UserContext.from(request.affinityGroup, request.enrolments, answers)
 
       // clears the session, keeps the selected client for an agent with a client, writes the chosen draftId
-      val selectedClient                   = if (ctx.isAgentWithClient) answers.get(AgentSelectedClientPage) else None
-      val clearedAnswers: Try[UserAnswers] = selectedClient match {
-        case Some(client) => UserAnswers(request.userId).set(AgentSelectedClientPage, client)
-        case None         => Success(UserAnswers(request.userId))
-      }
-
       val retrieved = for {
-        answersWithDraftId <- Future.fromTry(clearedAnswers.flatMap(_.set(DraftIdPage, DraftId(draftId))))
+        answersWithDraftId <- Future.fromTry(ClearedUserAnswers(request.userId, answers, ctx).flatMap(_.set(DraftIdPage, DraftId(draftId))))
         _                  <- sessionRepository.set(answersWithDraftId)
         retrievedDraft     <- userDataService.retrieveAndStoreDraftNotification(DraftId(draftId), answersWithDraftId, ctx)
       } yield retrievedDraft
@@ -127,23 +123,4 @@ class ViewSavedNotificationsController @Inject() (
         Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
     }
 
-  private def traderOrClientSummary(ctx: UserContext, clientVrn: Option[String])(implicit
-    hc: HeaderCarrier
-  ): Future[Option[NotificationSummary]] =
-    if (ctx.isVatRegisteredOrganisation || ctx.isAgentWithClient)
-      connector.getNotificationSummary(clientVrn).map {
-        case Right(summary) => Some(summary)
-        case Left(error)    =>
-          logger.warn(s"failed to fetch summary for the saved notifications names: $error")
-          None
-      }
-    else Future.successful(None)
-
-  private def nameForPurchaser(draft: DraftNotificationSummary, ctx: UserContext, summary: Option[NotificationSummary]): Option[String] =
-    summary match {
-      case Some(s: NotificationSummary.AgentWithClient) => s.clientTraderName.orElse(ctx.selectedClient.flatMap(_.name))
-      case _ if ctx.isAgentWithClient                   => ctx.selectedClient.flatMap(_.name)
-      case Some(s: NotificationSummary.IndividualOrOrganisation) if ctx.isVatRegisteredOrganisation => draft.purchaserName.orElse(s.traderName)
-      case _                                                                                        => draft.purchaserName
-    }
 }
