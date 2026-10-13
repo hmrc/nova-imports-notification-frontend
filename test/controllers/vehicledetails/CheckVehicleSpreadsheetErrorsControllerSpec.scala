@@ -71,23 +71,8 @@ class CheckVehicleSpreadsheetErrorsControllerSpec extends SpecBase with MockitoS
 
   "CheckVehicleSpreadsheetErrorsController.onPageLoad" - {
 
-    "must render the page with no errors listed when the upload no longer exists, as it does once the spreadsheet has been saved" in {
-      val application = applicationFor(connectorReturning(GetUploadResultError.NotFound))
-
-      running(application) {
-        val result = route(application, FakeRequest(GET, onPageLoadRoute)).value
-        val doc    = Jsoup.parse(contentAsString(result))
-
-        status(result) mustEqual OK
-        doc.select("h1").text mustEqual "Errors found in this vehicle spreadsheet"
-        doc.select("tbody tr").size mustEqual 0
-        doc.select("a:contains(Upload updated spreadsheet)").attr("href") mustEqual
-          vehicledetails.routes.UploadVehicleSpreadsheetController.onPageLoad(restart = true).url
-      }
-    }
-
-    "must redirect to Journey Recovery when the upload result cannot be retrieved for any other reason" in {
-      Seq(GetUploadResultError.Forbidden, GetUploadResultError.UpstreamError(500, "boom")).foreach { error =>
+    "must redirect to Journey Recovery when the upload result cannot be retrieved" in {
+      Seq(GetUploadResultError.NotFound, GetUploadResultError.Forbidden, GetUploadResultError.UpstreamError(500, "boom")).foreach { error =>
         val application = applicationFor(connectorReturning(error))
 
         running(application) {

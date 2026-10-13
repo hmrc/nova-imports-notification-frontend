@@ -29,7 +29,7 @@ import org.mockito.Mockito.{never, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.sections.initialquestions.VehicleFromEuPage
 import pages.sections.introduction.AmendSubmittedNotificationPage
-import pages.{DraftIdPage, DraftVersionIdPage, VehiclesSectionStatusPage}
+import pages.{DraftIdPage, DraftVersionIdPage, SavedVehicleSpreadsheetSummaryPage, VehiclesSectionStatusPage}
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -56,6 +56,11 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
       .unsafeSet(DraftIdPage, draftId)
       .unsafeSet(VehicleFromEuPage, true)
       .unsafeSet(DraftVersionIdPage, versionId)
+
+  private val savedSummary = Seq(
+    VehicleSummary(Some(1), Some("VIN0000000000001"), Some("Ford"), Some("Focus")),
+    VehicleSummary(Some(2), Some("VIN0000000000002"), Some("Audi"), Some("A3"))
+  )
 
   private val fullVehicle = SpreadsheetEuVehicle(
     itemNumber = Some(1),
@@ -725,7 +730,25 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
 
   "CheckVehicleSpreadsheetDetailsController.onPageLoad" - {
 
-    "must redirect to the errors page when the upload no longer exists, as it does once the spreadsheet has been saved" in {
+    "must show the saved spreadsheet vehicles when the upload no longer exists, as it does once the spreadsheet has been saved" in {
+      val connector = stubConnector()
+      when(connector.getUploadResult(eqTo(draftId))(using any[HeaderCarrier]))
+        .thenReturn(Future.successful(Left(GetUploadResultError.NotFound)))
+
+      val application = applicationFor(Some(answers.unsafeSet(SavedVehicleSpreadsheetSummaryPage, savedSummary)), connector)
+
+      running(application) {
+        val result = route(application, FakeRequest(GET, onPageLoadRoute)).value
+        val doc    = org.jsoup.Jsoup.parse(contentAsString(result))
+
+        status(result) mustEqual OK
+        doc.select("tbody tr").size mustEqual 2
+        doc.select("tbody tr").first.text must include("VIN0000000000001")
+        doc.select("tbody tr").last.text  must include("VIN0000000000002")
+      }
+    }
+
+    "must redirect to Journey Recovery when the upload no longer exists and no spreadsheet has been saved" in {
       val connector = stubConnector()
       when(connector.getUploadResult(eqTo(draftId))(using any[HeaderCarrier]))
         .thenReturn(Future.successful(Left(GetUploadResultError.NotFound)))
@@ -736,7 +759,7 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
         val result = route(application, FakeRequest(GET, onPageLoadRoute)).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual vehicledetails.routes.CheckVehicleSpreadsheetErrorsController.onPageLoad().url
+        redirectLocation(result).value mustEqual controllers.routes.JourneyRecoveryController.onPageLoad().url
       }
     }
 
@@ -759,6 +782,23 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
   }
 
   "CheckVehicleSpreadsheetDetailsController.onSubmit" - {
+
+    "must redirect to upload successful without saving again when the spreadsheet has already been saved" in {
+      val connector = stubConnector()
+      when(connector.getUploadResult(eqTo(draftId))(using any[HeaderCarrier]))
+        .thenReturn(Future.successful(Left(GetUploadResultError.NotFound)))
+
+      val application = applicationFor(Some(answers.unsafeSet(SavedVehicleSpreadsheetSummaryPage, savedSummary)), connector)
+
+      running(application) {
+        val result = route(application, FakeRequest(POST, onSubmitRoute)).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual vehicledetails.routes.UploadSuccessfulController.onPageLoad().url
+
+        verify(connector, never).replaceVehicleSections(any[DraftId], any[Map[String, JsObject]], any[Long])(using any[HeaderCarrier])
+      }
+    }
 
     "must replace vehicle sections in one call for a single-vehicle CarsEu upload, then redirect on and delete the upload record" in {
       val connector = stubConnector()
@@ -783,6 +823,7 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
         )
         verify(sessionRepository).setPage(eqTo(answers), eqTo(DraftVersionIdPage), eqTo(newVersion))(using any())
         verify(sessionRepository).setPage(any(), eqTo(VehiclesSectionStatusPage), eqTo(SectionStatus.Completed))(using any())
+        verify(sessionRepository).setPage(any(), eqTo(SavedVehicleSpreadsheetSummaryPage), any[Seq[VehicleSummary]])(using any())
         verify(connector).deleteFileUpload(eqTo(draftId))(using any[HeaderCarrier])
       }
     }
