@@ -78,7 +78,7 @@ class DeleteSavedNotificationController @Inject() (
         case Right(_) =>
           for {
             _      <- Future.fromTry(ClearedUserAnswers(request.userId, answers, ctx)).flatMap(sessionRepository.set)
-            drafts <- connector.getDraftNotifications(clientVrn, 1, 1)
+            drafts <- connector.getDraftNotifications(clientVrn = clientVrn, page = 1, pageSize = 1)
           } yield drafts match {
             case Right(notifications) if notifications.totalCount > 0 => Redirect(routes.ViewSavedNotificationsController.onPageLoad())
             case Right(_)                                             => Redirect(controllers.routes.LandingPageController.onPageLoad())
