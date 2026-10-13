@@ -101,7 +101,7 @@ object ValidationError {
 final case class VehicleSummary(itemNumber: Option[Int], vin: Option[String], make: Option[String], model: Option[String])
 
 object VehicleSummary {
-  implicit val reads: Reads[VehicleSummary] = Json.reads[VehicleSummary]
+  implicit val format: OFormat[VehicleSummary] = Json.format[VehicleSummary]
 }
 
 final case class UploadResultResponse(
