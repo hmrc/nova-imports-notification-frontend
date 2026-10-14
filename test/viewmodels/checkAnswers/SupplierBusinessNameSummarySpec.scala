@@ -122,5 +122,19 @@ class SupplierBusinessNameSummarySpec extends SpecBase {
       value                              must include(msgs("supplierDetailsCheckYourAnswers.notProvided"))
     }
 
+    "must show the client name with a change link back to AVD-S1.2 when using client details" in {
+      val result = SupplierBusinessNameSummary.rowFromClientDetails(Some("ABC Ltd"), SupplierNumber(1)).value
+
+      result.key.content.asHtml.toString   must include(msgs("supplierBusinessName.checkYourAnswersLabel"))
+      result.value.content.asHtml.toString must include("ABC Ltd")
+      result.actions.value.items.head.href mustBe routes.UseClientDetailsAsSupplierController.onPageLoad(SupplierNumber(1), NormalMode).url
+    }
+
+    "must return Not Provided when the client has no name" in {
+      val result = SupplierBusinessNameSummary.rowFromClientDetails(None, SupplierNumber(1)).value
+
+      result.value.content.asHtml.toString must include(msgs("supplierDetailsCheckYourAnswers.notProvided"))
+    }
+
   }
 }

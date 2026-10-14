@@ -739,6 +739,29 @@ usePurchaserDetailsAsSupplier.yes.hint = The purchaser is VAT registered and I w
 usePurchaserDetailsAsSupplier.no.hint = I want to add different supplier details
 usePurchaserDetailsAsSupplier.error.required = Select yes if you want to use the purchaser details as the supplier details
 
+#########################################################################################
+# AVD-S1.2 - Add vehicle details - Supplier 1.2: Use client details as supplier details #
+#########################################################################################
+
+useClientDetailsAsSupplier.title = Use your client details as the supplier details
+useClientDetailsAsSupplier.caption = Add vehicle details
+useClientDetailsAsSupplier.heading = Use your client details as the supplier details
+useClientDetailsAsSupplier.paragraph.1 = If your client takes goods from their own stock to use in their business, this is known as self-supply.
+useClientDetailsAsSupplier.paragraph.2 = If your client is a self-supplier, you can use their details as the supplier details. They must:
+useClientDetailsAsSupplier.bullet.1 = be VAT registered in the UK
+useClientDetailsAsSupplier.bullet.2 = have bought and used a road vehicle for their business activity in another EU country where they’re also VAT registered
+useClientDetailsAsSupplier.bullet.3 = have brought the road vehicle to the UK, and it belongs to the same business
+useClientDetailsAsSupplier.bullet.4 = not have bought a new means of transport,
+useClientDetailsAsSupplier.bullet.4.linkText = read VAT Notice 728
+useClientDetailsAsSupplier.clientDetails = Your client’s details are:
+useClientDetailsAsSupplier.name = Name
+useClientDetailsAsSupplier.address = Address
+useClientDetailsAsSupplier.notProvided = Not provided
+useClientDetailsAsSupplier.question = Do you want to use your client’s details as the supplier details?
+useClientDetailsAsSupplier.yes.hint = My client meets all the required conditions and I want to use their details as the supplier details
+useClientDetailsAsSupplier.no.hint = I want to add different supplier details
+useClientDetailsAsSupplier.error.required = Select yes if you want to use your client’s details as the supplier details
+
 ###########################################################################################
 # AVD-S2.0 - Add vehicle details - Supplier 2.0: Supplier business or private individual  #
 ###########################################################################################

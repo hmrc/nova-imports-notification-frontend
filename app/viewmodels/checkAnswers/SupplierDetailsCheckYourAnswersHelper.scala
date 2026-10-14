@@ -18,7 +18,7 @@ package viewmodels.checkAnswers
 
 import models.{SupplierNumber, TraderInformation, UserAnswers, UserContext}
 import pages.QuestionPage
-import pages.sections.supplierdetails.{UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
+import pages.sections.supplierdetails.{UseClientDetailsAsSupplierPage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import viewmodels.govuk.summarylist.*
@@ -28,17 +28,23 @@ object SupplierDetailsCheckYourAnswersHelper {
   def buildSummaryList(userContext: UserContext, answers: UserAnswers, supplierNumber: SupplierNumber, traderDetails: Option[TraderInformation])(
     implicit messages: Messages
   ): SummaryList =
-    SummaryListViewModel(rows = buildRows(answers, supplierNumber, traderDetails))
+    SummaryListViewModel(rows = buildRows(userContext, answers, supplierNumber, traderDetails))
 
   private def buildRows(
+    userContext: UserContext,
     answers: UserAnswers,
     supplierNumber: SupplierNumber,
     traderDetails: Option[TraderInformation]
   )(implicit messages: Messages) = {
 
-    // TODO: Add is using client details branch once AVD-S1.2 page is added
-
-    if (isUsingPersonalDetails(answers, supplierNumber)) {
+    if (isUsingClientDetails(answers, supplierNumber)) {
+      Seq(
+        SupplierBusinessNameSummary
+          .rowFromClientDetails(traderDetails.flatMap(_.name).orElse(userContext.selectedClient.flatMap(_.name)), supplierNumber),
+        SupplierNameSummary.rowFromClientDetails(),
+        SupplierAddressSummary.rowFromClientDetails(supplierNumber, traderDetails)
+      ).flatten
+    } else if (isUsingPersonalDetails(answers, supplierNumber)) {
       Seq(
         SupplierBusinessNameSummary.rowFromPersonalDetails(answers, supplierNumber),
         SupplierNameSummary.rowFromPersonalDetails(answers, supplierNumber, traderDetails),
@@ -70,6 +76,9 @@ object SupplierDetailsCheckYourAnswersHelper {
   }
   private def isUsingPurchaserDetails(answers: UserAnswers, supplierNumber: SupplierNumber): Boolean = {
     isAnswerTrue(answers, UsePurchaserDetailsAsSupplierPage(supplierNumber))
+  }
+  private def isUsingClientDetails(answers: UserAnswers, supplierNumber: SupplierNumber): Boolean = {
+    isAnswerTrue(answers, UseClientDetailsAsSupplierPage(supplierNumber))
   }
 
 }
