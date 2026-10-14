@@ -1583,7 +1583,7 @@ addVehicleDetailsMotorCaravan.version.error.length = The version must be 50 char
 addVehicleDetailsMotorCaravan.makeOfBaseVehicle.label = Make of base vehicle
 addVehicleDetailsMotorCaravan.makeOfBaseVehicle.hint = The manufacturer of the base vehicle, for example Fiat
 addVehicleDetailsMotorCaravan.makeOfBaseVehicle.error.required = Enter the make of base vehicle
-addVehicleDetailsMotorCaravan.makeOfBaseVehicle.error.format = The make of base vehicle must not include special characters such as #, $, ^, `, '{', '|', '}', ~, or accented letters such as è
+addVehicleDetailsMotorCaravan.makeOfBaseVehicle.error.format = The make of the base vehicle must not include special characters such as #, $, ^, `, '{', '|', '}', ~, or accented letters such as è
 addVehicleDetailsMotorCaravan.makeOfBaseVehicle.error.length = The make of base vehicle must be 50 characters or less
 
 addVehicleDetailsMotorCaravan.derivative.label = Derivative
