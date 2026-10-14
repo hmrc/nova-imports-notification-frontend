@@ -22,12 +22,12 @@ import config.FrontendAppConfig
 import controllers.actions.*
 import controllers.{routes, vehicledetails}
 import forms.AddImportVehicleDetailsFormProvider
-import models.{AddImportVehicleDetails, DraftId, ImportNumber, NormalMode, UserAnswers}
+import models.{AddImportVehicleDetails, AgentSelectedClient, DraftId, ImportNumber, NormalMode, UserAnswers}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.DraftIdPage
+import pages.{AgentSelectedClientPage, DraftIdPage}
 import pages.sections.vehicledetails.AddImportVehicleDetailsPage
 import pages.sections.initialquestions.VehicleFromEuPage
 import play.api.Application
@@ -101,7 +101,7 @@ class AddImportVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must return OK and the correct view for a GET (agent)" in {
+    "must return OK and the correct view for a GET (agent without selected client)" in {
       val application = applicationFor(classOf[FakeAgentIdentifierAction], Some(answersSatisfyingGuard))
 
       running(application) {
@@ -111,6 +111,20 @@ class AddImportVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
+      }
+    }
+
+    "must return OK and the correct view for a GET (agent with selected client)" in {
+      val ansWithSelectedClient = answersSatisfyingGuard.unsafeSet(AgentSelectedClientPage, AgentSelectedClient("client vrn", Some("name")))
+      val application = applicationFor(classOf[FakeAgentIdentifierAction], Some(ansWithSelectedClient))
+
+      running(application) {
+        val request = FakeRequest(GET, onPageLoadRoute)
+        val result = route(application, request).value
+        val view = application.injector.instanceOf[AddImportVehicleDetailsView]
+
+        status(result) mustEqual OK
+        contentAsString(result) mustEqual view(form, NormalMode, spreadsheetUrl(application))(request, messages(application)).toString
       }
     }
 
@@ -200,7 +214,7 @@ class AddImportVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must add import and redirect to the next page when no data is submitted for an Agent" in {
+    "must add import and redirect to the next page when no data is submitted for an Agent with no clients" in {
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.setPage(any(), any(), any())(any())) thenReturn Future.successful(answersSatisfyingGuard)
 

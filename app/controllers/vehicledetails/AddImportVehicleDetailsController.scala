@@ -55,7 +55,7 @@ class AddImportVehicleDetailsController @Inject() (
   val form: Form[AddImportVehicleDetails] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate) { implicit request =>
-    if (request.userContext.isAgent) {
+    if (request.userContext.isAgentWithoutClient) {
       Ok(viewNoSpreadsheet(form.withDefault(Some(ByImportEntryNumber)), mode))
     } else {
       Ok(view(form.withDefault(request.userAnswers.get(AddImportVehicleDetailsPage)), mode, appConfig.multipleVehiclesSpreadsheetsUrl))
@@ -63,7 +63,7 @@ class AddImportVehicleDetailsController @Inject() (
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate).async { implicit request =>
-    if (request.userContext.isAgent) {
+    if (request.userContext.isAgentWithoutClient) {
       addImportAndRedirect()
     } else {
       form
