@@ -116,12 +116,12 @@ class AddImportVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view for a GET (agent with selected client)" in {
       val ansWithSelectedClient = answersSatisfyingGuard.unsafeSet(AgentSelectedClientPage, AgentSelectedClient("client vrn", Some("name")))
-      val application = applicationFor(classOf[FakeAgentIdentifierAction], Some(ansWithSelectedClient))
+      val application           = applicationFor(classOf[FakeAgentIdentifierAction], Some(ansWithSelectedClient))
 
       running(application) {
         val request = FakeRequest(GET, onPageLoadRoute)
-        val result = route(application, request).value
-        val view = application.injector.instanceOf[AddImportVehicleDetailsView]
+        val result  = route(application, request).value
+        val view    = application.injector.instanceOf[AddImportVehicleDetailsView]
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode, spreadsheetUrl(application))(request, messages(application)).toString
