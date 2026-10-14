@@ -65,7 +65,8 @@ object SupplierNameSummary {
     }
   }
 
-  // TODO: Add rowFromClientDetails once AVD-S1.2 page is added
+  // the client is always an organisation, so only the business name row is shown
+  def rowFromClientDetails(): Option[SummaryListRow] = None
 
   private def row(name: String, redirectUrl: String)(implicit
     messages: Messages

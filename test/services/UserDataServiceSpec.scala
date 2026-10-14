@@ -19,7 +19,7 @@ package services
 import base.SpecBase
 import connectors.NovaImportsBackendConnector
 import models.DraftNotification.SectionId
-import models.{Address, BusinessOrPrivateIndividual, ContactNumbers, Country, DraftId, DraftNotification, DraftNotificationSection, NameDetails, NovaUserType, PurchaserOrOnBehalf, SectionStatus, SupplierNumber, UserAnswers, UserContext, VatNumberDetails}
+import models.{Address, AgentSelectedClient, BusinessOrPrivateIndividual, ContactNumbers, Country, DraftId, DraftNotification, DraftNotificationSection, NameDetails, NovaUserType, PurchaserOrOnBehalf, SectionStatus, SupplierNumber, UserAnswers, UserContext, VatNumberDetails}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.EitherValues
@@ -32,7 +32,7 @@ import pages.sections.notifieraddress.AddressPage
 import pages.sections.purchaseraddress.{IsPurchaserAddressInTheUkPage, PurchaserAddressPage}
 import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 import pages.sections.supplieraddress.SupplierAddressPage
-import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierVatRegistrationNumberPage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
+import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierVatRegistrationNumberPage, UseClientDetailsAsSupplierPage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
 import play.api.libs.json.{JsObject, Json, Writes}
 import queries.AllSuppliersQuery
 import repositories.SessionRepository
@@ -81,14 +81,16 @@ class UserDataServiceSpec extends SpecBase with MockitoSugar with ScalaFutures w
     }
 
     "must leave answers unchanged when the purchaser section has no data" in {
-      val result = UserDataService.storePurchaserDetailsPages(draftWithPurchaser(None), emptyUserAnswers, stubSessionRepository()).futureValue
+      val result =
+        UserDataService.storePurchaserDetailsPages(draftWithPurchaser(None), emptyUserAnswers, stubSessionRepository()).futureValue
 
       result.get(PurchaserNamePage) mustBe None
       result.get(PurchaserBusinessNamePage) mustBe None
     }
 
     "must leave answers unchanged when the draft has no purchaser section" in {
-      val result = UserDataService.storePurchaserDetailsPages(draftWith(Map.empty), emptyUserAnswers, stubSessionRepository()).futureValue
+      val result =
+        UserDataService.storePurchaserDetailsPages(draftWith(Map.empty), emptyUserAnswers, stubSessionRepository()).futureValue
 
       result.get(PurchaserNamePage) mustBe None
       result.get(PurchaserBusinessNamePage) mustBe None
@@ -116,7 +118,8 @@ class UserDataServiceSpec extends SpecBase with MockitoSugar with ScalaFutures w
     }
 
     "must leave answers unchanged when the draft has no purchaser address section" in {
-      val result = UserDataService.storePurchaserAddressPages(draftWith(Map.empty), emptyUserAnswers, stubSessionRepository()).futureValue
+      val result =
+        UserDataService.storePurchaserAddressPages(draftWith(Map.empty), emptyUserAnswers, stubSessionRepository()).futureValue
 
       result.get(PurchaserAddressPage) mustBe None
     }
@@ -192,14 +195,43 @@ class UserDataServiceSpec extends SpecBase with MockitoSugar with ScalaFutures w
     }
 
     "must leave answers unchanged when the draft has no supplier details section" in {
-      val result = UserDataService.storeSupplierDetailsPages(draftWith(Map.empty), emptyUserAnswers, stubSessionRepository()).futureValue
+      val result =
+        UserDataService.storeSupplierDetailsPages(draftWith(Map.empty), emptyUserAnswers, stubSessionRepository()).futureValue
 
       result.get(SupplierBusinessOrIndividualPage(SupplierNumber(1))) mustBe None
       result.get(SupplierAddressPage(SupplierNumber(1))) mustBe None
     }
   }
 
+  private def contextFor(selectedClient: Option[AgentSelectedClient] = None, userType: NovaUserType = NovaUserType.PrivateIndividual): UserContext =
+    UserContext(
+      userType = userType,
+      selectedClient = selectedClient,
+      notDeregistered = true,
+      isAgentWithClientNoEnrolments = false,
+      agentHasVatAgentEnrolment = false,
+      isForBusinessUse = false
+    )
+
   "UserDataService.storeSupplierSelfSupplyPages" - {
+
+    "must restore an agent's self-supply answer against the client question" in {
+      val draft =
+        draftWith(Map("supplier/1/self-supply" -> DraftNotificationSection(Some(Json.obj("areYouSelfSupplying" -> true)))))
+
+      val result = UserDataService
+        .storeSupplierSelfSupplyPages(
+          draft,
+          emptyUserAnswers,
+          stubSessionRepository(),
+          contextFor(Some(AgentSelectedClient("100000001", Some("ABC Ltd"))), NovaUserType.Agent)
+        )
+        .futureValue
+
+      result.get(UseClientDetailsAsSupplierPage(SupplierNumber(1))) mustBe Some(true)
+      result.get(UsePurchaserDetailsAsSupplierPage(SupplierNumber(1))) mustBe None
+      result.get(UsePersonalDetailsAsSupplierPage(SupplierNumber(1))) mustBe None
+    }
 
     val selfNotifyingAnswers: UserAnswers =
       emptyUserAnswers.unsafeSet(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.Purchaser)
@@ -210,7 +242,7 @@ class UserDataServiceSpec extends SpecBase with MockitoSugar with ScalaFutures w
     "must rehydrate UsePersonalDetailsAsSupplierPage for a single supplier when notifying as the purchaser" in {
       val draft =
         draftWith(Map("supplier/1/self-supply" -> DraftNotificationSection(Some(Json.obj("areYouSelfSupplying" -> true)))))
-      val result = UserDataService.storeSupplierSelfSupplyPages(draft, selfNotifyingAnswers, stubSessionRepository()).futureValue
+      val result = UserDataService.storeSupplierSelfSupplyPages(draft, selfNotifyingAnswers, stubSessionRepository(), contextFor()).futureValue
 
       result.get(UsePersonalDetailsAsSupplierPage(SupplierNumber(1))) mustBe Some(true)
       result.get(UsePurchaserDetailsAsSupplierPage(SupplierNumber(1))) mustBe None
@@ -223,7 +255,7 @@ class UserDataServiceSpec extends SpecBase with MockitoSugar with ScalaFutures w
           "supplier/2/self-supply" -> DraftNotificationSection(Some(Json.obj("areYouSelfSupplying" -> false)))
         )
       )
-      val result = UserDataService.storeSupplierSelfSupplyPages(draft, selfNotifyingAnswers, stubSessionRepository()).futureValue
+      val result = UserDataService.storeSupplierSelfSupplyPages(draft, selfNotifyingAnswers, stubSessionRepository(), contextFor()).futureValue
 
       result.get(UsePersonalDetailsAsSupplierPage(SupplierNumber(1))) mustBe Some(true)
       result.get(UsePersonalDetailsAsSupplierPage(SupplierNumber(2))) mustBe Some(false)
@@ -232,7 +264,7 @@ class UserDataServiceSpec extends SpecBase with MockitoSugar with ScalaFutures w
     "must rehydrate UsePurchaserDetailsAsSupplierPage for a single supplier when notifying on behalf of the purchaser" in {
       val draft =
         draftWith(Map("supplier/1/self-supply" -> DraftNotificationSection(Some(Json.obj("areYouSelfSupplying" -> true)))))
-      val result = UserDataService.storeSupplierSelfSupplyPages(draft, onBehalfOfPurchaserAnswers, stubSessionRepository()).futureValue
+      val result = UserDataService.storeSupplierSelfSupplyPages(draft, onBehalfOfPurchaserAnswers, stubSessionRepository(), contextFor()).futureValue
 
       result.get(UsePurchaserDetailsAsSupplierPage(SupplierNumber(1))) mustBe Some(true)
       result.get(UsePersonalDetailsAsSupplierPage(SupplierNumber(1))) mustBe None
@@ -245,7 +277,7 @@ class UserDataServiceSpec extends SpecBase with MockitoSugar with ScalaFutures w
           "supplier/2/self-supply" -> DraftNotificationSection(Some(Json.obj("areYouSelfSupplying" -> false)))
         )
       )
-      val result = UserDataService.storeSupplierSelfSupplyPages(draft, onBehalfOfPurchaserAnswers, stubSessionRepository()).futureValue
+      val result = UserDataService.storeSupplierSelfSupplyPages(draft, onBehalfOfPurchaserAnswers, stubSessionRepository(), contextFor()).futureValue
 
       result.get(UsePurchaserDetailsAsSupplierPage(SupplierNumber(1))) mustBe Some(true)
       result.get(UsePurchaserDetailsAsSupplierPage(SupplierNumber(2))) mustBe Some(false)
@@ -254,7 +286,7 @@ class UserDataServiceSpec extends SpecBase with MockitoSugar with ScalaFutures w
     "must rehydrate UsePurchaserDetailsAsSupplierPage when NotifyingAsPurchaserPage has not been answered (agent without a client)" in {
       val draft =
         draftWith(Map("supplier/1/self-supply" -> DraftNotificationSection(Some(Json.obj("areYouSelfSupplying" -> true)))))
-      val result = UserDataService.storeSupplierSelfSupplyPages(draft, emptyUserAnswers, stubSessionRepository()).futureValue
+      val result = UserDataService.storeSupplierSelfSupplyPages(draft, emptyUserAnswers, stubSessionRepository(), contextFor()).futureValue
 
       result.get(UsePurchaserDetailsAsSupplierPage(SupplierNumber(1))) mustBe Some(true)
       result.get(UsePersonalDetailsAsSupplierPage(SupplierNumber(1))) mustBe None
@@ -262,20 +294,21 @@ class UserDataServiceSpec extends SpecBase with MockitoSugar with ScalaFutures w
 
     "must ignore the fixed SectionId.SupplierSelfSupply key, which never appears in a real draft" in {
       val draft  = draftWith(Map(SectionId.SupplierSelfSupply -> DraftNotificationSection(Some(Json.obj("areYouSelfSupplying" -> true)))))
-      val result = UserDataService.storeSupplierSelfSupplyPages(draft, selfNotifyingAnswers, stubSessionRepository()).futureValue
+      val result = UserDataService.storeSupplierSelfSupplyPages(draft, selfNotifyingAnswers, stubSessionRepository(), contextFor()).futureValue
 
       result.get(UsePersonalDetailsAsSupplierPage(SupplierNumber(1))) mustBe None
     }
 
     "must leave answers unchanged when the section has no data" in {
       val draft  = draftWith(Map("supplier/1/self-supply" -> DraftNotificationSection(None)))
-      val result = UserDataService.storeSupplierSelfSupplyPages(draft, selfNotifyingAnswers, stubSessionRepository()).futureValue
+      val result = UserDataService.storeSupplierSelfSupplyPages(draft, selfNotifyingAnswers, stubSessionRepository(), contextFor()).futureValue
 
       result.get(UsePersonalDetailsAsSupplierPage(SupplierNumber(1))) mustBe None
     }
 
     "must leave answers unchanged when the draft has no supplier sections" in {
-      val result = UserDataService.storeSupplierSelfSupplyPages(draftWith(Map.empty), selfNotifyingAnswers, stubSessionRepository()).futureValue
+      val result =
+        UserDataService.storeSupplierSelfSupplyPages(draftWith(Map.empty), selfNotifyingAnswers, stubSessionRepository(), contextFor()).futureValue
 
       result.get(UsePersonalDetailsAsSupplierPage(SupplierNumber(1))) mustBe None
     }
@@ -284,7 +317,8 @@ class UserDataServiceSpec extends SpecBase with MockitoSugar with ScalaFutures w
   "UserDataService.storeVehiclesSectionStatusPage" - {
 
     "must mark NotYetSaved when the draft has no vehicle-related sections at all" in {
-      val result = UserDataService.storeVehiclesSectionStatusPage(draftWith(Map.empty), emptyUserAnswers, stubSessionRepository()).futureValue
+      val result =
+        UserDataService.storeVehiclesSectionStatusPage(draftWith(Map.empty), emptyUserAnswers, stubSessionRepository()).futureValue
 
       result.get(VehiclesSectionStatusPage) mustBe Some(SectionStatus.NotYetSaved)
     }

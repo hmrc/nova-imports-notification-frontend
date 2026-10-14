@@ -58,13 +58,15 @@ class SupplierDetailsCheckYourAnswersController @Inject() (
 
   def onPageLoad(supplierNumber: SupplierNumber): Action[AnyContent] = {
     actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierService, supplierNumber)).async { implicit request =>
-      if (request.userContext.usesTraderDetails) {
-        traderInformation(HeaderCarrierConverter.fromRequestAndSession(request, request.session)).flatMap { traderInfoOpt =>
-          Future.successful(Ok(view(request.userContext, request.userAnswers, supplierNumber, traderInfoOpt)))
-        }
-      } else {
-        Future.successful(Ok(view(request.userContext, request.userAnswers, supplierNumber, None)))
+      implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+
+      val details = request.userContext.selectedClient.map(_.vrn) match {
+        case Some(clientVrn) if usingClientDetails(request.userAnswers, supplierNumber) => clientTraderInformation(clientVrn)
+        case _ if request.userContext.usesTraderDetails                                 => traderInformation
+        case _                                                                          => Future.successful(None)
       }
+
+      details.map(traderInfoOpt => Ok(view(request.userContext, request.userAnswers, supplierNumber, traderInfoOpt)))
     }
   }
 
@@ -143,6 +145,23 @@ class SupplierDetailsCheckYourAnswersController @Inject() (
       }
     }
 
+  private def usingClientDetails(answers: UserAnswers, supplierNumber: SupplierNumber): Boolean =
+    answers.get(UseClientDetailsAsSupplierPage(supplierNumber)).contains(true)
+
+  private def clientTraderInformation(clientVrn: String)(implicit hc: HeaderCarrier): Future[Option[TraderInformation]] =
+    backendConnector
+      .getClientTraderInformation(clientVrn)
+      .map {
+        case Right(traderInformation) => Some(traderInformation)
+        case Left(error)              =>
+          logger.warn(s"Failed to fetch client trader information for the supplier check your answers: $error")
+          None
+      }
+      .recover { case NonFatal(e) =>
+        logger.warn("Failed to fetch client trader information for the supplier check your answers", e)
+        None
+      }
+
   private def traderInformation(implicit hc: HeaderCarrier): Future[Option[TraderInformation]] =
     backendConnector
       .getTraderInformation()
@@ -169,13 +188,14 @@ object SupplierDetailsCheckYourAnswersController {
     val avdQuestionAnswered =
       answers.get(UsePersonalDetailsAsSupplierPage(supplierNumber)).isDefined
         || answers.get(UsePurchaserDetailsAsSupplierPage(supplierNumber)).isDefined
-//      || answers.get(UseClientDetailsAsSupplierPage(supplierNumber)).isDefined   TODO: include this line once AVD-S1.2 page is added
+        || answers.get(UseClientDetailsAsSupplierPage(supplierNumber)).isDefined
 
     val supplierDetailsQuestionsAnswered =
       if (
         answers.get(UsePersonalDetailsAsSupplierPage(supplierNumber)).contains(false)
         || answers.get(UsePurchaserDetailsAsSupplierPage(supplierNumber)).contains(false)
-      ) { // TODO: include this line once AVD-S1.2 page is added
+        || answers.get(UseClientDetailsAsSupplierPage(supplierNumber)).contains(false)
+      ) {
         supplierDetailsDefined(answers, supplierNumber)
       } else {
         true
@@ -205,6 +225,7 @@ object SupplierDetailsCheckYourAnswersController {
 
     isTrue(UsePersonalDetailsAsSupplierPage(supplierNumber))
     || isTrue(UsePurchaserDetailsAsSupplierPage(supplierNumber))
+    || isTrue(UseClientDetailsAsSupplierPage(supplierNumber))
   }
 
   private def buildSelfSupplySectionData(selfSupply: Boolean): JsObject = {

@@ -60,7 +60,10 @@ object SupplierBusinessNameSummary {
     }
   }
 
-  // TODO: Add rowFromClientDetails once AVD-S1.2 page is added
+  def rowFromClientDetails(clientName: Option[String], supplierNumber: SupplierNumber)(implicit messages: Messages): Option[SummaryListRow] = {
+    val nameValue = clientName.getOrElse(messages("supplierDetailsCheckYourAnswers.notProvided"))
+    Some(row(nameValue, routes.UseClientDetailsAsSupplierController.onPageLoad(supplierNumber, NormalMode).url))
+  }
 
   private def row(supplierBusinessName: String, redirectUrl: String)(implicit messages: Messages): SummaryListRow = {
     SummaryListRowViewModel(

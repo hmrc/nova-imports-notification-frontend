@@ -16,12 +16,21 @@
 
 package pages.sections.supplierdetails
 
-import models.SupplierNumber
+import models.{SupplierNumber, UserAnswers}
 import play.api.libs.json.JsPath
+
+import scala.util.Try
 
 final case class UsePurchaserDetailsAsSupplierPage(supplierNumber: SupplierNumber) extends SupplierQuestionPage[Boolean] {
 
   override def path: JsPath = JsPath \ "suppliers" \ supplierNumber.value.toString \ toString
 
   override def toString: String = "usePurchaserDetailsAsSupplier"
+
+  override def cleanup(value: Option[Boolean], userAnswers: UserAnswers): Try[UserAnswers] =
+    value match {
+      case Some(_) =>
+        userAnswers.remove(UseClientDetailsAsSupplierPage(supplierNumber)).flatMap(_.remove(UsePersonalDetailsAsSupplierPage(supplierNumber)))
+      case None => super.cleanup(value, userAnswers)
+    }
 }
