@@ -166,7 +166,9 @@ landingPage.agent.clients.body = View, search for, or remove a client, or select
 
 landingPage.agent.client.heading = Notifying on behalf of
 landingPage.agent.client.change = Change client
-landingPage.agent.client.name = Client name
+landingPage.agent.client.change.hidden = change client selected
+landingPage.agent.client.deselect = Deselect
+landingPage.agent.client.deselect.hidden = deselect client
 landingPage.agent.client.vrn = VAT registration number
 
 ##########################################
