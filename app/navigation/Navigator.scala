@@ -387,6 +387,13 @@ class Navigator @Inject() () {
     case page: PaymentCurrencyPage            => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
     case page: AddVehicleTypePage             => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
     case page: AddVehicleDetailsCarPage       => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
+    case page: AddVehicleDetailsLightCommercialPage     => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
+    case page: AddVehicleDetailsHeavyCommercialPage     => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
+    case page: AddVehicleDetailsMotorcyclePage          => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
+    case page: AddVehicleDetailsMotorCaravanPage        => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
+    case page: AddVehicleDetailsAgriculturalTractorPage => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
+    case page: AddVehicleDetailsContractorsPlantPage    => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
+    case _                                              =>
     case page: AddVehicleDetailsLightCommercialPage  => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
     case page: AddVehicleDetailsHeavyCommercialPage  => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
     case page: AddVehicleDetailsMotorcyclePage       => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
@@ -403,9 +410,11 @@ class Navigator @Inject() () {
       userAnswers.vehicleSupplierNumber(page.vehicleNumber),
       userAnswers.vehicleImportNumber(page.vehicleNumber)
     ) match {
-      case (Some(_), Some(_), _)    => routes.LandingPageController.onPageLoad() // TODO: navigate to C-AVD2.0 when built
-      case (Some(_), None, Some(_)) => routes.LandingPageController.onPageLoad() // TODO: navigate to C-AVD2.0 when built
-      case _                        => routes.JourneyRecoveryController.onPageLoad()
+      case (Some(_), Some(supplierNumber), _) =>
+        vehicledetails.routes.ConfirmVehicleTypeDetailsController.supplierOnPageLoad(supplierNumber, page.vehicleNumber)
+      case (Some(_), None, Some(importNumber)) =>
+        vehicledetails.routes.ConfirmVehicleTypeDetailsController.importOnPageLoad(importNumber, page.vehicleNumber)
+      case _ => routes.JourneyRecoveryController.onPageLoad()
     }
 
   def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers, userType: NovaUserType): Call = mode match {
