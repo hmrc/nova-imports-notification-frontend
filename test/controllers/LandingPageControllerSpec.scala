@@ -22,8 +22,9 @@ import connectors.{GetNotificationSummaryError, NovaImportsBackendConnector}
 import controllers.actions.*
 import models.{AgentSelectedClient, NotificationSummary, UserAnswers}
 import org.jsoup.Jsoup
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
-import org.mockito.Mockito.{verify, when}
+import org.mockito.Mockito.{never, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.AgentSelectedClientPage
 import pages.sections.introduction.NotDeregisteredPage
@@ -41,8 +42,9 @@ import scala.jdk.CollectionConverters.*
 
 class LandingPageControllerSpec extends SpecBase with MockitoSugar {
 
-  private lazy val landingPageRoute = routes.LandingPageController.onPageLoad().url
-  private lazy val startUrl         = routes.StartController.start().url
+  private lazy val landingPageRoute    = routes.LandingPageController.onPageLoad().url
+  private lazy val deselectClientRoute = routes.LandingPageController.deselectClient().url
+  private lazy val startUrl            = routes.StartController.start().url
 
   private val testTrader = "Tester Trader"
 
@@ -117,7 +119,8 @@ class LandingPageControllerSpec extends SpecBase with MockitoSugar {
   private def applicationWith(
     identifierAction: Class[? <: IdentifierAction],
     connector: NovaImportsBackendConnector = stubConnector(emptySummary),
-    userAnswers: Option[UserAnswers] = None
+    userAnswers: Option[UserAnswers] = None,
+    repo: SessionRepository = sessionRepository
   ): Application =
     new GuiceApplicationBuilder()
       .overrides(
@@ -127,9 +130,17 @@ class LandingPageControllerSpec extends SpecBase with MockitoSugar {
         bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeIdentifierAction],
         bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers)),
-        bind[NovaImportsBackendConnector].toInstance(connector)
+        bind[NovaImportsBackendConnector].toInstance(connector),
+        bind[SessionRepository].toInstance(repo)
       )
       .build()
+
+  private def sessionRepository: SessionRepository = {
+    val repo = mock[SessionRepository]
+    when(repo.setPage(any(), any(), any())(any())).thenReturn(Future.successful(emptyUserAnswers))
+    when(repo.set(any())).thenReturn(Future.successful(true))
+    repo
+  }
 
   private def stubConnector(summary: NotificationSummary): NovaImportsBackendConnector = {
     val m = mock[NovaImportsBackendConnector]
@@ -461,8 +472,10 @@ class LandingPageControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual OK
           document.select(".govuk-caption-l").text mustEqual "ABC Consultancy"
-          document.select(".govuk-summary-card__title").text mustEqual "Notifying on behalf of"
-          document.select(".govuk-summary-list__value").eachText.asScala.toSeq mustEqual Seq("Client Co", "GB700011916")
+          document
+            .select(".govuk-summary-card__title")
+            .text mustEqual s"Notifying on behalf of ${agentSummaryWithClient.clientTraderName.getOrElse("")}"
+          document.select(".govuk-summary-list__value").eachText.asScala.toSeq mustEqual Seq("GB700011916")
           document
             .select("a:containsOwn(Manage a saved notification)")
             .attr("href") mustEqual controllers.notification.routes.ViewSavedNotificationsController.onPageLoad().url
@@ -507,7 +520,10 @@ class LandingPageControllerSpec extends SpecBase with MockitoSugar {
           val document = Jsoup.parse(contentAsString(result))
 
           status(result) mustEqual OK
-          document.select(".govuk-summary-list__value").eachText.asScala.toSeq mustEqual Seq("Client Co", "GB700011916")
+          document
+            .select(".govuk-summary-card__title")
+            .text mustEqual s"Notifying on behalf of ${agentSummaryWithClient.clientTraderName.getOrElse("")}"
+          document.select(".govuk-summary-list__value").eachText.asScala.toSeq mustEqual Seq("GB700011916")
         }
       }
 
@@ -523,8 +539,10 @@ class LandingPageControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual OK
           document.select(".govuk-caption-l").isEmpty mustBe true
-          document.select(".govuk-summary-card__title").text mustEqual "Notifying on behalf of"
-          document.select(".govuk-summary-list__value").eachText.asScala.toSeq mustEqual Seq("Client Co", "GB700011916")
+          document
+            .select(".govuk-summary-card__title")
+            .text mustEqual s"Notifying on behalf of ${agentSummaryWithClient.clientTraderName.getOrElse("")}"
+          document.select(".govuk-summary-list__value").eachText.asScala.toSeq mustEqual Seq("GB700011916")
           document.text must include("You do not have a saved notification")
         }
       }
@@ -540,7 +558,10 @@ class LandingPageControllerSpec extends SpecBase with MockitoSugar {
           val document = Jsoup.parse(contentAsString(result))
 
           status(result) mustEqual OK
-          document.select(".govuk-summary-list__value").eachText.asScala.toSeq mustEqual Seq("Client Co", "GB700011916")
+          document
+            .select(".govuk-summary-card__title")
+            .text mustEqual s"Notifying on behalf of ${agentSummaryWithClient.clientTraderName.getOrElse("")}"
+          document.select(".govuk-summary-list__value").eachText.asScala.toSeq mustEqual Seq("GB700011916")
           document.text must include("You do not have a saved notification")
         }
       }
@@ -560,5 +581,77 @@ class LandingPageControllerSpec extends SpecBase with MockitoSugar {
         }
       }
     }
+
+    "deselectClient" - {
+
+      "must deselect the client and redirect to the landing page when the agent has a selected client" in {
+        val repo = sessionRepository
+
+        given application: Application =
+          applicationWith(
+            classOf[FakeAgentIdentifierAction],
+            stubConnector(agentSummaryWithClient),
+            userAnswers = Some(userAnswersWithClient),
+            repo = repo
+          )
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, deselectClientRoute)
+
+          val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.LandingPageController.onPageLoad().url
+          verify(repo).set(any())
+          verify(repo).set(captor.capture())
+          captor.getValue.get(AgentSelectedClientPage) mustBe None
+        }
+      }
+
+      "must redirect to the landing page when the agent doesnt have a selected client" in {
+        val repo = sessionRepository
+
+        given application: Application =
+          applicationWith(
+            classOf[FakeAgentIdentifierAction],
+            stubConnector(agentSummaryWithClient),
+            userAnswers = Some(emptyUserAnswers),
+            repo = repo
+          )
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, deselectClientRoute)
+
+          val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.LandingPageController.onPageLoad().url
+          verify(repo).set(any())
+          verify(repo).set(captor.capture())
+          captor.getValue.get(AgentSelectedClientPage) mustBe None
+        }
+      }
+
+      "must redirect to the landing page when the agent doesnt have any session data" in {
+        val repo = sessionRepository
+
+        given application: Application =
+          applicationWith(classOf[FakeAgentIdentifierAction], stubConnector(agentSummaryWithClient), repo = repo)
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, deselectClientRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.LandingPageController.onPageLoad().url
+          verify(repo, never()).set(any())
+        }
+      }
+
+    }
+
   }
 }
