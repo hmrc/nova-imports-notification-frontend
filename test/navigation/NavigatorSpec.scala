@@ -857,16 +857,18 @@ class NavigatorSpec extends SpecBase {
           vehicledetails.routes.ConfirmVehicleDetailsController.importOnPageLoad(ImportNumber(1), VehicleNumber(1))
       }
 
-      "must go from AddVehicleDetailsCarPage AVD8.1 to the landing page for supplier 1 vehicle 1 until C-AVD2.0 is built" in {
+      "must go from AddVehicleDetailsCarPage AVD8.1 to C-AVD2.0 for supplier 1 vehicle 1" in {
         val page = AddVehicleDetailsCarPage(VehicleNumber(1))
         val ua   = supplierVehicle.unsafeSet(page, AddVehicleDetailsCar("Land Rover", "Discovery 4", "3.0TD", "XS", "station wagon"))
-        navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController.onPageLoad()
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe
+          vehicledetails.routes.ConfirmVehicleTypeDetailsController.supplierOnPageLoad(SupplierNumber(1), VehicleNumber(1))
       }
 
-      "must go from AddVehicleDetailsCarPage AVD8.1 to the landing page for import 1 vehicle 1 until C-AVD2.0 is built" in {
+      "must go from AddVehicleDetailsCarPage AVD8.1 to C-AVD2.0 for import 1 vehicle 1" in {
         val page = AddVehicleDetailsCarPage(VehicleNumber(1))
         val ua   = importVehicle.unsafeSet(page, AddVehicleDetailsCar("Land Rover", "Discovery 4", "3.0TD", "XS", "station wagon"))
-        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+          vehicledetails.routes.ConfirmVehicleTypeDetailsController.importOnPageLoad(ImportNumber(1), VehicleNumber(1))
       }
 
       "must go from AddVehicleDetailsCarPage AVD8.1 to JourneyRecovery when the vehicle has no supplier or import" in {
@@ -884,16 +886,18 @@ class NavigatorSpec extends SpecBase {
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
 
-      "must go from AddVehicleDetailsMotorCaravanPage AVD8.5 to the landing page for supplier 1 vehicle 1 until C-AVD2.0 is built" in {
+      "must go from AddVehicleDetailsMotorCaravanPage AVD8.5 to C-AVD2.0 for supplier 1 vehicle 1" in {
         val page = AddVehicleDetailsMotorCaravanPage(VehicleNumber(1))
         val ua   = supplierVehicle.unsafeSet(page, AddVehicleDetailsMotorCaravan("Swift", "N/A", "Voyager", "685FB 4 berth", "Fiat", "2.3TD"))
-        navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController.onPageLoad()
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe
+          vehicledetails.routes.ConfirmVehicleTypeDetailsController.supplierOnPageLoad(SupplierNumber(1), VehicleNumber(1))
       }
 
-      "must go from AddVehicleDetailsMotorCaravanPage AVD8.5 to the landing page for import 1 vehicle 1 until C-AVD2.0 is built" in {
+      "must go from AddVehicleDetailsMotorCaravanPage AVD8.5 to C-AVD2.0 for import 1 vehicle 1" in {
         val page = AddVehicleDetailsMotorCaravanPage(VehicleNumber(1))
         val ua   = importVehicle.unsafeSet(page, AddVehicleDetailsMotorCaravan("Swift", "N/A", "Voyager", "685FB 4 berth", "Fiat", "2.3TD"))
-        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+          vehicledetails.routes.ConfirmVehicleTypeDetailsController.importOnPageLoad(ImportNumber(1), VehicleNumber(1))
       }
 
       "must go from AddVehicleDetailsMotorCaravanPage AVD8.5 to JourneyRecovery when the vehicle has no supplier or import" in {
@@ -911,16 +915,18 @@ class NavigatorSpec extends SpecBase {
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
 
-      "must go from AddVehicleDetailsHeavyCommercialPage AVD8.3 to the landing page for supplier 1 vehicle 1 until C-AVD2.0 is built" in {
+      "must go from AddVehicleDetailsHeavyCommercialPage AVD8.3 to C-AVD2.0 for supplier 1 vehicle 1" in {
         val page = AddVehicleDetailsHeavyCommercialPage(VehicleNumber(1))
         val ua = supplierVehicle.unsafeSet(page, AddVehicleDetailsHeavyCommercial("Renault Trucks", "Magnum", "midlift axle tractor", "sleeper cab"))
-        navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController.onPageLoad()
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe
+          vehicledetails.routes.ConfirmVehicleTypeDetailsController.supplierOnPageLoad(SupplierNumber(1), VehicleNumber(1))
       }
 
-      "must go from AddVehicleDetailsHeavyCommercialPage AVD8.3 to the landing page for import 1 vehicle 1 until C-AVD2.0 is built" in {
+      "must go from AddVehicleDetailsHeavyCommercialPage AVD8.3 to C-AVD2.0 for import 1 vehicle 1" in {
         val page = AddVehicleDetailsHeavyCommercialPage(VehicleNumber(1))
         val ua   = importVehicle.unsafeSet(page, AddVehicleDetailsHeavyCommercial("Renault Trucks", "Magnum", "midlift axle tractor", "sleeper cab"))
-        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+          vehicledetails.routes.ConfirmVehicleTypeDetailsController.importOnPageLoad(ImportNumber(1), VehicleNumber(1))
       }
 
       "must go from AddVehicleDetailsHeavyCommercialPage AVD8.3 to JourneyRecovery when the vehicle has no supplier or import" in {
@@ -938,16 +944,18 @@ class NavigatorSpec extends SpecBase {
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
 
-      "must go from AddVehicleDetailsAgriculturalTractorPage AVD8.6 to the landing page for supplier 1 vehicle 1 until DTR-8451 is built" in {
+      "must go from AddVehicleDetailsAgriculturalTractorPage AVD8.6 to C-AVD2.0 for supplier 1 vehicle 1" in {
         val page = AddVehicleDetailsAgriculturalTractorPage(VehicleNumber(1))
         val ua   = supplierVehicle.unsafeSet(page, AddVehicleDetailsAgriculturalTractor("John Deere", "SR", "5090M", "240.75"))
-        navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController.onPageLoad()
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe
+          vehicledetails.routes.ConfirmVehicleTypeDetailsController.supplierOnPageLoad(SupplierNumber(1), VehicleNumber(1))
       }
 
-      "must go from AddVehicleDetailsAgriculturalTractorPage AVD8.6 to the landing page for import 1 vehicle 1 until DTR-8451 is built" in {
+      "must go from AddVehicleDetailsAgriculturalTractorPage AVD8.6 to C-AVD2.0 for import 1 vehicle 1" in {
         val page = AddVehicleDetailsAgriculturalTractorPage(VehicleNumber(1))
         val ua   = importVehicle.unsafeSet(page, AddVehicleDetailsAgriculturalTractor("John Deere", "SR", "5090M", "240.75"))
-        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+          vehicledetails.routes.ConfirmVehicleTypeDetailsController.importOnPageLoad(ImportNumber(1), VehicleNumber(1))
       }
 
       "must go from AddVehicleDetailsAgriculturalTractorPage AVD8.6 to JourneyRecovery when the vehicle has no supplier or import" in {
@@ -965,16 +973,18 @@ class NavigatorSpec extends SpecBase {
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
 
-      "must go from AddVehicleDetailsContractorsPlantPage AVD8.7 to the landing page for supplier 1 vehicle 1 until C-AVD2.0 is built" in {
+      "must go from AddVehicleDetailsContractorsPlantPage AVD8.7 to C-AVD2.0 for supplier 1 vehicle 1" in {
         val page = AddVehicleDetailsContractorsPlantPage(VehicleNumber(1))
         val ua   = supplierVehicle.unsafeSet(page, AddVehicleDetailsContractorsPlant("Renault Trucks", "Magnum", "midlift axle tractor"))
-        navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController.onPageLoad()
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe
+          vehicledetails.routes.ConfirmVehicleTypeDetailsController.supplierOnPageLoad(SupplierNumber(1), VehicleNumber(1))
       }
 
-      "must go from AddVehicleDetailsContractorsPlantPage AVD8.7 to the landing page for import 1 vehicle 1 until C-AVD2.0 is built" in {
+      "must go from AddVehicleDetailsContractorsPlantPage AVD8.7 to C-AVD2.0 for import 1 vehicle 1" in {
         val page = AddVehicleDetailsContractorsPlantPage(VehicleNumber(1))
         val ua   = importVehicle.unsafeSet(page, AddVehicleDetailsContractorsPlant("Renault Trucks", "Magnum", "midlift axle tractor"))
-        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+          vehicledetails.routes.ConfirmVehicleTypeDetailsController.importOnPageLoad(ImportNumber(1), VehicleNumber(1))
       }
 
       "must go from AddVehicleDetailsContractorsPlantPage AVD8.7 to JourneyRecovery when the vehicle has no supplier or import" in {
@@ -1404,32 +1414,36 @@ class NavigatorSpec extends SpecBase {
           navigator.nextPage(AddVehicleTypePage(v), CheckMode, importComplete, NovaUserType.VatRegisteredOrganisation) mustBe importConfirm
         }
 
-        "must go from AddVehicleDetailsCarPage AVD8.1 to the landing page for a supplier vehicle until C-AVD2.0 is built" in {
+        "must go from AddVehicleDetailsCarPage AVD8.1 to C-AVD2.0 for a supplier vehicle" in {
           val page = AddVehicleDetailsCarPage(v)
           val ua   = invoiceOnly.unsafeSet(page, AddVehicleDetailsCar("Land Rover", "Discovery 4", "3.0TD", "XS", "station wagon"))
-          navigator.nextPage(page, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
+          navigator.nextPage(page, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+            vehicledetails.routes.ConfirmVehicleTypeDetailsController.supplierOnPageLoad(s, v)
         }
 
-        "must go from AddVehicleDetailsCarPage AVD8.1 to the landing page for an import vehicle until C-AVD2.0 is built" in {
+        "must go from AddVehicleDetailsCarPage AVD8.1 to C-AVD2.0 for an import vehicle" in {
           val page = AddVehicleDetailsCarPage(v)
           val ua   = importComplete
             .unsafeSet(AddVehicleTypePage(v), AddVehicleType.Car)
             .unsafeSet(page, AddVehicleDetailsCar("Land Rover", "Discovery 4", "3.0TD", "XS", "station wagon"))
-          navigator.nextPage(page, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
+          navigator.nextPage(page, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+            vehicledetails.routes.ConfirmVehicleTypeDetailsController.importOnPageLoad(i, v)
         }
 
-        "must go from AddVehicleDetailsMotorCaravanPage AVD8.5 to the landing page for a supplier vehicle until C-AVD2.0 is built" in {
+        "must go from AddVehicleDetailsMotorCaravanPage AVD8.5 to C-AVD2.0 for a supplier vehicle" in {
           val page = AddVehicleDetailsMotorCaravanPage(v)
           val ua   = invoiceOnly.unsafeSet(page, AddVehicleDetailsMotorCaravan("Swift", "N/A", "Voyager", "685FB 4 berth", "Fiat", "2.3TD"))
-          navigator.nextPage(page, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
+          navigator.nextPage(page, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+            vehicledetails.routes.ConfirmVehicleTypeDetailsController.supplierOnPageLoad(s, v)
         }
 
-        "must go from AddVehicleDetailsMotorCaravanPage AVD8.5 to the landing page for an import vehicle until C-AVD2.0 is built" in {
+        "must go from AddVehicleDetailsMotorCaravanPage AVD8.5 to C-AVD2.0 for an import vehicle" in {
           val page = AddVehicleDetailsMotorCaravanPage(v)
           val ua   = importComplete
             .unsafeSet(AddVehicleTypePage(v), AddVehicleType.MotorCaravan)
             .unsafeSet(page, AddVehicleDetailsMotorCaravan("Swift", "N/A", "Voyager", "685FB 4 berth", "Fiat", "2.3TD"))
-          navigator.nextPage(page, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
+          navigator.nextPage(page, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+            vehicledetails.routes.ConfirmVehicleTypeDetailsController.importOnPageLoad(i, v)
         }
 
         "must go from AddVehicleDetailsMotorCaravanPage AVD8.5 to journey recovery in check mode when there is no answer" in {
@@ -1437,10 +1451,13 @@ class NavigatorSpec extends SpecBase {
             routes.JourneyRecoveryController.onPageLoad()
         }
 
-        "must go from AddVehicleDetailsAgriculturalTractorPage AVD8.6 to the landing page until the vehicle details check your answers page is built" in {
+        "must go from AddVehicleDetailsAgriculturalTractorPage AVD8.6 to C-AVD2.0 for an import vehicle" in {
           val page = AddVehicleDetailsAgriculturalTractorPage(v)
-          val ua   = importVehicle.unsafeSet(page, AddVehicleDetailsAgriculturalTractor("John Deere", "SR", "5090M", "240.75"))
-          navigator.nextPage(page, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
+          val ua   = importVehicle
+            .unsafeSet(AddVehicleTypePage(v), AddVehicleType.AgriculturalTractor)
+            .unsafeSet(page, AddVehicleDetailsAgriculturalTractor("John Deere", "SR", "5090M", "240.75"))
+          navigator.nextPage(page, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+            vehicledetails.routes.ConfirmVehicleTypeDetailsController.importOnPageLoad(i, v)
         }
 
         "must go from AddVehicleDetailsCarPage AVD8.1 to journey recovery in check mode when there is no answer" in {
@@ -1448,18 +1465,22 @@ class NavigatorSpec extends SpecBase {
             routes.JourneyRecoveryController.onPageLoad()
         }
 
-        "must go from AddVehicleDetailsHeavyCommercialPage AVD8.3 to the landing page for a supplier vehicle until C-AVD2.0 is built" in {
+        "must go from AddVehicleDetailsHeavyCommercialPage AVD8.3 to C-AVD2.0 for a supplier vehicle" in {
           val page = AddVehicleDetailsHeavyCommercialPage(v)
-          val ua   = invoiceOnly.unsafeSet(page, AddVehicleDetailsHeavyCommercial("Renault Trucks", "Magnum", "midlift axle tractor", "sleeper cab"))
-          navigator.nextPage(page, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
+          val ua   = invoiceOnly
+            .unsafeSet(AddVehicleTypePage(v), AddVehicleType.Hcv)
+            .unsafeSet(page, AddVehicleDetailsHeavyCommercial("Renault Trucks", "Magnum", "midlift axle tractor", "sleeper cab"))
+          navigator.nextPage(page, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+            vehicledetails.routes.ConfirmVehicleTypeDetailsController.supplierOnPageLoad(s, v)
         }
 
-        "must go from AddVehicleDetailsHeavyCommercialPage AVD8.3 to the landing page for an import vehicle until C-AVD2.0 is built" in {
+        "must go from AddVehicleDetailsHeavyCommercialPage AVD8.3 to C-AVD2.0 for an import vehicle" in {
           val page = AddVehicleDetailsHeavyCommercialPage(v)
           val ua   = importComplete
             .unsafeSet(AddVehicleTypePage(v), AddVehicleType.Hcv)
             .unsafeSet(page, AddVehicleDetailsHeavyCommercial("Renault Trucks", "Magnum", "midlift axle tractor", "sleeper cab"))
-          navigator.nextPage(page, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
+          navigator.nextPage(page, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+            vehicledetails.routes.ConfirmVehicleTypeDetailsController.importOnPageLoad(i, v)
         }
 
         "must go from AddVehicleDetailsHeavyCommercialPage AVD8.3 to journey recovery in check mode when there is no answer" in {
