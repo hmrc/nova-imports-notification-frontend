@@ -21,6 +21,7 @@ import controllers.BaseController
 import controllers.actions.*
 import controllers.utils.IsDraftIdDefined
 import forms.AddImportVehicleDetailsFormProvider
+import models.AddImportVehicleDetails.ByImportEntryNumber
 import models.requests.DataRequest
 
 import javax.inject.Inject
@@ -32,7 +33,7 @@ import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import repositories.SessionRepository
 import services.ImportService
-import views.html.AddImportVehicleDetailsView
+import views.html.{AddImportVehicleDetailsNoSpreadsheetView, AddImportVehicleDetailsView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -43,6 +44,7 @@ class AddImportVehicleDetailsController @Inject() (
   actions: Actions,
   formProvider: AddImportVehicleDetailsFormProvider,
   view: AddImportVehicleDetailsView,
+  viewNoSpreadsheet: AddImportVehicleDetailsNoSpreadsheetView,
   importService: ImportService,
   appConfig: FrontendAppConfig
 )(implicit ec: ExecutionContext)
@@ -53,27 +55,35 @@ class AddImportVehicleDetailsController @Inject() (
   val form: Form[AddImportVehicleDetails] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate) { implicit request =>
-    Ok(view(form.withDefault(request.userAnswers.get(AddImportVehicleDetailsPage)), mode, appConfig.multipleVehiclesSpreadsheetsUrl))
+    if (request.userContext.isAgentWithoutClient) {
+      Ok(viewNoSpreadsheet(form.withDefault(Some(ByImportEntryNumber)), mode))
+    } else {
+      Ok(view(form.withDefault(request.userAnswers.get(AddImportVehicleDetailsPage)), mode, appConfig.multipleVehiclesSpreadsheetsUrl))
+    }
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate).async { implicit request =>
-    form
-      .bindFromRequest()
-      .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, appConfig.multipleVehiclesSpreadsheetsUrl))),
-        {
-          // choosing to add by import entry number sets up a new import collection in the session,
-          // bypasses the Navigator, which cannot allocate the import number
-          case AddImportVehicleDetails.ByImportEntryNumber => addImportAndRedirect()
-          case value                                       =>
-            for {
-              updatedAnswers <- Future.fromTry(request.userAnswers.set(AddImportVehicleDetailsPage, value))
-              _              <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(
-              navigator.nextPage(AddImportVehicleDetailsPage, mode, updatedAnswers, NovaUserType.from(request.affinityGroup, request.enrolments))
-            )
-        }
-      )
+    if (request.userContext.isAgentWithoutClient) {
+      addImportAndRedirect()
+    } else {
+      form
+        .bindFromRequest()
+        .fold(
+          formWithErrors => Future.successful(BadRequest(view(formWithErrors, mode, appConfig.multipleVehiclesSpreadsheetsUrl))),
+          {
+            // choosing to add by import entry number sets up a new import collection in the session,
+            // bypasses the Navigator, which cannot allocate the import number
+            case AddImportVehicleDetails.ByImportEntryNumber => addImportAndRedirect()
+            case value                                       =>
+              for {
+                updatedAnswers <- Future.fromTry(request.userAnswers.set(AddImportVehicleDetailsPage, value))
+                _              <- sessionRepository.set(updatedAnswers)
+              } yield Redirect(
+                navigator.nextPage(AddImportVehicleDetailsPage, mode, updatedAnswers, NovaUserType.from(request.affinityGroup, request.enrolments))
+              )
+          }
+        )
+    }
   }
 
   private def addImportAndRedirect()(implicit request: DataRequest[?]): Future[Result] =

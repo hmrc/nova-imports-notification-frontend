@@ -143,6 +143,8 @@ trait NovaImportsBackendConnector {
 
   def getTraderInformation()(implicit hc: HeaderCarrier): Future[Either[GetTraderInformationError, TraderInformation]]
 
+  def getClientTraderInformation(clientVrn: String)(implicit hc: HeaderCarrier): Future[Either[GetTraderInformationError, TraderInformation]]
+
   def getEuMemberStates()(implicit hc: HeaderCarrier): Future[Either[GetEuMemberStatesError, EuMemberStates]]
 
   def createUploadTracking(draftId: DraftId, isAmendment: Option[Boolean])(implicit
@@ -276,6 +278,28 @@ class NovaImportsBackendConnectorImpl @Inject() (
               .validate[TraderInformation]
               .map(Right(_))
               .recoverTotal(err => Left(UpstreamError(200, s"Malformed trader information: $err")))
+          case 404 => Left(NotFound)
+          case s   => Left(UpstreamError(s, response.body))
+        }
+      }
+  }
+
+  override def getClientTraderInformation(clientVrn: String)(implicit
+    hc: HeaderCarrier
+  ): Future[Either[GetTraderInformationError, TraderInformation]] = {
+    import GetTraderInformationError.*
+
+    httpClient
+      .get(url"${serviceUrl("/client-trader-information")}")
+      .withBody(Json.obj("clientVrn" -> clientVrn))
+      .execute[HttpResponse]
+      .map { response =>
+        response.status match {
+          case 200 =>
+            response.json
+              .validate[TraderInformation]
+              .map(Right(_))
+              .recoverTotal(err => Left(UpstreamError(200, s"Malformed client trader information: $err")))
           case 404 => Left(NotFound)
           case s   => Left(UpstreamError(s, response.body))
         }

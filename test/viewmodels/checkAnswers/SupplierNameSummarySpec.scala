@@ -35,7 +35,9 @@ class SupplierNameSummarySpec extends SpecBase {
 
   "SupplierNameSummary" - {
 
-    // TODO: Add using client name details tests once AVD-S1.2 page is added
+    "must return nothing when using client details, as the client is always a business" in {
+      SupplierNameSummary.rowFromClientDetails() mustBe None
+    }
 
     "must return a summary with the name parts stacked on separate lines and a single change link when using Private Individuals personal name details" in {
       val userAnswers = UserAnswers(userAnswersId)

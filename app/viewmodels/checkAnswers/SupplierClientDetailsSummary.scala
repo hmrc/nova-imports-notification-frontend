@@ -1,0 +1,47 @@
+/*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package viewmodels.checkAnswers
+
+import models.TraderInformation
+import play.api.i18n.Messages
+import play.twirl.api.HtmlFormat
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{SummaryList, SummaryListRow}
+import viewmodels.govuk.summarylist.*
+import viewmodels.implicits.*
+
+object SupplierClientDetailsSummary {
+
+  def apply(clientName: Option[String], clientDetails: Option[TraderInformation])(implicit messages: Messages): SummaryList =
+    SummaryListViewModel(rows = Seq(nameRow(clientName), addressRow(clientDetails.map(_.addressLines).getOrElse(Seq.empty))))
+
+  private def nameRow(name: Option[String])(implicit messages: Messages): SummaryListRow =
+    SummaryListRowViewModel(
+      key = "useClientDetailsAsSupplier.name",
+      value = ValueViewModel(HtmlContent(name.map(escape).getOrElse(notProvided)))
+    )
+
+  private def addressRow(addressLines: Seq[String])(implicit messages: Messages): SummaryListRow =
+    SummaryListRowViewModel(
+      key = "useClientDetailsAsSupplier.address",
+      value = ValueViewModel(HtmlContent(if (addressLines.isEmpty) notProvided else addressLines.map(escape).mkString("<br>")))
+    )
+
+  private def notProvided(implicit messages: Messages): String = escape(messages("useClientDetailsAsSupplier.notProvided"))
+
+  private def escape(value: String): String = HtmlFormat.escape(value).body
+}

@@ -426,6 +426,35 @@ class NavigatorSpec extends SpecBase {
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
 
+      "must go from UseClientDetailsAsSupplierPage AVD-S1.2 to the supplier check your answers AVD-S9.0 when Yes is selected" in {
+        val ua = userAnswers.set(UseClientDetailsAsSupplierPage(SupplierNumber(1)), true).success.value
+        navigator.nextPage(
+          UseClientDetailsAsSupplierPage(SupplierNumber(1)),
+          NormalMode,
+          ua,
+          NovaUserType.Agent
+        ) mustBe supplierdetails.routes.SupplierDetailsCheckYourAnswersController.onPageLoad(SupplierNumber(1))
+      }
+
+      "must go from UseClientDetailsAsSupplierPage AVD-S1.2 to SupplierBusinessOrIndividual AVD-S2.0 when No is selected" in {
+        val ua = userAnswers.set(UseClientDetailsAsSupplierPage(SupplierNumber(2)), false).success.value
+        navigator.nextPage(
+          UseClientDetailsAsSupplierPage(SupplierNumber(2)),
+          NormalMode,
+          ua,
+          NovaUserType.Agent
+        ) mustBe supplierdetails.routes.SupplierBusinessOrIndividualController.onPageLoad(SupplierNumber(2), NormalMode)
+      }
+
+      "must go from UseClientDetailsAsSupplierPage AVD-S1.2 to JourneyRecovery when no answer is found" in {
+        navigator.nextPage(
+          UseClientDetailsAsSupplierPage(SupplierNumber(1)),
+          NormalMode,
+          userAnswers,
+          NovaUserType.Agent
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
       "must go from IsSupplierVatRegisteredPage AVD-S8.0 to CheckSupplierDetails AVD-S9 when No is selected" in {
         val ua = userAnswers.set(IsSupplierVatRegisteredPage(SupplierNumber(2)), false).success.value
         navigator.nextPage(

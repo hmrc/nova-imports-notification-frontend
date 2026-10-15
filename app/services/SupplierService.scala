@@ -21,7 +21,7 @@ import connectors.NovaImportsBackendConnector
 import models.{BusinessOrPrivateIndividual, SupplierNumber, UserAnswers, UserContext}
 import pages.sections.initialquestions.BusinessOrPrivatePage
 import pages.sections.notifierdetails.{BusinessNamePage, NameDetailsPage}
-import pages.sections.supplierdetails.{SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
+import pages.sections.supplierdetails.{SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, UseClientDetailsAsSupplierPage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
 import play.api.Logging
 import play.api.libs.json.{JsObject, Json}
 import queries.AllSuppliersQuery
@@ -104,12 +104,14 @@ class SupplierServiceImpl @Inject() (
   ): Future[Option[String]] =
     (
       answers.get(UsePersonalDetailsAsSupplierPage(supplierNumber)),
-      answers.get(UsePurchaserDetailsAsSupplierPage(supplierNumber))
+      answers.get(UsePurchaserDetailsAsSupplierPage(supplierNumber)),
+      answers.get(UseClientDetailsAsSupplierPage(supplierNumber))
     ) match {
-      case (Some(true), _) if userContext.usesTraderDetails => traderName
-      case (Some(true), _)                                  => Future.successful(notifierName(answers, userContext))
-      case (_, Some(true))                                  => Future.successful(answers.purchaserName)
-      case _                                                => Future.successful(enteredSupplierName(answers, supplierNumber))
+      case (Some(true), _, _) if userContext.usesTraderDetails => traderName
+      case (Some(true), _, _)                                  => Future.successful(notifierName(answers, userContext))
+      case (_, Some(true), _)                                  => Future.successful(answers.purchaserName)
+      case (_, _, Some(true))                                  => clientName(userContext)
+      case _                                                   => Future.successful(enteredSupplierName(answers, supplierNumber))
     }
 
   private def notifierName(answers: UserAnswers, userContext: UserContext): Option[String] =
@@ -128,6 +130,24 @@ class SupplierServiceImpl @Inject() (
       case Some(BusinessOrPrivateIndividual.PrivateIndividual) =>
         answers.get(SupplierNamePage(supplierNumber)).map(_.displayName)
       case None => None
+    }
+
+  private def clientName(userContext: UserContext)(implicit hc: HeaderCarrier): Future[Option[String]] =
+    userContext.selectedClient match {
+      case None         => Future.successful(None)
+      case Some(client) =>
+        connector
+          .getClientTraderInformation(client.vrn)
+          .map {
+            case Right(traderInformation) => traderInformation.name.orElse(client.name)
+            case Left(error)              =>
+              logger.warn(s"Failed to fetch client trader information for the supplier name: $error")
+              client.name
+          }
+          .recover { case NonFatal(e) =>
+            logger.warn("Failed to fetch client trader information for the supplier name", e)
+            client.name
+          }
     }
 
   private def traderName(implicit hc: HeaderCarrier): Future[Option[String]] =

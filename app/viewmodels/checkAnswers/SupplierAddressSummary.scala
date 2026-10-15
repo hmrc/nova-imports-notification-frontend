@@ -48,7 +48,25 @@ object SupplierAddressSummary {
     row(answers, SupplierAddressPage(supplierNumber), routes.SupplierDetailsCheckYourAnswersController.onChangeAddress(supplierNumber).url, None)
   }
 
-  // TODO: Add rowFromClientDetails once AVD-S1.2 page is added
+  def rowFromClientDetails(supplierNumber: SupplierNumber, clientDetails: Option[TraderInformation])(implicit
+    messages: Messages
+  ): Option[SummaryListRow] = {
+    val lines = clientDetails.map(_.addressLines).getOrElse(Seq.empty)
+    val value =
+      if (lines.isEmpty) HtmlFormat.escape(messages("supplierDetailsCheckYourAnswers.notProvided")).body
+      else lines.map(line => HtmlFormat.escape(line).body).mkString("<br>")
+
+    Some(
+      SummaryListRowViewModel(
+        key = "supplierAddressCheckYourAnswers.checkYourAnswersLabel",
+        value = ValueViewModel(HtmlContent(value)),
+        actions = Seq(
+          ActionItemViewModel("site.change", routes.UseClientDetailsAsSupplierController.onPageLoad(supplierNumber, NormalMode).url)
+            .withVisuallyHiddenText(messages("supplierAddressCheckYourAnswers.change.hidden"))
+        )
+      )
+    )
+  }
 
   private def row(answers: UserAnswers, addressPage: QuestionPage[Address], redirectUrl: String, traderDetails: Option[TraderInformation])(implicit
     messages: Messages
