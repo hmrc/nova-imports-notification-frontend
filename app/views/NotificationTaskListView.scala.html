@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import models.{DraftNotification, NormalMode, SectionStatus}
+@import models.{AgentSelectedClient, DraftNotification, NormalMode, SectionStatus}
 
 @this(
     layout: templates.Layout,
@@ -22,7 +22,7 @@
     govukTaskList: GovukTaskList
 )
 
-@(traderName: Option[String], vrn: Option[String], sections: Map[String, SectionStatus], showAddYourAddress: Boolean, showAboutThePurchaser: Boolean, sectionLink: Map[String, String])(implicit request: Request[?], messages: Messages)
+@(traderName: Option[String], vrn: Option[String], client: Option[AgentSelectedClient], sections: Map[String, SectionStatus], showAddYourAddress: Boolean, showAboutThePurchaser: Boolean, sectionLink: Map[String, String])(implicit request: Request[?], messages: Messages)
 
 @statusFor(sectionId: String) = @{
     sections.get(sectionId) match {
@@ -81,6 +81,22 @@
     }
 
     <h1 class="govuk-heading-l">@messages("notificationTaskList.heading")</h1>
+
+    @client.map { selectedClient =>
+        <div class="govuk-summary-card govuk-!-margin-bottom-8">
+            <div class="govuk-summary-card__title-wrapper">
+                <h2 class="govuk-summary-card__title">@selectedClient.name.fold(messages("landingPage.agent.client.heading"))(name => messages("notificationTaskList.client.heading", name))</h2>
+            </div>
+            <div class="govuk-summary-card__content">
+                <dl class="govuk-summary-list">
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key">@messages("notificationTaskList.client.vrn")</dt>
+                        <dd class="govuk-summary-list__value">@{"GB" + selectedClient.vrn}</dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+    }
 
     <h2 class="govuk-heading-m">@messages("notificationTaskList.aboutYou.heading")</h2>
 

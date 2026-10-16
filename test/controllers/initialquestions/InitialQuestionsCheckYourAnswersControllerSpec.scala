@@ -425,7 +425,7 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
         }
       }
 
-      "when succeeds must redirect to the next page for an Agent with a selected client" in {
+      "when succeeds must redirect to the notification task list for an Agent with a selected client" in {
         val connector = connectorWithSuccessfulSubmit()
 
         given application: Application =
@@ -438,7 +438,7 @@ class InitialQuestionsCheckYourAnswersControllerSpec extends SpecBase with Mocki
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.LandingPageController.onPageLoad().url
+          redirectLocation(result).value mustEqual routes.NotificationTaskListController.onPageLoad().url
         }
       }
 

@@ -595,8 +595,7 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
         }
       }
 
-      // TODO: change correct downstream redirect once NTL set up for all user types
-      "when succeeds must redirect to the correct downstream Page for an Agent with a selected client" in {
+      "when succeeds must redirect to the notification task list for an Agent with a selected client" in {
         val connector = mock[NovaImportsBackendConnector]
         when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
           .thenReturn(Future.successful(Right(2L)))
@@ -609,12 +608,11 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.LandingPageController.onPageLoad().url
+          redirectLocation(result).value mustEqual routes.NotificationTaskListController.onPageLoad().url
         }
       }
 
-      // TODO: change correct downstream redirect once NTL set up for all user types
-      "when succeeds must redirect to the correct downstream Page for an Agent with no enrolments" in {
+      "when succeeds must redirect to the notification task list for an Agent with no enrolments" in {
         val connector = mock[NovaImportsBackendConnector]
         when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
           .thenReturn(Future.successful(Right(2L)))
@@ -628,7 +626,7 @@ class YourDetailsCheckYourAnswersControllerSpec extends SpecBase with MockitoSug
           val result = route(application, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.LandingPageController.onPageLoad().url
+          redirectLocation(result).value mustEqual routes.NotificationTaskListController.onPageLoad().url
         }
       }
 
