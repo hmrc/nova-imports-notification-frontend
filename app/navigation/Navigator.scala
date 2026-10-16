@@ -16,19 +16,20 @@
 
 package navigation
 
-import javax.inject.{Inject, Singleton}
-import play.api.mvc.Call
-import controllers.{initialquestions, notifierdetails, purchaserdetails, routes, supplierdetails, vehicledetails}
-import pages.*
+import controllers.*
 import models.*
+import pages.*
 import pages.sections.initialquestions.*
-import pages.sections.notifierdetails.*
-import pages.sections.vehicledetails.*
 import pages.sections.notifieraddress.*
+import pages.sections.notifierdetails.*
 import pages.sections.purchaseraddress.*
 import pages.sections.purchaserdetails.*
 import pages.sections.supplierdetails.*
+import pages.sections.vehicledetails.*
 import play.api.libs.json.Reads
+import play.api.mvc.Call
+
+import javax.inject.{Inject, Singleton}
 
 @Singleton
 class Navigator @Inject() () {
@@ -393,12 +394,6 @@ class Navigator @Inject() () {
     case page: AddVehicleDetailsMotorCaravanPage        => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
     case page: AddVehicleDetailsAgriculturalTractorPage => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
     case page: AddVehicleDetailsContractorsPlantPage    => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
-    case _                                              =>
-    case page: AddVehicleDetailsLightCommercialPage  => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
-    case page: AddVehicleDetailsHeavyCommercialPage  => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
-    case page: AddVehicleDetailsMotorcyclePage       => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
-    case page: AddVehicleDetailsMotorCaravanPage     => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
-    case page: AddVehicleDetailsContractorsPlantPage => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
     case page: ImportEntryNumberPage => (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to the AVD-IE2.1 CYA when built
     case _                           =>
       (_, _) => routes.LandingPageController.onPageLoad()
