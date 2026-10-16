@@ -500,6 +500,12 @@ class NovaImportsBackendConnectorISpec
       connector.getClientList(ClientListQuery(vrn = Some("123456789"), start = 0, count = 10)).futureValue mustEqual Right(expected)
     }
 
+    "requests every client when the query is the default" in {
+      wireMockServer.stubFor(get(urlEqualTo("/nova-imports/clients?start=0&count=-1")).willReturn(okJson(body)))
+
+      connector.getClientList(ClientListQuery()).futureValue mustEqual Right(expected)
+    }
+
     "returns UpstreamError on a malformed body" in {
       wireMockServer.stubFor(get(urlPathEqualTo("/nova-imports/clients")).willReturn(okJson("""{"clients":[]}""")))
 
