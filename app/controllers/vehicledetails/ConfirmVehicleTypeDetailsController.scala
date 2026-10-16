@@ -20,6 +20,7 @@ import connectors.NovaImportsBackendConnector
 import controllers.BaseController
 import controllers.actions.*
 import controllers.utils.IsDraftIdDefined
+import models.draftsections.VehicleTypeDetails
 import models.requests.DataRequest
 import models.{AddVehicleType, ImportNumber, SupplierNumber, UserAnswers, VehicleNumber}
 import pages.sections.initialquestions.VehicleFromEuPage
@@ -154,53 +155,72 @@ object ConfirmVehicleTypeDetailsController {
       vehicleService.numberHasValues(request.userAnswers, vehicleNumber) &&
       vehicleDetailsSection(request.userAnswers, vehicleNumber).isDefined
 
-  def vehicleDetailsSection(answers: UserAnswers, vehicleNumber: VehicleNumber): Option[JsObject] =
-    answers.get(AddVehicleTypePage(vehicleNumber)) match {
+  def vehicleDetailsSection(answers: UserAnswers, vehicleNumber: VehicleNumber): Option[JsObject] = {
+    val details: Option[VehicleTypeDetails] = answers.get(AddVehicleTypePage(vehicleNumber)) match {
       case Some(AddVehicleType.Car) =>
         answers.get(AddVehicleDetailsCarPage(vehicleNumber)).map { d =>
-          Json.obj("make" -> d.make, "model" -> d.model, "derivative" -> d.derivative, "trim" -> d.trim, "bodyType" -> d.bodyType)
+          VehicleTypeDetails(
+            make = Some(d.make),
+            model = Some(d.model),
+            derivative = Some(d.derivative),
+            trim = Some(d.trim),
+            bodyType = Some(d.bodyType)
+          )
         }
       case Some(AddVehicleType.Lcv) =>
         answers.get(AddVehicleDetailsLightCommercialPage(vehicleNumber)).map { d =>
-          Json.obj("make" -> d.make, "model" -> d.model, "derivative" -> d.derivative, "trim" -> d.trim, "lcvBodyType" -> d.bodyType)
+          VehicleTypeDetails(
+            make = Some(d.make),
+            model = Some(d.model),
+            derivative = Some(d.derivative),
+            trim = Some(d.trim),
+            lcvBodyType = Some(d.bodyType)
+          )
         }
       case Some(AddVehicleType.Hcv) =>
         answers.get(AddVehicleDetailsHeavyCommercialPage(vehicleNumber)).map { d =>
-          Json.obj("make" -> d.make, "model" -> d.model, "hcvType" -> d.hcvType, "cabType" -> d.cabType)
+          VehicleTypeDetails(make = Some(d.make), model = Some(d.model), hcvType = Some(d.hcvType), cabType = Some(d.cabType))
         }
       case Some(AddVehicleType.Motorcycle) =>
         answers.get(AddVehicleDetailsMotorcyclePage(vehicleNumber)).map { d =>
-          Json.obj(
-            "make"              -> d.make,
-            "model"             -> d.model,
-            "derivative"        -> d.derivative,
-            "motorcycleVersion" -> d.motorcycleVersion,
-            "motorcycleType"    -> d.motorcycleType,
-            "motorcycleStyle"   -> d.motorcycleStyle,
-            "transmission"      -> d.transmission.jsonValue,
-            "fuelType"          -> d.fuelType.jsonValue,
-            "engineSize"        -> d.engineSize
+          VehicleTypeDetails(
+            make = Some(d.make),
+            model = Some(d.model),
+            derivative = Some(d.derivative),
+            motorcycleVersion = Some(d.motorcycleVersion),
+            motorcycleType = Some(d.motorcycleType),
+            motorcycleStyle = Some(d.motorcycleStyle),
+            transmission = Some(d.transmission.jsonValue),
+            fuelType = Some(d.fuelType.jsonValue),
+            engineSize = Some(d.engineSize)
           )
         }
       case Some(AddVehicleType.MotorCaravan) =>
         answers.get(AddVehicleDetailsMotorCaravanPage(vehicleNumber)).map { d =>
-          Json.obj(
-            "caravanMake"       -> d.make,
-            "modelNameNumber"   -> d.model,
-            "caravanVersion"    -> d.version,
-            "caravanBody"       -> d.bodyType,
-            "makeOfBaseVehicle" -> d.makeOfBaseVehicle,
-            "derivative"        -> d.derivative
+          VehicleTypeDetails(
+            caravanMake = Some(d.make),
+            modelNameNumber = Some(d.model),
+            caravanVersion = Some(d.version),
+            caravanBody = Some(d.bodyType),
+            makeOfBaseVehicle = Some(d.makeOfBaseVehicle),
+            derivative = Some(d.derivative)
           )
         }
       case Some(AddVehicleType.AgriculturalTractor) =>
         answers.get(AddVehicleDetailsAgriculturalTractorPage(vehicleNumber)).map { d =>
-          Json.obj("make" -> d.make, "seriesModel" -> d.model, "versionDerivative" -> d.derivative, "brakeHorsePower" -> d.brakeHorsepower)
+          VehicleTypeDetails(
+            make = Some(d.make),
+            seriesModel = Some(d.model),
+            versionDerivative = Some(d.derivative),
+            brakeHorsePower = Some(d.brakeHorsepower)
+          )
         }
       case Some(AddVehicleType.ContractorsPlant) =>
         answers.get(AddVehicleDetailsContractorsPlantPage(vehicleNumber)).map { d =>
-          Json.obj("make" -> d.make, "seriesModel" -> d.model, "versionDerivative" -> d.derivative)
+          VehicleTypeDetails(make = Some(d.make), seriesModel = Some(d.model), versionDerivative = Some(d.derivative))
         }
       case None => None
     }
+    details.map(Json.toJson(_).as[JsObject])
+  }
 }
