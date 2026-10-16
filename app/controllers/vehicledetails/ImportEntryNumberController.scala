@@ -20,25 +20,58 @@ import controllers.BaseController
 import controllers.actions.*
 import controllers.utils.IsDraftIdDefined
 import controllers.vehicledetails.ImportEntryNumberController.*
-import models.ImportNumber
+import forms.ImportEntryNumberFormProvider
 import models.requests.DataRequest
+import models.{ImportNumber, Mode, NovaUserType}
+import navigation.Navigator
+import pages.sections.initialquestions.VehicleFromEuPage
+import pages.sections.vehicledetails.ImportEntryNumberPage
+import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.SessionRepository
 import services.ImportService
 import views.html.ImportEntryNumberView
 
 import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
 
-// TODO: FINISH THIS SCREEN. This is AVD-IE1.0 placeholder for testing, controller to be completed later.
 class ImportEntryNumberController @Inject() (
   val controllerComponents: MessagesControllerComponents,
+  sessionRepository: SessionRepository,
+  navigator: Navigator,
   actions: Actions,
+  formProvider: ImportEntryNumberFormProvider,
   view: ImportEntryNumberView,
   importService: ImportService
-) extends BaseController {
+)(implicit ec: ExecutionContext)
+    extends BaseController {
 
-  def onPageLoad(importNumber: ImportNumber): Action[AnyContent] =
+  val form: Form[String] = formProvider()
+
+  def onPageLoad(importNumber: ImportNumber, mode: Mode): Action[AnyContent] =
     actions.authAndGetDataWithUserTypeGuard(guardPredicate(importService, importNumber)) { implicit request =>
-      Ok(view(importNumber))
+      Ok(view(form.withDefault(request.userAnswers.get(ImportEntryNumberPage(importNumber))), importNumber, mode))
+    }
+
+  def onSubmit(importNumber: ImportNumber, mode: Mode): Action[AnyContent] =
+    actions.authAndGetDataWithUserTypeGuard(guardPredicate(importService, importNumber)).async { implicit request =>
+      form
+        .bindFromRequest()
+        .fold(
+          formWithErrors => Future.successful(BadRequest(view(formWithErrors, importNumber, mode))),
+          value =>
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(ImportEntryNumberPage(importNumber), value))
+              _              <- sessionRepository.set(updatedAnswers)
+            } yield Redirect(
+              navigator.nextPage(
+                ImportEntryNumberPage(importNumber),
+                mode,
+                updatedAnswers,
+                NovaUserType.from(request.affinityGroup, request.enrolments)
+              )
+            )
+        )
     }
 }
 
@@ -47,5 +80,7 @@ object ImportEntryNumberController {
   // the first import question, so the collection is still empty at this point
   def guardPredicate(importService: ImportService, importNumber: ImportNumber)(request: DataRequest[?]): Boolean =
     IsDraftIdDefined(request.userAnswers) &&
+      request.userAnswers.get(VehicleFromEuPage).contains(false) &&
+      (request.userContext.isVatRegisteredOrganisation || request.userContext.isAgent) &&
       importService.numberExists(request.userAnswers, importNumber)
 }

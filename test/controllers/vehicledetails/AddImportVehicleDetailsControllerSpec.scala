@@ -190,7 +190,7 @@ class AddImportVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual
-          vehicledetails.routes.ImportEntryNumberController.onPageLoad(ImportNumber(1)).url
+          vehicledetails.routes.ImportEntryNumberController.onPageLoad(ImportNumber(1), NormalMode).url
       }
     }
 
@@ -210,7 +210,7 @@ class AddImportVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual
-          vehicledetails.routes.ImportEntryNumberController.onPageLoad(ImportNumber(2)).url
+          vehicledetails.routes.ImportEntryNumberController.onPageLoad(ImportNumber(2), NormalMode).url
       }
     }
 
@@ -228,7 +228,7 @@ class AddImportVehicleDetailsControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual
-          vehicledetails.routes.ImportEntryNumberController.onPageLoad(ImportNumber(1)).url
+          vehicledetails.routes.ImportEntryNumberController.onPageLoad(ImportNumber(1), NormalMode).url
       }
     }
 

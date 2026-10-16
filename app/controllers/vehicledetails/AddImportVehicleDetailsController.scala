@@ -25,7 +25,7 @@ import models.AddImportVehicleDetails.ByImportEntryNumber
 import models.requests.DataRequest
 
 import javax.inject.Inject
-import models.{AddImportVehicleDetails, Mode, NovaUserType}
+import models.{AddImportVehicleDetails, Mode, NormalMode, NovaUserType}
 import navigation.Navigator
 import pages.sections.vehicledetails.AddImportVehicleDetailsPage
 import pages.sections.initialquestions.VehicleFromEuPage
@@ -90,7 +90,7 @@ class AddImportVehicleDetailsController @Inject() (
     for {
       updatedAnswers <- Future.fromTry(request.userAnswers.set(AddImportVehicleDetailsPage, AddImportVehicleDetails.ByImportEntryNumber))
       importNumber   <- importService.add(updatedAnswers)
-    } yield Redirect(routes.ImportEntryNumberController.onPageLoad(importNumber))
+    } yield Redirect(routes.ImportEntryNumberController.onPageLoad(importNumber, NormalMode))
 }
 
 object AddImportVehicleDetailsController {

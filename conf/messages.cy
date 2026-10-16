@@ -1495,3 +1495,19 @@ addVehicleDetailsMotorCaravan.derivative.hint = For example, 2.3TD
 addVehicleDetailsMotorCaravan.derivative.error.required = Enter the derivative
 addVehicleDetailsMotorCaravan.derivative.error.format = The derivative must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
 addVehicleDetailsMotorCaravan.derivative.error.length = The derivative must be 50 characters or less
+
+####################################################################################
+# AVD-IE1.0 - Import entry number. Part built for testing import number.           #
+####################################################################################
+# TODO: Welsh translations to be supplied by content team.
+importEntryNumber.title = Import entry number
+importEntryNumber.caption = Add vehicle details
+importEntryNumber.heading.1 = Import entry number
+importEntryNumber.paragraph = You can find it on the vehicle’s import entry documents, such as the E2 Acceptance Advice certificate. It must start with the 2‑digit year, followed by GB or XI and 14 characters, or must be in the format 123-456789A.
+importEntryNumber.heading.2 = What is the import entry number?
+importEntryNumber.hint = For example, 12GB3456ACD789EF21, 12XI3456ACD789EF21 or 123‑456789A
+importEntryNumber.error.required = Enter the import entry number
+importEntryNumber.error.format = Enter the import entry number in the correct format
+importEntryNumber.error.length = The import entry number must be 11 or 18 characters
+importEntryNumber.checkYourAnswersLabel = Import entry number
+importEntryNumber.change.hidden = import entry number
