@@ -80,7 +80,7 @@ class UserDataServiceImpl @Inject() (
   def determineAndUpdateStatus(userAnswers: UserAnswers, userContext: UserContext): Map[String, SectionStatus] =
     userContext.userType match {
       case NovaUserType.VatRegisteredOrganisation                                   => orgWithEnrolments(userAnswers)
-      case NovaUserType.Agent if userAnswers.get(AgentSelectedClientPage).isDefined => agentWithSelectedClient(userAnswers)
+      case NovaUserType.Agent if userAnswers.get(AgentSelectedClientPage).isDefined => agentWithSelectedClient(userAnswers, userContext)
       case NovaUserType.Agent if userContext.agentHasVatAgentEnrolment              => agentWithoutClient(userAnswers)
       case NovaUserType.Agent                                                       => nonVatAgentWithoutClient(userAnswers)
       case _                                                                        => privateIndividual(userAnswers)
@@ -335,7 +335,7 @@ object UserDataService {
     )
   }
 
-  def agentWithSelectedClient(answers: UserAnswers): Map[String, SectionStatus] = {
+  def agentWithSelectedClient(answers: UserAnswers, userContext: UserContext): Map[String, SectionStatus] = {
     /* Introduction */
     val acknowledged               = answers.get(IntroductionAcknowledgePage)
     val amendSubmittedNotification = answers.get(AmendSubmittedNotificationPage)
@@ -360,7 +360,7 @@ object UserDataService {
     val nameDetails             = answers.get(NameDetailsPage)
     val phoneNumber             = answers.get(PhoneNumberPage)
     val emailAddress            = answers.get(EmailAddressPage)
-    val expectsName             = agentClientVehicleBusinessUse.contains(false)
+    val expectsName             = !userContext.isAgentWithClientNoEnrolments && agentClientVehicleBusinessUse.contains(false)
     val notifierDetailsAllUnset = nameDetails.isEmpty && phoneNumber.isEmpty && emailAddress.isEmpty
 
     val notifierDetailsStatus =

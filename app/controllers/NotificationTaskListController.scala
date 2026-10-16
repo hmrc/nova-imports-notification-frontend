@@ -194,12 +194,11 @@ object NotificationTaskListController {
       case NovaUserType.Agent                     =>
         if (userContext.isVatAgentWithoutClient)
           notifierdetails.routes.PhoneNumberController.onPageLoad(NormalMode).url
-        else if (
-          userContext.isAgentWithClient && !userContext.isAgentWithClientNoEnrolments && answers
-            .get(AgentClientVehicleBusinessUsePage)
-            .contains(false)
-        )
-          notifierdetails.routes.AddYourNameController.onPageLoad(NormalMode).url
+        else if (userContext.isAgentWithClient)
+          if (!userContext.isAgentWithClientNoEnrolments && answers.get(AgentClientVehicleBusinessUsePage).contains(false))
+            notifierdetails.routes.AddYourNameController.onPageLoad(NormalMode).url
+          else
+            notifierdetails.routes.PhoneNumberController.onPageLoad(NormalMode).url
         else if (answers.get(BusinessOrPrivatePage).contains(BusinessOrPrivateIndividual.PrivateIndividual))
           notifierdetails.routes.AddYourNameController.onPageLoad(NormalMode).url
         else

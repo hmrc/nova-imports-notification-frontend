@@ -718,7 +718,7 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "for an agent with a selected client who answered Yes to AQ1.0 links Add your details to AYD1.2" in {
+      "for a type 6 agent with a selected client who answered Yes to AQ1.0 links Add your details to AYD1.2" in {
         given application: Application =
           applicationWith(
             classOf[FakeAgentIdentifierAction],
@@ -737,40 +737,26 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "for an agent with a selected client who answered No to AQ1.0 links Add your details to AYD1.1" in {
-        given application: Application =
-          applicationWith(classOf[FakeAgentIdentifierAction], Some(agentWithClientPrivateUse), stubConnector(summary = Right(agentWithClientSummary)))
+      "for a type 3 agent with a selected client links Add your details to AYD1.2 whatever the answer to AQ1.0" in {
+        Seq(
+          agentWithClientBusinessUse,
+          agentWithClientPrivateUse,
+          agentWithClientPrivateUse.unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
+        ).foreach { answers =>
+          given application: Application =
+            applicationWith(classOf[FakeAgentNoEnrolmentsIdentifierAction], Some(answers), stubConnector(summary = Right(agentWithClientSummary)))
 
-        running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] =
-            FakeRequest(GET, notificationTaskListRoute)
+          running(application) {
+            given request: FakeRequest[AnyContentAsEmpty.type] =
+              FakeRequest(GET, notificationTaskListRoute)
 
-          val result = route(application, request).value
+            val result = route(application, request).value
 
-          status(result) mustEqual OK
-          yourDetailsLinkHref(contentAsString(result)) mustEqual notifierdetails.routes.AddYourNameController.onPageLoad(NormalMode).url
+            status(result) mustEqual OK
+            yourDetailsLinkHref(contentAsString(result)) mustEqual notifierdetails.routes.PhoneNumberController.onPageLoad(NormalMode).url
+          }
         }
       }
-
-      "for an agent with a selected client and no enrolments who answered No to AQ1.0 links Add your details to AYD1.2" in {
-        given application: Application =
-          applicationWith(
-            classOf[FakeAgentNoEnrolmentsIdentifierAction],
-            Some(agentWithClientPrivateUse),
-            stubConnector(summary = Right(agentWithClientSummary))
-          )
-
-        running(application) {
-          given request: FakeRequest[AnyContentAsEmpty.type] =
-            FakeRequest(GET, notificationTaskListRoute)
-
-          val result = route(application, request).value
-
-          status(result) mustEqual OK
-          yourDetailsLinkHref(contentAsString(result)) mustEqual notifierdetails.routes.PhoneNumberController.onPageLoad(NormalMode).url
-        }
-      }
-
       "for an agent with a selected client who answered Yes to IQ1.0 links Add vehicle details to AVD1.0" in {
         given application: Application =
           applicationWith(
@@ -866,7 +852,26 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "for an agent with a selected client who answered No to AQ1.0 must only mark Add your details as Completed once the name is also saved" in {
+      "for a type 3 agent with a selected client who answered No to AQ1.0 must mark Add your details as Completed once phone and email are saved, without a name" in {
+        val answers = agentWithClientPrivateUse
+          .unsafeSet(PhoneNumberPage, ContactNumbers(Some("01234567890"), None))
+          .unsafeSet(EmailAddressPage, "agent@example.com")
+
+        given application: Application =
+          applicationWith(classOf[FakeAgentNoEnrolmentsIdentifierAction], Some(answers), stubConnector(summary = Right(agentWithClientSummary)))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual OK
+          yourDetailsStatus(contentAsString(result)) mustEqual "Completed"
+        }
+      }
+
+      "for a type 6 agent with a selected client who answered No to AQ1.0 must only mark Add your details as Completed once the name is also saved" in {
         val withoutName = agentWithClientPrivateUse
           .unsafeSet(PhoneNumberPage, ContactNumbers(Some("01234567890"), None))
           .unsafeSet(EmailAddressPage, "agent@example.com")
