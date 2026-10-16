@@ -5,6 +5,7 @@
 GET         /                                                                            controllers.StartController.start()
 
 GET         /notification-of-vehicle-arrivals                                            controllers.LandingPageController.onPageLoad()
+GET         /client/deselect                                                             controllers.LandingPageController.deselectClient()
 
 GET         /assets/*file                                                                controllers.Assets.versioned(path="/public", file: Asset)
 
@@ -42,6 +43,9 @@ GET         /no-clients                                                         
 
 GET         /saved-notifications                                                         controllers.notification.ViewSavedNotificationsController.onPageLoad(page: Int ?= 1)
 GET         /saved-notifications/continue/:draftId                                       controllers.notification.ViewSavedNotificationsController.onContinue(draftId: String)
+
+GET         /delete-saved-notification/:draftId                                          controllers.notification.DeleteSavedNotificationController.onPageLoad(draftId: String)
+POST        /delete-saved-notification/:draftId                                          controllers.notification.DeleteSavedNotificationController.onSubmit(draftId: String)
 
 GET         /delete-notification                                                         controllers.notification.DeleteCurrentNotificationController.onPageLoad()
 POST        /delete-notification                                                         controllers.notification.DeleteCurrentNotificationController.onSubmit()
@@ -176,6 +180,11 @@ POST        /supplier/:supplierNumber/use-purchaser-details-as-supplier         
 GET         /supplier/:supplierNumber/use-purchaser-details-as-supplier                  controllers.supplierdetails.UsePurchaserDetailsAsSupplierController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = NormalMode)
 GET         /supplier/:supplierNumber/use-purchaser-details-as-supplier/change           controllers.supplierdetails.UsePurchaserDetailsAsSupplierController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = CheckMode)
 POST        /supplier/:supplierNumber/use-purchaser-details-as-supplier/change           controllers.supplierdetails.UsePurchaserDetailsAsSupplierController.onSubmit(supplierNumber: SupplierNumber, mode: Mode = CheckMode)
+
+POST        /supplier/:supplierNumber/use-client-details-as-supplier                     controllers.supplierdetails.UseClientDetailsAsSupplierController.onSubmit(supplierNumber: SupplierNumber, mode: Mode = NormalMode)
+GET         /supplier/:supplierNumber/use-client-details-as-supplier                     controllers.supplierdetails.UseClientDetailsAsSupplierController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = NormalMode)
+GET         /supplier/:supplierNumber/use-client-details-as-supplier/change              controllers.supplierdetails.UseClientDetailsAsSupplierController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = CheckMode)
+POST        /supplier/:supplierNumber/use-client-details-as-supplier/change              controllers.supplierdetails.UseClientDetailsAsSupplierController.onSubmit(supplierNumber: SupplierNumber, mode: Mode = CheckMode)
 
 GET         /supplier/:supplierNumber/supplier-business-or-private-individual            controllers.supplierdetails.SupplierBusinessOrIndividualController.onPageLoad(supplierNumber: SupplierNumber, mode: Mode = NormalMode)
 POST        /supplier/:supplierNumber/supplier-business-or-private-individual            controllers.supplierdetails.SupplierBusinessOrIndividualController.onSubmit(supplierNumber: SupplierNumber, mode: Mode = NormalMode)

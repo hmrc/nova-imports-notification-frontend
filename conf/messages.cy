@@ -146,7 +146,9 @@ landingPage.agent.clients.body = Gweld, chwilio, dileu neu ddewis cleient i weit
 
 landingPage.agent.client.heading = Notifying on behalf of
 landingPage.agent.client.change = Change client
-landingPage.agent.client.name = Client name
+landingPage.agent.client.change.hidden = change client selected
+landingPage.agent.client.deselect = Deselect
+landingPage.agent.client.deselect.hidden = deselect client
 landingPage.agent.client.vrn = VAT registration number
 
 ##########################################
@@ -170,6 +172,19 @@ viewSavedNotifications.location.withinEu = Within the EU
 viewSavedNotifications.location.outsideEu = Outside the EU
 viewSavedNotifications.notProvided = Not provided
 viewSavedNotifications.returnHome = Return to home
+
+#######################################################
+# DN1.0 - Delete saved notification                 #
+#######################################################
+# TODO: Welsh translations to be supplied by content team.
+
+deleteSavedNotification.title = Delete notification
+deleteSavedNotification.heading.1 = Delete notification
+deleteSavedNotification.paragraph = You’ll lose all the details for this notification.
+deleteSavedNotification.purchaserName = Purchaser name:
+deleteSavedNotification.dateCreated = Date created:
+deleteSavedNotification.heading.2 = Are you sure you want to delete this notification?
+deleteSavedNotification.error.required = Select yes if you want to delete this notification
 
 #######################################################
 # DN2.0 - Delete current notification                 #
@@ -729,6 +744,29 @@ usePurchaserDetailsAsSupplier.yes.hint = The purchaser is VAT registered and I w
 usePurchaserDetailsAsSupplier.no.hint = I want to add different supplier details
 usePurchaserDetailsAsSupplier.error.required = Select yes if you want to use the purchaser details as the supplier details
 
+#########################################################################################
+# AVD-S1.2 - Add vehicle details - Supplier 1.2: Use client details as supplier details #
+#########################################################################################
+
+useClientDetailsAsSupplier.title = Use your client details as the supplier details
+useClientDetailsAsSupplier.caption = Add vehicle details
+useClientDetailsAsSupplier.heading = Use your client details as the supplier details
+useClientDetailsAsSupplier.paragraph.1 = If your client takes goods from their own stock to use in their business, this is known as self-supply.
+useClientDetailsAsSupplier.paragraph.2 = If your client is a self-supplier, you can use their details as the supplier details. They must:
+useClientDetailsAsSupplier.bullet.1 = be VAT registered in the UK
+useClientDetailsAsSupplier.bullet.2 = have bought and used a road vehicle for their business activity in another EU country where they’re also VAT registered
+useClientDetailsAsSupplier.bullet.3 = have brought the road vehicle to the UK, and it belongs to the same business
+useClientDetailsAsSupplier.bullet.4 = not have bought a new means of transport,
+useClientDetailsAsSupplier.bullet.4.linkText = read VAT Notice 728
+useClientDetailsAsSupplier.clientDetails = Your client’s details are:
+useClientDetailsAsSupplier.name = Name
+useClientDetailsAsSupplier.address = Address
+useClientDetailsAsSupplier.notProvided = Not provided
+useClientDetailsAsSupplier.question = Do you want to use your client’s details as the supplier details?
+useClientDetailsAsSupplier.yes.hint = My client meets all the required conditions and I want to use their details as the supplier details
+useClientDetailsAsSupplier.no.hint = I want to add different supplier details
+useClientDetailsAsSupplier.error.required = Select yes if you want to use your client’s details as the supplier details
+
 ###########################################################################################
 # AVD-S2.0 - Add vehicle details - Supplier 2.0: Supplier business or private individual  #
 ###########################################################################################
@@ -940,6 +978,8 @@ addImportVehicleDetails.radio.bySpreadsheet.hint = Use the spreadsheet option to
 addImportVehicleDetails.inset.paragraph.1 = If you’re uploading a spreadsheet, you must use the correct one for the same type of vehicles. {0} you must download and use.
 addImportVehicleDetails.inset.findSpreadsheet.linkText = Find the spreadsheet
 addImportVehicleDetails.error.required = Select how you want to add vehicle details
+addImportVehicleDetails.noSpreadsheet.paragraph.2 = You can add details of up to 100 vehicles in one submission. Provide the import entry number details first, then add the vehicles from that import.
+addImportVehicleDetails.noSpreadsheet.button = Add import entry number
 
 ###############################################################################
 # AVD2.0 - Add vehicle details 2.0: Vehicles bought from [supplierName]       #

@@ -137,9 +137,13 @@ trait NovaImportsBackendConnector {
 
   def getDraftNotification(draftId: DraftId)(implicit hc: HeaderCarrier): Future[Either[GetDraftNotificationError, DraftNotification]]
 
-  def deleteDraftNotification(draftId: DraftId)(implicit hc: HeaderCarrier): Future[Either[DeleteDraftNotificationError, Boolean]]
+  def deleteDraftNotification(draftId: DraftId, clientVrn: Option[String])(implicit
+    hc: HeaderCarrier
+  ): Future[Either[DeleteDraftNotificationError, Boolean]]
 
   def getTraderInformation()(implicit hc: HeaderCarrier): Future[Either[GetTraderInformationError, TraderInformation]]
+
+  def getClientTraderInformation(clientVrn: String)(implicit hc: HeaderCarrier): Future[Either[GetTraderInformationError, TraderInformation]]
 
   def getEuMemberStates()(implicit hc: HeaderCarrier): Future[Either[GetEuMemberStatesError, EuMemberStates]]
 
@@ -280,6 +284,28 @@ class NovaImportsBackendConnectorImpl @Inject() (
       }
   }
 
+  override def getClientTraderInformation(clientVrn: String)(implicit
+    hc: HeaderCarrier
+  ): Future[Either[GetTraderInformationError, TraderInformation]] = {
+    import GetTraderInformationError.*
+
+    httpClient
+      .get(url"${serviceUrl("/client-trader-information")}")
+      .withBody(Json.obj("clientVrn" -> clientVrn))
+      .execute[HttpResponse]
+      .map { response =>
+        response.status match {
+          case 200 =>
+            response.json
+              .validate[TraderInformation]
+              .map(Right(_))
+              .recoverTotal(err => Left(UpstreamError(200, s"Malformed client trader information: $err")))
+          case 404 => Left(NotFound)
+          case s   => Left(UpstreamError(s, response.body))
+        }
+      }
+  }
+
   override def getDraftNotification(draftId: DraftId)(implicit
     hc: HeaderCarrier
   ): Future[Either[GetDraftNotificationError, DraftNotification]] = {
@@ -302,13 +328,15 @@ class NovaImportsBackendConnectorImpl @Inject() (
       }
   }
 
-  override def deleteDraftNotification(draftId: DraftId)(implicit
+  override def deleteDraftNotification(draftId: DraftId, clientVrn: Option[String])(implicit
     hc: HeaderCarrier
   ): Future[Either[DeleteDraftNotificationError, Boolean]] = {
     import DeleteDraftNotificationError.*
 
+    val maybeClientVrn: String = clientVrn.map(vrn => s"?clientVrn=$vrn").getOrElse("")
+
     httpClient
-      .delete(url"${serviceUrl(s"/draft-notifications/${draftId.value}")}")
+      .delete(url"${serviceUrl(s"/draft-notifications/${draftId.value}$maybeClientVrn")}")
       .execute[HttpResponse]
       .map { response =>
         response.status match {

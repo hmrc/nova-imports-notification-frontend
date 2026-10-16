@@ -18,14 +18,14 @@ package services
 
 import base.SpecBase
 import connectors.{GetTraderInformationError, NovaImportsBackendConnector}
-import models.{BusinessOrPrivateIndividual, NameDetails, NovaUserType, SupplierNumber, TraderInformation, UserAnswers, UserContext}
+import models.{AgentSelectedClient, BusinessOrPrivateIndividual, NameDetails, NovaUserType, SupplierNumber, TraderInformation, UserAnswers, UserContext}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{never, times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.sections.initialquestions.BusinessOrPrivatePage
 import pages.sections.notifierdetails.{BusinessNamePage, NameDetailsPage}
 import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
-import pages.sections.supplierdetails.{SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
+import pages.sections.supplierdetails.{SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, UseClientDetailsAsSupplierPage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
 import play.api.libs.json.{JsObject, Json}
 import queries.AllSuppliersQuery
 import repositories.SessionRepository
@@ -48,10 +48,14 @@ class SupplierServiceSpec extends SpecBase with MockitoSugar {
 
   private val supplierNumber = SupplierNumber(1)
 
-  private def userContextFor(userType: NovaUserType, isForBusinessUse: Boolean = false): UserContext =
+  private def userContextFor(
+    userType: NovaUserType,
+    isForBusinessUse: Boolean = false,
+    selectedClient: Option[AgentSelectedClient] = None
+  ): UserContext =
     UserContext(
       userType = userType,
-      selectedClient = None,
+      selectedClient = selectedClient,
       notDeregistered = true,
       isAgentWithClientNoEnrolments = false,
       agentHasVatAgentEnrolment = false,
@@ -253,6 +257,54 @@ class SupplierServiceSpec extends SpecBase with MockitoSugar {
   }
 
   "SupplierService.supplierName" - {
+
+    "must return the client's name from the data cache when using client details as the supplier" in {
+      val answers   = emptyUserAnswers.unsafeSet(UseClientDetailsAsSupplierPage(supplierNumber), true)
+      val connector = mock[NovaImportsBackendConnector]
+      when(connector.getClientTraderInformation(any())(any())) thenReturn Future.successful(Right(traderInformation))
+
+      val result = newService(mock[SessionRepository], connector = connector)
+        .supplierName(
+          answers,
+          userContextFor(NovaUserType.Agent, selectedClient = Some(AgentSelectedClient("100000001", Some("Stale Name Ltd")))),
+          supplierNumber
+        )
+        .futureValue
+
+      result mustBe Some("Test Co")
+    }
+
+    "must return the client's name from the data cache when none was cached at client selection" in {
+      val answers   = emptyUserAnswers.unsafeSet(UseClientDetailsAsSupplierPage(supplierNumber), true)
+      val connector = mock[NovaImportsBackendConnector]
+      when(connector.getClientTraderInformation(any())(any())) thenReturn Future.successful(Right(traderInformation))
+
+      val result = newService(mock[SessionRepository], connector = connector)
+        .supplierName(
+          answers,
+          userContextFor(NovaUserType.Agent, selectedClient = Some(AgentSelectedClient("100000001", None))),
+          supplierNumber
+        )
+        .futureValue
+
+      result mustBe Some("Test Co")
+    }
+
+    "must fall back to the cached client name when the data cache lookup fails" in {
+      val answers   = emptyUserAnswers.unsafeSet(UseClientDetailsAsSupplierPage(supplierNumber), true)
+      val connector = mock[NovaImportsBackendConnector]
+      when(connector.getClientTraderInformation(any())(any())) thenReturn Future.successful(Left(GetTraderInformationError.NotFound))
+
+      val result = newService(mock[SessionRepository], connector = connector)
+        .supplierName(
+          answers,
+          userContextFor(NovaUserType.Agent, selectedClient = Some(AgentSelectedClient("100000001", Some("ABC Ltd")))),
+          supplierNumber
+        )
+        .futureValue
+
+      result mustBe Some("ABC Ltd")
+    }
 
     "must return the purchaser's name when using purchaser details as the supplier" in {
       val answers = emptyUserAnswers

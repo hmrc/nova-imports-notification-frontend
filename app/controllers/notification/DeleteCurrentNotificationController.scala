@@ -69,7 +69,7 @@ class DeleteCurrentNotificationController @Inject() (
               request.userAnswers.get(DraftIdPage) match {
                 case Some(draftId) =>
                   implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-                  backendConnector.deleteDraftNotification(draftId).flatMap {
+                  backendConnector.deleteDraftNotification(draftId, None).flatMap {
                     case Right(states) =>
                       // Navigate back to landing page on success
                       Future.successful(Redirect(routes.LandingPageController.onPageLoad()))

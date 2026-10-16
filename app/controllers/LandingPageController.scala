@@ -18,9 +18,11 @@ package controllers
 
 import controllers.actions.Actions
 import models.{NotificationSummary, NovaUserType, UserAnswers, UserContext}
+import pages.AgentSelectedClientPage
 import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import repositories.SessionRepository
 import services.NotificationSummaryService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -28,7 +30,7 @@ import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import views.html.{LandingPageAgentView, LandingPageAgentWithClientView, LandingPageOrganisationView, LandingPagePrivateView}
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class LandingPageController @Inject() (
   val controllerComponents: MessagesControllerComponents,
@@ -37,7 +39,8 @@ class LandingPageController @Inject() (
   privateView: LandingPagePrivateView,
   organisationView: LandingPageOrganisationView,
   agentView: LandingPageAgentView,
-  agentWithClientView: LandingPageAgentWithClientView
+  agentWithClientView: LandingPageAgentWithClientView,
+  sessionRepository: SessionRepository
 )(implicit ec: ExecutionContext)
     extends FrontendBaseController
     with I18nSupport
@@ -107,4 +110,19 @@ class LandingPageController @Inject() (
         }
     }
   }
+
+  def deselectClient: Action[AnyContent] = actions.novaAgentAuthAndGetOptionalData().async { implicit request =>
+    request.userAnswers match {
+      case Some(answers) =>
+        for {
+          updatedAnswers <- Future.fromTry(answers.remove(AgentSelectedClientPage))
+          _              <- sessionRepository.set(updatedAnswers)
+        } yield Redirect(
+          controllers.routes.LandingPageController.onPageLoad()
+        )
+      case None =>
+        Future.successful(Redirect(controllers.routes.LandingPageController.onPageLoad()))
+    }
+  }
+
 }

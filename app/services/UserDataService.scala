@@ -33,7 +33,7 @@ import pages.sections.notifierdetails.{BusinessNamePage, EmailAddressPage, NameD
 import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 import pages.sections.purchaseraddress.{IsPurchaserAddressInTheUkPage, PurchaserAddressPage}
 import pages.sections.supplieraddress.SupplierAddressPage
-import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierVatRegistrationNumberPage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
+import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierVatRegistrationNumberPage, UseClientDetailsAsSupplierPage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -69,7 +69,7 @@ class UserDataServiceImpl @Inject() (
           u3 <- storeNotifierAddressPages(draft, u2, repository)
           u4 <- storePurchaserDetailsPages(draft, u3, repository)
           u5 <- storePurchaserAddressPages(draft, u4, repository)
-          u6 <- storeSupplierSelfSupplyPages(draft, u5, repository)
+          u6 <- storeSupplierSelfSupplyPages(draft, u5, repository, userContext)
           u7 <- storeSupplierDetailsPages(draft, u6, repository)
           u8 <- u7.get(BusinessOrPrivatePage)
                   .fold(Future.successful(u7))(businessOrPrivate => repository.setPage(u7, BusinessOrPrivatePage, businessOrPrivate))
@@ -206,7 +206,12 @@ object UserDataService {
 
   private val SupplierSelfSupplySectionRe = raw"supplier/(\d+)/self-supply".r
 
-  def storeSupplierSelfSupplyPages(draft: DraftNotification, answers: UserAnswers, sessionRepository: SessionRepository)(implicit
+  def storeSupplierSelfSupplyPages(
+    draft: DraftNotification,
+    answers: UserAnswers,
+    sessionRepository: SessionRepository,
+    userContext: UserContext
+  )(implicit
     ec: ExecutionContext
   ): Future[UserAnswers] = {
     val selfSupplyAnswers = draft.sections.toSeq.collect { case (SupplierSelfSupplySectionRe(supplierNumber), section) =>
@@ -217,7 +222,8 @@ object UserDataService {
 
     selfSupplyAnswers.foldLeft(Future.successful(answers)) { case (answersF, (supplierNumber, value)) =>
       answersF.flatMap { a =>
-        if notifyingAsSelf then sessionRepository.setPage(a, UsePersonalDetailsAsSupplierPage(supplierNumber), value)
+        if userContext.isAgentWithClient then sessionRepository.setPage(a, UseClientDetailsAsSupplierPage(supplierNumber), value)
+        else if notifyingAsSelf then sessionRepository.setPage(a, UsePersonalDetailsAsSupplierPage(supplierNumber), value)
         else sessionRepository.setPage(a, UsePurchaserDetailsAsSupplierPage(supplierNumber), value)
       }
     }

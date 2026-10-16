@@ -18,9 +18,10 @@ package controllers.vehicledetails
 
 import controllers.BaseController
 import controllers.actions.Actions
-import controllers.vehicledetails.VehicleSpreadsheetUploadController.guardPredicate
-import models.UserContext
-import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
+import models.SectionStatus
+import models.requests.DataRequest
+import pages.VehiclesSectionStatusPage
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import views.html.UploadSuccessfulView
 
 import javax.inject.Inject
@@ -34,13 +35,13 @@ class UploadSuccessfulController @Inject() (
   import UploadSuccessfulController.*
 
   def onPageLoad(): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate) { implicit request =>
-    Ok(view(continueRoute(request.userContext)))
+    Ok(view(controllers.routes.NotificationTaskListController.onPageLoad()))
   }
 }
 
 object UploadSuccessfulController {
 
-  def continueRoute(userContext: UserContext): Call =
-    if (userContext.isVatRegisteredOrganisation) controllers.routes.NotificationTaskListController.onPageLoad()
-    else controllers.routes.LandingPageController.onPageLoad()
+  def guardPredicate(request: DataRequest[?]): Boolean =
+    VehicleSpreadsheetUploadController.guardPredicate(request) &&
+      request.userAnswers.get(VehiclesSectionStatusPage).contains(SectionStatus.Completed)
 }

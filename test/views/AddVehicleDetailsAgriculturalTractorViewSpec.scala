@@ -94,6 +94,15 @@ class AddVehicleDetailsAgriculturalTractorViewSpec extends SpecBase with Matcher
       }
     }
 
+    "must turn autocomplete off on the form and on every input" in {
+      val doc = org.jsoup.Jsoup.parse(view(form, submitCall)(request, msgs).toString)
+
+      doc.select("form").attr("autocomplete") mustEqual "off"
+      Seq("make", "model", "derivative", "brakeHorsepower").foreach { field =>
+        doc.select(s"input#$field").attr("autocomplete") mustEqual "off"
+      }
+    }
+
     "must render the error messages copy exactly as specified" in {
       msgs("addVehicleDetailsAgriculturalTractor.make.error.format") mustBe
         "The make must not include special characters such as #, $, ^, `, {, |, }, ~, or accented letters such as è"

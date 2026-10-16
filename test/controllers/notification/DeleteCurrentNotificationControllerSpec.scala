@@ -65,7 +65,7 @@ class DeleteCurrentNotificationControllerSpec extends SpecBase with MockitoSugar
   }
   private def backendConnector(): NovaImportsBackendConnector = {
     val backendConnector: NovaImportsBackendConnector = mock[NovaImportsBackendConnector]
-    when(backendConnector.deleteDraftNotification(any())(any())).thenReturn(Future.successful(Right(true)))
+    when(backendConnector.deleteDraftNotification(any(), any())(any())).thenReturn(Future.successful(Right(true)))
     backendConnector
   }
 
@@ -122,7 +122,7 @@ class DeleteCurrentNotificationControllerSpec extends SpecBase with MockitoSugar
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.LandingPageController.onPageLoad().url
-        verify(connector).deleteDraftNotification(eqTo(DraftId("DRAFT-001")))(using any[HeaderCarrier])
+        verify(connector).deleteDraftNotification(eqTo(DraftId("DRAFT-001")), eqTo(None))(using any[HeaderCarrier])
       }
     }
 
@@ -139,7 +139,7 @@ class DeleteCurrentNotificationControllerSpec extends SpecBase with MockitoSugar
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.NotificationTaskListController.onPageLoad().url
-        verify(connector, never).deleteDraftNotification(eqTo(DraftId("DRAFT-001")))(using any[HeaderCarrier])
+        verify(connector, never).deleteDraftNotification(eqTo(DraftId("DRAFT-001")), any())(using any[HeaderCarrier])
       }
     }
 
@@ -191,7 +191,7 @@ class DeleteCurrentNotificationControllerSpec extends SpecBase with MockitoSugar
     "must redirect to unauthorised page if the backend connector delete returns Forbidden failure response" in {
 
       val backendConnector: NovaImportsBackendConnector = mock[NovaImportsBackendConnector]
-      when(backendConnector.deleteDraftNotification(any())(any())).thenReturn(Future.successful(Left(DeleteDraftNotificationError.Forbidden)))
+      when(backendConnector.deleteDraftNotification(any(), any())(any())).thenReturn(Future.successful(Left(DeleteDraftNotificationError.Forbidden)))
       val (application, _, _) = applicationWithMockRepository(userAnswersWithGuardData, backendConnector = backendConnector)
 
       running(application) {
@@ -207,7 +207,7 @@ class DeleteCurrentNotificationControllerSpec extends SpecBase with MockitoSugar
     "must show Page Not Found if the backend connector delete returns NotFound failure response" in {
 
       val backendConnector: NovaImportsBackendConnector = mock[NovaImportsBackendConnector]
-      when(backendConnector.deleteDraftNotification(any())(any())).thenReturn(Future.successful(Left(DeleteDraftNotificationError.NotFound)))
+      when(backendConnector.deleteDraftNotification(any(), any())(any())).thenReturn(Future.successful(Left(DeleteDraftNotificationError.NotFound)))
       val (application, _, _) = applicationWithMockRepository(userAnswersWithGuardData, backendConnector = backendConnector)
 
       running(application) {
@@ -227,7 +227,7 @@ class DeleteCurrentNotificationControllerSpec extends SpecBase with MockitoSugar
     "must redirect to unauthorised page if the backend connector delete returns unexpected failure response" in {
 
       val backendConnector: NovaImportsBackendConnector = mock[NovaImportsBackendConnector]
-      when(backendConnector.deleteDraftNotification(any())(any()))
+      when(backendConnector.deleteDraftNotification(any(), any())(any()))
         .thenReturn(Future.successful(Left(DeleteDraftNotificationError.UpstreamError(400, "failure"))))
       val (application, _, _) = applicationWithMockRepository(userAnswersWithGuardData, backendConnector = backendConnector)
 

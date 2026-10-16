@@ -38,7 +38,7 @@
 
     <p class="govuk-body">@messages("addVehicleDetailsContractorsPlant.paragraph.1")</p>
 
-    @formHelper(action = submitCall) {
+    @formHelper(action = submitCall, Symbol("autoComplete") -> "off") {
 
         @govukInput(
             InputViewModel(
@@ -46,6 +46,7 @@
                 label = LabelViewModel(messages("addVehicleDetailsContractorsPlant.make.label"))
             ).withHint(HintViewModel(Text(messages("addVehicleDetailsContractorsPlant.make.hint"))))
              .withCssClass("govuk-input--width-20")
+             .withAutocomplete("off")
         )
 
         @govukInput(
@@ -54,6 +55,7 @@
                 label = LabelViewModel(messages("addVehicleDetailsContractorsPlant.model.label"))
             ).withHint(HintViewModel(Text(messages("addVehicleDetailsContractorsPlant.model.hint"))))
              .withCssClass("govuk-input--width-20")
+             .withAutocomplete("off")
         )
 
         @govukInput(
@@ -62,6 +64,7 @@
                 label = LabelViewModel(messages("addVehicleDetailsContractorsPlant.derivative.label"))
             ).withHint(HintViewModel(Text(messages("addVehicleDetailsContractorsPlant.derivative.hint"))))
              .withCssClass("govuk-input--width-20")
+             .withAutocomplete("off")
         )
 
         @govukButton(ButtonViewModel(messages("site.continue")))

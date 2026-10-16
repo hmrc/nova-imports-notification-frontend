@@ -62,6 +62,7 @@ class LandingPageAgentWithClientViewSpec extends SpecBase with Matchers with Bef
   private val beforeYouContinueAmendUrl = controllers.introduction.routes.BeforeYouContinueController.onPageLoadAmend().url
   private val loadingClientListUrl      = controllers.clientselection.routes.LoadingClientListController.onPageLoad().url
   private val savedNotificationsUrl     = controllers.notification.routes.ViewSavedNotificationsController.onPageLoad().url
+  private val deselectClientURL         = controllers.routes.LandingPageController.deselectClient().url
 
   "LandingPageAgentWithClientView" - {
 
@@ -85,18 +86,21 @@ class LandingPageAgentWithClientViewSpec extends SpecBase with Matchers with Bef
       render().select("p.govuk-body").eachText.asScala must contain(msgs("landingPage.agent.body"))
     }
 
-    "must render the Notifying on behalf of summary card title" in {
-      render().select(".govuk-summary-card__title").text mustEqual msgs("landingPage.agent.client.heading")
+    "must render the Notifying on behalf of summary card title with selected client name" in {
+      render().select(".govuk-summary-card__title").text mustEqual msgs("landingPage.agent.client.heading") + s" $clientName"
     }
 
-    "must render the client name and VAT registration number rows" in {
+    "must render the Notifying on behalf of summary card title without client name if it is not known" in {
+      render(clientName = None).select(".govuk-summary-card__title").text mustEqual msgs("landingPage.agent.client.heading")
+    }
+
+    "must render the client VAT registration number row" in {
       val document = render()
 
       document.select(".govuk-summary-list__key").eachText.asScala.toSeq mustEqual Seq(
-        msgs("landingPage.agent.client.name"),
         msgs("landingPage.agent.client.vrn")
       )
-      document.select(".govuk-summary-list__value").eachText.asScala.toSeq mustEqual Seq(clientName, s"GB$clientVrn")
+      document.select(".govuk-summary-list__value").eachText.asScala.toSeq mustEqual Seq(s"GB$clientVrn")
     }
 
     "must omit the client name row when the client name is not known" in {
@@ -106,19 +110,18 @@ class LandingPageAgentWithClientViewSpec extends SpecBase with Matchers with Bef
       document.select(".govuk-summary-list__value").eachText.asScala.toSeq mustEqual Seq(s"GB$clientVrn")
     }
 
-    "must render the Change client link to CS1.0 with the client name as visually hidden text" in {
+    "must render the Change client link to CS1.0 with the descriptive hidden text" in {
       val link = render().select(".govuk-summary-card__action a")
 
-      link.attr("href") mustEqual loadingClientListUrl
-      link.text mustEqual s"${msgs("landingPage.agent.client.change")} $clientName"
-      link.select(".govuk-visually-hidden").text mustEqual clientName
+      link.get(0).attr("href") mustEqual loadingClientListUrl
+      link.get(0).text mustEqual s"${msgs("landingPage.agent.client.change")} ${msgs("landingPage.agent.client.change.hidden")}"
     }
 
-    "must render the Change client link without visually hidden text when the client name is not known" in {
-      val link = render(clientName = None).select(".govuk-summary-card__action a")
+    "must render the Deselect client link with the descriptive hidden text" in {
+      val link = render().select(".govuk-summary-card__action a")
 
-      link.text mustEqual msgs("landingPage.agent.client.change")
-      link.select(".govuk-visually-hidden").isEmpty mustBe true
+      link.get(1).attr("href") mustEqual deselectClientURL
+      link.get(1).text mustEqual s"${msgs("landingPage.agent.client.deselect")} ${msgs("landingPage.agent.client.deselect.hidden")}"
     }
 
     "must render the Create a new notification link to BY2.0" in {
@@ -167,7 +170,7 @@ class LandingPageAgentWithClientViewSpec extends SpecBase with Matchers with Bef
 
     "must render the sections in the agreed order" in {
       render().select("#main-content h2").eachText.asScala.toSeq mustEqual Seq(
-        msgs("landingPage.agent.client.heading"),
+        msgs("landingPage.agent.client.heading") + s" $clientName",
         msgs("landingPage.agent.create.link"),
         msgs("landingPage.agent.update.link"),
         msgs("landingPage.agent.saved.heading"),

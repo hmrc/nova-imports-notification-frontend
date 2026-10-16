@@ -102,12 +102,14 @@ object AddVehicleDetailsController {
     IsDraftIdDefined(request.userAnswers) &&
       request.userAnswers.get(VehicleFromEuPage).contains(true)
 
-  // non-VAT-registered users who bought on behalf of the purchaser (or an agent without a
-  // selected client) supply the purchaser's details as the supplier; everyone else supplies their own
+  // agents with a client supply the client's details; non-VAT-registered users who bought on behalf of the
+  // purchaser (or an agent without a selected client) supply the purchaser's; everyone else supplies their own
   def redirectToSupplierDetails(supplierNumber: SupplierNumber, updatedAnswers: UserAnswers)(implicit
     request: DataRequest[?]
   ): Result =
-    if (
+    if (request.userContext.isAgentWithClient)
+      Results.Redirect(supplierdetails.routes.UseClientDetailsAsSupplierController.onPageLoad(supplierNumber, NormalMode))
+    else if (
       !request.userContext.isVatRegisteredOrganisation &&
       (updatedAnswers.get(NotifyingAsPurchaserPage).contains(PurchaserOrOnBehalf.OnBehalfOfPurchaser) ||
         request.userContext.isAgentWithoutClient)
