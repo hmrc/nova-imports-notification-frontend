@@ -21,13 +21,13 @@ import play.api.mvc.Call
 import controllers.{initialquestions, notifierdetails, purchaserdetails, routes, supplierdetails, vehicledetails}
 import pages.*
 import models.*
-import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, NotifyingAsPurchaserPage, PurchaserBusinessOrIndividualPage, VehicleBusinessUsePage, VehicleFromEuPage}
-import pages.sections.notifierdetails.{AboutYourDetailsPage, BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
-import pages.sections.vehicledetails.{AddImportVehicleDetailsPage, AddVehicleDetailsAgriculturalTractorPage, AddVehicleDetailsCarPage, AddVehicleDetailsContractorsPlantPage, AddVehicleDetailsHeavyCommercialPage, AddVehicleDetailsLightCommercialPage, AddVehicleDetailsMotorCaravanPage, AddVehicleDetailsMotorcyclePage, AddVehicleDetailsPage, AddVehicleDetailsQuestionPage, AddVehicleTypePage, CountryOfFirstRegistrationPage, DateOfAvailabilityPage, DateOfFirstRegistrationPage, ImportEntryNumberPage, NoPurchaseInvoiceReasonPage, PaymentCurrencyPage, PurchaseInvoiceDatePage, PurchaseInvoiceNumberPage, TotalAmountPaidPage, VehicleDatesPage}
-import pages.sections.notifieraddress.IsYourAddressInTheUkPage
-import pages.sections.purchaseraddress.IsPurchaserAddressInTheUkPage
-import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
-import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierQuestionPage, SupplierVatRegistrationNumberPage, UseClientDetailsAsSupplierPage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
+import pages.sections.initialquestions.*
+import pages.sections.notifierdetails.*
+import pages.sections.vehicledetails.*
+import pages.sections.notifieraddress.*
+import pages.sections.purchaseraddress.*
+import pages.sections.purchaserdetails.*
+import pages.sections.supplierdetails.*
 import play.api.libs.json.Reads
 
 @Singleton
