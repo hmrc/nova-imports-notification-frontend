@@ -25,7 +25,7 @@ final case class AddVehicleDetailsMotorcycle(
   motorcycleVersion: String,
   motorcycleType: String,
   motorcycleStyle: String,
-  transmission: MotorcycleTransmissionType,
+  transmission: String,
   fuelType: MotorcycleFuelType,
   engineSize: String
 )

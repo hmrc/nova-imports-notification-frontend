@@ -159,7 +159,7 @@ class ConfirmVehicleTypeDetailsViewSpec extends SpecBase with Matchers with Befo
             "Gold Wing Deluxe",
             "Road motorcycle",
             "Tourer",
-            MotorcycleTransmissionType.Manual,
+            "Manual",
             MotorcycleFuelType.Petrol,
             "1000"
           )
@@ -180,7 +180,7 @@ class ConfirmVehicleTypeDetailsViewSpec extends SpecBase with Matchers with Befo
       valueFor(motorcycleDoc, label("version")) mustEqual "Gold Wing Deluxe"
       valueFor(motorcycleDoc, label("bodyType")) mustEqual "Road motorcycle"
       valueFor(motorcycleDoc, label("style")) mustEqual "Tourer"
-      valueFor(motorcycleDoc, label("transmissionType")) mustEqual msgs("addVehicleDetailsMotorcycle.transmission.option.manual")
+      valueFor(motorcycleDoc, label("transmissionType")) mustEqual "Manual"
       valueFor(motorcycleDoc, label("fuelType")) mustEqual msgs("addVehicleDetailsMotorcycle.fuelType.option.petrol")
       valueFor(motorcycleDoc, label("engineSize")) mustEqual "1000"
     }

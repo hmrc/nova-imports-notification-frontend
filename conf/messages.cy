@@ -1474,11 +1474,10 @@ addVehicleDetailsMotorcycle.motorcycleStyle.error.format = The style must not in
 addVehicleDetailsMotorcycle.motorcycleStyle.error.length = The style must be 20 characters or less
 
 addVehicleDetailsMotorcycle.transmission.label = Transmission type
-addVehicleDetailsMotorcycle.transmission.placeholder = Choose transmission type
-addVehicleDetailsMotorcycle.transmission.option.automatic = Automatic
-addVehicleDetailsMotorcycle.transmission.option.manual = Manual
-addVehicleDetailsMotorcycle.transmission.option.semiAutomatic = Semi-automatic
-addVehicleDetailsMotorcycle.transmission.error.required = Select a transmission type
+addVehicleDetailsMotorcycle.transmission.hint = For example, automatic
+addVehicleDetailsMotorcycle.transmission.error.required = Enter the transmission type
+addVehicleDetailsMotorcycle.transmission.error.format = The transmission type must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
+addVehicleDetailsMotorcycle.transmission.error.length = The transmission type must be 30 characters or less
 
 addVehicleDetailsMotorcycle.fuelType.label = Fuel type
 addVehicleDetailsMotorcycle.fuelType.placeholder = Choose the closest option

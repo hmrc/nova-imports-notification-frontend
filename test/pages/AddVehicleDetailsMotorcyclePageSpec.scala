@@ -17,7 +17,7 @@
 package pages
 
 import base.SpecBase
-import models.{AddVehicleDetailsMotorcycle, MotorcycleFuelType, MotorcycleTransmissionType, VehicleNumber}
+import models.{AddVehicleDetailsMotorcycle, MotorcycleFuelType, VehicleNumber}
 import pages.sections.vehicledetails.AddVehicleDetailsMotorcyclePage
 
 class AddVehicleDetailsMotorcyclePageSpec extends SpecBase {
@@ -32,7 +32,7 @@ class AddVehicleDetailsMotorcyclePageSpec extends SpecBase {
         motorcycleVersion = "Gold Wing Deluxe",
         motorcycleType = "a road motorcycle",
         motorcycleStyle = "a tourer",
-        transmission = MotorcycleTransmissionType.SemiAutomatic,
+        transmission = "Semi-automatic",
         fuelType = MotorcycleFuelType.Hybrid,
         engineSize = "1000.12"
       )
@@ -46,7 +46,7 @@ class AddVehicleDetailsMotorcyclePageSpec extends SpecBase {
       (details \ "motorcycleVersion").as[String] mustBe "Gold Wing Deluxe"
       (details \ "motorcycleType").as[String] mustBe "a road motorcycle"
       (details \ "motorcycleStyle").as[String] mustBe "a tourer"
-      (details \ "transmission").as[String] mustBe "semiAutomatic"
+      (details \ "transmission").as[String] mustBe "Semi-automatic"
       (details \ "fuelType").as[String] mustBe "hybrid"
       (details \ "engineSize").as[String] mustBe "1000.12"
     }
