@@ -87,8 +87,7 @@ object InitialQuestionsCheckYourAnswersController {
     userContext.userType match {
       case NovaUserType.VatRegisteredOrganisation                           => routes.NotificationTaskListController.onPageLoad()
       case NovaUserType.PrivateIndividual | NovaUserType.NonVatOrganisation => routes.NotificationTaskListController.onPageLoad()
-      case NovaUserType.Agent if userContext.isAgentWithoutClient           => routes.NotificationTaskListController.onPageLoad()
-      case _                                                                => routes.LandingPageController.onPageLoad()
+      case NovaUserType.Agent                                               => routes.NotificationTaskListController.onPageLoad()
     }
 
   def guardPredicate(request: DataRequest[?]): Boolean =

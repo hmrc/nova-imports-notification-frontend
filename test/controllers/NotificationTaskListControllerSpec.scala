@@ -21,7 +21,7 @@ import com.google.inject.name.Names
 import connectors.{GetDraftNotificationError, GetFileUploadSummaryError, GetNotificationSummaryError, NovaImportsBackendConnector}
 import controllers.actions.*
 import models.NormalMode
-import models.{Address, AgentSelectedClient, BusinessOrPrivateIndividual, ContactNumbers, Country, DraftId, DraftNotification, DraftNotificationSection, NotificationSummary, NovaUserType, PurchaserBusinessOrIndividual, PurchaserOrOnBehalf, SectionStatus, UserAnswers, UserContext}
+import models.{Address, AgentSelectedClient, BusinessOrPrivateIndividual, ContactNumbers, Country, DraftId, DraftNotification, DraftNotificationSection, NameDetails, NotificationSummary, NovaUserType, PurchaserBusinessOrIndividual, PurchaserOrOnBehalf, SectionStatus, UserAnswers, UserContext}
 import models.responses.GetFileUploadSummaryResponse
 import org.jsoup.Jsoup
 import org.mockito.ArgumentCaptor
@@ -31,7 +31,7 @@ import org.scalatestplus.mockito.MockitoSugar
 import pages.{AgentSelectedClientPage, DraftIdPage, NotificationTaskListPage}
 import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, NotifyingAsPurchaserPage, PurchaserBusinessOrIndividualPage, VehicleBusinessUsePage, VehicleFromEuPage}
 import pages.sections.introduction.NotDeregisteredPage
-import pages.sections.notifierdetails.PhoneNumberPage
+import pages.sections.notifierdetails.{EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 import pages.sections.notifieraddress.AddressPage
 import pages.sections.purchaseraddress.PurchaserAddressPage
 import play.api.Application
@@ -96,6 +96,24 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
   private val agentWithSelectedClient = baseAnswers
     .unsafeSet(VehicleFromEuPage, true)
     .unsafeSet(AgentSelectedClientPage, AgentSelectedClient(vrn = "123456789", name = Some("Client Ltd")))
+
+  private val agentWithClientBusinessUse = agentWithSelectedClient.unsafeSet(AgentClientVehicleBusinessUsePage, true)
+
+  private val agentWithClientPrivateUse = agentWithSelectedClient.unsafeSet(AgentClientVehicleBusinessUsePage, false)
+
+  private val agentWithClientSummary = NotificationSummary.AgentWithClient(
+    agentName = Some("Sarah Philips"),
+    clientTraderName = Some("BMD Logistics"),
+    clientVrn = "123456789",
+    clientHasDraftNotifications = false,
+    clientIsDeregistered = false
+  )
+
+  private def yourDetailsLinkHref(body: String): String =
+    Jsoup.parse(body).select("a:contains(Add your details)").attr("href")
+
+  private def yourDetailsStatus(body: String): String =
+    Jsoup.parse(body).select("#about-you-1-status").text
 
   private def vehiclesLinkHref(body: String): String =
     Jsoup.parse(body).select("a:contains(Add vehicle details)").attr("href")
@@ -654,6 +672,245 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual OK
           contentAsString(result) must not include "About the purchaser"
+        }
+      }
+
+      "for an agent with a selected client must render the agent name caption and the client summary card, fetching the summary for the client VRN" in {
+        val connector                  = stubConnector(summary = Right(agentWithClientSummary))
+        given application: Application =
+          applicationWith(classOf[FakeAgentIdentifierAction], Some(agentWithClientBusinessUse), connector)
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
+
+          val result = route(application, request).value
+          val doc    = Jsoup.parse(contentAsString(result))
+
+          status(result) mustEqual OK
+          doc.select("span.govuk-caption-l").text mustEqual "Sarah Philips"
+          doc.select("h1").text mustEqual "Create a vehicle notification"
+          doc.select("h2.govuk-summary-card__title").text mustEqual "Notifying on behalf of BMD Logistics"
+          doc.select(".govuk-summary-card .govuk-summary-list__key").text mustEqual "VAT registration number"
+          doc.select(".govuk-summary-card .govuk-summary-list__value").text mustEqual "GB123456789"
+          doc.select("a:contains(Add your address)").size mustEqual 0
+          doc.select("h2:contains(About the purchaser)").size mustEqual 0
+          verify(connector).getNotificationSummary(eqTo(Some("123456789")))(any[HeaderCarrier])
+        }
+      }
+
+      "for an agent with a selected client must fall back to the selected client's name when the summary has no client trader name" in {
+        given application: Application =
+          applicationWith(
+            classOf[FakeAgentIdentifierAction],
+            Some(agentWithClientBusinessUse),
+            stubConnector(summary = Right(agentWithClientSummary.copy(clientTraderName = None)))
+          )
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual OK
+          Jsoup.parse(contentAsString(result)).select("h2.govuk-summary-card__title").text mustEqual "Notifying on behalf of Client Ltd"
+        }
+      }
+
+      "for a type 6 agent with a selected client who answered Yes to AQ1.0 links Add your details to AYD1.2" in {
+        given application: Application =
+          applicationWith(
+            classOf[FakeAgentIdentifierAction],
+            Some(agentWithClientBusinessUse),
+            stubConnector(summary = Right(agentWithClientSummary))
+          )
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual OK
+          yourDetailsLinkHref(contentAsString(result)) mustEqual notifierdetails.routes.PhoneNumberController.onPageLoad(NormalMode).url
+        }
+      }
+
+      "for a type 3 agent with a selected client links Add your details to AYD1.2 whatever the answer to AQ1.0" in {
+        Seq(
+          agentWithClientBusinessUse,
+          agentWithClientPrivateUse,
+          agentWithClientPrivateUse.unsafeSet(BusinessOrPrivatePage, BusinessOrPrivateIndividual.PrivateIndividual)
+        ).foreach { answers =>
+          given application: Application =
+            applicationWith(classOf[FakeAgentNoEnrolmentsIdentifierAction], Some(answers), stubConnector(summary = Right(agentWithClientSummary)))
+
+          running(application) {
+            given request: FakeRequest[AnyContentAsEmpty.type] =
+              FakeRequest(GET, notificationTaskListRoute)
+
+            val result = route(application, request).value
+
+            status(result) mustEqual OK
+            yourDetailsLinkHref(contentAsString(result)) mustEqual notifierdetails.routes.PhoneNumberController.onPageLoad(NormalMode).url
+          }
+        }
+      }
+      "for an agent with a selected client who answered Yes to IQ1.0 links Add vehicle details to AVD1.0" in {
+        given application: Application =
+          applicationWith(
+            classOf[FakeAgentIdentifierAction],
+            Some(agentWithClientBusinessUse),
+            stubConnector(summary = Right(agentWithClientSummary))
+          )
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual OK
+          vehiclesLinkHref(contentAsString(result)) mustEqual avd10Url
+        }
+      }
+
+      "for an agent with a selected client who answered No to IQ1.0 links Add vehicle details to AVD1.1" in {
+        given application: Application =
+          applicationWith(
+            classOf[FakeAgentIdentifierAction],
+            Some(agentWithClientBusinessUse.unsafeSet(VehicleFromEuPage, false)),
+            stubConnector(summary = Right(agentWithClientSummary))
+          )
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual OK
+          vehiclesLinkHref(contentAsString(result)) mustEqual avd11Url
+        }
+      }
+
+      "for an agent with a selected client must mark Add your details as Incomplete before any details are added" in {
+        given application: Application =
+          applicationWith(
+            classOf[FakeAgentIdentifierAction],
+            Some(agentWithClientBusinessUse),
+            stubConnector(summary = Right(agentWithClientSummary))
+          )
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual OK
+          yourDetailsStatus(contentAsString(result)) mustEqual "Incomplete"
+        }
+      }
+
+      "for an agent with a selected client must mark Add your details as Incomplete when only the phone number has been added" in {
+        val answers = agentWithClientBusinessUse.unsafeSet(PhoneNumberPage, ContactNumbers(Some("01234567890"), None))
+
+        given application: Application =
+          applicationWith(classOf[FakeAgentIdentifierAction], Some(answers), stubConnector(summary = Right(agentWithClientSummary)))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual OK
+          yourDetailsStatus(contentAsString(result)) mustEqual "Incomplete"
+        }
+      }
+
+      "for an agent with a selected client who answered Yes to AQ1.0 must mark Add your details as Completed and link it to CYA2.0 once phone and email are saved" in {
+        val answers = agentWithClientBusinessUse
+          .unsafeSet(PhoneNumberPage, ContactNumbers(Some("01234567890"), None))
+          .unsafeSet(EmailAddressPage, "agent@example.com")
+
+        given application: Application =
+          applicationWith(classOf[FakeAgentIdentifierAction], Some(answers), stubConnector(summary = Right(agentWithClientSummary)))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
+
+          val result = route(application, request).value
+          val body   = contentAsString(result)
+
+          status(result) mustEqual OK
+          yourDetailsStatus(body) mustEqual "Completed"
+          yourDetailsLinkHref(body) mustEqual notifierdetails.routes.YourDetailsCheckYourAnswersController.onPageLoad().url
+        }
+      }
+
+      "for a type 3 agent with a selected client who answered No to AQ1.0 must mark Add your details as Completed once phone and email are saved, without a name" in {
+        val answers = agentWithClientPrivateUse
+          .unsafeSet(PhoneNumberPage, ContactNumbers(Some("01234567890"), None))
+          .unsafeSet(EmailAddressPage, "agent@example.com")
+
+        given application: Application =
+          applicationWith(classOf[FakeAgentNoEnrolmentsIdentifierAction], Some(answers), stubConnector(summary = Right(agentWithClientSummary)))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual OK
+          yourDetailsStatus(contentAsString(result)) mustEqual "Completed"
+        }
+      }
+
+      "for a type 6 agent with a selected client who answered No to AQ1.0 must only mark Add your details as Completed once the name is also saved" in {
+        val withoutName = agentWithClientPrivateUse
+          .unsafeSet(PhoneNumberPage, ContactNumbers(Some("01234567890"), None))
+          .unsafeSet(EmailAddressPage, "agent@example.com")
+        val withName = withoutName.unsafeSet(NameDetailsPage, NameDetails("Ms", "Sarah", "Philips"))
+
+        Seq(withoutName -> "Incomplete", withName -> "Completed").foreach { case (answers, expected) =>
+          given application: Application =
+            applicationWith(classOf[FakeAgentIdentifierAction], Some(answers), stubConnector(summary = Right(agentWithClientSummary)))
+
+          running(application) {
+            given request: FakeRequest[AnyContentAsEmpty.type] =
+              FakeRequest(GET, notificationTaskListRoute)
+
+            val result = route(application, request).value
+
+            status(result) mustEqual OK
+            yourDetailsStatus(contentAsString(result)) mustEqual expected
+          }
+        }
+      }
+
+      "must redirect to Unauthorised for an agent with a selected client who has not answered IQ1.0" in {
+        val sessionRepo = stubSessionRepository()
+        val answers     = baseAnswers
+          .unsafeSet(AgentSelectedClientPage, AgentSelectedClient(vrn = "123456789", name = Some("Client Ltd")))
+          .unsafeSet(AgentClientVehicleBusinessUsePage, true)
+
+        given application: Application =
+          applicationWith(classOf[FakeAgentIdentifierAction], Some(answers), sessionRepo = sessionRepo)
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+          verify(sessionRepo, never).set(any())
         }
       }
 

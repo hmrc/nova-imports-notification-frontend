@@ -22,7 +22,7 @@ import controllers.actions.Actions
 import controllers.utils.IsDraftIdDefined
 import models.DraftNotification.SectionId
 import models.requests.DataRequest
-import models.{BusinessOrPrivateIndividual, NormalMode, NotificationSummary, NovaUserType, PurchaserBusinessOrIndividual, PurchaserOrOnBehalf, SectionStatus, UserAnswers, UserContext}
+import models.{AgentSelectedClient, BusinessOrPrivateIndividual, NormalMode, NotificationSummary, NovaUserType, PurchaserBusinessOrIndividual, PurchaserOrOnBehalf, SectionStatus, UserAnswers, UserContext}
 import pages.{DraftIdPage, NotificationTaskListPage}
 import pages.sections.initialquestions.{AgentClientVehicleBusinessUsePage, BusinessOrPrivatePage, NotifyingAsPurchaserPage, PurchaserBusinessOrIndividualPage, VehicleBusinessUsePage, VehicleFromEuPage}
 import play.api.Logging
@@ -54,7 +54,7 @@ class NotificationTaskListController @Inject() (
 
     val draftId = request.userAnswers.get(DraftIdPage).get
 
-    def render(userName: Option[String], vrn: Option[String], answers: UserAnswers): Future[Result] = {
+    def render(userName: Option[String], vrn: Option[String], answers: UserAnswers, client: Option[AgentSelectedClient] = None): Future[Result] = {
       val sections    = userDataService.determineAndUpdateStatus(answers, request.userContext)
       val sectionLink = determineSectionLink(sections, answers, request.userContext)
 
@@ -66,6 +66,7 @@ class NotificationTaskListController @Inject() (
         view(
           userName,
           vrn,
+          client,
           sections,
           showAddYourAddress(request.userContext, flagged),
           showAboutThePurchaser(request.userContext, flagged),
@@ -84,12 +85,16 @@ class NotificationTaskListController @Inject() (
         Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
 
       case Right(updatedAnswers) =>
-        notificationSummaryService.getSummaryAndStoreDeregisteredStatus(updatedAnswers, None).flatMap {
+        notificationSummaryService.getSummaryAndStoreDeregisteredStatus(updatedAnswers, request.userContext.selectedClient.map(_.vrn)).flatMap {
           case Right((org: NotificationSummary.IndividualOrOrganisation, savedAnswers)) =>
             render(org.traderName, org.vrn, savedAnswers)
 
           case Right((agent: NotificationSummary.AgentWithoutClient, savedAnswers)) =>
             render(agent.agentName, None, savedAnswers)
+
+          case Right((agent: NotificationSummary.AgentWithClient, savedAnswers)) if request.userContext.isAgentWithClient =>
+            val clientName = agent.clientTraderName.orElse(request.userContext.selectedClient.flatMap(_.name))
+            render(agent.agentName, None, savedAnswers, Some(AgentSelectedClient(agent.clientVrn, clientName)))
 
           case Right((other, _)) =>
             logger.warn(s"Unexpected notification summary shape for the notification task list: $other")
@@ -189,6 +194,11 @@ object NotificationTaskListController {
       case NovaUserType.Agent                     =>
         if (userContext.isVatAgentWithoutClient)
           notifierdetails.routes.PhoneNumberController.onPageLoad(NormalMode).url
+        else if (userContext.isAgentWithClient)
+          if (!userContext.isAgentWithClientNoEnrolments && answers.get(AgentClientVehicleBusinessUsePage).contains(false))
+            notifierdetails.routes.AddYourNameController.onPageLoad(NormalMode).url
+          else
+            notifierdetails.routes.PhoneNumberController.onPageLoad(NormalMode).url
         else if (answers.get(BusinessOrPrivatePage).contains(BusinessOrPrivateIndividual.PrivateIndividual))
           notifierdetails.routes.AddYourNameController.onPageLoad(NormalMode).url
         else
