@@ -1516,3 +1516,23 @@ importEntryNumber.error.format = Enter the import entry number in the correct fo
 importEntryNumber.error.length = The import entry number must be 11 or 18 characters
 importEntryNumber.checkYourAnswersLabel = Import entry number
 importEntryNumber.change.hidden = import entry number
+
+####################################################################################
+# Vehicle details inset                                                            #
+####################################################################################
+# TODO: Welsh translations to be supplied by content team.
+vehicleDetailsInset.label = Vehicle details:
+
+####################################################################################
+# AVD9.0 - Add vehicle details 9.0 - Notification reference                        #
+####################################################################################
+# TODO: Welsh translations to be supplied by content team.
+notificationReference.title = Notification reference
+notificationReference.caption = Add vehicle details
+notificationReference.heading.1 = Notification reference
+notificationReference.paragraph = You must enter the reference for the vehicle notification you’ve already submitted. You can find this in the message we sent after you submitted.
+notificationReference.heading.2 = What is the notification reference?
+notificationReference.hint = It must be 13 characters long, starting with NOVA, followed by 2 digits for the year, the letter E and 6 numbers. For example, NOVA26E123456
+notificationReference.error.required = Enter the notification reference
+notificationReference.error.format = Enter the notification reference in the correct format
+notificationReference.error.length = The notification reference must be 13 characters long
