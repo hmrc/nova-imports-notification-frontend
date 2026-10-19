@@ -159,7 +159,7 @@ class ViewClientsViewSpec extends SpecBase with Matchers with BeforeAndAfterAll 
       html must include(msgs("viewClients.download.body.1"))
       html must include(msgs("viewClients.download.body.2"))
       html must include(msgs("viewClients.download.body.2.link"))
-      html must include(msgs("viewClients.download.link"))
+      html must include(govukLink(routes.DownloadClientListController.download().url, msgs("viewClients.download.link")))
       html must include(supportUrl)
       html must include(msgs("viewClients.returnHome"))
       html must include(controllers.routes.LandingPageController.onPageLoad().url)

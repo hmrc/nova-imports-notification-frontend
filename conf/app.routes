@@ -38,6 +38,7 @@ GET         /load-client-list                                                   
 GET         /clients                                                                     controllers.clientselection.ViewClientsController.onPageLoad(searchBy: Option[String] ?= None, search: Option[String] ?= None, page: Int ?= 1)
 POST        /clients                                                                     controllers.clientselection.ViewClientsController.onSubmit()
 GET         /clients/select/:vrn                                                         controllers.clientselection.SelectClientController.select(vrn: String)
+GET         /clients/download                                                            controllers.clientselection.DownloadClientListController.download()
 
 GET         /no-clients                                                                  controllers.clientselection.NoAuthorisedClientsController.onPageLoad()
 
