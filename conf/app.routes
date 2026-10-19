@@ -232,8 +232,10 @@ GET         /supplier/:supplierNumber/vehicles-bought-from-supplier-avd12-placeh
 POST        /supplier/:supplierNumber/vehicles-bought-from-supplier-avd12-placeholder                                  controllers.vehicledetails.VehiclesBoughtFromSupplierAvd12PlaceholderController.onSubmit(supplierNumber: SupplierNumber)
 POST        /supplier/:supplierNumber/vehicles-bought-from-supplier-avd12-placeholder/vehicle/:vehicleNumber/delete    controllers.vehicledetails.VehiclesBoughtFromSupplierAvd12PlaceholderController.onDelete(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber)
 
-# TODO: this screen to be completed, is AVD-IE1.0, do not delete it
-GET         /import/:importNumber/import-entry-number                                    controllers.vehicledetails.ImportEntryNumberController.onPageLoad(importNumber: ImportNumber)
+GET         /import/:importNumber/import-entry-number                                    controllers.vehicledetails.ImportEntryNumberController.onPageLoad(importNumber: ImportNumber, mode: Mode = NormalMode)
+POST        /import/:importNumber/import-entry-number                                    controllers.vehicledetails.ImportEntryNumberController.onSubmit(importNumber: ImportNumber, mode: Mode = NormalMode)
+GET         /import/:importNumber/import-entry-number/change                             controllers.vehicledetails.ImportEntryNumberController.onPageLoad(importNumber: ImportNumber, mode: Mode = CheckMode)
+POST        /import/:importNumber/import-entry-number/change                             controllers.vehicledetails.ImportEntryNumberController.onSubmit(importNumber: ImportNumber, mode: Mode = CheckMode)
 
 GET         /supplier/:supplierNumber/vehicles-bought-from-supplier                      controllers.vehicledetails.VehiclesBoughtFromSupplierController.onPageLoad(supplierNumber: SupplierNumber)
 POST        /supplier/:supplierNumber/vehicles-bought-from-supplier                      controllers.vehicledetails.VehiclesBoughtFromSupplierController.onSubmit(supplierNumber: SupplierNumber)
