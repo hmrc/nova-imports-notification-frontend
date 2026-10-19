@@ -708,6 +708,21 @@ class NavigatorSpec extends SpecBase {
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
 
+      "must go from NotificationReferencePage AVD9.0 to the landing page" in {
+        val page = NotificationReferencePage(VehicleNumber(1))
+        val ua   = supplierVehicle.unsafeSet(page, "NOVA26E123456")
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from NotificationReferencePage AVD9.0 to JourneyRecovery when the vehicle has no notification reference" in {
+        navigator.nextPage(
+          NotificationReferencePage(VehicleNumber(1)),
+          NormalMode,
+          supplierVehicle,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
       "must go from CountryOfFirstRegistrationPage AVD5.2 to DateOfAvailability AVD5.0 when the vehicle was made available" in {
         val page = CountryOfFirstRegistrationPage(VehicleNumber(1))
         val ua   = supplierVehicle
@@ -1597,6 +1612,15 @@ class NavigatorSpec extends SpecBase {
       "must go from ImportEntryNumberPage AVD-IE1.0 for import 1 to the landing page" in {
         navigator.nextPage(
           ImportEntryNumberPage(ImportNumber(1)),
+          CheckMode,
+          userAnswers,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from NotificationReferencePage AVD9.0 to the landing page" in {
+        navigator.nextPage(
+          NotificationReferencePage(VehicleNumber(1)),
           CheckMode,
           userAnswers,
           NovaUserType.VatRegisteredOrganisation

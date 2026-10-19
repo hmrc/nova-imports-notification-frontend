@@ -282,6 +282,12 @@ class Navigator @Inject() () {
             routes.LandingPageController.onPageLoad() // TODO: navigate to AVD-IE2.0 when built
           case _ => routes.JourneyRecoveryController.onPageLoad()
         }
+    case page: NotificationReferencePage =>
+      (userAnswers, _) =>
+        userAnswers.get(page) match {
+          case Some(_) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.1 when built
+          case _       => routes.JourneyRecoveryController.onPageLoad()
+        }
     case page: AddVehicleTypePage =>
       (userAnswers, _) =>
         (
@@ -364,6 +370,8 @@ class Navigator @Inject() () {
           page.isInstanceOf[SupplierBusinessNamePage] ||
           page.isInstanceOf[SupplierVatRegistrationNumberPage] =>
       (_, _) => supplierdetails.routes.SupplierDetailsCheckYourAnswersController.onPageLoad(page.supplierNumber)
+    case _: NotificationReferencePage =>
+      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.1 when built
     case page: VehicleDatesPage =>
       (userAnswers, _) =>
         if (userAnswers.get(page).exists(_.contains(VehicleDates.NoDates)))
