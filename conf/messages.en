@@ -166,9 +166,9 @@ landingPage.agent.clients.body = View, search for, or remove a client, or select
 
 landingPage.agent.client.heading = Notifying on behalf of
 landingPage.agent.client.change = Change client
-landingPage.agent.client.change.hidden = change client selected
+landingPage.agent.client.change.hidden = selected
 landingPage.agent.client.deselect = Deselect
-landingPage.agent.client.deselect.hidden = deselect client
+landingPage.agent.client.deselect.hidden = client
 landingPage.agent.client.vrn = VAT registration number
 
 ##########################################
@@ -415,6 +415,8 @@ viewClients.download.body.1 = You can download a copy of your client list as a C
 viewClients.download.body.2 = If you have many clients, the download may take longer. If you have problems downloading your client list,
 viewClients.download.body.2.link = contact HMRC technical support (opens in new tab)
 viewClients.download.link = Download client list (CSV)
+viewClients.download.csv.name = Client name
+viewClients.download.csv.reference = Client reference
 viewClients.returnHome = Return to home
 viewClients.error.required = Select what you want to search by, and enter a client name or VAT registration number
 viewClients.searchBy.error.required = Select what you want to search by

@@ -70,11 +70,10 @@
     @page.pagination.map(govukPagination(_))
 }
 
-@* TODO DTR-7715: point the CSV link at BFA5 once it is built *@
 @downloadDetails = {
     <p class="govuk-body">@messages("viewClients.download.body.1")</p>
     <p class="govuk-body">@messages("viewClients.download.body.2") <a class="govuk-link" href="@technicalSupportUrl" target="_blank" rel="noreferrer noopener">@messages("viewClients.download.body.2.link")</a>.</p>
-    <p class="govuk-body"><a class="govuk-link" href="#">@messages("viewClients.download.link")</a></p>
+    <p class="govuk-body"><a class="govuk-link" href="@routes.DownloadClientListController.download()">@messages("viewClients.download.link")</a></p>
 }
 
 @pageTitle = @{
