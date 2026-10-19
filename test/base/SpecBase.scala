@@ -43,6 +43,9 @@ trait SpecBase extends AnyFreeSpec with Matchers with TryValues with OptionValue
 
   def messages(app: Application): Messages = app.injector.instanceOf[MessagesApi].preferred(FakeRequest())
 
+  def govukLink(href: String, text: String): String =
+    s"""<a class="govuk-link" href="$href">$text</a>"""
+
   protected def applicationBuilder(userAnswers: Option[UserAnswers] = None): GuiceApplicationBuilder =
     baseApplicationBuilder(userAnswers)
       .overrides(bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[FakeIdentifierAction])
