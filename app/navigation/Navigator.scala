@@ -16,19 +16,20 @@
 
 package navigation
 
-import javax.inject.{Inject, Singleton}
-import play.api.mvc.Call
-import controllers.{initialquestions, notifierdetails, purchaserdetails, routes, supplierdetails, vehicledetails}
-import pages.*
+import controllers.*
 import models.*
+import pages.*
 import pages.sections.initialquestions.*
-import pages.sections.notifierdetails.*
-import pages.sections.vehicledetails.*
 import pages.sections.notifieraddress.*
+import pages.sections.notifierdetails.*
 import pages.sections.purchaseraddress.*
 import pages.sections.purchaserdetails.*
 import pages.sections.supplierdetails.*
+import pages.sections.vehicledetails.*
 import play.api.libs.json.Reads
+import play.api.mvc.Call
+
+import javax.inject.{Inject, Singleton}
 
 @Singleton
 class Navigator @Inject() () {
@@ -387,11 +388,12 @@ class Navigator @Inject() () {
     case page: PaymentCurrencyPage            => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
     case page: AddVehicleTypePage             => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
     case page: AddVehicleDetailsCarPage       => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
-    case page: AddVehicleDetailsLightCommercialPage  => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
-    case page: AddVehicleDetailsHeavyCommercialPage  => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
-    case page: AddVehicleDetailsMotorcyclePage       => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
-    case page: AddVehicleDetailsMotorCaravanPage     => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
-    case page: AddVehicleDetailsContractorsPlantPage => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
+    case page: AddVehicleDetailsLightCommercialPage     => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
+    case page: AddVehicleDetailsHeavyCommercialPage     => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
+    case page: AddVehicleDetailsMotorcyclePage          => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
+    case page: AddVehicleDetailsMotorCaravanPage        => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
+    case page: AddVehicleDetailsAgriculturalTractorPage => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
+    case page: AddVehicleDetailsContractorsPlantPage    => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
     case page: ImportEntryNumberPage => (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to the AVD-IE2.1 CYA when built
     case _                           =>
       (_, _) => routes.LandingPageController.onPageLoad()
@@ -403,9 +405,11 @@ class Navigator @Inject() () {
       userAnswers.vehicleSupplierNumber(page.vehicleNumber),
       userAnswers.vehicleImportNumber(page.vehicleNumber)
     ) match {
-      case (Some(_), Some(_), _)    => routes.LandingPageController.onPageLoad() // TODO: navigate to C-AVD2.0 when built
-      case (Some(_), None, Some(_)) => routes.LandingPageController.onPageLoad() // TODO: navigate to C-AVD2.0 when built
-      case _                        => routes.JourneyRecoveryController.onPageLoad()
+      case (Some(_), Some(supplierNumber), _) =>
+        vehicledetails.routes.ConfirmVehicleTypeDetailsController.supplierOnPageLoad(supplierNumber, page.vehicleNumber)
+      case (Some(_), None, Some(importNumber)) =>
+        vehicledetails.routes.ConfirmVehicleTypeDetailsController.importOnPageLoad(importNumber, page.vehicleNumber)
+      case _ => routes.JourneyRecoveryController.onPageLoad()
     }
 
   def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers, userType: NovaUserType): Call = mode match {

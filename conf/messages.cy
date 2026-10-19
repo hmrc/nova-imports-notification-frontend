@@ -1222,6 +1222,42 @@ confirmVehicleDetails.vehicleType.label = Vehicle type
 confirmVehicleDetails.vehicleType.change.hidden = which type of vehicle you are notifying HMRC about
 
 #######################################################
+# C-AVD2.0 - Confirm vehicle type details 2.0          #
+#######################################################
+# TODO: Welsh translations to be supplied by content team.
+confirmVehicleTypeDetails.title = Check the vehicle type details before you continue
+confirmVehicleTypeDetails.heading = Check the vehicle type details before you continue
+confirmVehicleTypeDetails.caption = Add vehicle details
+confirmVehicleTypeDetails.make.label = Make
+confirmVehicleTypeDetails.make.change.hidden = make of the vehicle
+confirmVehicleTypeDetails.model.label = Model
+confirmVehicleTypeDetails.model.change.hidden = model of the vehicle
+confirmVehicleTypeDetails.derivative.label = Derivative
+confirmVehicleTypeDetails.derivative.change.hidden = derivative of the vehicle
+confirmVehicleTypeDetails.trim.label = Trim
+confirmVehicleTypeDetails.trim.change.hidden = trim of the vehicle
+confirmVehicleTypeDetails.bodyType.label = Body type
+confirmVehicleTypeDetails.bodyType.change.hidden = body type of the vehicle
+confirmVehicleTypeDetails.cabType.label = Cab type
+confirmVehicleTypeDetails.cabType.change.hidden = cab type of the vehicle
+confirmVehicleTypeDetails.version.label = Version
+confirmVehicleTypeDetails.version.change.hidden = version of the vehicle
+confirmVehicleTypeDetails.makeOfBaseVehicle.label = Make of base vehicle
+confirmVehicleTypeDetails.makeOfBaseVehicle.change.hidden = make of the base vehicle
+confirmVehicleTypeDetails.style.label = Style
+confirmVehicleTypeDetails.style.change.hidden = style of the vehicle
+confirmVehicleTypeDetails.transmissionType.label = Transmission type
+confirmVehicleTypeDetails.transmissionType.change.hidden = transmission type of the vehicle
+confirmVehicleTypeDetails.fuelType.label = Fuel type
+confirmVehicleTypeDetails.fuelType.change.hidden = fuel type of the vehicle
+confirmVehicleTypeDetails.engineSize.label = Engine size in cubic centimetres (cc)
+confirmVehicleTypeDetails.engineSize.change.hidden = engine size of the vehicle
+confirmVehicleTypeDetails.brakeHorsepower.label = Brake horsepower (bhp)
+confirmVehicleTypeDetails.brakeHorsepower.change.hidden = brake horsepower of the vehicle
+confirmVehicleTypeDetails.modelNameNumber.label = Model name or number
+confirmVehicleTypeDetails.modelNameNumber.change.hidden = model name or number of the vehicle
+
+#######################################################
 # AVD8.1 - Add vehicle details 8.1 - Car               #
 #######################################################
 # TODO: Welsh translations to be supplied by content team.
