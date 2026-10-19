@@ -18,8 +18,6 @@ package models.draftsections
 
 import play.api.libs.json.{Format, Json}
 
-// Mirrors the backend's SupplierVehicleDetailsData/ImportVehicleDetailsData - both share this
-// identical field set for the ".../details" section, across all 7 vehicle types.
 final case class VehicleTypeDetails(
   make: Option[String] = None,
   model: Option[String] = None,
