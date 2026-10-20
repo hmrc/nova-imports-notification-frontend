@@ -17,7 +17,7 @@
 package forms
 
 import forms.behaviours.StringFieldBehaviours
-import models.{MotorcycleFuelType, MotorcycleTransmissionType}
+import models.MotorcycleFuelType
 import play.api.data.FormError
 
 class AddVehicleDetailsMotorcycleFormProviderSpec extends StringFieldBehaviours {
@@ -37,7 +37,8 @@ class AddVehicleDetailsMotorcycleFormProviderSpec extends StringFieldBehaviours 
     ("derivative", 50),
     ("motorcycleVersion", 50),
     ("motorcycleType", 50),
-    ("motorcycleStyle", 20)
+    ("motorcycleStyle", 20),
+    ("transmission", 30)
   ).foreach { case (fieldName, maxLength) =>
     s".$fieldName" - {
 
@@ -63,25 +64,6 @@ class AddVehicleDetailsMotorcycleFormProviderSpec extends StringFieldBehaviours 
       "must bind a valid value" in {
         form.bind(Map(fieldName -> validValue(fieldName))).apply(fieldName).errors mustBe empty
       }
-    }
-  }
-
-  ".transmission" - {
-
-    "must bind each valid option" in {
-      MotorcycleTransmissionType.values.foreach { option =>
-        form.bind(Map("transmission" -> option.jsonValue)).apply("transmission").errors mustBe empty
-      }
-    }
-
-    "must return the required error when nothing is selected" in {
-      form.bind(Map("transmission" -> "")).apply("transmission").errors.map(_.message) mustBe
-        Seq("addVehicleDetailsMotorcycle.transmission.error.required")
-    }
-
-    "must return the required error when the value is not a known option" in {
-      form.bind(Map("transmission" -> "cvt")).apply("transmission").errors.map(_.message) mustBe
-        Seq("addVehicleDetailsMotorcycle.transmission.error.required")
     }
   }
 

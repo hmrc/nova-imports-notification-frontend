@@ -17,7 +17,7 @@
 package viewmodels.checkAnswers
 
 import controllers.vehicledetails.routes
-import models.{AddVehicleType, CheckMode, ImportNumber, MotorcycleFuelType, MotorcycleTransmissionType, SupplierNumber, UserAnswers, VehicleNumber}
+import models.{AddVehicleType, CheckMode, ImportNumber, MotorcycleFuelType, SupplierNumber, UserAnswers, VehicleNumber}
 import pages.sections.vehicledetails.*
 import play.api.i18n.Messages
 import play.api.mvc.Call
@@ -101,7 +101,7 @@ object ConfirmVehicleTypeDetailsHelper {
             row("version", d.motorcycleVersion, c),
             row("bodyType", d.motorcycleType, c),
             row("style", d.motorcycleStyle, c),
-            row("transmissionType", transmissionText(d.transmission), c),
+            row("transmissionType", d.transmission, c),
             row("fuelType", fuelTypeText(d.fuelType), c),
             row("engineSize", d.engineSize, c)
           )
@@ -127,9 +127,6 @@ object ConfirmVehicleTypeDetailsHelper {
         }
       case _ => Seq.empty
     }
-
-  private def transmissionText(transmission: MotorcycleTransmissionType)(implicit messages: Messages): String =
-    messages(s"addVehicleDetailsMotorcycle.transmission.option.${transmission.jsonValue}")
 
   private def fuelTypeText(fuelType: MotorcycleFuelType)(implicit messages: Messages): String =
     messages(s"addVehicleDetailsMotorcycle.fuelType.option.${fuelType.jsonValue}")

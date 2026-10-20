@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import models.{MotorcycleFuelType, MotorcycleTransmissionType}
+@import models.MotorcycleFuelType
 @import uk.gov.hmrc.govukfrontend.views.Implicits.RichSelect
 
 @this(
@@ -98,18 +98,13 @@
              .withAutocomplete("off")
         )
 
-        @govukSelect(
-            Select(
-                id = "transmission",
-                name = "transmission",
-                label = LabelViewModel(messages("addVehicleDetailsMotorcycle.transmission.label")),
-                items = Seq(
-                    SelectItem(value = Some(""), text = messages("addVehicleDetailsMotorcycle.transmission.placeholder")),
-                    SelectItem(value = Some(MotorcycleTransmissionType.Automatic.jsonValue), text = messages("addVehicleDetailsMotorcycle.transmission.option.automatic")),
-                    SelectItem(value = Some(MotorcycleTransmissionType.Manual.jsonValue), text = messages("addVehicleDetailsMotorcycle.transmission.option.manual")),
-                    SelectItem(value = Some(MotorcycleTransmissionType.SemiAutomatic.jsonValue), text = messages("addVehicleDetailsMotorcycle.transmission.option.semiAutomatic"))
-                )
-            ).withFormField(form("transmission"))
+        @govukInput(
+            InputViewModel(
+                field = form("transmission"),
+                label = LabelViewModel(messages("addVehicleDetailsMotorcycle.transmission.label"))
+            ).withHint(HintViewModel(Text(messages("addVehicleDetailsMotorcycle.transmission.hint"))))
+             .withCssClass("govuk-input--width-20")
+             .withAutocomplete("off")
         )
 
         @govukSelect(
