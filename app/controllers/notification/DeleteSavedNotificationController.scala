@@ -107,7 +107,7 @@ class DeleteSavedNotificationController @Inject() (
       .flatMap {
         case Right(draft) =>
           PurchaserName.fetchTraderOrClientSummary(connector, ctx, clientVrn).map { summary =>
-            val purchaserName = PurchaserName.toDisplay(PurchaserName.purchaserOrNotifierName(draft), ctx, summary)
+            val purchaserName = PurchaserName.toDisplay(PurchaserName.purchaserOrNotifierName(draft, ctx), ctx, summary)
             status(view(form, draftId, purchaserName, LocalDate.parse(draft.createdDate)))
           }
         case Left(error @ (GetDraftNotificationError.Forbidden | GetDraftNotificationError.NotFound)) =>

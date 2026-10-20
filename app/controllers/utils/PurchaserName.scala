@@ -27,14 +27,18 @@ import scala.concurrent.{ExecutionContext, Future}
 
 object PurchaserName extends Logging {
 
-  def purchaserOrNotifierName(draft: DraftNotification): Option[String] = {
+  // returns the purchaser's name for an agent without a client or when IQ3 is behalfOfPurchaser, otherwise the notifier's name
+  def purchaserOrNotifierName(draft: DraftNotification, ctx: UserContext): Option[String] = {
     def sectionAnswers(sectionId: String): Option[JsObject] = draft.sections.get(sectionId).flatMap(_.data)
 
     val isOnBehalfOfPurchaser = sectionAnswers(SectionId.InitialQuestions)
       .flatMap(data => (data \ "notifyingAsPurchaser").asOpt[PurchaserOrOnBehalf])
       .contains(PurchaserOrOnBehalf.OnBehalfOfPurchaser)
 
-    sectionAnswers(if (isOnBehalfOfPurchaser) SectionId.PurchaserDetails else SectionId.NotifierDetails).flatMap(businessOrPersonName)
+    val purchaserOrNotifierSectionId =
+      if (ctx.isAgentWithoutClient || isOnBehalfOfPurchaser) SectionId.PurchaserDetails else SectionId.NotifierDetails
+
+    sectionAnswers(purchaserOrNotifierSectionId).flatMap(businessOrPersonName)
   }
 
   def toDisplay(nameFromSections: Option[String], ctx: UserContext, summary: Option[NotificationSummary]): Option[String] =
