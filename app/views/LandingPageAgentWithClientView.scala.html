@@ -22,12 +22,13 @@
 
 @layout(pageTitle = messages("landingPage.agent.title") + " - " + messages("site.govuk"), fullWidth = true) {
 
-    @agentName.map { name =>
-        <span class="govuk-caption-l">@name</span>
-    }
 
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
+            @agentName.map { name =>
+                <span class="govuk-caption-l">@name</span>
+            }
+
             <h1 class="govuk-heading-l">@messages("landingPage.agent.heading")</h1>
 
             <p class="govuk-body">@messages("landingPage.agent.body")</p>
