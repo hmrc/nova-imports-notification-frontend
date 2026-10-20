@@ -22,75 +22,100 @@
 
 @layout(pageTitle = messages("landingPage.agent.title") + " - " + messages("site.govuk"), fullWidth = true) {
 
-    @agentName.map { name =>
-        <span class="govuk-caption-l">@name</span>
-    }
 
-    <h1 class="govuk-heading-l">@messages("landingPage.agent.heading")</h1>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            @agentName.map { name =>
+                <span class="govuk-caption-l">@name</span>
+            }
 
-    <p class="govuk-body">@messages("landingPage.agent.body")</p>
+            <h1 class="govuk-heading-l">@messages("landingPage.agent.heading")</h1>
 
-    <div class="govuk-summary-card">
-        <div class="govuk-summary-card__title-wrapper">
-            <h2 class="govuk-summary-card__title">@messages("landingPage.agent.client.heading") @clientName.getOrElse("")</h2>
-            <ul class="govuk-summary-card__actions">
-                <li class="govuk-summary-card__action">
-                    <a class="govuk-link" href="@clientselection.routes.LoadingClientListController.onPageLoad().url">
-                        @messages("landingPage.agent.client.change")
-                        <span class="govuk-visually-hidden">@messages("landingPage.agent.client.change.hidden")</span>
-                    </a>
-                </li>
-                <li class="govuk-summary-card__action">
-                    <a class="govuk-link" href="@routes.LandingPageController.deselectClient().url">
-                        @messages("landingPage.agent.client.deselect")
-                        <span class="govuk-visually-hidden">@messages("landingPage.agent.client.deselect.hidden")</span>
-                    </a>
-                </li>
-            </ul>
+            <p class="govuk-body">@messages("landingPage.agent.body")</p>
         </div>
-        <div class="govuk-summary-card__content">
-            <dl class="govuk-summary-list">
-                <div class="govuk-summary-list__row">
-                    <dt class="govuk-summary-list__key">@messages("landingPage.agent.client.vrn")</dt>
-                    <dd class="govuk-summary-list__value">@{"GB" + clientVrn}</dd>
+    </div>
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <div class="govuk-summary-card">
+                <div class="govuk-summary-card__title-wrapper">
+                    <h2 class="govuk-summary-card__title">@messages("landingPage.agent.client.heading") @clientName.getOrElse("")</h2>
+                    <ul class="govuk-summary-card__actions">
+                        <li class="govuk-summary-card__action">
+                            <a class="govuk-link" href="@clientselection.routes.LoadingClientListController.onPageLoad().url">
+                                @messages("landingPage.agent.client.change")
+                                <span class="govuk-visually-hidden">@messages("landingPage.agent.client.change.hidden")</span>
+                            </a>
+                        </li>
+                        <li class="govuk-summary-card__action">
+                            <a class="govuk-link" href="@routes.LandingPageController.deselectClient().url">
+                                @messages("landingPage.agent.client.deselect")
+                                <span class="govuk-visually-hidden">@messages("landingPage.agent.client.deselect.hidden")</span>
+                            </a>
+                        </li>
+                    </ul>
                 </div>
-            </dl>
+                <div class="govuk-summary-card__content">
+                    <dl class="govuk-summary-list">
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key">@messages("landingPage.agent.client.vrn")</dt>
+                            <dd class="govuk-summary-list__value">@{"GB" + clientVrn}</dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
         </div>
     </div>
 
     <br>
 
-    <h2 class="govuk-heading-m">
-        <a class="govuk-link" href="@introduction.routes.BeforeYouContinueController.onPageLoad().url">@messages("landingPage.agent.create.link")</a>
-    </h2>
-    <p class="govuk-body govuk-!-margin-bottom-0">@messages("landingPage.agent.create.body")</p>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h2 class="govuk-heading-m">
+                <a class="govuk-link" href="@introduction.routes.BeforeYouContinueController.onPageLoad().url">@messages("landingPage.agent.create.link")</a>
+            </h2>
+            <p class="govuk-body govuk-!-margin-bottom-0">@messages("landingPage.agent.create.body")</p>
+        </div>
+    </div>
 
     <hr class="govuk-section-break govuk-section-break--visible govuk-section-break--m">
 
-    <h2 class="govuk-heading-m">
-        <a class="govuk-link" href="@introduction.routes.BeforeYouContinueController.onPageLoadAmend().url">@messages("landingPage.agent.update.link")</a>
-    </h2>
-    <p class="govuk-body govuk-!-margin-bottom-0">@messages("landingPage.agent.update.body")</p>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h2 class="govuk-heading-m">
+                <a class="govuk-link" href="@introduction.routes.BeforeYouContinueController.onPageLoadAmend().url">@messages("landingPage.agent.update.link")</a>
+            </h2>
+            <p class="govuk-body govuk-!-margin-bottom-0">@messages("landingPage.agent.update.body")</p>
+        </div>
+    </div>
 
     <hr class="govuk-section-break govuk-section-break--visible govuk-section-break--m">
 
-    @if(hasDraftNotifications) {
-        <h2 class="govuk-heading-m">
-            <a class="govuk-link" href="@notification.routes.ViewSavedNotificationsController.onPageLoad().url">@messages("landingPage.agent.saved.heading")</a>
-        </h2>
-        <p class="govuk-body govuk-!-margin-bottom-0">@messages("landingPage.agent.saved.body.has")</p>
-    } else {
-        <h2 class="govuk-heading-m app-text-secondary">@messages("landingPage.agent.saved.heading")</h2>
-        <p class="govuk-body govuk-!-margin-bottom-0">@messages("landingPage.agent.saved.body.empty")</p>
-        <p class="govuk-visually-hidden">@messages("landingPage.content.disabled.body")</p>
-    }
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            @if(hasDraftNotifications) {
+                <h2 class="govuk-heading-m">
+                    <a class="govuk-link" href="@notification.routes.ViewSavedNotificationsController.onPageLoad().url">@messages("landingPage.agent.saved.heading")</a>
+                </h2>
+                <p class="govuk-body govuk-!-margin-bottom-0">@messages("landingPage.agent.saved.body.has")</p>
+            } else {
+                <h2 class="govuk-heading-m app-text-secondary">@messages("landingPage.agent.saved.heading")</h2>
+                <p class="govuk-body govuk-!-margin-bottom-0">@messages("landingPage.agent.saved.body.empty")</p>
+                <p class="govuk-visually-hidden">@messages("landingPage.content.disabled.body")</p>
+            }
+        </div>
+    </div>
 
     <hr class="govuk-section-break govuk-section-break--visible govuk-section-break--m">
 
-    <h2 class="govuk-heading-m">
-        <a class="govuk-link" href="@clientselection.routes.LoadingClientListController.onPageLoad().url">@messages("landingPage.agent.clients.link")</a>
-    </h2>
-    <p class="govuk-body govuk-!-margin-bottom-0">@messages("landingPage.agent.clients.body")</p>
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+            <h2 class="govuk-heading-m">
+                <a class="govuk-link" href="@clientselection.routes.LoadingClientListController.onPageLoad().url">@messages("landingPage.agent.clients.link")</a>
+            </h2>
+            <p class="govuk-body govuk-!-margin-bottom-0">@messages("landingPage.agent.clients.body")</p>
+        </div>
+    </div>
 
     <hr class="govuk-section-break govuk-section-break--visible govuk-section-break--m">
 }
