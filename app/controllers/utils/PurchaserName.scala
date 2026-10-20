@@ -35,8 +35,10 @@ object PurchaserName extends Logging {
       .flatMap(data => (data \ "notifyingAsPurchaser").asOpt[PurchaserOrOnBehalf])
       .contains(PurchaserOrOnBehalf.OnBehalfOfPurchaser)
 
-    sectionAnswers(if (ctx.isAgentWithoutClient || isOnBehalfOfPurchaser) SectionId.PurchaserDetails else SectionId.NotifierDetails)
-      .flatMap(businessOrPersonName)
+    val purchaserOrNotifierSectionId =
+      if (ctx.isAgentWithoutClient || isOnBehalfOfPurchaser) SectionId.PurchaserDetails else SectionId.NotifierDetails
+
+    sectionAnswers(purchaserOrNotifierSectionId).flatMap(businessOrPersonName)
   }
 
   def toDisplay(nameFromSections: Option[String], ctx: UserContext, summary: Option[NotificationSummary]): Option[String] =
