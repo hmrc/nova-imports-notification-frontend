@@ -44,22 +44,22 @@ class BeforeYouContinueViewSpec extends SpecBase with Matchers with BeforeAndAft
   "BeforeYouContinueView" - {
 
     "must render the correct heading" in {
-      val html: String = view().toString
+      val html: String = view(isAmendment = false).toString
       html must include(msgs("beforeYouContinue.heading"))
     }
 
     "must render the correct page title" in {
-      val html: String = view().toString
+      val html: String = view(isAmendment = false).toString
       html must include(msgs("beforeYouContinue.title"))
     }
 
     "must render the intro body" in {
-      val html: String = view().toString
+      val html: String = view(isAmendment = false).toString
       html must include(msgs("beforeYouContinue.body.1"))
     }
 
     "must render the vehicle section body and all six bulleted items" in {
-      val html: String = view().toString
+      val html: String = view(isAmendment = false).toString
       html must include(msgs("beforeYouContinue.vehicle.body"))
       html must include(msgs("beforeYouContinue.vehicle.list.1"))
       html must include(msgs("beforeYouContinue.vehicle.list.2"))
@@ -70,32 +70,38 @@ class BeforeYouContinueViewSpec extends SpecBase with Matchers with BeforeAndAft
     }
 
     "must render the supplier section body and both bulleted items" in {
-      val html: String = view().toString
+      val html: String = view(isAmendment = false).toString
       html must include(msgs("beforeYouContinue.supplier.body"))
       html must include(msgs("beforeYouContinue.supplier.list.1"))
       html must include(msgs("beforeYouContinue.supplier.list.2"))
     }
 
     "must render the Updating vehicle notifications H2 and both paragraphs" in {
-      val html: String = view().toString
+      val html: String = view(isAmendment = false).toString
       html must include(msgs("beforeYouContinue.updating.heading"))
       html must include(msgs("beforeYouContinue.updating.body.1"))
       html must include(msgs("beforeYouContinue.updating.body.2"))
     }
 
-    "must submit the Continue button to the BeforeYouContinue onSubmit action so the session is reset" in {
-      val html: String = view().toString
+    "must submit the Continue button to the BeforeYouContinue onSubmit action when not an amendment" in {
+      val html: String = view(isAmendment = false).toString
       html must include(s"""action="${controllers.introduction.routes.BeforeYouContinueController.onSubmit().url}"""")
       html must include("""method="POST"""")
     }
 
+    "must submit the Continue button to the BeforeYouContinue onSubmitAmend action when an amendment" in {
+      val html: String = view(isAmendment = true).toString
+      html must include(s"""action="${controllers.introduction.routes.BeforeYouContinueController.onSubmitAmend().url}"""")
+      html must include("""method="POST"""")
+    }
+
     "must render the same content via the render method" in {
-      val html: String = view.render(request, msgs).toString
+      val html: String = view.render(isAmendment = false, request, msgs).toString
       html must include(msgs("beforeYouContinue.heading"))
     }
 
     "must render the same content via the f method" in {
-      val html: String = view.f()(request, msgs).toString
+      val html: String = view.f(false)(request, msgs).toString
       html must include(msgs("beforeYouContinue.heading"))
     }
 

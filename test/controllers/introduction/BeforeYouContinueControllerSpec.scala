@@ -41,9 +41,11 @@ import scala.concurrent.Future
 
 class BeforeYouContinueControllerSpec extends SpecBase with MockitoSugar {
 
-  private lazy val beforeYouContinueRoute = introduction.routes.BeforeYouContinueController.onPageLoad().url
-  private lazy val onSubmitRoute          = introduction.routes.BeforeYouContinueController.onSubmit().url
-  private lazy val vehicleFromEuTarget    = initialquestions.routes.VehicleFromEuController.onPageLoad(models.NormalMode).url
+  private lazy val beforeYouContinueRoute      = introduction.routes.BeforeYouContinueController.onPageLoad().url
+  private lazy val beforeYouContinueAmendRoute = introduction.routes.BeforeYouContinueController.onPageLoadAmend().url
+  private lazy val onSubmitRoute               = introduction.routes.BeforeYouContinueController.onSubmit().url
+  private lazy val onSubmitAmendRoute          = introduction.routes.BeforeYouContinueController.onSubmitAmend().url
+  private lazy val vehicleFromEuTarget         = initialquestions.routes.VehicleFromEuController.onPageLoad(models.NormalMode).url
 
   private val spreadsheetSection = "Notifying for multiple vehicles"
 
@@ -209,6 +211,37 @@ class BeforeYouContinueControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
+    "onPageLoadAmend" - {
+
+      "renders a form posting to onSubmitAmend, not onSubmit" in {
+        given application: Application = applicationWith(classOf[FakeIdentifierAction])
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, beforeYouContinueAmendRoute)
+
+          val result = route(application, request).value
+          val body   = contentAsString(result)
+
+          status(result) mustEqual OK
+          body must include(s"""action="$onSubmitAmendRoute"""")
+        }
+      }
+
+      "for an Organisation with a VAT enrolment also renders a form posting to onSubmitAmend" in {
+        given application: Application = applicationWith(classOf[FakeVatTraderIdentifierAction])
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, beforeYouContinueAmendRoute)
+
+          val result = route(application, request).value
+          val body   = contentAsString(result)
+
+          status(result) mustEqual OK
+          body must include(s"""action="$onSubmitAmendRoute"""")
+        }
+      }
+    }
+
     "onSubmit" - {
 
       "starts a fresh session (clearing previous answers), records the acknowledgement, and redirects to VehicleFromEuController for a non-agent user" in {
@@ -233,8 +266,10 @@ class BeforeYouContinueControllerSpec extends SpecBase with MockitoSugar {
           // answers from the previous session have been cleared
           capturedAnswers.get(VehicleFromEuPage) mustEqual None
           capturedAnswers.get(NotifyingAsPurchaserPage) mustEqual None
-          // a new notification must NOT inherit an amendment flag from a previous answers
-          capturedAnswers.get(AmendSubmittedNotificationPage) mustEqual None
+          // a new notification must NOT inherit a stale amendment flag from a previous, unrelated session -
+          // it is instead set explicitly to false here, from the route actually posted to (onSubmit, not
+          // onSubmitAmend), not read back from the stale answers
+          capturedAnswers.get(AmendSubmittedNotificationPage) mustEqual Some(false)
           capturedAnswers.get(AgentSelectedClientPage) mustEqual None
         }
       }
@@ -261,7 +296,7 @@ class BeforeYouContinueControllerSpec extends SpecBase with MockitoSugar {
           capturedAnswers.get(AgentSelectedClientPage) mustEqual Some(sampleClient)
           capturedAnswers.get(VehicleFromEuPage) mustEqual None
           capturedAnswers.get(NotifyingAsPurchaserPage) mustEqual None
-          capturedAnswers.get(AmendSubmittedNotificationPage) mustEqual None
+          capturedAnswers.get(AmendSubmittedNotificationPage) mustEqual Some(false)
         }
       }
 
@@ -306,6 +341,53 @@ class BeforeYouContinueControllerSpec extends SpecBase with MockitoSugar {
           verify(sessionRepo).setPage(answersCaptor.capture(), eqTo(IntroductionAcknowledgePage), eqTo(true))(any())
 
           answersCaptor.getValue.get(AgentSelectedClientPage) mustEqual None
+        }
+      }
+    }
+
+    "onSubmitAmend" - {
+
+      "starts a fresh session with the amendment flag set, records the acknowledgement, and redirects to VehicleFromEuController for a non-agent user" in {
+        val sessionRepo   = mockSessionRepository
+        val answersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
+
+        given application: Application =
+          applicationWith(classOf[FakeIdentifierAction], Some(emptyUserAnswers), mock[NovaImportsBackendConnector], sessionRepo)
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, onSubmitAmendRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual vehicleFromEuTarget
+
+          verify(sessionRepo).setPage(answersCaptor.capture(), eqTo(IntroductionAcknowledgePage), eqTo(true))(any())
+
+          answersCaptor.getValue.get(AmendSubmittedNotificationPage) mustEqual Some(true)
+        }
+      }
+
+      "sets the selected client into the fresh session alongside the amendment flag for an agent with a selected client" in {
+        val sessionRepo   = mockSessionRepository
+        val answersCaptor = ArgumentCaptor.forClass(classOf[UserAnswers])
+
+        given application: Application =
+          applicationWith(classOf[FakeAgentIdentifierAction], Some(userAnswersWithClient), mock[NovaImportsBackendConnector], sessionRepo)
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(POST, onSubmitAmendRoute)
+
+          val result = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual vehicleFromEuTarget
+
+          verify(sessionRepo).setPage(answersCaptor.capture(), eqTo(IntroductionAcknowledgePage), eqTo(true))(any())
+
+          val capturedAnswers = answersCaptor.getValue
+          capturedAnswers.get(AmendSubmittedNotificationPage) mustEqual Some(true)
+          capturedAnswers.get(AgentSelectedClientPage) mustEqual Some(sampleClient)
         }
       }
     }
