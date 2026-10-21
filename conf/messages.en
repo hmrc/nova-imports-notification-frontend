@@ -607,7 +607,7 @@ purchaserAddressChanged.changeAddress = Change address
 #######################################################
 
 purchaserAddressCheckYourAnswers.caption = Add purchaser address
-purchaserAddressCheckYourAnswers.title = Check your answers - purchaser address
+purchaserAddressCheckYourAnswers.title = Check your answers - Purchaser’s address
 purchaserAddressCheckYourAnswers.heading = Check your answers
 purchaserAddressCheckYourAnswers.change.hidden = purchaser’s address
 purchaserAddressCheckYourAnswers.checkYourAnswersLabel = Purchaser’s address

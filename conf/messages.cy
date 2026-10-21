@@ -257,12 +257,11 @@ purchaserAddressChanged.saveAndContinue = Cadw a pharhau
 #######################################################
 # CYA5.0 - Check your answers 5.0 - Purchaser address #
 #######################################################
-# TODO: Welsh translations to be supplied by content team.
-purchaserAddressCheckYourAnswers.caption = Add purchaser address
-purchaserAddressCheckYourAnswers.title = Check your answers - purchaser address
-purchaserAddressCheckYourAnswers.heading = Check your answers
-purchaserAddressCheckYourAnswers.change.hidden = purchaser’s address
-purchaserAddressCheckYourAnswers.checkYourAnswersLabel = Purchaser’s address
+purchaserAddressCheckYourAnswers.caption = Ychwanegu cyfeiriad y prynwr
+purchaserAddressCheckYourAnswers.title = Gwiriwch eich atebion - Cyfeiriad y prynwr
+purchaserAddressCheckYourAnswers.heading = Gwiriwch eich atebion
+purchaserAddressCheckYourAnswers.change.hidden = cyfeiriad y prynwr
+purchaserAddressCheckYourAnswers.checkYourAnswersLabel = Cyfeiriad y prynwr
 
 ###########################################################
 # Address lookup (ALF) journey labels                     #
