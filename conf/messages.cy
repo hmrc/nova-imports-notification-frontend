@@ -1101,11 +1101,11 @@ paymentCurrency.error.required = Enter the currency used to pay for the vehicle
 # AVD-S8.0 - Add vehicle details - Supplier 8.0: Supplier VAT Registered #
 ##########################################################################
 # TODO: Welsh translations to be supplied by content team.
-isSupplierVatRegistered.title = Is the supplier VAT registered?
-isSupplierVatRegistered.heading = Is the supplier VAT registered?
-isSupplierVatRegistered.caption = Add vehicle details
-isSupplierVatRegistered.error.required = Select yes if the supplier is VAT registered
-isSupplierVatRegistered.checkYourAnswersLabel = Is the supplier VAT registered?
+isSupplierVatRegistered.title = A yw’r cyflenwr wedi cofrestru ar gyfer TAW?
+isSupplierVatRegistered.heading = A yw’r cyflenwr wedi cofrestru ar gyfer TAW?
+isSupplierVatRegistered.caption = Ychwanegu manylion y cerbyd
+isSupplierVatRegistered.error.required = Dewiswch ‘Iawn’ os yw’r cyflenwr wedi’i gofrestru ar gyfer TAW
+isSupplierVatRegistered.checkYourAnswersLabel = A yw’r cyflenwr wedi cofrestru ar gyfer TAW?
 isSupplierVatRegistered.change.hidden = whether supplier is VAT registered
 
 ####################################################################################
