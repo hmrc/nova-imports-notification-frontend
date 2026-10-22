@@ -1100,7 +1100,7 @@ paymentCurrency.error.required = Enter the currency used to pay for the vehicle
 ##########################################################################
 # AVD-S8.0 - Add vehicle details - Supplier 8.0: Supplier VAT Registered #
 ##########################################################################
-# TODO: Welsh translations to be supplied by content team.
+
 isSupplierVatRegistered.title = A yw’r cyflenwr wedi cofrestru ar gyfer TAW?
 isSupplierVatRegistered.heading = A yw’r cyflenwr wedi cofrestru ar gyfer TAW?
 isSupplierVatRegistered.caption = Ychwanegu manylion y cerbyd
@@ -1111,17 +1111,17 @@ isSupplierVatRegistered.change.hidden = whether supplier is VAT registered
 ####################################################################################
 # AVD-S8.1 - Add vehicle details - Supplier 8.1: Supplier VAT Registration Details #
 ####################################################################################
-# TODO: Welsh translations to be supplied by content team.
-supplierVatRegistrationDetails.title = Enter the supplier’s VAT registration details
-supplierVatRegistrationDetails.heading = Enter the supplier’s VAT registration details
-supplierVatRegistrationDetails.caption = Add vehicle details
-supplierVatRegistrationDetails.paragraph.1 = You must provide the country where the supplier is VAT registered and the VAT registration number. You can find these details on the supplier’s invoice.
+
+supplierVatRegistrationDetails.title = Nodwch fanylion cofrestru TAW y cyflenwr
+supplierVatRegistrationDetails.heading = Nodwch fanylion cofrestru TAW y cyflenwr
+supplierVatRegistrationDetails.caption = Ychwanegu manylion y cerbyd
+supplierVatRegistrationDetails.paragraph.1 = Mae’n rhaid i chi nodi’r wlad lle mae’r cyflenwr wedi’i gofrestru ar gyfer TAW a’r rhif cofrestru TAW. Gallwch ddod o hyd i’r manylion hyn ar anfoneb y cyflenwr.
 supplierVatRegistrationDetails.paragraph.2 = The VAT registration number is usually numbers only, sometimes with a 2‑letter country code at the start. For example, 123456789 or DE123456789.
-supplierVatRegistrationDetails.label.country = Country of VAT registration
-supplierVatRegistrationDetails.label.vatNumber = VAT registration number
-supplierVatRegistrationDetails.country.error.required = Enter the country where the supplier is VAT registered
-supplierVatRegistrationDetails.vatNumber.error.required = Enter the supplier’s VAT registration number
-supplierVatRegistrationDetails.vatNumber.error.format = Enter the supplier’s VAT registration number in the correct format for the selected country
+supplierVatRegistrationDetails.label.country = Gwlad cofrestru TAW
+supplierVatRegistrationDetails.label.vatNumber = Rhif cofrestru TAW
+supplierVatRegistrationDetails.country.error.required = Nodwch y wlad lle mae’r cyflenwr wedi’i TAW gofrestru
+supplierVatRegistrationDetails.vatNumber.error.required = Nodwch rif cofrestru TAW y cyflenwr
+supplierVatRegistrationDetails.vatNumber.error.format = Nodwch rif cofrestru TAW y cyflenwr yn y fformat cywir ar gyfer y wlad a ddewiswyd
 
 ######################################################
 # AVD-S9.0 - Check Your Answers 3 - Supplier Details #
