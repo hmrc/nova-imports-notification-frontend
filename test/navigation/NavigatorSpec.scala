@@ -689,19 +689,38 @@ class NavigatorSpec extends SpecBase {
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
 
-      "must go from ImportEntryNumberPage AVD-IE1.0 for import 1 to the landing page" in {
+      "must go from ImportEntryNumberPage AVD-IE1.0 for import 1 to AVD-IE2.0 for import 1" in {
         val ua = userAnswers.set(ImportEntryNumberPage(ImportNumber(1)), "12GB3456ACD789EF21").success.value
         navigator.nextPage(
           ImportEntryNumberPage(ImportNumber(1)),
           NormalMode,
           ua,
           NovaUserType.VatRegisteredOrganisation
-        ) mustBe routes.LandingPageController.onPageLoad()
+        ) mustBe vehicledetails.routes.ImportEntryDateController.onPageLoad(ImportNumber(1), NormalMode)
       }
 
       "must go from ImportEntryNumberPage AVD-IE1.0 to JourneyRecovery when import 1 has no import entry number" in {
         navigator.nextPage(
           ImportEntryNumberPage(ImportNumber(1)),
+          NormalMode,
+          userAnswers,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from ImportEntryDatePage AVD-IE2.0 for import 1 to the landing page" in {
+        val ua = userAnswers.set(ImportEntryDatePage(ImportNumber(1)), LocalDate.of(2026, 3, 27)).success.value
+        navigator.nextPage(
+          ImportEntryDatePage(ImportNumber(1)),
+          NormalMode,
+          ua,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from ImportEntryDatePage AVD-IE2.0 to JourneyRecovery when import 1 has no import entry date" in {
+        navigator.nextPage(
+          ImportEntryDatePage(ImportNumber(1)),
           NormalMode,
           userAnswers,
           NovaUserType.VatRegisteredOrganisation
@@ -1633,6 +1652,15 @@ class NavigatorSpec extends SpecBase {
       "must go from ImportEntryNumberPage AVD-IE1.0 for import 1 to the landing page" in {
         navigator.nextPage(
           ImportEntryNumberPage(ImportNumber(1)),
+          CheckMode,
+          userAnswers,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from ImportEntryDatePage AVD-IE2.0 for import 1 to the landing page" in {
+        navigator.nextPage(
+          ImportEntryDatePage(ImportNumber(1)),
           CheckMode,
           userAnswers,
           NovaUserType.VatRegisteredOrganisation

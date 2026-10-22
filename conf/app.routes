@@ -241,6 +241,11 @@ POST        /import/:importNumber/import-entry-number                           
 GET         /import/:importNumber/import-entry-number/change                             controllers.vehicledetails.ImportEntryNumberController.onPageLoad(importNumber: ImportNumber, mode: Mode = CheckMode)
 POST        /import/:importNumber/import-entry-number/change                             controllers.vehicledetails.ImportEntryNumberController.onSubmit(importNumber: ImportNumber, mode: Mode = CheckMode)
 
+GET         /import/:importNumber/import-entry-date                                      controllers.vehicledetails.ImportEntryDateController.onPageLoad(importNumber: ImportNumber, mode: Mode = NormalMode)
+POST        /import/:importNumber/import-entry-date                                      controllers.vehicledetails.ImportEntryDateController.onSubmit(importNumber: ImportNumber, mode: Mode = NormalMode)
+GET         /import/:importNumber/import-entry-date/change                               controllers.vehicledetails.ImportEntryDateController.onPageLoad(importNumber: ImportNumber, mode: Mode = CheckMode)
+POST        /import/:importNumber/import-entry-date/change                               controllers.vehicledetails.ImportEntryDateController.onSubmit(importNumber: ImportNumber, mode: Mode = CheckMode)
+
 GET         /supplier/:supplierNumber/vehicles-bought-from-supplier                      controllers.vehicledetails.VehiclesBoughtFromSupplierController.onPageLoad(supplierNumber: SupplierNumber)
 POST        /supplier/:supplierNumber/vehicles-bought-from-supplier                      controllers.vehicledetails.VehiclesBoughtFromSupplierController.onSubmit(supplierNumber: SupplierNumber)
 

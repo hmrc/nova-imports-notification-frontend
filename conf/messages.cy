@@ -1506,7 +1506,7 @@ addVehicleDetailsMotorcycle.engineSize.error.format = Enter the engine size usin
 addVehicleDetailsMotorcycle.engineSize.error.length = The engine size must be 5 characters or less before any decimal point
 
 #######################################################
-# AVD8.5 - Add vehicle details 8.5 - Motor caravan     #
+# AVD8.5 - Add vehicle details 8.5 - Motor caravan    #
 #######################################################
 
 addVehicleDetailsMotorCaravan.title = Enter the motor caravan details
@@ -1549,9 +1549,9 @@ addVehicleDetailsMotorCaravan.derivative.error.required = Enter the derivative
 addVehicleDetailsMotorCaravan.derivative.error.format = The derivative must not include special characters such as #, $, ^, `, '{', '|', '}' or ~, or accented letters such as è
 addVehicleDetailsMotorCaravan.derivative.error.length = The derivative must be 50 characters or less
 
-####################################################################################
-# AVD-IE1.0 - Import entry number. Part built for testing import number.           #
-####################################################################################
+############################################
+# AVD-IE1.0 - Import entry number          #
+############################################
 # TODO: Welsh translations to be supplied by content team.
 importEntryNumber.title = Import entry number
 importEntryNumber.caption = Add vehicle details
@@ -1564,6 +1564,25 @@ importEntryNumber.error.format = Enter the import entry number in the correct fo
 importEntryNumber.error.length = The import entry number must be 11 or 18 characters
 importEntryNumber.checkYourAnswersLabel = Import entry number
 importEntryNumber.change.hidden = import entry number
+
+###########################################
+# AVD-IE2.0 - Import entry date           #
+###########################################
+# TODO: Welsh translations to be supplied by content team.
+importEntryDate.title = Import entry date
+importEntryDate.caption = Add vehicle details
+importEntryDate.heading.1 = Import entry date
+importEntryDate.paragraph = This is when the import entry was made. It may be earlier than the date it was accepted by customs.
+importEntryDate.heading.2 = What is the import entry date?
+importEntryDate.hint = You can find this in the last 8 digits of the import entry number. For example, 27 03 2026
+importEntryDate.error.required.all = Enter the import entry date
+importEntryDate.error.required = The import entry date must include a {0}
+importEntryDate.error.required.two = The import entry date must include a {0} and {1}
+importEntryDate.error.invalid = Enter the import entry date in the correct format
+importEntryDate.error.notARealDate = The import entry date must be a real date
+importEntryDate.error.future = The import entry date must be today or in the past
+importEntryDate.checkYourAnswersLabel = Import entry date
+importEntryDate.change.hidden = import entry date
 
 ####################################################################################
 # Vehicle details inset                                                            #
