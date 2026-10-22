@@ -125,6 +125,7 @@ class ViewClientsViewSpec extends SpecBase with Matchers with BeforeAndAfterAll 
       html must include(routes.SelectClientController.select("700000001").url)
       html must include(s"""${msgs("viewClients.select")}<span class="govuk-visually-hidden"> Client A</span>""")
       html must include(s"""${msgs("site.remove")}<span class="govuk-visually-hidden"> Client A</span>""")
+      html must include(routes.RemoveClientController.onPageLoad("700000001").url)
     }
 
     "must render pagination" in {
