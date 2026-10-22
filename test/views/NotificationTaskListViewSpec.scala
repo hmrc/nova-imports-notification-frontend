@@ -116,6 +116,19 @@ class NotificationTaskListViewSpec extends SpecBase with Matchers with BeforeAnd
       html must include(msgs("notificationTaskList.status.cannotStartYet"))
     }
 
+    "must render the Declaration hint as a paragraph" in {
+      val doc =
+        org.jsoup.Jsoup.parse(
+          view(traderName, vrn, None, allNotYetSaved, showAddYourAddress = false, showAboutThePurchaser = false, sectionLinks).toString
+        )
+      val hint = doc.getElementById("declaration-1-hint")
+
+      hint.tagName mustEqual "p"
+      hint.text mustEqual msgs("notificationTaskList.declaration.hint")
+      doc.getElementById("declaration-1-status").text mustEqual msgs("notificationTaskList.status.cannotStartYet")
+      doc.select("a:contains(" + msgs("notificationTaskList.declaration.readDeclaration") + ")").size mustEqual 0
+    }
+
     "must mark sections with status not-yet-saved as Incomplete" in {
       val html: String = view(traderName, vrn, None, allNotYetSaved, showAddYourAddress = true, showAboutThePurchaser = false, sectionLinks).toString
       html must include(msgs("notificationTaskList.status.incomplete"))
