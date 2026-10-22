@@ -28,7 +28,7 @@ import play.api.libs.json.*
 import repositories.SessionRepository
 import uk.gov.hmrc.http.HeaderCarrier
 import services.UserDataService.*
-import pages.{AgentSelectedClientPage, VehiclesSectionStatusPage}
+import pages.{AgentSelectedClientPage, NotifierDetailsSavedPage, VehiclesSectionStatusPage}
 import pages.sections.notifierdetails.{BusinessNamePage, EmailAddressPage, NameDetailsPage, PhoneNumberPage}
 import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 import pages.sections.purchaseraddress.{IsPurchaserAddressInTheUkPage, PurchaserAddressPage}
@@ -73,8 +73,9 @@ class UserDataServiceImpl @Inject() (
           u7 <- storeSupplierDetailsPages(draft, u6, repository)
           u8 <- u7.get(BusinessOrPrivatePage)
                   .fold(Future.successful(u7))(businessOrPrivate => repository.setPage(u7, BusinessOrPrivatePage, businessOrPrivate))
-          u9 <- storeVehiclesSectionStatusPage(draft, u8, repository)
-        } yield Right(u9)
+          u9  <- storeVehiclesSectionStatusPage(draft, u8, repository)
+          u10 <- repository.setPage(u9, NotifierDetailsSavedPage, draft.sections.get(SectionId.NotifierDetails).flatMap(_.data).isDefined)
+        } yield Right(u10)
     }
 
   def determineAndUpdateStatus(userAnswers: UserAnswers, userContext: UserContext): Map[String, SectionStatus] =
@@ -364,7 +365,10 @@ object UserDataService {
     val notifierDetailsAllUnset = nameDetails.isEmpty && phoneNumber.isEmpty && emailAddress.isEmpty
 
     val notifierDetailsStatus =
-      if phoneNumber.isDefined && emailAddress.isDefined && (nameDetails.isDefined == expectsName) then SectionStatus.Completed
+      if answers
+          .get(NotifierDetailsSavedPage)
+          .contains(true) && phoneNumber.isDefined && emailAddress.isDefined && (nameDetails.isDefined == expectsName)
+      then SectionStatus.Completed
       else if notifierDetailsAllUnset then SectionStatus.NotYetSaved
       else SectionStatus.Incomplete
 

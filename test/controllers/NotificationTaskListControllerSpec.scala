@@ -36,6 +36,7 @@ import pages.sections.notifieraddress.AddressPage
 import pages.sections.purchaseraddress.PurchaserAddressPage
 import play.api.Application
 import play.api.inject.bind
+import play.api.libs.json.{JsObject, Json}
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
@@ -164,6 +165,15 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
       "declaration"        -> emptySection
     )
   )
+
+  private def draftWithSavedNotifierDetails(data: JsObject): DraftNotification =
+    incompleteDraft.copy(sections = incompleteDraft.sections + ("notifierDetails" -> DraftNotificationSection(Some(data))))
+
+  private val savedContactDetails: JsObject =
+    Json.obj("emailAddress" -> "agent@example.com", "telephoneNumber" -> "01234567890")
+
+  private val savedContactDetailsWithName: JsObject =
+    savedContactDetails ++ Json.obj("title" -> "Ms", "firstName" -> "Sarah", "lastName" -> "Philips")
 
   private def stubConnector(
     summary: Either[GetNotificationSummaryError, NotificationSummary] = Right(orgSummary),
@@ -831,13 +841,38 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "for an agent with a selected client who answered Yes to AQ1.0 must mark Add your details as Completed and link it to CYA2.0 once phone and email are saved" in {
+      "for an agent with a selected client must keep Add your details Incomplete when every answer is given but CYA2.0 has not been saved" in {
         val answers = agentWithClientBusinessUse
           .unsafeSet(PhoneNumberPage, ContactNumbers(Some("01234567890"), None))
           .unsafeSet(EmailAddressPage, "agent@example.com")
 
         given application: Application =
           applicationWith(classOf[FakeAgentIdentifierAction], Some(answers), stubConnector(summary = Right(agentWithClientSummary)))
+
+        running(application) {
+          given request: FakeRequest[AnyContentAsEmpty.type] =
+            FakeRequest(GET, notificationTaskListRoute)
+
+          val result = route(application, request).value
+          val body   = contentAsString(result)
+
+          status(result) mustEqual OK
+          yourDetailsStatus(body) mustEqual "Incomplete"
+          yourDetailsLinkHref(body) mustEqual notifierdetails.routes.PhoneNumberController.onPageLoad(NormalMode).url
+        }
+      }
+
+      "for an agent with a selected client who answered Yes to AQ1.0 must mark Add your details as Completed and link it to CYA2.0 once phone and email are saved" in {
+        val answers = agentWithClientBusinessUse
+          .unsafeSet(PhoneNumberPage, ContactNumbers(Some("01234567890"), None))
+          .unsafeSet(EmailAddressPage, "agent@example.com")
+
+        given application: Application =
+          applicationWith(
+            classOf[FakeAgentIdentifierAction],
+            Some(answers),
+            stubConnector(summary = Right(agentWithClientSummary), draft = Right(draftWithSavedNotifierDetails(savedContactDetails)))
+          )
 
         running(application) {
           given request: FakeRequest[AnyContentAsEmpty.type] =
@@ -858,7 +893,11 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
           .unsafeSet(EmailAddressPage, "agent@example.com")
 
         given application: Application =
-          applicationWith(classOf[FakeAgentNoEnrolmentsIdentifierAction], Some(answers), stubConnector(summary = Right(agentWithClientSummary)))
+          applicationWith(
+            classOf[FakeAgentNoEnrolmentsIdentifierAction],
+            Some(answers),
+            stubConnector(summary = Right(agentWithClientSummary), draft = Right(draftWithSavedNotifierDetails(savedContactDetails)))
+          )
 
         running(application) {
           given request: FakeRequest[AnyContentAsEmpty.type] =
@@ -877,9 +916,16 @@ class NotificationTaskListControllerSpec extends SpecBase with MockitoSugar {
           .unsafeSet(EmailAddressPage, "agent@example.com")
         val withName = withoutName.unsafeSet(NameDetailsPage, NameDetails("Ms", "Sarah", "Philips"))
 
-        Seq(withoutName -> "Incomplete", withName -> "Completed").foreach { case (answers, expected) =>
+        Seq(
+          (withoutName, savedContactDetails, "Incomplete"),
+          (withName, savedContactDetailsWithName, "Completed")
+        ).foreach { case (answers, saved, expected) =>
           given application: Application =
-            applicationWith(classOf[FakeAgentIdentifierAction], Some(answers), stubConnector(summary = Right(agentWithClientSummary)))
+            applicationWith(
+              classOf[FakeAgentIdentifierAction],
+              Some(answers),
+              stubConnector(summary = Right(agentWithClientSummary), draft = Right(draftWithSavedNotifierDetails(saved)))
+            )
 
           running(application) {
             given request: FakeRequest[AnyContentAsEmpty.type] =

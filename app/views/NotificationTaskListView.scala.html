@@ -54,17 +54,6 @@
     )
 }
 
-@declarationItem = @{
-    TaskListItem(
-        title  = TaskListItemTitle(content = Text(messages("notificationTaskList.declaration.readDeclaration"))),
-        hint   = Some(Hint(content = Text(messages("notificationTaskList.declaration.hint")))),
-        status = TaskListItemStatus(
-            content = Text(messages("notificationTaskList.status.cannotStartYet")),
-            classes = "govuk-task-list__status--cannot-start-yet"
-        )
-    )
-}
-
 @layout(pageTitle = titleNoForm(messages("notificationTaskList.title"))) {
 
     @if(traderName.isDefined || vrn.isDefined) {
@@ -114,7 +103,17 @@
 
     <h2 class="govuk-heading-m govuk-!-margin-top-5">@messages("notificationTaskList.declaration.heading")</h2>
 
-    @govukTaskList(TaskList(items = List(declarationItem), idPrefix = "declaration"))
+    <ul class="govuk-task-list">
+        <li class="govuk-task-list__item">
+            <div class="govuk-task-list__name-and-hint">
+                <div>@messages("notificationTaskList.declaration.readDeclaration")</div>
+                <p id="declaration-1-hint" class="govuk-task-list__hint govuk-!-margin-bottom-0">@messages("notificationTaskList.declaration.hint")</p>
+            </div>
+            <div class="govuk-task-list__status govuk-task-list__status--cannot-start-yet" id="declaration-1-status">
+                @messages("notificationTaskList.status.cannotStartYet")
+            </div>
+        </li>
+    </ul>
 
     <div class="govuk-button-group">
         <p class="govuk-body">
