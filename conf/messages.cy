@@ -427,8 +427,8 @@ businessName.caption = Ychwanegu eich manylion chi
 businessName.error.required = Nodwch enw’ch busnes
 businessName.error.length = Mae’n rhaid i enw eich busnes fod yn 160 o gymeriadau neu lai
 businessName.error.invalid = Nodwch enw eich busnes yn y fformat cywir
-businessName.checkYourAnswersLabel = Business name
-businessName.change.hidden = your business name
+businessName.checkYourAnswersLabel = Enw’r busnes
+businessName.change.hidden = enw eich busnes
 
 ######################################################
 # ERR3.0 - Error message - Page not found            #
@@ -750,6 +750,7 @@ usePurchaserDetailsAsSupplier.caption = Ychwanegu manylion y cerbyd
 usePurchaserDetailsAsSupplier.heading = Defnyddio manylion y prynwr fel manylion y cyflenwr
 usePurchaserDetailsAsSupplier.paragraph.1 = Os yw’r prynwr wedi cofrestru ar gyfer TAW, gallwch ddefnyddio ei fanylion fel manylion y cyflenwr.
 usePurchaserDetailsAsSupplier.purchaserDetails = Manylion y prynwr:
+usePurchaserDetailsAsSupplier.name = Enw
 usePurchaserDetailsAsSupplier.address = Cyfeiriad
 usePurchaserDetailsAsSupplier.notProvided = Heb roi un
 usePurchaserDetailsAsSupplier.question = A ydych am ddefnyddio manylion y prynwr fel manylion y cyflenwr?
@@ -827,10 +828,8 @@ supplierName.lastName = Enw olaf
 supplierName.lastName.error.format = Nodwch enw olaf y cyflenwr yn y fformat cywir
 supplierName.lastName.error.length = Mae’n rhaid i enw olaf y cyflenwr fod yn 100 o gymeriadau neu lai
 supplierName.lastName.error.required = Nodwch enw olaf y cyflenwr
-
-# TODO: Welsh translations to be supplied by content team.
-supplierName.checkYourAnswersLabel = Supplier’s name
-supplierName.change.hidden = supplier’s name
+supplierName.checkYourAnswersLabel = Enw’r cyflenwr
+supplierName.change.hidden = enw’r cyflenwr
 
 ######################################################
 # CYA1.0 - Check your answers 1 - Initial questions  #
@@ -1149,35 +1148,35 @@ uploadVehicleSpreadsheet.error.unknown = The selected file could not be uploaded
 ###############################################################
 # UVS3.0 - Upload vehicle spreadsheet 3.0 - Error: Virus      #
 ###############################################################
-# TODO: Welsh translations to be supplied by content team.
-uploadSpreadsheetErrorQuarantine.title = The file contains a virus
-uploadSpreadsheetErrorQuarantine.heading = The file contains a virus
-uploadSpreadsheetErrorQuarantine.caption = Add vehicle details
-uploadSpreadsheetErrorQuarantine.paragraph = Check the file for any virus or create a new version before uploading it again.
-uploadSpreadsheetErrorQuarantine.link = Return to create a vehicle notification
-uploadSpreadsheetErrorQuarantine.buttonLabel = Upload again
+
+uploadSpreadsheetErrorQuarantine.title = Mae feirws yn y ffeil
+uploadSpreadsheetErrorQuarantine.heading = Mae feirws yn y ffeil
+uploadSpreadsheetErrorQuarantine.caption = Ychwanegu manylion y cerbyd
+uploadSpreadsheetErrorQuarantine.paragraph = Gwiriwch y ffeil am unrhyw firysau neu crëwch fersiwn newydd cyn ei llwytho i fyny eto.
+uploadSpreadsheetErrorQuarantine.link = Dychwelyd i greu hysbysiad cerbyd
+uploadSpreadsheetErrorQuarantine.buttonLabel = Llwytho i fyny eto
 
 ###########################################################################
 # UVS3.1 - Upload vehicle spreadsheet 3.1 - Error: problem uploading      #
 ###########################################################################
-# TODO: Welsh translations to be supplied by content team.
-uploadSpreadsheetErrorUnknown.title = There is a problem uploading this file
-uploadSpreadsheetErrorUnknown.heading = There is a problem uploading this file
-uploadSpreadsheetErrorUnknown.caption = Add vehicle details
-uploadSpreadsheetErrorUnknown.paragraph = The spreadsheet could not be uploaded. You can try uploading the file again.
-uploadSpreadsheetErrorUnknown.link = Return to create a vehicle notification
-uploadSpreadsheetErrorUnknown.buttonLabel = Try again
+
+uploadSpreadsheetErrorUnknown.title = Mae problem wrth lwytho’r ffeil hon i fyny
+uploadSpreadsheetErrorUnknown.heading = Mae problem wrth lwytho’r ffeil hon i fyny
+uploadSpreadsheetErrorUnknown.caption = Ychwanegu manylion y cerbyd
+uploadSpreadsheetErrorUnknown.paragraph = Nid oedd modd llwytho’r daenlen i fyny. Gallwch geisio uwchlwytho’r ffeil eto.
+uploadSpreadsheetErrorUnknown.link = Dychwelyd i greu hysbysiad cerbyd
+uploadSpreadsheetErrorUnknown.buttonLabel = Rhowch gynnig arall arni
 
 ##################################################################
 # UVS3.2 - Upload vehicle spreadsheet 3.2 - Error: File type     #
 ##################################################################
-# TODO: Welsh translations to be supplied by content team.
-uploadSpreadsheetErrorRejected.title = The selected file cannot be accepted
-uploadSpreadsheetErrorRejected.heading = The selected file cannot be accepted
-uploadSpreadsheetErrorRejected.caption = Add vehicle details
-uploadSpreadsheetErrorRejected.paragraph = You must save the spreadsheet as an ODS file and try uploading it again.
-uploadSpreadsheetErrorRejected.link = Return to create a vehicle notification
-uploadSpreadsheetErrorRejected.buttonLabel = Upload again
+
+uploadSpreadsheetErrorRejected.title = Ni ellir derbyn y ffeil a ddewiswyd
+uploadSpreadsheetErrorRejected.heading = Ni ellir derbyn y ffeil a ddewiswyd
+uploadSpreadsheetErrorRejected.caption = Ychwanegu manylion y cerbyd
+uploadSpreadsheetErrorRejected.paragraph = Mae’n rhaid i chi gadw’r daenlen fel ffeil ODS a cheisio ei llwytho i fyny eto.
+uploadSpreadsheetErrorRejected.link = Dychwelyd i greu hysbysiad cerbyd
+uploadSpreadsheetErrorRejected.buttonLabel = Llwytho i fyny eto
 
 ##################################################################
 # UVS5.1 - Are you sure you want to update this vehicle spreadsheet #
