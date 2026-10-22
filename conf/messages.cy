@@ -9,8 +9,7 @@ site.no = Na
 site.yes = Iawn
 site.continue = Parhau
 site.saveAndContinue = Cadw a pharhau
-# TODO: Welsh translations to be supplied by content team.
-site.confirmDetails = Confirm details
+site.confirmDetails = Cadarnhau’r manylion
 site.start = Start now
 site.startAgain = Start again
 site.signIn = Sign in
@@ -805,10 +804,8 @@ supplierBusinessName.caption = Ychwanegu manylion y cerbyd
 supplierBusinessName.error.required = Nodwch enw busnes y cyflenwr
 supplierBusinessName.error.length = Mae’n rhaid i enw busnes y cyflenwr fod yn 160 o gymeriadau neu lai
 supplierBusinessName.error.invalid = Nodwch enw busnes y cyflenwr yn y fformat cywir
-
-# TODO: Welsh translations to be supplied by content team.
-supplierBusinessName.checkYourAnswersLabel = Supplier’s business name
-supplierBusinessName.change.hidden = supplier’s business name
+supplierBusinessName.checkYourAnswersLabel = Enw busnes y cyflenwr
+supplierBusinessName.change.hidden = enw busnes y cyflenwr
 
 ###########################################################################################
 # AVD-S4.0 - Add vehicle details - Supplier 4.0: Supplier name                            #
@@ -1125,12 +1122,13 @@ supplierVatRegistrationDetails.vatNumber.error.format = Nodwch rif cofrestru TAW
 ######################################################
 # AVD-S9.0 - Check Your Answers 3 - Supplier Details #
 ######################################################
-# TODO: Welsh translations to be supplied by content team.
-supplierDetailsCheckYourAnswers.caption = Add vehicle details
-supplierDetailsCheckYourAnswers.title = Check the supplier details before adding vehicles
-supplierDetailsCheckYourAnswers.heading = Check the supplier details before adding vehicles
-supplierAddressCheckYourAnswers.checkYourAnswersLabel = Supplier’s address
-supplierAddressCheckYourAnswers.change.hidden = supplier’s address
+
+supplierDetailsCheckYourAnswers.caption = Ychwanegu manylion y cerbyd
+supplierDetailsCheckYourAnswers.title = Gwiriwch fanylion y cyflenwr cyn ychwanegu cerbydau
+supplierDetailsCheckYourAnswers.heading = Gwiriwch fanylion y cyflenwr cyn ychwanegu cerbydau
+supplierAddressCheckYourAnswers.checkYourAnswersLabel = Cyfeiriad y cyflenwr
+supplierAddressCheckYourAnswers.change.hidden = cyfeiriad y cyflenwr
+supplierDetailsCheckYourAnswers.notProvided = Heb roi un
 
 ##################################################
 # UVS1.0 - Upload a vehicle spreadsheet 1.0      #
