@@ -116,6 +116,11 @@ object GetClientListError {
   final case class UpstreamError(status: Int, message: String) extends GetClientListError
 }
 
+sealed trait RemoveClientError
+object RemoveClientError {
+  final case class UpstreamError(status: Int, message: String) extends RemoveClientError
+}
+
 sealed trait GetDraftNotificationsError
 object GetDraftNotificationsError {
   final case class UpstreamError(status: Int, message: String) extends GetDraftNotificationsError
@@ -164,6 +169,8 @@ trait NovaImportsBackendConnector {
   def refreshClientList()(implicit hc: HeaderCarrier): Future[Either[RefreshClientListError, ClientListRefresh]]
 
   def getClientList(query: ClientListQuery)(implicit hc: HeaderCarrier): Future[Either[GetClientListError, ClientList]]
+
+  def removeClient(clientVrn: String)(implicit hc: HeaderCarrier): Future[Either[RemoveClientError, Unit]]
 
   def getDraftNotifications(clientVrn: Option[String], page: Int, pageSize: Int)(implicit
     hc: HeaderCarrier
@@ -500,6 +507,20 @@ class NovaImportsBackendConnectorImpl @Inject() (
               .map(Right(_))
               .recoverTotal(err => Left(UpstreamError(200, s"Malformed client list: $err")))
           case s => Left(UpstreamError(s, response.body))
+        }
+      }
+  }
+
+  override def removeClient(clientVrn: String)(implicit hc: HeaderCarrier): Future[Either[RemoveClientError, Unit]] = {
+    import RemoveClientError.*
+
+    httpClient
+      .delete(url"${serviceUrl("/clients")}/$clientVrn")
+      .execute[HttpResponse]
+      .map { response =>
+        response.status match {
+          case 202 => Right(())
+          case s   => Left(UpstreamError(s, response.body))
         }
       }
   }

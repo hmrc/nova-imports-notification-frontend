@@ -42,11 +42,10 @@
     else ErrorSummaryViewModel(form)
 }
 
-@* TODO DTR-7178: point Remove at RC1.0 once it exists *@
 @actions(client: ClientSummary) = {
     <a class="govuk-link" href="@routes.SelectClientController.select(client.vatRegistrationNumber)">@messages("viewClients.select")<span class="govuk-visually-hidden"> @client.name</span></a>
     <span aria-hidden="true">|</span>
-    <a class="govuk-link" href="#">@messages("site.remove")<span class="govuk-visually-hidden"> @client.name</span></a>
+    <a class="govuk-link" href="@routes.RemoveClientController.onPageLoad(client.vatRegistrationNumber)">@messages("site.remove")<span class="govuk-visually-hidden"> @client.name</span></a>
 }
 
 @table(page: ClientListPage) = {

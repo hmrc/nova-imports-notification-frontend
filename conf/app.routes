@@ -40,6 +40,9 @@ POST        /clients                                                            
 GET         /clients/select/:vrn                                                         controllers.clientselection.SelectClientController.select(vrn: String)
 GET         /clients/download                                                            controllers.clientselection.DownloadClientListController.download()
 
+GET         /remove-client/:vrn                                                          controllers.clientselection.RemoveClientController.onPageLoad(vrn: String)
+POST        /remove-client/:vrn                                                          controllers.clientselection.RemoveClientController.onSubmit(vrn: String)
+
 GET         /no-clients                                                                  controllers.clientselection.NoAuthorisedClientsController.onPageLoad()
 
 GET         /saved-notifications                                                         controllers.notification.ViewSavedNotificationsController.onPageLoad(page: Int ?= 1)
