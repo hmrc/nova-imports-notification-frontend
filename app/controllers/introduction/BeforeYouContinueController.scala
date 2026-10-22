@@ -57,18 +57,26 @@ class BeforeYouContinueController @Inject() (
       ctx.userType == NovaUserType.PrivateIndividual || ctx.userType == NovaUserType.NonVatOrganisation || ctx.isAgentWithoutClient
 
     sessionRepository.setPage(existingAnswers, AmendSubmittedNotificationPage, isAmendment).map { _ =>
-      if showIndividualContent then Ok(individualView()) else Ok(organisationView())
+      if showIndividualContent then Ok(individualView(isAmendment)) else Ok(organisationView(isAmendment))
     }
   }
 
   def onSubmit(): Action[AnyContent] = actions.authAndGetOptionalData().async { implicit request =>
+    submit(isAmendment = false)
+  }
+
+  def onSubmitAmend(): Action[AnyContent] = actions.authAndGetOptionalData().async { implicit request =>
+    submit(isAmendment = true)
+  }
+
+  private def submit(isAmendment: Boolean)(implicit request: models.requests.OptionalDataRequest[AnyContent]): Future[Result] = {
     val existingAnswers                    = request.userAnswers.getOrElse(UserAnswers(request.userId))
     val ctx                                = UserContext.from(request.affinityGroup, request.enrolments, existingAnswers)
     val selectedClient                     = if (ctx.isAgentWithClient) existingAnswers.get(AgentSelectedClientPage) else None
-    val freshUserAnswers: Try[UserAnswers] = selectedClient match {
-      case Some(client) => UserAnswers(request.userId).set(AgentSelectedClientPage, client)
-      case None         => Success(UserAnswers(request.userId))
-    }
+    val freshUserAnswers: Try[UserAnswers] = for {
+      a1 <- UserAnswers(request.userId).set(AmendSubmittedNotificationPage, isAmendment)
+      a2 <- selectedClient.fold(Success(a1): Try[UserAnswers])(client => a1.set(AgentSelectedClientPage, client))
+    } yield a2
 
     for {
       answers <- Future.fromTry(freshUserAnswers)

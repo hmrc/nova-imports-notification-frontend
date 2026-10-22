@@ -54,6 +54,7 @@ POST        /delete-notification                                                
 GET         /before-you-continue                                                         controllers.introduction.BeforeYouContinueController.onPageLoad()
 GET         /before-you-continue/update                                                  controllers.introduction.BeforeYouContinueController.onPageLoadAmend()
 POST        /before-you-continue                                                         controllers.introduction.BeforeYouContinueController.onSubmit()
+POST        /before-you-continue/update                                                  controllers.introduction.BeforeYouContinueController.onSubmitAmend()
 
 GET         /client-list-problem                                                         controllers.clientselection.CouldNotRetrieveClientListController.onPageLoad()
 

@@ -22,7 +22,7 @@
     govukButton: GovukButton
 )
 
-@()(implicit request: Request[?], messages: Messages)
+@(isAmendment: Boolean)(implicit request: Request[?], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("beforeYouContinue.title"))) {
 
@@ -54,7 +54,7 @@
 
     <p class="govuk-body">@messages("beforeYouContinue.updating.body.2")</p>
 
-    @formHelper(action = routes.BeforeYouContinueController.onSubmit()) {
+    @formHelper(action = if (isAmendment) routes.BeforeYouContinueController.onSubmitAmend() else routes.BeforeYouContinueController.onSubmit()) {
         @govukButton(
             ButtonViewModel(messages("site.continue"))
         )
