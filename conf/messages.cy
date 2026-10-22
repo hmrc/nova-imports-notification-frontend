@@ -721,25 +721,25 @@ purchaserBusinessOrIndividual.change.hidden = P’un a yw’r prynwr rydych yn h
 ###########################################################################################
 # AVD-S1.0 - Add vehicle details - Supplier 1.0: Use personal details as supplier details #
 ###########################################################################################
-# TODO: Welsh translations to be supplied by content team.
-usePersonalDetailsAsSupplier.title = Use your personal details as the supplier details
-usePersonalDetailsAsSupplier.caption = Add vehicle details
-usePersonalDetailsAsSupplier.heading = Use your personal details as the supplier details
-usePersonalDetailsAsSupplier.paragraph.1 = If you take goods from your own stock to use in your business, this is known as self-supply.
-usePersonalDetailsAsSupplier.paragraph.2 = If you’re a self-supplier, you can use your personal details as the supplier details. You must:
-usePersonalDetailsAsSupplier.bullet.1 = be VAT registered in the UK
-usePersonalDetailsAsSupplier.bullet.2 = have bought and used a road vehicle for your business activity in another EU country where you’re also VAT registered
-usePersonalDetailsAsSupplier.bullet.3 = have brought the road vehicle to the UK, and it belongs to the same business
-usePersonalDetailsAsSupplier.bullet.4 = not have bought a new means of transport,
-usePersonalDetailsAsSupplier.bullet.4.linkText = read VAT Notice 728
-usePersonalDetailsAsSupplier.personalDetails = Your personal details are:
-usePersonalDetailsAsSupplier.name = Name
-usePersonalDetailsAsSupplier.address = Address
-usePersonalDetailsAsSupplier.notProvided = Not provided
-usePersonalDetailsAsSupplier.question = Do you want to use your personal details as the supplier details?
-usePersonalDetailsAsSupplier.yes.hint = I meet all the required conditions and I want to use my personal details as the supplier details
-usePersonalDetailsAsSupplier.no.hint = I want to add different supplier details
-usePersonalDetailsAsSupplier.error.required = Select yes if you want to use your personal details as the supplier details
+
+usePersonalDetailsAsSupplier.title = Defnyddio’ch manylion personol fel manylion y cyflenwr - Hysbysiad o Gerbydau’n Cyrraedd - GOV.UK
+usePersonalDetailsAsSupplier.caption = Ychwanegu manylion y cerbyd
+usePersonalDetailsAsSupplier.heading = Defnyddio’ch manylion personol fel manylion y cyflenwr
+usePersonalDetailsAsSupplier.paragraph.1 = Os byddwch yn cymryd nwyddau o’ch stoc eich hun i’w defnyddio yn eich busnes, gelwir hyn yn hunan-gyflenwi.
+usePersonalDetailsAsSupplier.paragraph.2 = Os ydych yn hunan-gyflenwr, gallwch ddefnyddio’ch manylion personol fel manylion y cyflenwr. Mae’n rhaid i chi fod wedi gwneud y canlynol:
+usePersonalDetailsAsSupplier.bullet.1 = cofrestru ar gyfer TAW yn y DU
+usePersonalDetailsAsSupplier.bullet.2 = prynu a defnyddio cerbyd ffordd fel rhan o’ch gweithgarwch busnes mewn gwlad arall yn yr UE lle’r ydych hefyd wedi cofrestru ar gyfer TAW
+usePersonalDetailsAsSupplier.bullet.3 = dod â’r cerbyd ffordd i’r DU, a’i fod yn perthyn i’r un busnes
+usePersonalDetailsAsSupplier.bullet.4 = heb brynu dull cludo newydd,
+usePersonalDetailsAsSupplier.bullet.4.linkText = darllenwch Hysbysiad TAW 728 (yn agor tab newydd)
+usePersonalDetailsAsSupplier.personalDetails = Eich manylion personol:
+usePersonalDetailsAsSupplier.name = Enw
+usePersonalDetailsAsSupplier.address = Cyfeiriad
+usePersonalDetailsAsSupplier.notProvided = Heb roi un
+usePersonalDetailsAsSupplier.question = A ydych am ddefnyddio’ch manylion personol fel manylion y cyflenwr?
+usePersonalDetailsAsSupplier.yes.hint = Rwy’n bodloni’r holl amodau angenrheidiol ac rydw i am ddefnyddio fy manylion personol fel manylion y cyflenwr
+usePersonalDetailsAsSupplier.no.hint = Rydw i am ychwanegu manylion cyflenwr gwahanol
+usePersonalDetailsAsSupplier.error.required = Dewiswch ‘Iawn’ os ydych am ddefnyddio’ch manylion personol fel manylion y cyflenwr
 
 ###########################################################################################
 # AVD-S1.1 - Add vehicle details - Supplier 1.1: Use purchaser details as supplier details #
