@@ -744,19 +744,18 @@ usePersonalDetailsAsSupplier.error.required = Dewiswch ‘Iawn’ os ydych am dd
 ###########################################################################################
 # AVD-S1.1 - Add vehicle details - Supplier 1.1: Use purchaser details as supplier details #
 ###########################################################################################
-# TODO: Welsh translations to be supplied by content team.
-usePurchaserDetailsAsSupplier.title = Use the purchaser details as the supplier details
-usePurchaserDetailsAsSupplier.caption = Add vehicle details
-usePurchaserDetailsAsSupplier.heading = Use the purchaser details as the supplier details
-usePurchaserDetailsAsSupplier.paragraph.1 = If the purchaser is VAT registered, you can use their details as the supplier details.
-usePurchaserDetailsAsSupplier.purchaserDetails = The purchaser’s details are:
-usePurchaserDetailsAsSupplier.name = Name
-usePurchaserDetailsAsSupplier.address = Address
-usePurchaserDetailsAsSupplier.notProvided = Not provided
-usePurchaserDetailsAsSupplier.question = Do you want to use the purchaser details as the supplier details?
-usePurchaserDetailsAsSupplier.yes.hint = The purchaser is VAT registered and I want to use their details as the supplier details
-usePurchaserDetailsAsSupplier.no.hint = I want to add different supplier details
-usePurchaserDetailsAsSupplier.error.required = Select yes if you want to use the purchaser details as the supplier details
+
+usePurchaserDetailsAsSupplier.title = Defnyddio manylion y prynwr fel manylion y cyflenwr
+usePurchaserDetailsAsSupplier.caption = Ychwanegu manylion y cerbyd
+usePurchaserDetailsAsSupplier.heading = Defnyddio manylion y prynwr fel manylion y cyflenwr
+usePurchaserDetailsAsSupplier.paragraph.1 = Os yw’r prynwr wedi cofrestru ar gyfer TAW, gallwch ddefnyddio ei fanylion fel manylion y cyflenwr.
+usePurchaserDetailsAsSupplier.purchaserDetails = Manylion y prynwr:
+usePurchaserDetailsAsSupplier.address = Cyfeiriad
+usePurchaserDetailsAsSupplier.notProvided = Heb roi un
+usePurchaserDetailsAsSupplier.question = A ydych am ddefnyddio manylion y prynwr fel manylion y cyflenwr?
+usePurchaserDetailsAsSupplier.yes.hint = Mae’r prynwr wedi cofrestru ar gyfer TAW, ac rydw i am ddefnyddio ei fanylion fel manylion y cyflenwr
+usePurchaserDetailsAsSupplier.no.hint = Rydw i am ychwanegu manylion cyflenwr gwahanol
+usePurchaserDetailsAsSupplier.error.required = Dewiswch ‘Iawn’ os ydych am ddefnyddio manylion y prynwr fel manylion y cyflenwr
 
 #########################################################################################
 # AVD-S1.2 - Add vehicle details - Supplier 1.2: Use client details as supplier details #
