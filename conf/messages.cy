@@ -141,10 +141,11 @@ landingPage.agent.clients.body = Gweld, chwilio, dileu neu ddewis cleient i weit
 ################################################################
 # LP3.1 - Landing page for Agent with selected client          #
 ################################################################
-# TODO: Welsh translations to be supplied by content team.
 
-landingPage.agent.client.heading = Notifying on behalf of
-landingPage.agent.client.change = Change client
+landingPage.agent.client.heading = Hysbysu ar ran
+landingPage.agent.client.change = Newid cleient
+
+# TODO: Welsh translations to be supplied by content team.
 landingPage.agent.client.change.hidden = change client selected
 landingPage.agent.client.deselect = Deselect
 landingPage.agent.client.deselect.hidden = deselect client
