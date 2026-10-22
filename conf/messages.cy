@@ -581,6 +581,19 @@ viewClients.search.error.required = Enter a client name or VAT registration numb
 viewClients.search.error.required.name = Enter the client’s name
 viewClients.search.error.required.vrn = Enter the client’s VAT registration number
 
+##############################
+# RC1.0 - Remove client      #
+##############################
+# TODO: Welsh translations to be supplied by content team.
+removeClient.title = Remove client
+removeClient.heading.1 = Remove client
+removeClient.paragraph.1 = This client will be removed from your list. You’ll lose access to any notifications you’ve submitted for this client.
+removeClient.clientName = Client name:
+removeClient.vatRegistrationNumber = VAT registration number:
+removeClient.paragraph.2 = Your client list may take up to 30 minutes to show the change.
+removeClient.heading.2 = Are you sure you want to remove this client?
+removeClient.error.required = Select yes if you want to remove this client
+
 ##########################################################
 # CS2.0 - Client State 2: Could not retrieve client list #
 ##########################################################

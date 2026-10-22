@@ -522,6 +522,42 @@ class NovaImportsBackendConnectorISpec
     }
   }
 
+  "removeClient" - {
+
+    "sends a DELETE for the client VRN and returns success on 202" in {
+      wireMockServer.stubFor(delete(urlEqualTo("/nova-imports/clients/123456789")).willReturn(aResponse().withStatus(202)))
+
+      connector.removeClient("123456789").futureValue mustEqual Right(())
+    }
+
+    "escapes slashes in the VRN so it stays a single path segment" in {
+      wireMockServer.stubFor(delete(urlEqualTo("/nova-imports/clients/..%2Fdraft-notifications")).willReturn(aResponse().withStatus(202)))
+
+      connector.removeClient("../draft-notifications").futureValue mustEqual Right(())
+    }
+
+    "returns UpstreamError on 400 when the VRN is not all digits" in {
+      val body = """{"code":"BAD_REQUEST","message":"Client VRN must be all digits"}"""
+      wireMockServer.stubFor(delete(urlEqualTo("/nova-imports/clients/12345678X")).willReturn(aResponse().withStatus(400).withBody(body)))
+
+      connector.removeClient("12345678X").futureValue mustEqual Left(RemoveClientError.UpstreamError(400, body))
+    }
+
+    "returns UpstreamError on 403 when the agent no longer has the client" in {
+      val body = """{"code":"CLIENT_NOT_FOUND","message":"The agent does not have an active relationship with client VRN 123456789"}"""
+      wireMockServer.stubFor(delete(urlEqualTo("/nova-imports/clients/123456789")).willReturn(aResponse().withStatus(403).withBody(body)))
+
+      connector.removeClient("123456789").futureValue mustEqual Left(RemoveClientError.UpstreamError(403, body))
+    }
+
+    "returns UpstreamError on 502" in {
+      val body = """{"code":"ACTIVEMQ_PROXY_ERROR","message":"downstream service error"}"""
+      wireMockServer.stubFor(delete(urlEqualTo("/nova-imports/clients/123456789")).willReturn(aResponse().withStatus(502).withBody(body)))
+
+      connector.removeClient("123456789").futureValue mustEqual Left(RemoveClientError.UpstreamError(502, body))
+    }
+  }
+
   "getDraftNotifications" - {
 
     "returns page 2 of the drafts when the backend returns status 200" in {
