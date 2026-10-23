@@ -44,7 +44,7 @@
 
 @actions(client: ClientSummary) = {
     <a class="govuk-link" href="@routes.SelectClientController.select(client.vatRegistrationNumber)">@messages("viewClients.select")<span class="govuk-visually-hidden"> @client.name</span></a>
-    <span aria-hidden="true">|</span>
+    <span class="table-link-separator" aria-hidden="true"> | </span>
     <a class="govuk-link" href="@routes.RemoveClientController.onPageLoad(client.vatRegistrationNumber)">@messages("site.remove")<span class="govuk-visually-hidden"> @client.name</span></a>
 }
 
