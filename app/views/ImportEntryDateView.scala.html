@@ -33,7 +33,7 @@
     showBackLink = true
 ) {
 
-    @formHelper(action = routes.ImportEntryDateController.onSubmit(importNumber, mode)) {
+    @formHelper(action = routes.ImportEntryDateController.onSubmit(importNumber, mode), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map("value" -> "value.day")))
