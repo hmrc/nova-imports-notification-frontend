@@ -51,7 +51,7 @@
                 legend = LegendViewModel(
                     HtmlContent(s"""<h2 class="govuk-fieldset__heading">${messages("importEntryDate.heading.2")}</h2>""")
                 ).withCssClass(LegendSize.Medium.toString)
-            ).withHint(HintViewModel(Text(messages("importEntryDate.hint"))))
+            ).withHint(HintViewModel(Text(messages("importEntryDate.hint")))).withAutocomplete("off")
         )
 
         @govukButton(
