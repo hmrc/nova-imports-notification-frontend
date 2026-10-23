@@ -26,6 +26,7 @@ object ValidationError {
   implicit val reads: Reads[ValidationError] = Json.reads[ValidationError]
 
   private val labels: Map[String, String] = Map(
+    "item"                           -> "Item number",
     "knownDateFirstRegistered"       -> "Do you know the date the vehicle was first registered for road use?",
     "countryOfFirstRegistration"     -> "Country of first registration",
     "dateOfFirstRegistration"        -> "Date of first registration",

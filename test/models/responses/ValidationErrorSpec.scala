@@ -24,6 +24,7 @@ class ValidationErrorSpec extends AnyFreeSpec with Matchers {
   "ValidationError.label" - {
 
     "must strip the row index and map a known field key to its question text" in {
+      ValidationError("item[0]", "error").label mustBe "Item number"
       ValidationError("make[0]", "error").label mustBe "Make"
       ValidationError("make[12]", "error").label mustBe "Make"
       ValidationError("vin[3]", "error").label mustBe "Vehicle identification number (VIN)"
