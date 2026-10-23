@@ -56,6 +56,31 @@ class PurchaserNameSpec extends AnyFreeSpec with Matchers {
       PurchaserName.purchaserOrNotifierName(draft, individual) mustBe Some("NotifierFirstName NotifierLastName")
     }
 
+    "must put the title before the purchaser's first and last name when there is one" in {
+      val draft = draftWith(
+        "initialQuestions" -> Json.obj("notifyingAsPurchaser" -> "behalfOfPurchaser"),
+        notifier,
+        "purchaserDetails" -> Json.obj("title" -> "Mrs", "firstName" -> "PurchaserFirstName", "lastName" -> "PurchaserLastName")
+      )
+
+      PurchaserName.purchaserOrNotifierName(draft, individual) mustBe Some("Mrs PurchaserFirstName PurchaserLastName")
+    }
+
+    "must put the title before the notifier's first and last name when there is one" in {
+      val draft = draftWith(
+        "initialQuestions" -> Json.obj("notifyingAsPurchaser" -> "self"),
+        "notifierDetails"  -> Json.obj("title" -> "Mr", "firstName" -> "NotifierFirstName", "lastName" -> "NotifierLastName")
+      )
+
+      PurchaserName.purchaserOrNotifierName(draft, individual) mustBe Some("Mr NotifierFirstName NotifierLastName")
+    }
+
+    "must ignore a blank title" in {
+      val draft = draftWith("notifierDetails" -> Json.obj("title" -> " ", "firstName" -> "FirstName", "lastName" -> "LastName"))
+
+      PurchaserName.purchaserOrNotifierName(draft, individual) mustBe Some("FirstName LastName")
+    }
+
     "must return the business name over the first and last name" in {
       val draft = draftWith("notifierDetails" -> Json.obj("businessName" -> "Company 1 Ltd", "firstName" -> "FirstName", "lastName" -> "LastName"))
 

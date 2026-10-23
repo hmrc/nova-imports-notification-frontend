@@ -70,7 +70,7 @@ object PurchaserName extends Logging {
       for {
         firstName <- fieldValue("firstName")
         lastName  <- fieldValue("lastName")
-      } yield s"$firstName $lastName"
+      } yield (fieldValue("title").toList :+ firstName :+ lastName).mkString(" ")
     }
   }
 }
