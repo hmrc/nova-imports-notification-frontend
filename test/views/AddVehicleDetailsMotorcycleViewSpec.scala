@@ -19,6 +19,7 @@ package views
 import base.SpecBase
 import forms.AddVehicleDetailsMotorcycleFormProvider
 import models.{AddVehicleDetailsMotorcycle, MotorcycleFuelType, NormalMode, SupplierNumber, VehicleNumber}
+import org.jsoup.Jsoup
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.must.Matchers
 import play.api.Application
@@ -92,6 +93,15 @@ class AddVehicleDetailsMotorcycleViewSpec extends SpecBase with Matchers with Be
       html must include(msgs("addVehicleDetailsMotorcycle.fuelType.option.electric"))
       html must include(msgs("addVehicleDetailsMotorcycle.fuelType.option.hybrid"))
       html must include(msgs("addVehicleDetailsMotorcycle.fuelType.option.petrol"))
+    }
+
+    "must set autocomplete off on every field" in {
+      val doc = Jsoup.parse(view(form, submitCall)(request, msgs).toString)
+
+      Seq("make", "model", "derivative", "motorcycleVersion", "motorcycleType", "motorcycleStyle", "transmission", "fuelType", "engineSize").foreach {
+        field =>
+          doc.getElementById(field).attr("autocomplete") mustEqual "off"
+      }
     }
 
     "must render the Continue button" in {

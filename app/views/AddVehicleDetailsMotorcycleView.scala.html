@@ -117,7 +117,8 @@
                     SelectItem(value = Some(MotorcycleFuelType.Electric.jsonValue), text = messages("addVehicleDetailsMotorcycle.fuelType.option.electric")),
                     SelectItem(value = Some(MotorcycleFuelType.Hybrid.jsonValue), text = messages("addVehicleDetailsMotorcycle.fuelType.option.hybrid")),
                     SelectItem(value = Some(MotorcycleFuelType.Petrol.jsonValue), text = messages("addVehicleDetailsMotorcycle.fuelType.option.petrol"))
-                )
+                ),
+                attributes = Map("autocomplete" -> "off")
             ).withFormField(form("fuelType"))
         )
 
