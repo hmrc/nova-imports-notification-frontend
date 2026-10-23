@@ -33,7 +33,7 @@
     showBackLink = true
 ) {
 
-    @formHelper(action = routes.ImportEntryDateController.onSubmit(importNumber, mode), Symbol("autoComplete") -> "off") {
+    @formHelper(action = routes.ImportEntryDateController.onSubmit(importNumber, mode)) {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map("value" -> "value.day")))
@@ -51,7 +51,7 @@
                 legend = LegendViewModel(
                     HtmlContent(s"""<h2 class="govuk-fieldset__heading">${messages("importEntryDate.heading.2")}</h2>""")
                 ).withCssClass(LegendSize.Medium.toString)
-            ).withHint(HintViewModel(Text(messages("importEntryDate.hint"))))
+            ).withHint(HintViewModel(Text(messages("importEntryDate.hint")))).withAutocomplete("off")
         )
 
         @govukButton(
