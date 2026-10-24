@@ -9,8 +9,7 @@ site.no = Na
 site.yes = Iawn
 site.continue = Parhau
 site.saveAndContinue = Cadw a pharhau
-# TODO: Welsh translations to be supplied by content team.
-site.confirmDetails = Confirm details
+site.confirmDetails = Cadarnhau’r manylion
 site.start = Start now
 site.startAgain = Start again
 site.signIn = Sign in
@@ -142,10 +141,11 @@ landingPage.agent.clients.body = Gweld, chwilio, dileu neu ddewis cleient i weit
 ################################################################
 # LP3.1 - Landing page for Agent with selected client          #
 ################################################################
-# TODO: Welsh translations to be supplied by content team.
 
-landingPage.agent.client.heading = Notifying on behalf of
-landingPage.agent.client.change = Change client
+landingPage.agent.client.heading = Hysbysu ar ran
+landingPage.agent.client.change = Newid cleient
+
+# TODO: Welsh translations to be supplied by content team.
 landingPage.agent.client.change.hidden = change client selected
 landingPage.agent.client.deselect = Deselect
 landingPage.agent.client.deselect.hidden = deselect client
@@ -257,12 +257,11 @@ purchaserAddressChanged.saveAndContinue = Cadw a pharhau
 #######################################################
 # CYA5.0 - Check your answers 5.0 - Purchaser address #
 #######################################################
-# TODO: Welsh translations to be supplied by content team.
-purchaserAddressCheckYourAnswers.caption = Add purchaser address
-purchaserAddressCheckYourAnswers.title = Check your answers - purchaser address
-purchaserAddressCheckYourAnswers.heading = Check your answers
-purchaserAddressCheckYourAnswers.change.hidden = purchaser’s address
-purchaserAddressCheckYourAnswers.checkYourAnswersLabel = Purchaser’s address
+purchaserAddressCheckYourAnswers.caption = Ychwanegu cyfeiriad y prynwr
+purchaserAddressCheckYourAnswers.title = Gwiriwch eich atebion - Cyfeiriad y prynwr
+purchaserAddressCheckYourAnswers.heading = Gwiriwch eich atebion
+purchaserAddressCheckYourAnswers.change.hidden = cyfeiriad y prynwr
+purchaserAddressCheckYourAnswers.checkYourAnswersLabel = Cyfeiriad y prynwr
 
 ###########################################################
 # Address lookup (ALF) journey labels                     #
@@ -428,8 +427,8 @@ businessName.caption = Ychwanegu eich manylion chi
 businessName.error.required = Nodwch enw’ch busnes
 businessName.error.length = Mae’n rhaid i enw eich busnes fod yn 160 o gymeriadau neu lai
 businessName.error.invalid = Nodwch enw eich busnes yn y fformat cywir
-businessName.checkYourAnswersLabel = Business name
-businessName.change.hidden = your business name
+businessName.checkYourAnswersLabel = Enw’r busnes
+businessName.change.hidden = enw eich busnes
 
 ######################################################
 # ERR3.0 - Error message - Page not found            #
@@ -722,42 +721,42 @@ purchaserBusinessOrIndividual.change.hidden = P’un a yw’r prynwr rydych yn h
 ###########################################################################################
 # AVD-S1.0 - Add vehicle details - Supplier 1.0: Use personal details as supplier details #
 ###########################################################################################
-# TODO: Welsh translations to be supplied by content team.
-usePersonalDetailsAsSupplier.title = Use your personal details as the supplier details
-usePersonalDetailsAsSupplier.caption = Add vehicle details
-usePersonalDetailsAsSupplier.heading = Use your personal details as the supplier details
-usePersonalDetailsAsSupplier.paragraph.1 = If you take goods from your own stock to use in your business, this is known as self-supply.
-usePersonalDetailsAsSupplier.paragraph.2 = If you’re a self-supplier, you can use your personal details as the supplier details. You must:
-usePersonalDetailsAsSupplier.bullet.1 = be VAT registered in the UK
-usePersonalDetailsAsSupplier.bullet.2 = have bought and used a road vehicle for your business activity in another EU country where you’re also VAT registered
-usePersonalDetailsAsSupplier.bullet.3 = have brought the road vehicle to the UK, and it belongs to the same business
-usePersonalDetailsAsSupplier.bullet.4 = not have bought a new means of transport,
-usePersonalDetailsAsSupplier.bullet.4.linkText = read VAT Notice 728
-usePersonalDetailsAsSupplier.personalDetails = Your personal details are:
-usePersonalDetailsAsSupplier.name = Name
-usePersonalDetailsAsSupplier.address = Address
-usePersonalDetailsAsSupplier.notProvided = Not provided
-usePersonalDetailsAsSupplier.question = Do you want to use your personal details as the supplier details?
-usePersonalDetailsAsSupplier.yes.hint = I meet all the required conditions and I want to use my personal details as the supplier details
-usePersonalDetailsAsSupplier.no.hint = I want to add different supplier details
-usePersonalDetailsAsSupplier.error.required = Select yes if you want to use your personal details as the supplier details
+
+usePersonalDetailsAsSupplier.title = Defnyddio’ch manylion personol fel manylion y cyflenwr - Hysbysiad o Gerbydau’n Cyrraedd - GOV.UK
+usePersonalDetailsAsSupplier.caption = Ychwanegu manylion y cerbyd
+usePersonalDetailsAsSupplier.heading = Defnyddio’ch manylion personol fel manylion y cyflenwr
+usePersonalDetailsAsSupplier.paragraph.1 = Os byddwch yn cymryd nwyddau o’ch stoc eich hun i’w defnyddio yn eich busnes, gelwir hyn yn hunan-gyflenwi.
+usePersonalDetailsAsSupplier.paragraph.2 = Os ydych yn hunan-gyflenwr, gallwch ddefnyddio’ch manylion personol fel manylion y cyflenwr. Mae’n rhaid i chi fod wedi gwneud y canlynol:
+usePersonalDetailsAsSupplier.bullet.1 = cofrestru ar gyfer TAW yn y DU
+usePersonalDetailsAsSupplier.bullet.2 = prynu a defnyddio cerbyd ffordd fel rhan o’ch gweithgarwch busnes mewn gwlad arall yn yr UE lle’r ydych hefyd wedi cofrestru ar gyfer TAW
+usePersonalDetailsAsSupplier.bullet.3 = dod â’r cerbyd ffordd i’r DU, a’i fod yn perthyn i’r un busnes
+usePersonalDetailsAsSupplier.bullet.4 = heb brynu dull cludo newydd,
+usePersonalDetailsAsSupplier.bullet.4.linkText = darllenwch Hysbysiad TAW 728 (yn agor tab newydd)
+usePersonalDetailsAsSupplier.personalDetails = Eich manylion personol:
+usePersonalDetailsAsSupplier.name = Enw
+usePersonalDetailsAsSupplier.address = Cyfeiriad
+usePersonalDetailsAsSupplier.notProvided = Heb roi un
+usePersonalDetailsAsSupplier.question = A ydych am ddefnyddio’ch manylion personol fel manylion y cyflenwr?
+usePersonalDetailsAsSupplier.yes.hint = Rwy’n bodloni’r holl amodau angenrheidiol ac rydw i am ddefnyddio fy manylion personol fel manylion y cyflenwr
+usePersonalDetailsAsSupplier.no.hint = Rydw i am ychwanegu manylion cyflenwr gwahanol
+usePersonalDetailsAsSupplier.error.required = Dewiswch ‘Iawn’ os ydych am ddefnyddio’ch manylion personol fel manylion y cyflenwr
 
 ###########################################################################################
 # AVD-S1.1 - Add vehicle details - Supplier 1.1: Use purchaser details as supplier details #
 ###########################################################################################
-# TODO: Welsh translations to be supplied by content team.
-usePurchaserDetailsAsSupplier.title = Use the purchaser details as the supplier details
-usePurchaserDetailsAsSupplier.caption = Add vehicle details
-usePurchaserDetailsAsSupplier.heading = Use the purchaser details as the supplier details
-usePurchaserDetailsAsSupplier.paragraph.1 = If the purchaser is VAT registered, you can use their details as the supplier details.
-usePurchaserDetailsAsSupplier.purchaserDetails = The purchaser’s details are:
-usePurchaserDetailsAsSupplier.name = Name
-usePurchaserDetailsAsSupplier.address = Address
-usePurchaserDetailsAsSupplier.notProvided = Not provided
-usePurchaserDetailsAsSupplier.question = Do you want to use the purchaser details as the supplier details?
-usePurchaserDetailsAsSupplier.yes.hint = The purchaser is VAT registered and I want to use their details as the supplier details
-usePurchaserDetailsAsSupplier.no.hint = I want to add different supplier details
-usePurchaserDetailsAsSupplier.error.required = Select yes if you want to use the purchaser details as the supplier details
+
+usePurchaserDetailsAsSupplier.title = Defnyddio manylion y prynwr fel manylion y cyflenwr
+usePurchaserDetailsAsSupplier.caption = Ychwanegu manylion y cerbyd
+usePurchaserDetailsAsSupplier.heading = Defnyddio manylion y prynwr fel manylion y cyflenwr
+usePurchaserDetailsAsSupplier.paragraph.1 = Os yw’r prynwr wedi cofrestru ar gyfer TAW, gallwch ddefnyddio ei fanylion fel manylion y cyflenwr.
+usePurchaserDetailsAsSupplier.purchaserDetails = Manylion y prynwr:
+usePurchaserDetailsAsSupplier.name = Enw
+usePurchaserDetailsAsSupplier.address = Cyfeiriad
+usePurchaserDetailsAsSupplier.notProvided = Heb roi un
+usePurchaserDetailsAsSupplier.question = A ydych am ddefnyddio manylion y prynwr fel manylion y cyflenwr?
+usePurchaserDetailsAsSupplier.yes.hint = Mae’r prynwr wedi cofrestru ar gyfer TAW, ac rydw i am ddefnyddio ei fanylion fel manylion y cyflenwr
+usePurchaserDetailsAsSupplier.no.hint = Rydw i am ychwanegu manylion cyflenwr gwahanol
+usePurchaserDetailsAsSupplier.error.required = Dewiswch ‘Iawn’ os ydych am ddefnyddio manylion y prynwr fel manylion y cyflenwr
 
 #########################################################################################
 # AVD-S1.2 - Add vehicle details - Supplier 1.2: Use client details as supplier details #
@@ -807,10 +806,8 @@ supplierBusinessName.caption = Ychwanegu manylion y cerbyd
 supplierBusinessName.error.required = Nodwch enw busnes y cyflenwr
 supplierBusinessName.error.length = Mae’n rhaid i enw busnes y cyflenwr fod yn 160 o gymeriadau neu lai
 supplierBusinessName.error.invalid = Nodwch enw busnes y cyflenwr yn y fformat cywir
-
-# TODO: Welsh translations to be supplied by content team.
-supplierBusinessName.checkYourAnswersLabel = Supplier’s business name
-supplierBusinessName.change.hidden = supplier’s business name
+supplierBusinessName.checkYourAnswersLabel = Enw busnes y cyflenwr
+supplierBusinessName.change.hidden = enw busnes y cyflenwr
 
 ###########################################################################################
 # AVD-S4.0 - Add vehicle details - Supplier 4.0: Supplier name                            #
@@ -831,10 +828,8 @@ supplierName.lastName = Enw olaf
 supplierName.lastName.error.format = Nodwch enw olaf y cyflenwr yn y fformat cywir
 supplierName.lastName.error.length = Mae’n rhaid i enw olaf y cyflenwr fod yn 100 o gymeriadau neu lai
 supplierName.lastName.error.required = Nodwch enw olaf y cyflenwr
-
-# TODO: Welsh translations to be supplied by content team.
-supplierName.checkYourAnswersLabel = Supplier’s name
-supplierName.change.hidden = supplier’s name
+supplierName.checkYourAnswersLabel = Enw’r cyflenwr
+supplierName.change.hidden = enw’r cyflenwr
 
 ######################################################
 # CYA1.0 - Check your answers 1 - Initial questions  #
@@ -1101,38 +1096,39 @@ paymentCurrency.error.required = Enter the currency used to pay for the vehicle
 ##########################################################################
 # AVD-S8.0 - Add vehicle details - Supplier 8.0: Supplier VAT Registered #
 ##########################################################################
-# TODO: Welsh translations to be supplied by content team.
-isSupplierVatRegistered.title = Is the supplier VAT registered?
-isSupplierVatRegistered.heading = Is the supplier VAT registered?
-isSupplierVatRegistered.caption = Add vehicle details
-isSupplierVatRegistered.error.required = Select yes if the supplier is VAT registered
-isSupplierVatRegistered.checkYourAnswersLabel = Is the supplier VAT registered?
+
+isSupplierVatRegistered.title = A yw’r cyflenwr wedi cofrestru ar gyfer TAW?
+isSupplierVatRegistered.heading = A yw’r cyflenwr wedi cofrestru ar gyfer TAW?
+isSupplierVatRegistered.caption = Ychwanegu manylion y cerbyd
+isSupplierVatRegistered.error.required = Dewiswch ‘Iawn’ os yw’r cyflenwr wedi’i gofrestru ar gyfer TAW
+isSupplierVatRegistered.checkYourAnswersLabel = A yw’r cyflenwr wedi cofrestru ar gyfer TAW?
 isSupplierVatRegistered.change.hidden = whether supplier is VAT registered
 
 ####################################################################################
 # AVD-S8.1 - Add vehicle details - Supplier 8.1: Supplier VAT Registration Details #
 ####################################################################################
-# TODO: Welsh translations to be supplied by content team.
-supplierVatRegistrationDetails.title = Enter the supplier’s VAT registration details
-supplierVatRegistrationDetails.heading = Enter the supplier’s VAT registration details
-supplierVatRegistrationDetails.caption = Add vehicle details
-supplierVatRegistrationDetails.paragraph.1 = You must provide the country where the supplier is VAT registered and the VAT registration number. You can find these details on the supplier’s invoice.
+
+supplierVatRegistrationDetails.title = Nodwch fanylion cofrestru TAW y cyflenwr
+supplierVatRegistrationDetails.heading = Nodwch fanylion cofrestru TAW y cyflenwr
+supplierVatRegistrationDetails.caption = Ychwanegu manylion y cerbyd
+supplierVatRegistrationDetails.paragraph.1 = Mae’n rhaid i chi nodi’r wlad lle mae’r cyflenwr wedi’i gofrestru ar gyfer TAW a’r rhif cofrestru TAW. Gallwch ddod o hyd i’r manylion hyn ar anfoneb y cyflenwr.
 supplierVatRegistrationDetails.paragraph.2 = The VAT registration number is usually numbers only, sometimes with a 2‑letter country code at the start. For example, 123456789 or DE123456789.
-supplierVatRegistrationDetails.label.country = Country of VAT registration
-supplierVatRegistrationDetails.label.vatNumber = VAT registration number
-supplierVatRegistrationDetails.country.error.required = Enter the country where the supplier is VAT registered
-supplierVatRegistrationDetails.vatNumber.error.required = Enter the supplier’s VAT registration number
-supplierVatRegistrationDetails.vatNumber.error.format = Enter the supplier’s VAT registration number in the correct format for the selected country
+supplierVatRegistrationDetails.label.country = Gwlad cofrestru TAW
+supplierVatRegistrationDetails.label.vatNumber = Rhif cofrestru TAW
+supplierVatRegistrationDetails.country.error.required = Nodwch y wlad lle mae’r cyflenwr wedi’i TAW gofrestru
+supplierVatRegistrationDetails.vatNumber.error.required = Nodwch rif cofrestru TAW y cyflenwr
+supplierVatRegistrationDetails.vatNumber.error.format = Nodwch rif cofrestru TAW y cyflenwr yn y fformat cywir ar gyfer y wlad a ddewiswyd
 
 ######################################################
 # AVD-S9.0 - Check Your Answers 3 - Supplier Details #
 ######################################################
-# TODO: Welsh translations to be supplied by content team.
-supplierDetailsCheckYourAnswers.caption = Add vehicle details
-supplierDetailsCheckYourAnswers.title = Check the supplier details before adding vehicles
-supplierDetailsCheckYourAnswers.heading = Check the supplier details before adding vehicles
-supplierAddressCheckYourAnswers.checkYourAnswersLabel = Supplier’s address
-supplierAddressCheckYourAnswers.change.hidden = supplier’s address
+
+supplierDetailsCheckYourAnswers.caption = Ychwanegu manylion y cerbyd
+supplierDetailsCheckYourAnswers.title = Gwiriwch fanylion y cyflenwr cyn ychwanegu cerbydau
+supplierDetailsCheckYourAnswers.heading = Gwiriwch fanylion y cyflenwr cyn ychwanegu cerbydau
+supplierAddressCheckYourAnswers.checkYourAnswersLabel = Cyfeiriad y cyflenwr
+supplierAddressCheckYourAnswers.change.hidden = cyfeiriad y cyflenwr
+supplierDetailsCheckYourAnswers.notProvided = Heb roi un
 
 ##################################################
 # UVS1.0 - Upload a vehicle spreadsheet 1.0      #
@@ -1152,35 +1148,35 @@ uploadVehicleSpreadsheet.error.unknown = The selected file could not be uploaded
 ###############################################################
 # UVS3.0 - Upload vehicle spreadsheet 3.0 - Error: Virus      #
 ###############################################################
-# TODO: Welsh translations to be supplied by content team.
-uploadSpreadsheetErrorQuarantine.title = The file contains a virus
-uploadSpreadsheetErrorQuarantine.heading = The file contains a virus
-uploadSpreadsheetErrorQuarantine.caption = Add vehicle details
-uploadSpreadsheetErrorQuarantine.paragraph = Check the file for any virus or create a new version before uploading it again.
-uploadSpreadsheetErrorQuarantine.link = Return to create a vehicle notification
-uploadSpreadsheetErrorQuarantine.buttonLabel = Upload again
+
+uploadSpreadsheetErrorQuarantine.title = Mae feirws yn y ffeil
+uploadSpreadsheetErrorQuarantine.heading = Mae feirws yn y ffeil
+uploadSpreadsheetErrorQuarantine.caption = Ychwanegu manylion y cerbyd
+uploadSpreadsheetErrorQuarantine.paragraph = Gwiriwch y ffeil am unrhyw firysau neu crëwch fersiwn newydd cyn ei llwytho i fyny eto.
+uploadSpreadsheetErrorQuarantine.link = Dychwelyd i greu hysbysiad cerbyd
+uploadSpreadsheetErrorQuarantine.buttonLabel = Llwytho i fyny eto
 
 ###########################################################################
 # UVS3.1 - Upload vehicle spreadsheet 3.1 - Error: problem uploading      #
 ###########################################################################
-# TODO: Welsh translations to be supplied by content team.
-uploadSpreadsheetErrorUnknown.title = There is a problem uploading this file
-uploadSpreadsheetErrorUnknown.heading = There is a problem uploading this file
-uploadSpreadsheetErrorUnknown.caption = Add vehicle details
-uploadSpreadsheetErrorUnknown.paragraph = The spreadsheet could not be uploaded. You can try uploading the file again.
-uploadSpreadsheetErrorUnknown.link = Return to create a vehicle notification
-uploadSpreadsheetErrorUnknown.buttonLabel = Try again
+
+uploadSpreadsheetErrorUnknown.title = Mae problem wrth lwytho’r ffeil hon i fyny
+uploadSpreadsheetErrorUnknown.heading = Mae problem wrth lwytho’r ffeil hon i fyny
+uploadSpreadsheetErrorUnknown.caption = Ychwanegu manylion y cerbyd
+uploadSpreadsheetErrorUnknown.paragraph = Nid oedd modd llwytho’r daenlen i fyny. Gallwch geisio uwchlwytho’r ffeil eto.
+uploadSpreadsheetErrorUnknown.link = Dychwelyd i greu hysbysiad cerbyd
+uploadSpreadsheetErrorUnknown.buttonLabel = Rhowch gynnig arall arni
 
 ##################################################################
 # UVS3.2 - Upload vehicle spreadsheet 3.2 - Error: File type     #
 ##################################################################
-# TODO: Welsh translations to be supplied by content team.
-uploadSpreadsheetErrorRejected.title = The selected file cannot be accepted
-uploadSpreadsheetErrorRejected.heading = The selected file cannot be accepted
-uploadSpreadsheetErrorRejected.caption = Add vehicle details
-uploadSpreadsheetErrorRejected.paragraph = You must save the spreadsheet as an ODS file and try uploading it again.
-uploadSpreadsheetErrorRejected.link = Return to create a vehicle notification
-uploadSpreadsheetErrorRejected.buttonLabel = Upload again
+
+uploadSpreadsheetErrorRejected.title = Ni ellir derbyn y ffeil a ddewiswyd
+uploadSpreadsheetErrorRejected.heading = Ni ellir derbyn y ffeil a ddewiswyd
+uploadSpreadsheetErrorRejected.caption = Ychwanegu manylion y cerbyd
+uploadSpreadsheetErrorRejected.paragraph = Mae’n rhaid i chi gadw’r daenlen fel ffeil ODS a cheisio ei llwytho i fyny eto.
+uploadSpreadsheetErrorRejected.link = Dychwelyd i greu hysbysiad cerbyd
+uploadSpreadsheetErrorRejected.buttonLabel = Llwytho i fyny eto
 
 ##################################################################
 # UVS5.1 - Are you sure you want to update this vehicle spreadsheet #
