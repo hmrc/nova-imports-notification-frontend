@@ -1101,7 +1101,7 @@ isSupplierVatRegistered.heading = A yw’r cyflenwr wedi cofrestru ar gyfer TAW?
 isSupplierVatRegistered.caption = Ychwanegu manylion y cerbyd
 isSupplierVatRegistered.error.required = Dewiswch ‘Iawn’ os yw’r cyflenwr wedi’i gofrestru ar gyfer TAW
 isSupplierVatRegistered.checkYourAnswersLabel = A yw’r cyflenwr wedi cofrestru ar gyfer TAW?
-isSupplierVatRegistered.change.hidden = whether supplier is VAT registered
+isSupplierVatRegistered.change.hidden = a yw’r cyflenwr wedi’i gofrestru ar gyfer TAW
 
 ####################################################################################
 # AVD-S8.1 - Add vehicle details - Supplier 8.1: Supplier VAT Registration Details #
@@ -1118,6 +1118,7 @@ supplierVatRegistrationDetails.country.error.required = Nodwch y wlad lle mae’
 supplierVatRegistrationDetails.vatNumber.error.required = Nodwch rif cofrestru TAW y cyflenwr
 supplierVatRegistrationDetails.checkYourAnswersLabel = Manylion cofrestru TAW y cyflenwr
 supplierVatRegistrationDetails.vatNumber.error.format = Nodwch rif cofrestru TAW y cyflenwr yn y fformat cywir ar gyfer y wlad a ddewiswyd
+supplierVatRegistrationDetails.change.hidden = manylion cofrestru TAW y cyflenwr
 
 ######################################################
 # AVD-S9.0 - Check Your Answers 3 - Supplier Details #
