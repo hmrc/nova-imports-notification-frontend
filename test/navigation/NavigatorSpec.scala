@@ -641,6 +641,31 @@ class NavigatorSpec extends SpecBase {
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
 
+      "must go from DateOfFirstRegistrationKnownPage AVD-IE4.0 to AVD5.1 for the vehicle's import when Yes is selected" in {
+        val page = DateOfFirstRegistrationKnownPage(VehicleNumber(1))
+        val ua   = importVehicle.unsafeSet(page, true)
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+          vehicledetails.routes.DateOfFirstRegistrationController.importOnPageLoad(ImportNumber(1), VehicleNumber(1), NormalMode)
+      }
+
+      "must go from DateOfFirstRegistrationKnownPage AVD-IE4.0 to AVD8.0 for the vehicle's import when No is selected" in {
+        val page = DateOfFirstRegistrationKnownPage(VehicleNumber(1))
+        val ua   = importVehicle.unsafeSet(page, false)
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+          vehicledetails.routes.AddVehicleTypeController.importOnPageLoad(ImportNumber(1), VehicleNumber(1), NormalMode)
+      }
+
+      "must go from DateOfFirstRegistrationKnownPage AVD-IE4.0 to JourneyRecovery when the vehicle has no import" in {
+        val page = DateOfFirstRegistrationKnownPage(VehicleNumber(1))
+        val ua   = supplierVehicle.unsafeSet(page, true)
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from DateOfFirstRegistrationKnownPage AVD-IE4.0 to JourneyRecovery when no answer is found" in {
+        navigator.nextPage(DateOfFirstRegistrationKnownPage(VehicleNumber(1)), NormalMode, importVehicle, NovaUserType.VatRegisteredOrganisation) mustBe
+          routes.JourneyRecoveryController.onPageLoad()
+      }
+
       "must go from DateOfFirstRegistrationPage to the country of first registration page for the vehicle's supplier" in {
         val page = DateOfFirstRegistrationPage(VehicleNumber(1))
         val ua   = supplierVehicle.unsafeSet(page, LocalDate.of(2026, 3, 27))
@@ -1533,10 +1558,29 @@ class NavigatorSpec extends SpecBase {
             importConfirm
         }
 
-        "must go to the AVD-IE4.0 placeholder in check mode for an import vehicle when whether the date of first registration is known has not been answered" in {
+        "must go to AVD-IE4.0 in check mode for an import vehicle when whether the date of first registration is known has not been answered" in {
           val ua = importComplete.remove(DateOfFirstRegistrationKnownPage(v)).success.value
           navigator.nextPage(AddVehicleTypePage(v), CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
-            routes.LandingPageController.onPageLoad()
+            vehicledetails.routes.DateOfFirstRegistrationKnownController.onPageLoad(i, v, CheckMode)
+        }
+
+        "must go from DateOfFirstRegistrationKnownPage AVD-IE4.0 to C-AVD1.0 for an import vehicle when every required question is answered" in {
+          navigator.nextPage(DateOfFirstRegistrationKnownPage(v), CheckMode, importComplete, NovaUserType.VatRegisteredOrganisation) mustBe
+            importConfirm
+        }
+
+        "must go from DateOfFirstRegistrationKnownPage AVD-IE4.0 to C-AVD1.0 when changed to No" in {
+          val ua = importComplete.unsafeSet(DateOfFirstRegistrationKnownPage(v), false)
+          navigator.nextPage(DateOfFirstRegistrationKnownPage(v), CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+            importConfirm
+        }
+
+        "must go from DateOfFirstRegistrationKnownPage AVD-IE4.0 to AVD5.1 in check mode when changed to Yes without a date" in {
+          val ua = importVehicle
+            .unsafeSet(DateOfFirstRegistrationKnownPage(v), true)
+            .unsafeSet(AddVehicleTypePage(v), AddVehicleType.Hcv)
+          navigator.nextPage(DateOfFirstRegistrationKnownPage(v), CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+            vehicledetails.routes.DateOfFirstRegistrationController.importOnPageLoad(i, v, CheckMode)
         }
 
         "must go from AddVehicleTypePage AVD8.0 to C-AVD1.0 for an import vehicle when the date of first registration is not known" in {

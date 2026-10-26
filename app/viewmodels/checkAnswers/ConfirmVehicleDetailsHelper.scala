@@ -18,7 +18,6 @@ package viewmodels.checkAnswers
 
 import controllers.vehicledetails.routes
 import models.{AddVehicleType, CheckMode, Country, Currency, ImportNumber, SupplierNumber, UserAnswers, VehicleDates, VehicleNumber}
-import navigation.ConfirmVehicleDetailsJourney
 import pages.sections.vehicledetails.*
 import play.api.i18n.Messages
 import play.api.mvc.Call
@@ -148,7 +147,7 @@ object ConfirmVehicleDetailsHelper {
           row(
             "dateOfFirstRegistrationKnown",
             textValue(messages(if (known) "site.yes" else "site.no")),
-            ConfirmVehicleDetailsJourney.dateOfFirstRegistrationKnownChange
+            routes.DateOfFirstRegistrationKnownController.onPageLoad(importNumber, vehicleNumber, CheckMode)
           )
         ),
         Option

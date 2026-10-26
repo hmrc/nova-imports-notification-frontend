@@ -1580,6 +1580,15 @@ importEntryDate.error.future = The import entry date must be today or in the pas
 importEntryDate.checkYourAnswersLabel = Import entry date
 importEntryDate.change.hidden = import entry date
 
+######################################################################################################
+# AVD-IE4.0 - Add vehicles by import entry: Do you know the date of first registration              #
+######################################################################################################
+# TODO: Welsh translations to be supplied by content team.
+dateOfFirstRegistrationKnown.title = Do you know the date this vehicle was first registered for road use?
+dateOfFirstRegistrationKnown.heading = Do you know the date this vehicle was first registered for road use?
+dateOfFirstRegistrationKnown.caption = Add vehicle details
+dateOfFirstRegistrationKnown.error.required = Select yes if you know the date this vehicle was first registered for road use
+
 ####################################################################################
 # Vehicle details inset                                                            #
 ####################################################################################
