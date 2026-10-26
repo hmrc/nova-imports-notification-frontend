@@ -17,7 +17,7 @@
 package views
 
 import base.SpecBase
-import models.{ImportNumber, UserAnswers}
+import models.{CheckMode, ImportNumber, UserAnswers}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.must.Matchers
 import pages.sections.vehicledetails.{ImportEntryDatePage, ImportEntryNumberPage}
@@ -103,6 +103,13 @@ class ConfirmImportEntryDetailsViewSpec extends SpecBase with Matchers with Befo
       val html: String = view(answers, ImportNumber(1))(request, msgs).toString
 
       html must include(s"""action="${controllers.vehicledetails.routes.ConfirmImportEntryDetailsController.onSubmit(ImportNumber(1)).url}"""")
+    }
+
+    "must render the change links to AVD-IE1.0 and AVD-IE2.0 for import 1" in {
+      val html: String = view(answers, ImportNumber(1))(request, msgs).toString
+
+      html must include(controllers.vehicledetails.routes.ImportEntryNumberController.onPageLoad(ImportNumber(1), CheckMode).url)
+      html must include(controllers.vehicledetails.routes.ImportEntryDateController.onPageLoad(ImportNumber(1), CheckMode).url)
     }
 
     "must render the same content via the render method" in {

@@ -294,6 +294,20 @@ class ConfirmImportEntryDetailsControllerSpec extends SpecBase with MockitoSugar
           redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
         }
       }
+
+      "must redirect a POST to Unauthorised when import 1 has no import entry date saved in session" in {
+
+        val answersWithoutDate = userAnswersWithGuardData.remove(ImportEntryDatePage(importNumber)).success.value
+
+        val application = applicationForSubmit(answersWithoutDate, mock[NovaImportsBackendConnector])
+
+        running(application) {
+          val result = route(application, FakeRequest(POST, confirmImportEntryDetailsRoute)).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+        }
+      }
     }
   }
 }
