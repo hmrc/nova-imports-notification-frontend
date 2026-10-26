@@ -792,9 +792,8 @@ supplierBusinessOrIndividual.hint = Yn cynnwys busnesau nad ydynt wedi’u cofre
 supplierBusinessOrIndividual.error.required = Dewiswch a yw’r cyflenwr yn fusnes neu’n unigolyn preifat
 supplierBusinessOrIndividual.radio.business = Busnes
 supplierBusinessOrIndividual.radio.privateIndividual = Unigolyn preifat
-# TODO: Welsh translations to be supplied by content team.
-supplierBusinessOrIndividual.checkYourAnswersLabel = Is the supplier a business or private individual?
-supplierBusinessOrIndividual.change.hidden = Is the supplier a business or private individual?
+supplierBusinessOrIndividual.checkYourAnswersLabel = A yw’r cyflenwr yn fusnes neu’n unigolyn preifat?
+supplierBusinessOrIndividual.change.hidden = A yw’r cyflenwr yn fusnes neu’n unigolyn preifat?
 
 ###########################################################################################
 # AVD-S3.0 - Add vehicle details - Supplier 3.0: Supplier business name                   #
@@ -1117,6 +1116,7 @@ supplierVatRegistrationDetails.label.country = Gwlad cofrestru TAW
 supplierVatRegistrationDetails.label.vatNumber = Rhif cofrestru TAW
 supplierVatRegistrationDetails.country.error.required = Nodwch y wlad lle mae’r cyflenwr wedi’i TAW gofrestru
 supplierVatRegistrationDetails.vatNumber.error.required = Nodwch rif cofrestru TAW y cyflenwr
+supplierVatRegistrationDetails.checkYourAnswersLabel = Manylion cofrestru TAW y cyflenwr
 supplierVatRegistrationDetails.vatNumber.error.format = Nodwch rif cofrestru TAW y cyflenwr yn y fformat cywir ar gyfer y wlad a ddewiswyd
 
 ######################################################
