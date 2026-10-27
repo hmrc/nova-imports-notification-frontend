@@ -662,7 +662,12 @@ class NavigatorSpec extends SpecBase {
       }
 
       "must go from DateOfFirstRegistrationKnownPage AVD-IE4.0 to JourneyRecovery when no answer is found" in {
-        navigator.nextPage(DateOfFirstRegistrationKnownPage(VehicleNumber(1)), NormalMode, importVehicle, NovaUserType.VatRegisteredOrganisation) mustBe
+        navigator.nextPage(
+          DateOfFirstRegistrationKnownPage(VehicleNumber(1)),
+          NormalMode,
+          importVehicle,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe
           routes.JourneyRecoveryController.onPageLoad()
       }
 

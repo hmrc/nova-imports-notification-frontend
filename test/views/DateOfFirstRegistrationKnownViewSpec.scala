@@ -86,7 +86,7 @@ class DateOfFirstRegistrationKnownViewSpec extends SpecBase with Matchers with B
 
       errorDoc.select(".govuk-error-summary").text must include(msgs("dateOfFirstRegistrationKnown.error.required"))
       errorDoc.select(".govuk-error-message").text must include(msgs("dateOfFirstRegistrationKnown.error.required"))
-      errorDoc.title must startWith(msgs("error.title.prefix"))
+      errorDoc.title                               must startWith(msgs("error.title.prefix"))
     }
   }
 }
