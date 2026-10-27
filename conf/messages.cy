@@ -792,9 +792,8 @@ supplierBusinessOrIndividual.hint = Yn cynnwys busnesau nad ydynt wedi’u cofre
 supplierBusinessOrIndividual.error.required = Dewiswch a yw’r cyflenwr yn fusnes neu’n unigolyn preifat
 supplierBusinessOrIndividual.radio.business = Busnes
 supplierBusinessOrIndividual.radio.privateIndividual = Unigolyn preifat
-# TODO: Welsh translations to be supplied by content team.
-supplierBusinessOrIndividual.checkYourAnswersLabel = Is the supplier a business or private individual?
-supplierBusinessOrIndividual.change.hidden = Is the supplier a business or private individual?
+supplierBusinessOrIndividual.checkYourAnswersLabel = A yw’r cyflenwr yn fusnes neu’n unigolyn preifat?
+supplierBusinessOrIndividual.change.hidden = A yw’r cyflenwr yn fusnes neu’n unigolyn preifat?
 
 ###########################################################################################
 # AVD-S3.0 - Add vehicle details - Supplier 3.0: Supplier business name                   #
@@ -1102,7 +1101,7 @@ isSupplierVatRegistered.heading = A yw’r cyflenwr wedi cofrestru ar gyfer TAW?
 isSupplierVatRegistered.caption = Ychwanegu manylion y cerbyd
 isSupplierVatRegistered.error.required = Dewiswch ‘Iawn’ os yw’r cyflenwr wedi’i gofrestru ar gyfer TAW
 isSupplierVatRegistered.checkYourAnswersLabel = A yw’r cyflenwr wedi cofrestru ar gyfer TAW?
-isSupplierVatRegistered.change.hidden = whether supplier is VAT registered
+isSupplierVatRegistered.change.hidden = a yw’r cyflenwr wedi’i gofrestru ar gyfer TAW
 
 ####################################################################################
 # AVD-S8.1 - Add vehicle details - Supplier 8.1: Supplier VAT Registration Details #
@@ -1117,7 +1116,9 @@ supplierVatRegistrationDetails.label.country = Gwlad cofrestru TAW
 supplierVatRegistrationDetails.label.vatNumber = Rhif cofrestru TAW
 supplierVatRegistrationDetails.country.error.required = Nodwch y wlad lle mae’r cyflenwr wedi’i TAW gofrestru
 supplierVatRegistrationDetails.vatNumber.error.required = Nodwch rif cofrestru TAW y cyflenwr
+supplierVatRegistrationDetails.checkYourAnswersLabel = Manylion cofrestru TAW y cyflenwr
 supplierVatRegistrationDetails.vatNumber.error.format = Nodwch rif cofrestru TAW y cyflenwr yn y fformat cywir ar gyfer y wlad a ddewiswyd
+supplierVatRegistrationDetails.change.hidden = manylion cofrestru TAW y cyflenwr
 
 ######################################################
 # AVD-S9.0 - Check Your Answers 3 - Supplier Details #
@@ -1238,33 +1239,33 @@ confirmVehicleTypeDetails.title = Check the vehicle type details before you cont
 confirmVehicleTypeDetails.heading = Check the vehicle type details before you continue
 confirmVehicleTypeDetails.caption = Add vehicle details
 confirmVehicleTypeDetails.make.label = Make
-confirmVehicleTypeDetails.make.change.hidden = make of the vehicle
+confirmVehicleTypeDetails.make.change.hidden = make
 confirmVehicleTypeDetails.model.label = Model
-confirmVehicleTypeDetails.model.change.hidden = model of the vehicle
+confirmVehicleTypeDetails.model.change.hidden = model
 confirmVehicleTypeDetails.derivative.label = Derivative
-confirmVehicleTypeDetails.derivative.change.hidden = derivative of the vehicle
+confirmVehicleTypeDetails.derivative.change.hidden = derivative
 confirmVehicleTypeDetails.trim.label = Trim
-confirmVehicleTypeDetails.trim.change.hidden = trim of the vehicle
+confirmVehicleTypeDetails.trim.change.hidden = trim
 confirmVehicleTypeDetails.bodyType.label = Body type
-confirmVehicleTypeDetails.bodyType.change.hidden = body type of the vehicle
+confirmVehicleTypeDetails.bodyType.change.hidden = body type
 confirmVehicleTypeDetails.cabType.label = Cab type
-confirmVehicleTypeDetails.cabType.change.hidden = cab type of the vehicle
+confirmVehicleTypeDetails.cabType.change.hidden = cab type
 confirmVehicleTypeDetails.version.label = Version
-confirmVehicleTypeDetails.version.change.hidden = version of the vehicle
+confirmVehicleTypeDetails.version.change.hidden = version
 confirmVehicleTypeDetails.makeOfBaseVehicle.label = Make of base vehicle
-confirmVehicleTypeDetails.makeOfBaseVehicle.change.hidden = make of the base vehicle
+confirmVehicleTypeDetails.makeOfBaseVehicle.change.hidden = make of base vehicle
 confirmVehicleTypeDetails.style.label = Style
-confirmVehicleTypeDetails.style.change.hidden = style of the vehicle
+confirmVehicleTypeDetails.style.change.hidden = style
 confirmVehicleTypeDetails.transmissionType.label = Transmission type
-confirmVehicleTypeDetails.transmissionType.change.hidden = transmission type of the vehicle
+confirmVehicleTypeDetails.transmissionType.change.hidden = transmission type
 confirmVehicleTypeDetails.fuelType.label = Fuel type
-confirmVehicleTypeDetails.fuelType.change.hidden = fuel type of the vehicle
+confirmVehicleTypeDetails.fuelType.change.hidden = fuel type
 confirmVehicleTypeDetails.engineSize.label = Engine size in cubic centimetres (cc)
-confirmVehicleTypeDetails.engineSize.change.hidden = engine size of the vehicle
+confirmVehicleTypeDetails.engineSize.change.hidden = engine size in cubic centimetres (cc)
 confirmVehicleTypeDetails.brakeHorsepower.label = Brake horsepower (bhp)
-confirmVehicleTypeDetails.brakeHorsepower.change.hidden = brake horsepower of the vehicle
+confirmVehicleTypeDetails.brakeHorsepower.change.hidden = brake horsepower (bhp)
 confirmVehicleTypeDetails.modelNameNumber.label = Model name or number
-confirmVehicleTypeDetails.modelNameNumber.change.hidden = model name or number of the vehicle
+confirmVehicleTypeDetails.modelNameNumber.change.hidden = model name or number
 
 #######################################################
 # AVD8.1 - Add vehicle details 8.1 - Car               #
