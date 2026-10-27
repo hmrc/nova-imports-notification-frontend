@@ -22,7 +22,6 @@ import connectors.{GetUploadResultError, NovaImportsBackendConnector}
 import controllers.actions.*
 import controllers.vehicledetails
 import models.{DraftId, UserAnswers}
-import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar

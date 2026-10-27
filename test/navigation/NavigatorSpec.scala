@@ -708,14 +708,14 @@ class NavigatorSpec extends SpecBase {
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
 
-      "must go from ImportEntryDatePage AVD-IE2.0 for import 1 to the landing page" in {
+      "must go from ImportEntryDatePage AVD-IE2.0 for import 1 to AVD-IE2.1 for import 1" in {
         val ua = userAnswers.set(ImportEntryDatePage(ImportNumber(1)), LocalDate.of(2026, 3, 27)).success.value
         navigator.nextPage(
           ImportEntryDatePage(ImportNumber(1)),
           NormalMode,
           ua,
           NovaUserType.VatRegisteredOrganisation
-        ) mustBe routes.LandingPageController.onPageLoad()
+        ) mustBe vehicledetails.routes.ConfirmImportEntryDetailsController.onPageLoad(ImportNumber(1))
       }
 
       "must go from ImportEntryDatePage AVD-IE2.0 to JourneyRecovery when import 1 has no import entry date" in {
@@ -1649,22 +1649,22 @@ class NavigatorSpec extends SpecBase {
         ) mustBe purchaserdetails.routes.PurchaserDetailsCheckYourAnswersController.onPageLoad()
       }
 
-      "must go from ImportEntryNumberPage AVD-IE1.0 for import 1 to the landing page" in {
+      "must go from ImportEntryNumberPage AVD-IE1.0 for import 1 to AVD-IE2.1 for import 1" in {
         navigator.nextPage(
           ImportEntryNumberPage(ImportNumber(1)),
           CheckMode,
           userAnswers,
           NovaUserType.VatRegisteredOrganisation
-        ) mustBe routes.LandingPageController.onPageLoad()
+        ) mustBe vehicledetails.routes.ConfirmImportEntryDetailsController.onPageLoad(ImportNumber(1))
       }
 
-      "must go from ImportEntryDatePage AVD-IE2.0 for import 1 to the landing page" in {
+      "must go from ImportEntryDatePage AVD-IE2.0 for import 1 to AVD-IE2.1 for import 1" in {
         navigator.nextPage(
           ImportEntryDatePage(ImportNumber(1)),
           CheckMode,
           userAnswers,
           NovaUserType.VatRegisteredOrganisation
-        ) mustBe routes.LandingPageController.onPageLoad()
+        ) mustBe vehicledetails.routes.ConfirmImportEntryDetailsController.onPageLoad(ImportNumber(1))
       }
 
       "must go from NotificationReferencePage AVD9.0 to the landing page" in {

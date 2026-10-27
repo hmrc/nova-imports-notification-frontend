@@ -285,7 +285,7 @@ class Navigator @Inject() () {
     case page: ImportEntryDatePage =>
       (userAnswers, _) =>
         userAnswers.get(page) match {
-          case Some(_) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD-IE2.1 CYA when built
+          case Some(_) => vehicledetails.routes.ConfirmImportEntryDetailsController.onPageLoad(page.importNumber)
           case _       => routes.JourneyRecoveryController.onPageLoad()
         }
     case page: NotificationReferencePage =>
@@ -399,8 +399,8 @@ class Navigator @Inject() () {
     case page: AddVehicleDetailsMotorCaravanPage        => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
     case page: AddVehicleDetailsAgriculturalTractorPage => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
     case page: AddVehicleDetailsContractorsPlantPage    => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
-    case page: ImportEntryNumberPage => (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to the AVD-IE2.1 CYA when built
-    case page: ImportEntryDatePage   => (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to the AVD-IE2.1 CYA when built
+    case page: ImportEntryNumberPage => (_, _) => vehicledetails.routes.ConfirmImportEntryDetailsController.onPageLoad(page.importNumber)
+    case page: ImportEntryDatePage   => (_, _) => vehicledetails.routes.ConfirmImportEntryDetailsController.onPageLoad(page.importNumber)
     case _                           =>
       (_, _) => routes.LandingPageController.onPageLoad()
   }

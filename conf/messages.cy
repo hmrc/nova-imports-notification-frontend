@@ -1581,6 +1581,14 @@ importEntryDate.error.future = The import entry date must be today or in the pas
 importEntryDate.checkYourAnswersLabel = Import entry date
 importEntryDate.change.hidden = import entry date
 
+##############################################
+# AVD-IE2.1 - Confirm import entry details   #
+##############################################
+# TODO: Welsh translations to be supplied by content team.
+confirmImportEntryDetails.title = Check the import entry details before adding vehicles
+confirmImportEntryDetails.caption = Add vehicle details
+confirmImportEntryDetails.heading = Check the import entry details before adding vehicles
+
 ####################################################################################
 # Vehicle details inset                                                            #
 ####################################################################################
