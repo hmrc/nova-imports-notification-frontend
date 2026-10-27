@@ -19,14 +19,14 @@ package controllers.vehicledetails
 import base.SpecBase
 import com.google.inject.name.Names
 import connectors.{NovaImportsBackendConnector, UpdateSectionError}
-import controllers.actions.{DataRequiredAction, DataRequiredActionImpl, DataRetrievalAction, FakeDataRetrievalAction, FakeOrganisationIdentifierAction, IdentifierAction}
+import controllers.actions.*
 import controllers.{routes, vehicledetails}
-import models.{DraftId, ImportNumber, UserAnswers}
+import models.{AgentSelectedClient, DraftId, ImportNumber, UserAnswers}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.{DraftIdPage, DraftVersionIdPage}
+import pages.{AgentSelectedClientPage, DraftIdPage, DraftVersionIdPage}
 import pages.sections.initialquestions.VehicleFromEuPage
 import pages.sections.vehicledetails.{ImportEntryDatePage, ImportEntryNumberPage}
 import play.api.Application
@@ -59,12 +59,15 @@ class ConfirmImportEntryDetailsControllerSpec extends SpecBase with MockitoSugar
     .unsafeSet(ImportEntryNumberPage(importNumber), "12GB3456ACD789EF21")
     .unsafeSet(ImportEntryDatePage(importNumber), LocalDate.of(2026, 3, 27))
 
-  private def applicationFor(identifierAction: Class[? <: IdentifierAction]): Application =
+  private def applicationFor(
+    identifierAction: Class[? <: IdentifierAction],
+    userAnswers: UserAnswers = userAnswersWithGuardData
+  ): Application =
     new GuiceApplicationBuilder()
       .overrides(
         bind[DataRequiredAction].to[DataRequiredActionImpl],
         bind[IdentifierAction].qualifiedWith(Names.named("standard")).to(identifierAction),
-        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(Some(userAnswersWithGuardData)))
+        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(Some(userAnswers)))
       )
       .build()
 
@@ -135,6 +138,48 @@ class ConfirmImportEntryDetailsControllerSpec extends SpecBase with MockitoSugar
       "must redirect a GET to Unauthorised for a non-VAT organisation" in {
 
         val application = applicationFor(classOf[FakeOrganisationIdentifierAction])
+
+        running(application) {
+          val result = route(application, FakeRequest(GET, confirmImportEntryDetailsRoute)).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+        }
+      }
+
+      "must return OK for a GET from an agent without agent enrolment" in {
+
+        val application = applicationFor(classOf[FakeAgentNoEnrolmentsIdentifierAction])
+
+        running(application) {
+          status(route(application, FakeRequest(GET, confirmImportEntryDetailsRoute)).value) mustEqual OK
+        }
+      }
+
+      "must return OK for a GET from an agent with the agent enrolment" in {
+
+        val application = applicationFor(classOf[FakeAgentIdentifierAction])
+
+        running(application) {
+          status(route(application, FakeRequest(GET, confirmImportEntryDetailsRoute)).value) mustEqual OK
+        }
+      }
+
+      "must return OK for a GET from an agent with a client selected" in {
+
+        val answersWithClient =
+          userAnswersWithGuardData.unsafeSet(AgentSelectedClientPage, AgentSelectedClient(vrn = "123456789", name = Some("Company 1 Ltd")))
+
+        val application = applicationFor(classOf[FakeAgentIdentifierAction], answersWithClient)
+
+        running(application) {
+          status(route(application, FakeRequest(GET, confirmImportEntryDetailsRoute)).value) mustEqual OK
+        }
+      }
+
+      "must redirect a GET to Unauthorised for an private individual" in {
+
+        val application = applicationFor(classOf[FakeIdentifierAction])
 
         running(application) {
           val result = route(application, FakeRequest(GET, confirmImportEntryDetailsRoute)).value
