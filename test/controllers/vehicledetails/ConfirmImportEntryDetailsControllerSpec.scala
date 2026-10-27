@@ -53,21 +53,11 @@ class ConfirmImportEntryDetailsControllerSpec extends SpecBase with MockitoSugar
     vehicledetails.routes.ConfirmImportEntryDetailsController.onPageLoad(ImportNumber(2)).url
 
   val userAnswersWithGuardData: UserAnswers = emptyUserAnswers
-    .set(DraftIdPage, DraftId("DRAFT-001"))
-    .success
-    .value
-    .set(DraftVersionIdPage, 1L)
-    .success
-    .value
-    .set(VehicleFromEuPage, false)
-    .success
-    .value
-    .set(ImportEntryNumberPage(importNumber), "12GB3456ACD789EF21")
-    .success
-    .value
-    .set(ImportEntryDatePage(importNumber), LocalDate.of(2026, 3, 27))
-    .success
-    .value
+    .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
+    .unsafeSet(DraftVersionIdPage, 1L)
+    .unsafeSet(VehicleFromEuPage, false)
+    .unsafeSet(ImportEntryNumberPage(importNumber), "12GB3456ACD789EF21")
+    .unsafeSet(ImportEntryDatePage(importNumber), LocalDate.of(2026, 3, 27))
 
   private def applicationFor(identifierAction: Class[? <: IdentifierAction]): Application =
     new GuiceApplicationBuilder()
@@ -130,7 +120,7 @@ class ConfirmImportEntryDetailsControllerSpec extends SpecBase with MockitoSugar
 
       "must redirect a GET to Unauthorised when IQ1.0 was answered Yes" in {
 
-        val answersIq1Yes = userAnswersWithGuardData.set(VehicleFromEuPage, true).success.value
+        val answersIq1Yes = userAnswersWithGuardData.unsafeSet(VehicleFromEuPage, true)
 
         val application = applicationBuilderWithVatTrader(userAnswers = Some(answersIq1Yes)).build()
 

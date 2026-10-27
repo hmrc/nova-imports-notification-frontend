@@ -33,8 +33,6 @@ import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.SessionRepository
 import services.ImportService
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import views.html.ConfirmImportEntryDetailsView
 
 import java.time.format.DateTimeFormatter
@@ -60,8 +58,6 @@ class ConfirmImportEntryDetailsController @Inject() (
 
   def onSubmit(importNumber: ImportNumber): Action[AnyContent] =
     actions.authAndGetDataWithUserTypeGuard(guardPredicate(importService, importNumber)).async { implicit request =>
-      implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-
       val sectionId = s"import/${importNumber.value}/details"
 
       val submissionData = for {
