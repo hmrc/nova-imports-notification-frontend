@@ -1734,3 +1734,11 @@ notificationReference.hint = It must be 13 characters long, starting with NOVA, 
 notificationReference.error.required = Enter the notification reference
 notificationReference.error.format = Enter the notification reference in the correct format
 notificationReference.error.length = The notification reference must be 13 characters long
+
+####################################################################################
+# AVD10.2 - Add vehicle details 10.2 - Do you know the current vehicle registration number? #
+####################################################################################
+vehicleRegistrationNumberKnown.title = Do you know the current vehicle registration number?
+vehicleRegistrationNumberKnown.caption = Add vehicle details
+vehicleRegistrationNumberKnown.heading = Do you know the current vehicle registration number?
+vehicleRegistrationNumberKnown.error.required = Select yes if you know the current vehicle registration number
