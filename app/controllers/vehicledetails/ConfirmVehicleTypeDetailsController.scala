@@ -22,7 +22,7 @@ import controllers.actions.*
 import controllers.utils.IsDraftIdDefined
 import models.draftsections.VehicleTypeDetails
 import models.requests.DataRequest
-import models.{AddVehicleType, ImportNumber, SupplierNumber, UserAnswers, VehicleNumber}
+import models.{AddVehicleType, ImportNumber, NormalMode, SupplierNumber, UserAnswers, VehicleNumber}
 import pages.sections.initialquestions.VehicleFromEuPage
 import pages.sections.introduction.AmendSubmittedNotificationPage
 import pages.sections.vehicledetails.*
@@ -78,7 +78,8 @@ class ConfirmVehicleTypeDetailsController @Inject() (
       implicit request =>
         handleSubmit(
           s"supplier/${supplierNumber.value}/vehicle/${vehicleNumber.value}/details",
-          vehicleDetailsSection(request.userAnswers, vehicleNumber)
+          vehicleDetailsSection(request.userAnswers, vehicleNumber),
+          nextPage(request.userAnswers, vehicleNumber, supplierNumber = Some(supplierNumber))
         )
     }
 
@@ -87,7 +88,8 @@ class ConfirmVehicleTypeDetailsController @Inject() (
       implicit request =>
         handleSubmit(
           s"import/${importNumber.value}/vehicle/${vehicleNumber.value}/details",
-          vehicleDetailsSection(request.userAnswers, vehicleNumber)
+          vehicleDetailsSection(request.userAnswers, vehicleNumber),
+          nextPage(request.userAnswers, vehicleNumber, importNumber = Some(importNumber))
         )
     }
 
@@ -96,7 +98,7 @@ class ConfirmVehicleTypeDetailsController @Inject() (
   ): Result =
     Ok(view(summaryList, submitCall))
 
-  private def handleSubmit(sectionId: String, sectionData: Option[JsObject])(implicit
+  private def handleSubmit(sectionId: String, sectionData: Option[JsObject], redirectTo: Call)(implicit
     request: DataRequest[AnyContent]
   ): Future[Result] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
@@ -109,7 +111,7 @@ class ConfirmVehicleTypeDetailsController @Inject() (
           case Right(newVersionId) =>
             sessionRepository
               .setPage(request.userAnswers, DraftVersionIdPage, newVersionId)
-              .map(_ => Redirect(nextPage(request.userAnswers)))
+              .map(_ => Redirect(redirectTo))
           case Left(error) =>
             logger.warn(s"Failed to update '$sectionId' for draftId ${draftId.value}: $error")
             Future.successful(failure)
@@ -120,9 +122,21 @@ class ConfirmVehicleTypeDetailsController @Inject() (
     }
   }
 
-  private def nextPage(answers: UserAnswers): Call =
+  private def nextPage(
+    answers: UserAnswers,
+    vehicleNumber: VehicleNumber,
+    supplierNumber: Option[SupplierNumber] = None,
+    importNumber: Option[ImportNumber] = None
+  ): Call =
     if (answers.get(AmendSubmittedNotificationPage).contains(true))
-      controllers.routes.LandingPageController.onPageLoad() // TODO: navigate to AVD9.0 when built
+      (supplierNumber, importNumber) match {
+        case (Some(supplierNumber), _) =>
+          routes.NotificationReferenceController.supplierOnPageLoad(supplierNumber, vehicleNumber, NormalMode)
+        case (_, Some(importNumber)) =>
+          routes.NotificationReferenceController.importOnPageLoad(importNumber, vehicleNumber, NormalMode)
+        case _ =>
+          controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
     else
       controllers.routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.0 when built
 }

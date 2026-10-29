@@ -25,6 +25,7 @@ import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{never, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.sections.initialquestions.VehicleFromEuPage
+import pages.sections.introduction.AmendSubmittedNotificationPage
 import pages.sections.vehicledetails.*
 import pages.{DraftIdPage, DraftVersionIdPage}
 import play.api.Application
@@ -243,6 +244,21 @@ class ConfirmVehicleTypeDetailsControllerSpec extends SpecBase with MockitoSugar
         }
       }
 
+      "must redirect to Notification reference AVD9.0 when amending a submitted notification" in {
+        val connector  = successfulConnector
+        val answers    = carSupplier.unsafeSet(AmendSubmittedNotificationPage, true)
+        val repository = stubSessionRepository(answers)
+        val app        = application(Some(answers), connector, repository)
+
+        running(app) {
+          val result = route(app, FakeRequest(POST, supplierRoute)).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual
+            vehicledetails.routes.NotificationReferenceController.supplierOnPageLoad(s, v, NormalMode).url
+        }
+      }
+
       "must call F4 with the hcvType and cabType fields for a heavy commercial vehicle" in {
         val connector = successfulConnector
         val app       = application(Some(hcvSupplier), connector, stubSessionRepository(hcvSupplier))
@@ -329,6 +345,21 @@ class ConfirmVehicleTypeDetailsControllerSpec extends SpecBase with MockitoSugar
             "bodyType"   -> "station wagon",
             "versionId"  -> 3L
           )
+        }
+      }
+
+      "must redirect to Notification reference AVD9.0 when amending a submitted notification" in {
+        val connector  = successfulConnector
+        val answers    = carImport.unsafeSet(AmendSubmittedNotificationPage, true)
+        val repository = stubSessionRepository(answers)
+        val app        = application(Some(answers), connector, repository)
+
+        running(app) {
+          val result = route(app, FakeRequest(POST, importRoute)).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual
+            vehicledetails.routes.NotificationReferenceController.importOnPageLoad(i, v, NormalMode).url
         }
       }
 

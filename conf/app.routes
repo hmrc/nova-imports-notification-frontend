@@ -249,6 +249,9 @@ POST        /import/:importNumber/import-entry-date/change                      
 GET         /import/:importNumber/confirm-import-entry-details                           controllers.vehicledetails.ConfirmImportEntryDetailsController.onPageLoad(importNumber: ImportNumber)
 POST        /import/:importNumber/confirm-import-entry-details                           controllers.vehicledetails.ConfirmImportEntryDetailsController.onSubmit(importNumber: ImportNumber)
 
+GET         /import/:importNumber/vehicles-from-import-entry-number                      controllers.vehicledetails.AddVehicleByImportEntryController.onPageLoad(importNumber: ImportNumber)
+POST        /import/:importNumber/vehicles-from-import-entry-number                      controllers.vehicledetails.AddVehicleByImportEntryController.onSubmit(importNumber: ImportNumber)
+
 GET         /import/:importNumber/vehicle/:vehicleNumber/first-registration-date-known           controllers.vehicledetails.DateOfFirstRegistrationKnownController.onPageLoad(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
 POST        /import/:importNumber/vehicle/:vehicleNumber/first-registration-date-known           controllers.vehicledetails.DateOfFirstRegistrationKnownController.onSubmit(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
 GET         /import/:importNumber/vehicle/:vehicleNumber/first-registration-date-known/change    controllers.vehicledetails.DateOfFirstRegistrationKnownController.onPageLoad(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
