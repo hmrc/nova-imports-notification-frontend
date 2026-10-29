@@ -1589,6 +1589,19 @@ confirmImportEntryDetails.title = Check the import entry details before adding v
 confirmImportEntryDetails.caption = Add vehicle details
 confirmImportEntryDetails.heading = Check the import entry details before adding vehicles
 
+##############################################
+# AVD-IE3.0 - Add vehicle by import entry    #
+##############################################
+# TODO: Welsh translations to be supplied by content team.
+addVehicleByImportEntry.title = Vehicles brought as part of this import entry number
+addVehicleByImportEntry.caption = Add vehicle details
+addVehicleByImportEntry.heading = Vehicles brought as part of import entry {0}
+addVehicleByImportEntry.paragraph.1 = Add one vehicle at a time. For each vehicle, provide the:
+addVehicleByImportEntry.list.1 = date it was first registered for road use
+addVehicleByImportEntry.list.2 = country it was first registered in
+addVehicleByImportEntry.paragraph.2 = You can usually find these details in the vehicle log book. If you do not have them, you can still continue with this notification.
+addVehicleByImportEntry.addVehicle = Add vehicle
+
 ####################################################################################
 # Vehicle details inset                                                            #
 ####################################################################################

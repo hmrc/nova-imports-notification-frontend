@@ -232,8 +232,7 @@ class ConfirmImportEntryDetailsControllerSpec extends SpecBase with MockitoSugar
 
     "onSubmit" - {
 
-      // TODO: change to AVD-IE3.0 when built
-      "must redirect a POST to the landing page when the save succeeds" in {
+      "must redirect a POST to AVD-IE3.0 for import 1 when the save succeeds" in {
 
         val application = applicationForSubmit(userAnswersWithGuardData, connectorReturning(Right(2L)))
 
@@ -241,7 +240,8 @@ class ConfirmImportEntryDetailsControllerSpec extends SpecBase with MockitoSugar
           val result = route(application, FakeRequest(POST, confirmImportEntryDetailsRoute)).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.LandingPageController.onPageLoad().url
+          redirectLocation(result).value mustEqual
+            vehicledetails.routes.AddVehicleByImportEntryController.onPageLoad(importNumber).url
         }
       }
 
