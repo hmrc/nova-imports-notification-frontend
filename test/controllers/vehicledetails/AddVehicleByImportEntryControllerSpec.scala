@@ -20,7 +20,7 @@ import base.SpecBase
 import com.google.inject.name.Names
 import controllers.actions.*
 import controllers.{routes, vehicledetails}
-import models.{AgentSelectedClient, DraftId, ImportNumber, UserAnswers}
+import models.{AgentSelectedClient, DraftId, ImportNumber, NormalMode, UserAnswers, VehicleNumber}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
@@ -208,8 +208,7 @@ class AddVehicleByImportEntryControllerSpec extends SpecBase with MockitoSugar {
 
     "onSubmit" - {
 
-      // TODO: change to AVD-IE4.0 when complete
-      "must redirect a POST to the Landing Page for import 1" in {
+      "must redirect a POST to AVD-IE4.0 for vehicle 1 against import 1" in {
 
         val application = applicationForSubmit(userAnswersWithGuardData, mockSessionRepository(userAnswersWithGuardData))
 
@@ -217,7 +216,8 @@ class AddVehicleByImportEntryControllerSpec extends SpecBase with MockitoSugar {
           val result = route(application, FakeRequest(POST, addVehicleByImportEntryRoute)).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.LandingPageController.onPageLoad().url
+          redirectLocation(result).value mustEqual
+            vehicledetails.routes.DateOfFirstRegistrationKnownController.onPageLoad(importNumber, VehicleNumber(1), NormalMode).url
         }
       }
 

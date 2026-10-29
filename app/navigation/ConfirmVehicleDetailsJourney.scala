@@ -93,7 +93,7 @@ object ConfirmVehicleDetailsJourney {
       (
         true,
         dateOfFirstRegistrationKnown.isDefined,
-        dateOfFirstRegistrationKnownChange
+        routes.DateOfFirstRegistrationKnownController.onPageLoad(importNumber, vehicleNumber, CheckMode)
       ),
       (
         dateOfFirstRegistrationKnown.contains(true),
@@ -114,8 +114,6 @@ object ConfirmVehicleDetailsJourney {
 
     questions.collectFirst { case (required, answered, call) if required && !answered => call }
   }
-
-  def dateOfFirstRegistrationKnownChange: Call = controllers.routes.LandingPageController.onPageLoad()
 
   def checkModeRoute(answers: UserAnswers, vehicleNumber: VehicleNumber): Call =
     (answers.vehicleSupplierNumber(vehicleNumber), answers.vehicleImportNumber(vehicleNumber)) match {

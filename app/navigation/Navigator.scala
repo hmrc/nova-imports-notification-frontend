@@ -215,6 +215,15 @@ class Navigator @Inject() () {
             vehicledetails.routes.NoPurchaseInvoiceReasonController.onPageLoad(page.supplierNumber, page.vehicleNumber, NormalMode)
           case _ => routes.JourneyRecoveryController.onPageLoad()
         }
+    case page: DateOfFirstRegistrationKnownPage =>
+      (userAnswers, _) =>
+        (userAnswers.get(page), userAnswers.vehicleImportNumber(page.vehicleNumber)) match {
+          case (Some(true), Some(importNumber)) =>
+            vehicledetails.routes.DateOfFirstRegistrationController.importOnPageLoad(importNumber, page.vehicleNumber, NormalMode)
+          case (Some(false), Some(importNumber)) =>
+            vehicledetails.routes.AddVehicleTypeController.importOnPageLoad(importNumber, page.vehicleNumber, NormalMode)
+          case _ => routes.JourneyRecoveryController.onPageLoad()
+        }
     case page: DateOfFirstRegistrationPage =>
       (userAnswers, _) =>
         (
@@ -383,16 +392,17 @@ class Navigator @Inject() () {
         if (userAnswers.get(page).exists(_.contains(VehicleDates.NoDates)))
           vehicledetails.routes.NoVehicleDatesController.onPageLoad(page.supplierNumber, page.vehicleNumber)
         else ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
-    case page: PurchaseInvoiceDatePage        => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
-    case page: PurchaseInvoiceNumberPage      => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
-    case page: DateOfAvailabilityPage         => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
-    case page: DateOfFirstRegistrationPage    => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
-    case page: CountryOfFirstRegistrationPage => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
-    case page: NoPurchaseInvoiceReasonPage    => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
-    case page: TotalAmountPaidPage            => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
-    case page: PaymentCurrencyPage            => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
-    case page: AddVehicleTypePage             => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
-    case page: AddVehicleDetailsCarPage       => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
+    case page: PurchaseInvoiceDatePage          => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
+    case page: PurchaseInvoiceNumberPage        => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
+    case page: DateOfAvailabilityPage           => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
+    case page: DateOfFirstRegistrationKnownPage => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
+    case page: DateOfFirstRegistrationPage      => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
+    case page: CountryOfFirstRegistrationPage   => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
+    case page: NoPurchaseInvoiceReasonPage      => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
+    case page: TotalAmountPaidPage              => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
+    case page: PaymentCurrencyPage              => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
+    case page: AddVehicleTypePage               => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
+    case page: AddVehicleDetailsCarPage         => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
     case page: AddVehicleDetailsLightCommercialPage     => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
     case page: AddVehicleDetailsHeavyCommercialPage     => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
     case page: AddVehicleDetailsMotorcyclePage          => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
