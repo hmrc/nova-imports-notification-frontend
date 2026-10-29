@@ -22,6 +22,7 @@ import controllers.{BaseController, purchaseraddress, routes}
 import models.requests.DataRequest
 import models.{NormalMode, PurchaserOrOnBehalf}
 import pages.sections.initialquestions.NotifyingAsPurchaserPage
+import pages.sections.purchaseraddress.PurchaserAddressPage
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import views.html.PurchaserAddressCheckYourAnswersView
 
@@ -53,9 +54,12 @@ object PurchaserAddressCheckYourAnswersController {
 
   def guardPredicate(request: DataRequest[?]): Boolean = {
     request.userContext match {
-      case ctx if ctx.isAgent => IsDraftIdDefined(request.userAnswers)
-      case _                  =>
+      case ctx if ctx.isAgent =>
         IsDraftIdDefined(request.userAnswers) &&
+        request.userAnswers.get(PurchaserAddressPage).isDefined
+      case _ =>
+        IsDraftIdDefined(request.userAnswers) &&
+        request.userAnswers.get(PurchaserAddressPage).isDefined &&
         request.userAnswers.get(NotifyingAsPurchaserPage).contains(PurchaserOrOnBehalf.OnBehalfOfPurchaser)
     }
   }
