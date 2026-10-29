@@ -91,7 +91,7 @@ object ConfirmImportEntryDetailsController {
   private val formPDateFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy")
 
   def nextPage(importNumber: ImportNumber): play.api.mvc.Call =
-    routes.LandingPageController.onPageLoad() // TODO: navigate to AVD-IE3.0 when built
+    controllers.vehicledetails.routes.AddVehicleByImportEntryController.onPageLoad(importNumber)
 
   def guardPredicate(importService: ImportService, importNumber: ImportNumber)(request: DataRequest[?]): Boolean =
     IsDraftIdDefined(request.userAnswers) &&
