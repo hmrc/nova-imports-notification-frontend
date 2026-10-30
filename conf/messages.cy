@@ -1266,6 +1266,7 @@ confirmVehicleTypeDetails.brakeHorsepower.label = Brake horsepower (bhp)
 confirmVehicleTypeDetails.brakeHorsepower.change.hidden = brake horsepower (bhp)
 confirmVehicleTypeDetails.modelNameNumber.label = Model name or number
 confirmVehicleTypeDetails.modelNameNumber.change.hidden = model name or number
+confirmVehicleTypeDetails.notProvided = Not provided
 
 #######################################################
 # AVD8.1 - Add vehicle details 8.1 - Car               #

@@ -188,6 +188,7 @@ object ConfirmVehicleTypeDetailsController {
             model = Some(d.model),
             derivative = Some(d.derivative),
             trim = Some(d.trim),
+            bodyType = Some(d.bodyType),
             lcvBodyType = Some(d.bodyType)
           )
         }
