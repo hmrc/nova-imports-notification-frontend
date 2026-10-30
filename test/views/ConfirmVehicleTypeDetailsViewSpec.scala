@@ -203,8 +203,21 @@ class ConfirmVehicleTypeDetailsViewSpec extends SpecBase with Matchers with Befo
         label("derivative")
       )
       valueFor(caravanDoc, label("make")) mustEqual "Swift"
+      valueFor(caravanDoc, label("bodyType")) mustEqual "Coachbuilt"
       valueFor(caravanDoc, label("modelNameNumber")) mustEqual "Voyager"
       valueFor(caravanDoc, label("makeOfBaseVehicle")) mustEqual "Fiat"
+    }
+
+    "must render Not provided for the body type when no motor caravan body type was given" in {
+      val caravanAnswers = emptyUserAnswers
+        .unsafeSet(AddVehicleTypePage(v), AddVehicleType.MotorCaravan)
+        .unsafeSet(
+          AddVehicleDetailsMotorCaravanPage(v),
+          AddVehicleDetailsMotorCaravan("Swift", AddVehicleDetailsMotorCaravan.NoBodyType, "Voyager", "Voyager 685FB 4 berth", "Fiat", "2.3TD")
+        )
+      val caravanDoc = supplierDoc(caravanAnswers)
+
+      valueFor(caravanDoc, label("bodyType")) mustEqual msgs("confirmVehicleTypeDetails.notProvided")
     }
 
     "must render the make, model, derivative and brake horsepower rows for an agricultural tractor" in {
