@@ -275,7 +275,7 @@ class ConfirmVehicleDetailsViewSpec extends SpecBase with Matchers with BeforeAn
       )
       valueFor(importDoc, label("dateOfFirstRegistrationKnown")) mustEqual msgs("site.yes")
       changeLinkFor(importDoc, label("dateOfFirstRegistrationKnown")).attr("href") mustEqual
-        controllers.routes.LandingPageController.onPageLoad().url
+        routes.DateOfFirstRegistrationKnownController.onPageLoad(i, v, CheckMode).url
       changeLinkFor(importDoc, label("dateOfFirstRegistrationKnown")).select(".govuk-visually-hidden").text mustEqual
         msgs("confirmVehicleDetails.dateOfFirstRegistrationKnown.change.hidden")
       changeLinkFor(importDoc, label("dateOfFirstRegistration")).attr("href") mustEqual
