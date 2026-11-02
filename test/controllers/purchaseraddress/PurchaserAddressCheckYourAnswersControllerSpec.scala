@@ -17,6 +17,8 @@
 package controllers.purchaseraddress
 
 import base.SpecBase
+import com.google.inject.name.Names
+import controllers.actions.*
 import controllers.{purchaseraddress, routes}
 import models.{Address, Country, DraftId, NormalMode, PurchaserOrOnBehalf, UserAnswers}
 import org.mockito.ArgumentMatchers.any
@@ -26,6 +28,8 @@ import pages.DraftIdPage
 import pages.sections.initialquestions.NotifyingAsPurchaserPage
 import pages.sections.purchaseraddress.{PurchaserAddressJourneyIdPage, PurchaserAddressPage}
 import play.api.Application
+import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import repositories.SessionRepository
@@ -40,8 +44,8 @@ class PurchaserAddressCheckYourAnswersControllerSpec extends SpecBase with Mocki
   private lazy val onChangeAddressRoute: String = purchaseraddress.routes.PurchaserAddressCheckYourAnswersController.onChangeAddress().url
 
   private val address = Address(
-    lines = Seq("12 High Street", "Reading"),
-    postcode = Some("RE12 9GC"),
+    lines = Seq("Address Line 1", "Address Line 2"),
+    postcode = Some("AA1 1AA"),
     country = Country("GB", "United Kingdom")
   )
 
@@ -57,16 +61,27 @@ class PurchaserAddressCheckYourAnswersControllerSpec extends SpecBase with Mocki
     m
   }
 
-  private def applicationWith(
+  private val answersWithoutAddress: UserAnswers =
+    emptyUserAnswers
+      .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
+      .unsafeSet(NotifyingAsPurchaserPage, PurchaserOrOnBehalf.OnBehalfOfPurchaser)
+
+  private def applicationFor(
+    identifierAction: Class[? <: IdentifierAction],
     userAnswers: Option[UserAnswers] = Some(answersWithAddress)
   ): Application =
-    applicationBuilder(userAnswers)
+    new GuiceApplicationBuilder()
+      .overrides(
+        bind[DataRequiredAction].to[DataRequiredActionImpl],
+        bind[IdentifierAction].qualifiedWith(Names.named("standard")).to(identifierAction),
+        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
+      )
       .build()
 
   "PurchaserAddressCheckYourAnswers Controller" - {
 
     "must return OK and the correct view for a GET" in {
-      val application = applicationWith()
+      val application = applicationFor(classOf[FakeIdentifierAction])
 
       running(application) {
         val request = FakeRequest(GET, onPageLoadRoute)
@@ -79,7 +94,7 @@ class PurchaserAddressCheckYourAnswersControllerSpec extends SpecBase with Mocki
     }
 
     "must redirect to Unauthorised for a GET if no session data is found" in {
-      val application = applicationWith(userAnswers = None)
+      val application = applicationFor(classOf[FakeIdentifierAction], userAnswers = None)
 
       running(application) {
         val request = FakeRequest(GET, onPageLoadRoute)
@@ -90,20 +105,90 @@ class PurchaserAddressCheckYourAnswersControllerSpec extends SpecBase with Mocki
       }
     }
 
-    "must redirect to Unauthorised for a GET when the address has not been saved yet" in {
-      val application = applicationWith(userAnswers = Some(emptyUserAnswers.unsafeSet(DraftIdPage, DraftId("DRAFT-001"))))
+    "with a purchaser address in the session" - {
 
-      running(application) {
-        val request = FakeRequest(GET, onPageLoadRoute)
-        val result  = route(application, request).value
+      "must return OK for a GET from a for a private individual" in {
+        val application = applicationFor(classOf[FakeIdentifierAction])
 
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+        running(application) {
+          status(route(application, FakeRequest(GET, onPageLoadRoute)).value) mustEqual OK
+        }
+      }
+
+      "must return OK for a GET from a non-VAT organisation" in {
+        val application = applicationFor(classOf[FakeOrganisationIdentifierAction])
+
+        running(application) {
+          status(route(application, FakeRequest(GET, onPageLoadRoute)).value) mustEqual OK
+        }
+      }
+
+      "must return OK for a GET from an agent with the agent enrolment" in {
+        val application = applicationFor(classOf[FakeAgentIdentifierAction])
+
+        running(application) {
+          status(route(application, FakeRequest(GET, onPageLoadRoute)).value) mustEqual OK
+        }
+      }
+
+      "must return OK for a GET from an agent without agent enrolment" in {
+        val application = applicationFor(classOf[FakeAgentNoEnrolmentsIdentifierAction])
+
+        running(application) {
+          status(route(application, FakeRequest(GET, onPageLoadRoute)).value) mustEqual OK
+        }
+      }
+    }
+
+    "with no purchaser address in the session" - {
+
+      "must redirect a GET to Unauthorised for a private individual" in {
+        val application = applicationFor(classOf[FakeIdentifierAction], Some(answersWithoutAddress))
+
+        running(application) {
+          val result = route(application, FakeRequest(GET, onPageLoadRoute)).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+        }
+      }
+
+      "must redirect a GET to Unauthorised for a non-VAT organisation" in {
+        val application = applicationFor(classOf[FakeOrganisationIdentifierAction], Some(answersWithoutAddress))
+
+        running(application) {
+          val result = route(application, FakeRequest(GET, onPageLoadRoute)).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+        }
+      }
+
+      "must redirect a GET to Unauthorised for an agent with the agent enrolment" in {
+        val application = applicationFor(classOf[FakeAgentIdentifierAction], Some(answersWithoutAddress))
+
+        running(application) {
+          val result = route(application, FakeRequest(GET, onPageLoadRoute)).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+        }
+      }
+
+      "must redirect a GET to Unauthorised for an agent without agent enrolment" in {
+        val application = applicationFor(classOf[FakeAgentNoEnrolmentsIdentifierAction], Some(answersWithoutAddress))
+
+        running(application) {
+          val result = route(application, FakeRequest(GET, onPageLoadRoute)).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+        }
       }
     }
 
     "must redirect to Unauthorised for a GET when there is no draft id" in {
-      val application = applicationWith(userAnswers = Some(emptyUserAnswers.unsafeSet(PurchaserAddressPage, address)))
+      val application = applicationFor(classOf[FakeIdentifierAction], userAnswers = Some(emptyUserAnswers.unsafeSet(PurchaserAddressPage, address)))
 
       running(application) {
         val request = FakeRequest(GET, onPageLoadRoute)
@@ -116,7 +201,7 @@ class PurchaserAddressCheckYourAnswersControllerSpec extends SpecBase with Mocki
 
     "must redirect to the notification task list on submit, leaving the saved address alone" in {
       val sessionRepository = stubSessionRepository()
-      val application       = applicationWith()
+      val application       = applicationFor(classOf[FakeIdentifierAction])
 
       running(application) {
         val request = FakeRequest(POST, onSubmitRoute)
@@ -133,7 +218,7 @@ class PurchaserAddressCheckYourAnswersControllerSpec extends SpecBase with Mocki
       val answersWithJourneyId = answersWithAddress.unsafeSet(PurchaserAddressJourneyIdPage, "journey-123")
 
       val sessionRepository = stubSessionRepository()
-      val application       = applicationWith(userAnswers = Some(answersWithJourneyId))
+      val application       = applicationFor(classOf[FakeIdentifierAction], userAnswers = Some(answersWithJourneyId))
 
       running(application) {
         val request = FakeRequest(GET, onChangeAddressRoute)
@@ -147,7 +232,7 @@ class PurchaserAddressCheckYourAnswersControllerSpec extends SpecBase with Mocki
     }
 
     "must redirect to Unauthorised on change address if no session data is found" in {
-      val application = applicationWith(userAnswers = None)
+      val application = applicationFor(classOf[FakeIdentifierAction], userAnswers = None)
 
       running(application) {
         val request = FakeRequest(GET, onChangeAddressRoute)

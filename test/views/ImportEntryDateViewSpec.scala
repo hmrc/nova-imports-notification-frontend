@@ -146,8 +146,12 @@ class ImportEntryDateViewSpec extends SpecBase with Matchers with BeforeAndAfter
       Jsoup.parse(render(mode = CheckMode)).select("form").attr("action") mustEqual checkModeSubmitCall.url
     }
 
-    "must not set autocomplete on the form itself" in {
-      Jsoup.parse(render()).select("form").hasAttr("autocomplete") mustBe false
+    "must set autocomplete off on the day, month and year inputs" in {
+      val document = Jsoup.parse(render())
+
+      Seq("day", "month", "year").foreach { field =>
+        document.getElementById(s"value.$field").attr("autocomplete") mustEqual "off"
+      }
     }
 
     "must show an error summary linking to the day field when the date is missing" in {

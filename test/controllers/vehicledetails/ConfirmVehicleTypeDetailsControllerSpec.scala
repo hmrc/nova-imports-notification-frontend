@@ -63,6 +63,7 @@ class ConfirmVehicleTypeDetailsControllerSpec extends SpecBase with MockitoSugar
     .unsafeSet(AllVehiclesQuery, Map("1" -> Json.obj("importNumber" -> 1)))
 
   private val carDetails     = AddVehicleDetailsCar("Land Rover", "Discovery 4", "3.0TD", "XS", "station wagon")
+  private val lcvDetails     = LightCommercialVehicleDetails("Ford", "Transit", "2.0 TDCi", "L2 H2", "panel van")
   private val hcvDetails     = AddVehicleDetailsHeavyCommercial("Renault Trucks", "Magnum", "midlift axle tractor", "sleeper cab")
   private val caravanDetails = AddVehicleDetailsMotorCaravan("Swift", "Coachbuilt", "Voyager", "Voyager 685FB 4 berth", "Fiat", "2.3TD")
 
@@ -71,6 +72,9 @@ class ConfirmVehicleTypeDetailsControllerSpec extends SpecBase with MockitoSugar
 
   private val carImport: UserAnswers =
     importBase.unsafeSet(AddVehicleTypePage(v), AddVehicleType.Car).unsafeSet(AddVehicleDetailsCarPage(v), carDetails)
+
+  private val lcvSupplier: UserAnswers =
+    supplierBase.unsafeSet(AddVehicleTypePage(v), AddVehicleType.Lcv).unsafeSet(AddVehicleDetailsLightCommercialPage(v), lcvDetails)
 
   private val hcvSupplier: UserAnswers =
     supplierBase.unsafeSet(AddVehicleTypePage(v), AddVehicleType.Hcv).unsafeSet(AddVehicleDetailsHeavyCommercialPage(v), hcvDetails)
@@ -259,6 +263,25 @@ class ConfirmVehicleTypeDetailsControllerSpec extends SpecBase with MockitoSugar
         }
       }
 
+      "must call F4 with the light commercial vehicle body type under both bodyType and lcvBodyType" in {
+        val connector = successfulConnector
+        val app       = application(Some(lcvSupplier), connector, stubSessionRepository(lcvSupplier))
+
+        running(app) {
+          status(route(app, FakeRequest(POST, supplierRoute)).value) mustEqual SEE_OTHER
+
+          capturedBody(connector, "supplier/1/vehicle/1/details") mustEqual Json.obj(
+            "make"        -> "Ford",
+            "model"       -> "Transit",
+            "derivative"  -> "2.0 TDCi",
+            "trim"        -> "L2 H2",
+            "bodyType"    -> "panel van",
+            "lcvBodyType" -> "panel van",
+            "versionId"   -> 3L
+          )
+        }
+      }
+
       "must call F4 with the hcvType and cabType fields for a heavy commercial vehicle" in {
         val connector = successfulConnector
         val app       = application(Some(hcvSupplier), connector, stubSessionRepository(hcvSupplier))
@@ -288,6 +311,27 @@ class ConfirmVehicleTypeDetailsControllerSpec extends SpecBase with MockitoSugar
             "modelNameNumber"   -> "Voyager",
             "caravanVersion"    -> "Voyager 685FB 4 berth",
             "caravanBody"       -> "Coachbuilt",
+            "makeOfBaseVehicle" -> "Fiat",
+            "derivative"        -> "2.3TD",
+            "versionId"         -> 3L
+          )
+        }
+      }
+
+      "must call F4 with caravanBody N/A when no motor caravan body type was given" in {
+        val answers =
+          caravanSupplier.unsafeSet(AddVehicleDetailsMotorCaravanPage(v), caravanDetails.copy(bodyType = AddVehicleDetailsMotorCaravan.NoBodyType))
+        val connector = successfulConnector
+        val app       = application(Some(answers), connector, stubSessionRepository(answers))
+
+        running(app) {
+          status(route(app, FakeRequest(POST, supplierRoute)).value) mustEqual SEE_OTHER
+
+          capturedBody(connector, "supplier/1/vehicle/1/details") mustEqual Json.obj(
+            "caravanMake"       -> "Swift",
+            "modelNameNumber"   -> "Voyager",
+            "caravanVersion"    -> "Voyager 685FB 4 berth",
+            "caravanBody"       -> "N/A",
             "makeOfBaseVehicle" -> "Fiat",
             "derivative"        -> "2.3TD",
             "versionId"         -> 3L

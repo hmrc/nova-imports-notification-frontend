@@ -17,7 +17,7 @@
 package viewmodels.checkAnswers
 
 import controllers.vehicledetails.routes
-import models.{AddVehicleType, CheckMode, ImportNumber, MotorcycleFuelType, SupplierNumber, UserAnswers, VehicleNumber}
+import models.{AddVehicleDetailsMotorCaravan, AddVehicleType, CheckMode, ImportNumber, MotorcycleFuelType, SupplierNumber, UserAnswers, VehicleNumber}
 import pages.sections.vehicledetails.*
 import play.api.i18n.Messages
 import play.api.mvc.Call
@@ -110,7 +110,7 @@ object ConfirmVehicleTypeDetailsHelper {
         answers.get(AddVehicleDetailsMotorCaravanPage(vehicleNumber)).toSeq.flatMap { d =>
           Seq(
             row("make", d.make, c),
-            row("bodyType", d.bodyType, c),
+            row("bodyType", motorCaravanBodyTypeText(d.bodyType), c),
             row("modelNameNumber", d.model, c),
             row("version", d.version, c),
             row("makeOfBaseVehicle", d.makeOfBaseVehicle, c),
@@ -130,6 +130,9 @@ object ConfirmVehicleTypeDetailsHelper {
 
   private def fuelTypeText(fuelType: MotorcycleFuelType)(implicit messages: Messages): String =
     messages(s"addVehicleDetailsMotorcycle.fuelType.option.${fuelType.jsonValue}")
+
+  private def motorCaravanBodyTypeText(bodyType: String)(implicit messages: Messages): String =
+    if (bodyType == AddVehicleDetailsMotorCaravan.NoBodyType) messages("confirmVehicleTypeDetails.notProvided") else bodyType
 
   private def row(field: String, value: String, change: Call)(implicit messages: Messages): SummaryListRow =
     SummaryListRowViewModel(

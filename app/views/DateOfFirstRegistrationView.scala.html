@@ -49,7 +49,7 @@
                 legend = LegendViewModel(
                     HtmlContent(s"""<h2 class="govuk-fieldset__heading">${messages("dateOfFirstRegistration.question.heading")}</h2>""")
                 ).withCssClass(LegendSize.Medium.toString)
-            ).withHint(HintViewModel(Text(messages("dateOfFirstRegistration.hint"))))
+            ).withHint(HintViewModel(Text(messages("dateOfFirstRegistration.hint")))).withAutocomplete("off")
         )
 
         @govukButton(

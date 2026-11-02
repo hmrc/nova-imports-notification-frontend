@@ -16,11 +16,11 @@
 
 package controllers.vehicledetails
 
-import controllers.{BaseController, routes}
+import controllers.{BaseController, routes, vehicledetails}
 import controllers.actions.*
 import controllers.utils.IsDraftIdDefined
 import controllers.vehicledetails.AddVehicleByImportEntryController.*
-import models.ImportNumber
+import models.{ImportNumber, NormalMode}
 import models.requests.DataRequest
 import pages.sections.initialquestions.VehicleFromEuPage
 import pages.sections.vehicledetails.{ImportEntryDatePage, ImportEntryNumberPage}
@@ -52,7 +52,7 @@ class AddVehicleByImportEntryController @Inject() (
   def onSubmit(importNumber: ImportNumber): Action[AnyContent] =
     actions.authAndGetDataWithUserTypeGuard(guardPredicate(importService, importNumber)).async { implicit request =>
       vehicleService.addForImport(request.userAnswers, importNumber).map { vehicleNumber =>
-        Redirect(routes.LandingPageController.onPageLoad()) // TODO: navigate to AVD-IE4.0 with vehicleNumber when built
+        Redirect(vehicledetails.routes.DateOfFirstRegistrationKnownController.onPageLoad(importNumber, vehicleNumber, NormalMode))
       }
     }
 }
