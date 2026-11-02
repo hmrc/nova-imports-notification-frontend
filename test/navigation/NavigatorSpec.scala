@@ -772,6 +772,27 @@ class NavigatorSpec extends SpecBase {
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
 
+      "must go from NumberOfVehiclesPage AVD10.0 to the landing page when one vehicle is selected" in {
+        val page = NumberOfVehiclesPage(VehicleNumber(1))
+        val ua   = supplierVehicle.unsafeSet(page, NumberOfVehicles(OneOrMultipleVehicles.One, None))
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from NumberOfVehiclesPage AVD10.0 to the landing page when more than one vehicle is selected" in {
+        val page = NumberOfVehiclesPage(VehicleNumber(1))
+        val ua   = supplierVehicle.unsafeSet(page, NumberOfVehicles(OneOrMultipleVehicles.Multiple, Some(5)))
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from NumberOfVehiclesPage AVD10.0 to JourneyRecovery when no answer is found" in {
+        navigator.nextPage(
+          NumberOfVehiclesPage(VehicleNumber(1)),
+          NormalMode,
+          supplierVehicle,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
       "must go from CountryOfFirstRegistrationPage AVD5.2 to DateOfAvailability AVD5.0 when the vehicle was made available" in {
         val page = CountryOfFirstRegistrationPage(VehicleNumber(1))
         val ua   = supplierVehicle
@@ -1723,6 +1744,27 @@ class NavigatorSpec extends SpecBase {
           userAnswers,
           NovaUserType.VatRegisteredOrganisation
         ) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from NumberOfVehiclesPage AVD10.0 to the landing page when one vehicle is selected" in {
+        val page = NumberOfVehiclesPage(VehicleNumber(1))
+        val ua   = userAnswers.unsafeSet(page, NumberOfVehicles(OneOrMultipleVehicles.One, None))
+        navigator.nextPage(page, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from NumberOfVehiclesPage AVD10.0 to the landing page when more than one vehicle is selected" in {
+        val page = NumberOfVehiclesPage(VehicleNumber(1))
+        val ua   = userAnswers.unsafeSet(page, NumberOfVehicles(OneOrMultipleVehicles.Multiple, Some(5)))
+        navigator.nextPage(page, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from NumberOfVehiclesPage AVD10.0 to JourneyRecovery when no answer is found" in {
+        navigator.nextPage(
+          NumberOfVehiclesPage(VehicleNumber(1)),
+          CheckMode,
+          userAnswers,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
     }
   }

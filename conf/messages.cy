@@ -1631,3 +1631,19 @@ notificationReference.hint = It must be 13 characters long, starting with NOVA, 
 notificationReference.error.required = Enter the notification reference
 notificationReference.error.format = Enter the notification reference in the correct format
 notificationReference.error.length = The notification reference must be 13 characters long
+
+####################################################################################
+# AVD10.0 - Add vehicle details 10.0 - One or multiple vehicles                    #
+####################################################################################
+# TODO: Welsh translations to be supplied by content team.
+numberOfVehicles.title = Number of vehicles
+numberOfVehicles.caption = Add vehicle details
+numberOfVehicles.heading.1 = Number of vehicles
+numberOfVehicles.heading.2 = How many vehicles is this notification for?
+numberOfVehicles.paragraph = If you need to notify for more than one vehicle with the same details, select ‘More than one vehicle’. This option is only available if you’ve not added vehicles to the notification.
+numberOfVehicles.radio.one = One vehicle
+numberOfVehicles.radio.many = More than one vehicle
+numberOfVehicles.label.count = Number of vehicles of the same type
+numberOfVehicles.error.required = Select how many vehicles this notification is for
+numberOfVehicles.error.input.required = Number of vehicles of the same type cannot be blank
+numberOfVehicles.error.input.format = Enter a number between 2 and 100

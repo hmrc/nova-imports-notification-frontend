@@ -303,6 +303,13 @@ class Navigator @Inject() () {
           case Some(_) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.1 when built
           case _       => routes.JourneyRecoveryController.onPageLoad()
         }
+    case page: NumberOfVehiclesPage =>
+      (userAnswers, _) =>
+        userAnswers.get(page).map(_.oneOrMultipleVehicles) match {
+          case Some(OneOrMultipleVehicles.One)      => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.1 when built
+          case Some(OneOrMultipleVehicles.Multiple) => routes.LandingPageController.onPageLoad() // TODO: navigate to AMV1.0 when built
+          case None                                 => routes.JourneyRecoveryController.onPageLoad()
+        }
     case page: AddVehicleTypePage =>
       (userAnswers, _) =>
         (
@@ -387,6 +394,13 @@ class Navigator @Inject() () {
       (_, _) => supplierdetails.routes.SupplierDetailsCheckYourAnswersController.onPageLoad(page.supplierNumber)
     case _: NotificationReferencePage =>
       (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.1 when built
+    case page: NumberOfVehiclesPage =>
+      (userAnswers, _) =>
+        userAnswers.get(page).map(_.oneOrMultipleVehicles) match {
+          case Some(OneOrMultipleVehicles.One)      => routes.LandingPageController.onPageLoad() // TODO: route TBC, may go back to the CYA C-AVD3.0
+          case Some(OneOrMultipleVehicles.Multiple) => routes.LandingPageController.onPageLoad() // TODO: navigate to AMV1.0 when built
+          case None                                 => routes.JourneyRecoveryController.onPageLoad()
+        }
     case page: VehicleDatesPage =>
       (userAnswers, _) =>
         if (userAnswers.get(page).exists(_.contains(VehicleDates.NoDates)))
