@@ -22,15 +22,17 @@ import connectors.{GetClientListError, NovaImportsBackendConnector, RemoveClient
 import controllers.actions.*
 import controllers.{clientselection, routes}
 import forms.RemoveClientFormProvider
-import models.{ClientList, ClientListQuery, ClientSummary}
+import models.{ClientList, ClientListQuery, ClientSummary, UserAnswers}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{never, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
+import pages.ClientToRemovePage
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import repositories.SessionRepository
 import uk.gov.hmrc.http.HeaderCarrier
 import views.html.RemoveClientView
 
@@ -44,8 +46,11 @@ class RemoveClientControllerSpec extends SpecBase with MockitoSugar {
 
   private val form = new RemoveClientFormProvider()()
 
-  private def removeRoute = clientselection.routes.RemoveClientController.onPageLoad(vrn).url
+  private def selectRoute = clientselection.routes.RemoveClientController.select(vrn).url
+  private def removeRoute = clientselection.routes.RemoveClientController.onPageLoad().url
   private def clientsUrl  = clientselection.routes.ViewClientsController.onPageLoad(None, None, 1).url
+
+  private val answers = emptyUserAnswers.unsafeSet(ClientToRemovePage, vrn)
 
   private val clientLookup = ClientListQuery(vrn = Some(vrn))
   private val otherClients = ClientListQuery(start = 0, count = 2)
@@ -64,8 +69,8 @@ class RemoveClientControllerSpec extends SpecBase with MockitoSugar {
     connector
   }
 
-  private def application(connector: NovaImportsBackendConnector): Application =
-    applicationBuilderWithAgentAsNovaAgent(userAnswers = Some(emptyUserAnswers))
+  private def application(connector: NovaImportsBackendConnector, userAnswers: UserAnswers = answers): Application =
+    applicationBuilderWithAgentAsNovaAgent(userAnswers = Some(userAnswers))
       .overrides(bind[NovaImportsBackendConnector].toInstance(connector))
       .build()
 
@@ -78,7 +83,7 @@ class RemoveClientControllerSpec extends SpecBase with MockitoSugar {
         bind[IdentifierAction].qualifiedWith(Names.named("vatTrader")).to[FakeIdentifierAction],
         bind[IdentifierAction].qualifiedWith(Names.named("novaAgent")).to[UnauthorisedIdentifierAction],
         bind[IdentifierAction].qualifiedWith(Names.named("ogd")).to[FakeIdentifierAction],
-        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(Some(emptyUserAnswers))),
+        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(Some(answers))),
         bind[NovaImportsBackendConnector].toInstance(connector)
       )
       .build()
@@ -88,11 +93,48 @@ class RemoveClientControllerSpec extends SpecBase with MockitoSugar {
 
   "RemoveClientController" - {
 
+    "select" - {
+
+      "must be served from /clients/remove/:vrn" in {
+        running(application(connector())) {
+          selectRoute mustEqual s"/nova-imports/clients/remove/$vrn"
+        }
+      }
+
+      "must save the client in the session and redirect to the remove client page" in {
+        val repo = mock[SessionRepository]
+        when(repo.setPage(any(), any(), any())(any())).thenReturn(Future.successful(answers))
+
+        val app = applicationBuilderWithAgentAsNovaAgent(userAnswers = Some(emptyUserAnswers))
+          .overrides(bind[NovaImportsBackendConnector].toInstance(connector()), bind[SessionRepository].toInstance(repo))
+          .build()
+
+        running(app) {
+          val result = route(app, FakeRequest(GET, selectRoute)).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual removeRoute
+          verify(repo).setPage(any(), eqTo(ClientToRemovePage), eqTo(vrn))(any())
+        }
+      }
+    }
+
     "onPageLoad" - {
 
-      "must be served from /remove-client/:vrn" in {
+      "must be served from /remove-client" in {
         running(application(connector())) {
-          removeRoute mustEqual s"/nova-imports/remove-client/$vrn"
+          removeRoute mustEqual "/nova-imports/remove-client"
+        }
+      }
+
+      "must redirect to Unauthorised when no client has been chosen to remove" in {
+        val app = application(connector(), emptyUserAnswers)
+
+        running(app) {
+          val result = route(app, FakeRequest(GET, removeRoute)).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
         }
       }
 
@@ -245,6 +287,19 @@ class RemoveClientControllerSpec extends SpecBase with MockitoSugar {
       "must redirect to Unauthorised without removing the client when the user is not an agent" in {
         val backend = connector()
         val app     = nonAgentApplication(backend)
+
+        running(app) {
+          val result = submit(app, "true")
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+          verify(backend, never).removeClient(any[String])(using any[HeaderCarrier])
+        }
+      }
+
+      "must redirect to Unauthorised without removing anything when no client has been chosen to remove" in {
+        val backend = connector()
+        val app     = application(backend, emptyUserAnswers)
 
         running(app) {
           val result = submit(app, "true")

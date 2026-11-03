@@ -21,12 +21,14 @@ import controllers.BaseController
 import controllers.actions.*
 import controllers.routes.{JourneyRecoveryController, LandingPageController, UnauthorisedController}
 import forms.RemoveClientFormProvider
-import models.ClientListQuery
+import models.{ClientListQuery, UserAnswers}
 import models.requests.OptionalDataRequest
+import pages.ClientToRemovePage
 import play.api.Logging
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import play.twirl.api.Html
+import repositories.SessionRepository
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import views.html.RemoveClientView
@@ -39,6 +41,7 @@ class RemoveClientController @Inject() (
   val controllerComponents: MessagesControllerComponents,
   actions: Actions,
   connector: NovaImportsBackendConnector,
+  sessionRepository: SessionRepository,
   formProvider: RemoveClientFormProvider,
   view: RemoveClientView
 )(implicit ec: ExecutionContext)
@@ -47,23 +50,37 @@ class RemoveClientController @Inject() (
 
   val form: Form[Boolean] = formProvider()
 
-  def onPageLoad(vrn: String): Action[AnyContent] =
+  def select(vrn: String): Action[AnyContent] =
     actions.novaAgentAuthAndGetOptionalData().async { implicit request =>
-      renderPage(vrn, form, Ok(_))
+      sessionRepository
+        .setPage(request.userAnswers.getOrElse(UserAnswers(request.userId)), ClientToRemovePage, vrn)
+        .map(_ => Redirect(routes.RemoveClientController.onPageLoad()))
     }
 
-  def onSubmit(vrn: String): Action[AnyContent] =
+  def onPageLoad(): Action[AnyContent] =
     actions.novaAgentAuthAndGetOptionalData().async { implicit request =>
-      form
-        .bindFromRequest()
-        .fold(
-          formWithErrors => renderPage(vrn, formWithErrors, BadRequest(_)),
-          {
-            case true  => removeAndRedirect(vrn)
-            case false => Future.successful(Redirect(routes.ViewClientsController.onPageLoad(None, None, 1)))
-          }
-        )
+      withClientToRemove(vrn => renderPage(vrn, form, Ok(_)))
     }
+
+  def onSubmit(): Action[AnyContent] =
+    actions.novaAgentAuthAndGetOptionalData().async { implicit request =>
+      withClientToRemove { vrn =>
+        form
+          .bindFromRequest()
+          .fold(
+            formWithErrors => renderPage(vrn, formWithErrors, BadRequest(_)),
+            {
+              case true  => removeAndRedirect(vrn)
+              case false => Future.successful(Redirect(routes.ViewClientsController.onPageLoad(None, None, 1)))
+            }
+          )
+      }
+    }
+
+  private def withClientToRemove(block: String => Future[Result])(implicit request: OptionalDataRequest[AnyContent]): Future[Result] =
+    request.userAnswers
+      .flatMap(_.get(ClientToRemovePage))
+      .fold(Future.successful(Redirect(UnauthorisedController.onPageLoad())))(block)
 
   private def removeAndRedirect(vrn: String)(implicit request: OptionalDataRequest[AnyContent]): Future[Result] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
