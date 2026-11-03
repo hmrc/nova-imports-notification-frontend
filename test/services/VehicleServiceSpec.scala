@@ -257,6 +257,24 @@ class VehicleServiceSpec extends SpecBase with MockitoSugar {
     }
   }
 
+  "VehicleService.moreThanOneVehicle" - {
+
+    "must be false when there is only one vehicle with values" in {
+      val answers = emptyUserAnswers.unsafeSet(AllVehiclesQuery, Map("1" -> forSupplier(1, "INV-2026-001")))
+
+      newService(mock[SessionRepository]).moreThanOneVehicle(answers) mustBe false
+    }
+
+    "must be true when there are two or more vehicles with values" in {
+      val answers = emptyUserAnswers.unsafeSet(
+        AllVehiclesQuery,
+        Map("1" -> forSupplier(1, "INV-2026-001"), "2" -> forSupplier(1, "INV-2026-002"))
+      )
+
+      newService(mock[SessionRepository]).moreThanOneVehicle(answers) mustBe true
+    }
+  }
+
   "VehicleService.inOrder" - {
 
     "must sort 10 after 2" in {

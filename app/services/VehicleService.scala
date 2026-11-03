@@ -54,6 +54,8 @@ trait VehicleService {
 
   def count(answers: UserAnswers): Int
 
+  def moreThanOneVehicle(answers: UserAnswers): Boolean
+
   def inOrder(answers: UserAnswers): Seq[(VehicleNumber, JsObject)]
 }
 
@@ -112,6 +114,9 @@ class VehicleServiceImpl @Inject() (
 
   def count(answers: UserAnswers): Int =
     vehiclesWithValues(answers).size
+
+  def moreThanOneVehicle(answers: UserAnswers): Boolean =
+    count(answers) > 1
 
   def inOrder(answers: UserAnswers): Seq[(VehicleNumber, JsObject)] =
     vehiclesWithValues(answers).toSeq

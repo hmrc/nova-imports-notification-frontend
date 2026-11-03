@@ -1,0 +1,70 @@
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@this(
+        layout: templates.Layout,
+        formHelper: FormWithCSRF,
+        govukErrorSummary: GovukErrorSummary,
+        govukInsetText: GovukInsetText,
+        govukTextarea: GovukTextarea,
+        govukButton: GovukButton
+)
+
+@(form: Form[String], backendErrors: Seq[String], vehicleDetails: Option[InsetText], postAction: Call, numberOfVehicles: Int)(implicit request: Request[?], messages: Messages)
+
+@errorList = @{
+    form.errors.map(error => ErrorLink(href = Some(s"#${error.key}"), content = Text(messages(error.message, error.args*)))) ++
+        backendErrors.map(error => ErrorLink(href = Some("#enterVinNumbers"), content = Text(error)))
+}
+
+@hasErrors = @{ form.errors.nonEmpty || backendErrors.nonEmpty }
+
+@title = @{ messages("enterVinNumbers.title", numberOfVehicles) }
+
+@layout(
+    pageTitle = titleNoForm(if (hasErrors) s"""${messages("error.title.prefix")} ${title}""" else title),
+    showBackLink = true
+) {
+
+    @formHelper(action = postAction) {
+
+        @if(hasErrors) {
+            @govukErrorSummary(ErrorSummary(errorList = errorList, title = Text(messages("error.summary.title"))))
+        }
+
+        @vehicleDetails.map(govukInsetText(_))
+
+        <span class="govuk-caption-l">@messages("enterVinNumbers.caption")</span>
+
+        <h1 class="govuk-label-wrapper">
+            <label class="govuk-label govuk-label--l" for="enterVinNumbers">
+                @messages("enterVinNumbers.heading", numberOfVehicles)
+            </label>
+        </h1>
+
+        @govukTextarea(
+            Textarea(
+                id = "enterVinNumbers",
+                name = "enterVinNumbers",
+                value = form("enterVinNumbers").value,
+                hint = Some(Hint(content = Text(messages("enterVinNumbers.hint")))),
+                errorMessage = if (hasErrors) Some(ErrorMessage(content = Text(" "))) else None
+            )
+        )
+
+        @govukButton(ButtonViewModel(messages("site.continue")))
+    }
+}

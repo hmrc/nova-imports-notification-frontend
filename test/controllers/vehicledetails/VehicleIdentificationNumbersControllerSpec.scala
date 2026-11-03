@@ -30,7 +30,7 @@ import org.scalatestplus.mockito.MockitoSugar
 import pages.{AgentSelectedClientPage, DraftIdPage}
 import pages.sections.initialquestions.VehicleFromEuPage
 import pages.sections.introduction.AmendSubmittedNotificationPage
-import pages.sections.vehicledetails.{AddVehicleDetailsHeavyCommercialPage, AddVehicleTypePage, VehicleIdentificationNumbersPage}
+import pages.sections.vehicledetails.{AddVehicleDetailsHeavyCommercialPage, AddVehicleTypePage, NumberOfVehiclesPage, VehicleIdentificationNumbersPage}
 import play.api.Application
 import play.api.http.Writeable
 import play.api.inject.bind
@@ -66,6 +66,7 @@ class VehicleIdentificationNumbersControllerSpec extends SpecBase with MockitoSu
     answers
       .unsafeSet(AddVehicleTypePage(vehicleNumber), AddVehicleType.Hcv)
       .unsafeSet(AddVehicleDetailsHeavyCommercialPage(vehicleNumber), AddVehicleDetailsHeavyCommercial("Make", "Model", "HcvType", "CabType"))
+      .unsafeSet(NumberOfVehiclesPage(vehicleNumber), NumberOfVehicles(OneMultiVehicle.More, Some(5)))
 
   val supplierAnswers: UserAnswers = withVehicleDetails(
     emptyUserAnswers
@@ -312,6 +313,18 @@ class VehicleIdentificationNumbersControllerSpec extends SpecBase with MockitoSu
 
         mustBeUnauthorised(applicationFor(classOf[FakeVatTraderIdentifierAction], Some(answers)).build(), FakeRequest(GET, supplierRoute))
       }
+
+      "must redirect to Unauthorised for a GET when AVD10.0 was answered 'One vehicle'" in {
+        val answers = supplierAnswers.unsafeSet(NumberOfVehiclesPage(vehicleNumber), NumberOfVehicles(OneMultiVehicle.One, None))
+
+        mustBeUnauthorised(applicationFor(classOf[FakeVatTraderIdentifierAction], Some(answers)).build(), FakeRequest(GET, supplierRoute))
+      }
+
+      "must redirect to Unauthorised for a GET when AVD10.0 has not been answered" in {
+        val answers = supplierAnswers.remove(NumberOfVehiclesPage(vehicleNumber)).success.value
+
+        mustBeUnauthorised(applicationFor(classOf[FakeVatTraderIdentifierAction], Some(answers)).build(), FakeRequest(GET, supplierRoute))
+      }
     }
 
     "import journey" - {
@@ -441,6 +454,18 @@ class VehicleIdentificationNumbersControllerSpec extends SpecBase with MockitoSu
 
       "must redirect to Unauthorised for a GET when the vehicle has no answers yet" in {
         val answers = importAnswers.unsafeSet(AllVehiclesQuery, Map("1" -> Json.obj("importNumber" -> 1)))
+
+        mustBeUnauthorised(applicationFor(classOf[FakeVatTraderIdentifierAction], Some(answers)).build(), FakeRequest(GET, importRoute))
+      }
+
+      "must redirect to Unauthorised for a GET when AVD10.0 was answered 'One vehicle'" in {
+        val answers = importAnswers.unsafeSet(NumberOfVehiclesPage(vehicleNumber), NumberOfVehicles(OneMultiVehicle.One, None))
+
+        mustBeUnauthorised(applicationFor(classOf[FakeVatTraderIdentifierAction], Some(answers)).build(), FakeRequest(GET, importRoute))
+      }
+
+      "must redirect to Unauthorised for a GET when AVD10.0 has not been answered" in {
+        val answers = importAnswers.remove(NumberOfVehiclesPage(vehicleNumber)).success.value
 
         mustBeUnauthorised(applicationFor(classOf[FakeVatTraderIdentifierAction], Some(answers)).build(), FakeRequest(GET, importRoute))
       }

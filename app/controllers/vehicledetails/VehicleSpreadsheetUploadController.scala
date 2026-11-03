@@ -64,6 +64,9 @@ class VehicleSpreadsheetUploadController @Inject() (
           .map(_ => Redirect(removeUrl))
       } else {
         connector.getFileUploadSummary(draftId).map {
+          case Right(summary) if summary.kind != "SPREADSHEET" =>
+            logger.warn(s"Expected a spreadsheet upload in progress for draftId ${draftId.value} but found ${summary.kind}")
+            Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
           case Right(summary) =>
             errorRedirectFor(summary.fileStatus, summary.failureReason) match {
               case Some(call) => Redirect(call)
@@ -94,6 +97,9 @@ class VehicleSpreadsheetUploadController @Inject() (
       val lang = messagesApi.preferred(request)
 
       connector.getFileUploadSummary(request.userAnswers.get(DraftIdPage).get).map {
+        case Right(summary) if summary.kind != "SPREADSHEET" =>
+          logger.warn(s"Expected a spreadsheet upload in progress but found ${summary.kind}")
+          InternalServerError
         case Right(summary) =>
           errorRedirectFor(summary.fileStatus, summary.failureReason) match {
             case Some(call) =>

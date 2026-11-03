@@ -14,14 +14,12 @@
  * limitations under the License.
  *@
 
-@import controllers.vehicledetails.routes
-
 @this(
         layout: templates.Layout,
         govukButton: GovukButton
 )
 
-@()(implicit request: Request[?], messages: Messages)
+@(tryAgainUrl: Call)(implicit request: Request[?], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("uploadSpreadsheetErrorUnknown.title"))) {
 
@@ -34,7 +32,7 @@
     <div class="govuk-button-group">
         @govukButton(
             ButtonViewModel(messages("uploadSpreadsheetErrorUnknown.buttonLabel"))
-                .asLink(routes.UploadVehicleSpreadsheetController.onPageLoad(restart = true).url)
+                .asLink(tryAgainUrl.url)
         )
 
         <a class="govuk-link" href="@controllers.routes.NotificationTaskListController.onPageLoad().url">@messages("uploadSpreadsheetErrorUnknown.link")</a>
