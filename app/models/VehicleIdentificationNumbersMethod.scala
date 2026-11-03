@@ -17,8 +17,8 @@
 package models
 
 enum VehicleIdentificationNumbersMethod(val jsonValue: String) {
-  case EnterManually extends VehicleIdentificationNumbersMethod("manual")
-  case UploadCsv extends VehicleIdentificationNumbersMethod("upload")
+  case EnterManually extends VehicleIdentificationNumbersMethod("enterManually")
+  case UploadCsv extends VehicleIdentificationNumbersMethod("uploadCsv")
 
   override def toString: String = jsonValue
 }

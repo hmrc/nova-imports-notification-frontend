@@ -95,8 +95,8 @@ class VehicleIdentificationNumbersViewSpec extends SpecBase with Matchers with B
     "must render the manual and upload radios with their hints" in {
       val document = Jsoup.parse(render())
 
-      document.getElementById("value").attr("value") mustEqual "manual"
-      document.getElementById("value-2").attr("value") mustEqual "upload"
+      document.getElementById("value").attr("value") mustEqual "enterManually"
+      document.getElementById("value-2").attr("value") mustEqual "uploadCsv"
       document.select("label[for=value]").text mustEqual msgs("vehicleIdentificationNumbers.radio.enterManually")
       document.select("label[for=value-2]").text mustEqual msgs("vehicleIdentificationNumbers.radio.uploadCsv")
       document.select(".govuk-radios__hint").get(0).text mustEqual msgs("vehicleIdentificationNumbers.radio.enterManually.hint")

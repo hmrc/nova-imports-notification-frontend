@@ -23,11 +23,13 @@ import forms.VehicleIdentificationNumbersFormProvider
 import models.requests.DataRequest
 import models.{ImportNumber, NormalMode, NovaUserType, SupplierNumber, VehicleIdentificationNumbersMethod, VehicleNumber}
 import navigation.Navigator
+import pages.sections.initialquestions.VehicleFromEuPage
 import pages.sections.introduction.AmendSubmittedNotificationPage
 import pages.sections.vehicledetails.VehicleIdentificationNumbersPage
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents, Result}
 import repositories.SessionRepository
+import services.{ImportService, SupplierService, VehicleService}
 import viewmodels.VehicleDetailsInset
 import views.html.VehicleIdentificationNumbersView
 
@@ -40,6 +42,9 @@ class VehicleIdentificationNumbersController @Inject() (
   navigator: Navigator,
   actions: Actions,
   formProvider: VehicleIdentificationNumbersFormProvider,
+  supplierService: SupplierService,
+  importService: ImportService,
+  vehicleService: VehicleService,
   view: VehicleIdentificationNumbersView
 )(implicit ec: ExecutionContext)
     extends BaseController {
@@ -49,23 +54,26 @@ class VehicleIdentificationNumbersController @Inject() (
   val form: Form[VehicleIdentificationNumbersMethod] = formProvider()
 
   def supplierOnPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber): Action[AnyContent] =
-    actions.authAndGetDataWithUserTypeGuard(guardPredicate) { implicit request =>
-      handlePageLoad(vehicleNumber, routes.VehicleIdentificationNumbersController.supplierOnSubmit(supplierNumber, vehicleNumber))
+    actions.authAndGetDataWithUserTypeGuard(supplierGuardPredicate(supplierService, vehicleService, supplierNumber, vehicleNumber)) {
+      implicit request =>
+        handlePageLoad(vehicleNumber, routes.VehicleIdentificationNumbersController.supplierOnSubmit(supplierNumber, vehicleNumber))
     }
 
   def importOnPageLoad(importNumber: ImportNumber, vehicleNumber: VehicleNumber): Action[AnyContent] =
-    actions.authAndGetDataWithUserTypeGuard(guardPredicate) { implicit request =>
+    actions.authAndGetDataWithUserTypeGuard(importGuardPredicate(importService, vehicleService, importNumber, vehicleNumber)) { implicit request =>
       handlePageLoad(vehicleNumber, routes.VehicleIdentificationNumbersController.importOnSubmit(importNumber, vehicleNumber))
     }
 
   def supplierOnSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber): Action[AnyContent] =
-    actions.authAndGetDataWithUserTypeGuard(guardPredicate).async { implicit request =>
-      handleSubmit(vehicleNumber, routes.VehicleIdentificationNumbersController.supplierOnSubmit(supplierNumber, vehicleNumber))
+    actions.authAndGetDataWithUserTypeGuard(supplierGuardPredicate(supplierService, vehicleService, supplierNumber, vehicleNumber)).async {
+      implicit request =>
+        handleSubmit(vehicleNumber, routes.VehicleIdentificationNumbersController.supplierOnSubmit(supplierNumber, vehicleNumber))
     }
 
   def importOnSubmit(importNumber: ImportNumber, vehicleNumber: VehicleNumber): Action[AnyContent] =
-    actions.authAndGetDataWithUserTypeGuard(guardPredicate).async { implicit request =>
-      handleSubmit(vehicleNumber, routes.VehicleIdentificationNumbersController.importOnSubmit(importNumber, vehicleNumber))
+    actions.authAndGetDataWithUserTypeGuard(importGuardPredicate(importService, vehicleService, importNumber, vehicleNumber)).async {
+      implicit request =>
+        handleSubmit(vehicleNumber, routes.VehicleIdentificationNumbersController.importOnSubmit(importNumber, vehicleNumber))
     }
 
   private def handlePageLoad(vehicleNumber: VehicleNumber, submitCall: Call)(implicit request: DataRequest[AnyContent]): Result =
@@ -94,8 +102,34 @@ class VehicleIdentificationNumbersController @Inject() (
 
 object VehicleIdentificationNumbersController {
 
-  // TODO: add AVD10.0 = 'Multiple vehicles' is answered check when AVD10.0 is built
-  def guardPredicate(request: DataRequest[?]): Boolean =
+  // TODO: add AVD10.0 = 'Multiple' is answered check when AVD10.0 is built
+  def supplierGuardPredicate(
+    supplierService: SupplierService,
+    vehicleService: VehicleService,
+    supplierNumber: SupplierNumber,
+    vehicleNumber: VehicleNumber
+  )(request: DataRequest[?]): Boolean =
     IsDraftIdDefined(request.userAnswers) &&
-      request.userAnswers.get(AmendSubmittedNotificationPage).contains(false)
+      request.userAnswers.get(AmendSubmittedNotificationPage).contains(false) &&
+      request.userAnswers.get(VehicleFromEuPage).contains(true) &&
+      supplierService.numberHasValues(request.userAnswers, supplierNumber) &&
+      vehicleService.belongsToSupplier(request.userAnswers, vehicleNumber, supplierNumber) &&
+      vehicleService.numberHasValues(request.userAnswers, vehicleNumber) &&
+      ConfirmVehicleTypeDetailsController.vehicleDetailsSection(request.userAnswers, vehicleNumber).isDefined
+
+  // TODO: add AVD10.0 = 'Multiple' is answered check when AVD10.0 is built
+  def importGuardPredicate(
+    importService: ImportService,
+    vehicleService: VehicleService,
+    importNumber: ImportNumber,
+    vehicleNumber: VehicleNumber
+  )(request: DataRequest[?]): Boolean =
+    IsDraftIdDefined(request.userAnswers) &&
+      request.userAnswers.get(AmendSubmittedNotificationPage).contains(false) &&
+      request.userAnswers.get(VehicleFromEuPage).contains(false) &&
+      (request.userContext.isVatRegisteredOrganisation || request.userContext.isAgent) &&
+      importService.numberHasValues(request.userAnswers, importNumber) &&
+      vehicleService.belongsToImport(request.userAnswers, vehicleNumber, importNumber) &&
+      vehicleService.numberHasValues(request.userAnswers, vehicleNumber) &&
+      ConfirmVehicleTypeDetailsController.vehicleDetailsSection(request.userAnswers, vehicleNumber).isDefined
 }
