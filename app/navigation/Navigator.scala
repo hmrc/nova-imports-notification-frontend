@@ -18,6 +18,7 @@ package navigation
 
 import controllers.*
 import models.*
+import models.VehicleIdentificationNumbersMethod.*
 import pages.*
 import pages.sections.initialquestions.*
 import pages.sections.notifieraddress.*
@@ -302,6 +303,13 @@ class Navigator @Inject() () {
         userAnswers.get(page) match {
           case Some(_) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.1 when built
           case _       => routes.JourneyRecoveryController.onPageLoad()
+        }
+    case page: VehicleIdentificationNumbersPage =>
+      (userAnswers, _) =>
+        userAnswers.get(page) match {
+          case Some(EnterManually) => routes.LandingPageController.onPageLoad() // TODO: navigate to AMV3.0 when built
+          case Some(UploadCsv)     => routes.LandingPageController.onPageLoad() // TODO: navigate to AMV2.0 when built
+          case None                => routes.JourneyRecoveryController.onPageLoad()
         }
     case page: AddVehicleTypePage =>
       (userAnswers, _) =>

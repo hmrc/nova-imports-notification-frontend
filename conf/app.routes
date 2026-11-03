@@ -436,3 +436,9 @@ GET         /import/:importNumber/vehicle/:vehicleNumber/notification-reference 
 POST        /import/:importNumber/vehicle/:vehicleNumber/notification-reference                      controllers.vehicledetails.NotificationReferenceController.importOnSubmit(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
 GET         /import/:importNumber/vehicle/:vehicleNumber/notification-reference/change               controllers.vehicledetails.NotificationReferenceController.importOnPageLoad(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
 POST        /import/:importNumber/vehicle/:vehicleNumber/notification-reference/change               controllers.vehicledetails.NotificationReferenceController.importOnSubmit(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
+
+GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/vehicle-identification-numbers          controllers.vehicledetails.VehicleIdentificationNumbersController.supplierOnPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber)
+POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/vehicle-identification-numbers          controllers.vehicledetails.VehicleIdentificationNumbersController.supplierOnSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber)
+
+GET         /import/:importNumber/vehicle/:vehicleNumber/vehicle-identification-numbers              controllers.vehicledetails.VehicleIdentificationNumbersController.importOnPageLoad(importNumber: ImportNumber, vehicleNumber: VehicleNumber)
+POST        /import/:importNumber/vehicle/:vehicleNumber/vehicle-identification-numbers              controllers.vehicledetails.VehicleIdentificationNumbersController.importOnSubmit(importNumber: ImportNumber, vehicleNumber: VehicleNumber)
