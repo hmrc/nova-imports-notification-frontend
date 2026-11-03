@@ -14,6 +14,7 @@
  * limitations under the License.
  *@
 
+@import forms.NotificationReferenceFormProvider.NotificationReferenceRegex
 @import viewmodels.LabelSize
 
 @this(
@@ -26,6 +27,18 @@
 )
 
 @(form: Form[String], vehicleDetails: Option[InsetText], postAction: Call)(implicit request: Request[?], messages: Messages)
+
+@* NVDA reads a reference like NOVA26E123456 as a number, so screen readers get it spelt out *@
+@hintText = @{ messages("notificationReference.hint") }
+
+@spokenHintText = @{
+    hintText.split(" ").map(word => if (word.matches(NotificationReferenceRegex)) word.mkString(" ") else word).mkString(" ")
+}
+
+@hint = {
+    <span aria-hidden="true">@hintText</span>
+    <span class="govuk-visually-hidden">@spokenHintText</span>
+}
 
 @layout(
     pageTitle = title(form, messages("notificationReference.title")),
@@ -50,7 +63,7 @@
             InputViewModel(
                 field = form("value"),
                 label = LabelViewModel(messages("notificationReference.heading.2")).withCssClass(LabelSize.Medium.toString)
-            ).withHint(HintViewModel(Text(messages("notificationReference.hint"))))
+            ).withHint(HintViewModel(HtmlContent(hint)))
              .withCssClass("govuk-input--width-20")
              .withAutocomplete("off")
         )

@@ -93,8 +93,13 @@ class NotificationReferenceViewSpec extends SpecBase with Matchers with BeforeAn
     "must render the hint text against the input" in {
       val document = Jsoup.parse(render())
 
-      document.select(".govuk-hint").text mustEqual msgs("notificationReference.hint")
+      document.select(".govuk-hint [aria-hidden=true]").text mustEqual msgs("notificationReference.hint")
       document.getElementById("value").attr("aria-describedby") must include("value-hint")
+    }
+
+    "must give screen readers the hint with the example reference spelt out" in {
+      Jsoup.parse(render()).select(".govuk-hint .govuk-visually-hidden").text mustEqual
+        msgs("notificationReference.hint").replace("NOVA26E123456", "N O V A 2 6 E 1 2 3 4 5 6")
     }
 
     "must turn autocomplete off on the input" in {
