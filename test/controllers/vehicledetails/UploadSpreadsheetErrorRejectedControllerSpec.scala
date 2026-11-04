@@ -61,7 +61,10 @@ class UploadSpreadsheetErrorRejectedControllerSpec extends SpecBase {
         val view    = application.injector.instanceOf[UploadSpreadsheetErrorRejectedView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view()(request, messages(application)).toString
+        contentAsString(result) mustEqual view(vehicledetails.routes.UploadVehicleSpreadsheetController.onPageLoad(restart = true))(
+          request,
+          messages(application)
+        ).toString
       }
     }
 

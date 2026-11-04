@@ -59,6 +59,8 @@ class UploadVehicleSpreadsheetController @Inject() (
 
       discardExisting.flatMap { _ =>
         connector.getFileUploadSummary(draftId).flatMap {
+          case Right(summary) if summary.kind != "SPREADSHEET" =>
+            renderUploadForm(draftId)
           case Right(summary) if summary.fileStatus != "AWAITING_UPLOAD" =>
             Future.successful(Redirect(controllers.vehicledetails.routes.VehicleSpreadsheetUploadController.onPageLoad()))
           case Right(_) =>

@@ -306,10 +306,34 @@ class Navigator @Inject() () {
         }
     case page: VehicleIdentificationNumbersPage =>
       (userAnswers, _) =>
-        userAnswers.get(page) match {
-          case Some(EnterManually) => routes.LandingPageController.onPageLoad() // TODO: navigate to AMV3.0 when built
-          case Some(UploadCsv)     => routes.LandingPageController.onPageLoad() // TODO: navigate to AMV2.0 when built
-          case None                => routes.JourneyRecoveryController.onPageLoad()
+        (
+          userAnswers.get(page),
+          userAnswers.vehicleSupplierNumber(page.vehicleNumber),
+          userAnswers.vehicleImportNumber(page.vehicleNumber)
+        ) match {
+          case (Some(EnterManually), Some(supplierNumber), _) =>
+            vehicledetails.routes.EnterVinNumbersController.supplierOnPageLoad(supplierNumber, page.vehicleNumber, NormalMode)
+          case (Some(EnterManually), None, Some(importNumber)) =>
+            vehicledetails.routes.EnterVinNumbersController.importOnPageLoad(importNumber, page.vehicleNumber, NormalMode)
+          case (Some(UploadCsv), Some(supplierNumber), _) =>
+            vehicledetails.routes.UploadVinNumbersController.supplierOnPageLoad(supplierNumber, page.vehicleNumber, restart = false)
+          case (Some(UploadCsv), None, Some(importNumber)) =>
+            vehicledetails.routes.UploadVinNumbersController.importOnPageLoad(importNumber, page.vehicleNumber, restart = false)
+          case _ => routes.JourneyRecoveryController.onPageLoad()
+        }
+    case page: NumberOfVehiclesPage =>
+      (userAnswers, _) =>
+        (
+          userAnswers.get(page).map(_.oneMultiVehicle),
+          userAnswers.vehicleSupplierNumber(page.vehicleNumber),
+          userAnswers.vehicleImportNumber(page.vehicleNumber)
+        ) match {
+          case (Some(OneMultiVehicle.One), _, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.1 when built
+          case (Some(OneMultiVehicle.More), Some(supplierNumber), _) =>
+            vehicledetails.routes.VehicleIdentificationNumbersController.supplierOnPageLoad(supplierNumber, page.vehicleNumber)
+          case (Some(OneMultiVehicle.More), None, Some(importNumber)) =>
+            vehicledetails.routes.VehicleIdentificationNumbersController.importOnPageLoad(importNumber, page.vehicleNumber)
+          case _ => routes.JourneyRecoveryController.onPageLoad()
         }
     case page: VehicleRegistrationNumberKnownPage =>
       (userAnswers, _) =>
@@ -402,6 +426,21 @@ class Navigator @Inject() () {
       (_, _) => supplierdetails.routes.SupplierDetailsCheckYourAnswersController.onPageLoad(page.supplierNumber)
     case _: NotificationReferencePage =>
       (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.1 when built
+    case page: NumberOfVehiclesPage =>
+      (userAnswers, _) =>
+        (
+          userAnswers.get(page).map(_.oneMultiVehicle),
+          userAnswers.vehicleSupplierNumber(page.vehicleNumber),
+          userAnswers.vehicleImportNumber(page.vehicleNumber)
+        ) match {
+          case (Some(OneMultiVehicle.One), _, _) =>
+            routes.LandingPageController.onPageLoad() // TODO: route TBC, may go back to the CYA C-AVD3.0
+          case (Some(OneMultiVehicle.More), Some(supplierNumber), _) =>
+            vehicledetails.routes.VehicleIdentificationNumbersController.supplierOnPageLoad(supplierNumber, page.vehicleNumber)
+          case (Some(OneMultiVehicle.More), None, Some(importNumber)) =>
+            vehicledetails.routes.VehicleIdentificationNumbersController.importOnPageLoad(importNumber, page.vehicleNumber)
+          case _ => routes.JourneyRecoveryController.onPageLoad()
+        }
     case _: VehicleRegistrationNumberKnownPage =>
       (_, _) => routes.LandingPageController.onPageLoad()
     case page: VehicleDatesPage =>

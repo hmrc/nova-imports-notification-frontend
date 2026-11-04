@@ -1,0 +1,67 @@
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import models.VinUploadError
+
+@this(
+    layout: templates.Layout,
+    govukErrorSummary: GovukErrorSummary,
+    govukFileUpload: GovukFileUpload,
+    govukButton: GovukButton
+)
+
+@(uploadUrl: String, fields: Map[String, String], uploadError: Option[VinUploadError])(implicit request: Request[?], messages: Messages)
+
+@pageTitle = @{
+    uploadError.fold(messages("uploadVinNumbers.title")) { _ =>
+        s"""${messages("error.title.prefix")} ${messages("uploadVinNumbers.title")}"""
+    }
+}
+
+@layout(pageTitle = titleNoForm(pageTitle)) {
+
+    @uploadError.map { error =>
+        @govukErrorSummary(ErrorSummary(
+            errorList = Seq(ErrorLink(href = Some("#file"), content = Text(messages(error.messageKey)))),
+            title = Text(messages("error.summary.title"))
+        ))
+    }
+
+    <span class="govuk-caption-l">@messages("uploadVinNumbers.caption")</span>
+
+    <h1 class="govuk-heading-l">@messages("uploadVinNumbers.heading")</h1>
+
+    <form method="post" enctype="multipart/form-data" action="@uploadUrl">
+
+        @fields.map { case (fieldName, fieldValue) =>
+            <input type="hidden" name="@fieldName" value="@fieldValue">
+        }
+
+        @govukFileUpload(FileUpload(
+            name = "file",
+            id = "file",
+            label = Label(content = Text(messages("uploadVinNumbers.label"))),
+            hint = Some(Hint(content = Text(messages("uploadVinNumbers.hint")))),
+            errorMessage = uploadError.map { error =>
+                ErrorMessage.errorMessageWithDefaultStringsTranslated(content = Text(messages(error.messageKey)))
+            },
+            javascript = Some(true),
+            attributes = Map("accept" -> ".csv,text/csv")
+        ))
+
+        @govukButton(ButtonViewModel(messages("site.continue")))
+    </form>
+}

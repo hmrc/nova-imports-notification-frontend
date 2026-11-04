@@ -1,0 +1,77 @@
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import models.{NumberOfVehicles, OneMultiVehicle}
+@import viewmodels.LegendSize
+
+@this(
+        layout: templates.Layout,
+        formHelper: FormWithCSRF,
+        govukErrorSummary: GovukErrorSummary,
+        govukInsetText: GovukInsetText,
+        govukRadios: GovukRadios,
+        govukInput: GovukInput,
+        govukButton: GovukButton
+)
+
+@(form: Form[NumberOfVehicles], vehicleDetails: Option[InsetText], postAction: Call)(implicit request: Request[?], messages: Messages)
+
+@layout(
+    pageTitle = title(form, messages("numberOfVehicles.title"))
+) {
+
+    @formHelper(action = postAction, Symbol("class") -> "govuk-!-margin-bottom-8") {
+
+        @if(form.errors.nonEmpty) {
+            @govukErrorSummary(ErrorSummaryViewModel(form))
+        }
+
+        @vehicleDetails.map(inset => govukInsetText(inset.copy(classes = "govuk-!-margin-top-0")))
+
+        <span class="govuk-caption-l">@messages("numberOfVehicles.caption")</span>
+
+        <p class="govuk-body">@messages("numberOfVehicles.paragraph")</p>
+
+        @govukRadios(
+            RadiosViewModel(
+                field  = form("oneMultiVehicle"),
+                legend = LegendViewModel(messages("numberOfVehicles.heading")).asPageHeading(LegendSize.Large),
+                items  = Seq(
+                    RadioItem(
+                        id      = Some(form("oneMultiVehicle").id),
+                        value   = Some(OneMultiVehicle.One.toString),
+                        content = Text(messages("numberOfVehicles.radio.one"))
+                    ),
+                    RadioItem(
+                        id              = Some(s"${form("oneMultiVehicle").id}-2"),
+                        value           = Some(OneMultiVehicle.More.toString),
+                        content         = Text(messages("numberOfVehicles.radio.many")),
+                        conditionalHtml = Some(govukInput(
+                            InputViewModel(
+                                field = form("numberSameVehicles"),
+                                label = LabelViewModel(messages("numberOfVehicles.label.count"))
+                            ).withCssClass("govuk-input--width-3")
+                        ))
+                    )
+                )
+            )
+        )
+
+        @govukButton(
+            ButtonViewModel(messages("site.continue"))
+        )
+    }
+}
