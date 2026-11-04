@@ -304,6 +304,12 @@ class Navigator @Inject() () {
           case Some(_) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.1 when built
           case _       => routes.JourneyRecoveryController.onPageLoad()
         }
+    case page: CommodityCodePage =>
+      (userAnswers, _) =>
+        userAnswers.get(page) match {
+          case Some(_) => routes.LandingPageController.onPageLoad()
+          case _       => routes.JourneyRecoveryController.onPageLoad()
+        }
     case page: VehicleIdentificationNumbersPage =>
       (userAnswers, _) =>
         userAnswers.get(page) match {
@@ -395,6 +401,8 @@ class Navigator @Inject() () {
       (_, _) => supplierdetails.routes.SupplierDetailsCheckYourAnswersController.onPageLoad(page.supplierNumber)
     case _: NotificationReferencePage =>
       (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.1 when built
+    case _: CommodityCodePage =>
+      (_, _) => routes.LandingPageController.onPageLoad()
     case page: VehicleDatesPage =>
       (userAnswers, _) =>
         if (userAnswers.get(page).exists(_.contains(VehicleDates.NoDates)))

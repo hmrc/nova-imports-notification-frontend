@@ -772,6 +772,21 @@ class NavigatorSpec extends SpecBase {
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
 
+      "must go from CommodityCodePage AVD10.4 to the landing page" in {
+        val page = CommodityCodePage(VehicleNumber(1))
+        val ua   = importVehicle.unsafeSet(page, "8703123456")
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from CommodityCodePage AVD10.4 to JourneyRecovery when the vehicle has no commodity code" in {
+        navigator.nextPage(
+          CommodityCodePage(VehicleNumber(1)),
+          NormalMode,
+          importVehicle,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
       "must go from VehicleIdentificationNumbersPage AMV1.0 to the landing page when EnterManually is selected" in {
         val page = VehicleIdentificationNumbersPage(VehicleNumber(1))
         val ua   = supplierVehicle.unsafeSet(page, VehicleIdentificationNumbersMethod.EnterManually)
@@ -1742,6 +1757,15 @@ class NavigatorSpec extends SpecBase {
           NotificationReferencePage(VehicleNumber(1)),
           CheckMode,
           userAnswers,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from CommodityCodePage AVD10.4 to the landing page" in {
+        navigator.nextPage(
+          CommodityCodePage(VehicleNumber(1)),
+          CheckMode,
+          importVehicle.unsafeSet(CommodityCodePage(VehicleNumber(1)), "8703123456"),
           NovaUserType.VatRegisteredOrganisation
         ) mustBe routes.LandingPageController.onPageLoad()
       }

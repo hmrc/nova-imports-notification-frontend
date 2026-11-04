@@ -1649,3 +1649,18 @@ vehicleIdentificationNumbers.radio.enterManually.hint = Enter the VIN for each v
 vehicleIdentificationNumbers.radio.uploadCsv = Upload a CSV file
 vehicleIdentificationNumbers.radio.uploadCsv.hint = Must be a comma-separated values (CSV) file type
 vehicleIdentificationNumbers.error.required = Select how you want to add the vehicle identification numbers
+
+####################################################################################
+# AVD10.4 - Add vehicle details 10.4 - Commodity code                              #
+####################################################################################
+# TODO: Welsh translations to be supplied by content team.
+commodityCode.title = Commodity code
+commodityCode.caption = Ychwanegwch fanylion cerbyd
+commodityCode.heading.1 = Commodity code
+commodityCode.paragraph.1 = You can find it on the vehicle’s import entry document.
+commodityCode.paragraph.2.linkText = Get more help to find the commodity code
+commodityCode.heading.2 = What is the commodity code?
+commodityCode.hint = It can be 4 or 10 digits long, for example 2134 or 8703123456
+commodityCode.error.required = Enter the commodity code
+commodityCode.error.format = Enter the commodity code in the correct format
+commodityCode.error.length = The commodity code must be between 4 and 10 characters
