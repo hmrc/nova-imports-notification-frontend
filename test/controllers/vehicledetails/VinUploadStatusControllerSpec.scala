@@ -259,7 +259,7 @@ class VinUploadStatusControllerSpec extends SpecBase with MockitoSugar {
 
     lazy val statusRoute =
       vehicledetails.routes.VinUploadStatusController
-        .status(RedirectUrl(vehicledetails.routes.EnterVinNumbersController.supplierOnPageLoad(s, v, NormalMode).url))
+        .status(RedirectUrl(vehicledetails.routes.EnterVinNumbersController.supplierOnPageLoad(s, v, NormalMode).url), Some(s.value), None, v.value)
         .url
 
     "must report not final while extraction is still in progress" in {
@@ -302,7 +302,7 @@ class VinUploadStatusControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val unsafeRoute =
-          vehicledetails.routes.VinUploadStatusController.status(RedirectUrl("https://evil.example.com/phishing")).url
+          vehicledetails.routes.VinUploadStatusController.status(RedirectUrl("https://evil.example.com/phishing"), Some(s.value), None, v.value).url
         val result = route(application, FakeRequest(GET, unsafeRoute)).value
 
         status(result) mustEqual OK

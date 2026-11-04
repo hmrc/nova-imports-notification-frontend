@@ -50,7 +50,7 @@ class VinUploadStatusViewSpec extends SpecBase with Matchers with BeforeAndAfter
 
   private val cancelUrl              = routes.UploadVinNumbersController.supplierOnPageLoad(s, v, restart = true)
   private val removeUrl              = routes.VinUploadStatusController.supplierOnPageLoad(s, v, remove = true)
-  private val statusUrl              = routes.VinUploadStatusController.status(RedirectUrl(continueUrl.url)).url
+  private val statusUrl              = routes.VinUploadStatusController.status(RedirectUrl(continueUrl.url), Some(s.value), None, v.value).url
   private val refreshIntervalSeconds = 3
   private val maxPollSeconds         = 120
   private val timeoutUrl             =
@@ -107,7 +107,7 @@ class VinUploadStatusViewSpec extends SpecBase with Matchers with BeforeAndAfter
     "must pass the status endpoint, poll timings and timeout url to the polling script as data attributes, not inline JS" in {
       val html = htmlFor(isFinal = false)
 
-      html must include(s"""data-status-url="$statusUrl"""")
+      html must include(s"""data-status-url="${statusUrl.split("\\?").head}""")
       html must include(s"""data-refresh-interval-ms="${refreshIntervalSeconds * 1000}"""")
       html must include(s"""data-max-poll-ms="${maxPollSeconds * 1000}"""")
       html must include(s"""data-timeout-url="${timeoutUrl.url.split("\\?").head}""")
