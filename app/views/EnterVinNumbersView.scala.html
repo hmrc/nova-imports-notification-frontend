@@ -32,11 +32,17 @@
 
 @hasErrors = @{ form.errors.nonEmpty || backendErrors.nonEmpty }
 
+@inlineErrorMessage = @{
+    form("enterVinNumbers").error
+        .map(error => messages(error.message, error.args*))
+        .orElse(backendErrors.headOption)
+        .map(message => ErrorMessage(content = Text(message)))
+}
+
 @title = @{ messages("enterVinNumbers.title", numberOfVehicles) }
 
 @layout(
-    pageTitle = titleNoForm(if (hasErrors) s"""${messages("error.title.prefix")} ${title}""" else title),
-    showBackLink = true
+    pageTitle = titleNoForm(if (hasErrors) s"""${messages("error.title.prefix")} ${title}""" else title)
 ) {
 
     @formHelper(action = postAction) {
@@ -61,7 +67,7 @@
                 name = "enterVinNumbers",
                 value = form("enterVinNumbers").value,
                 hint = Some(Hint(content = Text(messages("enterVinNumbers.hint")))),
-                errorMessage = if (hasErrors) Some(ErrorMessage(content = Text(" "))) else None
+                errorMessage = inlineErrorMessage
             )
         )
 

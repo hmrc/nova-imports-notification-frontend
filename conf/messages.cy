@@ -1632,6 +1632,32 @@ notificationReference.error.required = Enter the notification reference
 notificationReference.error.format = Enter the notification reference in the correct format
 notificationReference.error.length = The notification reference must be 13 characters long
 
+
+####################################################################################
+# AVD10.0 - Add vehicle details 10.0 - One or multiple vehicles                   #
+####################################################################################
+# TODO: Welsh translations to be supplied by content team.
+numberOfVehicles.title = Number of vehicles
+numberOfVehicles.caption = Add vehicle details
+numberOfVehicles.heading = How many vehicles is this notification for?
+numberOfVehicles.paragraph = If you need to notify for more than one vehicle with the same details, select ‘More than one vehicle’. This option is only available if you’ve not added vehicles to the notification.
+numberOfVehicles.radio.one = One vehicle
+numberOfVehicles.radio.many = More than one vehicle
+numberOfVehicles.label.count = Number of vehicles of the same type
+numberOfVehicles.error.required.selection = Select how many vehicles this notification is for
+numberOfVehicles.error.required.count = Number of vehicles of the same type cannot be blank
+numberOfVehicles.error.length = Enter a number between 2 and 100
+
+
+####################################################################################
+# AVD10.2 - Add vehicle details 10.2 - Do you know the current vehicle registration number? #
+####################################################################################
+# TODO: Welsh translations to be supplied by content team.
+vehicleRegistrationNumberKnown.title = Do you know the current vehicle registration number?
+vehicleRegistrationNumberKnown.caption = Ychwanegwch fanylion cerbyd
+vehicleRegistrationNumberKnown.heading = Do you know the current vehicle registration number?
+vehicleRegistrationNumberKnown.error.required = Select yes if you know the current vehicle registration number
+
 ####################################################################################
 # AMV1.0 - Add multiple vehicles 1.0 - How do you want to add VINs                 #
 ####################################################################################
@@ -1649,3 +1675,55 @@ vehicleIdentificationNumbers.radio.enterManually.hint = Enter the VIN for each v
 vehicleIdentificationNumbers.radio.uploadCsv = Upload a CSV file
 vehicleIdentificationNumbers.radio.uploadCsv.hint = Must be a comma-separated values (CSV) file type
 vehicleIdentificationNumbers.error.required = Select how you want to add the vehicle identification numbers
+
+####################################################################################
+# AMV2.0 - Add multiple vehicles 2.0 - VIN CSV upload                             #
+####################################################################################
+# TODO: Welsh translations to be supplied by content team.
+uploadVinNumbers.title = Upload the file with vehicle identification numbers
+uploadVinNumbers.caption = Add vehicle details
+uploadVinNumbers.heading = Upload the file with vehicle identification numbers
+uploadVinNumbers.label = Upload file
+uploadVinNumbers.hint = Must be a CSV file type
+uploadVinNumbers.error.required = Select a file
+uploadVinNumbers.error.tooLarge = The selected file must be smaller than 100MB
+uploadVinNumbers.error.unknown = The selected file could not be uploaded. Try again.
+
+####################################################################################
+# AMV2.1 - Add multiple vehicles 2.1 - CSV Upload Status                          #
+####################################################################################
+# TODO: Welsh translations to be supplied by content team.
+vinUploadStatus.heading = CSV file upload
+vinUploadStatus.caption = Add vehicle details
+vinUploadStatus.defaultFileName = VIN CSV file
+vinUploadStatus.status.uploading = Uploading
+vinUploadStatus.status.uploaded = Uploaded
+vinUploadStatus.refreshPageLink = Refresh page to see update of uploading file
+
+####################################################################################
+# AMV3.0 - Add multiple vehicles 3.0 - VIN manual entry                           #
+####################################################################################
+# TODO: Welsh translations to be supplied by content team.
+enterVinNumbers.title = Enter the {0} vehicle identification numbers
+enterVinNumbers.caption = Add vehicle details
+enterVinNumbers.heading = Enter the {0} vehicle identification numbers
+enterVinNumbers.hint = Separate each VIN with a comma. For example, 1ABCD2E03FG456789, 2A1BC34D5E6789012, ABCDE01F24567890
+enterVinNumbers.error.required = Enter the vehicle identification numbers
+# F26 cross-notification duplicate check - confirm with UCD
+enterVinNumbers.error.duplicate.crossNotification = One or more of the vehicle identification numbers entered already exists on another vehicle in this notification
+
+####################################################################################
+# AMV4.0 - Add multiple vehicles 4.0 - Check the VINs                             #
+####################################################################################
+# TODO: Welsh translations to be supplied by content team.
+checkVinNumbers.title = Check the vehicle identification numbers
+checkVinNumbers.pagination.title = Check the vehicle identification numbers (page {0} of {1})
+checkVinNumbers.heading = Check the vehicle identification numbers
+checkVinNumbers.caption = Add vehicle details
+checkVinNumbers.inset.vehicleType = Vehicle type:
+checkVinNumbers.inset.numberOfVehicles = Number of vehicles of the same type:
+checkVinNumbers.table.item = Item
+checkVinNumbers.table.vin = Vehicle identification number
+checkVinNumbers.table.caption = Showing {0} to {1} of {2} records
+checkVinNumbers.saveAndContinue = Save and continue
+checkVinNumbers.updateLink = Update vehicle identification numbers

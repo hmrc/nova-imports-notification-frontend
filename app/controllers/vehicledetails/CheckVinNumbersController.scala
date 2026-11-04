@@ -134,7 +134,8 @@ class CheckVinNumbersController @Inject() (
 
                 connector.updateDraftSection(draftId, multipleVehiclesSectionId, multipleVehiclesSection).flatMap {
                   case Right(versionIdAfterMultiplicationSave) =>
-                    val sections = fanOutSections(journey, groupNumber, base, vins)
+                    val sections = preserveOtherJourneySections(notification.sections, journey, groupNumber, vehicleNumber) ++
+                      fanOutSections(journey, groupNumber, base, vins)
                     connector.replaceVehicleSections(draftId, sections, versionIdAfterMultiplicationSave).flatMap {
                       case Right(newVersionId) =>
                         sessionRepository.setPage(request.userAnswers, DraftVersionIdPage, newVersionId).map { _ =>
@@ -183,6 +184,23 @@ object CheckVinNumbersController {
         sections.get(s"$journey/$groupNumber/vehicle/${vehicleNumber.value}/additional-information").flatMap(_.data).getOrElse(Json.obj())
       BaseVehicleSections(vehicleType, details, additional)
     }
+
+  def preserveOtherJourneySections(
+    sections: Map[String, models.DraftNotificationSection],
+    journey: String,
+    groupNumber: Int,
+    vehicleNumber: VehicleNumber
+  ): Map[String, JsObject] = {
+    val baseVehiclePaths = Set(
+      s"$journey/$groupNumber/vehicle/${vehicleNumber.value}/type",
+      s"$journey/$groupNumber/vehicle/${vehicleNumber.value}/details",
+      s"$journey/$groupNumber/vehicle/${vehicleNumber.value}/additional-information"
+    )
+    sections.view
+      .filterKeys(formDataId => formDataId.startsWith(s"$journey/") && !baseVehiclePaths.contains(formDataId))
+      .flatMap { case (formDataId, section) => section.data.map(formDataId -> _) }
+      .toMap
+  }
 
   def fanOutSections(journey: String, groupNumber: Int, base: BaseVehicleSections, vins: Seq[String]): Map[String, JsObject] =
     vins.zipWithIndex.flatMap { case (vin, index) =>

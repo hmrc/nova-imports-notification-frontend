@@ -1829,3 +1829,11 @@ checkVinNumbers.table.vin = Vehicle identification number
 checkVinNumbers.table.caption = Showing {0} to {1} of {2} records
 checkVinNumbers.saveAndContinue = Save and continue
 checkVinNumbers.updateLink = Update vehicle identification numbers
+
+####################################################################################
+# AVD10.2 - Add vehicle details 10.2 - Do you know the current vehicle registration number? #
+####################################################################################
+vehicleRegistrationNumberKnown.title = Do you know the current vehicle registration number?
+vehicleRegistrationNumberKnown.caption = Add vehicle details
+vehicleRegistrationNumberKnown.heading = Do you know the current vehicle registration number?
+vehicleRegistrationNumberKnown.error.required = Select yes if you know the current vehicle registration number

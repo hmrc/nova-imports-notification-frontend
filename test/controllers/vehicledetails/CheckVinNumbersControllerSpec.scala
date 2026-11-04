@@ -222,6 +222,33 @@ class CheckVinNumbersControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
+    "must carry forward the supplier's own details and any other group untouched, not just the fanned-out vehicle" in {
+      val existingSections = baseVehicleSections("supplier", 1, 1, additionalInformation = false) ++ Map(
+        "supplier/1/details"        -> DraftNotificationSection(Some(Json.obj("supplierBusinessName" -> "EuroBike Imports SARL"))),
+        "supplier/2/details"        -> DraftNotificationSection(Some(Json.obj("supplierBusinessName" -> "Other Supplier"))),
+        "supplier/2/vehicle/3/type" -> DraftNotificationSection(Some(Json.obj("vehicleType" -> "LCV"))),
+        "import/1/details"          -> DraftNotificationSection(Some(Json.obj("importEntryNumber" -> "123456789A")))
+      )
+      val connector  = successfulConnector(existingSections)
+      val repository = stubSessionRepository(supplierWithVins)
+      val app        = application(Some(supplierWithVins), connector, repository)
+
+      running(app) {
+        val result = route(app, FakeRequest(POST, vehicledetails.routes.CheckVinNumbersController.supplierOnSubmit(s, v).url)).value
+
+        status(result) mustEqual SEE_OTHER
+
+        val sectionsCaptor = ArgumentCaptor.forClass(classOf[Map[String, JsObject]])
+        verify(connector).replaceVehicleSections(eqTo(draftId), sectionsCaptor.capture(), any[Long])(using any[HeaderCarrier])
+        val sections = sectionsCaptor.getValue
+
+        sections("supplier/1/details") mustEqual Json.obj("supplierBusinessName" -> "EuroBike Imports SARL")
+        sections("supplier/2/details") mustEqual Json.obj("supplierBusinessName" -> "Other Supplier")
+        sections("supplier/2/vehicle/3/type") mustEqual Json.obj("vehicleType" -> "LCV")
+        sections.keySet must not contain "import/1/details"
+      }
+    }
+
     "must still fan out correctly when the base vehicle has no additional-information section yet" in {
       val connector  = successfulConnector(baseVehicleSections("supplier", 1, 1, additionalInformation = false))
       val repository = stubSessionRepository(supplierWithVins)

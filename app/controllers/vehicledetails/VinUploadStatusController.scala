@@ -62,6 +62,7 @@ class VinUploadStatusController @Inject() (
           cancelUrl = routes.UploadVinNumbersController.supplierOnPageLoad(supplierNumber, vehicleNumber, restart = true),
           removeUrl = routes.VinUploadStatusController.supplierOnPageLoad(supplierNumber, vehicleNumber, remove = true),
           continueUrl = routes.EnterVinNumbersController.supplierOnPageLoad(supplierNumber, vehicleNumber, NormalMode),
+          removeDestination = routes.VehicleIdentificationNumbersController.supplierOnPageLoad(supplierNumber, vehicleNumber),
           errorUrls = errorUrlsFor(supplierNumber = Some(supplierNumber.value), importNumber = None, vehicleNumber = vehicleNumber.value)
         )
       }
@@ -75,6 +76,7 @@ class VinUploadStatusController @Inject() (
           cancelUrl = routes.UploadVinNumbersController.importOnPageLoad(importNumber, vehicleNumber, restart = true),
           removeUrl = routes.VinUploadStatusController.importOnPageLoad(importNumber, vehicleNumber, remove = true),
           continueUrl = routes.EnterVinNumbersController.importOnPageLoad(importNumber, vehicleNumber, NormalMode),
+          removeDestination = routes.VehicleIdentificationNumbersController.importOnPageLoad(importNumber, vehicleNumber),
           errorUrls = errorUrlsFor(supplierNumber = None, importNumber = Some(importNumber.value), vehicleNumber = vehicleNumber.value)
         )
       }
@@ -118,6 +120,7 @@ class VinUploadStatusController @Inject() (
     cancelUrl: Call,
     removeUrl: Call,
     continueUrl: Call,
+    removeDestination: Call,
     errorUrls: ErrorUrls
   )(implicit request: DataRequest[AnyContent]): Future[Result] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
@@ -131,7 +134,7 @@ class VinUploadStatusController @Inject() (
           case Right(_)    => ()
           case Left(error) => logger.warn(s"Could not delete the VIN upload: $error")
         }
-        .map(_ => Redirect(controllers.routes.LandingPageController.onPageLoad())) // TODO: navigate to AMV1.0 when built
+        .map(_ => Redirect(removeDestination))
     } else {
       connector.getFileUploadSummary(draftId).map {
         case Right(summary) if summary.kind != "VIN" =>

@@ -50,6 +50,7 @@ class VinUploadStatusControllerSpec extends SpecBase with MockitoSugar {
   private lazy val supplierRoute       = vehicledetails.routes.VinUploadStatusController.supplierOnPageLoad(s, v).url
   private lazy val supplierRemoveRoute = vehicledetails.routes.VinUploadStatusController.supplierOnPageLoad(s, v, remove = true).url
   private lazy val importRoute         = vehicledetails.routes.VinUploadStatusController.importOnPageLoad(i, v).url
+  private lazy val importRemoveRoute   = vehicledetails.routes.VinUploadStatusController.importOnPageLoad(i, v, remove = true).url
 
   private val draftId = DraftId("DRAFT-001")
 
@@ -200,6 +201,7 @@ class VinUploadStatusControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, FakeRequest(GET, supplierRemoveRoute)).value
 
         status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual vehicledetails.routes.VehicleIdentificationNumbersController.supplierOnPageLoad(s, v).url
         verify(connector).deleteVinUpload(eqTo(draftId))(using any[HeaderCarrier])
       }
     }
@@ -213,6 +215,23 @@ class VinUploadStatusControllerSpec extends SpecBase with MockitoSugar {
         route(application, FakeRequest(GET, supplierRemoveRoute)).value.futureValue
 
         verify(connector, never).getFileUploadSummary(any[DraftId])(using any[HeaderCarrier])
+      }
+    }
+  }
+
+  "VinUploadStatusController.importOnPageLoad(remove = true)" - {
+
+    "must delete the tracked upload and redirect to VehicleIdentificationNumbersController AMV1.0" in {
+      val connector =
+        connectorReturning(Right(GetFileUploadSummaryResponse(fileStatus = "UPLOADED", failureReason = None, fileName = None, kind = "VIN")))
+      val application = applicationFor(classOf[FakeVatTraderIdentifierAction], Some(importAnswers), connector)
+
+      running(application) {
+        val result = route(application, FakeRequest(GET, importRemoveRoute)).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual vehicledetails.routes.VehicleIdentificationNumbersController.importOnPageLoad(i, v).url
+        verify(connector).deleteVinUpload(eqTo(draftId))(using any[HeaderCarrier])
       }
     }
   }

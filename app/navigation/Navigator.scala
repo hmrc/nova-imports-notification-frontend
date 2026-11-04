@@ -335,6 +335,13 @@ class Navigator @Inject() () {
             vehicledetails.routes.VehicleIdentificationNumbersController.importOnPageLoad(importNumber, page.vehicleNumber)
           case _ => routes.JourneyRecoveryController.onPageLoad()
         }
+    case page: VehicleRegistrationNumberKnownPage =>
+      (userAnswers, _) =>
+        userAnswers.get(page) match {
+          case Some(true)  => routes.LandingPageController.onPageLoad()
+          case Some(false) => routes.LandingPageController.onPageLoad()
+          case _           => routes.JourneyRecoveryController.onPageLoad()
+        }
     case page: AddVehicleTypePage =>
       (userAnswers, _) =>
         (
@@ -434,6 +441,8 @@ class Navigator @Inject() () {
             vehicledetails.routes.VehicleIdentificationNumbersController.importOnPageLoad(importNumber, page.vehicleNumber)
           case _ => routes.JourneyRecoveryController.onPageLoad()
         }
+    case _: VehicleRegistrationNumberKnownPage =>
+      (_, _) => routes.LandingPageController.onPageLoad()
     case page: VehicleDatesPage =>
       (userAnswers, _) =>
         if (userAnswers.get(page).exists(_.contains(VehicleDates.NoDates)))
