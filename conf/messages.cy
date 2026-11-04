@@ -1631,3 +1631,20 @@ notificationReference.hint = It must be 13 characters long, starting with NOVA, 
 notificationReference.error.required = Enter the notification reference
 notificationReference.error.format = Enter the notification reference in the correct format
 notificationReference.error.length = The notification reference must be 13 characters long
+
+#######################################################################
+# AVD10.5 - Add vehicle details 10.5 - Mileage                        #
+#######################################################################
+# TODO: Welsh translations to be supplied by content team.
+mileage.title = What is the mileage of the vehicle?
+mileage.caption = Add vehicle details
+mileage.heading.1 = What is the mileage of the vehicle?
+mileage.paragraph = This is the total distance the vehicle had travelled, in miles (mi) or kilometres (km), when you bought it.
+mileage.label.unit = Mileage unit
+mileage.radio.miles = Miles (mi)
+mileage.radio.miles = Kilometres (km)
+mileage.label.mileage = Mileage
+mileage.hint.mileage = Enter whole numbers only, for example 10000
+mileage.error.required = Enter the mileage
+mileage.error.format = Enter the mileage in the correct format
+mileage.error.length = The mileage must be 6 characters or less
