@@ -311,6 +311,13 @@ class Navigator @Inject() () {
           case Some(UploadCsv)     => routes.LandingPageController.onPageLoad() // TODO: navigate to AMV2.0 when built
           case None                => routes.JourneyRecoveryController.onPageLoad()
         }
+    case page: VehicleRegistrationNumberKnownPage =>
+      (userAnswers, _) =>
+        userAnswers.get(page) match {
+          case Some(true)  => routes.LandingPageController.onPageLoad()
+          case Some(false) => routes.LandingPageController.onPageLoad()
+          case _           => routes.JourneyRecoveryController.onPageLoad()
+        }
     case page: AddVehicleTypePage =>
       (userAnswers, _) =>
         (
@@ -395,6 +402,8 @@ class Navigator @Inject() () {
       (_, _) => supplierdetails.routes.SupplierDetailsCheckYourAnswersController.onPageLoad(page.supplierNumber)
     case _: NotificationReferencePage =>
       (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.1 when built
+    case _: VehicleRegistrationNumberKnownPage =>
+      (_, _) => routes.LandingPageController.onPageLoad()
     case page: VehicleDatesPage =>
       (userAnswers, _) =>
         if (userAnswers.get(page).exists(_.contains(VehicleDates.NoDates)))

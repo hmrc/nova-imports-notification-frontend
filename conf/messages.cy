@@ -1649,3 +1649,12 @@ vehicleIdentificationNumbers.radio.enterManually.hint = Enter the VIN for each v
 vehicleIdentificationNumbers.radio.uploadCsv = Upload a CSV file
 vehicleIdentificationNumbers.radio.uploadCsv.hint = Must be a comma-separated values (CSV) file type
 vehicleIdentificationNumbers.error.required = Select how you want to add the vehicle identification numbers
+
+####################################################################################
+# AVD10.2 - Add vehicle details 10.2 - Do you know the current vehicle registration number? #
+####################################################################################
+# TODO: Welsh translations to be supplied by content team.
+vehicleRegistrationNumberKnown.title = Do you know the current vehicle registration number?
+vehicleRegistrationNumberKnown.caption = Ychwanegwch fanylion cerbyd
+vehicleRegistrationNumberKnown.heading = Do you know the current vehicle registration number?
+vehicleRegistrationNumberKnown.error.required = Select yes if you know the current vehicle registration number
