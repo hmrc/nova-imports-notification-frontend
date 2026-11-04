@@ -1745,6 +1745,33 @@ notificationReference.error.required = Enter the notification reference
 notificationReference.error.format = Enter the notification reference in the correct format
 notificationReference.error.length = The notification reference must be 13 characters long
 
+####################################################################################
+# AMV1.0 - Add multiple vehicles 1.0 - How do you want to add VINs                 #
+####################################################################################
+
+vehicleIdentificationNumbers.title = Vehicle identification numbers
+vehicleIdentificationNumbers.caption = Add vehicle details
+vehicleIdentificationNumbers.heading.1 = Vehicle identification numbers
+vehicleIdentificationNumbers.paragraph.1 = You must add the vehicle identification number (VIN) for each vehicle you’re notifying HMRC about. The VIN is also known as the chassis or frame number. It can be up to 17 characters long. If it includes:
+vehicleIdentificationNumbers.list.1 = O or Q, replace them with 0 (zero)
+vehicleIdentificationNumbers.list.2 = I, replace it with 1 (one)
+vehicleIdentificationNumbers.paragraph.2 = For example, 1ABCD2E03FG456789.
+vehicleIdentificationNumbers.heading.2 = How do you want to add vehicle identification numbers?
+vehicleIdentificationNumbers.radio.enterManually = Enter manually
+vehicleIdentificationNumbers.radio.enterManually.hint = Enter the VIN for each vehicle, separated by a comma
+vehicleIdentificationNumbers.radio.uploadCsv = Upload a CSV file
+vehicleIdentificationNumbers.radio.uploadCsv.hint = Must be a comma-separated values (CSV) file type
+vehicleIdentificationNumbers.error.required = Select how you want to add the vehicle identification numbers
+
+
+####################################################################################
+# AVD10.2 - Add vehicle details 10.2 - Do you know the current vehicle registration number? #
+####################################################################################
+vehicleRegistrationNumberKnown.title = Do you know the current vehicle registration number?
+vehicleRegistrationNumberKnown.caption = Add vehicle details
+vehicleRegistrationNumberKnown.heading = Do you know the current vehicle registration number?
+vehicleRegistrationNumberKnown.error.required = Select yes if you know the current vehicle registration number
+
 #######################################################################
 # AVD10.5 - Add vehicle details 10.5 - Mileage                        #
 #######################################################################

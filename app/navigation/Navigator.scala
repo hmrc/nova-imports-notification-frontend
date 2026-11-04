@@ -18,6 +18,7 @@ package navigation
 
 import controllers.*
 import models.*
+import models.VehicleIdentificationNumbersMethod.*
 import pages.*
 import pages.sections.initialquestions.*
 import pages.sections.notifieraddress.*
@@ -303,6 +304,20 @@ class Navigator @Inject() () {
           case Some(_) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.1 when built
           case _       => routes.JourneyRecoveryController.onPageLoad()
         }
+    case page: VehicleIdentificationNumbersPage =>
+      (userAnswers, _) =>
+        userAnswers.get(page) match {
+          case Some(EnterManually) => routes.LandingPageController.onPageLoad() // TODO: navigate to AMV3.0 when built
+          case Some(UploadCsv)     => routes.LandingPageController.onPageLoad() // TODO: navigate to AMV2.0 when built
+          case None                => routes.JourneyRecoveryController.onPageLoad()
+        }
+    case page: VehicleRegistrationNumberKnownPage =>
+      (userAnswers, _) =>
+        userAnswers.get(page) match {
+          case Some(true)  => routes.LandingPageController.onPageLoad()
+          case Some(false) => routes.LandingPageController.onPageLoad()
+          case _           => routes.JourneyRecoveryController.onPageLoad()
+        }
     case page: MileagePage =>
       (userAnswers, _) =>
         userAnswers.get(page) match {
@@ -393,6 +408,8 @@ class Navigator @Inject() () {
       (_, _) => supplierdetails.routes.SupplierDetailsCheckYourAnswersController.onPageLoad(page.supplierNumber)
     case _: NotificationReferencePage =>
       (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.1 when built
+    case _: VehicleRegistrationNumberKnownPage =>
+      (_, _) => routes.LandingPageController.onPageLoad()
     case _: MileagePage =>
       (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.6 when built
     case page: VehicleDatesPage =>
