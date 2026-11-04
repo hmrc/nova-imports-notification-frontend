@@ -40,8 +40,8 @@
     <p class="govuk-body">@messages("removeClient.paragraph.1")</p>
 
     @govukInsetText(InsetTextViewModel(
-        s"""<p class="govuk-body govuk-!-margin-bottom-0">${messages("removeClient.clientName")} <b>${HtmlFormat.escape(client.name)}</b></p>""" +
-            s"""<p class="govuk-body">${messages("removeClient.vatRegistrationNumber")} <b>${HtmlFormat.escape(client.vatRegistrationNumber)}</b></p>"""
+        s"""<p class="govuk-body govuk-!-margin-bottom-0">${messages("removeClient.clientName")} <strong>${HtmlFormat.escape(client.name)}</strong></p>""" +
+            s"""<p class="govuk-body">${messages("removeClient.vatRegistrationNumber")} <strong>${HtmlFormat.escape(client.vatRegistrationNumber)}</strong></p>"""
     ))
 
     <p class="govuk-body">@messages("removeClient.paragraph.2")</p>

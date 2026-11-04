@@ -80,8 +80,15 @@ class RemoveClientViewSpec extends SpecBase with Matchers with BeforeAndAfterAll
       inset.select("br").isEmpty mustEqual true
     }
 
+    "must use strong rather than b for the client name and VRN" in {
+      val inset = render().select(".govuk-inset-text")
+
+      inset.select("strong").eachText mustEqual java.util.List.of("Client Co", "700000001")
+      inset.select("b").isEmpty mustEqual true
+    }
+
     "must escape the client name" in {
-      render(client = ClientSummary("<script>", "700000001")).select(".govuk-inset-text b").first.text mustEqual "<script>"
+      render(client = ClientSummary("<script>", "700000001")).select(".govuk-inset-text strong").first.text mustEqual "<script>"
     }
 
     "must ask the question as a medium legend with Yes and No" in {
