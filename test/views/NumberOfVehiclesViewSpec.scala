@@ -75,7 +75,7 @@ class NumberOfVehiclesViewSpec extends SpecBase with Matchers with BeforeAndAfte
       val document = Jsoup.parse(render())
 
       document.select(".govuk-caption-l").text mustEqual msgs("numberOfVehicles.caption")
-      document.select("h1").text mustEqual msgs("numberOfVehicles.heading")
+      document.select(".govuk-heading-l").text mustEqual msgs("numberOfVehicles.heading.1")
       document.select("p.govuk-body").first.text mustEqual msgs("numberOfVehicles.paragraph")
     }
 
