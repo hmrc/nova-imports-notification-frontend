@@ -460,7 +460,7 @@ GET         /import/:importNumber/vehicle/:vehicleNumber/upload-vehicle-identifi
 # AMV2.1 - CSV file upload status
 GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/vin-upload-status                                                  controllers.vehicledetails.VinUploadStatusController.supplierOnPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, remove: Boolean ?= false)
 GET         /import/:importNumber/vehicle/:vehicleNumber/vin-upload-status                                                      controllers.vehicledetails.VinUploadStatusController.importOnPageLoad(importNumber: ImportNumber, vehicleNumber: VehicleNumber, remove: Boolean ?= false)
-GET         /vin-upload-status/summary                                                                                          controllers.vehicledetails.VinUploadStatusController.status(continueUrl: RedirectUrl)
+GET         /vin-upload-status/summary                                                                                          controllers.vehicledetails.VinUploadStatusController.status(continueUrl: RedirectUrl, supplierNumber: Option[Int] ?= None, importNumber: Option[Int] ?= None, vehicleNumber: Int)
 
 # AMV3.0 - Enter the vehicle identification numbers
 GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/enter-vehicle-identification-numbers                               controllers.vehicledetails.EnterVinNumbersController.supplierOnPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)

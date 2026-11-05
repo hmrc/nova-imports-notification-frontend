@@ -63,6 +63,12 @@ class VinUploadStatusController @Inject() (
           removeUrl = routes.VinUploadStatusController.supplierOnPageLoad(supplierNumber, vehicleNumber, remove = true),
           continueUrl = routes.EnterVinNumbersController.supplierOnPageLoad(supplierNumber, vehicleNumber, NormalMode),
           removeDestination = routes.VehicleIdentificationNumbersController.supplierOnPageLoad(supplierNumber, vehicleNumber),
+          statusUrl = routes.VinUploadStatusController.status(
+            RedirectUrl(routes.EnterVinNumbersController.supplierOnPageLoad(supplierNumber, vehicleNumber, NormalMode).url),
+            supplierNumber = Some(supplierNumber.value),
+            importNumber = None,
+            vehicleNumber = vehicleNumber.value
+          ),
           errorUrls = errorUrlsFor(supplierNumber = Some(supplierNumber.value), importNumber = None, vehicleNumber = vehicleNumber.value)
         )
       }
@@ -77,11 +83,17 @@ class VinUploadStatusController @Inject() (
           removeUrl = routes.VinUploadStatusController.importOnPageLoad(importNumber, vehicleNumber, remove = true),
           continueUrl = routes.EnterVinNumbersController.importOnPageLoad(importNumber, vehicleNumber, NormalMode),
           removeDestination = routes.VehicleIdentificationNumbersController.importOnPageLoad(importNumber, vehicleNumber),
+          statusUrl = routes.VinUploadStatusController.status(
+            RedirectUrl(routes.EnterVinNumbersController.importOnPageLoad(importNumber, vehicleNumber, NormalMode).url),
+            supplierNumber = None,
+            importNumber = Some(importNumber.value),
+            vehicleNumber = vehicleNumber.value
+          ),
           errorUrls = errorUrlsFor(supplierNumber = None, importNumber = Some(importNumber.value), vehicleNumber = vehicleNumber.value)
         )
       }
 
-  def status(continueUrl: RedirectUrl): Action[AnyContent] =
+  def status(continueUrl: RedirectUrl, supplierNumber: Option[Int], importNumber: Option[Int], vehicleNumber: Int): Action[AnyContent] =
     actions.authAndGetDataWithUserTypeGuard((request: DataRequest[?]) => IsDraftIdDefined(request.userAnswers)).async { implicit request =>
       implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
@@ -99,16 +111,21 @@ class VinUploadStatusController @Inject() (
           logger.warn(s"Expected a VIN upload in progress for draftId ${request.userAnswers.get(DraftIdPage).get.value} but found ${summary.kind}")
           InternalServerError
         case Right(summary) =>
-          Ok(
-            Json.obj(
-              "statusText" -> lang(
-                if (isFinal(summary.fileStatus)) "vinUploadStatus.status.uploaded" else "vinUploadStatus.status.uploading"
-              ),
-              "isFinal"     -> isFinal(summary.fileStatus),
-              "fileName"    -> summary.fileName,
-              "continueUrl" -> safeContinueUrl
-            )
-          )
+          errorRedirectFor(summary.fileStatus, summary.failureReason, errorUrlsFor(supplierNumber, importNumber, vehicleNumber)) match {
+            case Some(call) =>
+              Ok(Json.obj("redirectUrl" -> call.url))
+            case None =>
+              Ok(
+                Json.obj(
+                  "statusText" -> lang(
+                    if (isFinal(summary.fileStatus)) "vinUploadStatus.status.uploaded" else "vinUploadStatus.status.uploading"
+                  ),
+                  "isFinal"     -> isFinal(summary.fileStatus),
+                  "fileName"    -> summary.fileName,
+                  "continueUrl" -> safeContinueUrl
+                )
+              )
+          }
         case Left(error) =>
           logger.warn(s"Could not retrieve the VIN upload summary: $error")
           InternalServerError
@@ -121,6 +138,7 @@ class VinUploadStatusController @Inject() (
     removeUrl: Call,
     continueUrl: Call,
     removeDestination: Call,
+    statusUrl: Call,
     errorUrls: ErrorUrls
   )(implicit request: DataRequest[AnyContent]): Future[Result] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
@@ -149,7 +167,7 @@ class VinUploadStatusController @Inject() (
               fileName = summary.fileName,
               cancelUrl = cancelUrl,
               removeUrl = removeUrl,
-              statusUrl = routes.VinUploadStatusController.status(RedirectUrl(continueUrl.url)).url,
+              statusUrl = statusUrl.url,
               refreshIntervalSeconds = appConfig.uploadStatusRefreshIntervalSeconds,
               maxPollSeconds = appConfig.uploadStatusMaxPollSeconds,
               timeoutUrl = errorUrls.unknown,
@@ -169,6 +187,10 @@ object VinUploadStatusController {
   private val terminalStatuses = Set("UPLOADED")
 
   def isFinal(fileStatus: String): Boolean = terminalStatuses.contains(fileStatus)
+
+  def errorRedirectFor(fileStatus: String, failureReason: Option[String], errorUrls: ErrorUrls): Option[Call] =
+    if (fileStatus != "VERIFICATION_FAILED") None
+    else Some(errorUrls.forReason(failureReason))
 
   final case class ErrorUrls(quarantine: Call, rejected: Call, unknown: Call) {
     def forReason(failureReason: Option[String]): Call = failureReason match {
