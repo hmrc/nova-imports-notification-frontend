@@ -19,9 +19,9 @@ site.govuk = GOV.UK
 date.day = Diwrnod
 date.month = Mis
 date.year = Blwyddyn
-date.error.day = Diwrnod
-date.error.month = Mis
-date.error.year = Blwyddyn
+date.error.day = diwrnod
+date.error.month = mis
+date.error.year = blwyddyn
 
 ####################
 # EU Country Names #
@@ -1041,7 +1041,7 @@ dateOfAvailability.hint = Er enghraifft, 27 03 2026
 dateOfAvailability.error.required.all = Nodwch y dyddiad yr oedd y car ar gael i chi am y tro cyntaf
 dateOfAvailability.error.required = Mae’n rhaid i’r dyddiad yr oedd y car ar gael i chi am y tro cyntaf gynnwys {0}
 dateOfAvailability.error.required.two = Mae’n rhaid i’r dyddiad yr oedd y car ar gael i chi am y tro cyntaf gynnwys {0} a {1}
-dateOfAvailability.error.invalid = ENodwch y dyddiad yr oedd y car ar gael i chi am y tro cyntaf yn y fformat cywir
+dateOfAvailability.error.invalid = Nodwch y dyddiad yr oedd y car ar gael i chi am y tro cyntaf yn y fformat cywir
 dateOfAvailability.error.notARealDate = Mae’n rhaid i’r dyddiad yr oedd y car ar gael i chi am y tro cyntaf fod yn ddyddiad go iawn
 
 ######################################################################
@@ -1647,7 +1647,8 @@ notificationReference.error.length = The notification reference must be 13 chara
 # TODO: Welsh translations to be supplied by content team.
 numberOfVehicles.title = Number of vehicles
 numberOfVehicles.caption = Add vehicle details
-numberOfVehicles.heading = How many vehicles is this notification for?
+numberOfVehicles.heading.1 = Number of vehicles
+numberOfVehicles.heading.2 = How many vehicles is this notification for?
 numberOfVehicles.paragraph = If you need to notify for more than one vehicle with the same details, select ‘More than one vehicle’. This option is only available if you’ve not added vehicles to the notification.
 numberOfVehicles.radio.one = One vehicle
 numberOfVehicles.radio.many = More than one vehicle
@@ -1735,3 +1736,21 @@ checkVinNumbers.table.vin = Vehicle identification number
 checkVinNumbers.table.caption = Showing {0} to {1} of {2} records
 checkVinNumbers.saveAndContinue = Save and continue
 checkVinNumbers.updateLink = Update vehicle identification numbers
+
+#######################################################################
+# AVD10.5 - Add vehicle details 10.5 - Mileage                        #
+#######################################################################
+# TODO: Welsh translations to be supplied by content team.
+mileage.title = What is the mileage of the vehicle?
+mileage.caption = Add vehicle details
+mileage.heading.1 = What is the mileage of the vehicle?
+mileage.paragraph = This is the total distance the vehicle had travelled, in miles (mi) or kilometres (km), when you bought it.
+mileage.label.unit = Mileage unit
+mileage.radio.miles = Miles (mi)
+mileage.radio.km = Kilometres (km)
+mileage.label.mileage = Mileage
+mileage.hint.mileage = Enter whole numbers only, for example 10000
+mileage.error.required.unit = Select the mileage unit
+mileage.error.required.mileage = Enter the mileage
+mileage.error.format = Enter the mileage in the correct format
+mileage.error.length = The mileage must be 6 characters or less
