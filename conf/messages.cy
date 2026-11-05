@@ -19,9 +19,9 @@ site.govuk = GOV.UK
 date.day = Diwrnod
 date.month = Mis
 date.year = Blwyddyn
-date.error.day = Diwrnod
-date.error.month = Mis
-date.error.year = Blwyddyn
+date.error.day = diwrnod
+date.error.month = mis
+date.error.year = blwyddyn
 
 ####################
 # EU Country Names #
