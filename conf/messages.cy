@@ -1667,6 +1667,33 @@ vehicleRegistrationNumberKnown.heading = Do you know the current vehicle registr
 vehicleRegistrationNumberKnown.error.required = Select yes if you know the current vehicle registration number
 
 ####################################################################################
+# AVD10.3 - Date of arrival                                                        #
+####################################################################################
+dateOfArrival.title = Date the vehicle arrived in the UK
+dateOfArrival.heading = Date the vehicle arrived in the UK
+dateOfArrival.caption = Add vehicle details
+dateOfArrival.broughtFrom.paragraph = If you brought the vehicle from:
+dateOfArrival.broughtFrom.bullet.1 = an EU country, enter the date the vehicle arrived in the UK
+dateOfArrival.broughtFrom.bullet.2 = outside the EU, enter the date HMRC accepted the import entry
+dateOfArrival.changeOfIntention.paragraph = If there is a change of intention for using the vehicle after arrival, enter the date of the change. A change of intention is when:
+dateOfArrival.changeOfIntention.bullet.1 = you bring a vehicle into the UK for a short period but decide to keep it longer
+dateOfArrival.changeOfIntention.bullet.2 = you change your plans to register the vehicle under the {0} or {1} after arrival
+dateOfArrival.changeOfIntention.secureRegistrationScheme.linkText = secure registration scheme (SRS)
+dateOfArrival.changeOfIntention.registerAVehicle.linkText = Register a Vehicle (RaV) service
+dateOfArrival.changeOfIntention.bullet.3 = a dealer or customer informs you that the vehicle cannot be registered using the SRS or RaV service
+dateOfArrival.question.heading = When did the vehicle arrive in the UK?
+dateOfArrival.hint = For example, 27 03 2026
+dateOfArrival.error.required.all = Enter the date the vehicle arrived in the UK
+dateOfArrival.error.required = The date the vehicle arrived in the UK must include a {0}
+dateOfArrival.error.required.year = The date the vehicle arrive in the UK must include a year
+dateOfArrival.error.required.two = The date the vehicle arrived in the UK must include a {0} and {1}
+dateOfArrival.error.invalid = Enter the date the vehicle arrived in the UK in the correct format
+dateOfArrival.error.notARealDate = The date the vehicle arrived in the UK must be a real date
+dateOfArrival.error.future = The date the vehicle arrived in the UK must be today or in the past
+dateOfArrival.error.afterFirstRegistration = The date the vehicle arrived in the UK must be after the date the vehicle was first registered
+dateOfArrival.error.sameAsOrAfterFirstRegistration = The date the vehicle arrived in the UK must be the same as or after the date the vehicle was first registered
+
+####################################################################################
 # AMV1.0 - Add multiple vehicles 1.0 - How do you want to add VINs                 #
 ####################################################################################
 # TODO: Welsh translations to be supplied by content team.

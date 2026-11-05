@@ -844,10 +844,17 @@ class NavigatorSpec extends SpecBase {
         navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController.onPageLoad()
       }
 
-      "must go from VehicleRegistrationNumberKnownPage AVD10.2 to the landing page when the answer is No" in {
+      "must go from VehicleRegistrationNumberKnownPage to the date of arrival page when the answer is No" in {
         val page = VehicleRegistrationNumberKnownPage(VehicleNumber(1))
         val ua   = supplierVehicle.unsafeSet(page, false)
-        navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController.onPageLoad()
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe
+          vehicledetails.routes.DateOfArrivalController.supplierOnPageLoad(SupplierNumber(1), VehicleNumber(1), NormalMode)
+      }
+
+      "must go from VehicleRegistrationNumberKnownPage to JourneyRecovery when the answer is No and the vehicle has no supplier" in {
+        val page = VehicleRegistrationNumberKnownPage(VehicleNumber(1))
+        val ua   = importVehicle.unsafeSet(page, false)
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
 
       "must go from VehicleRegistrationNumberKnownPage AVD10.2 to JourneyRecovery when there is no answer" in {
@@ -872,6 +879,28 @@ class NavigatorSpec extends SpecBase {
           supplierVehicle,
           NovaUserType.VatRegisteredOrganisation
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from DateOfArrivalPage to the landing page for a supplier vehicle" in {
+        val page = DateOfArrivalPage(VehicleNumber(1))
+        val ua   = supplierVehicle.unsafeSet(page, LocalDate.of(2026, 3, 27))
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from DateOfArrivalPage to the landing page for an import vehicle" in {
+        val page = DateOfArrivalPage(VehicleNumber(1))
+        val ua   = importVehicle.unsafeSet(page, LocalDate.of(2026, 3, 27))
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from DateOfArrivalPage to the landing page for an import vehicle with no date entered" in {
+        navigator.nextPage(DateOfArrivalPage(VehicleNumber(1)), NormalMode, importVehicle, NovaUserType.PrivateIndividual) mustBe
+          routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from DateOfArrivalPage to JourneyRecovery when the vehicle belongs to neither a supplier nor an import" in {
+        navigator.nextPage(DateOfArrivalPage(VehicleNumber(1)), NormalMode, userAnswers, NovaUserType.PrivateIndividual) mustBe
+          routes.JourneyRecoveryController.onPageLoad()
       }
 
       "must go from CountryOfFirstRegistrationPage AVD5.2 to DateOfAvailability AVD5.0 when the vehicle was made available" in {
@@ -1872,6 +1901,11 @@ class NavigatorSpec extends SpecBase {
           userAnswers,
           NovaUserType.VatRegisteredOrganisation
         ) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from DateOfArrivalPage to the landing page" in {
+        navigator.nextPage(DateOfArrivalPage(VehicleNumber(1)), CheckMode, supplierVehicle, NovaUserType.PrivateIndividual) mustBe
+          routes.LandingPageController.onPageLoad()
       }
     }
   }
