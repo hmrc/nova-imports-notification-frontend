@@ -262,12 +262,12 @@ object SupplierDetailsCheckYourAnswersController {
               addressLine3 = supplierAddress.lines.lift(2),
               addressLine4 = supplierAddress.lines.lift(3),
               addressLine5 = supplierAddress.lines.lift(4),
-              postcode = supplierAddress.postcode,
+              postcode = supplierAddress.postcode.getOrElse(""),
               country = supplierAddress.country.code,
               countryName = supplierAddress.country.name,
               isSupplierVatReg = isSupplierVatRegistered,
-              euStateVatReg = vatRegDetails.map(_.countryCode),
-              vatRegistrationNumber = vatRegDetails.map(_.vatNumber)
+              euStateVatReg = vatRegDetails.map(_.countryCode).getOrElse(""),
+              vatRegistrationNumber = vatRegDetails.map(_.vatNumber).getOrElse("")
             )
           )
           .as[JsObject]

@@ -30,12 +30,12 @@ final case class SupplierDetails(
   addressLine3: Option[String] = None,
   addressLine4: Option[String] = None,
   addressLine5: Option[String] = None,
-  postcode: Option[String] = None,
+  postcode: String = "",
   country: String,
   countryName: Option[String] = None,
   isSupplierVatReg: Boolean,
-  euStateVatReg: Option[String] = None,
-  vatRegistrationNumber: Option[String] = None
+  euStateVatReg: String = "",
+  vatRegistrationNumber: String = ""
 )
 
 object SupplierDetails {
