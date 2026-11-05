@@ -30,8 +30,7 @@
 @(form: Form[Mileage], vehicleDetails: Option[InsetText], postAction: Call)(implicit request: Request[?], messages: Messages)
 
 @layout(
-    pageTitle = title(form, messages("mileage.title")),
-    showBackLink = true
+    pageTitle = title(form, messages("mileage.title"))
 ) {
 
     @formHelper(action = postAction, Symbol("autoComplete") -> "off", Symbol("class") -> "govuk-!-margin-bottom-8") {
