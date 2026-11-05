@@ -244,7 +244,7 @@ object UserDataService {
       answersF.flatMap { a =>
         val address = Address(
           lines = Seq(Option(d.addressLine1), Option(d.addressLine2), d.addressLine3, d.addressLine4, d.addressLine5).flatten,
-          postcode = d.postcode,
+          postcode = Option(d.postcode).filter(_.nonEmpty),
           country = Country(d.country, d.countryName)
         )
         for {
@@ -257,7 +257,7 @@ object UserDataService {
                     sessionRepository.setPage(a4, SupplierNamePage(supplierNumber), NameDetails(title, firstName, lastName))
                   case _ => Future.successful(a4)
                 }
-          a6 <- (d.euStateVatReg, d.vatRegistrationNumber) match {
+          a6 <- (Option(d.euStateVatReg).filter(_.nonEmpty), Option(d.vatRegistrationNumber).filter(_.nonEmpty)) match {
                   case (Some(countryCode), Some(vatNumber)) =>
                     sessionRepository.setPage(a5, SupplierVatRegistrationNumberPage(supplierNumber), VatNumberDetails(countryCode, vatNumber))
                   case _ => Future.successful(a5)

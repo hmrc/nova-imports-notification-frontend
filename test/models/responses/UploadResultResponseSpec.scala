@@ -327,7 +327,7 @@ class UploadResultResponseSpec extends AnyFreeSpec with Matchers {
       result.motorCaravansEuVehicles must have size 1
       result.vehicles                must have size 1
       result.vehicles.head.make mustBe Some("Make of motor caravan")
-      result.vehicles.head.model mustBe Some("Motor caravan body")
+      result.vehicles.head.model mustBe Some("Model name/number")
 
       val vehicle = result.motorCaravansEuVehicles.head
       vehicle.caravanMake mustBe Some("Make of motor caravan")
@@ -382,7 +382,7 @@ class UploadResultResponseSpec extends AnyFreeSpec with Matchers {
       result.motorCaravansNonEuVehicles must have size 1
       result.vehicles                   must have size 1
       result.vehicles.head.make mustBe Some("Make of motor caravan")
-      result.vehicles.head.model mustBe Some("Motor caravan body")
+      result.vehicles.head.model mustBe Some("Model name / number")
 
       val vehicle = result.motorCaravansNonEuVehicles.head
       vehicle.caravanMake mustBe Some("Make of motor caravan")
