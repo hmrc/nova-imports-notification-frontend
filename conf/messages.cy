@@ -1735,3 +1735,21 @@ checkVinNumbers.table.vin = Vehicle identification number
 checkVinNumbers.table.caption = Showing {0} to {1} of {2} records
 checkVinNumbers.saveAndContinue = Save and continue
 checkVinNumbers.updateLink = Update vehicle identification numbers
+
+#######################################################################
+# AVD10.5 - Add vehicle details 10.5 - Mileage                        #
+#######################################################################
+# TODO: Welsh translations to be supplied by content team.
+mileage.title = What is the mileage of the vehicle?
+mileage.caption = Add vehicle details
+mileage.heading.1 = What is the mileage of the vehicle?
+mileage.paragraph = This is the total distance the vehicle had travelled, in miles (mi) or kilometres (km), when you bought it.
+mileage.label.unit = Mileage unit
+mileage.radio.miles = Miles (mi)
+mileage.radio.km = Kilometres (km)
+mileage.label.mileage = Mileage
+mileage.hint.mileage = Enter whole numbers only, for example 10000
+mileage.error.required.unit = Select the mileage unit
+mileage.error.required.mileage = Enter the mileage
+mileage.error.format = Enter the mileage in the correct format
+mileage.error.length = The mileage must be 6 characters or less
