@@ -26,7 +26,7 @@ import models.{CheckMode, DraftId, ImportNumber, Mode, NormalMode, SupplierNumbe
 import pages.sections.vehicledetails.NumberOfVehiclesPage
 import pages.{DraftIdPage, DraftVersionIdPage, ValidatedVinListPage}
 import play.api.Logging
-import play.api.data.Form
+import play.api.data.{Form, FormError}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents, Result}
 import repositories.SessionRepository
@@ -134,6 +134,8 @@ class EnterVinNumbersController @Inject() (
           (request.userAnswers.get(DraftIdPage), request.userAnswers.get(NumberOfVehiclesPage(vehicleNumber)).flatMap(_.numberSameVehicles)) match {
             case (Some(draftId), Some(expectedCount)) =>
               connector.validateVins(draftId, rawInput, expectedCount).flatMap {
+                case Right(result) if result.valid && checkAddedVinsDuplicates(result.vins) =>
+                  Future.successful(rerender(form.fill(rawInput).copy(errors = Seq(FormError("enterVinNumbers", "enterVinNumbers.error.duplicate")))))
                 case Right(result) if result.valid =>
                   checkForCrossNotificationDuplicates(draftId, result.vins, journey, groupNumber, rawInput, submitCall, vehicleNumber, nextPage)
                 case Right(result) =>
@@ -149,6 +151,9 @@ class EnterVinNumbersController @Inject() (
         }
       )
   }
+
+  private def checkAddedVinsDuplicates(vins: Seq[String]): Boolean =
+    vins.map(_.toUpperCase).distinct.size != vins.size
 
   private def checkForCrossNotificationDuplicates(
     draftId: DraftId,

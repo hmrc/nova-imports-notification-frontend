@@ -1807,6 +1807,7 @@ enterVinNumbers.caption = Add vehicle details
 enterVinNumbers.heading = Enter the {0} vehicle identification numbers
 enterVinNumbers.hint = Separate each VIN with a comma. For example, 1ABCD2E03FG456789, 2A1BC34D5E6789012, ABCDE01F24567890
 enterVinNumbers.error.required = Enter the vehicle identification numbers
+enterVinNumbers.error.duplicate = Enter a unique vehicle identification number for each vehicle
 # F26 cross-notification duplicate check - confirm with UCD
 enterVinNumbers.error.duplicate.crossNotification = One or more of the vehicle identification numbers entered already exists on another vehicle in this notification
 
