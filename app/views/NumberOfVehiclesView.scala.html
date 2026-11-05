@@ -43,12 +43,14 @@
 
         <span class="govuk-caption-l">@messages("numberOfVehicles.caption")</span>
 
+        <h1 class="govuk-heading-l">@messages("numberOfVehicles.heading.1")</h1>
+
         <p class="govuk-body">@messages("numberOfVehicles.paragraph")</p>
 
         @govukRadios(
             RadiosViewModel(
                 field  = form("oneMultiVehicle"),
-                legend = LegendViewModel(messages("numberOfVehicles.heading")).asPageHeading(LegendSize.Large),
+                legend = LegendViewModel(messages("numberOfVehicles.heading.2")).withCssClass(LegendSize.Medium.toString),
                 items  = Seq(
                     RadioItem(
                         id      = Some(form("oneMultiVehicle").id),

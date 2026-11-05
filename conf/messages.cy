@@ -1647,7 +1647,8 @@ notificationReference.error.length = The notification reference must be 13 chara
 # TODO: Welsh translations to be supplied by content team.
 numberOfVehicles.title = Number of vehicles
 numberOfVehicles.caption = Add vehicle details
-numberOfVehicles.heading = How many vehicles is this notification for?
+numberOfVehicles.heading.1 = Number of vehicles
+numberOfVehicles.heading.2 = How many vehicles is this notification for?
 numberOfVehicles.paragraph = If you need to notify for more than one vehicle with the same details, select ‘More than one vehicle’. This option is only available if you’ve not added vehicles to the notification.
 numberOfVehicles.radio.one = One vehicle
 numberOfVehicles.radio.many = More than one vehicle
