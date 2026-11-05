@@ -1041,7 +1041,7 @@ dateOfAvailability.hint = Er enghraifft, 27 03 2026
 dateOfAvailability.error.required.all = Nodwch y dyddiad yr oedd y car ar gael i chi am y tro cyntaf
 dateOfAvailability.error.required = Mae’n rhaid i’r dyddiad yr oedd y car ar gael i chi am y tro cyntaf gynnwys {0}
 dateOfAvailability.error.required.two = Mae’n rhaid i’r dyddiad yr oedd y car ar gael i chi am y tro cyntaf gynnwys {0} a {1}
-dateOfAvailability.error.invalid = ENodwch y dyddiad yr oedd y car ar gael i chi am y tro cyntaf yn y fformat cywir
+dateOfAvailability.error.invalid = Nodwch y dyddiad yr oedd y car ar gael i chi am y tro cyntaf yn y fformat cywir
 dateOfAvailability.error.notARealDate = Mae’n rhaid i’r dyddiad yr oedd y car ar gael i chi am y tro cyntaf fod yn ddyddiad go iawn
 
 ######################################################################
