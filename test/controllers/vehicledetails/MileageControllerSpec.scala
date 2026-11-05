@@ -30,7 +30,6 @@ import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.DraftIdPage
 import pages.sections.initialquestions.VehicleFromEuPage
-import pages.sections.introduction.AmendSubmittedNotificationPage
 import pages.sections.vehicledetails.{AddVehicleDetailsHeavyCommercialPage, AddVehicleTypePage, MileagePage}
 import play.api.Application
 import play.api.inject.bind
@@ -75,7 +74,6 @@ class MileageControllerSpec extends SpecBase with MockitoSugar {
   val supplierAnswers: UserAnswers = withVehicleDetails(
     emptyUserAnswers
       .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
-      .unsafeSet(AmendSubmittedNotificationPage, true)
       .unsafeSet(VehicleFromEuPage, true)
       .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
       .unsafeSet(AllVehiclesQuery, Map("1" -> Json.obj("supplierNumber" -> 1, "details" -> Json.obj("bringingVehicleNI" -> true))))
@@ -84,7 +82,6 @@ class MileageControllerSpec extends SpecBase with MockitoSugar {
   val importAnswers: UserAnswers = withVehicleDetails(
     emptyUserAnswers
       .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
-      .unsafeSet(AmendSubmittedNotificationPage, true)
       .unsafeSet(VehicleFromEuPage, false)
       .unsafeSet(AllImportsQuery, Map("1" -> Json.obj("importEntryNumber" -> "123-456789A")))
       .unsafeSet(AllVehiclesQuery, Map("1" -> Json.obj("importNumber" -> 1, "details" -> Json.obj("bringingVehicleNI" -> true))))
@@ -251,11 +248,6 @@ class MileageControllerSpec extends SpecBase with MockitoSugar {
 
       "must redirect to Unauthorised for a GET if draftId is missing" in {
         val answers = supplierAnswers.remove(DraftIdPage).success.value
-        mustBeUnauthorised(applicationBuilder(userAnswers = Some(answers)).build(), supplierRoute)
-      }
-
-      "must redirect to Unauthorised for a GET if the amendment flag is missing" in {
-        val answers = supplierAnswers.remove(AmendSubmittedNotificationPage).success.value
         mustBeUnauthorised(applicationBuilder(userAnswers = Some(answers)).build(), supplierRoute)
       }
 

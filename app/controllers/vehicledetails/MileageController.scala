@@ -24,7 +24,6 @@ import models.requests.DataRequest
 import models.{ImportNumber, Mileage, Mode, NovaUserType, SupplierNumber, VehicleNumber}
 import navigation.Navigator
 import pages.sections.initialquestions.VehicleFromEuPage
-import pages.sections.introduction.AmendSubmittedNotificationPage
 import pages.sections.vehicledetails.MileagePage
 import play.api.data.Form
 import play.api.mvc.*
@@ -111,7 +110,6 @@ object MileageController {
     vehicleNumber: VehicleNumber
   )(request: DataRequest[?]): Boolean =
     IsDraftIdDefined(request.userAnswers) &&
-      request.userAnswers.get(AmendSubmittedNotificationPage).isDefined &&
       request.userAnswers.get(VehicleFromEuPage).contains(true) &&
       supplierService.numberHasValues(request.userAnswers, supplierNumber) &&
       vehicleService.belongsToSupplier(request.userAnswers, vehicleNumber, supplierNumber) &&
@@ -124,7 +122,6 @@ object MileageController {
     vehicleNumber: VehicleNumber
   )(request: DataRequest[?]): Boolean =
     IsDraftIdDefined(request.userAnswers) &&
-      request.userAnswers.get(AmendSubmittedNotificationPage).isDefined &&
       request.userAnswers.get(VehicleFromEuPage).contains(false) &&
       isVatOrganisationOrAgent(request) &&
       importService.numberHasValues(request.userAnswers, importNumber) &&
