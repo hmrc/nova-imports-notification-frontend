@@ -47,7 +47,18 @@
         @govukCharacterCount(
             CharacterCount(
                 maxLength = Some(NoPurchaseInvoiceReasonFormProvider.MaxLength),
-                label = LabelViewModel(messages("noPurchaseInvoiceReason.heading")).asPageHeading(LabelSize.Large)
+                label = LabelViewModel(messages("noPurchaseInvoiceReason.heading")).asPageHeading(LabelSize.Large),
+                charactersUnderLimitText = Some(Map(
+                    "one"   -> s"${messages("noPurchaseInvoiceReason.hint.remaining.start")} %{count} ${messages("noPurchaseInvoiceReason.hint.remaining.end.one")}",
+                    "many" -> s"${messages("noPurchaseInvoiceReason.hint.remaining.start")} %{count} ${messages("noPurchaseInvoiceReason.hint.remaining.end.many")}",
+                    "other" -> s"${messages("noPurchaseInvoiceReason.hint.remaining.start")} %{count} ${messages("noPurchaseInvoiceReason.hint.remaining.end.many")}"
+                )),
+                charactersAtLimitText = Some(s"${messages("noPurchaseInvoiceReason.hint.remaining.start")} 0 ${messages("noPurchaseInvoiceReason.hint.remaining.end.many")}"),
+                charactersOverLimitText = Some(Map(
+                    "one"   -> s"${messages("noPurchaseInvoiceReason.hint.exceeded.start")} %{count} ${messages("noPurchaseInvoiceReason.hint.exceeded.end.one")}",
+                    "many" -> s"${messages("noPurchaseInvoiceReason.hint.exceeded.start")} %{count} ${messages("noPurchaseInvoiceReason.hint.exceeded.end.many")}",
+                    "other" -> s"${messages("noPurchaseInvoiceReason.hint.exceeded.start")} %{count} ${messages("noPurchaseInvoiceReason.hint.exceeded.end.many")}"
+                ))
             ).withFormField(form("value"))
         )
 
