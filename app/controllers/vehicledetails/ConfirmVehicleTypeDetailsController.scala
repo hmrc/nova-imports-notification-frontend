@@ -138,7 +138,14 @@ class ConfirmVehicleTypeDetailsController @Inject() (
           controllers.routes.JourneyRecoveryController.onPageLoad()
       }
     else
-      controllers.routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.0 when built
+      (supplierNumber, importNumber) match {
+        case (Some(supplierNumber), _) =>
+          routes.NumberOfVehiclesController.supplierOnPageLoad(supplierNumber, vehicleNumber, NormalMode)
+        case (_, Some(importNumber)) =>
+          routes.NumberOfVehiclesController.importOnPageLoad(importNumber, vehicleNumber, NormalMode)
+        case _ =>
+          controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
 }
 
 object ConfirmVehicleTypeDetailsController {

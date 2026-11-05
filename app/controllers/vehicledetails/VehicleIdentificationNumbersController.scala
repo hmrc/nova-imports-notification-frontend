@@ -21,11 +21,11 @@ import controllers.actions.*
 import controllers.utils.IsDraftIdDefined
 import forms.VehicleIdentificationNumbersFormProvider
 import models.requests.DataRequest
-import models.{ImportNumber, NormalMode, NovaUserType, SupplierNumber, VehicleIdentificationNumbersMethod, VehicleNumber}
+import models.{ImportNumber, NormalMode, NovaUserType, OneMultiVehicle, SupplierNumber, VehicleIdentificationNumbersMethod, VehicleNumber}
 import navigation.Navigator
 import pages.sections.initialquestions.VehicleFromEuPage
 import pages.sections.introduction.AmendSubmittedNotificationPage
-import pages.sections.vehicledetails.VehicleIdentificationNumbersPage
+import pages.sections.vehicledetails.{NumberOfVehiclesPage, VehicleIdentificationNumbersPage}
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents, Result}
 import repositories.SessionRepository
@@ -102,7 +102,6 @@ class VehicleIdentificationNumbersController @Inject() (
 
 object VehicleIdentificationNumbersController {
 
-  // TODO: add AVD10.0 = 'Multiple' is answered check when AVD10.0 is built
   def supplierGuardPredicate(
     supplierService: SupplierService,
     vehicleService: VehicleService,
@@ -115,9 +114,9 @@ object VehicleIdentificationNumbersController {
       supplierService.numberHasValues(request.userAnswers, supplierNumber) &&
       vehicleService.belongsToSupplier(request.userAnswers, vehicleNumber, supplierNumber) &&
       vehicleService.numberHasValues(request.userAnswers, vehicleNumber) &&
-      ConfirmVehicleTypeDetailsController.vehicleDetailsSection(request.userAnswers, vehicleNumber).isDefined
+      ConfirmVehicleTypeDetailsController.vehicleDetailsSection(request.userAnswers, vehicleNumber).isDefined &&
+      request.userAnswers.get(NumberOfVehiclesPage(vehicleNumber)).map(_.oneMultiVehicle).contains(OneMultiVehicle.More)
 
-  // TODO: add AVD10.0 = 'Multiple' is answered check when AVD10.0 is built
   def importGuardPredicate(
     importService: ImportService,
     vehicleService: VehicleService,
@@ -131,5 +130,6 @@ object VehicleIdentificationNumbersController {
       importService.numberHasValues(request.userAnswers, importNumber) &&
       vehicleService.belongsToImport(request.userAnswers, vehicleNumber, importNumber) &&
       vehicleService.numberHasValues(request.userAnswers, vehicleNumber) &&
-      ConfirmVehicleTypeDetailsController.vehicleDetailsSection(request.userAnswers, vehicleNumber).isDefined
+      ConfirmVehicleTypeDetailsController.vehicleDetailsSection(request.userAnswers, vehicleNumber).isDefined &&
+      request.userAnswers.get(NumberOfVehiclesPage(vehicleNumber)).map(_.oneMultiVehicle).contains(OneMultiVehicle.More)
 }

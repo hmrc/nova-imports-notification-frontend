@@ -42,7 +42,7 @@ class UploadSpreadsheetErrorRejectedViewSpec extends SpecBase with Matchers with
     super.afterAll()
   }
 
-  lazy val html: String = view().toString
+  lazy val html: String = view(vehicledetails.routes.UploadVehicleSpreadsheetController.onPageLoad(restart = true)).toString
 
   "UploadSpreadsheetErrorRejectedView" - {
 

@@ -62,6 +62,7 @@ class UserDataServiceImpl @Inject() (
         Future.successful(Left(e))
 
       case Right(draft) =>
+        // TODO: update NumberOfVehiclesPage from the SupplierVehicleMultipleVins/ImportVehicleMultipleVins
         for {
           u0 <- storeIntroductionPages(draft, userAnswers, repository)
           u1 <- storeInitialQuestionsPages(draft, u0, repository, userContext)

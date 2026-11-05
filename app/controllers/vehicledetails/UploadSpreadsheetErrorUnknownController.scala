@@ -20,8 +20,9 @@ import controllers.BaseController
 import controllers.actions.Actions
 import controllers.utils.IsDraftIdDefined
 import models.requests.DataRequest
+import models.{ImportNumber, SupplierNumber, VehicleNumber}
 import pages.sections.initialquestions.VehicleFromEuPage
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import views.html.UploadSpreadsheetErrorUnknownView
 
 import javax.inject.Inject
@@ -34,15 +35,39 @@ class UploadSpreadsheetErrorUnknownController @Inject() (
 
   import UploadSpreadsheetErrorUnknownController.*
 
-  def onPageLoad(): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicate) { implicit request =>
-    Ok(view())
+  def onPageLoad(
+    from: String = "spreadsheet",
+    supplierNumber: Option[Int] = None,
+    importNumber: Option[Int] = None,
+    vehicleNumber: Option[Int] = None
+  ): Action[AnyContent] = actions.authAndGetDataWithUserTypeGuard(guardPredicateFor(from)) { implicit request =>
+    Ok(view(tryAgainUrlFor(from, supplierNumber, importNumber, vehicleNumber)))
   }
 }
 
 object UploadSpreadsheetErrorUnknownController {
 
-  def guardPredicate(request: DataRequest[?]): Boolean =
+  def guardPredicateFor(from: String)(request: DataRequest[?]): Boolean =
+    if (from == "vin") vinGuardPredicate(request) else spreadsheetGuardPredicate(request)
+
+  private def spreadsheetGuardPredicate(request: DataRequest[?]): Boolean =
     IsDraftIdDefined(request.userAnswers) &&
       request.userAnswers.get(VehicleFromEuPage).isDefined &&
       (request.userContext.isVatRegisteredOrganisation || request.userContext.isAgentWithClient)
+
+  private def vinGuardPredicate(request: DataRequest[?]): Boolean =
+    IsDraftIdDefined(request.userAnswers) &&
+      request.userAnswers.get(VehicleFromEuPage).isDefined
+
+  def tryAgainUrlFor(from: String, supplierNumber: Option[Int], importNumber: Option[Int], vehicleNumber: Option[Int]): Call =
+    if (from != "vin") routes.UploadVehicleSpreadsheetController.onPageLoad(restart = true)
+    else
+      (supplierNumber, importNumber, vehicleNumber) match {
+        case (Some(s), _, Some(v)) =>
+          routes.UploadVinNumbersController.supplierOnPageLoad(SupplierNumber(s), VehicleNumber(v), restart = true)
+        case (_, Some(i), Some(v)) =>
+          routes.UploadVinNumbersController.importOnPageLoad(ImportNumber(i), VehicleNumber(v), restart = true)
+        case _ =>
+          controllers.routes.JourneyRecoveryController.onPageLoad()
+      }
 }

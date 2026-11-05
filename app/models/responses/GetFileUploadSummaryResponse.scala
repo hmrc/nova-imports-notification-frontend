@@ -19,12 +19,18 @@ package models.responses
 import play.api.libs.functional.syntax.*
 import play.api.libs.json.*
 
-final case class GetFileUploadSummaryResponse(fileStatus: String, failureReason: Option[String], fileName: Option[String])
+final case class GetFileUploadSummaryResponse(
+  fileStatus: String,
+  failureReason: Option[String],
+  fileName: Option[String],
+  kind: String = "SPREADSHEET"
+)
 
 object GetFileUploadSummaryResponse {
   implicit val reads: Reads[GetFileUploadSummaryResponse] = (
     (JsPath \ "fileStatus").read[String] and
       (JsPath \ "failureDetails" \ "failureReason").readNullable[String] and
-      (JsPath \ "fileName").readNullable[String]
+      (JsPath \ "fileName").readNullable[String] and
+      (JsPath \ "kind").readWithDefault[String]("SPREADSHEET")
   )(GetFileUploadSummaryResponse.apply)
 }

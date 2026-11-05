@@ -112,9 +112,10 @@ class NotificationTaskListController @Inject() (
   ): Future[Option[String]] =
     if (userContext.isVatRegisteredOrganisation || userContext.isAgent)
       connector.getFileUploadSummary(draftId).map {
-        case Right(_)                                 => Some(vehicledetails.routes.VehicleSpreadsheetUploadController.onPageLoad().url)
-        case Left(GetFileUploadSummaryError.NotFound) => None
-        case Left(error)                              =>
+        case Right(summary) if summary.kind == "SPREADSHEET" => Some(vehicledetails.routes.VehicleSpreadsheetUploadController.onPageLoad().url)
+        case Right(_)                                        => None
+        case Left(GetFileUploadSummaryError.NotFound)        => None
+        case Left(error)                                     =>
           logger.warn(s"Could not check for an existing vehicle spreadsheet upload for draftId ${draftId.value}: $error")
           None
       }

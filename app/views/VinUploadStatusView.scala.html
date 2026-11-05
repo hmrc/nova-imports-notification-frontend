@@ -1,0 +1,93 @@
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import views.html.helper.CSPNonce
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
+
+@this(
+    layout: templates.Layout,
+    govukButton: GovukButton,
+    govukSummaryList: GovukSummaryList,
+    govukTag: GovukTag
+)
+
+@(isFinal: Boolean, fileName: Option[String], cancelUrl: Call, removeUrl: Call, statusUrl: String, refreshIntervalSeconds: Int, maxPollSeconds: Int, timeoutUrl: Call, continueUrl: Option[Call] = None)(implicit request: Request[?], messages: Messages)
+
+@statusTag = @{
+    val base = TagViewModel(Text(messages(if (isFinal) "vinUploadStatus.status.uploaded" else "vinUploadStatus.status.uploading")))
+        .withAttribute("id" -> "upload-status-tag")
+        .withAttribute("aria-live" -> "polite")
+    if (isFinal) base.green() else base.yellow()
+}
+
+@actionItem = @{
+    val (text, href) =
+        if (isFinal) (messages("site.remove"), removeUrl.url)
+        else (messages("site.cancel"), cancelUrl.url)
+
+    ActionItemViewModel(Text(text), href)
+        .withVisuallyHiddenText(messages("vinUploadStatus.heading"))
+        .withAttribute("id" -> "upload-action-link")
+        .withAttribute("data-cancel-href" -> cancelUrl.url)
+        .withAttribute("data-remove-href" -> removeUrl.url)
+        .withAttribute("data-cancel-text" -> messages("site.cancel"))
+        .withAttribute("data-remove-text" -> messages("site.remove"))
+}
+
+@layout(pageTitle = titleNoForm(messages("vinUploadStatus.heading"))) {
+
+    <span class="govuk-caption-l">@messages("vinUploadStatus.caption")</span>
+    <h1 class="govuk-heading-l">@messages("vinUploadStatus.heading")</h1>
+
+    @if(!isFinal) {
+        <p class="govuk-body" id="refreshLink">
+            <a href="@request.uri" class="govuk-link">@messages("vinUploadStatus.refreshPageLink")</a>
+        </p>
+    }
+
+    @govukSummaryList(SummaryListViewModel(
+        rows = Seq(
+            SummaryListRowViewModel(
+                key = KeyViewModel(Text(fileName.getOrElse(messages("vinUploadStatus.defaultFileName")))).withCssClass("upload-file-name"),
+                value = ValueViewModel(HtmlContent(govukTag(statusTag))),
+                actions = Seq(actionItem)
+            )
+        )
+    ).withCssClass("govuk-summary-list--long-key"))
+
+    <div class="govuk-button-group">
+        @if(isFinal) {
+            @govukButton(
+                ButtonViewModel(Text(messages("site.continue")))
+                    .asLink(continueUrl.map(_.url).getOrElse(""))
+                    .withAttribute("id" -> "continueButton")
+            )
+        } else {
+            @govukButton(ButtonViewModel(Text(messages("site.continue"))).disabled().withAttribute("id" -> "continueButton"))
+        }
+    </div>
+
+    <div
+        id="vinUploadStatusConfig"
+        data-status-url="@statusUrl"
+        data-refresh-interval-ms="@{refreshIntervalSeconds * 1000}"
+        data-max-poll-ms="@{maxPollSeconds * 1000}"
+        data-timeout-url="@timeoutUrl.url"
+        data-is-final="@isFinal"
+    ></div>
+
+    <script @{CSPNonce.attr} src="@controllers.routes.Assets.versioned("javascripts/vinUploadStatus.js")"></script>
+}
