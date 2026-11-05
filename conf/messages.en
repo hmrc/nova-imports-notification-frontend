@@ -579,18 +579,6 @@ addressChanged.checkHeading = Check the updated address
 addressChanged.changeAddress = Change address
 addressChanged.saveAndContinue = Save and continue
 
-##########################################################################
-# AVD-S7.0 - Add vehicle details: We've changed the supplier's address   #
-##########################################################################
-
-supplierAddressChanged.title = We’ve changed the supplier’s address
-supplierAddressChanged.caption = Add vehicle details
-supplierAddressChanged.heading = We’ve changed the supplier’s address
-supplierAddressChanged.body = This could be because of invalid characters or some lines are too long.
-supplierAddressChanged.checkHeading = Check the updated address
-supplierAddressChanged.changeAddress = Change address
-supplierAddressChanged.saveAndContinue = Confirm address
-
 ###################################################################
 # APA3.0 - Add purchaser address 3.0: We've changed the purchaser's address #
 ###################################################################
@@ -920,6 +908,7 @@ supplierAddressChanged.body = This could be because of invalid characters or som
 supplierAddressChanged.checkHeading = Check the updated address
 supplierAddressChanged.changeAddress = Change address
 supplierAddressChanged.confirmAddress = Confirm address
+supplierAddressChanged.saveAndContinue = Confirm address
 
 ###########################################################################################
 # AVD-S4.0 - Add vehicle details - Supplier 4.0: Supplier name                            #
@@ -1041,6 +1030,12 @@ purchaseInvoiceNumber.error.length = The purchase invoice number must be 20 char
 
 noPurchaseInvoiceReason.title = Provide a reason why a purchase invoice is not available
 noPurchaseInvoiceReason.heading = Provide a reason why a purchase invoice is not available
+noPurchaseInvoiceReason.hint.remaining.start = You have
+noPurchaseInvoiceReason.hint.remaining.end.one = character remaining
+noPurchaseInvoiceReason.hint.remaining.end.many = characters remaining
+noPurchaseInvoiceReason.hint.exceeded.start = You have
+noPurchaseInvoiceReason.hint.exceeded.end.one = character too many
+noPurchaseInvoiceReason.hint.exceeded.end.many = characters too many
 noPurchaseInvoiceReason.caption = Add vehicle details
 noPurchaseInvoiceReason.error.required = Enter a reason why a purchase invoice is not available
 noPurchaseInvoiceReason.error.length = The reason must be 160 characters or less
