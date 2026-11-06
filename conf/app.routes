@@ -512,6 +512,17 @@ POST        /import/:importNumber/vehicle/:vehicleNumber/vehicle-identification-
 GET         /import/:importNumber/vehicle/:vehicleNumber/vehicle-identification-number/change    controllers.vehicledetails.VehicleIdentificationNumberController.importOnPageLoad(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
 POST        /import/:importNumber/vehicle/:vehicleNumber/vehicle-identification-number/change    controllers.vehicledetails.VehicleIdentificationNumberController.importOnSubmit(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
 
+# AVD10.6 - Left or right hand drive
+GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/left-or-right-hand-drive                                           controllers.vehicledetails.LeftOrRightHandDriveController.supplierOnPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/left-or-right-hand-drive                                           controllers.vehicledetails.LeftOrRightHandDriveController.supplierOnSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/left-or-right-hand-drive/change                                    controllers.vehicledetails.LeftOrRightHandDriveController.supplierOnPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
+POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/left-or-right-hand-drive/change                                    controllers.vehicledetails.LeftOrRightHandDriveController.supplierOnSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
+
+GET         /import/:importNumber/vehicle/:vehicleNumber/left-or-right-hand-drive                                               controllers.vehicledetails.LeftOrRightHandDriveController.importOnPageLoad(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+POST        /import/:importNumber/vehicle/:vehicleNumber/left-or-right-hand-drive                                               controllers.vehicledetails.LeftOrRightHandDriveController.importOnSubmit(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+GET         /import/:importNumber/vehicle/:vehicleNumber/left-or-right-hand-drive/change                                        controllers.vehicledetails.LeftOrRightHandDriveController.importOnPageLoad(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
+POST        /import/:importNumber/vehicle/:vehicleNumber/left-or-right-hand-drive/change                                        controllers.vehicledetails.LeftOrRightHandDriveController.importOnSubmit(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
+
 # AVD10.7 - Total value of options
 GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/total-value-of-options                                             controllers.vehicledetails.TotalValueOfOptionsController.onPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
 POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/total-value-of-options                                             controllers.vehicledetails.TotalValueOfOptionsController.onSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)

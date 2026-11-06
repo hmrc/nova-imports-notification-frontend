@@ -916,15 +916,52 @@ class NavigatorSpec extends SpecBase {
         navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController.onPageLoad()
       }
 
-      "must go from MileagePage AVD10.5 to the landing page" in {
+      "must go from MileagePage AVD10.5 to AVD10.6 for the vehicle's supplier route" in {
         val page = MileagePage(VehicleNumber(1))
         val ua   = supplierVehicle.unsafeSet(page, Mileage(MileageUnit.MILES, "123"))
-        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+          vehicledetails.routes.LeftOrRightHandDriveController.supplierOnPageLoad(SupplierNumber(1), VehicleNumber(1), NormalMode)
+      }
+
+      "must go from MileagePage AVD10.5 to AVD10.6 for the vehicle's import route" in {
+        val page = MileagePage(VehicleNumber(1))
+        val ua   = importVehicle.unsafeSet(page, Mileage(MileageUnit.MILES, "123"))
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+          vehicledetails.routes.LeftOrRightHandDriveController.importOnPageLoad(ImportNumber(1), VehicleNumber(1), NormalMode)
       }
 
       "must go from MileagePage AVD10.5 to JourneyRecovery when the vehicle has no mileage" in {
         navigator.nextPage(
           MileagePage(VehicleNumber(1)),
+          NormalMode,
+          supplierVehicle,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from LeftOrRightHandDrivePage AVD10.6 to AVD10.7 for the vehicle's supplier route" in {
+        val page = LeftOrRightHandDrivePage(VehicleNumber(1))
+        val ua   = supplierVehicle.unsafeSet(page, LeftOrRightHandDrive.LHD)
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+          vehicledetails.routes.TotalValueOfOptionsController.onPageLoad(SupplierNumber(1), VehicleNumber(1), NormalMode)
+      }
+
+      "must go from LeftOrRightHandDrivePage AVD10.6 to AVD7.0 for the vehicle's import route" in {
+        val page = LeftOrRightHandDrivePage(VehicleNumber(1))
+        val ua   = importVehicle.unsafeSet(page, LeftOrRightHandDrive.RHD)
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+          vehicledetails.routes.TotalAmountPaidController.onPageLoadImport(ImportNumber(1), VehicleNumber(1), NormalMode)
+      }
+
+      "must go from LeftOrRightHandDrivePage AVD10.6 to JourneyRecovery when the vehicle has no supplier or import" in {
+        val page = LeftOrRightHandDrivePage(VehicleNumber(1))
+        val ua   = userAnswers.unsafeSet(AllVehiclesQuery, Map("1" -> Json.obj())).unsafeSet(page, LeftOrRightHandDrive.LHD)
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from LeftOrRightHandDrivePage AVD10.6 to JourneyRecovery when no answer is found in session" in {
+        navigator.nextPage(
+          LeftOrRightHandDrivePage(VehicleNumber(1)),
           NormalMode,
           supplierVehicle,
           NovaUserType.VatRegisteredOrganisation
@@ -1968,6 +2005,15 @@ class NavigatorSpec extends SpecBase {
       "must go from MileagePage AVD10.5 to the landing page" in {
         navigator.nextPage(
           MileagePage(VehicleNumber(1)),
+          CheckMode,
+          userAnswers,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from LeftOrRightHandDrivePage AVD10.6 to the landing page" in {
+        navigator.nextPage(
+          LeftOrRightHandDrivePage(VehicleNumber(1)),
           CheckMode,
           userAnswers,
           NovaUserType.VatRegisteredOrganisation
