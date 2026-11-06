@@ -33,7 +33,7 @@
     pageTitle = title(form, messages("numberOfVehicles.title"))
 ) {
 
-    @formHelper(action = postAction, Symbol("class") -> "govuk-!-margin-bottom-8") {
+    @formHelper(action = postAction, Symbol("autoComplete") -> "off", Symbol("class") -> "govuk-!-margin-bottom-8") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
@@ -50,7 +50,9 @@
         @govukRadios(
             RadiosViewModel(
                 field  = form("oneMultiVehicle"),
-                legend = LegendViewModel(messages("numberOfVehicles.heading.2")).withCssClass(LegendSize.Medium.toString),
+                legend = LegendViewModel(
+                    HtmlContent(s"""<h2 class="govuk-fieldset__heading">${messages("numberOfVehicles.heading.2")}</h2>""")
+                ).withCssClass(LegendSize.Medium.toString),
                 items  = Seq(
                     RadioItem(
                         id      = Some(form("oneMultiVehicle").id),
