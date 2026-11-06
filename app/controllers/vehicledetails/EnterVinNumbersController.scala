@@ -134,7 +134,7 @@ class EnterVinNumbersController @Inject() (
           (request.userAnswers.get(DraftIdPage), request.userAnswers.get(NumberOfVehiclesPage(vehicleNumber)).flatMap(_.numberSameVehicles)) match {
             case (Some(draftId), Some(expectedCount)) =>
               connector.validateVins(draftId, rawInput, expectedCount).flatMap {
-                case Right(result) if result.valid && checkAddedVinsDuplicates(result.vins) =>
+                case Right(result) if result.valid && hasDuplicateVins(result.vins) =>
                   Future.successful(rerender(form.fill(rawInput).copy(errors = Seq(FormError("enterVinNumbers", "enterVinNumbers.error.duplicate")))))
                 case Right(result) if result.valid =>
                   checkForCrossNotificationDuplicates(draftId, result.vins, journey, groupNumber, rawInput, submitCall, vehicleNumber, nextPage)
@@ -152,7 +152,7 @@ class EnterVinNumbersController @Inject() (
       )
   }
 
-  private def checkAddedVinsDuplicates(vins: Seq[String]): Boolean =
+  private def hasDuplicateVins(vins: Seq[String]): Boolean =
     vins.map(_.toUpperCase).distinct.size != vins.size
 
   private def checkForCrossNotificationDuplicates(
