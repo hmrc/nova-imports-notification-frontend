@@ -385,4 +385,58 @@ class VehicleServiceSpec extends SpecBase with MockitoSugar {
       newService(mock[SessionRepository]).limitReached(emptyUserAnswers) mustBe false
     }
   }
+
+  "VehicleService.vinUsedByAnotherVehicle" - {
+
+    def withVin(vin: String): JsObject = Json.obj("supplierNumber" -> 1, "details" -> Json.obj("vehicleIdentificationNumber" -> vin))
+
+    def answersWith(vehicles: Map[String, JsObject]): UserAnswers = emptyUserAnswers.unsafeSet(AllVehiclesQuery, vehicles)
+
+    val service = newService(mock[SessionRepository])
+
+    "must be true when another vehicle has the same VIN" in {
+      val answers = answersWith(Map("1" -> forSupplier(1, "INV-001"), "2" -> withVin("1ABCD2E03FG456789")))
+
+      service.vinUsedByAnotherVehicle(answers, VehicleNumber(1), "1ABCD2E03FG456789") mustBe true
+    }
+
+    "must ignore case" in {
+      val answers = answersWith(Map("1" -> forSupplier(1, "INV-001"), "2" -> withVin("1abcd2e03fg456789")))
+
+      service.vinUsedByAnotherVehicle(answers, VehicleNumber(1), "1ABCD2E03FG456789") mustBe true
+    }
+
+    "must be false when only the vehicle being edited has the VIN" in {
+      val answers = answersWith(Map("1" -> withVin("1ABCD2E03FG456789"), "2" -> forSupplier(1, "INV-001")))
+
+      service.vinUsedByAnotherVehicle(answers, VehicleNumber(1), "1ABCD2E03FG456789") mustBe false
+    }
+
+    "must be false when other vehicles have different VINs" in {
+      val answers = answersWith(Map("1" -> withVin("1ABCD2E03FG456789"), "2" -> withVin("1ABCD2E03FG456788")))
+
+      service.vinUsedByAnotherVehicle(answers, VehicleNumber(1), "1ABCD2E03FG456787") mustBe false
+    }
+
+    "must find a duplicate on a vehicle for a different supplier or an import" in {
+      val answers = answersWith(
+        Map(
+          "1" -> withVin("AAAAAAAAAAAAAAAAA"),
+          "2" -> Json.obj("importNumber" -> 1, "details" -> Json.obj("vehicleIdentificationNumber" -> "1ABCD2E03FG456789"))
+        )
+      )
+
+      service.vinUsedByAnotherVehicle(answers, VehicleNumber(1), "1ABCD2E03FG456789") mustBe true
+    }
+
+    "must ignore a deleted vehicle" in {
+      val answers = answersWith(Map("1" -> forSupplier(1, "INV-001"), "2" -> deleted))
+
+      service.vinUsedByAnotherVehicle(answers, VehicleNumber(1), "1ABCD2E03FG456789") mustBe false
+    }
+
+    "must be false when there are no vehicles" in {
+      service.vinUsedByAnotherVehicle(emptyUserAnswers, VehicleNumber(1), "1ABCD2E03FG456789") mustBe false
+    }
+  }
 }
