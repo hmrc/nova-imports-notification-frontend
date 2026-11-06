@@ -67,6 +67,7 @@ class TotalValueOfOptionsViewSpec extends SpecBase with Matchers with BeforeAndA
       val document = Jsoup.parse(render())
 
       document.select(".govuk-inset-text").text mustEqual "Vehicle details: Volvo FH16"
+      document.select(".govuk-inset-text").hasClass("govuk-!-margin-top-0") mustEqual true
       document.select(".govuk-inset-text + .govuk-caption-l").isEmpty mustEqual false
     }
 
@@ -103,7 +104,14 @@ class TotalValueOfOptionsViewSpec extends SpecBase with Matchers with BeforeAndA
     }
 
     "must post to the given submit route" in {
-      Jsoup.parse(render()).select("form").attr("action") mustEqual postAction.url
+      val form = Jsoup.parse(render()).select("form")
+
+      form.attr("action") mustEqual postAction.url
+      form.hasClass("govuk-!-margin-bottom-8") mustEqual true
+    }
+
+    "must render a back link" in {
+      render() must include("govuk-back-link")
     }
 
     "must show an error summary linking to the input when nothing is entered" in {

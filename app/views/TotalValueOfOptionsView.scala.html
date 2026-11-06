@@ -28,17 +28,16 @@
 @(form: Form[String], vehicleDetails: Option[InsetText], postAction: Call)(implicit request: Request[?], messages: Messages)
 
 @layout(
-    pageTitle = title(form, messages("totalValueOfOptions.title")),
-    showBackLink = true
+    pageTitle = title(form, messages("totalValueOfOptions.title"))
 ) {
 
-    @formHelper(action = postAction, Symbol("autoComplete") -> "off") {
+    @formHelper(action = postAction, Symbol("autoComplete") -> "off", Symbol("class") -> "govuk-!-margin-bottom-8") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
-        @vehicleDetails.map(govukInsetText(_))
+        @vehicleDetails.map(inset => govukInsetText(inset.copy(classes = "govuk-!-margin-top-0")))
 
         <span class="govuk-caption-l">@messages("totalValueOfOptions.caption")</span>
 
