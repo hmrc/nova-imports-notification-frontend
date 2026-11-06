@@ -50,7 +50,9 @@
         @govukRadios(
             RadiosViewModel(
                 field  = form("oneMultiVehicle"),
-                legend = LegendViewModel(messages("numberOfVehicles.heading.2")).withCssClass(LegendSize.Medium.toString),
+                legend = LegendViewModel(
+                    HtmlContent(s"""<h2 class="govuk-fieldset__heading">${messages("numberOfVehicles.heading.2")}</h2>""")
+                ).withCssClass(LegendSize.Medium.toString),
                 items  = Seq(
                     RadioItem(
                         id      = Some(form("oneMultiVehicle").id),
