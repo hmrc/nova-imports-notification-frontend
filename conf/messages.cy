@@ -1771,3 +1771,21 @@ vehicleIdentificationNumber.error.required = Enter the vehicle identification nu
 vehicleIdentificationNumber.error.invalid = Enter the vehicle identification number in the correct format
 vehicleIdentificationNumber.error.length = The vehicle identification number must be 17 characters or less
 vehicleIdentificationNumber.error.duplicate = Enter a different vehicle identification number. You have already used this one for another vehicle in this submission
+
+####################################################################################
+# AVD10.7 - Add vehicle details 10.7 - Total value of options                       #
+####################################################################################
+# TODO: Welsh translations to be supplied by content team.
+totalValueOfOptions.title = Total value of options
+totalValueOfOptions.caption = Ychwanegwch fanylion cerbyd
+totalValueOfOptions.heading.1 = Total value of options
+totalValueOfOptions.paragraph.1 = This is the total value of any optional extras shown on the purchase invoice. For example:
+totalValueOfOptions.bullet.1 = alloy wheels
+totalValueOfOptions.bullet.2 = metallic paint
+totalValueOfOptions.bullet.3 = leather upholstery
+totalValueOfOptions.paragraph.2 = Remove any currency symbol, commas or decimal points, and round down always. If there are no optional extras, enter 0 (zero) as the total value.
+totalValueOfOptions.heading.2 = What is the total value of options for the vehicle?
+totalValueOfOptions.hint = Enter whole numbers only, for example 12000
+totalValueOfOptions.error.required = Enter the total value of options for the vehicle
+totalValueOfOptions.error.length = The total value of options for the vehicle must be 14 characters or less
+totalValueOfOptions.error.invalid = Enter the total value of options for the vehicle in the correct format

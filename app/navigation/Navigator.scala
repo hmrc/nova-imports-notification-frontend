@@ -356,6 +356,12 @@ class Navigator @Inject() () {
           case (Some(_), None, Some(_)) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.3 when built
           case _                        => routes.JourneyRecoveryController.onPageLoad()
         }
+    case page: TotalValueOfOptionsPage =>
+      (userAnswers, _) =>
+        userAnswers.get(page) match {
+          case Some(_) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.8 or AVD11.0 when built
+          case _       => routes.JourneyRecoveryController.onPageLoad()
+        }
     case page: AddVehicleTypePage =>
       (userAnswers, _) =>
         (
@@ -461,6 +467,8 @@ class Navigator @Inject() () {
       (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.6 when built
     case _: VehicleIdentificationNumberPage =>
       (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.2 / AVD10.3 when built
+    case _: TotalValueOfOptionsPage =>
+      (_, _) => routes.LandingPageController.onPageLoad()
     case page: VehicleDatesPage =>
       (userAnswers, _) =>
         if (userAnswers.get(page).exists(_.contains(VehicleDates.NoDates)))
