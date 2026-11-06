@@ -1835,6 +1835,17 @@ vehicleRegistrationNumberKnown.caption = Add vehicle details
 vehicleRegistrationNumberKnown.heading = Do you know the current vehicle registration number?
 vehicleRegistrationNumberKnown.error.required = Select yes if you know the current vehicle registration number
 
+####################################################################################
+# AVD10.2a - Add vehicle details 10.2a - What is the current vehicle registration number? #
+####################################################################################
+vehicleRegistrationNumber.title = What is the current vehicle registration number?
+vehicleRegistrationNumber.caption = Add vehicle details
+vehicleRegistrationNumber.heading = What is the current vehicle registration number?
+vehicleRegistrationNumber.hint = For example, ABC12DE, BC12 DEF or 12-AB-34
+vehicleRegistrationNumber.error.required = Enter the current vehicle registration number
+vehicleRegistrationNumber.error.invalid = Enter the current vehicle registration number in the correct format
+vehicleRegistrationNumber.error.length = The current vehicle registration number must be 12 characters or less
+
 #######################################################################
 # AVD10.5 - Add vehicle details 10.5 - Mileage                        #
 #######################################################################

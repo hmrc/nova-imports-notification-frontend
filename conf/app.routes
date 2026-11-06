@@ -485,6 +485,12 @@ POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/current-vehicle-reg
 GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/current-vehicle-registration-number-known/change                   controllers.vehicledetails.VehicleRegistrationNumberKnownController.onPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
 POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/current-vehicle-registration-number-known/change                   controllers.vehicledetails.VehicleRegistrationNumberKnownController.onSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
 
+# AVD10.2a - Add vehicle details 10.2a - What is the current vehicle registration number
+GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/current-vehicle-registration-number                               controllers.vehicledetails.VehicleRegistrationNumberController.onPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/current-vehicle-registration-number                               controllers.vehicledetails.VehicleRegistrationNumberController.onSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/current-vehicle-registration-number/change                        controllers.vehicledetails.VehicleRegistrationNumberController.onPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
+POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/current-vehicle-registration-number/change                        controllers.vehicledetails.VehicleRegistrationNumberController.onSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
+
 # AVD10.5 - Mileage
 GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/mileage                                                            controllers.vehicledetails.MileageController.supplierOnPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
 POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/mileage                                                            controllers.vehicledetails.MileageController.supplierOnSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
