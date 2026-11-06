@@ -119,6 +119,18 @@ class CommodityCodeViewSpec extends SpecBase with Matchers with BeforeAndAfterAl
       Jsoup.parse(render()).select("form").attr("action") mustEqual postAction.url
     }
 
+    "must remove the top margin from the vehicle details inset" in {
+      Jsoup.parse(render()).select(".govuk-inset-text").hasClass("govuk-!-margin-top-0") mustEqual true
+    }
+
+    "must add the larger bottom margin after the form" in {
+      Jsoup.parse(render()).select("form").hasClass("govuk-!-margin-bottom-8") mustEqual true
+    }
+
+    "must render the back link" in {
+      Jsoup.parse(render()).select(".govuk-back-link").text mustEqual msgs("site.back")
+    }
+
     "must render the continue button" in {
       Jsoup.parse(render()).select(".govuk-button").text mustEqual msgs("site.continue")
     }

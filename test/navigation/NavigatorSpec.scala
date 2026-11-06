@@ -814,10 +814,17 @@ class NavigatorSpec extends SpecBase {
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
 
-      "must go from CommodityCodePage AVD10.4 to the landing page" in {
+      "must go from CommodityCodePage AVD10.4 to Mileage AVD10.5 for the vehicle's import" in {
         val page = CommodityCodePage(VehicleNumber(1))
         val ua   = importVehicle.unsafeSet(page, "8703123456")
-        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+          vehicledetails.routes.MileageController.importOnPageLoad(ImportNumber(1), VehicleNumber(1), NormalMode)
+      }
+
+      "must go from CommodityCodePage AVD10.4 to JourneyRecovery when the vehicle has no import" in {
+        val page = CommodityCodePage(VehicleNumber(1))
+        val ua   = userAnswers.unsafeSet(page, "8703123456")
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
 
       "must go from CommodityCodePage AVD10.4 to JourneyRecovery when the vehicle has no commodity code" in {

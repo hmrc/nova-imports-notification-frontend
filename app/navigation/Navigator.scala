@@ -306,9 +306,10 @@ class Navigator @Inject() () {
         }
     case page: CommodityCodePage =>
       (userAnswers, _) =>
-        userAnswers.get(page) match {
-          case Some(_) => routes.LandingPageController.onPageLoad()
-          case _       => routes.JourneyRecoveryController.onPageLoad()
+        (userAnswers.get(page), userAnswers.vehicleImportNumber(page.vehicleNumber)) match {
+          case (Some(_), Some(importNumber)) =>
+            vehicledetails.routes.MileageController.importOnPageLoad(importNumber, page.vehicleNumber, NormalMode)
+          case _ => routes.JourneyRecoveryController.onPageLoad()
         }
     case page: VehicleIdentificationNumbersPage =>
       (userAnswers, _) =>
