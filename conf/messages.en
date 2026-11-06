@@ -1867,3 +1867,46 @@ vehicleIdentificationNumber.error.required = Enter the vehicle identification nu
 vehicleIdentificationNumber.error.invalid = Enter the vehicle identification number in the correct format
 vehicleIdentificationNumber.error.length = The vehicle identification number must be 17 characters or less
 vehicleIdentificationNumber.error.duplicate = Enter a different vehicle identification number. You have already used this one for another vehicle in this submission
+
+####################################################################################
+# C-AVD3.0 - Confirm additional vehicle details 3.0                                #
+####################################################################################
+confirmAdditionalVehicleDetails.title = Check the additional vehicle details before you continue
+confirmAdditionalVehicleDetails.heading = Check the additional vehicle details before you continue
+confirmAdditionalVehicleDetails.caption = Add vehicle details
+confirmAdditionalVehicleDetails.notProvided = Not provided
+confirmAdditionalVehicleDetails.notificationReference.label = Notification reference
+confirmAdditionalVehicleDetails.notificationReference.change.hidden = notification reference
+confirmAdditionalVehicleDetails.numberOfVehicles.label = How many vehicles is this notification for?
+confirmAdditionalVehicleDetails.numberOfVehicles.one = One vehicle
+confirmAdditionalVehicleDetails.numberOfVehicles.more = More than one vehicle
+confirmAdditionalVehicleDetails.numberOfVehicles.change.hidden = how many vehicles this notification is for
+confirmAdditionalVehicleDetails.vehicleIdentificationNumber.label = Vehicle identification number
+confirmAdditionalVehicleDetails.vehicleIdentificationNumbers.label = Vehicle identification numbers
+confirmAdditionalVehicleDetails.vehicleIdentificationNumber.change.hidden = vehicle identification number
+confirmAdditionalVehicleDetails.vehicleRegistrationNumberKnown.label = Do you know the current vehicle registration number?
+confirmAdditionalVehicleDetails.vehicleRegistrationNumberKnown.change.hidden = whether you know the current vehicle identification number
+confirmAdditionalVehicleDetails.currentRegistrationNumber.label = Current vehicle registration number
+confirmAdditionalVehicleDetails.currentRegistrationNumber.change.hidden = current vehicle identification number
+confirmAdditionalVehicleDetails.dateArrivedInUk.label = When did the vehicle arrive in the UK?
+confirmAdditionalVehicleDetails.dateArrivedInUk.change.hidden = when the vehicle arrived in the UK
+confirmAdditionalVehicleDetails.commodityCode.label = Commodity code
+confirmAdditionalVehicleDetails.commodityCode.change.hidden = commodity code
+confirmAdditionalVehicleDetails.mileage.label = Mileage
+confirmAdditionalVehicleDetails.mileage.change.hidden = mileage
+confirmAdditionalVehicleDetails.leftOrRightHand.label = Is the vehicle left-hand drive or right-hand drive?
+confirmAdditionalVehicleDetails.leftOrRightHand.change.hidden = whether the vehicle is left-hand drive or right-hand drive
+confirmAdditionalVehicleDetails.totalValueOfOptions.label = Total value of options
+confirmAdditionalVehicleDetails.totalValueOfOptions.change.hidden = total value of options for the vehicle
+confirmAdditionalVehicleDetails.totalAmountPaid.label = Total amount paid
+confirmAdditionalVehicleDetails.totalAmountPaid.change.hidden = total amount paid for the vehicle
+confirmAdditionalVehicleDetails.currency.label = Currency
+confirmAdditionalVehicleDetails.currency.change.hidden = currency used to pay for the vehicle
+confirmAdditionalVehicleDetails.businessUnableToReclaimVat.label = Was the vehicle supplied by a business that could not reclaim VAT?
+confirmAdditionalVehicleDetails.businessUnableToReclaimVat.change.hidden = whether the vehicle was supplied by a business that could not reclaim VAT
+confirmAdditionalVehicleDetails.vehicleSoldUnderMarginScheme.label = Was the vehicle sold to you under the VAT margin scheme?
+confirmAdditionalVehicleDetails.vehicleSoldUnderMarginScheme.change.hidden = whether the vehicle was sold to you under the VAT margin scheme
+confirmAdditionalVehicleDetails.areYouClaimingRelief.label = Are you claiming relief from VAT for the vehicle?
+confirmAdditionalVehicleDetails.areYouClaimingRelief.change.hidden = whether you are claiming VAT relief for the vehicle
+confirmAdditionalVehicleDetails.reasonForClaimingRelief.label = Why are you claiming relief from VAT for the vehicle?
+confirmAdditionalVehicleDetails.reasonForClaimingRelief.change.hidden = why you are claiming VAT relief for the vehicle

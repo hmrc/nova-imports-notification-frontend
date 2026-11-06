@@ -33,6 +33,7 @@ import pages.sections.notifierdetails.{BusinessNamePage, EmailAddressPage, NameD
 import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 import pages.sections.purchaseraddress.{IsPurchaserAddressInTheUkPage, PurchaserAddressPage}
 import pages.sections.supplieraddress.SupplierAddressPage
+import pages.sections.vehicledetails.{MileagePage, NotificationReferencePage, NumberOfVehiclesPage, PaymentCurrencyPage, TotalAmountPaidPage, VehicleIdentificationNumberPage}
 import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierVatRegistrationNumberPage, UseClientDetailsAsSupplierPage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -76,7 +77,8 @@ class UserDataServiceImpl @Inject() (
                   .fold(Future.successful(u7))(businessOrPrivate => repository.setPage(u7, BusinessOrPrivatePage, businessOrPrivate))
           u9  <- storeVehiclesSectionStatusPage(draft, u8, repository)
           u10 <- repository.setPage(u9, NotifierDetailsSavedPage, draft.sections.get(SectionId.NotifierDetails).flatMap(_.data).isDefined)
-        } yield Right(u10)
+          u11 <- storeVehicleAdditionalInformationPages(draft, u10, repository)
+        } yield Right(u11)
     }
 
   def determineAndUpdateStatus(userAnswers: UserAnswers, userContext: UserContext): Map[String, SectionStatus] =
@@ -265,6 +267,49 @@ object UserDataService {
         } yield a6
       }
     }
+  }
+
+  private val VehicleAdditionalInformationRe = raw"(supplier|import)/(\d+)/vehicle/(\d+)/additional-information".r
+
+  def storeVehicleAdditionalInformationPages(draft: DraftNotification, answers: UserAnswers, sessionRepository: SessionRepository)(implicit
+    ec: ExecutionContext
+  ): Future[UserAnswers] = {
+    val sections = draft.sections.toSeq.collect { case (VehicleAdditionalInformationRe(journey, groupNumber, vehicleNumber), section) =>
+      section.data.map((journey, groupNumber.toInt, VehicleNumber(vehicleNumber.toInt), _))
+    }.flatten
+
+    val updated = sections.foldLeft(answers) { case (a, (journey, groupNumber, vehicleNumber, data)) =>
+      val belongsToGroup = journey match {
+        case "supplier" => a.vehicleSupplierNumber(vehicleNumber).contains(SupplierNumber(groupNumber))
+        case _          => a.vehicleImportNumber(vehicleNumber).contains(ImportNumber(groupNumber))
+      }
+      if (belongsToGroup) additionalInformationAnswers(a, vehicleNumber, data) else a
+    }
+
+    if (updated == answers) Future.successful(answers)
+    else sessionRepository.set(updated).map(_ => updated)
+  }
+
+  private def additionalInformationAnswers(answers: UserAnswers, vehicleNumber: VehicleNumber, data: JsObject): UserAnswers = {
+    def text(key: String): Option[String] = (data \ key).asOpt[String].filter(_.nonEmpty)
+
+    val oneVehicle = text("oneOrMultipleVehicls").contains("One")
+    val mileage    = for {
+      value <- text("mileage")
+      unit  <- text("mileageUnits").flatMap(u => MileageUnit.values.find(_.jsonValue == u))
+    } yield Mileage(unit, value)
+
+    def setIfDefined[A: Writes](a: UserAnswers, page: queries.Settable[A], value: Option[A]): UserAnswers =
+      value.flatMap(v => a.set(page, v).toOption).getOrElse(a)
+
+    Seq[UserAnswers => UserAnswers](
+      setIfDefined(_, NumberOfVehiclesPage(vehicleNumber), Option.when(oneVehicle)(NumberOfVehicles(OneMultiVehicle.One, None))),
+      setIfDefined(_, VehicleIdentificationNumberPage(vehicleNumber), text("vehicleIdNumber").filter(_ => oneVehicle)),
+      setIfDefined(_, NotificationReferencePage(vehicleNumber), text("notificationReference")),
+      setIfDefined(_, MileagePage(vehicleNumber), mileage),
+      setIfDefined(_, TotalAmountPaidPage(vehicleNumber), text("pricePaidForVehicleEntry")),
+      setIfDefined(_, PaymentCurrencyPage(vehicleNumber), text("currencyUsed"))
+    ).foldLeft(answers)((a, f) => f(a))
   }
 
   private val VehicleGroupRe             = raw"(?:supplier|import)/(\d+)/vehicle/(\d+)/(type|details|additional-information)".r

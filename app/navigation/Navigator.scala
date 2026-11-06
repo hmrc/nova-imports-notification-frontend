@@ -439,7 +439,7 @@ class Navigator @Inject() () {
           page.isInstanceOf[SupplierVatRegistrationNumberPage] =>
       (_, _) => supplierdetails.routes.SupplierDetailsCheckYourAnswersController.onPageLoad(page.supplierNumber)
     case page: NotificationReferencePage =>
-      (userAnswers, _) => vehicleIdentificationNumberRoute(page.vehicleNumber, userAnswers, NormalMode)
+      (userAnswers, _) => confirmAdditionalVehicleDetailsRoute(userAnswers, page.vehicleNumber)
     case page: NumberOfVehiclesPage =>
       (userAnswers, _) =>
         (
@@ -448,19 +448,19 @@ class Navigator @Inject() () {
           userAnswers.vehicleImportNumber(page.vehicleNumber)
         ) match {
           case (Some(OneMultiVehicle.One), _, _) =>
-            routes.LandingPageController.onPageLoad() // TODO: route TBC, may go back to the CYA C-AVD3.0
+            confirmAdditionalVehicleDetailsRoute(userAnswers, page.vehicleNumber)
           case (Some(OneMultiVehicle.More), Some(supplierNumber), _) =>
             vehicledetails.routes.VehicleIdentificationNumbersController.supplierOnPageLoad(supplierNumber, page.vehicleNumber)
           case (Some(OneMultiVehicle.More), None, Some(importNumber)) =>
             vehicledetails.routes.VehicleIdentificationNumbersController.importOnPageLoad(importNumber, page.vehicleNumber)
           case _ => routes.JourneyRecoveryController.onPageLoad()
         }
-    case _: VehicleRegistrationNumberKnownPage =>
-      (_, _) => routes.LandingPageController.onPageLoad()
-    case _: MileagePage =>
-      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.6 when built
-    case _: VehicleIdentificationNumberPage =>
-      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.2 / AVD10.3 when built
+    case page: VehicleRegistrationNumberKnownPage =>
+      (userAnswers, _) => confirmAdditionalVehicleDetailsRoute(userAnswers, page.vehicleNumber)
+    case page: MileagePage =>
+      (userAnswers, _) => confirmAdditionalVehicleDetailsRoute(userAnswers, page.vehicleNumber)
+    case page: VehicleIdentificationNumberPage =>
+      (userAnswers, _) => confirmAdditionalVehicleDetailsRoute(userAnswers, page.vehicleNumber)
     case page: VehicleDatesPage =>
       (userAnswers, _) =>
         if (userAnswers.get(page).exists(_.contains(VehicleDates.NoDates)))
@@ -473,8 +473,8 @@ class Navigator @Inject() () {
     case page: DateOfFirstRegistrationPage      => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
     case page: CountryOfFirstRegistrationPage   => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
     case page: NoPurchaseInvoiceReasonPage      => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
-    case page: TotalAmountPaidPage              => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
-    case page: PaymentCurrencyPage              => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
+    case page: TotalAmountPaidPage              => (userAnswers, _) => paymentCheckModeRoute(userAnswers, page.vehicleNumber)
+    case page: PaymentCurrencyPage              => (userAnswers, _) => paymentCheckModeRoute(userAnswers, page.vehicleNumber)
     case page: AddVehicleTypePage               => (userAnswers, _) => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, page.vehicleNumber)
     case page: AddVehicleDetailsCarPage         => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
     case page: AddVehicleDetailsLightCommercialPage     => (userAnswers, _) => addVehicleDetailsRoute(page, userAnswers)
@@ -488,6 +488,22 @@ class Navigator @Inject() () {
     case _                           =>
       (_, _) => routes.LandingPageController.onPageLoad()
   }
+
+  private def confirmAdditionalVehicleDetailsRoute(userAnswers: UserAnswers, vehicleNumber: VehicleNumber): Call =
+    (userAnswers.vehicleSupplierNumber(vehicleNumber), userAnswers.vehicleImportNumber(vehicleNumber)) match {
+      case (Some(supplierNumber), _) =>
+        vehicledetails.routes.ConfirmAdditionalVehicleDetailsController.supplierOnPageLoad(supplierNumber, vehicleNumber)
+      case (None, Some(importNumber)) =>
+        vehicledetails.routes.ConfirmAdditionalVehicleDetailsController.importOnPageLoad(importNumber, vehicleNumber)
+      case _ => routes.JourneyRecoveryController.onPageLoad()
+    }
+
+  private def paymentCheckModeRoute(userAnswers: UserAnswers, vehicleNumber: VehicleNumber): Call =
+    (userAnswers.vehicleSupplierNumber(vehicleNumber), userAnswers.vehicleImportNumber(vehicleNumber)) match {
+      case (None, Some(importNumber)) =>
+        vehicledetails.routes.ConfirmAdditionalVehicleDetailsController.importOnPageLoad(importNumber, vehicleNumber)
+      case _ => ConfirmVehicleDetailsJourney.checkModeRoute(userAnswers, vehicleNumber)
+    }
 
   private def vehicleIdentificationNumberRoute(vehicleNumber: VehicleNumber, userAnswers: UserAnswers, mode: Mode): Call =
     (userAnswers.vehicleSupplierNumber(vehicleNumber), userAnswers.vehicleImportNumber(vehicleNumber)) match {
