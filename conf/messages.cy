@@ -19,9 +19,9 @@ site.govuk = GOV.UK
 date.day = Diwrnod
 date.month = Mis
 date.year = Blwyddyn
-date.error.day = diwrnod
-date.error.month = mis
-date.error.year = blwyddyn
+date.error.day = Diwrnod
+date.error.month = Mis
+date.error.year = Blwyddyn
 
 ####################
 # EU Country Names #
@@ -1041,7 +1041,7 @@ dateOfAvailability.hint = Er enghraifft, 27 03 2026
 dateOfAvailability.error.required.all = Nodwch y dyddiad yr oedd y car ar gael i chi am y tro cyntaf
 dateOfAvailability.error.required = Mae’n rhaid i’r dyddiad yr oedd y car ar gael i chi am y tro cyntaf gynnwys {0}
 dateOfAvailability.error.required.two = Mae’n rhaid i’r dyddiad yr oedd y car ar gael i chi am y tro cyntaf gynnwys {0} a {1}
-dateOfAvailability.error.invalid = Nodwch y dyddiad yr oedd y car ar gael i chi am y tro cyntaf yn y fformat cywir
+dateOfAvailability.error.invalid = ENodwch y dyddiad yr oedd y car ar gael i chi am y tro cyntaf yn y fformat cywir
 dateOfAvailability.error.notARealDate = Mae’n rhaid i’r dyddiad yr oedd y car ar gael i chi am y tro cyntaf fod yn ddyddiad go iawn
 
 ######################################################################
@@ -1769,3 +1769,38 @@ commodityCode.hint = Must be between 4 and 10 characters, for example 2134 or 87
 commodityCode.error.required = Enter the commodity code
 commodityCode.error.format = Enter the commodity code in the correct format
 commodityCode.error.length = The commodity code must be between 4 and 10 characters
+
+####################################################################################
+# AVD10.1 - Add vehicle details 10.1 - Vehicle identification number               #
+####################################################################################
+# TODO: Welsh translations to be supplied by content team.
+vehicleIdentificationNumber.title = Vehicle identification number
+vehicleIdentificationNumber.caption = Ychwanegwch fanylion cerbyd
+vehicleIdentificationNumber.heading.1 = Vehicle identification number
+vehicleIdentificationNumber.paragraph = The vehicle identification number (VIN) is also known as the chassis or frame number. It can be up to 17 characters long. If it includes:
+vehicleIdentificationNumber.list.1 = O or Q, replace them with 0 (zero)
+vehicleIdentificationNumber.list.2 = I, replace it with 1 (one)
+vehicleIdentificationNumber.heading.2 = What is the vehicle identification number?
+vehicleIdentificationNumber.hint = For example, 1ABCD2E03FG456789
+vehicleIdentificationNumber.error.required = Enter the vehicle identification number
+vehicleIdentificationNumber.error.invalid = Enter the vehicle identification number in the correct format
+vehicleIdentificationNumber.error.length = The vehicle identification number must be 17 characters or less
+vehicleIdentificationNumber.error.duplicate = Enter a different vehicle identification number. You have already used this one for another vehicle in this submission
+
+####################################################################################
+# AVD10.7 - Add vehicle details 10.7 - Total value of options                       #
+####################################################################################
+# TODO: Welsh translations to be supplied by content team.
+totalValueOfOptions.title = Total value of options
+totalValueOfOptions.caption = Ychwanegwch fanylion cerbyd
+totalValueOfOptions.heading.1 = Total value of options
+totalValueOfOptions.paragraph.1 = This is the total value of any optional extras shown on the purchase invoice. For example:
+totalValueOfOptions.bullet.1 = alloy wheels
+totalValueOfOptions.bullet.2 = metallic paint
+totalValueOfOptions.bullet.3 = leather upholstery
+totalValueOfOptions.paragraph.2 = Remove any currency symbol, commas or decimal points, and round down always. If there are no optional extras, enter 0 (zero) as the total value.
+totalValueOfOptions.heading.2 = What is the total value of options for the vehicle?
+totalValueOfOptions.hint = Enter whole numbers only, for example 12000
+totalValueOfOptions.error.required = Enter the total value of options for the vehicle
+totalValueOfOptions.error.length = The total value of options for the vehicle must be 14 characters or less
+totalValueOfOptions.error.invalid = Enter the total value of options for the vehicle in the correct format

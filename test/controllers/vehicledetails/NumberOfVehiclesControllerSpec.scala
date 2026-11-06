@@ -180,7 +180,9 @@ class NumberOfVehiclesControllerSpec extends SpecBase with MockitoSugar {
           val result  = route(app, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual controllers.routes.LandingPageController.onPageLoad().url
+          redirectLocation(result).value mustEqual vehicledetails.routes.VehicleIdentificationNumberController
+            .supplierOnPageLoad(SupplierNumber(1), VehicleNumber(1), NormalMode)
+            .url
 
           val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
           verify(repository).set(captor.capture())
@@ -289,7 +291,9 @@ class NumberOfVehiclesControllerSpec extends SpecBase with MockitoSugar {
           val result  = route(app, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual controllers.routes.LandingPageController.onPageLoad().url
+          redirectLocation(result).value mustEqual vehicledetails.routes.VehicleIdentificationNumberController
+            .importOnPageLoad(ImportNumber(1), VehicleNumber(1), NormalMode)
+            .url
 
           val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
           verify(repository).set(captor.capture())

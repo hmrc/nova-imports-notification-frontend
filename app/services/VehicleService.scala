@@ -18,6 +18,7 @@ package services
 
 import com.google.inject.{ImplementedBy, Inject, Singleton}
 import models.{ImportNumber, SupplierNumber, UserAnswers, VehicleNumber}
+import pages.sections.vehicledetails.VehicleIdentificationNumberPage
 import play.api.Logging
 import play.api.libs.json.{JsObject, Json}
 import queries.AllVehiclesQuery
@@ -57,6 +58,9 @@ trait VehicleService {
   def moreThanOneVehicle(answers: UserAnswers): Boolean
 
   def inOrder(answers: UserAnswers): Seq[(VehicleNumber, JsObject)]
+
+  // F26: a VIN is a duplicate when another vehicle in the notification has the same VIN, ignoring case
+  def vinUsedByAnotherVehicle(answers: UserAnswers, vehicleNumber: VehicleNumber, vin: String): Boolean
 }
 
 @Singleton
@@ -122,6 +126,11 @@ class VehicleServiceImpl @Inject() (
     vehiclesWithValues(answers).toSeq
       .flatMap { case (key, vehicle) => key.toIntOption.map(number => VehicleNumber(number) -> vehicle) }
       .sortBy { case (number, _) => number.value }
+
+  def vinUsedByAnotherVehicle(answers: UserAnswers, vehicleNumber: VehicleNumber, vin: String): Boolean =
+    inOrder(answers).exists { case (number, _) =>
+      number != vehicleNumber && answers.get(VehicleIdentificationNumberPage(number)).exists(_.trim.equalsIgnoreCase(vin.trim))
+    }
 
   private def deleteValuesForOwner(answers: UserAnswers, ownerKey: String, ownerNumber: Int): Try[UserAnswers] =
     answers.set(
