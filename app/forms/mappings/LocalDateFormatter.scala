@@ -30,6 +30,7 @@ private[mappings] class LocalDateFormatter(
   requiredKey: String,
   notARealDateKey: String,
   requireDdMmYyyy: Boolean = false,
+  fieldRequiredKeys: Map[String, String] = Map.empty,
   args: Seq[String] = Seq.empty
 )(implicit messages: Messages)
     extends Formatter[LocalDate] {
@@ -102,14 +103,15 @@ private[mappings] class LocalDateFormatter(
       field -> data.get(s"$key.$field").map(_.trim).filter(_.nonEmpty)
     }.toMap
 
-    lazy val missingFields = fieldKeys.filter(fields(_).isEmpty).map(field => messages(s"date.error.$field"))
+    lazy val missingFields     = fieldKeys.filter(fields(_).isEmpty)
+    lazy val missingFieldNames = missingFields.map(field => messages(s"date.error.$field"))
 
     if (fields.values.forall(_.isDefined)) {
       formatDate(key, fields.collect { case (field, Some(value)) => field -> value })
     } else {
       missingFields match {
-        case _ :: Nil      => Left(List(FormError(key, requiredKey, missingFields ++ args)))
-        case _ :: _ :: Nil => Left(List(FormError(key, twoRequiredKey, missingFields ++ args)))
+        case field :: Nil  => Left(List(FormError(key, fieldRequiredKeys.getOrElse(field, requiredKey), missingFieldNames ++ args)))
+        case _ :: _ :: Nil => Left(List(FormError(key, twoRequiredKey, missingFieldNames ++ args)))
         case _             => Left(List(FormError(key, allRequiredKey, args)))
       }
     }

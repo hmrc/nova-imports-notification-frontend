@@ -339,8 +339,19 @@ class Navigator @Inject() () {
       (userAnswers, _) =>
         userAnswers.get(page) match {
           case Some(true)  => routes.LandingPageController.onPageLoad()
-          case Some(false) => routes.LandingPageController.onPageLoad()
-          case _           => routes.JourneyRecoveryController.onPageLoad()
+          case Some(false) =>
+            userAnswers
+              .vehicleSupplierNumber(page.vehicleNumber)
+              .fold(routes.JourneyRecoveryController.onPageLoad())(supplierNumber =>
+                vehicledetails.routes.DateOfArrivalController.supplierOnPageLoad(supplierNumber, page.vehicleNumber, NormalMode)
+              )
+          case _ => routes.JourneyRecoveryController.onPageLoad()
+        }
+    case page: DateOfArrivalPage =>
+      (userAnswers, _) =>
+        (userAnswers.vehicleSupplierNumber(page.vehicleNumber), userAnswers.vehicleImportNumber(page.vehicleNumber)) match {
+          case (Some(_), _) | (_, Some(_)) => routes.LandingPageController.onPageLoad()
+          case _                           => routes.JourneyRecoveryController.onPageLoad()
         }
     case page: MileagePage =>
       (userAnswers, _) =>

@@ -485,6 +485,39 @@ class DateMappingsSpec extends AnyFreeSpec with Matchers with ScalaCheckProperty
     }
   }
 
+  "when a field has its own required key" - {
+
+    val yearKeyForm = Form(
+      "value" -> localDate(
+        requiredKey = "error.required",
+        allRequiredKey = "error.required.all",
+        twoRequiredKey = "error.required.two",
+        invalidKey = "error.invalid",
+        notARealDateKey = "error.notARealDate",
+        fieldRequiredKeys = Map("year" -> "error.required.year")
+      )
+    )
+
+    def bind(day: String, month: String, year: String) =
+      yearKeyForm.bind(Map("value.day" -> day, "value.month" -> month, "value.year" -> year))
+
+    "must use the field's own required key when only that field is missing" in {
+      bind("27", "03", "").errors must contain only FormError("value", "error.required.year", List(messages("date.error.year")))
+    }
+
+    "must fall back to the shared required key when a different single field is missing" in {
+      bind("", "03", "2026").errors must contain only FormError("value", "error.required", List(messages("date.error.day")))
+    }
+
+    "must still use the two-field key when the overridden field is one of two missing" in {
+      bind("27", "", "").errors must contain only FormError(
+        "value",
+        "error.required.two",
+        List(messages("date.error.month"), messages("date.error.year"))
+      )
+    }
+  }
+
   "when the date is held as dd/MM/yyyy" - {
 
     val ddMmYyyyForm = Form(
