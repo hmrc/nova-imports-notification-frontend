@@ -19,9 +19,9 @@ site.govuk = GOV.UK
 date.day = Diwrnod
 date.month = Mis
 date.year = Blwyddyn
-date.error.day = Diwrnod
-date.error.month = Mis
-date.error.year = Blwyddyn
+date.error.day = diwrnod
+date.error.month = mis
+date.error.year = blwyddyn
 
 ####################
 # EU Country Names #
@@ -219,19 +219,6 @@ addressChanged.body = Gallai hyn fod oherwydd nodau annilys neu fod rhai llinell
 addressChanged.checkHeading = Gwiriwch y cyfeiriad wedi’i ddiweddaru
 addressChanged.changeAddress = Newid y cyfeiriad
 addressChanged.saveAndContinue = Cadw a pharhau
-
-##########################################################################
-# AVD-S7.0 - Add vehicle details: We've changed the supplier's address   #
-##########################################################################
-
-# TODO: Welsh translations to be supplied by content team.
-supplierAddressChanged.title = We’ve changed the supplier’s address
-supplierAddressChanged.caption = Add vehicle details
-supplierAddressChanged.heading = We’ve changed the supplier’s address
-supplierAddressChanged.body = This could be because of invalid characters or some lines are too long.
-supplierAddressChanged.checkHeading = Check the updated address
-supplierAddressChanged.changeAddress = Change address
-supplierAddressChanged.saveAndContinue = Confirm address
 
 ##################################################################
 # APA1.0 - Add purchaser address: Is the purchaser's address in the UK #
@@ -809,6 +796,19 @@ supplierBusinessName.checkYourAnswersLabel = Enw busnes y cyflenwr
 supplierBusinessName.change.hidden = enw busnes y cyflenwr
 
 ###########################################################################################
+# AVD-S7.0 - Add vehicle details - Supplier 7.0: We've changed the supplier's address      #
+###########################################################################################
+
+supplierAddressChanged.title = Rydym wedi newid cyfeiriad y cyflenwr
+supplierAddressChanged.caption = Ychwanegu manylion y cerbyd
+supplierAddressChanged.heading = Rydym wedi newid cyfeiriad y cyflenwr
+supplierAddressChanged.body = Gallai hyn fod oherwydd nodau annilys neu fod rhai llinellau’n rhy hir.
+supplierAddressChanged.checkHeading = Gwiriwch y cyfeiriad wedi’i ddiweddaru
+supplierAddressChanged.changeAddress = Newid y cyfeiriad
+supplierAddressChanged.confirmAddress = Cadarnhau’r cyfeiriad
+supplierAddressChanged.saveAndContinue = Cadarnhau’r cyfeiriad
+
+###########################################################################################
 # AVD-S4.0 - Add vehicle details - Supplier 4.0: Supplier name                            #
 ###########################################################################################
 
@@ -886,17 +886,16 @@ vehicleDates.checkbox.noDates = I do not have any of these dates
 ##############################################################
 # AVD4.0 - Add vehicle details 4.0: Purchase invoice date    #
 ##############################################################
-# TODO: Welsh translations to be supplied by content team.
 
-purchaseInvoiceDate.title = What is the purchase invoice date?
-purchaseInvoiceDate.heading = What is the purchase invoice date?
-purchaseInvoiceDate.caption = Add vehicle dates
-purchaseInvoiceDate.hint = For example, 27 03 2026
-purchaseInvoiceDate.error.required.all = Enter the purchase invoice date
-purchaseInvoiceDate.error.required = The purchase invoice date must include a {0}
-purchaseInvoiceDate.error.required.two = The purchase invoice date must include a {0} and {1}
-purchaseInvoiceDate.error.invalid = Enter the purchase invoice date in the correct format
-purchaseInvoiceDate.error.notARealDate = The purchase invoice date must be a real date
+purchaseInvoiceDate.title = Beth yw dyddiad anfoneb y pryniant?
+purchaseInvoiceDate.heading = Beth yw dyddiad anfoneb y pryniant?
+purchaseInvoiceDate.caption = Ychwanegu manylion y cerbyd
+purchaseInvoiceDate.hint = Er enghraifft, 27 03 2026
+purchaseInvoiceDate.error.required.all = Nodwch ddyddiad anfoneb y pryniant
+purchaseInvoiceDate.error.required = Mae’n rhaid i ddyddiad anfoneb y pryniant gynnwys {0}
+purchaseInvoiceDate.error.required.two = Mae’n rhaid i ddyddiad anfoneb y pryniant gynnwys {0} a {1}
+purchaseInvoiceDate.error.invalid = Nodwch ddyddiad anfoneb y pryniant yn y fformat cywir
+purchaseInvoiceDate.error.notARealDate = Mae’n rhaid i ddyddiad anfoneb y pryniant fod yn ddyddiad go iawn
 
 ##############################################################
 # AVD4.1 - Add vehicle details 4.1: Purchase invoice number  #
@@ -914,33 +913,41 @@ purchaseInvoiceNumber.error.length = The purchase invoice number must be 20 char
 ##############################################################
 # AVD6.0 - Add vehicle details 6.0: Reason for no invoice    #
 ##############################################################
-# TODO: Welsh translations to be supplied by content team.
-noPurchaseInvoiceReason.title = Provide a reason why a purchase invoice is not available
-noPurchaseInvoiceReason.heading = Provide a reason why a purchase invoice is not available
-noPurchaseInvoiceReason.caption = Add vehicle details
-noPurchaseInvoiceReason.error.required = Enter a reason why a purchase invoice is not available
-noPurchaseInvoiceReason.error.length = The reason must be 160 characters or less
-noPurchaseInvoiceReason.error.invalid = The reason must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
+
+noPurchaseInvoiceReason.title = Rhowch reswm pam nad yw anfoneb y pryniant ar gael
+noPurchaseInvoiceReason.heading = Rhowch reswm pam nad yw anfoneb y pryniant ar gael
+# TODO: Translate hints
+noPurchaseInvoiceReason.hint.remaining.start = You have
+noPurchaseInvoiceReason.hint.remaining.end.one = character remaining
+noPurchaseInvoiceReason.hint.remaining.end.many = characters remaining
+noPurchaseInvoiceReason.hint.exceeded.start = You have
+noPurchaseInvoiceReason.hint.exceeded.end.one = character too many
+noPurchaseInvoiceReason.hint.exceeded.end.many = characters too many
+
+noPurchaseInvoiceReason.caption = Ychwanegu manylion y cerbyd
+noPurchaseInvoiceReason.error.required = Nodwch reswm pam nad yw anfoneb y pryniant ar gael
+noPurchaseInvoiceReason.error.length = Mae’n rhaid i’r rheswm fod yn 160 o gymeriadau neu lai
+noPurchaseInvoiceReason.error.invalid = Ni all y rheswm hwn gynnwys cymeriadau arbennig megis #, $, ^, `, {, |, }, ~, neu unrhyw lythrennau acennog megis ô
 
 ##############################################################
 # AVD7.0 - Add vehicle details 7.0: Total amount paid        #
 ##############################################################
-# TODO: Welsh translations to be supplied by content team.
 
-totalAmountPaid.title = Total amount paid
-totalAmountPaid.heading = Total amount paid
-totalAmountPaid.caption = Add vehicle details
-totalAmountPaid.paragraph.1 = This is the total invoice amount, including delivery charges. It does not include:
-totalAmountPaid.bullet.1 = all trade-ins
-totalAmountPaid.bullet.2 = part exchanges
-totalAmountPaid.bullet.3 = deposits
-totalAmountPaid.paragraph.2 = Remove any currency symbol, commas or decimal points, and round down always. If the vehicle was inherited or a gift, enter 0 (zero) as the total amount.
-totalAmountPaid.label = How much did you pay for the vehicle?
-totalAmountPaid.hint = Enter whole numbers only, for example 12000
-totalAmountPaid.error.required = Enter the total amount paid for the vehicle
-totalAmountPaid.error.length = The total amount paid for the vehicle must be 14 characters or less
+totalAmountPaid.title = Y cyfanswm a dalwyd
+totalAmountPaid.heading = Y cyfanswm a dalwyd
+totalAmountPaid.caption = Ychwanegwch fanylion cerbyd
+totalAmountPaid.paragraph.1 = Dyma’r cyfanswm a nodwyd ar yr anfoneb, gan gynnwys costau dosbarthu. Nid yw’n cynnwys y canlynol:
+totalAmountPaid.bullet.1 = pob cyfnewid
+totalAmountPaid.bullet.2 = rhan-gyfnewid
+totalAmountPaid.bullet.3 = blaendaliadau
+totalAmountPaid.paragraph.2 = Tynnwch unrhyw symbol arian cyfred, coma neu bwynt degol, a gwnewch yn siŵr eich bod yn talgrynnu i lawr. Os cafodd y cerbyd ei etifeddu neu ei roi fel rhodd, nodwch 0 (sero) ar gyfer y cyfanswm.
+totalAmountPaid.label = Faint y gwnaethoch ei dalu am y cerbyd?
+totalAmountPaid.hint = Defnyddiwch rifau cyfan yn unig, er enghraifft 12000
+totalAmountPaid.error.required = Nodwch y cyfanswm a dalwyd am y cerbyd
+totalAmountPaid.error.length = Mae’n rhaid i’r cyfanswm a dalwyd am y cerbyd gynnwys 14 o gymeriadau neu lai
+totalAmountPaid.error.invalid = Nodwch y cyfanswm a dalwyd am y cerbyd yn y fformat cywir
+# TODO:
 totalAmountPaid.error.commaOrDecimalPoint = Enter the total amount paid for the vehicle as a whole number, without commas or decimal points
-totalAmountPaid.error.invalid = Enter the total amount paid for the vehicle in the correct format
 
 ######################################################
 # AVD1.0 - Add vehicle details: Vehicles brought from the EU #
@@ -963,8 +970,8 @@ addVehicleDetails.error.required = Dewiswch sut rydych am ychwanegu manylion y c
 # AVD1.0b - Add vehicle details: Vehicles brought from the EU (by supplier only) #
 ##################################################################################
 
-addVehicleDetails.bySupplierOnly.paragraph.1 = Rhowch fanylion y cyflenwr yn gyntaf, yna ychwanegwch y cerbydau a brynwyd ganddo
-addVehicleDetails.bySupplierOnly.paragraph.2 = Mae’n rhaid i chi gynnwys pob cerbyd a brynwyd gan gyflenwr yn yr UE. Gallwch ychwanegu hyd at 100 o gerbydau mewn un hysbysiad.
+addVehicleDetails.bySupplierOnly.paragraph.1 = Mae’n rhaid i chi roi manylion pob cerbyd a brynwyd gan gyflenwr yn yr UE.
+addVehicleDetails.bySupplierOnly.paragraph.2 = Gallwch ychwanegu manylion ar gyfer hyd at 100 o gerbydau mewn un cyflwyniad. Rhowch fanylion y cyflenwr yn gyntaf, yna ychwanegwch y cerbydau a brynwyd ganddo.
 addVehicleDetails.bySupplierOnly.button = Ychwanegu manylion y cyflenwr
 
 ##################################################################################################
@@ -993,66 +1000,66 @@ addImportVehicleDetails.noSpreadsheet.button = Add import entry number
 ###############################################################################
 # AVD2.0 - Add vehicle details 2.0: Vehicles bought from [supplierName]       #
 ###############################################################################
-
+# TODO:
 vehiclesBoughtFromSupplier.title = Vehicles bought from this supplier
-vehiclesBoughtFromSupplier.caption = Add vehicle details
-vehiclesBoughtFromSupplier.heading = Vehicles bought from {0}
+vehiclesBoughtFromSupplier.caption = Ychwanegu manylion y cerbyd
+vehiclesBoughtFromSupplier.heading = Cerbydau a brynwyd oddi wrth {0}
+# TODO:
 vehiclesBoughtFromSupplier.heading.noSupplierName = Vehicles bought from this supplier
-vehiclesBoughtFromSupplier.paragraph.1 = Add one vehicle at a time. For each vehicle, you must provide either the:
-vehiclesBoughtFromSupplier.bullet.1 = date the vehicle was made available and the date it was first registered for road use
-vehiclesBoughtFromSupplier.bullet.2 = purchase invoice date
-vehiclesBoughtFromSupplier.inset.paragraph.1 = If you cannot provide any of these dates, You cannot continue this notification online. You need to {0}.
-vehiclesBoughtFromSupplier.inset.contactPersonalTransportUnit.linkText = contact HMRC Personal Transport Unit
-vehiclesBoughtFromSupplier.whereToFindDates.heading = Where to find these dates
-vehiclesBoughtFromSupplier.whereToFindDates.paragraph.1 = You can usually find the date of first registration in the vehicle log book. You can find the invoice date on the purchase invoice.
-vehiclesBoughtFromSupplier.addVehicle = Add vehicle
+vehiclesBoughtFromSupplier.paragraph.1 = Ychwanegwch un cerbyd ar y tro.Ar gyfer pob cerbyd, mae’n rhaid i chi roi naill ai:
+vehiclesBoughtFromSupplier.bullet.1 = y dyddiad y gwnaed y cerbyd ar gael a’r dyddiad y cafodd ei gofrestru gyntaf i’w ddefnyddio ar y ffordd
+vehiclesBoughtFromSupplier.bullet.2 = dyddiad yr anfoneb brynu
+vehiclesBoughtFromSupplier.inset.paragraph.1 = Os na allwch roi unrhyw un o’r dyddiadau hyn, ni allwch barhau â’r hysbysiad hwn ar-lein. Mae angen i chi gysylltu ag {0}.
+vehiclesBoughtFromSupplier.inset.contactPersonalTransportUnit.linkText = Uned Cludiant Personol CThEF
+vehiclesBoughtFromSupplier.whereToFindDates.heading = Ble i ddod o hyd i’r dyddiadau hyn
+vehiclesBoughtFromSupplier.whereToFindDates.paragraph.1 = Fel arfer, gallwch ddod o hyd i ddyddiad y cofrestriad cyntaf yn llyfr log y cerbyd. Gallwch ddod o hyd i ddyddiad yr anfoneb ar yr anfoneb brynu.
+vehiclesBoughtFromSupplier.addVehicle = Ychwanegu cerbyd
 
 #########################################################################################
 # AVD3.1 - Add vehicle details 3.1: If you do not have any of the dates for the vehicle #
 #########################################################################################
-# TODO: Welsh translations to be supplied by content team.
-noVehicleDates.title = If you do not have any of the dates for the vehicle
-noVehicleDates.heading = If you do not have any of the dates for the vehicle
-noVehicleDates.caption = Add vehicle details
-noVehicleDates.paragraph.1 = You cannot continue this notification online.
-noVehicleDates.paragraph.2 = Contact {0}.
-noVehicleDates.link.text = HMRC Personal Transport Unit
+
+noVehicleDates.title = Os nad oes gennych y dyddiadau ar gyfer y cerbyd
+noVehicleDates.heading = Os nad oes gennych y dyddiadau ar gyfer y cerbyd
+noVehicleDates.caption = Ychwanegwch fanylion cerbyd
+noVehicleDates.paragraph.1 = Ni allwch barhau â’r hysbysiad hwn ar-lein.
+noVehicleDates.paragraph.2 = Cysylltwch ag {0}.
+noVehicleDates.link.text = Uned Trafnidiaeth Bersonol CThEF
 
 ######################################################################
 # AVD5.0 - Add vehicle details 5.0: Date of availability             #
 ######################################################################
-# TODO: Welsh translations to be supplied by content team.
 
-dateOfAvailability.title = Date of availability
-dateOfAvailability.heading = Date of availability
-dateOfAvailability.caption = Add vehicle details
-dateOfAvailability.paragraph.1 = This is the date the vehicle was first made available to be taken into possession, even if it was not collected on that date.
-dateOfAvailability.inset.paragraph.1 = If the vehicle was made available after 11pm on 31 October 2019, it’s considered an import. Find out about {0}.
-dateOfAvailability.inset.importingVehicles.linkText = Importing vehicles into the UK
-dateOfAvailability.question.heading = When was the vehicle made available to you?
-dateOfAvailability.hint = For example, 27 3 2026
-dateOfAvailability.error.required.all = Enter the date the vehicle was made available to you
-dateOfAvailability.error.required = The date the vehicle was made available to you must include a {0}
-dateOfAvailability.error.required.two = The date the vehicle was made available to you must include a {0} and {1}
-dateOfAvailability.error.invalid = Enter the date the vehicle was made available to you in the correct format
-dateOfAvailability.error.notARealDate = The date the vehicle was made available to you must be a real date
+dateOfAvailability.title = Y dyddiad yr oedd y car ar gael
+dateOfAvailability.heading = Y dyddiad yr oedd y car ar gael
+dateOfAvailability.caption = Ychwanegu manylion y cerbyd
+dateOfAvailability.paragraph.1 = Dyma’r dyddiad yr oedd y car ar gael i’w feddiannu am y tro cyntaf, hyd yn oed os na chafodd ei gasglu ar y dyddiad hwnnw.
+dateOfAvailability.inset.paragraph.1 = Caiff cerbyd ei ystyried yn ‘mewnforyn’ os oedd y dyddiad yr oedd y car ar gael am y tro cyntaf ar ôl 11pm ar 31 Hydref 2019. Darllenwch yr arweiniad ynghylch {0}.
+dateOfAvailability.inset.importingVehicles.linkText = Mewnforio cerbydau i mewn i’r DU
+dateOfAvailability.question.heading = Ar ba ddyddiad oedd y car ar gael i chi am y tro cyntaf?
+dateOfAvailability.hint = Er enghraifft, 27 03 2026
+dateOfAvailability.error.required.all = Nodwch y dyddiad yr oedd y car ar gael i chi am y tro cyntaf
+dateOfAvailability.error.required = Mae’n rhaid i’r dyddiad yr oedd y car ar gael i chi am y tro cyntaf gynnwys {0}
+dateOfAvailability.error.required.two = Mae’n rhaid i’r dyddiad yr oedd y car ar gael i chi am y tro cyntaf gynnwys {0} a {1}
+dateOfAvailability.error.invalid = Nodwch y dyddiad yr oedd y car ar gael i chi am y tro cyntaf yn y fformat cywir
+dateOfAvailability.error.notARealDate = Mae’n rhaid i’r dyddiad yr oedd y car ar gael i chi am y tro cyntaf fod yn ddyddiad go iawn
 
 ######################################################################
 # AVD5.1 - Add vehicle details 5.1: Date of first registration       #
 ######################################################################
 
-dateOfFirstRegistration.title = Date of first registration
-dateOfFirstRegistration.heading = Date of first registration
-dateOfFirstRegistration.caption = Add vehicle details
-dateOfFirstRegistration.paragraph.1 = You can usually find this information in the vehicle log book. If there is more than one date, you must enter the earliest one.
-dateOfFirstRegistration.question.heading = When was the vehicle first registered for road use?
-dateOfFirstRegistration.hint = For example, 27 03 2026
-dateOfFirstRegistration.error.required.all = Enter the date the vehicle was first registered
-dateOfFirstRegistration.error.required = The date the vehicle was first registered must include a {0}
-dateOfFirstRegistration.error.required.two = The date the vehicle was first registered must include a {0} and {1}
-dateOfFirstRegistration.error.invalid = Enter the date the vehicle was first registered in the correct format
-dateOfFirstRegistration.error.notARealDate = The date the vehicle was first registered must be a real date
-dateOfFirstRegistration.error.future = The date the vehicle was first registered must be today or in the past
+dateOfFirstRegistration.title = Dyddiad cofrestru am y tro cyntaf
+dateOfFirstRegistration.heading = Dyddiad cofrestru am y tro cyntaf
+dateOfFirstRegistration.caption = Ychwanegu manylion y cerbyd
+dateOfFirstRegistration.paragraph.1 = Fel arfer, mae’r wybodaeth hon i’w gweld yn llyfr log y cerbyd. Os oes mwy nag un dyddiad, nodwch y dyddiad cynharaf.
+dateOfFirstRegistration.question.heading = Ar ba ddyddiad y cafodd y cerbyd ei gofrestru i’w ddefnyddio ar y ffordd am y tro cyntaf?
+dateOfFirstRegistration.hint = Er enghraifft, 27 03 2026
+dateOfFirstRegistration.error.required.all = Nodwch y dyddiad y cafodd y cerbyd ei gofrestru am y tro cyntaf
+dateOfFirstRegistration.error.required = Mae’n rhaid i’r dyddiad y cafodd y cerbyd ei gofrestru am y tro cyntaf gynnwys {0}
+dateOfFirstRegistration.error.required.two = Mae’n rhaid i’r dyddiad y cafodd y cerbyd ei gofrestru am y tro cyntaf gynnwys {0} a {1}
+dateOfFirstRegistration.error.invalid = Nodwch y dyddiad y cafodd y cerbyd ei gofrestru am y tro cyntaf yn y fformat cywir
+dateOfFirstRegistration.error.notARealDate = Mae’n rhaid i’r dyddiad y cafodd y cerbyd ei gofrestru am y tro cyntaf fod yn ddyddiad go iawn
+dateOfFirstRegistration.error.future = Mae’n rhaid i’r dyddiad y cafodd y cerbyd ei gofrestru am y tro cyntaf fod heddiw neu yn y gorffennol
 
 ##########################################################################
 # AVD5.2 - Add vehicle details 5.2: Country of first registration        #
@@ -1134,16 +1141,17 @@ supplierDetailsCheckYourAnswers.notProvided = Heb roi un
 ##################################################
 # UVS1.0 - Upload a vehicle spreadsheet 1.0      #
 ##################################################
-# TODO: Welsh translations to be supplied by content team.
-uploadVehicleSpreadsheet.title = Upload vehicle spreadsheet
-uploadVehicleSpreadsheet.heading = Upload vehicle spreadsheet
-uploadVehicleSpreadsheet.caption = Add vehicle details
-uploadVehicleSpreadsheet.paragraph.1 = Add details for up to 100 vehicles of the same type in one submission. You must {0}.
-uploadVehicleSpreadsheet.useCorrectSpreadsheet.linkText = use the correct spreadsheet
-uploadVehicleSpreadsheet.label = Upload a file
-uploadVehicleSpreadsheet.hint = Must be an OpenDocument Spreadsheet (ODS) file
-uploadVehicleSpreadsheet.error.required = Select a file
-uploadVehicleSpreadsheet.error.tooLarge = The selected file must be smaller than 1MB
+
+uploadVehicleSpreadsheet.title = Uwchlwytho taenlen cerbyd
+uploadVehicleSpreadsheet.heading = Uwchlwytho taenlen cerbyd
+uploadVehicleSpreadsheet.caption = Ychwanegwch fanylion cerbyd
+uploadVehicleSpreadsheet.paragraph.1 = Ychwanegwch fanylion hyd at 100 o gerbydau o’r un math mewn un cyflwyniad. Mae’n rhaid i chi {0}.
+uploadVehicleSpreadsheet.useCorrectSpreadsheet.linkText = ddefnyddio’r daenlen gywir ar gyfer y math o gerbyd sydd dan sylw
+uploadVehicleSpreadsheet.label = Uwchlwytho ffeil
+uploadVehicleSpreadsheet.hint = Mae’n rhaid iddi fod yn ffeil Taenlen OpenDocument (ODS)
+uploadVehicleSpreadsheet.error.required = Dewiswch ffeil
+uploadVehicleSpreadsheet.error.tooLarge = Mae’n rhaid i’r ffeil dan sylw fod yn llai na 100 MB
+# TODO:
 uploadVehicleSpreadsheet.error.unknown = The selected file could not be uploaded. Try again.
 
 ###############################################################
@@ -1632,6 +1640,33 @@ notificationReference.error.required = Enter the notification reference
 notificationReference.error.format = Enter the notification reference in the correct format
 notificationReference.error.length = The notification reference must be 13 characters long
 
+
+####################################################################################
+# AVD10.0 - Add vehicle details 10.0 - One or multiple vehicles                   #
+####################################################################################
+# TODO: Welsh translations to be supplied by content team.
+numberOfVehicles.title = Number of vehicles
+numberOfVehicles.caption = Add vehicle details
+numberOfVehicles.heading.1 = Number of vehicles
+numberOfVehicles.heading.2 = How many vehicles is this notification for?
+numberOfVehicles.paragraph = If you need to notify for more than one vehicle with the same details, select ‘More than one vehicle’. This option is only available if you’ve not added vehicles to the notification.
+numberOfVehicles.radio.one = One vehicle
+numberOfVehicles.radio.many = More than one vehicle
+numberOfVehicles.label.count = Number of vehicles of the same type
+numberOfVehicles.error.required.selection = Select how many vehicles this notification is for
+numberOfVehicles.error.required.count = Number of vehicles of the same type cannot be blank
+numberOfVehicles.error.length = Enter a number between 2 and 100
+
+
+####################################################################################
+# AVD10.2 - Add vehicle details 10.2 - Do you know the current vehicle registration number? #
+####################################################################################
+# TODO: Welsh translations to be supplied by content team.
+vehicleRegistrationNumberKnown.title = Do you know the current vehicle registration number?
+vehicleRegistrationNumberKnown.caption = Ychwanegwch fanylion cerbyd
+vehicleRegistrationNumberKnown.heading = Do you know the current vehicle registration number?
+vehicleRegistrationNumberKnown.error.required = Select yes if you know the current vehicle registration number
+
 ####################################################################################
 # AMV1.0 - Add multiple vehicles 1.0 - How do you want to add VINs                 #
 ####################################################################################
@@ -1649,6 +1684,76 @@ vehicleIdentificationNumbers.radio.enterManually.hint = Enter the VIN for each v
 vehicleIdentificationNumbers.radio.uploadCsv = Upload a CSV file
 vehicleIdentificationNumbers.radio.uploadCsv.hint = Must be a comma-separated values (CSV) file type
 vehicleIdentificationNumbers.error.required = Select how you want to add the vehicle identification numbers
+
+####################################################################################
+# AMV2.0 - Add multiple vehicles 2.0 - VIN CSV upload                             #
+####################################################################################
+# TODO: Welsh translations to be supplied by content team.
+uploadVinNumbers.title = Upload the file with vehicle identification numbers
+uploadVinNumbers.caption = Add vehicle details
+uploadVinNumbers.heading = Upload the file with vehicle identification numbers
+uploadVinNumbers.label = Upload file
+uploadVinNumbers.hint = Must be a CSV file type
+uploadVinNumbers.error.required = Select a file
+uploadVinNumbers.error.tooLarge = The selected file must be smaller than 100MB
+uploadVinNumbers.error.unknown = The selected file could not be uploaded. Try again.
+
+####################################################################################
+# AMV2.1 - Add multiple vehicles 2.1 - CSV Upload Status                          #
+####################################################################################
+# TODO: Welsh translations to be supplied by content team.
+vinUploadStatus.heading = CSV file upload
+vinUploadStatus.caption = Add vehicle details
+vinUploadStatus.defaultFileName = VIN CSV file
+vinUploadStatus.status.uploading = Uploading
+vinUploadStatus.status.uploaded = Uploaded
+vinUploadStatus.refreshPageLink = Refresh page to see update of uploading file
+
+####################################################################################
+# AMV3.0 - Add multiple vehicles 3.0 - VIN manual entry                           #
+####################################################################################
+# TODO: Welsh translations to be supplied by content team.
+enterVinNumbers.title = Enter the {0} vehicle identification numbers
+enterVinNumbers.caption = Add vehicle details
+enterVinNumbers.heading = Enter the {0} vehicle identification numbers
+enterVinNumbers.hint = Separate each VIN with a comma. For example, 1ABCD2E03FG456789, 2A1BC34D5E6789012, ABCDE01F24567890
+enterVinNumbers.error.required = Enter the vehicle identification numbers
+# F26 cross-notification duplicate check - confirm with UCD
+enterVinNumbers.error.duplicate.crossNotification = One or more of the vehicle identification numbers entered already exists on another vehicle in this notification
+
+####################################################################################
+# AMV4.0 - Add multiple vehicles 4.0 - Check the VINs                             #
+####################################################################################
+# TODO: Welsh translations to be supplied by content team.
+checkVinNumbers.title = Check the vehicle identification numbers
+checkVinNumbers.pagination.title = Check the vehicle identification numbers (page {0} of {1})
+checkVinNumbers.heading = Check the vehicle identification numbers
+checkVinNumbers.caption = Add vehicle details
+checkVinNumbers.inset.vehicleType = Vehicle type:
+checkVinNumbers.inset.numberOfVehicles = Number of vehicles of the same type:
+checkVinNumbers.table.item = Item
+checkVinNumbers.table.vin = Vehicle identification number
+checkVinNumbers.table.caption = Showing {0} to {1} of {2} records
+checkVinNumbers.saveAndContinue = Save and continue
+checkVinNumbers.updateLink = Update vehicle identification numbers
+
+#######################################################################
+# AVD10.5 - Add vehicle details 10.5 - Mileage                        #
+#######################################################################
+# TODO: Welsh translations to be supplied by content team.
+mileage.title = What is the mileage of the vehicle?
+mileage.caption = Add vehicle details
+mileage.heading.1 = What is the mileage of the vehicle?
+mileage.paragraph = This is the total distance the vehicle had travelled, in miles (mi) or kilometres (km), when you bought it.
+mileage.label.unit = Mileage unit
+mileage.radio.miles = Miles (mi)
+mileage.radio.km = Kilometres (km)
+mileage.label.mileage = Mileage
+mileage.hint.mileage = Enter whole numbers only, for example 10000
+mileage.error.required.unit = Select the mileage unit
+mileage.error.required.mileage = Enter the mileage
+mileage.error.format = Enter the mileage in the correct format
+mileage.error.length = The mileage must be 6 characters or less
 
 ####################################################################################
 # AVD10.4 - Add vehicle details 10.4 - Commodity code                              #

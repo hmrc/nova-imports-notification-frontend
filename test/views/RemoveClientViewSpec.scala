@@ -63,7 +63,7 @@ class RemoveClientViewSpec extends SpecBase with Matchers with BeforeAndAfterAll
     }
 
     "must render the paragraphs either side of the inset" in {
-      val paragraphs = render().select("p.govuk-body")
+      val paragraphs = render().select("h1 ~ p.govuk-body")
 
       paragraphs.get(0).text mustEqual msgs("removeClient.paragraph.1")
       paragraphs.get(1).text mustEqual msgs("removeClient.paragraph.2")
@@ -73,8 +73,22 @@ class RemoveClientViewSpec extends SpecBase with Matchers with BeforeAndAfterAll
       render().select(".govuk-inset-text").text mustEqual "Client name: Client Co VAT registration number: 700000001"
     }
 
+    "must put the client name and VRN in separate paragraphs rather than using a line break" in {
+      val inset = render().select(".govuk-inset-text")
+
+      inset.select("p").eachText mustEqual java.util.List.of("Client name: Client Co", "VAT registration number: 700000001")
+      inset.select("br").isEmpty mustEqual true
+    }
+
+    "must use strong rather than b for the client name and VRN" in {
+      val inset = render().select(".govuk-inset-text")
+
+      inset.select("strong").eachText mustEqual java.util.List.of("Client Co", "700000001")
+      inset.select("b").isEmpty mustEqual true
+    }
+
     "must escape the client name" in {
-      render(client = ClientSummary("<script>", "700000001")).select(".govuk-inset-text b").first.text mustEqual "<script>"
+      render(client = ClientSummary("<script>", "700000001")).select(".govuk-inset-text strong").first.text mustEqual "<script>"
     }
 
     "must ask the question as a medium legend with Yes and No" in {
@@ -86,7 +100,7 @@ class RemoveClientViewSpec extends SpecBase with Matchers with BeforeAndAfterAll
 
     "must post to the remove client route for the client" in {
       render().select("form").attr("action") mustEqual
-        controllers.clientselection.routes.RemoveClientController.onSubmit("700000001").url
+        controllers.clientselection.routes.RemoveClientController.onSubmit().url
     }
 
     "must show the error summary and prefix the title when nothing is selected" in {

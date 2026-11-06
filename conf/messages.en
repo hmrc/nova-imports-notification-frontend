@@ -579,18 +579,6 @@ addressChanged.checkHeading = Check the updated address
 addressChanged.changeAddress = Change address
 addressChanged.saveAndContinue = Save and continue
 
-##########################################################################
-# AVD-S7.0 - Add vehicle details: We've changed the supplier's address   #
-##########################################################################
-
-supplierAddressChanged.title = We’ve changed the supplier’s address
-supplierAddressChanged.caption = Add vehicle details
-supplierAddressChanged.heading = We’ve changed the supplier’s address
-supplierAddressChanged.body = This could be because of invalid characters or some lines are too long.
-supplierAddressChanged.checkHeading = Check the updated address
-supplierAddressChanged.changeAddress = Change address
-supplierAddressChanged.saveAndContinue = Confirm address
-
 ###################################################################
 # APA3.0 - Add purchaser address 3.0: We've changed the purchaser's address #
 ###################################################################
@@ -920,6 +908,7 @@ supplierAddressChanged.body = This could be because of invalid characters or som
 supplierAddressChanged.checkHeading = Check the updated address
 supplierAddressChanged.changeAddress = Change address
 supplierAddressChanged.confirmAddress = Confirm address
+supplierAddressChanged.saveAndContinue = Confirm address
 
 ###########################################################################################
 # AVD-S4.0 - Add vehicle details - Supplier 4.0: Supplier name                            #
@@ -1041,6 +1030,12 @@ purchaseInvoiceNumber.error.length = The purchase invoice number must be 20 char
 
 noPurchaseInvoiceReason.title = Provide a reason why a purchase invoice is not available
 noPurchaseInvoiceReason.heading = Provide a reason why a purchase invoice is not available
+noPurchaseInvoiceReason.hint.remaining.start = You have
+noPurchaseInvoiceReason.hint.remaining.end.one = character remaining
+noPurchaseInvoiceReason.hint.remaining.end.many = characters remaining
+noPurchaseInvoiceReason.hint.exceeded.start = You have
+noPurchaseInvoiceReason.hint.exceeded.end.one = character too many
+noPurchaseInvoiceReason.hint.exceeded.end.many = characters too many
 noPurchaseInvoiceReason.caption = Add vehicle details
 noPurchaseInvoiceReason.error.required = Enter a reason why a purchase invoice is not available
 noPurchaseInvoiceReason.error.length = The reason must be 160 characters or less
@@ -1763,6 +1758,99 @@ vehicleIdentificationNumbers.radio.uploadCsv = Upload a CSV file
 vehicleIdentificationNumbers.radio.uploadCsv.hint = Must be a comma-separated values (CSV) file type
 vehicleIdentificationNumbers.error.required = Select how you want to add the vehicle identification numbers
 
+####################################################################################
+# AVD10.0 - Add vehicle details 10.0 - One or multiple vehicles                   #
+####################################################################################
+
+numberOfVehicles.title = Number of vehicles
+numberOfVehicles.caption = Add vehicle details
+numberOfVehicles.heading.1 = Number of vehicles
+numberOfVehicles.heading.2 = How many vehicles is this notification for?
+numberOfVehicles.paragraph = If you need to notify for more than one vehicle with the same details, select ‘More than one vehicle’. This option is only available if you’ve not added vehicles to the notification.
+numberOfVehicles.radio.one = One vehicle
+numberOfVehicles.radio.many = More than one vehicle
+numberOfVehicles.label.count = Number of vehicles of the same type
+numberOfVehicles.error.required.selection = Select how many vehicles this notification is for
+numberOfVehicles.error.required.count = Number of vehicles of the same type cannot be blank
+numberOfVehicles.error.length = Enter a number between 2 and 100
+
+####################################################################################
+# AMV2.0 - Add multiple vehicles 2.0 - VIN CSV upload                             #
+####################################################################################
+
+uploadVinNumbers.title = Upload the file with vehicle identification numbers
+uploadVinNumbers.caption = Add vehicle details
+uploadVinNumbers.heading = Upload the file with vehicle identification numbers
+uploadVinNumbers.label = Upload file
+uploadVinNumbers.hint = Must be a CSV file type
+uploadVinNumbers.error.required = Select a file
+uploadVinNumbers.error.tooLarge = The selected file must be smaller than 100MB
+uploadVinNumbers.error.unknown = The selected file could not be uploaded. Try again.
+
+####################################################################################
+# AMV2.1 - Add multiple vehicles 2.1 - CSV Upload Status                          #
+####################################################################################
+
+vinUploadStatus.heading = CSV file upload
+vinUploadStatus.caption = Add vehicle details
+vinUploadStatus.defaultFileName = VIN CSV file
+vinUploadStatus.status.uploading = Uploading
+vinUploadStatus.status.uploaded = Uploaded
+vinUploadStatus.refreshPageLink = Refresh page to see update of uploading file
+
+####################################################################################
+# AMV3.0 - Add multiple vehicles 3.0 - VIN manual entry                           #
+####################################################################################
+
+enterVinNumbers.title = Enter the {0} vehicle identification numbers
+enterVinNumbers.caption = Add vehicle details
+enterVinNumbers.heading = Enter the {0} vehicle identification numbers
+enterVinNumbers.hint = Separate each VIN with a comma. For example, 1ABCD2E03FG456789, 2A1BC34D5E6789012, ABCDE01F24567890
+enterVinNumbers.error.required = Enter the vehicle identification numbers
+# F26 cross-notification duplicate check - confirm with UCD
+enterVinNumbers.error.duplicate.crossNotification = One or more of the vehicle identification numbers entered already exists on another vehicle in this notification
+
+####################################################################################
+# AMV4.0 - Add multiple vehicles 4.0 - Check the VINs                             #
+####################################################################################
+
+checkVinNumbers.title = Check the vehicle identification numbers
+checkVinNumbers.pagination.title = Check the vehicle identification numbers (page {0} of {1})
+checkVinNumbers.heading = Check the vehicle identification numbers
+checkVinNumbers.caption = Add vehicle details
+checkVinNumbers.inset.vehicleType = Vehicle type:
+checkVinNumbers.inset.numberOfVehicles = Number of vehicles of the same type:
+checkVinNumbers.table.item = Item
+checkVinNumbers.table.vin = Vehicle identification number
+checkVinNumbers.table.caption = Showing {0} to {1} of {2} records
+checkVinNumbers.saveAndContinue = Save and continue
+checkVinNumbers.updateLink = Update vehicle identification numbers
+
+####################################################################################
+# AVD10.2 - Add vehicle details 10.2 - Do you know the current vehicle registration number? #
+####################################################################################
+vehicleRegistrationNumberKnown.title = Do you know the current vehicle registration number?
+vehicleRegistrationNumberKnown.caption = Add vehicle details
+vehicleRegistrationNumberKnown.heading = Do you know the current vehicle registration number?
+vehicleRegistrationNumberKnown.error.required = Select yes if you know the current vehicle registration number
+
+#######################################################################
+# AVD10.5 - Add vehicle details 10.5 - Mileage                        #
+#######################################################################
+
+mileage.title = What is the mileage of the vehicle?
+mileage.caption = Add vehicle details
+mileage.heading.1 = What is the mileage of the vehicle?
+mileage.paragraph = This is the total distance the vehicle had travelled, in miles (mi) or kilometres (km), when you bought it.
+mileage.label.unit = Mileage unit
+mileage.radio.miles = Miles (mi)
+mileage.radio.km = Kilometres (km)
+mileage.label.mileage = Mileage
+mileage.hint.mileage = Enter whole numbers only, for example 10000
+mileage.error.required.unit = Select the mileage unit
+mileage.error.required.mileage = Enter the mileage
+mileage.error.format = Enter the mileage in the correct format
+mileage.error.length = The mileage must be 6 characters or less
 ####################################################################################
 # AVD10.4 - Add vehicle details 10.4 - Commodity code                              #
 ####################################################################################

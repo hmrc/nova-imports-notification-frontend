@@ -234,7 +234,7 @@ class ConfirmVehicleTypeDetailsControllerSpec extends SpecBase with MockitoSugar
           val result = route(app, FakeRequest(POST, supplierRoute)).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.LandingPageController.onPageLoad().url
+          redirectLocation(result).value mustEqual vehicledetails.routes.NumberOfVehiclesController.supplierOnPageLoad(s, v, NormalMode).url
 
           capturedBody(connector, "supplier/1/vehicle/1/details") mustEqual Json.obj(
             "make"       -> "Land Rover",
@@ -379,7 +379,7 @@ class ConfirmVehicleTypeDetailsControllerSpec extends SpecBase with MockitoSugar
           val result = route(app, FakeRequest(POST, importRoute)).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual routes.LandingPageController.onPageLoad().url
+          redirectLocation(result).value mustEqual vehicledetails.routes.NumberOfVehiclesController.importOnPageLoad(i, v, NormalMode).url
 
           capturedBody(connector, "import/1/vehicle/1/details") mustEqual Json.obj(
             "make"       -> "Land Rover",

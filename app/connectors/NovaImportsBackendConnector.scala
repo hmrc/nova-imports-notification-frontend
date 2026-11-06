@@ -18,7 +18,7 @@ package connectors
 
 import com.google.inject.Inject
 import config.FrontendAppConfig
-import models.responses.{ClientListRefresh, CreateDraftResponse, CreateUploadTrackingResponse, DeleteFileUploadResponse, GetFileUploadSummaryResponse, UploadResultResponse}
+import models.responses.{ClientListRefresh, CreateDraftResponse, CreateUploadTrackingResponse, DeleteFileUploadResponse, GetFileUploadSummaryResponse, UploadResultResponse, ValidateVinsResponse}
 import models.{ClientList, ClientListQuery, ClientListStatus, DraftId, DraftNotification, DraftNotifications, EuMemberStates, NotificationSummary, TraderInformation}
 import play.api.libs.json.{JsObject, JsSuccess, Json}
 import play.api.libs.ws.writeableOf_JsValue
@@ -86,6 +86,27 @@ object DeleteFileUploadError {
   case object Forbidden extends DeleteFileUploadError
   case object NotFound extends DeleteFileUploadError
   final case class UpstreamError(status: Int, message: String) extends DeleteFileUploadError
+}
+
+sealed trait CreateVinUploadTrackingError
+object CreateVinUploadTrackingError {
+  case object Forbidden extends CreateVinUploadTrackingError
+  case object NotFound extends CreateVinUploadTrackingError
+  final case class UpstreamError(status: Int, message: String) extends CreateVinUploadTrackingError
+}
+
+sealed trait DeleteVinUploadError
+object DeleteVinUploadError {
+  case object Forbidden extends DeleteVinUploadError
+  case object NotFound extends DeleteVinUploadError
+  final case class UpstreamError(status: Int, message: String) extends DeleteVinUploadError
+}
+
+sealed trait ValidateVinsError
+object ValidateVinsError {
+  case object Forbidden extends ValidateVinsError
+  case object NotFound extends ValidateVinsError
+  final case class UpstreamError(status: Int, message: String) extends ValidateVinsError
 }
 
 sealed trait GetTraderInformationError
@@ -163,6 +184,16 @@ trait NovaImportsBackendConnector {
   ): Future[Either[GetFileUploadSummaryError, GetFileUploadSummaryResponse]]
 
   def deleteFileUpload(draftId: DraftId)(implicit hc: HeaderCarrier): Future[Either[DeleteFileUploadError, DeleteFileUploadResponse]]
+
+  def createVinUploadTracking(draftId: DraftId, isAmendment: Option[Boolean], successRedirect: String, errorRedirect: String)(implicit
+    hc: HeaderCarrier
+  ): Future[Either[CreateVinUploadTrackingError, CreateUploadTrackingResponse]]
+
+  def deleteVinUpload(draftId: DraftId)(implicit hc: HeaderCarrier): Future[Either[DeleteVinUploadError, DeleteFileUploadResponse]]
+
+  def validateVins(draftId: DraftId, rawVinInput: String, expectedCount: Int)(implicit
+    hc: HeaderCarrier
+  ): Future[Either[ValidateVinsError, ValidateVinsResponse]]
 
   def getClientListStatus()(implicit hc: HeaderCarrier): Future[Either[GetClientListStatusError, ClientListStatus]]
 
@@ -450,6 +481,76 @@ class NovaImportsBackendConnectorImpl @Inject() (
               .validate[DeleteFileUploadResponse]
               .map(Right(_))
               .recoverTotal(err => Left(UpstreamError(200, s"Malformed delete file upload response: $err")))
+          case 403 => Left(Forbidden)
+          case 404 => Left(NotFound)
+          case s   => Left(UpstreamError(s, response.body))
+        }
+      }
+  }
+
+  override def createVinUploadTracking(draftId: DraftId, isAmendment: Option[Boolean], successRedirect: String, errorRedirect: String)(implicit
+    hc: HeaderCarrier
+  ): Future[Either[CreateVinUploadTrackingError, CreateUploadTrackingResponse]] = {
+    val encodedSuccessRedirect = java.net.URLEncoder.encode(successRedirect, "UTF-8")
+    val encodedErrorRedirect   = java.net.URLEncoder.encode(errorRedirect, "UTF-8")
+
+    httpClient
+      .post(
+        url"${serviceUrl(
+            s"/draft-notifications/${draftId.value}/vin-upload-tracking?isAmendment=${isAmendment.getOrElse(false)}&successRedirect=$encodedSuccessRedirect&errorRedirect=$encodedErrorRedirect"
+          )}"
+      )
+      .execute[HttpResponse]
+      .map { response =>
+        response.status match {
+          case 201 =>
+            response.json
+              .validate[CreateUploadTrackingResponse]
+              .map(Right(_))
+              .recoverTotal(err => Left(CreateVinUploadTrackingError.UpstreamError(201, s"Malformed create VIN upload tracking response: $err")))
+          case 403 => Left(CreateVinUploadTrackingError.Forbidden)
+          case 404 => Left(CreateVinUploadTrackingError.NotFound)
+          case s   => Left(CreateVinUploadTrackingError.UpstreamError(s, response.body))
+        }
+      }
+  }
+
+  override def deleteVinUpload(draftId: DraftId)(implicit hc: HeaderCarrier): Future[Either[DeleteVinUploadError, DeleteFileUploadResponse]] = {
+    import DeleteVinUploadError.*
+
+    httpClient
+      .delete(url"${serviceUrl(s"/draft-notifications/${draftId.value}/vin-upload-results")}")
+      .execute[HttpResponse]
+      .map { response =>
+        response.status match {
+          case 200 =>
+            response.json
+              .validate[DeleteFileUploadResponse]
+              .map(Right(_))
+              .recoverTotal(err => Left(UpstreamError(200, s"Malformed delete VIN upload response: $err")))
+          case 403 => Left(Forbidden)
+          case 404 => Left(NotFound)
+          case s   => Left(UpstreamError(s, response.body))
+        }
+      }
+  }
+
+  override def validateVins(draftId: DraftId, rawVinInput: String, expectedCount: Int)(implicit
+    hc: HeaderCarrier
+  ): Future[Either[ValidateVinsError, ValidateVinsResponse]] = {
+    import ValidateVinsError.*
+
+    httpClient
+      .post(url"${serviceUrl(s"/draft-notifications/${draftId.value}/validate-vins")}")
+      .withBody(Json.obj("rawVinInput" -> rawVinInput, "expectedCount" -> expectedCount))
+      .execute[HttpResponse]
+      .map { response =>
+        response.status match {
+          case 200 =>
+            response.json
+              .validate[ValidateVinsResponse]
+              .map(Right(_))
+              .recoverTotal(err => Left(UpstreamError(200, s"Malformed validate VINs response: $err")))
           case 403 => Left(Forbidden)
           case 404 => Left(NotFound)
           case s   => Left(UpstreamError(s, response.body))

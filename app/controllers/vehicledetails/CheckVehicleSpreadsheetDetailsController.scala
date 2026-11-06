@@ -490,11 +490,11 @@ object CheckVehicleSpreadsheetDetailsController {
           addressLine3 = vehicle.addressLine3,
           addressLine4 = vehicle.addressLine4,
           addressLine5 = vehicle.addressLine5,
-          postcode = vehicle.postcode,
+          postcode = vehicle.postcode.getOrElse(""),
           country = vehicle.country.getOrElse(""),
           isSupplierVatReg = vehicle.supplierVatRegistered.getOrElse(false),
-          euStateVatReg = vehicle.euMemberState,
-          vatRegistrationNumber = vehicle.supplierVatNumber
+          euStateVatReg = vehicle.euMemberState.getOrElse(""),
+          vatRegistrationNumber = vehicle.supplierVatNumber.getOrElse("")
         )
       )
       .as[JsObject]
@@ -613,11 +613,11 @@ object CheckVehicleSpreadsheetDetailsController {
           addressLine3 = vehicle.addressLine3,
           addressLine4 = vehicle.addressLine4,
           addressLine5 = vehicle.addressLine5,
-          postcode = vehicle.postcode,
+          postcode = vehicle.postcode.getOrElse(""),
           country = vehicle.country.getOrElse(""),
           isSupplierVatReg = vehicle.supplierVatRegistered.getOrElse(false),
-          euStateVatReg = vehicle.euMemberState,
-          vatRegistrationNumber = vehicle.supplierVatNumber
+          euStateVatReg = vehicle.euMemberState.getOrElse(""),
+          vatRegistrationNumber = vehicle.supplierVatNumber.getOrElse("")
         )
       )
       .as[JsObject]
@@ -734,11 +734,11 @@ object CheckVehicleSpreadsheetDetailsController {
           addressLine3 = vehicle.addressLine3,
           addressLine4 = vehicle.addressLine4,
           addressLine5 = vehicle.addressLine5,
-          postcode = vehicle.postcode,
+          postcode = vehicle.postcode.getOrElse(""),
           country = vehicle.country.getOrElse(""),
           isSupplierVatReg = vehicle.supplierVatRegistered.getOrElse(false),
-          euStateVatReg = vehicle.euMemberState,
-          vatRegistrationNumber = vehicle.supplierVatNumber
+          euStateVatReg = vehicle.euMemberState.getOrElse(""),
+          vatRegistrationNumber = vehicle.supplierVatNumber.getOrElse("")
         )
       )
       .as[JsObject]
@@ -859,11 +859,11 @@ object CheckVehicleSpreadsheetDetailsController {
           addressLine3 = vehicle.addressLine3,
           addressLine4 = vehicle.addressLine4,
           addressLine5 = vehicle.addressLine5,
-          postcode = vehicle.postcode,
+          postcode = vehicle.postcode.getOrElse(""),
           country = vehicle.country.getOrElse(""),
           isSupplierVatReg = vehicle.supplierVatRegistered.getOrElse(false),
-          euStateVatReg = vehicle.euMemberState,
-          vatRegistrationNumber = vehicle.supplierVatNumber
+          euStateVatReg = vehicle.euMemberState.getOrElse(""),
+          vatRegistrationNumber = vehicle.supplierVatNumber.getOrElse("")
         )
       )
       .as[JsObject]
@@ -980,11 +980,11 @@ object CheckVehicleSpreadsheetDetailsController {
           addressLine3 = vehicle.addressLine3,
           addressLine4 = vehicle.addressLine4,
           addressLine5 = vehicle.addressLine5,
-          postcode = vehicle.postcode,
+          postcode = vehicle.postcode.getOrElse(""),
           country = vehicle.country.getOrElse(""),
           isSupplierVatReg = vehicle.supplierVatRegistered.getOrElse(false),
-          euStateVatReg = vehicle.euMemberState,
-          vatRegistrationNumber = vehicle.supplierVatNumber
+          euStateVatReg = vehicle.euMemberState.getOrElse(""),
+          vatRegistrationNumber = vehicle.supplierVatNumber.getOrElse("")
         )
       )
       .as[JsObject]
@@ -1111,11 +1111,11 @@ object CheckVehicleSpreadsheetDetailsController {
           addressLine3 = vehicle.addressLine3,
           addressLine4 = vehicle.addressLine4,
           addressLine5 = vehicle.addressLine5,
-          postcode = vehicle.postcode,
+          postcode = vehicle.postcode.getOrElse(""),
           country = vehicle.country.getOrElse(""),
           isSupplierVatReg = vehicle.supplierVatRegistered.getOrElse(false),
-          euStateVatReg = vehicle.euMemberState,
-          vatRegistrationNumber = vehicle.supplierVatNumber
+          euStateVatReg = vehicle.euMemberState.getOrElse(""),
+          vatRegistrationNumber = vehicle.supplierVatNumber.getOrElse("")
         )
       )
       .as[JsObject]

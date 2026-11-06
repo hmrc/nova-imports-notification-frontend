@@ -787,21 +787,102 @@ class NavigatorSpec extends SpecBase {
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
 
-      "must go from VehicleIdentificationNumbersPage AMV1.0 to the landing page when EnterManually is selected" in {
+      "must go from VehicleIdentificationNumbersPage AMV1.0 to EnterVinNumbersController AMV3.0 (supplier) when EnterManually is selected" in {
         val page = VehicleIdentificationNumbersPage(VehicleNumber(1))
         val ua   = supplierVehicle.unsafeSet(page, VehicleIdentificationNumbersMethod.EnterManually)
-        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+          vehicledetails.routes.EnterVinNumbersController.supplierOnPageLoad(SupplierNumber(1), VehicleNumber(1), NormalMode)
       }
 
-      "must go from VehicleIdentificationNumbersPage AMV1.0 to the landing page when UploadCsv is selected" in {
+      "must go from VehicleIdentificationNumbersPage AMV1.0 to EnterVinNumbersController AMV3.0 (import) when EnterManually is selected" in {
+        val page = VehicleIdentificationNumbersPage(VehicleNumber(1))
+        val ua   = importVehicle.unsafeSet(page, VehicleIdentificationNumbersMethod.EnterManually)
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+          vehicledetails.routes.EnterVinNumbersController.importOnPageLoad(ImportNumber(1), VehicleNumber(1), NormalMode)
+      }
+
+      "must go from VehicleIdentificationNumbersPage AMV1.0 to UploadVinNumbersController AMV2.0 (supplier) when UploadCsv is selected" in {
         val page = VehicleIdentificationNumbersPage(VehicleNumber(1))
         val ua   = supplierVehicle.unsafeSet(page, VehicleIdentificationNumbersMethod.UploadCsv)
-        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+          vehicledetails.routes.UploadVinNumbersController.supplierOnPageLoad(SupplierNumber(1), VehicleNumber(1), restart = false)
+      }
+
+      "must go from VehicleIdentificationNumbersPage AMV1.0 to UploadVinNumbersController AMV2.0 (import) when UploadCsv is selected" in {
+        val page = VehicleIdentificationNumbersPage(VehicleNumber(1))
+        val ua   = importVehicle.unsafeSet(page, VehicleIdentificationNumbersMethod.UploadCsv)
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+          vehicledetails.routes.UploadVinNumbersController.importOnPageLoad(ImportNumber(1), VehicleNumber(1), restart = false)
       }
 
       "must go from VehicleIdentificationNumbersPage AMV1.0 to JourneyRecovery when vehicle 1 has no answer" in {
         navigator.nextPage(
           VehicleIdentificationNumbersPage(VehicleNumber(1)),
+          NormalMode,
+          supplierVehicle,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from NumberOfVehiclesPage AVD10.0 to the landing page when one vehicle is selected" in {
+        val page = NumberOfVehiclesPage(VehicleNumber(1))
+        val ua   = supplierVehicle.unsafeSet(page, NumberOfVehicles(OneMultiVehicle.One, None))
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from NumberOfVehiclesPage AVD10.0 to VehicleIdentificationNumbersController AMV1.0 (supplier) when more than one vehicle is selected" in {
+        val page = NumberOfVehiclesPage(VehicleNumber(1))
+        val ua   = supplierVehicle.unsafeSet(page, NumberOfVehicles(OneMultiVehicle.More, Some(5)))
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+          vehicledetails.routes.VehicleIdentificationNumbersController.supplierOnPageLoad(SupplierNumber(1), VehicleNumber(1))
+      }
+
+      "must go from NumberOfVehiclesPage AVD10.0 to VehicleIdentificationNumbersController AMV1.0 (import) when more than one vehicle is selected" in {
+        val page = NumberOfVehiclesPage(VehicleNumber(1))
+        val ua   = importVehicle.unsafeSet(page, NumberOfVehicles(OneMultiVehicle.More, Some(5)))
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+          vehicledetails.routes.VehicleIdentificationNumbersController.importOnPageLoad(ImportNumber(1), VehicleNumber(1))
+      }
+
+      "must go from NumberOfVehiclesPage AVD10.0 to JourneyRecovery when no answer is found" in {
+        navigator.nextPage(
+          NumberOfVehiclesPage(VehicleNumber(1)),
+          NormalMode,
+          supplierVehicle,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from VehicleRegistrationNumberKnownPage AVD10.2 to the landing page when the answer is Yes" in {
+        val page = VehicleRegistrationNumberKnownPage(VehicleNumber(1))
+        val ua   = supplierVehicle.unsafeSet(page, true)
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from VehicleRegistrationNumberKnownPage AVD10.2 to the landing page when the answer is No" in {
+        val page = VehicleRegistrationNumberKnownPage(VehicleNumber(1))
+        val ua   = supplierVehicle.unsafeSet(page, false)
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from VehicleRegistrationNumberKnownPage AVD10.2 to JourneyRecovery when there is no answer" in {
+        navigator.nextPage(
+          VehicleRegistrationNumberKnownPage(VehicleNumber(1)),
+          NormalMode,
+          supplierVehicle,
+          NovaUserType.PrivateIndividual
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from MileagePage AVD10.5 to the landing page" in {
+        val page = MileagePage(VehicleNumber(1))
+        val ua   = supplierVehicle.unsafeSet(page, Mileage(MileageUnit.MILES, "123"))
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from MileagePage AVD10.5 to JourneyRecovery when the vehicle has no mileage" in {
+        navigator.nextPage(
+          MileagePage(VehicleNumber(1)),
           NormalMode,
           supplierVehicle,
           NovaUserType.VatRegisteredOrganisation
@@ -1755,6 +1836,53 @@ class NavigatorSpec extends SpecBase {
       "must go from NotificationReferencePage AVD9.0 to the landing page" in {
         navigator.nextPage(
           NotificationReferencePage(VehicleNumber(1)),
+          CheckMode,
+          userAnswers,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from NumberOfVehiclesPage AVD10.0 to the landing page when one vehicle is selected" in {
+        val page = NumberOfVehiclesPage(VehicleNumber(1))
+        val ua   = userAnswers.unsafeSet(page, NumberOfVehicles(OneMultiVehicle.One, None))
+        navigator.nextPage(page, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from NumberOfVehiclesPage AVD10.0 to VehicleIdentificationNumbersController AMV1.0 (supplier) when more than one vehicle is selected" in {
+        val page = NumberOfVehiclesPage(VehicleNumber(1))
+        val ua   = supplierVehicle.unsafeSet(page, NumberOfVehicles(OneMultiVehicle.More, Some(5)))
+        navigator.nextPage(page, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+          vehicledetails.routes.VehicleIdentificationNumbersController.supplierOnPageLoad(SupplierNumber(1), VehicleNumber(1))
+      }
+
+      "must go from NumberOfVehiclesPage AVD10.0 to VehicleIdentificationNumbersController AMV1.0 (import) when more than one vehicle is selected" in {
+        val page = NumberOfVehiclesPage(VehicleNumber(1))
+        val ua   = importVehicle.unsafeSet(page, NumberOfVehicles(OneMultiVehicle.More, Some(5)))
+        navigator.nextPage(page, CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+          vehicledetails.routes.VehicleIdentificationNumbersController.importOnPageLoad(ImportNumber(1), VehicleNumber(1))
+      }
+
+      "must go from NumberOfVehiclesPage AVD10.0 to JourneyRecovery when no answer is found" in {
+        navigator.nextPage(
+          NumberOfVehiclesPage(VehicleNumber(1)),
+          CheckMode,
+          userAnswers,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from VehicleRegistrationNumberKnownPage AVD10.2 to the landing page" in {
+        navigator.nextPage(
+          VehicleRegistrationNumberKnownPage(VehicleNumber(1)),
+          CheckMode,
+          userAnswers,
+          NovaUserType.PrivateIndividual
+        ) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from MileagePage AVD10.5 to the landing page" in {
+        navigator.nextPage(
+          MileagePage(VehicleNumber(1)),
           CheckMode,
           userAnswers,
           NovaUserType.VatRegisteredOrganisation

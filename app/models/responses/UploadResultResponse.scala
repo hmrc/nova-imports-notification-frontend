@@ -31,6 +31,7 @@ object ValidationError {
     "countryOfFirstRegistration"     -> "Country of first registration",
     "dateOfFirstRegistration"        -> "Date of first registration",
     "vin"                            -> "Vehicle identification number (VIN)",
+    "enterVinNumbers"                -> "Vehicle identification numbers",
     "dateArrivedInUk"                -> "Date arrived in UK",
     "mileage"                        -> "Mileage",
     "mileageUnits"                   -> "Mileage unit",
@@ -121,7 +122,9 @@ final case class UploadResultResponse(
   motorcyclesNonEuVehicles: Seq[SpreadsheetMotorcyclesNonEuVehicle],
   constructionVehiclesEuVehicles: Seq[SpreadsheetConstructionVehiclesEuVehicle],
   constructionVehiclesNonEuVehicles: Seq[SpreadsheetConstructionVehiclesNonEuVehicle],
-  errors: Seq[ValidationError]
+  errors: Seq[ValidationError],
+  rawVinContent: Option[String] = None,
+  kind: String = "SPREADSHEET"
 )
 
 object UploadResultResponse {
@@ -135,6 +138,8 @@ object UploadResultResponse {
       validationType    <- (json \ "validationType").validateOpt[String]
       rawVehicleSummary <- (json \ "data" \ "vehicles").validateOpt[Seq[VehicleSummary]].map(_.getOrElse(Seq.empty))
       errors            <- (json \ "errors").validateOpt[Seq[ValidationError]].map(_.getOrElse(Seq.empty))
+      rawVinContent     <- (json \ "rawVinContent").validateOpt[String]
+      kind              <- (json \ "kind").validateOpt[String].map(_.getOrElse("SPREADSHEET"))
     } yield {
       val rawVehicles = (json \ "data" \ "vehicles").asOpt[Seq[JsValue]].getOrElse(Seq.empty)
 
@@ -201,9 +206,9 @@ object UploadResultResponse {
         case Some("AgriculturalTractorsNonEu") =>
           agriculturalTractorNonEuVehicles.map(v => VehicleSummary(v.itemNumber, v.vin, v.make, v.seriesModel))
         case Some("MotorCaravansEu") =>
-          motorCaravansEuVehicles.map(v => VehicleSummary(v.itemNumber, v.vin, v.caravanMake, v.modelNameNumber))
+          motorCaravansEuVehicles.map(v => VehicleSummary(v.itemNumber, v.vin, v.caravanMake, v.caravanVersion))
         case Some("MotorCaravansNonEu") =>
-          motorCaravansNonEuVehicles.map(v => VehicleSummary(v.itemNumber, v.vin, v.caravanMake, v.modelNameNumber))
+          motorCaravansNonEuVehicles.map(v => VehicleSummary(v.itemNumber, v.vin, v.caravanMake, v.caravanVersion))
         case Some("HeavyCommercialVehiclesEu") =>
           heavyCommercialEuVehicles.map(v => VehicleSummary(v.itemNumber, v.vin, v.make, v.model))
         case Some("HeavyCommercialVehiclesNonEu") =>
@@ -235,7 +240,9 @@ object UploadResultResponse {
         motorcyclesNonEuVehicles,
         constructionVehiclesEuVehicles,
         constructionVehiclesNonEuVehicles,
-        errors
+        errors,
+        rawVinContent,
+        kind
       )
     }
   }
