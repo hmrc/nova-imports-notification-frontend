@@ -1786,6 +1786,18 @@ vehicleIdentificationNumber.error.length = The vehicle identification number mus
 vehicleIdentificationNumber.error.duplicate = Enter a different vehicle identification number. You have already used this one for another vehicle in this submission
 
 ####################################################################################
+# AVD10.6 - Add vehicle details 10.6 - Left or right hand drive                    #
+####################################################################################
+# TODO: Welsh translations to be supplied by content team.
+leftOrRightHandDrive.title = Is the vehicle left-hand drive or right-hand drive?
+leftOrRightHandDrive.caption = Add vehicle details
+leftOrRightHandDrive.heading = Is the vehicle left-hand drive or right-hand drive?
+leftOrRightHandDrive.hint = Select ‘Right-hand drive’ if the vehicle is a motorcycle or agricultural tractor
+leftOrRightHandDrive.radio.leftHandDrive = Left-hand drive
+leftOrRightHandDrive.radio.rightHandDrive = Right-hand drive
+leftOrRightHandDrive.error.required = Select if the vehicle is left-hand drive or right-hand drive
+
+####################################################################################
 # AVD10.7 - Add vehicle details 10.7 - Total value of options                       #
 ####################################################################################
 # TODO: Welsh translations to be supplied by content team.
