@@ -104,7 +104,7 @@ class CommodityCodeViewSpec extends SpecBase with Matchers with BeforeAndAfterAl
     "must render the hint text against the input" in {
       val document = Jsoup.parse(render())
 
-      document.select(".govuk-hint").text mustEqual "It can be 4 or 10 digits long, for example 2134 or 8703123456"
+      document.select(".govuk-hint").text mustEqual "Must be between 4 and 10 digits, for example 2134 or 8703123456"
       document.getElementById("value").attr("aria-describedby") must include("value-hint")
     }
 
@@ -125,9 +125,9 @@ class CommodityCodeViewSpec extends SpecBase with Matchers with BeforeAndAfterAl
 
     "must show an error summary linking to the input for each error" in {
       List(
-        ""            -> "Enter the commodity code",
-        "123"         -> "The commodity code must be between 4 and 10 characters",
-        "8703A23456"  -> "Enter the commodity code in the correct format"
+        ""           -> "Enter the commodity code",
+        "123"        -> "The commodity code must be between 4 and 10 characters",
+        "8703A23456" -> "Enter the commodity code in the correct format"
       ).foreach { case (value, message) =>
         val document = Jsoup.parse(render(form.bind(Map("value" -> value))))
 

@@ -235,10 +235,10 @@ class CommodityCodeControllerSpec extends SpecBase with MockitoSugar {
     "must return a Bad Request and the correct error for invalid data" in {
 
       List(
-        ""           -> "commodityCode.error.required",
-        "123"        -> "commodityCode.error.length",
+        ""            -> "commodityCode.error.required",
+        "123"         -> "commodityCode.error.length",
         "87031234567" -> "commodityCode.error.length",
-        "8703A23456" -> "commodityCode.error.format"
+        "8703A23456"  -> "commodityCode.error.format"
       ).foreach { case (value, errorKey) =>
         val application = vatTrader(Some(importJourneyAnswers))
 
