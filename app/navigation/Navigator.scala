@@ -301,7 +301,7 @@ class Navigator @Inject() () {
     case page: NotificationReferencePage =>
       (userAnswers, _) =>
         userAnswers.get(page) match {
-          case Some(_) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.1 when built
+          case Some(_) => vehicleIdentificationNumberRoute(page.vehicleNumber, userAnswers, NormalMode)
           case _       => routes.JourneyRecoveryController.onPageLoad()
         }
     case page: VehicleIdentificationNumbersPage =>
@@ -328,7 +328,7 @@ class Navigator @Inject() () {
           userAnswers.vehicleSupplierNumber(page.vehicleNumber),
           userAnswers.vehicleImportNumber(page.vehicleNumber)
         ) match {
-          case (Some(OneMultiVehicle.One), _, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.1 when built
+          case (Some(OneMultiVehicle.One), _, _)                     => vehicleIdentificationNumberRoute(page.vehicleNumber, userAnswers, NormalMode)
           case (Some(OneMultiVehicle.More), Some(supplierNumber), _) =>
             vehicledetails.routes.VehicleIdentificationNumbersController.supplierOnPageLoad(supplierNumber, page.vehicleNumber)
           case (Some(OneMultiVehicle.More), None, Some(importNumber)) =>
@@ -347,6 +347,14 @@ class Navigator @Inject() () {
         userAnswers.get(page) match {
           case Some(_) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.6 when built
           case _       => routes.JourneyRecoveryController.onPageLoad()
+        }
+    case page: VehicleIdentificationNumberPage =>
+      (userAnswers, _) =>
+        (userAnswers.get(page), userAnswers.vehicleSupplierNumber(page.vehicleNumber), userAnswers.vehicleImportNumber(page.vehicleNumber)) match {
+          case (Some(_), Some(supplierNumber), _) =>
+            vehicledetails.routes.VehicleRegistrationNumberKnownController.onPageLoad(supplierNumber, page.vehicleNumber, NormalMode)
+          case (Some(_), None, Some(_)) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.3 when built
+          case _                        => routes.JourneyRecoveryController.onPageLoad()
         }
     case page: AddVehicleTypePage =>
       (userAnswers, _) =>
@@ -430,8 +438,8 @@ class Navigator @Inject() () {
           page.isInstanceOf[SupplierBusinessNamePage] ||
           page.isInstanceOf[SupplierVatRegistrationNumberPage] =>
       (_, _) => supplierdetails.routes.SupplierDetailsCheckYourAnswersController.onPageLoad(page.supplierNumber)
-    case _: NotificationReferencePage =>
-      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.1 when built
+    case page: NotificationReferencePage =>
+      (userAnswers, _) => vehicleIdentificationNumberRoute(page.vehicleNumber, userAnswers, NormalMode)
     case page: NumberOfVehiclesPage =>
       (userAnswers, _) =>
         (
@@ -451,6 +459,8 @@ class Navigator @Inject() () {
       (_, _) => routes.LandingPageController.onPageLoad()
     case _: MileagePage =>
       (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.6 when built
+    case _: VehicleIdentificationNumberPage =>
+      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.2 / AVD10.3 when built
     case page: VehicleDatesPage =>
       (userAnswers, _) =>
         if (userAnswers.get(page).exists(_.contains(VehicleDates.NoDates)))
@@ -478,6 +488,15 @@ class Navigator @Inject() () {
     case _                           =>
       (_, _) => routes.LandingPageController.onPageLoad()
   }
+
+  private def vehicleIdentificationNumberRoute(vehicleNumber: VehicleNumber, userAnswers: UserAnswers, mode: Mode): Call =
+    (userAnswers.vehicleSupplierNumber(vehicleNumber), userAnswers.vehicleImportNumber(vehicleNumber)) match {
+      case (Some(supplierNumber), _) =>
+        vehicledetails.routes.VehicleIdentificationNumberController.supplierOnPageLoad(supplierNumber, vehicleNumber, mode)
+      case (None, Some(importNumber)) =>
+        vehicledetails.routes.VehicleIdentificationNumberController.importOnPageLoad(importNumber, vehicleNumber, mode)
+      case _ => routes.JourneyRecoveryController.onPageLoad()
+    }
 
   private def addVehicleDetailsRoute[A](page: AddVehicleDetailsQuestionPage[A], userAnswers: UserAnswers)(implicit rds: Reads[A]): Call =
     (
