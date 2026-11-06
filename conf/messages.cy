@@ -1668,6 +1668,18 @@ vehicleRegistrationNumberKnown.heading = Do you know the current vehicle registr
 vehicleRegistrationNumberKnown.error.required = Select yes if you know the current vehicle registration number
 
 ####################################################################################
+# AVD10.2a - Add vehicle details 10.2a - What is the current vehicle registration number? #
+####################################################################################
+# TODO: Welsh translations to be supplied by content team.
+vehicleRegistrationNumber.title = What is the current vehicle registration number?
+vehicleRegistrationNumber.caption = Ychwanegwch fanylion cerbyd
+vehicleRegistrationNumber.heading = What is the current vehicle registration number?
+vehicleRegistrationNumber.hint = For example, ABC12DE, BC12 DEF or 12-AB-34
+vehicleRegistrationNumber.error.required = Enter the current vehicle registration number
+vehicleRegistrationNumber.error.invalid = Enter the current vehicle registration number in the correct format
+vehicleRegistrationNumber.error.length = The current vehicle registration number must be 12 characters or less
+
+####################################################################################
 # AMV1.0 - Add multiple vehicles 1.0 - How do you want to add VINs                 #
 ####################################################################################
 # TODO: Welsh translations to be supplied by content team.
