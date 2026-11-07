@@ -104,7 +104,7 @@ class CommodityCodeViewSpec extends SpecBase with Matchers with BeforeAndAfterAl
     "must render the hint text against the input" in {
       val document = Jsoup.parse(render())
 
-      document.select(".govuk-hint").text mustEqual "Must be between 4 and 10 characters, for example 2134 or 8703123456"
+      document.select(".govuk-hint").text mustEqual "Must be between 4 and 10 digits, for example 2134 or 8703123456"
       document.getElementById("value").attr("aria-describedby") must include("value-hint")
     }
 
