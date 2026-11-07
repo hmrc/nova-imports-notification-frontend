@@ -573,7 +573,7 @@ viewClients.search.error.required.vrn = Enter the client’s VAT registration nu
 # TODO: Welsh translations to be supplied by content team.
 removeClient.title = Remove client
 removeClient.heading.1 = Remove client
-removeClient.paragraph.1 = This client will be removed from your list. You’ll lose access to any notifications you’ve submitted for this client.
+removeClient.paragraph.1 = This client will be removed from your list.
 removeClient.clientName = Client name:
 removeClient.vatRegistrationNumber = VAT registration number:
 removeClient.paragraph.2 = Your client list may take up to 30 minutes to show the change.
@@ -1668,6 +1668,18 @@ vehicleRegistrationNumberKnown.heading = Do you know the current vehicle registr
 vehicleRegistrationNumberKnown.error.required = Select yes if you know the current vehicle registration number
 
 ####################################################################################
+# AVD10.2a - Add vehicle details 10.2a - What is the current vehicle registration number? #
+####################################################################################
+# TODO: Welsh translations to be supplied by content team.
+vehicleRegistrationNumber.title = What is the current vehicle registration number?
+vehicleRegistrationNumber.caption = Ychwanegwch fanylion cerbyd
+vehicleRegistrationNumber.heading = What is the current vehicle registration number?
+vehicleRegistrationNumber.hint = For example, ABC12DE, BC12 DEF or 12-AB-34
+vehicleRegistrationNumber.error.required = Enter the current vehicle registration number
+vehicleRegistrationNumber.error.invalid = Enter the current vehicle registration number in the correct format
+vehicleRegistrationNumber.error.length = The current vehicle registration number must be 12 characters or less
+
+####################################################################################
 # AMV1.0 - Add multiple vehicles 1.0 - How do you want to add VINs                 #
 ####################################################################################
 # TODO: Welsh translations to be supplied by content team.
@@ -1718,6 +1730,7 @@ enterVinNumbers.caption = Add vehicle details
 enterVinNumbers.heading = Enter the {0} vehicle identification numbers
 enterVinNumbers.hint = Separate each VIN with a comma. For example, 1ABCD2E03FG456789, 2A1BC34D5E6789012, ABCDE01F24567890
 enterVinNumbers.error.required = Enter the vehicle identification numbers
+enterVinNumbers.error.duplicate = Enter a unique vehicle identification number for each vehicle
 # F26 cross-notification duplicate check - confirm with UCD
 enterVinNumbers.error.duplicate.crossNotification = One or more of the vehicle identification numbers entered already exists on another vehicle in this notification
 
@@ -1786,6 +1799,18 @@ vehicleIdentificationNumber.error.required = Enter the vehicle identification nu
 vehicleIdentificationNumber.error.invalid = Enter the vehicle identification number in the correct format
 vehicleIdentificationNumber.error.length = The vehicle identification number must be 17 characters or less
 vehicleIdentificationNumber.error.duplicate = Enter a different vehicle identification number. You have already used this one for another vehicle in this submission
+
+####################################################################################
+# AVD10.6 - Add vehicle details 10.6 - Left or right hand drive                    #
+####################################################################################
+# TODO: Welsh translations to be supplied by content team.
+leftOrRightHandDrive.title = Is the vehicle left-hand drive or right-hand drive?
+leftOrRightHandDrive.caption = Add vehicle details
+leftOrRightHandDrive.heading = Is the vehicle left-hand drive or right-hand drive?
+leftOrRightHandDrive.hint = Select ‘Right-hand drive’ if the vehicle is a motorcycle or agricultural tractor
+leftOrRightHandDrive.radio.leftHandDrive = Left-hand drive
+leftOrRightHandDrive.radio.rightHandDrive = Right-hand drive
+leftOrRightHandDrive.error.required = Select if the vehicle is left-hand drive or right-hand drive
 
 ####################################################################################
 # AVD10.7 - Add vehicle details 10.7 - Total value of options                       #
