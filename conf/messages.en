@@ -1863,6 +1863,19 @@ mileage.error.required.unit = Select the mileage unit
 mileage.error.required.mileage = Enter the mileage
 mileage.error.format = Enter the mileage in the correct format
 mileage.error.length = The mileage must be 6 characters or less
+####################################################################################
+# AVD10.4 - Add vehicle details 10.4 - Commodity code                              #
+####################################################################################
+commodityCode.title = Commodity code
+commodityCode.caption = Add vehicle details
+commodityCode.heading.1 = Commodity code
+commodityCode.paragraph.1 = You can find it on the vehicle’s import entry document.
+commodityCode.paragraph.2.linkText = Get more help to find the commodity code
+commodityCode.heading.2 = What is the commodity code?
+commodityCode.hint = Must be between 4 and 10 digits, for example 2134 or 8703123456
+commodityCode.error.required = Enter the commodity code
+commodityCode.error.format = Enter the commodity code in the correct format
+commodityCode.error.length = The commodity code must be between 4 and 10 characters
 
 ####################################################################################
 # AVD10.1 - Add vehicle details 10.1 - Vehicle identification number               #

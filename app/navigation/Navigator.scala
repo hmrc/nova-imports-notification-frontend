@@ -304,6 +304,13 @@ class Navigator @Inject() () {
           case Some(_) => vehicleIdentificationNumberRoute(page.vehicleNumber, userAnswers, NormalMode)
           case _       => routes.JourneyRecoveryController.onPageLoad()
         }
+    case page: CommodityCodePage =>
+      (userAnswers, _) =>
+        (userAnswers.get(page), userAnswers.vehicleImportNumber(page.vehicleNumber)) match {
+          case (Some(_), Some(importNumber)) =>
+            vehicledetails.routes.MileageController.importOnPageLoad(importNumber, page.vehicleNumber, NormalMode)
+          case _ => routes.JourneyRecoveryController.onPageLoad()
+        }
     case page: VehicleIdentificationNumbersPage =>
       (userAnswers, _) =>
         (
@@ -488,6 +495,8 @@ class Navigator @Inject() () {
       (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.3 when built
     case _: MileagePage =>
       (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.6 when built
+    case _: CommodityCodePage =>
+      (_, _) => routes.LandingPageController.onPageLoad()
     case _: LeftOrRightHandDrivePage =>
       (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to CYA C-AVD3.0 when built
     case _: VehicleIdentificationNumberPage =>
