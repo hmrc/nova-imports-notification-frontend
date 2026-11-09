@@ -347,11 +347,24 @@ class Navigator @Inject() () {
         (userAnswers.get(page), userAnswers.vehicleSupplierNumber(page.vehicleNumber)) match {
           case (Some(true), Some(supplierNumber)) =>
             vehicledetails.routes.VehicleRegistrationNumberController.onPageLoad(supplierNumber, page.vehicleNumber, NormalMode)
-          case (Some(false), _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.3 when built
-          case _                => routes.JourneyRecoveryController.onPageLoad()
+          case (Some(false), Some(supplierNumber)) =>
+            vehicledetails.routes.DateOfArrivalController.supplierOnPageLoad(supplierNumber, page.vehicleNumber, NormalMode)
+          case _ => routes.JourneyRecoveryController.onPageLoad()
         }
-    case _: VehicleRegistrationNumberPage =>
-      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.3 when built
+    case page: DateOfArrivalPage =>
+      (userAnswers, _) =>
+        (userAnswers.vehicleSupplierNumber(page.vehicleNumber), userAnswers.vehicleImportNumber(page.vehicleNumber)) match {
+          case (Some(supplierNumber), _) => vehicledetails.routes.MileageController.supplierOnPageLoad(supplierNumber, page.vehicleNumber, NormalMode)
+          case (_, Some(importNumber))   => vehicledetails.routes.CommodityCodeController.onPageLoad(importNumber, page.vehicleNumber, NormalMode)
+          case _                         => routes.JourneyRecoveryController.onPageLoad()
+        }
+    case page: VehicleRegistrationNumberPage =>
+      (userAnswers, _) =>
+        userAnswers
+          .vehicleSupplierNumber(page.vehicleNumber)
+          .fold(routes.JourneyRecoveryController.onPageLoad())(supplierNumber =>
+            vehicledetails.routes.DateOfArrivalController.supplierOnPageLoad(supplierNumber, page.vehicleNumber, NormalMode)
+          )
     case page: MileagePage =>
       (userAnswers, _) =>
         (userAnswers.get(page), userAnswers.vehicleSupplierNumber(page.vehicleNumber), userAnswers.vehicleImportNumber(page.vehicleNumber)) match {
@@ -375,8 +388,9 @@ class Navigator @Inject() () {
         (userAnswers.get(page), userAnswers.vehicleSupplierNumber(page.vehicleNumber), userAnswers.vehicleImportNumber(page.vehicleNumber)) match {
           case (Some(_), Some(supplierNumber), _) =>
             vehicledetails.routes.VehicleRegistrationNumberKnownController.onPageLoad(supplierNumber, page.vehicleNumber, NormalMode)
-          case (Some(_), None, Some(_)) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.3 when built
-          case _                        => routes.JourneyRecoveryController.onPageLoad()
+          case (Some(_), None, Some(importNumber)) =>
+            vehicledetails.routes.DateOfArrivalController.importOnPageLoad(importNumber, page.vehicleNumber, NormalMode)
+          case _ => routes.JourneyRecoveryController.onPageLoad()
         }
     case page: TotalValueOfOptionsPage =>
       (userAnswers, _) =>
