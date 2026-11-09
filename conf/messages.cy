@@ -1754,3 +1754,14 @@ mileage.error.required.unit = Select the mileage unit
 mileage.error.required.mileage = Enter the mileage
 mileage.error.format = Enter the mileage in the correct format
 mileage.error.length = The mileage must be 6 characters or less
+
+
+#######################################################################
+# AVD10.8 - Add vehicle details 10.5 - Could not claim VAT            #
+#######################################################################
+# TODO: Welsh translations to be supplied by content team.
+couldNotClaimVat.title = Was the vehicle supplied by a business that could not reclaim VAT?
+couldNotClaimVat.heading.1 = Was the vehicle supplied by a business that could not reclaim VAT?
+couldNotClaimVat.caption = Add vehicle details
+couldNotClaimVat.hint = Select ‘Yes’ if you have evidence from the supplier that they could not reclaim any VAT on the vehicle
+couldNotClaimVat.error.required = Select yes if the vehicle was supplied by a business that could not reclaim VAT

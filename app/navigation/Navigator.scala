@@ -348,6 +348,12 @@ class Navigator @Inject() () {
           case Some(_) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.6 when built
           case _       => routes.JourneyRecoveryController.onPageLoad()
         }
+    case page: CouldNotClaimVatPage =>
+      (userAnswers, _) =>
+        userAnswers.get(page) match {
+          case Some(_) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.9 when built
+          case _       => routes.JourneyRecoveryController.onPageLoad()
+        }
     case page: AddVehicleTypePage =>
       (userAnswers, _) =>
         (
@@ -451,6 +457,8 @@ class Navigator @Inject() () {
       (_, _) => routes.LandingPageController.onPageLoad()
     case _: MileagePage =>
       (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.6 when built
+    case _: CouldNotClaimVatPage =>
+      (_, _) => routes.LandingPageController.onPageLoad()
     case page: VehicleDatesPage =>
       (userAnswers, _) =>
         if (userAnswers.get(page).exists(_.contains(VehicleDates.NoDates)))
