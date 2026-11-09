@@ -52,7 +52,7 @@ class LeftOrRightHandDriveViewSpec extends SpecBase with Matchers with BeforeAnd
   val postAction: Call =
     controllers.vehicledetails.routes.LeftOrRightHandDriveController.supplierOnSubmit(SupplierNumber(1), VehicleNumber(1), NormalMode)
 
-  val vehicleDetails: InsetText = InsetTextViewModel("Vehicle details: <b>Make Model BodyType</b>")
+  val vehicleDetails: InsetText = InsetTextViewModel("Vehicle details: <strong>Make Model BodyType</strong>")
 
   private def render(form: Form[LeftOrRightHandDrive] = form, vehicleDetails: Option[InsetText] = Some(vehicleDetails)): String =
     view(form, vehicleDetails, postAction)(request, msgs).toString

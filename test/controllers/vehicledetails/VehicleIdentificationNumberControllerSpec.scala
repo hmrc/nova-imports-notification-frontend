@@ -165,7 +165,7 @@ class VehicleIdentificationNumberControllerSpec extends SpecBase with MockitoSug
             VehicleDetailsInset(supplierAnswers, vehicleNumber)(msgs),
             supplierSubmit
           )(request, msgs).toString
-          contentAsString(result) must include("<b>Volvo FH16</b>")
+          contentAsString(result) must include("<strong>Volvo FH16</strong>")
         }
       }
 
@@ -211,7 +211,7 @@ class VehicleIdentificationNumberControllerSpec extends SpecBase with MockitoSug
 
           status(result) mustEqual BAD_REQUEST
           contentAsString(result) must include(messages(application)("vehicleIdentificationNumber.error.required"))
-          contentAsString(result) must include("<b>Volvo FH16</b>")
+          contentAsString(result) must include("<strong>Volvo FH16</strong>")
         }
       }
 
@@ -418,7 +418,7 @@ class VehicleIdentificationNumberControllerSpec extends SpecBase with MockitoSug
             VehicleDetailsInset(importAnswers, vehicleNumber)(msgs),
             importSubmit
           )(request, msgs).toString
-          contentAsString(result) must include("<b>Volvo FH16</b>")
+          contentAsString(result) must include("<strong>Volvo FH16</strong>")
         }
       }
 
@@ -463,7 +463,7 @@ class VehicleIdentificationNumberControllerSpec extends SpecBase with MockitoSug
 
           status(result) mustEqual BAD_REQUEST
           contentAsString(result) must include(messages(application)("vehicleIdentificationNumber.error.required"))
-          contentAsString(result) must include("<b>Volvo FH16</b>")
+          contentAsString(result) must include("<strong>Volvo FH16</strong>")
         }
       }
 

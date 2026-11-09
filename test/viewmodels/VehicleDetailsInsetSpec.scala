@@ -133,7 +133,7 @@ class VehicleDetailsInsetSpec extends SpecBase {
         )
 
       VehicleDetailsInset(answers, vehicleNumber).value.content.asHtml.toString mustEqual
-        s"${msgs("vehicleDetailsInset.label")} <b>Volvo FH16</b>"
+        s"${msgs("vehicleDetailsInset.label")} <strong>Volvo FH16</strong>"
     }
 
     "must escape the vehicle details" in {
@@ -143,7 +143,7 @@ class VehicleDetailsInsetSpec extends SpecBase {
           AddVehicleDetailsHeavyCommercial("<script>", "FH16", "Tractor unit", "Sleeper cab")
         )
 
-      VehicleDetailsInset(answers, vehicleNumber).value.content.asHtml.toString must include("<b>&lt;script&gt; FH16</b>")
+      VehicleDetailsInset(answers, vehicleNumber).value.content.asHtml.toString must include("<strong>&lt;script&gt; FH16</strong>")
     }
 
     "must not be shown when there are no vehicle details" in {

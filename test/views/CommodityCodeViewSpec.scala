@@ -54,7 +54,7 @@ class CommodityCodeViewSpec extends SpecBase with Matchers with BeforeAndAfterAl
 
   val findingCommodityCodesUrl = "https://www.gov.uk/guidance/finding-commodity-codes-for-imports-or-exports#what-a-commodity-code-is"
 
-  val vehicleDetails: InsetText = InsetTextViewModel("Vehicle details: <b>Volvo FH16</b>")
+  val vehicleDetails: InsetText = InsetTextViewModel("Vehicle details: <strong>Volvo FH16</strong>")
 
   private def render(form: Form[String] = form, vehicleDetails: Option[InsetText] = Some(vehicleDetails)): String =
     view(form, vehicleDetails, postAction, findingCommodityCodesUrl)(request, msgs).toString
