@@ -380,9 +380,16 @@ class Navigator @Inject() () {
         }
     case page: TotalValueOfOptionsPage =>
       (userAnswers, _) =>
-        userAnswers.get(page) match {
-          case Some(_) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.8 or AVD11.0 when built
-          case _       => routes.JourneyRecoveryController.onPageLoad()
+        (userAnswers.get(page), userAnswers.vehicleSupplierNumber(page.vehicleNumber)) match {
+          case (Some(_), Some(supplierNumber)) =>
+            userAnswers.get(IsSupplierVatRegisteredPage(supplierNumber)) match {
+              case Some(true) =>
+                vehicledetails.routes.CouldNotClaimVatController.onPageLoad(supplierNumber, page.vehicleNumber, NormalMode)
+              case _ =>
+                routes.LandingPageController.onPageLoad() // TODO: navigate to AVD11.0 when built
+            }
+
+          case _ => routes.JourneyRecoveryController.onPageLoad()
         }
     case page: CouldNotClaimVatPage =>
       (userAnswers, _) =>
@@ -500,7 +507,7 @@ class Navigator @Inject() () {
     case _: VehicleRegistrationNumberPage =>
       (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.3 when built
     case _: MileagePage =>
-      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.6 when built
+      (_, _) => routes.LandingPageController.onPageLoad()
     case _: CommodityCodePage =>
       (_, _) => routes.LandingPageController.onPageLoad()
     case _: LeftOrRightHandDrivePage =>
