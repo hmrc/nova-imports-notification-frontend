@@ -1680,6 +1680,32 @@ vehicleRegistrationNumber.error.invalid = Enter the current vehicle registration
 vehicleRegistrationNumber.error.length = The current vehicle registration number must be 12 characters or less
 
 ####################################################################################
+# AVD10.3 - Date of arrival                                                        #
+####################################################################################
+dateOfArrival.title = Date the vehicle arrived in the UK
+dateOfArrival.heading = Date the vehicle arrived in the UK
+dateOfArrival.caption = Add vehicle details
+dateOfArrival.broughtFrom.paragraph = If you brought the vehicle from:
+dateOfArrival.broughtFrom.bullet.1 = an EU country, enter the date the vehicle arrived in the UK
+dateOfArrival.broughtFrom.bullet.2 = outside the EU, enter the date HMRC accepted the import entry
+dateOfArrival.changeOfIntention.paragraph = If there is a change of intention for using the vehicle after arrival, enter the date of the change. A change of intention is when:
+dateOfArrival.changeOfIntention.bullet.1 = you bring a vehicle into the UK for a short period but decide to keep it longer
+dateOfArrival.changeOfIntention.bullet.2 = you change your plans to register the vehicle under the {0} or {1} after arrival
+dateOfArrival.changeOfIntention.secureRegistrationScheme.linkText = secure registration scheme (SRS)
+dateOfArrival.changeOfIntention.registerAVehicle.linkText = Register a Vehicle (RaV) service
+dateOfArrival.changeOfIntention.bullet.3 = a dealer or customer informs you that the vehicle cannot be registered using the SRS or RaV service
+dateOfArrival.question.heading = When did the vehicle arrive in the UK?
+dateOfArrival.hint = For example, 27 03 2026
+dateOfArrival.error.required.all = Enter the date the vehicle arrived in the UK
+dateOfArrival.error.required = The date the vehicle arrived in the UK must include a {0}
+dateOfArrival.error.required.two = The date the vehicle arrived in the UK must include a {0} and {1}
+dateOfArrival.error.invalid = Enter the date the vehicle arrived in the UK in the correct format
+dateOfArrival.error.notARealDate = The date the vehicle arrived in the UK must be a real date
+dateOfArrival.error.future = The date the vehicle arrived in the UK must be today or in the past
+dateOfArrival.error.afterFirstRegistration = The date the vehicle arrived in the UK must be after the date the vehicle was first registered
+dateOfArrival.error.sameAsOrAfterFirstRegistration = The date the vehicle arrived in the UK must be the same as or after the date the vehicle was first registered
+
+####################################################################################
 # AMV1.0 - Add multiple vehicles 1.0 - How do you want to add VINs                 #
 ####################################################################################
 # TODO: Welsh translations to be supplied by content team.
@@ -1767,6 +1793,21 @@ mileage.error.required.unit = Select the mileage unit
 mileage.error.required.mileage = Enter the mileage
 mileage.error.format = Enter the mileage in the correct format
 mileage.error.length = The mileage must be 6 characters or less
+
+####################################################################################
+# AVD10.4 - Add vehicle details 10.4 - Commodity code                              #
+####################################################################################
+# TODO: Welsh translations to be supplied by content team.
+commodityCode.title = Commodity code
+commodityCode.caption = Ychwanegwch fanylion cerbyd
+commodityCode.heading.1 = Commodity code
+commodityCode.paragraph.1 = You can find it on the vehicle’s import entry document.
+commodityCode.paragraph.2.linkText = Get more help to find the commodity code
+commodityCode.heading.2 = What is the commodity code?
+commodityCode.hint = Must be between 4 and 10 digits, for example 2134 or 8703123456
+commodityCode.error.required = Enter the commodity code
+commodityCode.error.format = Enter the commodity code in the correct format
+commodityCode.error.length = The commodity code must be between 4 and 10 characters
 
 ####################################################################################
 # AVD10.1 - Add vehicle details 10.1 - Vehicle identification number               #

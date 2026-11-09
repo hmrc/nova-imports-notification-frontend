@@ -149,7 +149,7 @@ class NotificationReferenceControllerSpec extends SpecBase with MockitoSugar {
             VehicleDetailsInset(supplierAnswers, vehicleNumber)(msgs),
             supplierSubmit
           )(request, msgs).toString
-          contentAsString(result) must include("<b>Volvo FH16</b>")
+          contentAsString(result) must include("<strong>Volvo FH16</strong>")
         }
       }
 
@@ -195,7 +195,7 @@ class NotificationReferenceControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual BAD_REQUEST
           contentAsString(result) must include(messages(application)("notificationReference.error.required"))
-          contentAsString(result) must include("<b>Volvo FH16</b>")
+          contentAsString(result) must include("<strong>Volvo FH16</strong>")
         }
       }
 

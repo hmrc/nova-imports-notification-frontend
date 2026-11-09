@@ -147,7 +147,7 @@ class MileageControllerSpec extends SpecBase with MockitoSugar {
             VehicleDetailsInset(supplierAnswers, vehicleNumber)(msgs),
             supplierSubmit
           )(request, msgs).toString
-          contentAsString(result) must include("<b>Volvo FH16</b>")
+          contentAsString(result) must include("<strong>Volvo FH16</strong>")
         }
       }
 
@@ -193,7 +193,7 @@ class MileageControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual BAD_REQUEST
           contentAsString(result) must include(messages(application)("mileage.error.required.mileage"))
-          contentAsString(result) must include("<b>Volvo FH16</b>")
+          contentAsString(result) must include("<strong>Volvo FH16</strong>")
         }
       }
 
@@ -206,7 +206,7 @@ class MileageControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual BAD_REQUEST
           contentAsString(result) must include(messages(application)("mileage.error.required.unit"))
-          contentAsString(result) must include("<b>Volvo FH16</b>")
+          contentAsString(result) must include("<strong>Volvo FH16</strong>")
         }
       }
 

@@ -52,7 +52,7 @@ class NumberOfVehiclesViewSpec extends SpecBase with Matchers with BeforeAndAfte
   val postAction: Call =
     controllers.vehicledetails.routes.NumberOfVehiclesController.supplierOnSubmit(SupplierNumber(1), VehicleNumber(1), NormalMode)
 
-  val vehicleDetails: InsetText = InsetTextViewModel("Vehicle details: <b>Land Rover Discovery 4</b>")
+  val vehicleDetails: InsetText = InsetTextViewModel("Vehicle details: <strong>Land Rover Discovery 4</strong>")
 
   private def render(form: Form[NumberOfVehicles] = form, vehicleDetails: Option[InsetText] = Some(vehicleDetails)): String =
     view(form, vehicleDetails, postAction)(request, msgs).toString
