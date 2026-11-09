@@ -485,6 +485,12 @@ POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/current-vehicle-reg
 GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/current-vehicle-registration-number-known/change                   controllers.vehicledetails.VehicleRegistrationNumberKnownController.onPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
 POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/current-vehicle-registration-number-known/change                   controllers.vehicledetails.VehicleRegistrationNumberKnownController.onSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
 
+# AVD10.2a - Add vehicle details 10.2a - What is the current vehicle registration number
+GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/current-vehicle-registration-number                               controllers.vehicledetails.VehicleRegistrationNumberController.onPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/current-vehicle-registration-number                               controllers.vehicledetails.VehicleRegistrationNumberController.onSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/current-vehicle-registration-number/change                        controllers.vehicledetails.VehicleRegistrationNumberController.onPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
+POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/current-vehicle-registration-number/change                        controllers.vehicledetails.VehicleRegistrationNumberController.onSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
+
 # AVD10.5 - Mileage
 GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/mileage                                                            controllers.vehicledetails.MileageController.supplierOnPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
 POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/mileage                                                            controllers.vehicledetails.MileageController.supplierOnSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
@@ -496,6 +502,12 @@ POST        /import/:importNumber/vehicle/:vehicleNumber/mileage                
 GET         /import/:importNumber/vehicle/:vehicleNumber/mileage/change                                                         controllers.vehicledetails.MileageController.importOnPageLoad(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
 POST        /import/:importNumber/vehicle/:vehicleNumber/mileage/change                                                         controllers.vehicledetails.MileageController.importOnSubmit(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
 
+# AVD10.4 - Commodity code
+GET         /import/:importNumber/vehicle/:vehicleNumber/commodity-code                   controllers.vehicledetails.CommodityCodeController.onPageLoad(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+POST        /import/:importNumber/vehicle/:vehicleNumber/commodity-code                   controllers.vehicledetails.CommodityCodeController.onSubmit(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+GET         /import/:importNumber/vehicle/:vehicleNumber/commodity-code/change            controllers.vehicledetails.CommodityCodeController.onPageLoad(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
+POST        /import/:importNumber/vehicle/:vehicleNumber/commodity-code/change            controllers.vehicledetails.CommodityCodeController.onSubmit(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
+
 GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/vehicle-identification-number           controllers.vehicledetails.VehicleIdentificationNumberController.supplierOnPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
 POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/vehicle-identification-number           controllers.vehicledetails.VehicleIdentificationNumberController.supplierOnSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
 GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/vehicle-identification-number/change    controllers.vehicledetails.VehicleIdentificationNumberController.supplierOnPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
@@ -505,6 +517,17 @@ GET         /import/:importNumber/vehicle/:vehicleNumber/vehicle-identification-
 POST        /import/:importNumber/vehicle/:vehicleNumber/vehicle-identification-number           controllers.vehicledetails.VehicleIdentificationNumberController.importOnSubmit(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
 GET         /import/:importNumber/vehicle/:vehicleNumber/vehicle-identification-number/change    controllers.vehicledetails.VehicleIdentificationNumberController.importOnPageLoad(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
 POST        /import/:importNumber/vehicle/:vehicleNumber/vehicle-identification-number/change    controllers.vehicledetails.VehicleIdentificationNumberController.importOnSubmit(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
+
+# AVD10.6 - Left or right hand drive
+GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/left-or-right-hand-drive                                           controllers.vehicledetails.LeftOrRightHandDriveController.supplierOnPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/left-or-right-hand-drive                                           controllers.vehicledetails.LeftOrRightHandDriveController.supplierOnSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/left-or-right-hand-drive/change                                    controllers.vehicledetails.LeftOrRightHandDriveController.supplierOnPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
+POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/left-or-right-hand-drive/change                                    controllers.vehicledetails.LeftOrRightHandDriveController.supplierOnSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
+
+GET         /import/:importNumber/vehicle/:vehicleNumber/left-or-right-hand-drive                                               controllers.vehicledetails.LeftOrRightHandDriveController.importOnPageLoad(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+POST        /import/:importNumber/vehicle/:vehicleNumber/left-or-right-hand-drive                                               controllers.vehicledetails.LeftOrRightHandDriveController.importOnSubmit(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+GET         /import/:importNumber/vehicle/:vehicleNumber/left-or-right-hand-drive/change                                        controllers.vehicledetails.LeftOrRightHandDriveController.importOnPageLoad(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
+POST        /import/:importNumber/vehicle/:vehicleNumber/left-or-right-hand-drive/change                                        controllers.vehicledetails.LeftOrRightHandDriveController.importOnSubmit(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
 
 # AVD10.7 - Total value of options
 GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/total-value-of-options                                             controllers.vehicledetails.TotalValueOfOptionsController.onPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)

@@ -124,7 +124,7 @@ class VehicleRegistrationNumberKnownControllerSpec extends SpecBase with Mockito
           VehicleDetailsInset(userAnswersWithGuardData, vehicleNumber)(msgs),
           submitCall
         )(request, msgs).toString
-        contentAsString(result) must include("<b>Volvo FH16</b>")
+        contentAsString(result) must include("<strong>Volvo FH16</strong>")
       }
     }
 
@@ -172,7 +172,7 @@ class VehicleRegistrationNumberKnownControllerSpec extends SpecBase with Mockito
 
         status(result) mustEqual BAD_REQUEST
         contentAsString(result) must include(messages(application)("vehicleRegistrationNumberKnown.error.required"))
-        contentAsString(result) must include("<b>Volvo FH16</b>")
+        contentAsString(result) must include("<strong>Volvo FH16</strong>")
       }
     }
 
