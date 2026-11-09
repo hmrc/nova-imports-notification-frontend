@@ -23,7 +23,7 @@ import models.responses.{UploadResultResponse, ValidateVinsResponse, ValidationE
 import models.{DraftId, DraftNotification, DraftNotificationSection, ImportNumber, NormalMode, NumberOfVehicles, OneMultiVehicle, SupplierNumber, UserAnswers, VehicleNumber}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.{verify, when}
+import org.mockito.Mockito.{never, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.sections.initialquestions.VehicleFromEuPage
 import pages.sections.vehicledetails.NumberOfVehiclesPage
@@ -245,6 +245,22 @@ class EnterVinNumbersControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual BAD_REQUEST
         contentAsString(result) must include(messages(app)("enterVinNumbers.error.duplicate.crossNotification"))
+      }
+    }
+
+    "must return a Bad Request and the duplicate error when the same VIN is entered in upper and lower case" in {
+      val connector = mock[NovaImportsBackendConnector]
+      when(connector.validateVins(any[DraftId], any[String], any[Int])(using any[HeaderCarrier]))
+        .thenReturn(Future.successful(Right(ValidateVinsResponse(valid = true, vins = Seq("vin1", "VIN1"), errors = Seq.empty))))
+      val app = application(Some(supplierAnswers), connector)
+
+      running(app) {
+        val request = FakeRequest(POST, supplierRoute).withFormUrlEncodedBody("enterVinNumbers" -> "vin1,VIN1")
+        val result  = route(app, request).value
+
+        status(result) mustEqual BAD_REQUEST
+        contentAsString(result) must include(messages(app)("enterVinNumbers.error.duplicate"))
+        verify(connector, never()).getDraftNotification(any[DraftId])(using any[HeaderCarrier])
       }
     }
 

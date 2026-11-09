@@ -337,16 +337,31 @@ class Navigator @Inject() () {
         }
     case page: VehicleRegistrationNumberKnownPage =>
       (userAnswers, _) =>
-        userAnswers.get(page) match {
-          case Some(true)  => routes.LandingPageController.onPageLoad()
-          case Some(false) => routes.LandingPageController.onPageLoad()
-          case _           => routes.JourneyRecoveryController.onPageLoad()
+        (userAnswers.get(page), userAnswers.vehicleSupplierNumber(page.vehicleNumber)) match {
+          case (Some(true), Some(supplierNumber)) =>
+            vehicledetails.routes.VehicleRegistrationNumberController.onPageLoad(supplierNumber, page.vehicleNumber, NormalMode)
+          case (Some(false), _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.3 when built
+          case _                => routes.JourneyRecoveryController.onPageLoad()
         }
+    case _: VehicleRegistrationNumberPage =>
+      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.3 when built
     case page: MileagePage =>
       (userAnswers, _) =>
-        userAnswers.get(page) match {
-          case Some(_) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.6 when built
-          case _       => routes.JourneyRecoveryController.onPageLoad()
+        (userAnswers.get(page), userAnswers.vehicleSupplierNumber(page.vehicleNumber), userAnswers.vehicleImportNumber(page.vehicleNumber)) match {
+          case (Some(_), Some(supplierNumber), _) =>
+            vehicledetails.routes.LeftOrRightHandDriveController.supplierOnPageLoad(supplierNumber, page.vehicleNumber, NormalMode)
+          case (Some(_), None, Some(importNumber)) =>
+            vehicledetails.routes.LeftOrRightHandDriveController.importOnPageLoad(importNumber, page.vehicleNumber, NormalMode)
+          case _ => routes.JourneyRecoveryController.onPageLoad()
+        }
+    case page: LeftOrRightHandDrivePage =>
+      (userAnswers, _) =>
+        (userAnswers.get(page), userAnswers.vehicleSupplierNumber(page.vehicleNumber), userAnswers.vehicleImportNumber(page.vehicleNumber)) match {
+          case (Some(_), Some(supplierNumber), _) =>
+            vehicledetails.routes.TotalValueOfOptionsController.onPageLoad(supplierNumber, page.vehicleNumber, NormalMode)
+          case (Some(_), None, Some(importNumber)) =>
+            vehicledetails.routes.TotalAmountPaidController.onPageLoadImport(importNumber, page.vehicleNumber, NormalMode)
+          case _ => routes.JourneyRecoveryController.onPageLoad()
         }
     case page: VehicleIdentificationNumberPage =>
       (userAnswers, _) =>
@@ -355,6 +370,12 @@ class Navigator @Inject() () {
             vehicledetails.routes.VehicleRegistrationNumberKnownController.onPageLoad(supplierNumber, page.vehicleNumber, NormalMode)
           case (Some(_), None, Some(_)) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.3 when built
           case _                        => routes.JourneyRecoveryController.onPageLoad()
+        }
+    case page: TotalValueOfOptionsPage =>
+      (userAnswers, _) =>
+        userAnswers.get(page) match {
+          case Some(_) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.8 or AVD11.0 when built
+          case _       => routes.JourneyRecoveryController.onPageLoad()
         }
     case page: AddVehicleTypePage =>
       (userAnswers, _) =>
@@ -455,6 +476,24 @@ class Navigator @Inject() () {
             vehicledetails.routes.VehicleIdentificationNumbersController.importOnPageLoad(importNumber, page.vehicleNumber)
           case _ => routes.JourneyRecoveryController.onPageLoad()
         }
+    case page: VehicleRegistrationNumberKnownPage =>
+      (userAnswers, _) =>
+        (userAnswers.get(page), userAnswers.vehicleSupplierNumber(page.vehicleNumber)) match {
+          case (Some(true), Some(supplierNumber)) =>
+            vehicledetails.routes.VehicleRegistrationNumberController.onPageLoad(supplierNumber, page.vehicleNumber, CheckMode)
+          case (Some(false), _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.3 when built
+          case _                => routes.JourneyRecoveryController.onPageLoad()
+        }
+    case _: VehicleRegistrationNumberPage =>
+      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.3 when built
+    case _: MileagePage =>
+      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.6 when built
+    case _: LeftOrRightHandDrivePage =>
+      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to CYA C-AVD3.0 when built
+    case _: VehicleIdentificationNumberPage =>
+      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.2 / AVD10.3 when built
+    case _: TotalValueOfOptionsPage =>
+      (_, _) => routes.LandingPageController.onPageLoad()
     case page: VehicleRegistrationNumberKnownPage =>
       (userAnswers, _) => confirmAdditionalVehicleDetailsRoute(userAnswers, page.vehicleNumber)
     case page: MileagePage =>
