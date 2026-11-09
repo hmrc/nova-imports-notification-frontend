@@ -54,7 +54,7 @@ class MileageViewSpec extends SpecBase with Matchers with BeforeAndAfterAll {
   val postAction: Call =
     controllers.vehicledetails.routes.MileageController.supplierOnSubmit(SupplierNumber(1), VehicleNumber(1), NormalMode)
 
-  val vehicleDetails: InsetText = InsetTextViewModel("Vehicle details: <b>Volvo FH16</b>")
+  val vehicleDetails: InsetText = InsetTextViewModel("Vehicle details: <strong>Volvo FH16</strong>")
 
   private def render(form: Form[Mileage] = form, vehicleDetails: Option[InsetText] = Some(vehicleDetails)): String =
     view(form, vehicleDetails, postAction)(request, msgs).toString

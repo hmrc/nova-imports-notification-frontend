@@ -814,6 +814,28 @@ class NavigatorSpec extends SpecBase {
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
 
+      "must go from CommodityCodePage AVD10.4 to Mileage AVD10.5 for the vehicle's import" in {
+        val page = CommodityCodePage(VehicleNumber(1))
+        val ua   = importVehicle.unsafeSet(page, "8703123456")
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
+          vehicledetails.routes.MileageController.importOnPageLoad(ImportNumber(1), VehicleNumber(1), NormalMode)
+      }
+
+      "must go from CommodityCodePage AVD10.4 to JourneyRecovery when the vehicle has no import" in {
+        val page = CommodityCodePage(VehicleNumber(1))
+        val ua   = userAnswers.unsafeSet(page, "8703123456")
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from CommodityCodePage AVD10.4 to JourneyRecovery when the vehicle has no commodity code" in {
+        navigator.nextPage(
+          CommodityCodePage(VehicleNumber(1)),
+          NormalMode,
+          importVehicle,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
       "must go from VehicleIdentificationNumbersPage AMV1.0 to EnterVinNumbersController AMV3.0 (supplier) when EnterManually is selected" in {
         val page = VehicleIdentificationNumbersPage(VehicleNumber(1))
         val ua   = supplierVehicle.unsafeSet(page, VehicleIdentificationNumbersMethod.EnterManually)
@@ -2007,6 +2029,15 @@ class NavigatorSpec extends SpecBase {
           MileagePage(VehicleNumber(1)),
           CheckMode,
           userAnswers,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from CommodityCodePage AVD10.4 to the landing page" in {
+        navigator.nextPage(
+          CommodityCodePage(VehicleNumber(1)),
+          CheckMode,
+          importVehicle.unsafeSet(CommodityCodePage(VehicleNumber(1)), "8703123456"),
           NovaUserType.VatRegisteredOrganisation
         ) mustBe routes.LandingPageController.onPageLoad()
       }

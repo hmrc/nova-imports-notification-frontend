@@ -52,7 +52,7 @@ class VehicleIdentificationNumbersViewSpec extends SpecBase with Matchers with B
   val postAction: Call =
     controllers.vehicledetails.routes.VehicleIdentificationNumbersController.supplierOnSubmit(SupplierNumber(1), VehicleNumber(1))
 
-  val vehicleDetails: InsetText = InsetTextViewModel("Vehicle details: <b>Make Model BodyType</b>")
+  val vehicleDetails: InsetText = InsetTextViewModel("Vehicle details: <strong>Make Model BodyType</strong>")
 
   private def render(form: Form[VehicleIdentificationNumbersMethod] = form, vehicleDetails: Option[InsetText] = Some(vehicleDetails)): String =
     view(form, vehicleDetails, postAction)(request, msgs).toString

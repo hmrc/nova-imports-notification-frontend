@@ -502,6 +502,12 @@ POST        /import/:importNumber/vehicle/:vehicleNumber/mileage                
 GET         /import/:importNumber/vehicle/:vehicleNumber/mileage/change                                                         controllers.vehicledetails.MileageController.importOnPageLoad(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
 POST        /import/:importNumber/vehicle/:vehicleNumber/mileage/change                                                         controllers.vehicledetails.MileageController.importOnSubmit(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
 
+# AVD10.4 - Commodity code
+GET         /import/:importNumber/vehicle/:vehicleNumber/commodity-code                   controllers.vehicledetails.CommodityCodeController.onPageLoad(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+POST        /import/:importNumber/vehicle/:vehicleNumber/commodity-code                   controllers.vehicledetails.CommodityCodeController.onSubmit(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+GET         /import/:importNumber/vehicle/:vehicleNumber/commodity-code/change            controllers.vehicledetails.CommodityCodeController.onPageLoad(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
+POST        /import/:importNumber/vehicle/:vehicleNumber/commodity-code/change            controllers.vehicledetails.CommodityCodeController.onSubmit(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
+
 GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/vehicle-identification-number           controllers.vehicledetails.VehicleIdentificationNumberController.supplierOnPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
 POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/vehicle-identification-number           controllers.vehicledetails.VehicleIdentificationNumberController.supplierOnSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
 GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/vehicle-identification-number/change    controllers.vehicledetails.VehicleIdentificationNumberController.supplierOnPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)

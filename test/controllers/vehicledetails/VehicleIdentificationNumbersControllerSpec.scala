@@ -143,7 +143,7 @@ class VehicleIdentificationNumbersControllerSpec extends SpecBase with MockitoSu
             request,
             msgs
           ).toString
-          contentAsString(result) must include("<b>Make Model</b>")
+          contentAsString(result) must include("<strong>Make Model</strong>")
         }
       }
 
