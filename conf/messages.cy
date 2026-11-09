@@ -19,9 +19,9 @@ site.govuk = GOV.UK
 date.day = Diwrnod
 date.month = Mis
 date.year = Blwyddyn
-date.error.day = diwrnod
-date.error.month = mis
-date.error.year = blwyddyn
+date.error.day = Diwrnod
+date.error.month = Mis
+date.error.year = Blwyddyn
 
 ####################
 # EU Country Names #
@@ -573,7 +573,7 @@ viewClients.search.error.required.vrn = Enter the client’s VAT registration nu
 # TODO: Welsh translations to be supplied by content team.
 removeClient.title = Remove client
 removeClient.heading.1 = Remove client
-removeClient.paragraph.1 = This client will be removed from your list. You’ll lose access to any notifications you’ve submitted for this client.
+removeClient.paragraph.1 = This client will be removed from your list.
 removeClient.clientName = Client name:
 removeClient.vatRegistrationNumber = VAT registration number:
 removeClient.paragraph.2 = Your client list may take up to 30 minutes to show the change.
@@ -1041,7 +1041,7 @@ dateOfAvailability.hint = Er enghraifft, 27 03 2026
 dateOfAvailability.error.required.all = Nodwch y dyddiad yr oedd y car ar gael i chi am y tro cyntaf
 dateOfAvailability.error.required = Mae’n rhaid i’r dyddiad yr oedd y car ar gael i chi am y tro cyntaf gynnwys {0}
 dateOfAvailability.error.required.two = Mae’n rhaid i’r dyddiad yr oedd y car ar gael i chi am y tro cyntaf gynnwys {0} a {1}
-dateOfAvailability.error.invalid = Nodwch y dyddiad yr oedd y car ar gael i chi am y tro cyntaf yn y fformat cywir
+dateOfAvailability.error.invalid = ENodwch y dyddiad yr oedd y car ar gael i chi am y tro cyntaf yn y fformat cywir
 dateOfAvailability.error.notARealDate = Mae’n rhaid i’r dyddiad yr oedd y car ar gael i chi am y tro cyntaf fod yn ddyddiad go iawn
 
 ######################################################################
@@ -1668,6 +1668,18 @@ vehicleRegistrationNumberKnown.heading = Do you know the current vehicle registr
 vehicleRegistrationNumberKnown.error.required = Select yes if you know the current vehicle registration number
 
 ####################################################################################
+# AVD10.2a - Add vehicle details 10.2a - What is the current vehicle registration number? #
+####################################################################################
+# TODO: Welsh translations to be supplied by content team.
+vehicleRegistrationNumber.title = What is the current vehicle registration number?
+vehicleRegistrationNumber.caption = Ychwanegwch fanylion cerbyd
+vehicleRegistrationNumber.heading = What is the current vehicle registration number?
+vehicleRegistrationNumber.hint = For example, ABC12DE, BC12 DEF or 12-AB-34
+vehicleRegistrationNumber.error.required = Enter the current vehicle registration number
+vehicleRegistrationNumber.error.invalid = Enter the current vehicle registration number in the correct format
+vehicleRegistrationNumber.error.length = The current vehicle registration number must be 12 characters or less
+
+####################################################################################
 # AMV1.0 - Add multiple vehicles 1.0 - How do you want to add VINs                 #
 ####################################################################################
 # TODO: Welsh translations to be supplied by content team.
@@ -1718,6 +1730,7 @@ enterVinNumbers.caption = Add vehicle details
 enterVinNumbers.heading = Enter the {0} vehicle identification numbers
 enterVinNumbers.hint = Separate each VIN with a comma. For example, 1ABCD2E03FG456789, 2A1BC34D5E6789012, ABCDE01F24567890
 enterVinNumbers.error.required = Enter the vehicle identification numbers
+enterVinNumbers.error.duplicate = Enter a unique vehicle identification number for each vehicle
 # F26 cross-notification duplicate check - confirm with UCD
 enterVinNumbers.error.duplicate.crossNotification = One or more of the vehicle identification numbers entered already exists on another vehicle in this notification
 
@@ -1755,6 +1768,67 @@ mileage.error.required.mileage = Enter the mileage
 mileage.error.format = Enter the mileage in the correct format
 mileage.error.length = The mileage must be 6 characters or less
 
+####################################################################################
+# AVD10.4 - Add vehicle details 10.4 - Commodity code                              #
+####################################################################################
+# TODO: Welsh translations to be supplied by content team.
+commodityCode.title = Commodity code
+commodityCode.caption = Ychwanegwch fanylion cerbyd
+commodityCode.heading.1 = Commodity code
+commodityCode.paragraph.1 = You can find it on the vehicle’s import entry document.
+commodityCode.paragraph.2.linkText = Get more help to find the commodity code
+commodityCode.heading.2 = What is the commodity code?
+commodityCode.hint = Must be between 4 and 10 digits, for example 2134 or 8703123456
+commodityCode.error.required = Enter the commodity code
+commodityCode.error.format = Enter the commodity code in the correct format
+commodityCode.error.length = The commodity code must be between 4 and 10 characters
+
+####################################################################################
+# AVD10.1 - Add vehicle details 10.1 - Vehicle identification number               #
+####################################################################################
+# TODO: Welsh translations to be supplied by content team.
+vehicleIdentificationNumber.title = Vehicle identification number
+vehicleIdentificationNumber.caption = Ychwanegwch fanylion cerbyd
+vehicleIdentificationNumber.heading.1 = Vehicle identification number
+vehicleIdentificationNumber.paragraph = The vehicle identification number (VIN) is also known as the chassis or frame number. It can be up to 17 characters long. If it includes:
+vehicleIdentificationNumber.list.1 = O or Q, replace them with 0 (zero)
+vehicleIdentificationNumber.list.2 = I, replace it with 1 (one)
+vehicleIdentificationNumber.heading.2 = What is the vehicle identification number?
+vehicleIdentificationNumber.hint = For example, 1ABCD2E03FG456789
+vehicleIdentificationNumber.error.required = Enter the vehicle identification number
+vehicleIdentificationNumber.error.invalid = Enter the vehicle identification number in the correct format
+vehicleIdentificationNumber.error.length = The vehicle identification number must be 17 characters or less
+vehicleIdentificationNumber.error.duplicate = Enter a different vehicle identification number. You have already used this one for another vehicle in this submission
+
+####################################################################################
+# AVD10.6 - Add vehicle details 10.6 - Left or right hand drive                    #
+####################################################################################
+# TODO: Welsh translations to be supplied by content team.
+leftOrRightHandDrive.title = Is the vehicle left-hand drive or right-hand drive?
+leftOrRightHandDrive.caption = Add vehicle details
+leftOrRightHandDrive.heading = Is the vehicle left-hand drive or right-hand drive?
+leftOrRightHandDrive.hint = Select ‘Right-hand drive’ if the vehicle is a motorcycle or agricultural tractor
+leftOrRightHandDrive.radio.leftHandDrive = Left-hand drive
+leftOrRightHandDrive.radio.rightHandDrive = Right-hand drive
+leftOrRightHandDrive.error.required = Select if the vehicle is left-hand drive or right-hand drive
+
+####################################################################################
+# AVD10.7 - Add vehicle details 10.7 - Total value of options                       #
+####################################################################################
+# TODO: Welsh translations to be supplied by content team.
+totalValueOfOptions.title = Total value of options
+totalValueOfOptions.caption = Ychwanegwch fanylion cerbyd
+totalValueOfOptions.heading.1 = Total value of options
+totalValueOfOptions.paragraph.1 = This is the total value of any optional extras shown on the purchase invoice. For example:
+totalValueOfOptions.bullet.1 = alloy wheels
+totalValueOfOptions.bullet.2 = metallic paint
+totalValueOfOptions.bullet.3 = leather upholstery
+totalValueOfOptions.paragraph.2 = Remove any currency symbol, commas or decimal points, and round down always. If there are no optional extras, enter 0 (zero) as the total value.
+totalValueOfOptions.heading.2 = What is the total value of options for the vehicle?
+totalValueOfOptions.hint = Enter whole numbers only, for example 12000
+totalValueOfOptions.error.required = Enter the total value of options for the vehicle
+totalValueOfOptions.error.length = The total value of options for the vehicle must be 14 characters or less
+totalValueOfOptions.error.invalid = Enter the total value of options for the vehicle in the correct format
 
 #######################################################################
 # AVD10.8 - Add vehicle details 10.5 - Could not claim VAT            #

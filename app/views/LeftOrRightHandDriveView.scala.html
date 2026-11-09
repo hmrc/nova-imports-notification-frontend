@@ -1,0 +1,69 @@
+@*
+ * Copyright 2026 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import models.LeftOrRightHandDrive
+@import viewmodels.LegendSize
+
+@this(
+    layout: templates.Layout,
+    formHelper: FormWithCSRF,
+    govukErrorSummary: GovukErrorSummary,
+    govukInsetText: GovukInsetText,
+    govukRadios: GovukRadios,
+    govukButton: GovukButton
+)
+
+@(form: Form[?], vehicleDetails: Option[InsetText], postAction: Call)(implicit request: Request[?], messages: Messages)
+
+@layout(
+    pageTitle = title(form, messages("leftOrRightHandDrive.title"))
+) {
+
+    @formHelper(action = postAction, Symbol("autoComplete") -> "off", Symbol("class") -> "govuk-!-margin-bottom-8") {
+
+        @if(form.errors.nonEmpty) {
+            @govukErrorSummary(ErrorSummaryViewModel(form))
+        }
+
+        @vehicleDetails.map(inset => govukInsetText(inset.copy(classes = "govuk-!-margin-top-0")))
+
+        <span class="govuk-caption-l">@messages("leftOrRightHandDrive.caption")</span>
+
+        @govukRadios(
+            RadiosViewModel(
+                field  = form("value"),
+                legend = LegendViewModel(messages("leftOrRightHandDrive.heading")).asPageHeading(LegendSize.Large),
+                items  = Seq(
+                    RadioItem(
+                        id      = Some(form("value").id),
+                        value   = Some(LeftOrRightHandDrive.LHD.toString),
+                        content = Text(messages("leftOrRightHandDrive.radio.leftHandDrive"))
+                    ),
+                    RadioItem(
+                        id      = Some(s"${form("value").id}-2"),
+                        value   = Some(LeftOrRightHandDrive.RHD.toString),
+                        content = Text(messages("leftOrRightHandDrive.radio.rightHandDrive"))
+                    )
+                )
+            )
+            .withHint(HintViewModel(Text(messages("leftOrRightHandDrive.hint"))))
+        )
+
+        @govukButton(
+            ButtonViewModel(messages("site.continue"))
+        )
+    }
+}

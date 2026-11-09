@@ -27,7 +27,7 @@ object VehicleDetailsInset {
 
   def apply(answers: UserAnswers, vehicleNumber: VehicleNumber)(implicit messages: Messages): Option[InsetText] =
     details(answers, vehicleNumber).map { values =>
-      InsetTextViewModel(s"""${messages("vehicleDetailsInset.label")} <b>${HtmlFormat.escape(values.mkString(" ")).body}</b>""")
+      InsetTextViewModel(s"""${messages("vehicleDetailsInset.label")} <strong>${HtmlFormat.escape(values.mkString(" ")).body}</strong>""")
     }
 
   def details(answers: UserAnswers, vehicleNumber: VehicleNumber): Option[Seq[String]] =
