@@ -1855,3 +1855,13 @@ totalValueOfOptions.hint = Enter whole numbers only, for example 12000
 totalValueOfOptions.error.required = Enter the total value of options for the vehicle
 totalValueOfOptions.error.length = The total value of options for the vehicle must be 14 characters or less
 totalValueOfOptions.error.invalid = Enter the total value of options for the vehicle in the correct format
+
+#######################################################################
+# AVD10.8 - Add vehicle details - Could not claim VAT            #
+#######################################################################
+# TODO: Welsh translations to be supplied by content team.
+couldNotClaimVat.title = Was the vehicle supplied by a business that could not reclaim VAT?
+couldNotClaimVat.heading.1 = Was the vehicle supplied by a business that could not reclaim VAT?
+couldNotClaimVat.caption = Add vehicle details
+couldNotClaimVat.hint = Select ‘Yes’ if you have evidence from the supplier that they could not reclaim any VAT on the vehicle
+couldNotClaimVat.error.required = Select yes if the vehicle was supplied by a business that could not reclaim VAT

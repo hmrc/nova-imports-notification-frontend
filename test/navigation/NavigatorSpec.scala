@@ -1005,7 +1005,22 @@ class NavigatorSpec extends SpecBase {
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
 
-      "must go from TotalValueOfOptionsPage AVD10.7 to the landing page" in {
+      "must go from TotalValueOfOptionsPage AVD10.7 to the CouldNotClaimVatPage AVD10.8 if supplier is VAT registered" in {
+        val page = TotalValueOfOptionsPage(VehicleNumber(1))
+        val ua   = supplierVehicle.unsafeSet(page, "1500").unsafeSet(IsSupplierVatRegisteredPage(SupplierNumber(1)), true)
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe
+          vehicledetails.routes.CouldNotClaimVatController.onPageLoad(SupplierNumber(1), VehicleNumber(1), NormalMode)
+      }
+
+      "must go from TotalValueOfOptionsPage AVD10.7 to the landing page if supplier is not VAT registered" in {
+        // TODO: Update test to navigate to AVD11.0 when built
+        val page = TotalValueOfOptionsPage(VehicleNumber(1))
+        val ua   = supplierVehicle.unsafeSet(page, "1500").unsafeSet(IsSupplierVatRegisteredPage(SupplierNumber(1)), false)
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from TotalValueOfOptionsPage AVD10.7 to the landing page if supplier is not defined" in {
+        // TODO: Update test to navigate to AVD11.0 when built
         val page = TotalValueOfOptionsPage(VehicleNumber(1))
         val ua   = supplierVehicle.unsafeSet(page, "1500")
         navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController.onPageLoad()
@@ -1014,6 +1029,21 @@ class NavigatorSpec extends SpecBase {
       "must go from TotalValueOfOptionsPage AVD10.7 to JourneyRecovery when there is no answer" in {
         navigator.nextPage(
           TotalValueOfOptionsPage(VehicleNumber(1)),
+          NormalMode,
+          supplierVehicle,
+          NovaUserType.PrivateIndividual
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from CouldNotClaimVatPage AVD10.8 to the landing page" in {
+        val page = CouldNotClaimVatPage(VehicleNumber(1))
+        val ua   = supplierVehicle.unsafeSet(page, true)
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from CouldNotClaimVatPage AVD10.8 to JourneyRecovery when there is no answer" in {
+        navigator.nextPage(
+          CouldNotClaimVatPage(VehicleNumber(1)),
           NormalMode,
           supplierVehicle,
           NovaUserType.PrivateIndividual
@@ -2093,6 +2123,15 @@ class NavigatorSpec extends SpecBase {
       "must go from TotalValueOfOptionsPage AVD10.7 to the landing page" in {
         navigator.nextPage(
           TotalValueOfOptionsPage(VehicleNumber(1)),
+          CheckMode,
+          userAnswers,
+          NovaUserType.PrivateIndividual
+        ) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from CouldNotClaimVatPage AVD10.8 to the landing page" in {
+        navigator.nextPage(
+          CouldNotClaimVatPage(VehicleNumber(1)),
           CheckMode,
           userAnswers,
           NovaUserType.PrivateIndividual

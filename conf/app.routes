@@ -535,6 +535,12 @@ POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/total-value-of-opti
 GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/total-value-of-options/change                                      controllers.vehicledetails.TotalValueOfOptionsController.onPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
 POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/total-value-of-options/change                                      controllers.vehicledetails.TotalValueOfOptionsController.onSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
 
+# AVD10.8 - Could not claim VAT
+GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/could-not-reclaim-vat                                              controllers.vehicledetails.CouldNotClaimVatController.onPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/could-not-reclaim-vat                                              controllers.vehicledetails.CouldNotClaimVatController.onSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
+GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/could-not-reclaim-vat/change                                       controllers.vehicledetails.CouldNotClaimVatController.onPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
+POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/could-not-reclaim-vat/change                                       controllers.vehicledetails.CouldNotClaimVatController.onSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
+
 # AVD10.3 - Date the vehicle arrived in the UK
 GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/date-of-arrival                                                    controllers.vehicledetails.DateOfArrivalController.supplierOnPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
 POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/date-of-arrival                                                    controllers.vehicledetails.DateOfArrivalController.supplierOnSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)

@@ -394,8 +394,21 @@ class Navigator @Inject() () {
         }
     case page: TotalValueOfOptionsPage =>
       (userAnswers, _) =>
+        (userAnswers.get(page), userAnswers.vehicleSupplierNumber(page.vehicleNumber)) match {
+          case (Some(_), Some(supplierNumber)) =>
+            userAnswers.get(IsSupplierVatRegisteredPage(supplierNumber)) match {
+              case Some(true) =>
+                vehicledetails.routes.CouldNotClaimVatController.onPageLoad(supplierNumber, page.vehicleNumber, NormalMode)
+              case _ =>
+                routes.LandingPageController.onPageLoad() // TODO: navigate to AVD11.0 when built
+            }
+
+          case _ => routes.JourneyRecoveryController.onPageLoad()
+        }
+    case page: CouldNotClaimVatPage =>
+      (userAnswers, _) =>
         userAnswers.get(page) match {
-          case Some(_) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.8 or AVD11.0 when built
+          case Some(_) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.9 when built
           case _       => routes.JourneyRecoveryController.onPageLoad()
         }
     case page: AddVehicleTypePage =>
@@ -508,7 +521,7 @@ class Navigator @Inject() () {
     case _: VehicleRegistrationNumberPage =>
       (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.3 when built
     case _: MileagePage =>
-      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.6 when built
+      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to CYA C-AVD3.0 when built
     case _: CommodityCodePage =>
       (_, _) => routes.LandingPageController.onPageLoad()
     case _: LeftOrRightHandDrivePage =>
@@ -517,6 +530,8 @@ class Navigator @Inject() () {
       (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.2 / AVD10.3 when built
     case _: TotalValueOfOptionsPage =>
       (_, _) => routes.LandingPageController.onPageLoad()
+    case _: CouldNotClaimVatPage =>
+      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to CYA C-AVD3.0 when built
     case page: VehicleDatesPage =>
       (userAnswers, _) =>
         if (userAnswers.get(page).exists(_.contains(VehicleDates.NoDates)))
