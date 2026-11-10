@@ -490,6 +490,19 @@ unauthorised.paragraph.2 = Os yw hyn yn anghywir,
 unauthorised.link.text = cysylltwch â chymorth technegol CThEF (yn agor tab newydd).
 unauthorised.returnHome = Dychwelyd i’r hafan
 
+#############################################################
+# ERR5.0 - Error message - Adding multiple vehicles Error   #
+#############################################################
+
+# TODO: Welsh translations to be supplied by content team.
+addingMultipleVehiclesError.title = You can only select ‘One vehicle’
+addingMultipleVehiclesError.caption = Add vehicle details
+addingMultipleVehiclesError.heading = You can only select ‘One vehicle’
+addingMultipleVehiclesError.paragraph = This is because you’ve already added vehicles to this notification. If you need to notify for more than one vehicle, you can either:
+addingMultipleVehiclesError.list.1 = go back and change your answer to ‘One vehicle’
+addingMultipleVehiclesError.list.2.link = review the vehicles in this notification
+addingMultipleVehiclesError.list.3.link = create a new notification
+
 ##########################################################################
 # NTL3.0 - Notification task list for VAT-registered organisation (4/5)  #
 ##########################################################################
@@ -1856,6 +1869,15 @@ totalValueOfOptions.error.required = Enter the total value of options for the ve
 totalValueOfOptions.error.length = The total value of options for the vehicle must be 14 characters or less
 totalValueOfOptions.error.invalid = Enter the total value of options for the vehicle in the correct format
 
+#######################################################################
+# AVD10.8 - Add vehicle details - Could not claim VAT            #
+#######################################################################
+# TODO: Welsh translations to be supplied by content team.
+couldNotClaimVat.title = Was the vehicle supplied by a business that could not reclaim VAT?
+couldNotClaimVat.heading.1 = Was the vehicle supplied by a business that could not reclaim VAT?
+couldNotClaimVat.caption = Add vehicle details
+couldNotClaimVat.hint = Select ‘Yes’ if you have evidence from the supplier that they could not reclaim any VAT on the vehicle
+couldNotClaimVat.error.required = Select yes if the vehicle was supplied by a business that could not reclaim VAT
 ####################################################################################
 # C-AVD3.0 - Confirm additional vehicle details 3.0                                #
 ####################################################################################
