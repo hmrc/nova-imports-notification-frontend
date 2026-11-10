@@ -208,7 +208,7 @@ class NumberOfVehiclesControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must redirect without saving when 'more than one' is selected but another vehicle already has values" in {
+      "must redirect to ERR5.0 without saving when 'more than one' is selected and the session has 2 vehicles" in {
         val repository       = stubSessionRepository
         val existingVehicles = supplierBase.get(AllVehiclesQuery).getOrElse(Map.empty)
         val answers          = supplierBase.unsafeSet(
@@ -223,7 +223,7 @@ class NumberOfVehiclesControllerSpec extends SpecBase with MockitoSugar {
           val result = route(app, request).value
 
           status(result) mustEqual SEE_OTHER
-          redirectLocation(result).value mustEqual controllers.routes.LandingPageController.onPageLoad().url
+          redirectLocation(result).value mustEqual vehicledetails.routes.AddingMultipleVehiclesErrorController.supplierOnPageLoad(s, v).url
           verify(repository, never).set(any())
         }
       }
@@ -298,6 +298,26 @@ class NumberOfVehiclesControllerSpec extends SpecBase with MockitoSugar {
           val captor = ArgumentCaptor.forClass(classOf[UserAnswers])
           verify(repository).set(captor.capture())
           captor.getValue.get(NumberOfVehiclesPage(v)) mustEqual Some(NumberOfVehicles(OneMultiVehicle.One, None))
+        }
+      }
+
+      "must redirect to ERR5.0 without saving when 'more than one' is selected and the session has 2 vehicles" in {
+        val repository       = stubSessionRepository
+        val existingVehicles = importBase.get(AllVehiclesQuery).getOrElse(Map.empty)
+        val answers          = importBase.unsafeSet(
+          AllVehiclesQuery,
+          existingVehicles + ("2" -> Json.obj("importNumber" -> 1, "make" -> "Ford"))
+        )
+        val app = application(Some(answers), repository)
+
+        running(app) {
+          val request =
+            FakeRequest(POST, importRoute).withFormUrlEncodedBody("oneMultiVehicle" -> "more", "numberSameVehicles" -> "5")
+          val result = route(app, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual vehicledetails.routes.AddingMultipleVehiclesErrorController.importOnPageLoad(i, v).url
+          verify(repository, never).set(any())
         }
       }
 

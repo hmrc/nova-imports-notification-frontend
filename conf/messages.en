@@ -106,6 +106,18 @@ pageNotFound.paragraph.3.start = If the web address is correct or you selected a
 pageNotFound.link.text = contact HMRC technical support (opens in new tab)
 pageNotFound.paragraph.3.end = if you need to speak to someone.
 
+#############################################################
+# ERR5.0 - Error message - Adding multiple vehicles Error   #
+#############################################################
+
+addingMultipleVehiclesError.title = You can only select ‘One vehicle’
+addingMultipleVehiclesError.caption = Add vehicle details
+addingMultipleVehiclesError.heading = You can only select ‘One vehicle’
+addingMultipleVehiclesError.paragraph = This is because you’ve already added vehicles to this notification. If you need to notify for more than one vehicle, you can either:
+addingMultipleVehiclesError.list.1 = go back and change your answer to ‘One vehicle’
+addingMultipleVehiclesError.list.2.link = review the vehicles in this notification
+addingMultipleVehiclesError.list.3.link = create a new notification
+
 ######################################################
 # LPs - Landing page common information              #
 ######################################################
@@ -1863,6 +1875,7 @@ mileage.error.required.unit = Select the mileage unit
 mileage.error.required.mileage = Enter the mileage
 mileage.error.format = Enter the mileage in the correct format
 mileage.error.length = The mileage must be 6 characters or less
+
 ####################################################################################
 # AVD10.4 - Add vehicle details 10.4 - Commodity code                              #
 ####################################################################################
