@@ -38,6 +38,9 @@ final case class SpreadsheetMotorcyclesEuVehicle(
   euMemberState: Option[String],
   supplierVatNumber: Option[String],
   knownDateFirstRegistered: Option[Boolean],
+  countryOfFirstRegistration: Option[String],
+  dateOfFirstRegistration: Option[LocalDate],
+  dateMadeAvailable: Option[LocalDate],
   purchaseInvoice: Option[Boolean],
   purchaseInvoiceDate: Option[LocalDate],
   purchaseInvoiceNumber: Option[String],
@@ -53,6 +56,7 @@ final case class SpreadsheetMotorcyclesEuVehicle(
   fuelType: Option[String],
   engineSize: Option[String],
   vin: Option[String],
+  currentRegistrationNumber: Option[String],
   dateArrivedInUk: Option[LocalDate],
   mileage: Option[String],
   mileageUnits: Option[String],
@@ -60,7 +64,8 @@ final case class SpreadsheetMotorcyclesEuVehicle(
   totalValueOfOptions: Option[BigDecimal],
   obtainedFromUnableToReclaimVat: Option[Boolean],
   soldUnderMarginScheme: Option[Boolean],
-  claimingVatRelief: Option[Boolean]
+  claimingVatRelief: Option[Boolean],
+  reasonForClaimingRelief: Option[String]
 )
 
 object SpreadsheetMotorcyclesEuVehicle {

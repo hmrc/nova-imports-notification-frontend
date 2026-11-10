@@ -30,7 +30,9 @@ final case class VehicleAdditionalInformation(
   isSupplierVatReg: Boolean,
   mileage: String,
   mileageUnits: String,
-  areYouClaimingRelief: Boolean
+  areYouClaimingRelief: Boolean,
+  reasonForClaimingRelief: Option[String] = None,
+  currentRegistrationNumber: Option[String] = None
 )
 
 object VehicleAdditionalInformation {
