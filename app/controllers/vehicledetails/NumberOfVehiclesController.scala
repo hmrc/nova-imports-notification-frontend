@@ -70,13 +70,23 @@ class NumberOfVehiclesController @Inject() (
   def supplierOnSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode): Action[AnyContent] =
     actions.authAndGetDataWithUserTypeGuard(supplierGuardPredicate(supplierService, vehicleService, supplierNumber, vehicleNumber)).async {
       implicit request =>
-        handleSubmit(vehicleNumber, routes.NumberOfVehiclesController.supplierOnSubmit(supplierNumber, vehicleNumber, mode), mode)
+        handleSubmit(
+          vehicleNumber,
+          routes.NumberOfVehiclesController.supplierOnSubmit(supplierNumber, vehicleNumber, mode),
+          routes.AddingMultipleVehiclesErrorController.supplierOnPageLoad(supplierNumber, vehicleNumber),
+          mode
+        )
     }
 
   def importOnSubmit(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode): Action[AnyContent] =
     actions.authAndGetDataWithUserTypeGuard(importGuardPredicate(importService, vehicleService, importNumber, vehicleNumber)).async {
       implicit request =>
-        handleSubmit(vehicleNumber, routes.NumberOfVehiclesController.importOnSubmit(importNumber, vehicleNumber, mode), mode)
+        handleSubmit(
+          vehicleNumber,
+          routes.NumberOfVehiclesController.importOnSubmit(importNumber, vehicleNumber, mode),
+          routes.AddingMultipleVehiclesErrorController.importOnPageLoad(importNumber, vehicleNumber),
+          mode
+        )
     }
 
   private def handlePageLoad(vehicleNumber: VehicleNumber, submitCall: Call)(implicit request: DataRequest[AnyContent]): Result =
@@ -88,7 +98,7 @@ class NumberOfVehiclesController @Inject() (
       )
     )
 
-  private def handleSubmit(vehicleNumber: VehicleNumber, submitCall: Call, mode: Mode)(implicit
+  private def handleSubmit(vehicleNumber: VehicleNumber, submitCall: Call, multipleNotAllowedCall: Call, mode: Mode)(implicit
     request: DataRequest[AnyContent]
   ): Future[Result] = {
     val page = NumberOfVehiclesPage(vehicleNumber)
@@ -98,7 +108,7 @@ class NumberOfVehiclesController @Inject() (
         formWithErrors => Future.successful(BadRequest(view(formWithErrors, VehicleDetailsInset(request.userAnswers, vehicleNumber), submitCall))),
         value =>
           if (multipleNotAllowed(value, request.userAnswers))
-            Future.successful(Redirect(controllers.routes.LandingPageController.onPageLoad())) // TODO: navigate to ERR5.0 when built
+            Future.successful(Redirect(multipleNotAllowedCall))
           else
             for {
               updatedAnswers <- Future.fromTry(request.userAnswers.set(page, value))
