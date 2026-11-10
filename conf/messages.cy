@@ -1857,7 +1857,7 @@ totalValueOfOptions.error.length = The total value of options for the vehicle mu
 totalValueOfOptions.error.invalid = Enter the total value of options for the vehicle in the correct format
 
 #######################################################################
-# AVD10.8 - Add vehicle details 10.5 - Could not claim VAT            #
+# AVD10.8 - Add vehicle details - Could not claim VAT            #
 #######################################################################
 # TODO: Welsh translations to be supplied by content team.
 couldNotClaimVat.title = Was the vehicle supplied by a business that could not reclaim VAT?
