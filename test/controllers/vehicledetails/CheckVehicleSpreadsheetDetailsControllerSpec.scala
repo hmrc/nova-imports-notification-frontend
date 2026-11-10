@@ -80,6 +80,9 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
     euMemberState = None,
     supplierVatNumber = None,
     knownDateFirstRegistered = Some(false),
+    countryOfFirstRegistration = Some("DE"),
+    dateOfFirstRegistration = Some(LocalDate.of(2010, 1, 1)),
+    dateMadeAvailable = Some(LocalDate.of(2026, 3, 29)),
     purchaseInvoice = Some(true),
     purchaseInvoiceDate = Some(LocalDate.of(2026, 3, 30)),
     purchaseInvoiceNumber = Some("1"),
@@ -91,6 +94,7 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
     trim = Some("Trim"),
     bodyType = Some("Body type"),
     vin = Some("123"),
+    currentRegistrationNumber = Some("TEST 53R"),
     dateArrivedInUk = Some(LocalDate.of(2026, 3, 30)),
     mileage = Some("100000"),
     mileageUnits = Some("KM"),
@@ -98,7 +102,8 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
     totalValueOfOptions = Some(BigDecimal("10000")),
     obtainedFromUnableToReclaimVat = Some(false),
     soldUnderMarginScheme = Some(false),
-    claimingVatRelief = Some(false)
+    claimingVatRelief = Some(false),
+    reasonForClaimingRelief = Some("MODIFIED_FOR_DISABLED_PASSENGER")
   )
 
   private val fullNonEuVehicle = SpreadsheetNonEuVehicle(
@@ -144,6 +149,9 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
     euMemberState = None,
     supplierVatNumber = None,
     knownDateFirstRegistered = Some(false),
+    countryOfFirstRegistration = Some("DE"),
+    dateOfFirstRegistration = Some(LocalDate.of(2000, 1, 1)),
+    dateMadeAvailable = Some(LocalDate.of(2026, 11, 8)),
     purchaseInvoice = Some(true),
     purchaseInvoiceDate = Some(LocalDate.of(2026, 3, 30)),
     purchaseInvoiceNumber = Some("1"),
@@ -154,6 +162,7 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
     versionDerivative = Some("Version (derivative)"),
     brakeHorsepower = Some("154"),
     vin = Some("123"),
+    currentRegistrationNumber = Some("TEST 53R"),
     dateArrivedInUk = Some(LocalDate.of(2026, 3, 30)),
     mileage = Some("100000"),
     mileageUnits = Some("KM"),
@@ -161,7 +170,8 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
     totalValueOfOptions = Some(BigDecimal("10000")),
     obtainedFromUnableToReclaimVat = Some(false),
     soldUnderMarginScheme = Some(false),
-    claimingVatRelief = Some(false)
+    claimingVatRelief = Some(false),
+    reasonForClaimingRelief = Some("MODIFIED_FOR_DISABLED_PASSENGER")
   )
 
   private val fullAgriculturalTractorNonEuVehicle = SpreadsheetAgriculturalTractorNonEuVehicle(
@@ -326,6 +336,9 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
     euMemberState = None,
     supplierVatNumber = None,
     knownDateFirstRegistered = Some(false),
+    countryOfFirstRegistration = Some("DE"),
+    dateOfFirstRegistration = Some(LocalDate.of(2010, 1, 1)),
+    dateMadeAvailable = Some(LocalDate.of(2026, 3, 29)),
     purchaseInvoice = Some(true),
     purchaseInvoiceDate = Some(LocalDate.of(2026, 3, 30)),
     purchaseInvoiceNumber = Some("1"),
@@ -338,6 +351,7 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
     makeOfBaseVehicle = Some("Make of base vehicle"),
     derivative = Some("Derivative"),
     vin = Some("123"),
+    currentRegistrationNumber = Some("TEST 53R"),
     dateArrivedInUk = Some(LocalDate.of(2026, 3, 30)),
     mileage = Some("100000"),
     mileageUnits = Some("KM"),
@@ -345,7 +359,8 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
     totalValueOfOptions = Some(BigDecimal("10000")),
     obtainedFromUnableToReclaimVat = Some(false),
     soldUnderMarginScheme = Some(false),
-    claimingVatRelief = Some(false)
+    claimingVatRelief = Some(false),
+    reasonForClaimingRelief = Some("MODIFIED_FOR_DISABLED_PASSENGER")
   )
 
   private val fullMotorCaravansNonEuVehicle = SpreadsheetMotorCaravansNonEuVehicle(
@@ -432,6 +447,9 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
     euMemberState = None,
     supplierVatNumber = None,
     knownDateFirstRegistered = Some(false),
+    countryOfFirstRegistration = Some("DE"),
+    dateOfFirstRegistration = Some(LocalDate.of(2010, 1, 1)),
+    dateMadeAvailable = Some(LocalDate.of(2026, 3, 29)),
     purchaseInvoice = Some(true),
     purchaseInvoiceDate = Some(LocalDate.of(2026, 3, 30)),
     purchaseInvoiceNumber = Some("1"),
@@ -442,6 +460,7 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
     heavyCommercialVehicleType = Some("Heavy commercial vehicle type"),
     cabType = Some("Cab type"),
     vin = Some("123"),
+    currentRegistrationNumber = Some("TEST 53R"),
     dateArrivedInUk = Some(LocalDate.of(2026, 3, 30)),
     mileage = Some("100000"),
     mileageUnits = Some("KM"),
@@ -449,7 +468,8 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
     totalValueOfOptions = Some(BigDecimal("10000")),
     obtainedFromUnableToReclaimVat = Some(false),
     soldUnderMarginScheme = Some(false),
-    claimingVatRelief = Some(false)
+    claimingVatRelief = Some(false),
+    reasonForClaimingRelief = Some("MODIFIED_FOR_DISABLED_PASSENGER")
   )
 
   private val fullHeavyCommercialNonEuVehicle = SpreadsheetHeavyCommercialNonEuVehicle(
@@ -534,6 +554,9 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
     euMemberState = None,
     supplierVatNumber = None,
     knownDateFirstRegistered = Some(false),
+    countryOfFirstRegistration = Some("DE"),
+    dateOfFirstRegistration = Some(LocalDate.of(2010, 1, 1)),
+    dateMadeAvailable = Some(LocalDate.of(2026, 3, 29)),
     purchaseInvoice = Some(true),
     purchaseInvoiceDate = Some(LocalDate.of(2026, 3, 30)),
     purchaseInvoiceNumber = Some("1"),
@@ -549,6 +572,7 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
     fuelType = Some("Fuel type"),
     engineSize = Some("125"),
     vin = Some("123"),
+    currentRegistrationNumber = Some("TEST 53R"),
     dateArrivedInUk = Some(LocalDate.of(2026, 3, 30)),
     mileage = Some("100000"),
     mileageUnits = Some("KM"),
@@ -556,7 +580,8 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
     totalValueOfOptions = Some(BigDecimal("10000")),
     obtainedFromUnableToReclaimVat = Some(false),
     soldUnderMarginScheme = Some(false),
-    claimingVatRelief = Some(false)
+    claimingVatRelief = Some(false),
+    reasonForClaimingRelief = Some("MODIFIED_FOR_DISABLED_PASSENGER")
   )
 
   private val fullMotorcyclesNonEuVehicle = SpreadsheetMotorcyclesNonEuVehicle(
@@ -646,6 +671,9 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
     euMemberState = None,
     supplierVatNumber = None,
     knownDateFirstRegistered = Some(false),
+    countryOfFirstRegistration = Some("DE"),
+    dateOfFirstRegistration = Some(LocalDate.of(2010, 1, 1)),
+    dateMadeAvailable = Some(LocalDate.of(2026, 3, 29)),
     purchaseInvoice = Some(true),
     purchaseInvoiceDate = Some(LocalDate.of(2026, 3, 30)),
     purchaseInvoiceNumber = Some("1"),
@@ -655,6 +683,7 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
     seriesModel = Some("Series (model)"),
     versionDerivative = Some("Version (derivative)"),
     vin = Some("123"),
+    currentRegistrationNumber = Some("TEST 53R"),
     dateArrivedInUk = Some(LocalDate.of(2026, 3, 30)),
     mileage = Some("100000"),
     mileageUnits = Some("KM"),
@@ -662,7 +691,8 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
     totalValueOfOptions = Some(BigDecimal("10000")),
     obtainedFromUnableToReclaimVat = Some(false),
     soldUnderMarginScheme = Some(false),
-    claimingVatRelief = Some(false)
+    claimingVatRelief = Some(false),
+    reasonForClaimingRelief = Some("MODIFIED_FOR_DISABLED_PASSENGER")
   )
 
   private val fullConstructionVehiclesNonEuVehicle = SpreadsheetConstructionVehiclesNonEuVehicle(

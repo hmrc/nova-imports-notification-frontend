@@ -509,7 +509,10 @@ object CheckVehicleSpreadsheetDetailsController {
           currencyUsed = vehicle.currency,
           purchaseInvoiceNumber = vehicle.purchaseInvoiceNumber,
           purchaseInvoiceDate = vehicle.purchaseInvoiceDate.map(formPDateFormat.format),
-          pricePaidForVehicle = vehicle.pricePaid.map(_.toString)
+          pricePaidForVehicle = vehicle.pricePaid.map(_.toString),
+          dateMadeAvailableYou = vehicle.dateMadeAvailable.map(formPDateFormat.format),
+          dateOfFirstRegistration = vehicle.dateOfFirstRegistration.map(formPDateFormat.format),
+          countryOfFirstRegistration = vehicle.countryOfFirstRegistration
         )
       )
       .as[JsObject]
@@ -542,7 +545,9 @@ object CheckVehicleSpreadsheetDetailsController {
           isSupplierVatReg = vehicle.supplierVatRegistered.getOrElse(false),
           mileage = vehicle.mileage.getOrElse(""),
           mileageUnits = vehicle.mileageUnits.getOrElse(""),
-          areYouClaimingRelief = vehicle.claimingVatRelief.getOrElse(false)
+          areYouClaimingRelief = vehicle.claimingVatRelief.getOrElse(false),
+          reasonForClaimingRelief = vehicle.reasonForClaimingRelief,
+          currentRegistrationNumber = vehicle.currentRegistrationNumber
         )
       )
       .as[JsObject]
@@ -632,7 +637,10 @@ object CheckVehicleSpreadsheetDetailsController {
           currencyUsed = vehicle.currency,
           purchaseInvoiceNumber = vehicle.purchaseInvoiceNumber,
           purchaseInvoiceDate = vehicle.purchaseInvoiceDate.map(formPDateFormat.format),
-          pricePaidForVehicle = vehicle.pricePaid.map(_.toString)
+          pricePaidForVehicle = vehicle.pricePaid.map(_.toString),
+          dateMadeAvailableYou = vehicle.dateMadeAvailable.map(formPDateFormat.format),
+          dateOfFirstRegistration = vehicle.dateOfFirstRegistration.map(formPDateFormat.format),
+          countryOfFirstRegistration = vehicle.countryOfFirstRegistration
         )
       )
       .as[JsObject]
@@ -663,7 +671,9 @@ object CheckVehicleSpreadsheetDetailsController {
           isSupplierVatReg = vehicle.supplierVatRegistered.getOrElse(false),
           mileage = vehicle.mileage.getOrElse(""),
           mileageUnits = vehicle.mileageUnits.getOrElse(""),
-          areYouClaimingRelief = vehicle.claimingVatRelief.getOrElse(false)
+          areYouClaimingRelief = vehicle.claimingVatRelief.getOrElse(false),
+          reasonForClaimingRelief = vehicle.reasonForClaimingRelief,
+          currentRegistrationNumber = vehicle.currentRegistrationNumber
         )
       )
       .as[JsObject]
@@ -753,7 +763,10 @@ object CheckVehicleSpreadsheetDetailsController {
           currencyUsed = vehicle.currency,
           purchaseInvoiceNumber = vehicle.purchaseInvoiceNumber,
           purchaseInvoiceDate = vehicle.purchaseInvoiceDate.map(formPDateFormat.format),
-          pricePaidForVehicle = vehicle.pricePaid.map(_.toString)
+          pricePaidForVehicle = vehicle.pricePaid.map(_.toString),
+          dateMadeAvailableYou = vehicle.dateMadeAvailable.map(formPDateFormat.format),
+          dateOfFirstRegistration = vehicle.dateOfFirstRegistration.map(formPDateFormat.format),
+          countryOfFirstRegistration = vehicle.countryOfFirstRegistration
         )
       )
       .as[JsObject]
@@ -786,7 +799,9 @@ object CheckVehicleSpreadsheetDetailsController {
           isSupplierVatReg = vehicle.supplierVatRegistered.getOrElse(false),
           mileage = vehicle.mileage.getOrElse(""),
           mileageUnits = vehicle.mileageUnits.getOrElse(""),
-          areYouClaimingRelief = vehicle.claimingVatRelief.getOrElse(false)
+          areYouClaimingRelief = vehicle.claimingVatRelief.getOrElse(false),
+          reasonForClaimingRelief = vehicle.reasonForClaimingRelief,
+          currentRegistrationNumber = vehicle.currentRegistrationNumber
         )
       )
       .as[JsObject]
@@ -878,7 +893,10 @@ object CheckVehicleSpreadsheetDetailsController {
           currencyUsed = vehicle.currency,
           purchaseInvoiceNumber = vehicle.purchaseInvoiceNumber,
           purchaseInvoiceDate = vehicle.purchaseInvoiceDate.map(formPDateFormat.format),
-          pricePaidForVehicle = vehicle.pricePaid.map(_.toString)
+          pricePaidForVehicle = vehicle.pricePaid.map(_.toString),
+          dateMadeAvailableYou = vehicle.dateMadeAvailable.map(formPDateFormat.format),
+          dateOfFirstRegistration = vehicle.dateOfFirstRegistration.map(formPDateFormat.format),
+          countryOfFirstRegistration = vehicle.countryOfFirstRegistration
         )
       )
       .as[JsObject]
@@ -909,7 +927,9 @@ object CheckVehicleSpreadsheetDetailsController {
           isSupplierVatReg = vehicle.supplierVatRegistered.getOrElse(false),
           mileage = vehicle.mileage.getOrElse(""),
           mileageUnits = vehicle.mileageUnits.getOrElse(""),
-          areYouClaimingRelief = vehicle.claimingVatRelief.getOrElse(false)
+          areYouClaimingRelief = vehicle.claimingVatRelief.getOrElse(false),
+          reasonForClaimingRelief = vehicle.reasonForClaimingRelief,
+          currentRegistrationNumber = vehicle.currentRegistrationNumber
         )
       )
       .as[JsObject]
@@ -999,7 +1019,10 @@ object CheckVehicleSpreadsheetDetailsController {
           currencyUsed = vehicle.currency,
           purchaseInvoiceNumber = vehicle.purchaseInvoiceNumber,
           purchaseInvoiceDate = vehicle.purchaseInvoiceDate.map(formPDateFormat.format),
-          pricePaidForVehicle = vehicle.pricePaid.map(_.toString)
+          pricePaidForVehicle = vehicle.pricePaid.map(_.toString),
+          dateMadeAvailableYou = vehicle.dateMadeAvailable.map(formPDateFormat.format),
+          dateOfFirstRegistration = vehicle.dateOfFirstRegistration.map(formPDateFormat.format),
+          countryOfFirstRegistration = vehicle.countryOfFirstRegistration
         )
       )
       .as[JsObject]
@@ -1035,7 +1058,9 @@ object CheckVehicleSpreadsheetDetailsController {
           isSupplierVatReg = vehicle.supplierVatRegistered.getOrElse(false),
           mileage = vehicle.mileage.getOrElse(""),
           mileageUnits = vehicle.mileageUnits.getOrElse(""),
-          areYouClaimingRelief = vehicle.claimingVatRelief.getOrElse(false)
+          areYouClaimingRelief = vehicle.claimingVatRelief.getOrElse(false),
+          reasonForClaimingRelief = vehicle.reasonForClaimingRelief,
+          currentRegistrationNumber = vehicle.currentRegistrationNumber
         )
       )
       .as[JsObject]
@@ -1130,7 +1155,10 @@ object CheckVehicleSpreadsheetDetailsController {
           currencyUsed = vehicle.currency,
           purchaseInvoiceNumber = vehicle.purchaseInvoiceNumber,
           purchaseInvoiceDate = vehicle.purchaseInvoiceDate.map(formPDateFormat.format),
-          pricePaidForVehicle = vehicle.pricePaid.map(_.toString)
+          pricePaidForVehicle = vehicle.pricePaid.map(_.toString),
+          dateMadeAvailableYou = vehicle.dateMadeAvailable.map(formPDateFormat.format),
+          dateOfFirstRegistration = vehicle.dateOfFirstRegistration.map(formPDateFormat.format),
+          countryOfFirstRegistration = vehicle.countryOfFirstRegistration
         )
       )
       .as[JsObject]
@@ -1160,7 +1188,9 @@ object CheckVehicleSpreadsheetDetailsController {
           isSupplierVatReg = vehicle.supplierVatRegistered.getOrElse(false),
           mileage = vehicle.mileage.getOrElse(""),
           mileageUnits = vehicle.mileageUnits.getOrElse(""),
-          areYouClaimingRelief = vehicle.claimingVatRelief.getOrElse(false)
+          areYouClaimingRelief = vehicle.claimingVatRelief.getOrElse(false),
+          reasonForClaimingRelief = vehicle.reasonForClaimingRelief,
+          currentRegistrationNumber = vehicle.currentRegistrationNumber
         )
       )
       .as[JsObject]
