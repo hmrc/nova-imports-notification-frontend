@@ -521,7 +521,7 @@ class Navigator @Inject() () {
     case _: VehicleRegistrationNumberPage =>
       (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.3 when built
     case _: MileagePage =>
-      (_, _) => routes.LandingPageController.onPageLoad()
+      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to CYA C-AVD3.0 when built
     case _: CommodityCodePage =>
       (_, _) => routes.LandingPageController.onPageLoad()
     case _: LeftOrRightHandDrivePage =>
@@ -531,7 +531,7 @@ class Navigator @Inject() () {
     case _: TotalValueOfOptionsPage =>
       (_, _) => routes.LandingPageController.onPageLoad()
     case _: CouldNotClaimVatPage =>
-      (_, _) => routes.LandingPageController.onPageLoad()
+      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to CYA C-AVD3.0 when built
     case page: VehicleDatesPage =>
       (userAnswers, _) =>
         if (userAnswers.get(page).exists(_.contains(VehicleDates.NoDates)))
