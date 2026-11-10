@@ -1026,6 +1026,21 @@ class NavigatorSpec extends SpecBase {
         navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController.onPageLoad()
       }
 
+      "must go from VatMarginSchemePage AVD10.9 to the landing page" in {
+        val page = VatMarginSchemePage(VehicleNumber(1))
+        val ua   = supplierVehicle.unsafeSet(page, true)
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from VatMarginSchemePage AVD10.9 to JourneyRecovery when there is no answer" in {
+        navigator.nextPage(
+          VatMarginSchemePage(VehicleNumber(1)),
+          NormalMode,
+          supplierVehicle,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
       "must go from TotalValueOfOptionsPage AVD10.7 to JourneyRecovery when there is no answer" in {
         navigator.nextPage(
           TotalValueOfOptionsPage(VehicleNumber(1)),
@@ -1035,10 +1050,11 @@ class NavigatorSpec extends SpecBase {
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
 
-      "must go from CouldNotClaimVatPage AVD10.8 to the landing page" in {
+      "must go from CouldNotClaimVatPage AVD10.8 to VatMarginSchemePage AVD10.9 when the vehicle belongs to a supplier" in {
         val page = CouldNotClaimVatPage(VehicleNumber(1))
         val ua   = supplierVehicle.unsafeSet(page, true)
-        navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController.onPageLoad()
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.PrivateIndividual) mustBe
+          vehicledetails.routes.VatMarginSchemeController.onPageLoad(SupplierNumber(1), VehicleNumber(1), NormalMode)
       }
 
       "must go from CouldNotClaimVatPage AVD10.8 to JourneyRecovery when there is no answer" in {
@@ -2141,6 +2157,15 @@ class NavigatorSpec extends SpecBase {
       "must go from DateOfArrivalPage to the landing page" in {
         navigator.nextPage(DateOfArrivalPage(VehicleNumber(1)), CheckMode, supplierVehicle, NovaUserType.PrivateIndividual) mustBe
           routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from VatMarginSchemePage AVD10.9 to the landing page" in {
+        navigator.nextPage(
+          VatMarginSchemePage(VehicleNumber(1)),
+          CheckMode,
+          userAnswers,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.LandingPageController.onPageLoad()
       }
     }
   }
