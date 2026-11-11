@@ -407,8 +407,15 @@ class Navigator @Inject() () {
         }
     case page: CouldNotClaimVatPage =>
       (userAnswers, _) =>
+        (userAnswers.get(page), userAnswers.vehicleSupplierNumber(page.vehicleNumber)) match {
+          case (Some(_), Some(supplierNumber)) =>
+            vehicledetails.routes.VatMarginSchemeController.onPageLoad(supplierNumber, page.vehicleNumber, NormalMode)
+          case _ => routes.JourneyRecoveryController.onPageLoad()
+        }
+    case page: VatMarginSchemePage =>
+      (userAnswers, _) =>
         userAnswers.get(page) match {
-          case Some(_) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.9 when built
+          case Some(_) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD11.0 when built
           case _       => routes.JourneyRecoveryController.onPageLoad()
         }
     case page: AddVehicleTypePage =>
@@ -538,6 +545,8 @@ class Navigator @Inject() () {
       (userAnswers, _) => confirmAdditionalVehicleDetailsRoute(userAnswers, page.vehicleNumber)
     case page: VehicleIdentificationNumberPage =>
       (userAnswers, _) => confirmAdditionalVehicleDetailsRoute(userAnswers, page.vehicleNumber)
+    case _: VatMarginSchemePage =>
+      (_, _) => routes.LandingPageController.onPageLoad()
     case page: VehicleDatesPage =>
       (userAnswers, _) =>
         if (userAnswers.get(page).exists(_.contains(VehicleDates.NoDates)))

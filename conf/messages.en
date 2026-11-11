@@ -1971,6 +1971,17 @@ dateOfArrival.error.afterFirstRegistration = The date the vehicle arrived in the
 dateOfArrival.error.sameAsOrAfterFirstRegistration = The date the vehicle arrived in the UK must be the same as or after the date the vehicle was first registered
 
 ####################################################################################
+# AVD10.9 - VAT margin scheme                                                     #
+####################################################################################
+vatMarginScheme.title = VAT margin scheme
+vatMarginScheme.caption = Add vehicle details
+vatMarginScheme.heading.1 = VAT margin scheme
+vatMarginScheme.paragraph.1 = If the vehicle was sold to you under the VAT margin scheme, you’ll find it on the purchase invoice. Find out more about the
+vatMarginScheme.link.text = VAT margin scheme (opens in a new tab).
+vatMarginScheme.heading.2 = Was the vehicle sold to you under the VAT margin scheme?
+vatMarginScheme.error.required = Select yes if the vehicle was sold to you under the VAT margin scheme
+
+####################################################################################
 # C-AVD3.0 - Confirm additional vehicle details 3.0                                #
 ####################################################################################
 confirmAdditionalVehicleDetails.title = Check the additional vehicle details before you continue

@@ -1878,6 +1878,19 @@ couldNotClaimVat.heading.1 = Was the vehicle supplied by a business that could n
 couldNotClaimVat.caption = Add vehicle details
 couldNotClaimVat.hint = Select ‘Yes’ if you have evidence from the supplier that they could not reclaim any VAT on the vehicle
 couldNotClaimVat.error.required = Select yes if the vehicle was supplied by a business that could not reclaim VAT
+
+####################################################################################
+# AVD10.9 - VAT margin scheme                                                     #
+####################################################################################
+# TODO: Welsh translations to be supplied by content team.
+vatMarginScheme.title = VAT margin scheme
+vatMarginScheme.caption = Ychwanegwch fanylion cerbyd
+vatMarginScheme.heading.1 = VAT margin scheme
+vatMarginScheme.paragraph.1 = If the vehicle was sold to you under the VAT margin scheme, you’ll find it on the purchase invoice. Find out more about the
+vatMarginScheme.link.text = VAT margin scheme (opens in a new tab).
+vatMarginScheme.heading.2 = Was the vehicle sold to you under the VAT margin scheme?
+vatMarginScheme.error.required = Select yes if the vehicle was sold to you under the VAT margin scheme
+
 ####################################################################################
 # C-AVD3.0 - Confirm additional vehicle details 3.0                                #
 ####################################################################################
