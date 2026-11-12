@@ -41,6 +41,7 @@ import queries.{AllImportsQuery, AllSuppliersQuery, AllVehiclesQuery}
 import repositories.SessionRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
+import java.time.LocalDate
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters.*
 
@@ -88,6 +89,20 @@ class ConfirmAdditionalVehicleDetailsControllerSpec extends SpecBase with Mockit
     .unsafeSet(MileagePage(v), Mileage(MileageUnit.KM, "1200"))
     .unsafeSet(TotalAmountPaidPage(v), "15000")
     .unsafeSet(PaymentCurrencyPage(v), "EUR")
+
+  private val supplierAllAnswers: UserAnswers = supplierOneVehicle
+    .unsafeSet(VehicleRegistrationNumberKnownPage(v), true)
+    .unsafeSet(VehicleRegistrationNumberPage(v), "AB12 CDE")
+    .unsafeSet(DateOfArrivalPage(v), LocalDate.of(2026, 3, 27))
+    .unsafeSet(LeftOrRightHandDrivePage(v), LeftOrRightHandDrive.LHD)
+    .unsafeSet(TotalValueOfOptionsPage(v), "1200")
+    .unsafeSet(CouldNotClaimVatPage(v), true)
+    .unsafeSet(VatMarginSchemePage(v), false)
+
+  private val importAllAnswers: UserAnswers = importOneVehicle
+    .unsafeSet(DateOfArrivalPage(v), LocalDate.of(2026, 3, 27))
+    .unsafeSet(CommodityCodePage(v), "8703123456")
+    .unsafeSet(LeftOrRightHandDrivePage(v), LeftOrRightHandDrive.RHD)
 
   private def draftWith(sections: (String, JsObject)*): DraftNotification =
     DraftNotification(
@@ -208,6 +223,54 @@ class ConfirmAdditionalVehicleDetailsControllerSpec extends SpecBase with Mockit
         changeLinks(doc) mustBe empty
       }
 
+      "must show every answered additional vehicle detail in order with supplier change links" in {
+        val doc = page(application(Some(supplierAllAnswers)), supplierRoute)
+
+        rows(doc) mustEqual Seq(
+          "How many vehicles is this notification for?"                        -> "One vehicle",
+          "Vehicle identification number"                                      -> "1ABCD2E03FG456789",
+          "Do you know the current vehicle registration number?"               -> "Yes",
+          "Current vehicle registration number"                                -> "AB12 CDE",
+          "When did the vehicle arrive in the UK?"                             -> "27/03/2026",
+          "Mileage"                                                            -> "25000 Miles (mi)",
+          "Is the vehicle left-hand drive or right-hand drive?"                -> "Left-hand drive",
+          "Total value of options"                                             -> "1200",
+          "Was the vehicle supplied by a business that could not reclaim VAT?" -> "Yes",
+          "Was the vehicle sold to you under the VAT margin scheme?"           -> "No"
+        )
+
+        changeLinks(doc).drop(3) mustEqual Seq(
+          "current vehicle identification number" -> vehicledetails.routes.VehicleRegistrationNumberController.onPageLoad(s, v, CheckMode).url,
+          "when the vehicle arrived in the UK"    -> vehicledetails.routes.DateOfArrivalController.supplierOnPageLoad(s, v, CheckMode).url,
+          "mileage"                               -> vehicledetails.routes.MileageController.supplierOnPageLoad(s, v, CheckMode).url,
+          "whether the vehicle is left-hand drive or right-hand drive" ->
+            vehicledetails.routes.LeftOrRightHandDriveController.supplierOnPageLoad(s, v, CheckMode).url,
+          "total value of options for the vehicle" -> vehicledetails.routes.TotalValueOfOptionsController.onPageLoad(s, v, CheckMode).url,
+          "whether the vehicle was supplied by a business that could not reclaim VAT" ->
+            vehicledetails.routes.CouldNotClaimVatController.onPageLoad(s, v, CheckMode).url,
+          "whether the vehicle was sold to you under the VAT margin scheme" ->
+            vehicledetails.routes.VatMarginSchemeController.onPageLoad(s, v, CheckMode).url
+        )
+      }
+
+      "must not show the current registration number when the answer to AVD10.2 is No" in {
+        val answers = supplierAllAnswers.unsafeSet(VehicleRegistrationNumberKnownPage(v), false)
+        rows(page(application(Some(answers)), supplierRoute)).map(_._1) must not contain "Current vehicle registration number"
+      }
+
+      "must not show the VAT reclaim or margin scheme rows when the supplier is not VAT registered" in {
+        val answers = supplierAllAnswers.unsafeSet(IsSupplierVatRegisteredPage(s), false)
+        rows(page(application(Some(answers)), supplierRoute)).map(_._1) must contain noneOf (
+          "Was the vehicle supplied by a business that could not reclaim VAT?",
+          "Was the vehicle sold to you under the VAT margin scheme?"
+        )
+      }
+
+      "must not show the total value of options when the vehicle was not brought from the EU" in {
+        val answers = supplierAllAnswers.unsafeSet(VehicleFromEuPage, false)
+        rows(page(application(Some(answers)), supplierRoute)).map(_._1) must not contain "Total value of options"
+      }
+
       "must not show the total amount paid or currency when the vehicle was brought from the EU" in {
         val answers = supplierOneVehicle.unsafeSet(TotalAmountPaidPage(v), "15000").unsafeSet(PaymentCurrencyPage(v), "EUR")
         rows(page(application(Some(answers)), supplierRoute)).map(_._1) must contain noneOf ("Total amount paid", "Currency")
@@ -226,6 +289,7 @@ class ConfirmAdditionalVehicleDetailsControllerSpec extends SpecBase with Mockit
         rows(doc) mustEqual Seq(
           "How many vehicles is this notification for?" -> "One vehicle",
           "Vehicle identification number"               -> "1ABCD2E03FG456789",
+          "When did the vehicle arrive in the UK?"      -> "Not provided",
           "Mileage"                                     -> "1200 Kilometres (km)",
           "Total amount paid"                           -> "15000",
           "Currency"                                    -> euro
@@ -233,10 +297,37 @@ class ConfirmAdditionalVehicleDetailsControllerSpec extends SpecBase with Mockit
         changeLinks(doc).map(_._2) mustEqual Seq(
           vehicledetails.routes.NumberOfVehiclesController.importOnPageLoad(i, v, CheckMode).url,
           vehicledetails.routes.VehicleIdentificationNumberController.importOnPageLoad(i, v, CheckMode).url,
+          vehicledetails.routes.DateOfArrivalController.importOnPageLoad(i, v, CheckMode).url,
           vehicledetails.routes.MileageController.importOnPageLoad(i, v, CheckMode).url,
           vehicledetails.routes.TotalAmountPaidController.onPageLoadImport(i, v, CheckMode).url,
           vehicledetails.routes.PaymentCurrencyController.importOnPageLoad(i, v, CheckMode).url
         )
+      }
+
+      "must show the date of arrival, commodity code and drive side with import change links" in {
+        val app  = application(Some(importAllAnswers))
+        val doc  = page(app, importRoute)
+        val euro = app.injector.instanceOf[FrontendAppConfig].currencies.find(_.code == "EUR").value.displayName
+
+        rows(doc) mustEqual Seq(
+          "How many vehicles is this notification for?"         -> "One vehicle",
+          "Vehicle identification number"                       -> "1ABCD2E03FG456789",
+          "When did the vehicle arrive in the UK?"              -> "27/03/2026",
+          "Commodity code"                                      -> "8703123456",
+          "Mileage"                                             -> "1200 Kilometres (km)",
+          "Is the vehicle left-hand drive or right-hand drive?" -> "Right-hand drive",
+          "Total amount paid"                                   -> "15000",
+          "Currency"                                            -> euro
+        )
+
+        changeLinks(doc).map(_._2).slice(2, 5) mustEqual Seq(
+          vehicledetails.routes.DateOfArrivalController.importOnPageLoad(i, v, CheckMode).url,
+          vehicledetails.routes.CommodityCodeController.onPageLoad(i, v, CheckMode).url,
+          vehicledetails.routes.MileageController.importOnPageLoad(i, v, CheckMode).url
+        )
+        changeLinks(doc)(5) mustEqual
+          ("whether the vehicle is left-hand drive or right-hand drive" ->
+            vehicledetails.routes.LeftOrRightHandDriveController.importOnPageLoad(i, v, CheckMode).url)
       }
     }
 
@@ -295,6 +386,55 @@ class ConfirmAdditionalVehicleDetailsControllerSpec extends SpecBase with Mockit
             )
           )
           verify(repository).setPage(any(), eqTo(DraftVersionIdPage), eqTo(4L))(any())
+        }
+      }
+
+      "must send every additional vehicle detail answered for a VAT registered supplier" in {
+        val connector = connectorReturning(draftWith(), 4L)
+        val app       = application(Some(supplierAllAnswers), connector, stubSessionRepository(supplierAllAnswers))
+
+        running(app) {
+          route(app, FakeRequest(POST, supplierSubmitRoute)).value.futureValue
+
+          capturedBodies(connector, 1) mustEqual Seq(
+            supplierSectionId -> Json.obj(
+              "isAmendment"                  -> false,
+              "oneOrMultipleVehicls"         -> "One",
+              "vehicleIdNumber"              -> "1ABCD2E03FG456789",
+              "confirmVehicleIdNumber"       -> "1ABCD2E03FG456789",
+              "currentRegistrationNumber"    -> "AB12 CDE",
+              "dateArrivedInUk"              -> "27/03/2026",
+              "mileage"                      -> "25000",
+              "mileageUnits"                 -> "MILES",
+              "leftOrRightHand"              -> "LHD",
+              "totalValueOfOptions"          -> "1200",
+              "isSupplierVatRegistered"      -> true,
+              "businessUnableToReclaimVat"   -> true,
+              "vehicleSoldUnderMarginScheme" -> false,
+              "versionId"                    -> 3L
+            )
+          )
+        }
+      }
+
+      "must drop a stale registration number, VAT reclaim and margin scheme answer when they no longer apply" in {
+        val answers = supplierAllAnswers
+          .unsafeSet(VehicleRegistrationNumberKnownPage(v), false)
+          .unsafeSet(IsSupplierVatRegisteredPage(s), false)
+        val existing = Json.obj(
+          "currentRegistrationNumber"    -> "OLD 123",
+          "businessUnableToReclaimVat"   -> true,
+          "vehicleSoldUnderMarginScheme" -> true
+        )
+        val connector = connectorReturning(draftWith(supplierSectionId -> existing), 4L)
+        val app       = application(Some(answers), connector, stubSessionRepository(answers))
+
+        running(app) {
+          route(app, FakeRequest(POST, supplierSubmitRoute)).value.futureValue
+
+          val body = capturedBodies(connector, 1).head._2
+          body.keys must contain noneOf ("currentRegistrationNumber", "businessUnableToReclaimVat", "vehicleSoldUnderMarginScheme")
+          (body \ "isSupplierVatRegistered").as[Boolean] mustBe false
         }
       }
 
@@ -405,6 +545,21 @@ class ConfirmAdditionalVehicleDetailsControllerSpec extends SpecBase with Mockit
     }
 
     "importOnSubmit" - {
+
+      "must send the date of arrival, commodity code and drive side for an import vehicle" in {
+        val connector = connectorReturning(draftWith(), 4L)
+        val app       = application(Some(importAllAnswers), connector, stubSessionRepository(importAllAnswers))
+
+        running(app) {
+          route(app, FakeRequest(POST, importSubmitRoute)).value.futureValue
+
+          val body = capturedBodies(connector, 1).head._2
+          (body \ "dateArrivedInUk").as[String] mustEqual "27/03/2026"
+          (body \ "commodityCode").as[String] mustEqual "8703123456"
+          (body \ "leftOrRightHand").as[String] mustEqual "RHD"
+          body.keys must contain noneOf ("totalValueOfOptions", "businessUnableToReclaimVat", "vehicleSoldUnderMarginScheme")
+        }
+      }
 
       "must call F4 on the import section with the total amount paid and currency" in {
         val connector = connectorReturning(draftWith(), 4L)

@@ -2043,7 +2043,14 @@ class NavigatorSpec extends SpecBase {
         val pages: Seq[(String, Page)] = Seq(
           "NotificationReferencePage AVD9.0"        -> NotificationReferencePage(v),
           "VehicleIdentificationNumberPage AVD10.1" -> VehicleIdentificationNumberPage(v),
-          "MileagePage AVD10.5"                     -> MileagePage(v)
+          "VehicleRegistrationNumberPage AVD10.2a"  -> VehicleRegistrationNumberPage(v),
+          "DateOfArrivalPage AVD10.3"               -> DateOfArrivalPage(v),
+          "CommodityCodePage AVD10.4"               -> CommodityCodePage(v),
+          "MileagePage AVD10.5"                     -> MileagePage(v),
+          "LeftOrRightHandDrivePage AVD10.6"        -> LeftOrRightHandDrivePage(v),
+          "TotalValueOfOptionsPage AVD10.7"         -> TotalValueOfOptionsPage(v),
+          "CouldNotClaimVatPage AVD10.8"            -> CouldNotClaimVatPage(v),
+          "VatMarginSchemePage AVD10.9"             -> VatMarginSchemePage(v)
         )
 
         pages.foreach { case (name, page) =>
@@ -2135,62 +2142,6 @@ class NavigatorSpec extends SpecBase {
           userAnswers,
           NovaUserType.PrivateIndividual
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
-      }
-
-      "must go from VehicleRegistrationNumberPage AVD10.2a to the landing page" in {
-        val page = VehicleRegistrationNumberPage(VehicleNumber(1))
-        val ua   = supplierVehicle.unsafeSet(page, "AB12 CDE")
-        navigator.nextPage(page, CheckMode, ua, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController.onPageLoad()
-      }
-
-      "must go from CommodityCodePage AVD10.4 to the landing page" in {
-        navigator.nextPage(
-          CommodityCodePage(VehicleNumber(1)),
-          CheckMode,
-          importVehicle.unsafeSet(CommodityCodePage(VehicleNumber(1)), "8703123456"),
-          NovaUserType.VatRegisteredOrganisation
-        ) mustBe routes.LandingPageController.onPageLoad()
-      }
-
-      "must go from LeftOrRightHandDrivePage AVD10.6 to the landing page" in {
-        navigator.nextPage(
-          LeftOrRightHandDrivePage(VehicleNumber(1)),
-          CheckMode,
-          userAnswers,
-          NovaUserType.VatRegisteredOrganisation
-        ) mustBe routes.LandingPageController.onPageLoad()
-      }
-
-      "must go from TotalValueOfOptionsPage AVD10.7 to the landing page" in {
-        navigator.nextPage(
-          TotalValueOfOptionsPage(VehicleNumber(1)),
-          CheckMode,
-          userAnswers,
-          NovaUserType.PrivateIndividual
-        ) mustBe routes.LandingPageController.onPageLoad()
-      }
-
-      "must go from CouldNotClaimVatPage AVD10.8 to the landing page" in {
-        navigator.nextPage(
-          CouldNotClaimVatPage(VehicleNumber(1)),
-          CheckMode,
-          userAnswers,
-          NovaUserType.PrivateIndividual
-        ) mustBe routes.LandingPageController.onPageLoad()
-      }
-
-      "must go from DateOfArrivalPage to the landing page" in {
-        navigator.nextPage(DateOfArrivalPage(VehicleNumber(1)), CheckMode, supplierVehicle, NovaUserType.PrivateIndividual) mustBe
-          routes.LandingPageController.onPageLoad()
-      }
-
-      "must go from VatMarginSchemePage AVD10.9 to the landing page" in {
-        navigator.nextPage(
-          VatMarginSchemePage(VehicleNumber(1)),
-          CheckMode,
-          userAnswers,
-          NovaUserType.VatRegisteredOrganisation
-        ) mustBe routes.LandingPageController.onPageLoad()
       }
     }
   }

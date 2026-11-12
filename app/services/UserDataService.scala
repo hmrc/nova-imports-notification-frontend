@@ -33,10 +33,13 @@ import pages.sections.notifierdetails.{BusinessNamePage, EmailAddressPage, NameD
 import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserNamePage}
 import pages.sections.purchaseraddress.{IsPurchaserAddressInTheUkPage, PurchaserAddressPage}
 import pages.sections.supplieraddress.SupplierAddressPage
-import pages.sections.vehicledetails.{MileagePage, NotificationReferencePage, NumberOfVehiclesPage, PaymentCurrencyPage, TotalAmountPaidPage, VehicleIdentificationNumberPage}
+import pages.sections.vehicledetails.{CommodityCodePage, CouldNotClaimVatPage, DateOfArrivalPage, LeftOrRightHandDrivePage, MileagePage, NotificationReferencePage, NumberOfVehiclesPage, PaymentCurrencyPage, TotalAmountPaidPage, TotalValueOfOptionsPage, VatMarginSchemePage, VehicleIdentificationNumberPage, VehicleRegistrationNumberKnownPage, VehicleRegistrationNumberPage}
 import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierVatRegistrationNumberPage, UseClientDetailsAsSupplierPage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
 
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
 
 @ImplementedBy(classOf[UserDataServiceImpl])
 trait UserDataService {
@@ -290,6 +293,10 @@ object UserDataService {
     else sessionRepository.set(updated).map(_ => updated)
   }
 
+  private val FormPDateFormat = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+
+  private def parseFormPDate(value: String): Option[LocalDate] = Try(LocalDate.parse(value, FormPDateFormat)).toOption
+
   private def additionalInformationAnswers(answers: UserAnswers, vehicleNumber: VehicleNumber, data: JsObject): UserAnswers = {
     def text(key: String): Option[String] = (data \ key).asOpt[String].filter(_.nonEmpty)
 
@@ -299,6 +306,9 @@ object UserDataService {
       unit  <- text("mileageUnits").flatMap(u => MileageUnit.values.find(_.jsonValue == u))
     } yield Mileage(unit, value)
 
+    def boolean(key: String): Option[Boolean] = (data \ key).asOpt[Boolean]
+    val registration                          = text("currentRegistrationNumber")
+
     def setIfDefined[A: Writes](a: UserAnswers, page: queries.Settable[A], value: Option[A]): UserAnswers =
       value.flatMap(v => a.set(page, v).toOption).getOrElse(a)
 
@@ -306,7 +316,19 @@ object UserDataService {
       setIfDefined(_, NumberOfVehiclesPage(vehicleNumber), Option.when(oneVehicle)(NumberOfVehicles(OneMultiVehicle.One, None))),
       setIfDefined(_, VehicleIdentificationNumberPage(vehicleNumber), text("vehicleIdNumber").filter(_ => oneVehicle)),
       setIfDefined(_, NotificationReferencePage(vehicleNumber), text("notificationReference")),
+      setIfDefined(_, VehicleRegistrationNumberKnownPage(vehicleNumber), registration.map(_ => true)),
+      setIfDefined(_, VehicleRegistrationNumberPage(vehicleNumber), registration),
+      setIfDefined(_, DateOfArrivalPage(vehicleNumber), text("dateArrivedInUk").flatMap(parseFormPDate)),
+      setIfDefined(_, CommodityCodePage(vehicleNumber), text("commodityCode")),
       setIfDefined(_, MileagePage(vehicleNumber), mileage),
+      setIfDefined(
+        _,
+        LeftOrRightHandDrivePage(vehicleNumber),
+        text("leftOrRightHand").flatMap(v => LeftOrRightHandDrive.values.find(_.jsonValue == v))
+      ),
+      setIfDefined(_, TotalValueOfOptionsPage(vehicleNumber), text("totalValueOfOptions")),
+      setIfDefined(_, CouldNotClaimVatPage(vehicleNumber), boolean("businessUnableToReclaimVat")),
+      setIfDefined(_, VatMarginSchemePage(vehicleNumber), boolean("vehicleSoldUnderMarginScheme")),
       setIfDefined(_, TotalAmountPaidPage(vehicleNumber), text("pricePaidForVehicleEntry")),
       setIfDefined(_, PaymentCurrencyPage(vehicleNumber), text("currencyUsed"))
     ).foldLeft(answers)((a, f) => f(a))

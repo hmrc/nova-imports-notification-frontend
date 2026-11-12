@@ -23,6 +23,7 @@ import controllers.actions.*
 import controllers.utils.IsDraftIdDefined
 import models.requests.DataRequest
 import models.{DraftId, DraftNotificationSection, ImportNumber, OneMultiVehicle, SupplierNumber, UserAnswers, VehicleNumber}
+import pages.sections.initialquestions.VehicleFromEuPage
 import pages.sections.introduction.AmendSubmittedNotificationPage
 import pages.sections.supplierdetails.IsSupplierVatRegisteredPage
 import pages.sections.vehicledetails.*
@@ -37,6 +38,7 @@ import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import viewmodels.checkAnswers.ConfirmAdditionalVehicleDetailsHelper
 import views.html.ConfirmAdditionalVehicleDetailsView
 
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -154,6 +156,7 @@ object ConfirmAdditionalVehicleDetailsController {
   private val OneOrMultipleVehiclesKey = "oneOrMultipleVehicls"
   private val Multiple                 = "Multiple"
   private val One                      = "One"
+  private val FormPDateFormat          = DateTimeFormatter.ofPattern("dd/MM/yyyy")
 
   val ManagedKeys: Set[String] = Set(
     "isAmendment",
@@ -161,7 +164,14 @@ object ConfirmAdditionalVehicleDetailsController {
     OneOrMultipleVehiclesKey,
     "mileage",
     "mileageUnits",
+    "currentRegistrationNumber",
+    "dateArrivedInUk",
+    "commodityCode",
+    "leftOrRightHand",
+    "totalValueOfOptions",
     "isSupplierVatRegistered",
+    "businessUnableToReclaimVat",
+    "vehicleSoldUnderMarginScheme",
     "pricePaidForVehicleEntry",
     "currencyUsed"
   )
@@ -169,12 +179,23 @@ object ConfirmAdditionalVehicleDetailsController {
   def guardPredicate(request: DataRequest[?]): Boolean =
     IsDraftIdDefined(request.userAnswers)
 
-  def supplierFields(answers: UserAnswers, supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber): JsObject =
+  def supplierFields(answers: UserAnswers, supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber): JsObject = {
+    val supplierVatRegistered = answers.get(IsSupplierVatRegisteredPage(supplierNumber))
+    val vatRegistered         = supplierVatRegistered.contains(true)
+
     commonFields(answers, vehicleNumber) ++
-      optional("isSupplierVatRegistered", answers.get(IsSupplierVatRegisteredPage(supplierNumber)))
+      optional(
+        "totalValueOfOptions",
+        answers.get(TotalValueOfOptionsPage(vehicleNumber)).filter(_ => answers.get(VehicleFromEuPage).contains(true))
+      ) ++
+      optional("isSupplierVatRegistered", supplierVatRegistered) ++
+      optional("businessUnableToReclaimVat", answers.get(CouldNotClaimVatPage(vehicleNumber)).filter(_ => vatRegistered)) ++
+      optional("vehicleSoldUnderMarginScheme", answers.get(VatMarginSchemePage(vehicleNumber)).filter(_ => vatRegistered))
+  }
 
   def importFields(answers: UserAnswers, vehicleNumber: VehicleNumber): JsObject =
     commonFields(answers, vehicleNumber) ++
+      optional("commodityCode", answers.get(CommodityCodePage(vehicleNumber))) ++
       optional("pricePaidForVehicleEntry", answers.get(TotalAmountPaidPage(vehicleNumber))) ++
       optional("currencyUsed", answers.get(PaymentCurrencyPage(vehicleNumber)))
 
@@ -183,6 +204,9 @@ object ConfirmAdditionalVehicleDetailsController {
     val mileage          = answers.get(MileagePage(vehicleNumber))
     val numberOfVehicles = answers.get(NumberOfVehiclesPage(vehicleNumber)).map(_.oneMultiVehicle)
     val singleVin        = answers.get(VehicleIdentificationNumberPage(vehicleNumber)).filter(_ => numberOfVehicles.contains(OneMultiVehicle.One))
+    val registration     = answers
+      .get(VehicleRegistrationNumberPage(vehicleNumber))
+      .filter(_ => numberOfVehicles.contains(OneMultiVehicle.One) && answers.get(VehicleRegistrationNumberKnownPage(vehicleNumber)).contains(true))
 
     optional("isAmendment", isAmendment) ++
       optional("notificationReference", answers.get(NotificationReferencePage(vehicleNumber)).filter(_ => isAmendment.contains(true))) ++
@@ -195,8 +219,11 @@ object ConfirmAdditionalVehicleDetailsController {
       ) ++
       optional("vehicleIdNumber", singleVin) ++
       optional("confirmVehicleIdNumber", singleVin) ++
+      optional("currentRegistrationNumber", registration) ++
+      optional("dateArrivedInUk", answers.get(DateOfArrivalPage(vehicleNumber)).map(_.format(FormPDateFormat))) ++
       optional("mileage", mileage.map(_.mileage)) ++
-      optional("mileageUnits", mileage.map(_.mileageUnits.jsonValue))
+      optional("mileageUnits", mileage.map(_.mileageUnits.jsonValue)) ++
+      optional("leftOrRightHand", answers.get(LeftOrRightHandDrivePage(vehicleNumber)).map(_.jsonValue))
   }
 
   def sectionsToUpdate(

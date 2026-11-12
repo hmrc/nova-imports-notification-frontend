@@ -525,23 +525,16 @@ class Navigator @Inject() () {
           case (Some(false), _) => confirmAdditionalVehicleDetailsRoute(userAnswers, page.vehicleNumber)
           case _                => routes.JourneyRecoveryController.onPageLoad()
         }
-    case _: VehicleRegistrationNumberPage =>
-      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.3 when built
-    case _: CommodityCodePage =>
-      (_, _) => routes.LandingPageController.onPageLoad()
-    case _: LeftOrRightHandDrivePage =>
-      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to CYA C-AVD3.0 when built
-    case _: TotalValueOfOptionsPage =>
-      (_, _) => routes.LandingPageController.onPageLoad()
-    case _: CouldNotClaimVatPage =>
-      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to CYA C-AVD3.0 when built
-    case page: MileagePage =>
-      (userAnswers, _) => confirmAdditionalVehicleDetailsRoute(userAnswers, page.vehicleNumber)
-    case page: VehicleIdentificationNumberPage =>
-      (userAnswers, _) => confirmAdditionalVehicleDetailsRoute(userAnswers, page.vehicleNumber)
-    case _: VatMarginSchemePage =>
-      (_, _) => routes.LandingPageController.onPageLoad()
-    case page: VehicleDatesPage =>
+    case page: VehicleRegistrationNumberPage   => (userAnswers, _) => confirmAdditionalVehicleDetailsRoute(userAnswers, page.vehicleNumber)
+    case page: DateOfArrivalPage               => (userAnswers, _) => confirmAdditionalVehicleDetailsRoute(userAnswers, page.vehicleNumber)
+    case page: CommodityCodePage               => (userAnswers, _) => confirmAdditionalVehicleDetailsRoute(userAnswers, page.vehicleNumber)
+    case page: MileagePage                     => (userAnswers, _) => confirmAdditionalVehicleDetailsRoute(userAnswers, page.vehicleNumber)
+    case page: LeftOrRightHandDrivePage        => (userAnswers, _) => confirmAdditionalVehicleDetailsRoute(userAnswers, page.vehicleNumber)
+    case page: TotalValueOfOptionsPage         => (userAnswers, _) => confirmAdditionalVehicleDetailsRoute(userAnswers, page.vehicleNumber)
+    case page: CouldNotClaimVatPage            => (userAnswers, _) => confirmAdditionalVehicleDetailsRoute(userAnswers, page.vehicleNumber)
+    case page: VatMarginSchemePage             => (userAnswers, _) => confirmAdditionalVehicleDetailsRoute(userAnswers, page.vehicleNumber)
+    case page: VehicleIdentificationNumberPage => (userAnswers, _) => confirmAdditionalVehicleDetailsRoute(userAnswers, page.vehicleNumber)
+    case page: VehicleDatesPage                =>
       (userAnswers, _) =>
         if (userAnswers.get(page).exists(_.contains(VehicleDates.NoDates)))
           vehicledetails.routes.NoVehicleDatesController.onPageLoad(page.supplierNumber, page.vehicleNumber)
