@@ -109,7 +109,7 @@ class ConfirmAdditionalVehicleDetailsControllerSpec extends SpecBase with Mockit
     versions.toList match {
       case first :: rest =>
         when(connector.updateDraftSection(any(), any(), any())(any[HeaderCarrier]))
-          .thenReturn(Future.successful(Right(first)), rest.map(v => Future.successful(Right(v))) *)
+          .thenReturn(Future.successful(Right(first)), rest.map(v => Future.successful(Right(v)))*)
       case Nil => ()
     }
     connector
@@ -264,10 +264,10 @@ class ConfirmAdditionalVehicleDetailsControllerSpec extends SpecBase with Mockit
 
       "must call F4 once for one vehicle, keeping unrelated formp keys and replacing the ones this page owns, then save the new versionId" in {
         val existing = Json.obj(
-          "euMemberStates"       -> "AT,BE",
-          "areYouClaimingRelief" -> false,
-          "mileage"              -> "1",
-          "mileageUnits"         -> "KM",
+          "euMemberStates"        -> "AT,BE",
+          "areYouClaimingRelief"  -> false,
+          "mileage"               -> "1",
+          "mileageUnits"          -> "KM",
           "notificationReference" -> "NOVA26E000000"
         )
         val connector  = connectorReturning(draftWith(supplierSectionId -> existing), 4L)
@@ -342,7 +342,7 @@ class ConfirmAdditionalVehicleDetailsControllerSpec extends SpecBase with Mockit
 
       "must stop at the first F4 failure and route to the There is a problem page" in {
         def multiplied(vin: String) = Json.obj("vehicleIdNumber" -> vin, "oneOrMultipleVehicls" -> "Multiple")
-        val connector = mock[NovaImportsBackendConnector]
+        val connector               = mock[NovaImportsBackendConnector]
         when(connector.getDraftNotification(any())(any[HeaderCarrier])).thenReturn(
           Future.successful(
             Right(

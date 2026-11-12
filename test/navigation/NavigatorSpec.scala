@@ -2041,10 +2041,9 @@ class NavigatorSpec extends SpecBase {
         val importConfirm3   = vehicledetails.routes.ConfirmAdditionalVehicleDetailsController.importOnPageLoad(ImportNumber(1), v)
 
         val pages: Seq[(String, Page)] = Seq(
-          "NotificationReferencePage AVD9.0"           -> NotificationReferencePage(v),
-          "VehicleIdentificationNumberPage AVD10.1"    -> VehicleIdentificationNumberPage(v),
-          "VehicleRegistrationNumberKnownPage AVD10.2" -> VehicleRegistrationNumberKnownPage(v),
-          "MileagePage AVD10.5"                        -> MileagePage(v)
+          "NotificationReferencePage AVD9.0"        -> NotificationReferencePage(v),
+          "VehicleIdentificationNumberPage AVD10.1" -> VehicleIdentificationNumberPage(v),
+          "MileagePage AVD10.5"                     -> MileagePage(v)
         )
 
         pages.foreach { case (name, page) =>
@@ -2060,6 +2059,16 @@ class NavigatorSpec extends SpecBase {
             navigator.nextPage(page, CheckMode, userAnswers, NovaUserType.VatRegisteredOrganisation) mustBe
               routes.JourneyRecoveryController.onPageLoad()
           }
+        }
+
+        "must go from VehicleRegistrationNumberKnownPage AVD10.2 to C-AVD3.0 (supplier) when No is selected" in {
+          val ua = supplierVehicle.unsafeSet(VehicleRegistrationNumberKnownPage(v), false)
+          navigator.nextPage(VehicleRegistrationNumberKnownPage(v), CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe supplierConfirm3
+        }
+
+        "must go from VehicleRegistrationNumberKnownPage AVD10.2 to C-AVD3.0 (import) when No is selected" in {
+          val ua = importVehicle.unsafeSet(VehicleRegistrationNumberKnownPage(v), false)
+          navigator.nextPage(VehicleRegistrationNumberKnownPage(v), CheckMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe importConfirm3
         }
 
         "must go from NumberOfVehiclesPage AVD10.0 to C-AVD3.0 (supplier) when one vehicle is selected" in {
@@ -2119,12 +2128,6 @@ class NavigatorSpec extends SpecBase {
           vehicledetails.routes.VehicleRegistrationNumberController.onPageLoad(SupplierNumber(1), VehicleNumber(1), CheckMode)
       }
 
-      "must go from VehicleRegistrationNumberKnownPage AVD10.2 to the landing page when the answer is No" in {
-        val page = VehicleRegistrationNumberKnownPage(VehicleNumber(1))
-        val ua   = supplierVehicle.unsafeSet(page, false)
-        navigator.nextPage(page, CheckMode, ua, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController.onPageLoad()
-      }
-
       "must go from VehicleRegistrationNumberKnownPage AVD10.2 to JourneyRecovery when there is no answer" in {
         navigator.nextPage(
           VehicleRegistrationNumberKnownPage(VehicleNumber(1)),
@@ -2138,15 +2141,6 @@ class NavigatorSpec extends SpecBase {
         val page = VehicleRegistrationNumberPage(VehicleNumber(1))
         val ua   = supplierVehicle.unsafeSet(page, "AB12 CDE")
         navigator.nextPage(page, CheckMode, ua, NovaUserType.PrivateIndividual) mustBe routes.LandingPageController.onPageLoad()
-      }
-
-      "must go from MileagePage AVD10.5 to the landing page" in {
-        navigator.nextPage(
-          MileagePage(VehicleNumber(1)),
-          CheckMode,
-          userAnswers,
-          NovaUserType.VatRegisteredOrganisation
-        ) mustBe routes.LandingPageController.onPageLoad()
       }
 
       "must go from CommodityCodePage AVD10.4 to the landing page" in {
