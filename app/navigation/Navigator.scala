@@ -283,8 +283,9 @@ class Navigator @Inject() () {
         ) match {
           case (Some(_), Some(supplierNumber), _) =>
             vehicledetails.routes.AddVehicleTypeController.supplierOnPageLoad(supplierNumber, page.vehicleNumber, NormalMode)
-          case (Some(_), None, Some(_)) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD10.8 when built
-          case _                        => routes.JourneyRecoveryController.onPageLoad()
+          case (Some(_), None, Some(importNumber)) =>
+            vehicledetails.routes.VatReliefController.importOnPageLoad(importNumber, page.vehicleNumber, NormalMode)
+          case _ => routes.JourneyRecoveryController.onPageLoad()
         }
     case page: ImportEntryNumberPage =>
       (userAnswers, _) =>
@@ -400,7 +401,7 @@ class Navigator @Inject() () {
               case Some(true) =>
                 vehicledetails.routes.CouldNotClaimVatController.onPageLoad(supplierNumber, page.vehicleNumber, NormalMode)
               case _ =>
-                routes.LandingPageController.onPageLoad() // TODO: navigate to AVD11.0 when built
+                vehicledetails.routes.VatReliefController.supplierOnPageLoad(supplierNumber, page.vehicleNumber, NormalMode)
             }
 
           case _ => routes.JourneyRecoveryController.onPageLoad()
@@ -414,9 +415,21 @@ class Navigator @Inject() () {
         }
     case page: VatMarginSchemePage =>
       (userAnswers, _) =>
-        userAnswers.get(page) match {
-          case Some(_) => routes.LandingPageController.onPageLoad() // TODO: navigate to AVD11.0 when built
-          case _       => routes.JourneyRecoveryController.onPageLoad()
+        (userAnswers.get(page), userAnswers.vehicleSupplierNumber(page.vehicleNumber)) match {
+          case (Some(_), Some(supplierNumber)) =>
+            vehicledetails.routes.VatReliefController.supplierOnPageLoad(supplierNumber, page.vehicleNumber, NormalMode)
+          case _ => routes.JourneyRecoveryController.onPageLoad()
+        }
+    case page: VatReliefPage =>
+      (userAnswers, _) =>
+        (userAnswers.get(page), userAnswers.vehicleSupplierNumber(page.vehicleNumber), userAnswers.vehicleImportNumber(page.vehicleNumber)) match {
+          case (Some(false), _, _) =>
+            routes.LandingPageController.onPageLoad() // TODO: navigate to C-AVD3.0 when built
+          case (Some(true), Some(supplierNumber), _) =>
+            routes.LandingPageController.onPageLoad() // TODO: navigate to AVD11.1a when built
+          case (Some(true), _, Some(importNumber)) =>
+            routes.LandingPageController.onPageLoad() // TODO: navigate to AVD11.1b when built
+          case _ => routes.JourneyRecoveryController.onPageLoad()
         }
     case page: AddVehicleTypePage =>
       (userAnswers, _) =>
@@ -541,6 +554,8 @@ class Navigator @Inject() () {
       (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to CYA C-AVD3.0 when built
     case _: VatMarginSchemePage =>
       (_, _) => routes.LandingPageController.onPageLoad()
+    case _: VatReliefPage =>
+      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to CYA C-AVD3.0 or AVD11.1 when built.
     case page: VehicleDatesPage =>
       (userAnswers, _) =>
         if (userAnswers.get(page).exists(_.contains(VehicleDates.NoDates)))
