@@ -522,6 +522,13 @@ POST        /import/:importNumber/vehicle/:vehicleNumber/vehicle-identification-
 GET         /import/:importNumber/vehicle/:vehicleNumber/vehicle-identification-number/change    controllers.vehicledetails.VehicleIdentificationNumberController.importOnPageLoad(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
 POST        /import/:importNumber/vehicle/:vehicleNumber/vehicle-identification-number/change    controllers.vehicledetails.VehicleIdentificationNumberController.importOnSubmit(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode = CheckMode)
 
+# C-AVD3.0 - Confirm additional vehicle details
+GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/confirm-additional-vehicle-details                                 controllers.vehicledetails.ConfirmAdditionalVehicleDetailsController.supplierOnPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber)
+POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/confirm-additional-vehicle-details                                 controllers.vehicledetails.ConfirmAdditionalVehicleDetailsController.supplierOnSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber)
+
+GET         /import/:importNumber/vehicle/:vehicleNumber/confirm-additional-vehicle-details                                     controllers.vehicledetails.ConfirmAdditionalVehicleDetailsController.importOnPageLoad(importNumber: ImportNumber, vehicleNumber: VehicleNumber)
+POST        /import/:importNumber/vehicle/:vehicleNumber/confirm-additional-vehicle-details                                     controllers.vehicledetails.ConfirmAdditionalVehicleDetailsController.importOnSubmit(importNumber: ImportNumber, vehicleNumber: VehicleNumber)
+
 # AVD10.6 - Left or right hand drive
 GET         /supplier/:supplierNumber/vehicle/:vehicleNumber/left-or-right-hand-drive                                           controllers.vehicledetails.LeftOrRightHandDriveController.supplierOnPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
 POST        /supplier/:supplierNumber/vehicle/:vehicleNumber/left-or-right-hand-drive                                           controllers.vehicledetails.LeftOrRightHandDriveController.supplierOnSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode = NormalMode)
