@@ -26,7 +26,7 @@
     hmrcNewTabLinkHelper: HmrcNewTabLinkHelper
 )
 
-@(form: Form[?], vehicleDetails: Option[InsetText], postAction: Call)(implicit request: Request[?], messages: Messages)
+@(form: Form[?], vehicleDetails: Option[InsetText], postAction: Call, vatReliefOnAdaptedMotorVehiclesUrl: String)(implicit request: Request[?], messages: Messages)
 
 @layout(
     pageTitle = title(form, messages("vatRelief.title"))
@@ -47,8 +47,8 @@
         <p class="govuk-body">@messages("vatRelief.paragraph.1")</p>
 
         <p class="govuk-body">@Html(messages("vatRelief.paragraph.2",
-            hmrcNewTabLinkHelper(LinkViewModel(messages("vatRelief.paragraph.2.link"),
-            "https://www.gov.uk/guidance/vat-relief-on-adapted-motor-vehicles-for-disabled-people-and-charities-notice-1002"))))</p>
+            hmrcNewTabLinkHelper(LinkViewModel(messages("vatRelief.paragraph.2.link"), vatReliefOnAdaptedMotorVehiclesUrl))))
+        </p>
 
         @govukRadios(
             RadiosViewModel.yesNo(

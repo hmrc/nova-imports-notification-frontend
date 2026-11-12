@@ -54,8 +54,10 @@ class VatReliefViewSpec extends SpecBase with Matchers with BeforeAndAfterAll {
 
   val vehicleDetails: InsetText = InsetTextViewModel("Vehicle details: <strong>Make Model BodyType</strong>")
 
+  val expectedLink = "https://www.gov.uk/guidance/vat-relief-on-adapted-motor-vehicles-for-disabled-people-and-charities-notice-1002"
+
   private def render(form: Form[Boolean] = form, vehicleDetails: Option[InsetText] = Some(vehicleDetails)): String =
-    view(form, vehicleDetails, postAction)(request, msgs).toString
+    view(form, vehicleDetails, postAction, expectedLink)(request, msgs).toString
 
   "VatReliefView" - {
 
@@ -82,8 +84,7 @@ class VatReliefViewSpec extends SpecBase with Matchers with BeforeAndAfterAll {
       document.select(".govuk-body").get(0).text mustEqual msgs("vatRelief.paragraph.1")
       document.select(".govuk-body").get(1).text mustEqual
         msgs("vatRelief.paragraph.2").replace("{0}", msgs("vatRelief.paragraph.2.link") + " (opens in new tab)")
-      document.select(".govuk-link").get(3).attr("href") mustEqual
-        "https://www.gov.uk/guidance/vat-relief-on-adapted-motor-vehicles-for-disabled-people-and-charities-notice-1002"
+      document.select(".govuk-link").get(3).attr("href") mustEqual expectedLink
     }
 
     "must render the question" in {

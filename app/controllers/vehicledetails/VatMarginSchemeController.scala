@@ -16,6 +16,7 @@
 
 package controllers.vehicledetails
 
+import config.FrontendAppConfig
 import controllers.BaseController
 import controllers.actions.*
 import controllers.utils.IsDraftIdDefined
@@ -44,7 +45,8 @@ class VatMarginSchemeController @Inject() (
   formProvider: VatMarginSchemeFormProvider,
   supplierService: SupplierService,
   vehicleService: VehicleService,
-  view: VatMarginSchemeView
+  view: VatMarginSchemeView,
+  appConfig: FrontendAppConfig
 )(implicit ec: ExecutionContext)
     extends BaseController {
 
@@ -58,7 +60,8 @@ class VatMarginSchemeController @Inject() (
         view(
           form.withDefault(request.userAnswers.get(VatMarginSchemePage(vehicleNumber))),
           VehicleDetailsInset(request.userAnswers, vehicleNumber),
-          routes.VatMarginSchemeController.onSubmit(supplierNumber, vehicleNumber, mode)
+          routes.VatMarginSchemeController.onSubmit(supplierNumber, vehicleNumber, mode),
+          appConfig.vatMarginSchemeGuideUrl
         )
       )
     }
@@ -76,7 +79,8 @@ class VatMarginSchemeController @Inject() (
                   view(
                     formWithErrors,
                     VehicleDetailsInset(request.userAnswers, vehicleNumber),
-                    routes.VatMarginSchemeController.onSubmit(supplierNumber, vehicleNumber, mode)
+                    routes.VatMarginSchemeController.onSubmit(supplierNumber, vehicleNumber, mode),
+                    appConfig.vatMarginSchemeGuideUrl
                   )
                 )
               ),

@@ -25,7 +25,7 @@
     govukButton: GovukButton
 )
 
-@(form: Form[?], vehicleDetails: Option[InsetText], postAction: Call)(implicit request: Request[?], messages: Messages)
+@(form: Form[?], vehicleDetails: Option[InsetText], postAction: Call, vatMarginSchemeGuideUrl: String)(implicit request: Request[?], messages: Messages)
 
 @layout(
     pageTitle = title(form, messages("vatMarginScheme.title"))
@@ -44,7 +44,7 @@
         <h1 class="govuk-heading-l">@messages("vatMarginScheme.heading.1")</h1>
 
         <p class="govuk-body">@messages("vatMarginScheme.paragraph.1")
-            <a class="govuk-link" href="https://www.gov.uk/guidance/buying-second-hand-vehicles-using-a-vat-margin-scheme" target="_blank" rel="noopener noreferrer">@messages("vatMarginScheme.link.text")</a>
+            <a class="govuk-link" href="@vatMarginSchemeGuideUrl" target="_blank" rel="noopener noreferrer">@messages("vatMarginScheme.link.text")</a>
         </p>
 
         @govukRadios(

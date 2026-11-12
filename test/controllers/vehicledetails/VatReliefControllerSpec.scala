@@ -55,6 +55,8 @@ class VatReliefControllerSpec extends SpecBase with MockitoSugar {
   val importNumber   = ImportNumber(1)
   val vehicleNumber  = VehicleNumber(1)
 
+  val expectedLink = "https://www.gov.uk/guidance/vat-relief-on-adapted-motor-vehicles-for-disabled-people-and-charities-notice-1002"
+
   lazy val supplierRoute = vehicledetails.routes.VatReliefController.supplierOnPageLoad(supplierNumber, vehicleNumber, NormalMode).url
   lazy val importRoute   = vehicledetails.routes.VatReliefController.importOnPageLoad(importNumber, vehicleNumber, NormalMode).url
 
@@ -135,7 +137,7 @@ class VatReliefControllerSpec extends SpecBase with MockitoSugar {
           val msgs    = messages(application)
 
           status(result) mustEqual OK
-          contentAsString(result) mustEqual view(form, VehicleDetailsInset(supplierAnswers, vehicleNumber)(msgs), supplierSubmit)(
+          contentAsString(result) mustEqual view(form, VehicleDetailsInset(supplierAnswers, vehicleNumber)(msgs), supplierSubmit, expectedLink)(
             request,
             msgs
           ).toString
@@ -157,7 +159,8 @@ class VatReliefControllerSpec extends SpecBase with MockitoSugar {
           contentAsString(result) mustEqual view(
             form.fill(true),
             VehicleDetailsInset(userAnswers, vehicleNumber)(msgs),
-            supplierSubmit
+            supplierSubmit,
+            expectedLink
           )(request, msgs).toString
         }
       }
@@ -188,7 +191,7 @@ class VatReliefControllerSpec extends SpecBase with MockitoSugar {
           val boundForm = form.bind(Map("value" -> ""))
 
           status(result) mustEqual BAD_REQUEST
-          contentAsString(result) mustEqual view(boundForm, VehicleDetailsInset(supplierAnswers, vehicleNumber)(msgs), supplierSubmit)(
+          contentAsString(result) mustEqual view(boundForm, VehicleDetailsInset(supplierAnswers, vehicleNumber)(msgs), supplierSubmit, expectedLink)(
             request,
             msgs
           ).toString
@@ -260,7 +263,7 @@ class VatReliefControllerSpec extends SpecBase with MockitoSugar {
         val application =
           applicationFor(classOf[FakeVatTraderIdentifierAction], Some(supplierAnswers.remove(DraftIdPage).success.value)).build()
 
-        mustBeUnauthorised(application, FakeRequest(POST, supplierRoute).withFormUrlEncodedBody(("value", "LHD")))
+        mustBeUnauthorised(application, FakeRequest(POST, supplierRoute).withFormUrlEncodedBody(("value", "true")))
       }
 
       "must redirect to Unauthorised for a GET if the vehicle was not brought from the EU" in {
@@ -307,7 +310,10 @@ class VatReliefControllerSpec extends SpecBase with MockitoSugar {
           val msgs    = messages(application)
 
           status(result) mustEqual OK
-          contentAsString(result) mustEqual view(form, VehicleDetailsInset(importAnswers, vehicleNumber)(msgs), importSubmit)(request, msgs).toString
+          contentAsString(result) mustEqual view(form, VehicleDetailsInset(importAnswers, vehicleNumber)(msgs), importSubmit, expectedLink)(
+            request,
+            msgs
+          ).toString
         }
       }
 
@@ -383,7 +389,7 @@ class VatReliefControllerSpec extends SpecBase with MockitoSugar {
         val application =
           applicationFor(classOf[FakeVatTraderIdentifierAction], Some(importAnswers.remove(DraftIdPage).success.value)).build()
 
-        mustBeUnauthorised(application, FakeRequest(POST, importRoute).withFormUrlEncodedBody(("value", "RHD")))
+        mustBeUnauthorised(application, FakeRequest(POST, importRoute).withFormUrlEncodedBody(("value", "false")))
       }
 
       "must redirect to Unauthorised for a GET if the vehicle was brought from the EU" in {

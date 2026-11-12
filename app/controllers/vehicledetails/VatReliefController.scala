@@ -16,6 +16,7 @@
 
 package controllers.vehicledetails
 
+import config.FrontendAppConfig
 import controllers.BaseController
 import controllers.actions.*
 import controllers.utils.IsDraftIdDefined
@@ -44,7 +45,8 @@ class VatReliefController @Inject() (
   supplierService: SupplierService,
   importService: ImportService,
   vehicleService: VehicleService,
-  view: VatReliefView
+  view: VatReliefView,
+  appConfig: FrontendAppConfig
 )(implicit ec: ExecutionContext)
     extends BaseController {
 
@@ -80,7 +82,8 @@ class VatReliefController @Inject() (
       view(
         form.withDefault(request.userAnswers.get(VatReliefPage(vehicleNumber))),
         VehicleDetailsInset(request.userAnswers, vehicleNumber),
-        submitCall
+        submitCall,
+        appConfig.vatReliefOnAdaptedMotorVehiclesUrl
       )
     )
 
@@ -91,7 +94,12 @@ class VatReliefController @Inject() (
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, VehicleDetailsInset(request.userAnswers, vehicleNumber), submitCall))),
+        formWithErrors =>
+          Future.successful(
+            BadRequest(
+              view(formWithErrors, VehicleDetailsInset(request.userAnswers, vehicleNumber), submitCall, appConfig.vatReliefOnAdaptedMotorVehiclesUrl)
+            )
+          ),
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(page, value))
@@ -101,7 +109,7 @@ class VatReliefController @Inject() (
   }
 }
 
-private object VatReliefController {
+object VatReliefController {
 
   def supplierGuardPredicate(
     supplierService: SupplierService,

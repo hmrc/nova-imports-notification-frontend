@@ -54,6 +54,8 @@ class VatMarginSchemeControllerSpec extends SpecBase with MockitoSugar {
   val supplierNumber = SupplierNumber(1)
   val vehicleNumber  = VehicleNumber(1)
 
+  val expectedLink = "https://www.gov.uk/guidance/check-if-you-can-use-a-vat-margin-scheme-if-you-import-from-or-export-to-countries-outside-the-uk"
+
   lazy val pageRoute =
     vehicledetails.routes.VatMarginSchemeController.onPageLoad(supplierNumber, vehicleNumber, NormalMode).url
 
@@ -124,7 +126,8 @@ class VatMarginSchemeControllerSpec extends SpecBase with MockitoSugar {
         contentAsString(result) mustEqual view(
           form,
           VehicleDetailsInset(userAnswersWithGuardData, vehicleNumber)(msgs),
-          submitCall
+          submitCall,
+          expectedLink
         )(request, msgs).toString
         contentAsString(result) must include("<strong>Volvo FH16</strong>")
       }
@@ -144,7 +147,8 @@ class VatMarginSchemeControllerSpec extends SpecBase with MockitoSugar {
         contentAsString(result) mustEqual view(
           form.fill(true),
           VehicleDetailsInset(userAnswers, vehicleNumber)(msgs),
-          submitCall
+          submitCall,
+          expectedLink
         )(request, msgs).toString
       }
     }
