@@ -1821,7 +1821,7 @@ enterVinNumbers.hint = Separate each VIN with a comma. For example, 1ABCD2E03FG4
 enterVinNumbers.error.required = Enter the vehicle identification numbers
 enterVinNumbers.error.duplicate = Enter a unique vehicle identification number for each vehicle
 # F26 cross-notification duplicate check - confirm with UCD
-enterVinNumbers.error.duplicate.crossNotification = One or more of the vehicle identification numbers entered already exists on another vehicle in this notification
+enterVinNumbers.error.duplicate.crossNotification = Enter vehicle identification numbers that have not already been used for another vehicle in this notification
 
 ####################################################################################
 # AMV4.0 - Add multiple vehicles 4.0 - Check the VINs                             #
