@@ -130,6 +130,7 @@ object VatReliefReasonController {
   )(request: DataRequest[?]): Boolean =
     IsDraftIdDefined(request.userAnswers) &&
       request.userAnswers.get(VehicleFromEuPage).contains(false) &&
+      (request.userContext.isVatRegisteredOrganisation || request.userContext.isAgent) &&
       importService.numberHasValues(request.userAnswers, importNumber) &&
       vehicleService.belongsToImport(request.userAnswers, vehicleNumber, importNumber) &&
       vehicleService.numberHasValues(request.userAnswers, vehicleNumber) &&

@@ -21,13 +21,13 @@ import com.google.inject.name.Names
 import controllers.actions.*
 import controllers.{routes, vehicledetails}
 import forms.VatReliefReasonFormProvider
-import models.{DraftId, ImportNumber, Mode, NormalMode, SupplierNumber, UserAnswers, VatReliefReason, VehicleNumber}
+import models.{AgentSelectedClient, DraftId, ImportNumber, Mode, NormalMode, SupplierNumber, UserAnswers, VatReliefReason, VehicleNumber}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
-import pages.DraftIdPage
+import pages.{AgentSelectedClientPage, DraftIdPage}
 import pages.sections.initialquestions.VehicleFromEuPage
 import pages.sections.vehicledetails.{VatReliefPage, VatReliefReasonPage}
 import play.api.Application
@@ -85,7 +85,7 @@ class VatReliefReasonControllerSpec extends SpecBase with MockitoSugar {
     when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
     val application =
-      applicationBuilder(userAnswers = Some(userAnswers))
+      applicationBuilderWithVatTrader(userAnswers = Some(userAnswers))
         .overrides(
           bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
           bind[SessionRepository].toInstance(mockSessionRepository)
@@ -103,7 +103,7 @@ class VatReliefReasonControllerSpec extends SpecBase with MockitoSugar {
 
   private def assertUnauthorisedOnGet(userAnswers: Option[UserAnswers], url: String) = {
 
-    val application = applicationBuilder(userAnswers = userAnswers).build()
+    val application = applicationBuilderWithVatTrader(userAnswers = userAnswers).build()
 
     running(application) {
       val result = route(application, FakeRequest(GET, url)).value
@@ -115,7 +115,7 @@ class VatReliefReasonControllerSpec extends SpecBase with MockitoSugar {
 
   private def assertUnauthorisedOnPost(userAnswers: Option[UserAnswers], url: String, formData: Map[String, String]) = {
 
-    val application = applicationBuilder(userAnswers = userAnswers).build()
+    val application = applicationBuilderWithVatTrader(userAnswers = userAnswers).build()
 
     running(application) {
       val result = route(application, FakeRequest(POST, url).withFormUrlEncodedBody(formData.toSeq*)).value
@@ -138,6 +138,39 @@ class VatReliefReasonControllerSpec extends SpecBase with MockitoSugar {
       )
       .build()
 
+  private def applicationFor(identifierAction: Class[? <: IdentifierAction], userAnswers: UserAnswers): Application =
+    new GuiceApplicationBuilder()
+      .overrides(
+        bind[DataRequiredAction].to[DataRequiredActionImpl],
+        bind[IdentifierAction].qualifiedWith(Names.named("standard")).to(identifierAction),
+        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(Some(userAnswers)))
+      )
+      .build()
+
+  private def assertOkForUserType(identifierAction: Class[? <: IdentifierAction], userAnswers: UserAnswers, url: String) = {
+
+    val application = applicationFor(identifierAction, userAnswers)
+
+    running(application) {
+      status(route(application, FakeRequest(GET, url)).value) mustEqual OK
+    }
+  }
+
+  private def assertUnauthorisedForUserType(identifierAction: Class[? <: IdentifierAction], userAnswers: UserAnswers, url: String) = {
+
+    val application = applicationFor(identifierAction, userAnswers)
+
+    running(application) {
+      val result = route(application, FakeRequest(GET, url)).value
+
+      status(result) mustEqual SEE_OTHER
+      redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+    }
+  }
+
+  private def withSelectedClient(userAnswers: UserAnswers): UserAnswers =
+    userAnswers.unsafeSet(AgentSelectedClientPage, AgentSelectedClient(vrn = "123456789", name = Some("Company 1 Ltd")))
+
   private def assertUnauthorisedWhenIdentifierRejectsOnGet(userAnswers: UserAnswers, url: String) = {
 
     val application = unauthorisedIdentifierApplication(userAnswers)
@@ -154,7 +187,7 @@ class VatReliefReasonControllerSpec extends SpecBase with MockitoSugar {
     expectedError: Messages => String
   ) = {
 
-    val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+    val application = applicationBuilderWithVatTrader(userAnswers = Some(userAnswers)).build()
 
     running(application) {
       val result = route(application, FakeRequest(POST, url).withFormUrlEncodedBody(formData.toSeq*)).value
@@ -170,7 +203,7 @@ class VatReliefReasonControllerSpec extends SpecBase with MockitoSugar {
 
       "must return OK and the correct view for a GET" in {
 
-        val application = applicationBuilder(userAnswers = Some(supplierJourneyAnswers)).build()
+        val application = applicationBuilderWithVatTrader(userAnswers = Some(supplierJourneyAnswers)).build()
 
         running(application) {
           val request = FakeRequest(GET, supplierRoute)
@@ -191,7 +224,7 @@ class VatReliefReasonControllerSpec extends SpecBase with MockitoSugar {
 
       "must show a back link on the page" in {
 
-        val application = applicationBuilder(userAnswers = Some(supplierJourneyAnswers)).build()
+        val application = applicationBuilderWithVatTrader(userAnswers = Some(supplierJourneyAnswers)).build()
 
         running(application) {
           val result = route(application, FakeRequest(GET, supplierRoute)).value
@@ -204,7 +237,7 @@ class VatReliefReasonControllerSpec extends SpecBase with MockitoSugar {
 
         val userAnswers = supplierJourneyAnswers.unsafeSet(VatReliefReasonPage(vehicleNumber), VatReliefReason.SubjectToReliefForCharity)
 
-        val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
+        val application = applicationBuilderWithVatTrader(userAnswers = Some(userAnswers)).build()
 
         running(application) {
           val request = FakeRequest(GET, supplierRoute)
@@ -247,6 +280,30 @@ class VatReliefReasonControllerSpec extends SpecBase with MockitoSugar {
         assertBadRequestWithError(supplierJourneyAnswers, supplierRoute, Map("value" -> VatReliefReason.InheritedGoods.toString))(msgs =>
           msgs("vatReliefReason.supplier.error.required")
         )
+      }
+
+      "must return OK for a GET from a private individual" in {
+        assertOkForUserType(classOf[FakeIdentifierAction], supplierJourneyAnswers, supplierRoute)
+      }
+
+      "must return OK for a GET from a non-VAT organisation" in {
+        assertOkForUserType(classOf[FakeOrganisationIdentifierAction], supplierJourneyAnswers, supplierRoute)
+      }
+
+      "must return OK for a GET from a VAT organisation" in {
+        assertOkForUserType(classOf[FakeVatTraderIdentifierAction], supplierJourneyAnswers, supplierRoute)
+      }
+
+      "must return OK for a GET from an agent with the agent enrolment" in {
+        assertOkForUserType(classOf[FakeAgentIdentifierAction], supplierJourneyAnswers, supplierRoute)
+      }
+
+      "must return OK for a GET from an agent without the agent enrolment" in {
+        assertOkForUserType(classOf[FakeAgentNoEnrolmentsIdentifierAction], supplierJourneyAnswers, supplierRoute)
+      }
+
+      "must return OK for a GET from an agent with a client selected" in {
+        assertOkForUserType(classOf[FakeAgentIdentifierAction], withSelectedClient(supplierJourneyAnswers), supplierRoute)
       }
 
       "must redirect to Unauthorised for a GET if no existing session data is found" in {
@@ -301,7 +358,7 @@ class VatReliefReasonControllerSpec extends SpecBase with MockitoSugar {
 
       "must return OK and the correct view for a GET" in {
 
-        val application = applicationBuilder(userAnswers = Some(importJourneyAnswers)).build()
+        val application = applicationBuilderWithVatTrader(userAnswers = Some(importJourneyAnswers)).build()
 
         running(application) {
           val request = FakeRequest(GET, importRoute)
@@ -338,6 +395,43 @@ class VatReliefReasonControllerSpec extends SpecBase with MockitoSugar {
 
       "must return a Bad Request and the import required error when no option is selected" in {
         assertBadRequestWithError(importJourneyAnswers, importRoute, Map("value" -> ""))(msgs => msgs("vatReliefReason.import.error.required"))
+      }
+
+      "must return OK for a GET from a VAT organisation" in {
+        assertOkForUserType(classOf[FakeVatTraderIdentifierAction], importJourneyAnswers, importRoute)
+      }
+
+      "must return OK for a GET from an agent with the agent enrolment" in {
+        assertOkForUserType(classOf[FakeAgentIdentifierAction], importJourneyAnswers, importRoute)
+      }
+
+      "must return OK for a GET from an agent without the agent enrolment" in {
+        assertOkForUserType(classOf[FakeAgentNoEnrolmentsIdentifierAction], importJourneyAnswers, importRoute)
+      }
+
+      "must return OK for a GET from an agent with a client selected" in {
+        assertOkForUserType(classOf[FakeAgentIdentifierAction], withSelectedClient(importJourneyAnswers), importRoute)
+      }
+
+      "must redirect to Unauthorised for a GET from a private individual" in {
+        assertUnauthorisedForUserType(classOf[FakeIdentifierAction], importJourneyAnswers, importRoute)
+      }
+
+      "must redirect to Unauthorised for a GET from a non-VAT organisation" in {
+        assertUnauthorisedForUserType(classOf[FakeOrganisationIdentifierAction], importJourneyAnswers, importRoute)
+      }
+
+      "must redirect to Unauthorised for a POST from a private individual" in {
+
+        val application = applicationFor(classOf[FakeIdentifierAction], importJourneyAnswers)
+
+        running(application) {
+          val request = FakeRequest(POST, importRoute).withFormUrlEncodedBody("value" -> VatReliefReason.InheritedGoods.toString)
+          val result  = route(application, request).value
+
+          status(result) mustEqual SEE_OTHER
+          redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+        }
       }
 
       "must redirect to Unauthorised for a GET if no existing session data is found" in {

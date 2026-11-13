@@ -39,11 +39,10 @@
 }
 
 @layout(
-    pageTitle = title(form, messages("vatReliefReason.title")),
-    showBackLink = true
+    pageTitle = title(form, messages("vatReliefReason.title"))
 ) {
 
-    @formHelper(action = postAction) {
+    @formHelper(action = postAction, Symbol("autoComplete") -> "off", Symbol("class") -> "govuk-!-margin-bottom-8") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
