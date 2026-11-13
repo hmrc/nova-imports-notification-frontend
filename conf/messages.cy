@@ -1890,3 +1890,16 @@ vatMarginScheme.paragraph.1 = If the vehicle was sold to you under the VAT margi
 vatMarginScheme.link.text = VAT margin scheme (opens in a new tab).
 vatMarginScheme.heading.2 = Was the vehicle sold to you under the VAT margin scheme?
 vatMarginScheme.error.required = Select yes if the vehicle was sold to you under the VAT margin scheme
+
+###################################################################
+# AVD11.0 - Add vehicle details - VAT Relief                      #
+###################################################################
+# TODO: Welsh translations to be supplied by content team.
+vatRelief.title = VAT relief
+vatRelief.caption = Add vehicle details
+vatRelief.heading.1 = VAT relief
+vatRelief.paragraph.1 = You may be able to claim VAT relief on a vehicle in some situations. For example, if the vehicle is adapted for a disabled person or a charity.
+vatRelief.paragraph.2 = Find out more about {0}.
+vatRelief.paragraph.2.link = VAT relief on adapted motor vehicles for disabled people and charities
+vatRelief.heading.2 = Are you claiming relief from VAT for the vehicle?
+vatRelief.error.required = Select yes if you are claiming VAT relief for the vehicle

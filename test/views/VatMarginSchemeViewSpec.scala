@@ -54,8 +54,10 @@ class VatMarginSchemeViewSpec extends SpecBase with Matchers with BeforeAndAfter
 
   val vehicleDetails: InsetText = InsetTextViewModel("Vehicle details: <strong>Volvo FH16</strong>")
 
+  val expectedLink = "https://www.gov.uk/guidance/check-if-you-can-use-a-vat-margin-scheme-if-you-import-from-or-export-to-countries-outside-the-uk"
+
   private def render(form: Form[Boolean] = form, vehicleDetails: Option[InsetText] = Some(vehicleDetails)): String =
-    view(form, vehicleDetails, postAction)(request, msgs).toString
+    view(form, vehicleDetails, postAction, expectedLink)(request, msgs).toString
 
   "VatMarginSchemeView" - {
 
@@ -83,7 +85,7 @@ class VatMarginSchemeViewSpec extends SpecBase with Matchers with BeforeAndAfter
 
       val link = document.select("h1 ~ p.govuk-body a.govuk-link")
       link.text mustEqual msgs("vatMarginScheme.link.text")
-      link.attr("href") mustEqual "https://www.gov.uk/guidance/buying-second-hand-vehicles-using-a-vat-margin-scheme"
+      link.attr("href") mustEqual expectedLink
       link.attr("target") mustEqual "_blank"
       link.attr("rel") mustEqual "noopener noreferrer"
     }
