@@ -17,7 +17,7 @@
 package pages
 
 import base.SpecBase
-import models.{AddVehicleDetailsMotorcycle, MotorcycleFuelType, VehicleNumber}
+import models.{AddVehicleDetailsMotorcycle, VehicleNumber}
 import pages.sections.vehicledetails.AddVehicleDetailsMotorcyclePage
 
 class AddVehicleDetailsMotorcyclePageSpec extends SpecBase {
@@ -33,7 +33,7 @@ class AddVehicleDetailsMotorcyclePageSpec extends SpecBase {
         motorcycleType = "a road motorcycle",
         motorcycleStyle = "a tourer",
         transmission = "Semi-automatic",
-        fuelType = MotorcycleFuelType.Hybrid,
+        fuelType = "Hybrid",
         engineSize = "1000.12"
       )
       val answers = emptyUserAnswers.unsafeSet(AddVehicleDetailsMotorcyclePage(VehicleNumber(2)), answer)
@@ -47,7 +47,7 @@ class AddVehicleDetailsMotorcyclePageSpec extends SpecBase {
       (details \ "motorcycleType").as[String] mustBe "a road motorcycle"
       (details \ "motorcycleStyle").as[String] mustBe "a tourer"
       (details \ "transmission").as[String] mustBe "Semi-automatic"
-      (details \ "fuelType").as[String] mustBe "hybrid"
+      (details \ "fuelType").as[String] mustBe "Hybrid"
       (details \ "engineSize").as[String] mustBe "1000.12"
     }
   }

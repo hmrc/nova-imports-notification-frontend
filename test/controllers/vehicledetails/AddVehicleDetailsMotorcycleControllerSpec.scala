@@ -21,7 +21,7 @@ import com.google.inject.name.Names
 import controllers.actions.*
 import controllers.{routes, vehicledetails}
 import forms.AddVehicleDetailsMotorcycleFormProvider
-import models.{AddVehicleDetailsMotorcycle, AddVehicleType, CheckMode, DraftId, ImportNumber, Mode, MotorcycleFuelType, NormalMode, SupplierNumber, UserAnswers, VehicleNumber}
+import models.{AddVehicleDetailsMotorcycle, AddVehicleType, CheckMode, DraftId, ImportNumber, Mode, NormalMode, SupplierNumber, UserAnswers, VehicleNumber}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
@@ -62,7 +62,7 @@ class AddVehicleDetailsMotorcycleControllerSpec extends SpecBase with MockitoSug
       motorcycleType = "a road motorcycle",
       motorcycleStyle = "a tourer",
       transmission = "Automatic",
-      fuelType = MotorcycleFuelType.Petrol,
+      fuelType = "Petrol",
       engineSize = "1000"
     )
 
@@ -74,7 +74,7 @@ class AddVehicleDetailsMotorcycleControllerSpec extends SpecBase with MockitoSug
     "motorcycleType"    -> answer.motorcycleType,
     "motorcycleStyle"   -> answer.motorcycleStyle,
     "transmission"      -> answer.transmission,
-    "fuelType"          -> answer.fuelType.jsonValue,
+    "fuelType"          -> answer.fuelType,
     "engineSize"        -> answer.engineSize
   )
 
