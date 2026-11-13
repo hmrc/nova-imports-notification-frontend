@@ -1611,11 +1611,10 @@ addVehicleDetailsMotorcycle.transmission.error.format = The transmission type mu
 addVehicleDetailsMotorcycle.transmission.error.length = The transmission type must be 30 characters or less
 
 addVehicleDetailsMotorcycle.fuelType.label = Fuel type
-addVehicleDetailsMotorcycle.fuelType.placeholder = Choose the closest option
-addVehicleDetailsMotorcycle.fuelType.option.electric = Electric
-addVehicleDetailsMotorcycle.fuelType.option.hybrid = Hybrid
-addVehicleDetailsMotorcycle.fuelType.option.petrol = Petrol
-addVehicleDetailsMotorcycle.fuelType.error.required = Select the closest fuel type
+addVehicleDetailsMotorcycle.fuelType.hint = Enter petrol, electric or hybrid. If none of these match exactly, enter the closest one
+addVehicleDetailsMotorcycle.fuelType.error.required = Enter the fuel type
+addVehicleDetailsMotorcycle.fuelType.error.length = The fuel type must be 10 characters or less
+addVehicleDetailsMotorcycle.fuelType.error.format = The fuel type must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
 
 addVehicleDetailsMotorcycle.engineSize.label = Engine size in cubic centimetres (cc)
 addVehicleDetailsMotorcycle.engineSize.hint = For example, 1000 or 1000.12

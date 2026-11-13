@@ -213,7 +213,7 @@ object ConfirmVehicleTypeDetailsController {
             motorcycleType = Some(d.motorcycleType),
             motorcycleStyle = Some(d.motorcycleStyle),
             transmission = Some(d.transmission),
-            fuelType = Some(d.fuelType.jsonValue),
+            fuelType = Some(d.fuelType),
             engineSize = Some(d.engineSize)
           )
         }
