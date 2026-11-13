@@ -17,7 +17,6 @@
 package forms
 
 import forms.behaviours.StringFieldBehaviours
-import models.MotorcycleFuelType
 import play.api.data.FormError
 
 class AddVehicleDetailsMotorcycleFormProviderSpec extends StringFieldBehaviours {
@@ -28,6 +27,7 @@ class AddVehicleDetailsMotorcycleFormProviderSpec extends StringFieldBehaviours 
 
   private def validValue(field: String): String = field match {
     case "motorcycleStyle" => "a tourer"
+    case "fuelType"        => "Petrol"
     case other             => s"Valid $other 1 & Co."
   }
 
@@ -38,7 +38,8 @@ class AddVehicleDetailsMotorcycleFormProviderSpec extends StringFieldBehaviours 
     ("motorcycleVersion", 50),
     ("motorcycleType", 50),
     ("motorcycleStyle", 20),
-    ("transmission", 30)
+    ("transmission", 30),
+    ("fuelType", 10)
   ).foreach { case (fieldName, maxLength) =>
     s".$fieldName" - {
 
@@ -64,20 +65,6 @@ class AddVehicleDetailsMotorcycleFormProviderSpec extends StringFieldBehaviours 
       "must bind a valid value" in {
         form.bind(Map(fieldName -> validValue(fieldName))).apply(fieldName).errors mustBe empty
       }
-    }
-  }
-
-  ".fuelType" - {
-
-    "must bind each valid option" in {
-      MotorcycleFuelType.values.foreach { option =>
-        form.bind(Map("fuelType" -> option.jsonValue)).apply("fuelType").errors mustBe empty
-      }
-    }
-
-    "must return the required error when nothing is selected" in {
-      form.bind(Map("fuelType" -> "")).apply("fuelType").errors.map(_.message) mustBe
-        Seq("addVehicleDetailsMotorcycle.fuelType.error.required")
     }
   }
 

@@ -17,7 +17,7 @@
 package forms
 
 import forms.mappings.Mappings
-import models.{AddVehicleDetailsMotorcycle, MotorcycleFuelType}
+import models.AddVehicleDetailsMotorcycle
 import play.api.data.Form
 import play.api.data.Forms.mapping
 import play.api.data.validation.{Constraint, Invalid, Valid}
@@ -37,11 +37,8 @@ class AddVehicleDetailsMotorcycleFormProvider @Inject() extends Mappings {
       "motorcycleType"    -> textFieldMapping("motorcycleType", MaxLength, StandardFieldRegex),
       "motorcycleStyle"   -> textFieldMapping("motorcycleStyle", StyleMaxLength, StandardFieldRegex),
       "transmission"      -> textFieldMapping("transmission", TransmissionMaxLength, TransmissionRegex),
-      "fuelType"          -> enumerable[MotorcycleFuelType](
-        "addVehicleDetailsMotorcycle.fuelType.error.required",
-        "addVehicleDetailsMotorcycle.fuelType.error.required"
-      ),
-      "engineSize" -> engineSizeMapping
+      "fuelType"          -> textFieldMapping("fuelType", FuelTypeMaxLength, FuelTypeRegex),
+      "engineSize"        -> engineSizeMapping
     )(AddVehicleDetailsMotorcycle.apply)(addVehicleDetailsMotorcycle =>
       Some(
         (
@@ -90,10 +87,12 @@ object AddVehicleDetailsMotorcycleFormProvider {
   val MaxLength: Int             = 50
   val StyleMaxLength: Int        = 20
   val TransmissionMaxLength: Int = 30
+  val FuelTypeMaxLength: Int     = 10
 
   val EngineSizeMaxWholeDigits: Int = 5
 
   val StandardFieldRegex: String = """^[A-Za-z0-9 .()/&'\-;!%*_+:@<>?=\[\],\\]{1,50}$"""
   val TransmissionRegex: String  = """^[A-Za-z0-9 .()/&'\-;!%*_+:@<>?=\[\],\\]{1,30}$"""
+  val FuelTypeRegex: String      = """^[A-Za-z0-9 .()/&'\-;!%*_+:@<>?=\[\],\\]{1,10}$"""
   val EngineSizeRegex: String    = """^[0-9]{1,5}$|^([0-9]{1,5}\.[0-9]{2})$"""
 }

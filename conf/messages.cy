@@ -1512,11 +1512,10 @@ addVehicleDetailsMotorcycle.transmission.error.format = The transmission type mu
 addVehicleDetailsMotorcycle.transmission.error.length = The transmission type must be 30 characters or less
 
 addVehicleDetailsMotorcycle.fuelType.label = Fuel type
-addVehicleDetailsMotorcycle.fuelType.placeholder = Choose the closest option
-addVehicleDetailsMotorcycle.fuelType.option.electric = Electric
-addVehicleDetailsMotorcycle.fuelType.option.hybrid = Hybrid
-addVehicleDetailsMotorcycle.fuelType.option.petrol = Petrol
-addVehicleDetailsMotorcycle.fuelType.error.required = Select the closest fuel type
+addVehicleDetailsMotorcycle.fuelType.hint = Enter petrol, electric or hybrid. If none of these match exactly, enter the closest one
+addVehicleDetailsMotorcycle.fuelType.error.required = Enter the fuel type
+addVehicleDetailsMotorcycle.fuelType.error.length = The fuel type must be 10 characters or less
+addVehicleDetailsMotorcycle.fuelType.error.format = The fuel type must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
 
 addVehicleDetailsMotorcycle.engineSize.label = Engine size in cubic centimetres (cc)
 addVehicleDetailsMotorcycle.engineSize.hint = For example, 1000 or 1000.12
@@ -1903,3 +1902,18 @@ vatRelief.paragraph.2 = Find out more about {0}.
 vatRelief.paragraph.2.link = VAT relief on adapted motor vehicles for disabled people and charities
 vatRelief.heading.2 = Are you claiming relief from VAT for the vehicle?
 vatRelief.error.required = Select yes if you are claiming VAT relief for the vehicle
+
+####################################################################################
+# AVD11.1 - Reason for claiming VAT relief                                        #
+####################################################################################
+# TODO: Welsh translations to be supplied by content team.
+vatReliefReason.title = Why are you claiming relief from VAT for the vehicle?
+vatReliefReason.caption = Ychwanegwch fanylion cerbyd
+vatReliefReason.heading = Why are you claiming relief from VAT for the vehicle?
+vatReliefReason.radio.disabledPerson = Vehicle adapted for a disabled person
+vatReliefReason.radio.charity = Vehicle sold to a charity
+vatReliefReason.radio.inheritedGoods = Inherited goods
+vatReliefReason.radio.returnedGoods = Returned goods
+vatReliefReason.radio.transferOfResidence = Transfer of residence
+vatReliefReason.supplier.error.required = Select if you are claiming VAT relief for a vehicle adapted for a disabled person or a vehicle sold to a charity
+vatReliefReason.import.error.required = Select why you are claiming VAT relief for the vehicle

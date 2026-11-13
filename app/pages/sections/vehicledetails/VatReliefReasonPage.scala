@@ -14,20 +14,15 @@
  * limitations under the License.
  */
 
-package models
+package pages.sections.vehicledetails
 
-enum MotorcycleFuelType(val jsonValue: String) {
-  case Electric extends MotorcycleFuelType("electric")
-  case Hybrid extends MotorcycleFuelType("hybrid")
-  case Petrol extends MotorcycleFuelType("petrol")
+import models.{VatReliefReason, VehicleNumber}
+import pages.QuestionPage
+import play.api.libs.json.JsPath
 
-  override def toString: String = jsonValue
-}
+final case class VatReliefReasonPage(vehicleNumber: VehicleNumber) extends QuestionPage[VatReliefReason] {
 
-object MotorcycleFuelType extends Enumerable.Implicits {
-  given Enumerable[MotorcycleFuelType] = Enumerable(
-    Electric.jsonValue -> Electric,
-    Hybrid.jsonValue   -> Hybrid,
-    Petrol.jsonValue   -> Petrol
-  )
+  override def path: JsPath = JsPath \ "vehicles" \ vehicleNumber.value.toString \ "details" \ toString
+
+  override def toString: String = "reasonForClaimingRelief"
 }

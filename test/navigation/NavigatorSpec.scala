@@ -1042,6 +1042,21 @@ class NavigatorSpec extends SpecBase {
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
 
+      "must go from VatReliefReasonPage AVD11.1 to the landing page" in {
+        val page = VatReliefReasonPage(VehicleNumber(1))
+        val ua   = supplierVehicle.unsafeSet(page, VatReliefReason.SubjectToReliefForCharity)
+        navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe routes.LandingPageController.onPageLoad()
+      }
+
+      "must go from VatReliefReasonPage AVD11.1 to JourneyRecovery when there is no answer" in {
+        navigator.nextPage(
+          VatReliefReasonPage(VehicleNumber(1)),
+          NormalMode,
+          supplierVehicle,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
       "must go from TotalValueOfOptionsPage AVD10.7 to JourneyRecovery when there is no answer" in {
         navigator.nextPage(
           TotalValueOfOptionsPage(VehicleNumber(1)),
@@ -1067,12 +1082,11 @@ class NavigatorSpec extends SpecBase {
         ) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
 
-      "must go from VatReliefPage AVD11.0 to the landing page for the vehicle's supplier route when answer is Yes" in {
-        // TODO: Update to AVD11.1a when built
+      "must go from VatReliefPage AVD11.0 to VatReliefReasonPage AVD11.1a for the vehicle's supplier route when answer is Yes" in {
         val page = VatReliefPage(VehicleNumber(1))
         val ua   = supplierVehicle.unsafeSet(page, true)
         navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
-          routes.LandingPageController.onPageLoad()
+          vehicledetails.routes.VatReliefReasonController.supplierOnPageLoad(SupplierNumber(1), VehicleNumber(1), NormalMode)
       }
 
       "must go from VatReliefPage AVD11.0 to the landing page for the vehicle's supplier route when answer is No" in {
@@ -1083,12 +1097,11 @@ class NavigatorSpec extends SpecBase {
           routes.LandingPageController.onPageLoad()
       }
 
-      "must go from VatReliefPage AVD11.0 to the landing page for the vehicle's import route when answer is Yes" in {
-        // TODO: Update to AVD11.1b when built
+      "must go from VatReliefPage AVD11.0 to VatReliefReasonPage AVD11.1b for the vehicle's import route when answer is Yes" in {
         val page = VatReliefPage(VehicleNumber(1))
         val ua   = importVehicle.unsafeSet(page, true)
         navigator.nextPage(page, NormalMode, ua, NovaUserType.VatRegisteredOrganisation) mustBe
-          routes.LandingPageController.onPageLoad()
+          vehicledetails.routes.VatReliefReasonController.importOnPageLoad(ImportNumber(1), VehicleNumber(1), NormalMode)
       }
 
       "must go from VatReliefPage AVD11.0 to the landing page for the vehicle's import route when answer is No" in {
@@ -2238,6 +2251,14 @@ class NavigatorSpec extends SpecBase {
         ) mustBe routes.LandingPageController.onPageLoad()
       }
 
+      "must go from VatReliefReasonPage AVD11.1 to the landing page" in {
+        navigator.nextPage(
+          VatReliefReasonPage(VehicleNumber(1)),
+          CheckMode,
+          userAnswers,
+          NovaUserType.VatRegisteredOrganisation
+        ) mustBe routes.LandingPageController.onPageLoad()
+      }
     }
   }
 }

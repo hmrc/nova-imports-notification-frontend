@@ -426,10 +426,16 @@ class Navigator @Inject() () {
           case (Some(false), _, _) =>
             routes.LandingPageController.onPageLoad() // TODO: navigate to C-AVD3.0 when built
           case (Some(true), Some(supplierNumber), _) =>
-            routes.LandingPageController.onPageLoad() // TODO: navigate to AVD11.1a when built
+            vehicledetails.routes.VatReliefReasonController.supplierOnPageLoad(supplierNumber, page.vehicleNumber, NormalMode)
           case (Some(true), _, Some(importNumber)) =>
-            routes.LandingPageController.onPageLoad() // TODO: navigate to AVD11.1b when built
+            vehicledetails.routes.VatReliefReasonController.importOnPageLoad(importNumber, page.vehicleNumber, NormalMode)
           case _ => routes.JourneyRecoveryController.onPageLoad()
+        }
+    case page: VatReliefReasonPage =>
+      (userAnswers, _) =>
+        userAnswers.get(page) match {
+          case Some(_) => routes.LandingPageController.onPageLoad() // TODO: navigate to C-AVD3.0 Confirm additional vehicle details when built
+          case _       => routes.JourneyRecoveryController.onPageLoad()
         }
     case page: AddVehicleTypePage =>
       (userAnswers, _) =>
@@ -556,6 +562,8 @@ class Navigator @Inject() () {
       (_, _) => routes.LandingPageController.onPageLoad()
     case _: VatReliefPage =>
       (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to CYA C-AVD3.0 or AVD11.1 when built.
+    case _: VatReliefReasonPage =>
+      (_, _) => routes.LandingPageController.onPageLoad() // TODO: navigate to C-AVD3.0 Confirm additional vehicle details when built
     case page: VehicleDatesPage =>
       (userAnswers, _) =>
         if (userAnswers.get(page).exists(_.contains(VehicleDates.NoDates)))

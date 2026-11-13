@@ -18,7 +18,7 @@ package views
 
 import base.SpecBase
 import forms.AddVehicleDetailsMotorcycleFormProvider
-import models.{AddVehicleDetailsMotorcycle, MotorcycleFuelType, NormalMode, SupplierNumber, VehicleNumber}
+import models.{AddVehicleDetailsMotorcycle, NormalMode, SupplierNumber, VehicleNumber}
 import org.jsoup.Jsoup
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.must.Matchers
@@ -80,19 +80,11 @@ class AddVehicleDetailsMotorcycleViewSpec extends SpecBase with Matchers with Be
     "must render a label and hint for each field" in {
       val html: String = view(form, submitCall)(request, msgs).toString
 
-      Seq("make", "model", "derivative", "motorcycleVersion", "motorcycleType", "motorcycleStyle", "transmission", "engineSize").foreach { field =>
-        html must include(msgs(s"addVehicleDetailsMotorcycle.$field.label"))
-        html must include(msgs(s"addVehicleDetailsMotorcycle.$field.hint"))
+      Seq("make", "model", "derivative", "motorcycleVersion", "motorcycleType", "motorcycleStyle", "transmission", "fuelType", "engineSize").foreach {
+        field =>
+          html must include(msgs(s"addVehicleDetailsMotorcycle.$field.label"))
+          html must include(msgs(s"addVehicleDetailsMotorcycle.$field.hint"))
       }
-    }
-
-    "must render the fuel type dropdown with its options" in {
-      val html: String = view(form, submitCall)(request, msgs).toString
-
-      html must include(msgs("addVehicleDetailsMotorcycle.fuelType.label"))
-      html must include(msgs("addVehicleDetailsMotorcycle.fuelType.option.electric"))
-      html must include(msgs("addVehicleDetailsMotorcycle.fuelType.option.hybrid"))
-      html must include(msgs("addVehicleDetailsMotorcycle.fuelType.option.petrol"))
     }
 
     "must set autocomplete off on every field" in {
@@ -141,7 +133,7 @@ class AddVehicleDetailsMotorcycleViewSpec extends SpecBase with Matchers with Be
         motorcycleType = "a road motorcycle",
         motorcycleStyle = "a tourer",
         transmission = "Automatic",
-        fuelType = MotorcycleFuelType.Petrol,
+        fuelType = "Petrol",
         engineSize = "1000"
       )
       val html: String = view(form.fill(answer), submitCall)(request, msgs).toString

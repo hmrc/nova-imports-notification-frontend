@@ -160,7 +160,7 @@ class ConfirmVehicleTypeDetailsViewSpec extends SpecBase with Matchers with Befo
             "Road motorcycle",
             "Tourer",
             "Manual",
-            MotorcycleFuelType.Petrol,
+            "Petrol",
             "1000"
           )
         )
@@ -181,7 +181,7 @@ class ConfirmVehicleTypeDetailsViewSpec extends SpecBase with Matchers with Befo
       valueFor(motorcycleDoc, label("bodyType")) mustEqual "Road motorcycle"
       valueFor(motorcycleDoc, label("style")) mustEqual "Tourer"
       valueFor(motorcycleDoc, label("transmissionType")) mustEqual "Manual"
-      valueFor(motorcycleDoc, label("fuelType")) mustEqual msgs("addVehicleDetailsMotorcycle.fuelType.option.petrol")
+      valueFor(motorcycleDoc, label("fuelType")) mustEqual "Petrol"
       valueFor(motorcycleDoc, label("engineSize")) mustEqual "1000"
     }
 
