@@ -29,6 +29,8 @@ import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents, Result}
 import repositories.SessionRepository
 import services.{ImportService, SupplierService, VehicleService}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.insettext.InsetText
+import viewmodels.VehicleDetailsInset
 import views.html.TotalAmountPaidView
 
 import javax.inject.Inject
@@ -54,36 +56,47 @@ class TotalAmountPaidController @Inject() (
   def onPageLoadSupplier(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode): Action[AnyContent] =
     actions.authAndGetDataWithUserTypeGuard(supplierGuardPredicate(supplierService, vehicleService, supplierNumber, vehicleNumber)) {
       implicit request =>
-        onPageLoad(vehicleNumber, routes.TotalAmountPaidController.onSubmitSupplier(supplierNumber, vehicleNumber, mode))
+        onPageLoad(vehicleNumber, None, routes.TotalAmountPaidController.onSubmitSupplier(supplierNumber, vehicleNumber, mode))
     }
 
   def onPageLoadImport(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode): Action[AnyContent] =
     actions.authAndGetDataWithUserTypeGuard(importGuardPredicate(importService, vehicleService, importNumber, vehicleNumber)) { implicit request =>
-      onPageLoad(vehicleNumber, routes.TotalAmountPaidController.onSubmitImport(importNumber, vehicleNumber, mode))
+      onPageLoad(
+        vehicleNumber,
+        VehicleDetailsInset(request.userAnswers, vehicleNumber),
+        routes.TotalAmountPaidController.onSubmitImport(importNumber, vehicleNumber, mode)
+      )
     }
 
   def onSubmitSupplier(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber, mode: Mode): Action[AnyContent] =
     actions.authAndGetDataWithUserTypeGuard(supplierGuardPredicate(supplierService, vehicleService, supplierNumber, vehicleNumber)).async {
       implicit request =>
-        onSubmit(vehicleNumber, mode, routes.TotalAmountPaidController.onSubmitSupplier(supplierNumber, vehicleNumber, mode))
+        onSubmit(vehicleNumber, mode, None, routes.TotalAmountPaidController.onSubmitSupplier(supplierNumber, vehicleNumber, mode))
     }
 
   def onSubmitImport(importNumber: ImportNumber, vehicleNumber: VehicleNumber, mode: Mode): Action[AnyContent] =
     actions.authAndGetDataWithUserTypeGuard(importGuardPredicate(importService, vehicleService, importNumber, vehicleNumber)).async {
       implicit request =>
-        onSubmit(vehicleNumber, mode, routes.TotalAmountPaidController.onSubmitImport(importNumber, vehicleNumber, mode))
+        onSubmit(
+          vehicleNumber,
+          mode,
+          VehicleDetailsInset(request.userAnswers, vehicleNumber),
+          routes.TotalAmountPaidController.onSubmitImport(importNumber, vehicleNumber, mode)
+        )
     }
 
-  private def onPageLoad(vehicleNumber: VehicleNumber, postAction: Call)(implicit request: DataRequest[AnyContent]): Result =
-    Ok(view(form.withDefault(request.userAnswers.get(TotalAmountPaidPage(vehicleNumber))), postAction))
+  private def onPageLoad(vehicleNumber: VehicleNumber, vehicleDetails: Option[InsetText], postAction: Call)(implicit
+    request: DataRequest[AnyContent]
+  ): Result =
+    Ok(view(form.withDefault(request.userAnswers.get(TotalAmountPaidPage(vehicleNumber))), vehicleDetails, postAction))
 
-  private def onSubmit(vehicleNumber: VehicleNumber, mode: Mode, postAction: Call)(implicit
+  private def onSubmit(vehicleNumber: VehicleNumber, mode: Mode, vehicleDetails: Option[InsetText], postAction: Call)(implicit
     request: DataRequest[AnyContent]
   ): Future[Result] =
     form
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(formWithErrors, postAction))),
+        formWithErrors => Future.successful(BadRequest(view(formWithErrors, vehicleDetails, postAction))),
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(TotalAmountPaidPage(vehicleNumber), value))
