@@ -1903,3 +1903,18 @@ vatRelief.paragraph.2 = Find out more about {0}.
 vatRelief.paragraph.2.link = VAT relief on adapted motor vehicles for disabled people and charities
 vatRelief.heading.2 = Are you claiming relief from VAT for the vehicle?
 vatRelief.error.required = Select yes if you are claiming VAT relief for the vehicle
+
+####################################################################################
+# AVD11.1 - Reason for claiming VAT relief                                        #
+####################################################################################
+# TODO: Welsh translations to be supplied by content team.
+vatReliefReason.title = Why are you claiming relief from VAT for the vehicle?
+vatReliefReason.caption = Ychwanegwch fanylion cerbyd
+vatReliefReason.heading = Why are you claiming relief from VAT for the vehicle?
+vatReliefReason.radio.disabledPerson = Vehicle adapted for a disabled person
+vatReliefReason.radio.charity = Vehicle sold to a charity
+vatReliefReason.radio.inheritedGoods = Inherited goods
+vatReliefReason.radio.returnedGoods = Returned goods
+vatReliefReason.radio.transferOfResidence = Transfer of residence
+vatReliefReason.supplier.error.required = Select if you are claiming VAT relief for a vehicle adapted for a disabled person or a vehicle sold to a charity
+vatReliefReason.import.error.required = Select why you are claiming VAT relief for the vehicle
