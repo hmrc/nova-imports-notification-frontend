@@ -18,7 +18,7 @@ package controllers.vehicledetails
 
 import controllers.BaseController
 import controllers.actions.*
-import controllers.utils.IsDraftIdDefined
+import controllers.utils.{IsDraftIdDefined, IsOneVehicleOrAmend}
 import forms.VehicleRegistrationNumberFormProvider
 import models.requests.DataRequest
 import models.{Mode, NovaUserType, SupplierNumber, VehicleNumber}
@@ -100,5 +100,6 @@ object VehicleRegistrationNumberController {
       request.userAnswers.get(VehicleRegistrationNumberKnownPage(vehicleNumber)).contains(true) &&
       supplierService.numberHasValues(request.userAnswers, supplierNumber) &&
       vehicleService.belongsToSupplier(request.userAnswers, vehicleNumber, supplierNumber) &&
-      vehicleService.numberHasValues(request.userAnswers, vehicleNumber)
+      vehicleService.numberHasValues(request.userAnswers, vehicleNumber) &&
+      IsOneVehicleOrAmend(request.userAnswers, vehicleNumber)
 }

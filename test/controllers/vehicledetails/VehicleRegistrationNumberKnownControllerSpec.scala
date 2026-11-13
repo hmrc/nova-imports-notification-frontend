@@ -29,7 +29,8 @@ import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.{AgentSelectedClientPage, DraftIdPage}
 import pages.sections.initialquestions.VehicleFromEuPage
-import pages.sections.vehicledetails.{AddVehicleDetailsHeavyCommercialPage, AddVehicleTypePage, VehicleRegistrationNumberKnownPage}
+import pages.sections.introduction.AmendSubmittedNotificationPage
+import pages.sections.vehicledetails.{AddVehicleDetailsHeavyCommercialPage, AddVehicleTypePage, NumberOfVehiclesPage, VehicleRegistrationNumberKnownPage}
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -69,6 +70,7 @@ class VehicleRegistrationNumberKnownControllerSpec extends SpecBase with Mockito
       AddVehicleDetailsHeavyCommercialPage(vehicleNumber),
       AddVehicleDetailsHeavyCommercial("Volvo", "FH16", "Tractor unit", "Sleeper cab")
     )
+    .unsafeSet(NumberOfVehiclesPage(vehicleNumber), NumberOfVehicles(OneMultiVehicle.One, None))
 
   private def applicationForUserType(identifierAction: Class[? <: IdentifierAction], userAnswers: UserAnswers = userAnswersWithGuardData) =
     new GuiceApplicationBuilder()
@@ -224,6 +226,44 @@ class VehicleRegistrationNumberKnownControllerSpec extends SpecBase with Mockito
     "must redirect to Unauthorised for a GET if IQ1 was not answered" in {
       val answers = userAnswersWithGuardData.remove(VehicleFromEuPage).success.value
       mustBeUnauthorised(applicationBuilder(userAnswers = Some(answers)).build())
+    }
+
+    "must redirect to Unauthorised for a GET if AVD10.0 is More than one vehicle" in {
+      val answers = userAnswersWithGuardData.unsafeSet(NumberOfVehiclesPage(vehicleNumber), NumberOfVehicles(OneMultiVehicle.More, Some(2)))
+      mustBeUnauthorised(applicationBuilder(userAnswers = Some(answers)).build())
+    }
+
+    "must redirect to Unauthorised for a POST if AVD10.0 is More than one vehicle" in {
+      val answers     = userAnswersWithGuardData.unsafeSet(NumberOfVehiclesPage(vehicleNumber), NumberOfVehicles(OneMultiVehicle.More, Some(2)))
+      val application = applicationBuilder(userAnswers = Some(answers)).build()
+
+      running(application) {
+        val request = FakeRequest(POST, pageRoute).withFormUrlEncodedBody(("value", "true"))
+        val result  = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Unauthorised for a GET if AVD10.0 has not been answered" in {
+      val answers = userAnswersWithGuardData.remove(NumberOfVehiclesPage(vehicleNumber)).success.value
+      mustBeUnauthorised(applicationBuilder(userAnswers = Some(answers)).build())
+    }
+
+    "must return OK for a GET in an amend session even though AVD10.0 was skipped" in {
+      val answers = userAnswersWithGuardData
+        .remove(NumberOfVehiclesPage(vehicleNumber))
+        .success
+        .value
+        .unsafeSet(AmendSubmittedNotificationPage, true)
+      val application = applicationBuilder(userAnswers = Some(answers)).build()
+
+      running(application) {
+        val result = route(application, FakeRequest(GET, pageRoute)).value
+
+        status(result) mustEqual OK
+      }
     }
 
     "must redirect to Unauthorised for a GET if the supplier number in the URL is not one of the user's suppliers" in {

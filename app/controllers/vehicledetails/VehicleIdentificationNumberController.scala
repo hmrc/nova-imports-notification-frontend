@@ -18,14 +18,13 @@ package controllers.vehicledetails
 
 import controllers.BaseController
 import controllers.actions.*
-import controllers.utils.IsDraftIdDefined
+import controllers.utils.{IsDraftIdDefined, IsOneVehicleOrAmend}
 import forms.VehicleIdentificationNumberFormProvider
 import models.requests.DataRequest
-import models.{ImportNumber, Mode, NovaUserType, OneMultiVehicle, SupplierNumber, VehicleNumber}
+import models.{ImportNumber, Mode, NovaUserType, SupplierNumber, VehicleNumber}
 import navigation.Navigator
 import pages.sections.initialquestions.VehicleFromEuPage
-import pages.sections.introduction.AmendSubmittedNotificationPage
-import pages.sections.vehicledetails.{NumberOfVehiclesPage, VehicleIdentificationNumberPage}
+import pages.sections.vehicledetails.VehicleIdentificationNumberPage
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents, Result}
 import repositories.SessionRepository
@@ -116,7 +115,7 @@ object VehicleIdentificationNumberController {
       supplierService.numberHasValues(request.userAnswers, supplierNumber) &&
       vehicleService.belongsToSupplier(request.userAnswers, vehicleNumber, supplierNumber) &&
       vehicleService.numberHasValues(request.userAnswers, vehicleNumber) &&
-      isOneVehicleOrAmend(request, vehicleNumber)
+      IsOneVehicleOrAmend(request.userAnswers, vehicleNumber)
 
   def importGuardPredicate(
     importService: ImportService,
@@ -129,10 +128,5 @@ object VehicleIdentificationNumberController {
       importService.numberHasValues(request.userAnswers, importNumber) &&
       vehicleService.belongsToImport(request.userAnswers, vehicleNumber, importNumber) &&
       vehicleService.numberHasValues(request.userAnswers, vehicleNumber) &&
-      isOneVehicleOrAmend(request, vehicleNumber)
-
-  // amend sessions skip AVD10.0 (C-AVD2.0 goes to AVD9.0), so the one-vehicle answer only applies to non-amend sessions
-  private def isOneVehicleOrAmend(request: DataRequest[?], vehicleNumber: VehicleNumber): Boolean =
-    request.userAnswers.get(AmendSubmittedNotificationPage).contains(true) ||
-      request.userAnswers.get(NumberOfVehiclesPage(vehicleNumber)).exists(_.oneMultiVehicle == OneMultiVehicle.One)
+      IsOneVehicleOrAmend(request.userAnswers, vehicleNumber)
 }
