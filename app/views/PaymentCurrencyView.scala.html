@@ -21,11 +21,12 @@
         layout: templates.Layout,
         formHelper: FormWithCSRF,
         govukErrorSummary: GovukErrorSummary,
+        govukInsetText: GovukInsetText,
         govukSelect: GovukSelect,
         govukButton: GovukButton
 )
 
-@(currencies: List[Currency], form: Form[?], headingKey: String, submitCall: Call)(implicit request: Request[?], messages: Messages)
+@(currencies: List[Currency], form: Form[?], vehicleDetails: Option[InsetText], headingKey: String, submitCall: Call)(implicit request: Request[?], messages: Messages)
 
 @layout(
     pageTitle = title(form, messages(headingKey)),
@@ -37,6 +38,8 @@
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
+
+        @vehicleDetails.map(inset => govukInsetText(inset.copy(classes = "govuk-!-margin-top-0")))
 
         <span class="govuk-caption-l">@messages("paymentCurrency.caption")</span>
 

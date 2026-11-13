@@ -22,7 +22,7 @@ import config.FrontendAppConfig
 import controllers.actions.*
 import controllers.{routes, vehicledetails}
 import forms.PaymentCurrencyFormProvider
-import models.{CheckMode, Currency, DraftId, ImportNumber, Mode, NormalMode, SupplierNumber, UserAnswers, VehicleNumber}
+import models.{AddVehicleDetailsHeavyCommercial, AddVehicleType, CheckMode, Currency, DraftId, ImportNumber, Mode, NormalMode, SupplierNumber, UserAnswers, VehicleNumber}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
@@ -30,7 +30,7 @@ import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.DraftIdPage
 import pages.sections.initialquestions.VehicleFromEuPage
-import pages.sections.vehicledetails.PaymentCurrencyPage
+import pages.sections.vehicledetails.{AddVehicleDetailsHeavyCommercialPage, AddVehicleTypePage, PaymentCurrencyPage}
 import play.api.Application
 import play.api.data.Form
 import play.api.i18n.Messages
@@ -42,6 +42,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import queries.{AllImportsQuery, AllSuppliersQuery, AllVehiclesQuery}
 import repositories.SessionRepository
+import viewmodels.VehicleDetailsInset
 import views.html.PaymentCurrencyView
 
 import scala.concurrent.Future
@@ -61,17 +62,29 @@ class PaymentCurrencyControllerSpec extends SpecBase with MockitoSugar {
     vehicledetails.routes.PaymentCurrencyController.supplierOnPageLoad(supplierNumber, vehicleNumber, NormalMode).url
   lazy val importRoute = vehicledetails.routes.PaymentCurrencyController.importOnPageLoad(importNumber, vehicleNumber, NormalMode).url
 
+  private def withVehicleDetails(answers: UserAnswers): UserAnswers =
+    answers
+      .unsafeSet(AddVehicleTypePage(vehicleNumber), AddVehicleType.Hcv)
+      .unsafeSet(AddVehicleDetailsHeavyCommercialPage(vehicleNumber), AddVehicleDetailsHeavyCommercial("Make", "Model", "HcvType", "CabType"))
+
   val supplierJourneyAnswers: UserAnswers = emptyUserAnswers
     .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
     .unsafeSet(VehicleFromEuPage, true)
     .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
     .unsafeSet(AllVehiclesQuery, Map("1" -> Json.obj("supplierNumber" -> 1, "details" -> Json.obj("dateRoadUseKnown" -> true))))
 
-  val importJourneyAnswers: UserAnswers = emptyUserAnswers
+  val supplierJourneyAnswersWithVehicleDetails: UserAnswers = withVehicleDetails(supplierJourneyAnswers)
+
+  val importJourneyAnswersWithoutVehicleDetails: UserAnswers = emptyUserAnswers
     .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
     .unsafeSet(VehicleFromEuPage, false)
     .unsafeSet(AllImportsQuery, Map("1" -> Json.obj("importEntryNumber" -> "123456789A")))
     .unsafeSet(AllVehiclesQuery, Map("1" -> Json.obj("importNumber" -> 1, "details" -> Json.obj("dateRoadUseKnown" -> true))))
+
+  val importJourneyAnswers: UserAnswers = withVehicleDetails(importJourneyAnswersWithoutVehicleDetails)
+
+  private def expectedInset(msgs: Messages): String =
+    s"""${msgs("vehicleDetailsInset.label")} <strong>Make Model</strong>"""
 
   private def supplierCurrenciesFor(application: Application): List[Currency] =
     application.injector.instanceOf[FrontendAppConfig].supplierCurrencies
@@ -85,7 +98,7 @@ class PaymentCurrencyControllerSpec extends SpecBase with MockitoSugar {
   private def supplierView(application: Application, form: Form[String], mode: Mode)(implicit request: FakeRequest[?]): String =
     application.injector
       .instanceOf[PaymentCurrencyView]
-      .apply(supplierCurrenciesFor(application), form, PaymentCurrencyController.SupplierHeadingKey, supplierSubmitCall(mode))(
+      .apply(supplierCurrenciesFor(application), form, None, PaymentCurrencyController.SupplierHeadingKey, supplierSubmitCall(mode))(
         request,
         messages(application)
       )
@@ -94,7 +107,13 @@ class PaymentCurrencyControllerSpec extends SpecBase with MockitoSugar {
   private def importView(application: Application, form: Form[String], mode: Mode)(implicit request: FakeRequest[?]): String =
     application.injector
       .instanceOf[PaymentCurrencyView]
-      .apply(importCurrenciesFor(application), form, PaymentCurrencyController.ImportHeadingKey, importSubmitCall(mode))(
+      .apply(
+        importCurrenciesFor(application),
+        form,
+        VehicleDetailsInset(importJourneyAnswers, vehicleNumber)(messages(application)),
+        PaymentCurrencyController.ImportHeadingKey,
+        importSubmitCall(mode)
+      )(
         request,
         messages(application)
       )
@@ -292,6 +311,30 @@ class PaymentCurrencyControllerSpec extends SpecBase with MockitoSugar {
         assertBadRequestWithError(supplierJourneyAnswers, supplierRoute, "")(msgs => msgs("paymentCurrency.error.required"))
       }
 
+      "must not show an inset for a GET even when the vehicle type details have been answered" in {
+
+        val application = applicationBuilder(userAnswers = Some(supplierJourneyAnswersWithVehicleDetails)).build()
+
+        running(application) {
+          val result = route(application, FakeRequest(GET, supplierRoute)).value
+
+          status(result) mustEqual OK
+          contentAsString(result) must not include "govuk-inset-text"
+        }
+      }
+
+      "must not show an inset when the answer is invalid even when the vehicle type details have been answered" in {
+
+        val application = applicationBuilder(userAnswers = Some(supplierJourneyAnswersWithVehicleDetails)).build()
+
+        running(application) {
+          val result = route(application, FakeRequest(POST, supplierRoute).withFormUrlEncodedBody("value" -> "")).value
+
+          status(result) mustEqual BAD_REQUEST
+          contentAsString(result) must not include "govuk-inset-text"
+        }
+      }
+
       "must return a Bad Request and the required error when the currency is not in the list" in {
         assertBadRequestWithError(supplierJourneyAnswers, supplierRoute, "ZZZ")(msgs => msgs("paymentCurrency.error.required"))
       }
@@ -429,6 +472,34 @@ class PaymentCurrencyControllerSpec extends SpecBase with MockitoSugar {
         assertBadRequestWithError(importJourneyAnswers, importRoute, "", applicationBuilderWithVatTrader(_))(msgs =>
           msgs("paymentCurrency.error.required")
         )
+      }
+
+      "must show the vehicle details in an inset for a GET" in {
+
+        val application = applicationBuilderWithVatTrader(userAnswers = Some(importJourneyAnswers)).build()
+
+        running(application) {
+          val result = route(application, FakeRequest(GET, importRoute)).value
+
+          status(result) mustEqual OK
+          contentAsString(result) must include(expectedInset(messages(application)))
+        }
+      }
+
+      "must show the vehicle details in an inset when the answer is invalid" in {
+        assertBadRequestWithError(importJourneyAnswers, importRoute, "", applicationBuilderWithVatTrader(_))(expectedInset)
+      }
+
+      "must not show an inset for a GET when the vehicle type details have not been answered" in {
+
+        val application = applicationBuilderWithVatTrader(userAnswers = Some(importJourneyAnswersWithoutVehicleDetails)).build()
+
+        running(application) {
+          val result = route(application, FakeRequest(GET, importRoute)).value
+
+          status(result) mustEqual OK
+          contentAsString(result) must not include "govuk-inset-text"
+        }
       }
 
       "must return OK for a GET for an agent" in {

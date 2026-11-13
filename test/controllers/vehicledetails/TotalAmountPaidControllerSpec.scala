@@ -21,7 +21,7 @@ import com.google.inject.name.Names
 import controllers.actions.*
 import controllers.{routes, vehicledetails}
 import forms.TotalAmountPaidFormProvider
-import models.{DraftId, ImportNumber, NormalMode, SupplierNumber, UserAnswers, VehicleNumber}
+import models.{AddVehicleDetailsHeavyCommercial, AddVehicleType, DraftId, ImportNumber, NormalMode, SupplierNumber, UserAnswers, VehicleNumber}
 import navigation.{FakeNavigator, Navigator}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
@@ -29,7 +29,7 @@ import org.mockito.Mockito.{verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.DraftIdPage
 import pages.sections.initialquestions.VehicleFromEuPage
-import pages.sections.vehicledetails.TotalAmountPaidPage
+import pages.sections.vehicledetails.{AddVehicleDetailsHeavyCommercialPage, AddVehicleTypePage, TotalAmountPaidPage}
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -39,6 +39,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import queries.{AllImportsQuery, AllSuppliersQuery, AllVehiclesQuery}
 import repositories.SessionRepository
+import viewmodels.VehicleDetailsInset
 import views.html.TotalAmountPaidView
 
 import scala.concurrent.Future
@@ -59,6 +60,11 @@ class TotalAmountPaidControllerSpec extends SpecBase with MockitoSugar {
   lazy val supplierRoute = vehicledetails.routes.TotalAmountPaidController.onPageLoadSupplier(supplierNumber, vehicleNumber, NormalMode).url
   lazy val importRoute   = vehicledetails.routes.TotalAmountPaidController.onPageLoadImport(importNumber, vehicleNumber, NormalMode).url
 
+  private def withVehicleDetails(answers: UserAnswers): UserAnswers =
+    answers
+      .unsafeSet(AddVehicleTypePage(vehicleNumber), AddVehicleType.Hcv)
+      .unsafeSet(AddVehicleDetailsHeavyCommercialPage(vehicleNumber), AddVehicleDetailsHeavyCommercial("Make", "Model", "HcvType", "CabType"))
+
   val supplierAnswers: UserAnswers = emptyUserAnswers
     .set(DraftIdPage, DraftId("DRAFT-001"))
     .success
@@ -73,7 +79,9 @@ class TotalAmountPaidControllerSpec extends SpecBase with MockitoSugar {
     .success
     .value
 
-  val importAnswers: UserAnswers = emptyUserAnswers
+  val supplierAnswersWithVehicleDetails: UserAnswers = withVehicleDetails(supplierAnswers)
+
+  val importAnswersWithoutVehicleDetails: UserAnswers = emptyUserAnswers
     .set(DraftIdPage, DraftId("DRAFT-001"))
     .success
     .value
@@ -86,6 +94,11 @@ class TotalAmountPaidControllerSpec extends SpecBase with MockitoSugar {
     .set(AllVehiclesQuery, Map("1" -> Json.obj("importNumber" -> 1, "details" -> Json.obj("bringingVehicleNI" -> true))))
     .success
     .value
+
+  val importAnswers: UserAnswers = withVehicleDetails(importAnswersWithoutVehicleDetails)
+
+  private def expectedInset(application: Application): String =
+    s"""${messages(application)("vehicleDetailsInset.label")} <strong>Make Model</strong>"""
 
   private def applicationForUserType(identifierAction: Class[? <: IdentifierAction], userAnswers: UserAnswers): Application =
     new GuiceApplicationBuilder()
@@ -136,6 +149,7 @@ class TotalAmountPaidControllerSpec extends SpecBase with MockitoSugar {
           status(result) mustEqual OK
           contentAsString(result) mustEqual view(
             form,
+            None,
             vehicledetails.routes.TotalAmountPaidController.onSubmitSupplier(supplierNumber, vehicleNumber, NormalMode)
           )(request, messages(application)).toString
         }
@@ -153,6 +167,7 @@ class TotalAmountPaidControllerSpec extends SpecBase with MockitoSugar {
           status(result) mustEqual OK
           contentAsString(result) mustEqual view(
             form.fill(answer),
+            None,
             vehicledetails.routes.TotalAmountPaidController.onSubmitSupplier(supplierNumber, vehicleNumber, NormalMode)
           )(request, messages(application)).toString
         }
@@ -181,6 +196,29 @@ class TotalAmountPaidControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual BAD_REQUEST
           contentAsString(result) must include(messages(application)("totalAmountPaid.error.required"))
+        }
+      }
+
+      "must not show an inset for a GET even when the vehicle type details have been answered" in {
+        val application = applicationBuilder(userAnswers = Some(supplierAnswersWithVehicleDetails)).build()
+
+        running(application) {
+          val result = route(application, FakeRequest(GET, supplierRoute)).value
+
+          status(result) mustEqual OK
+          contentAsString(result) must not include "govuk-inset-text"
+        }
+      }
+
+      "must not show an inset when the answer is invalid even when the vehicle type details have been answered" in {
+        val application = applicationBuilder(userAnswers = Some(supplierAnswersWithVehicleDetails)).build()
+
+        running(application) {
+          val request = FakeRequest(POST, supplierRoute).withFormUrlEncodedBody(("value", ""))
+          val result  = route(application, request).value
+
+          status(result) mustEqual BAD_REQUEST
+          contentAsString(result) must not include "govuk-inset-text"
         }
       }
 
@@ -321,6 +359,7 @@ class TotalAmountPaidControllerSpec extends SpecBase with MockitoSugar {
           status(result) mustEqual OK
           contentAsString(result) mustEqual view(
             form,
+            VehicleDetailsInset(importAnswers, vehicleNumber)(messages(application)),
             vehicledetails.routes.TotalAmountPaidController.onSubmitImport(importNumber, vehicleNumber, NormalMode)
           )(request, messages(application)).toString
         }
@@ -338,6 +377,7 @@ class TotalAmountPaidControllerSpec extends SpecBase with MockitoSugar {
           status(result) mustEqual OK
           contentAsString(result) mustEqual view(
             form.fill(answer),
+            VehicleDetailsInset(userAnswers, vehicleNumber)(messages(application)),
             vehicledetails.routes.TotalAmountPaidController.onSubmitImport(importNumber, vehicleNumber, NormalMode)
           )(request, messages(application)).toString
         }
@@ -381,6 +421,40 @@ class TotalAmountPaidControllerSpec extends SpecBase with MockitoSugar {
 
           status(result) mustEqual BAD_REQUEST
           contentAsString(result) must include(messages(application)("totalAmountPaid.error.required"))
+        }
+      }
+
+      "must show the vehicle details in an inset for a GET" in {
+        val application = applicationForUserType(classOf[FakeVatTraderIdentifierAction], importAnswers)
+
+        running(application) {
+          val result = route(application, FakeRequest(GET, importRoute)).value
+
+          status(result) mustEqual OK
+          contentAsString(result) must include(expectedInset(application))
+        }
+      }
+
+      "must show the vehicle details in an inset when the answer is invalid" in {
+        val application = applicationForUserType(classOf[FakeVatTraderIdentifierAction], importAnswers)
+
+        running(application) {
+          val request = FakeRequest(POST, importRoute).withFormUrlEncodedBody(("value", ""))
+          val result  = route(application, request).value
+
+          status(result) mustEqual BAD_REQUEST
+          contentAsString(result) must include(expectedInset(application))
+        }
+      }
+
+      "must not show an inset for a GET when the vehicle type details have not been answered" in {
+        val application = applicationForUserType(classOf[FakeVatTraderIdentifierAction], importAnswersWithoutVehicleDetails)
+
+        running(application) {
+          val result = route(application, FakeRequest(GET, importRoute)).value
+
+          status(result) mustEqual OK
+          contentAsString(result) must not include "govuk-inset-text"
         }
       }
 
