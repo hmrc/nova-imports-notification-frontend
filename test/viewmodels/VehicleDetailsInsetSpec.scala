@@ -72,7 +72,7 @@ class VehicleDetailsInsetSpec extends SpecBase {
             "Naked",
             "Roadster",
             "Manual",
-            MotorcycleFuelType.Petrol,
+            "Petrol",
             "471"
           )
         )

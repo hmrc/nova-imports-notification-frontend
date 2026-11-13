@@ -14,7 +14,6 @@
  * limitations under the License.
  *@
 
-@import models.MotorcycleFuelType
 @import uk.gov.hmrc.govukfrontend.views.Implicits.RichSelect
 
 @this(
@@ -22,7 +21,6 @@
         formHelper: FormWithCSRF,
         govukButton: GovukButton,
         govukInput: GovukInput,
-        govukSelect: GovukSelect,
         govukErrorSummary: GovukErrorSummary
 )
 
@@ -107,19 +105,13 @@
              .withAutocomplete("off")
         )
 
-        @govukSelect(
-            Select(
-                id = "fuelType",
-                name = "fuelType",
-                label = LabelViewModel(messages("addVehicleDetailsMotorcycle.fuelType.label")),
-                items = Seq(
-                    SelectItem(value = Some(""), text = messages("addVehicleDetailsMotorcycle.fuelType.placeholder")),
-                    SelectItem(value = Some(MotorcycleFuelType.Electric.jsonValue), text = messages("addVehicleDetailsMotorcycle.fuelType.option.electric")),
-                    SelectItem(value = Some(MotorcycleFuelType.Hybrid.jsonValue), text = messages("addVehicleDetailsMotorcycle.fuelType.option.hybrid")),
-                    SelectItem(value = Some(MotorcycleFuelType.Petrol.jsonValue), text = messages("addVehicleDetailsMotorcycle.fuelType.option.petrol"))
-                ),
-                attributes = Map("autocomplete" -> "off")
-            ).withFormField(form("fuelType"))
+        @govukInput(
+            InputViewModel(
+                field = form("fuelType"),
+                label = LabelViewModel(messages("addVehicleDetailsMotorcycle.fuelType.label"))
+            ).withHint(HintViewModel(Text(messages("addVehicleDetailsMotorcycle.fuelType.hint"))))
+            .withCssClass("govuk-input--width-20")
+            .withAutocomplete("off")
         )
 
         @govukInput(
