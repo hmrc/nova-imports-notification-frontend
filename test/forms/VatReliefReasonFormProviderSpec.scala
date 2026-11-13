@@ -27,7 +27,7 @@ class VatReliefReasonFormProviderSpec extends OptionFieldBehaviours {
   ".value on the supplier journey" - {
 
     val requiredKey = "vatReliefReason.supplier.error.required"
-    val form = new VatReliefReasonFormProvider()(isSupplier = true)
+    val form        = new VatReliefReasonFormProvider()(isSupplier = true)
 
     behave like optionsField[VatReliefReason](
       form,
@@ -51,7 +51,7 @@ class VatReliefReasonFormProviderSpec extends OptionFieldBehaviours {
   ".value on the import journey" - {
 
     val requiredKey = "vatReliefReason.import.error.required"
-    val form = new VatReliefReasonFormProvider()(isSupplier = false)
+    val form        = new VatReliefReasonFormProvider()(isSupplier = false)
 
     behave like optionsField[VatReliefReason](
       form,

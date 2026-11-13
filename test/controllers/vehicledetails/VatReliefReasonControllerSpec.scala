@@ -240,9 +240,7 @@ class VatReliefReasonControllerSpec extends SpecBase with MockitoSugar {
       }
 
       "must return a Bad Request and the supplier required error when no option is selected" in {
-        assertBadRequestWithError(supplierJourneyAnswers, supplierRoute, Map("value" -> ""))(msgs =>
-          msgs("vatReliefReason.supplier.error.required")
-        )
+        assertBadRequestWithError(supplierJourneyAnswers, supplierRoute, Map("value" -> ""))(msgs => msgs("vatReliefReason.supplier.error.required"))
       }
 
       "must return a Bad Request and the supplier required error when an import-only reason is submitted" in {
