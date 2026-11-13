@@ -24,5 +24,5 @@ final case class VatReliefReasonPage(vehicleNumber: VehicleNumber) extends Quest
 
   override def path: JsPath = JsPath \ "vehicles" \ vehicleNumber.value.toString \ "details" \ toString
 
-  override def toString: String = "vatReliefReason"
+  override def toString: String = "reasonForClaimingRelief"
 }
