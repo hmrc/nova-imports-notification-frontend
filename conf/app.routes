@@ -161,6 +161,7 @@ GET         /errors-found-in-vehicle-spreadsheet                                
 
 GET         /check-vehicle-spreadsheet-details                                                                                  controllers.vehicledetails.CheckVehicleSpreadsheetDetailsController.onPageLoad(page: Int ?= 1)
 POST        /check-vehicle-spreadsheet-details                                                                                  controllers.vehicledetails.CheckVehicleSpreadsheetDetailsController.onSubmit()
+GET         /check-vehicle-spreadsheet-details/download                                                                         controllers.vehicledetails.DownloadSpreadsheetDataController.download()
 
 GET         /update-vehicle-spreadsheet                                                                                         controllers.vehicledetails.UpdateVehicleSpreadsheetController.onPageLoad()
 POST        /update-vehicle-spreadsheet                                                                                         controllers.vehicledetails.UpdateVehicleSpreadsheetController.onSubmit()
