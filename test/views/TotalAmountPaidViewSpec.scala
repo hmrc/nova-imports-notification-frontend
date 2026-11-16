@@ -25,8 +25,10 @@ import org.scalatest.matchers.must.Matchers
 import play.api.Application
 import play.api.data.Form
 import play.api.i18n.Messages
-import play.api.mvc.Request
+import play.api.mvc.{Call, Request}
 import play.api.test.FakeRequest
+import uk.gov.hmrc.govukfrontend.views.viewmodels.insettext.InsetText
+import viewmodels.govuk.inset.*
 import views.html.TotalAmountPaidView
 
 import scala.concurrent.Await
@@ -51,8 +53,10 @@ class TotalAmountPaidViewSpec extends SpecBase with Matchers with BeforeAndAfter
     controllers.vehicledetails.routes.TotalAmountPaidController.onSubmitSupplier(SupplierNumber(1), VehicleNumber(1), NormalMode)
   val importPostAction = controllers.vehicledetails.routes.TotalAmountPaidController.onSubmitImport(ImportNumber(1), VehicleNumber(1), NormalMode)
 
-  private def render(form: Form[String] = form, postAction: play.api.mvc.Call = supplierPostAction): String =
-    view(form, postAction)(request, msgs).toString
+  val vehicleDetails: InsetText = InsetTextViewModel("Vehicle details: <strong>Make Model BodyType</strong>")
+
+  private def render(form: Form[String] = form, vehicleDetails: Option[InsetText] = None, postAction: Call = supplierPostAction): String =
+    view(form, vehicleDetails, postAction)(request, msgs).toString
 
   "TotalAmountPaidView" - {
 
@@ -102,6 +106,25 @@ class TotalAmountPaidViewSpec extends SpecBase with Matchers with BeforeAndAfter
       html must include(msgs("totalAmountPaid.bullet.2"))
       html must include(msgs("totalAmountPaid.bullet.3"))
       html must include(msgs("totalAmountPaid.paragraph.2"))
+    }
+
+    "must render the vehicle details inset above the caption" in {
+      val document = Jsoup.parse(render(vehicleDetails = Some(vehicleDetails)))
+
+      document.select(".govuk-inset-text").text mustEqual "Vehicle details: Make Model BodyType"
+      document.select(".govuk-inset-text strong").text mustEqual "Make Model BodyType"
+      document.select(".govuk-inset-text").hasClass("govuk-!-margin-top-0") mustEqual true
+      document.select(".govuk-inset-text + .govuk-caption-l").isEmpty mustEqual false
+    }
+
+    "must not render an inset when there are no vehicle details" in {
+      Jsoup.parse(render()).select(".govuk-inset-text").isEmpty mustEqual true
+    }
+
+    "must render the inset below the error summary when the form has errors" in {
+      val document = Jsoup.parse(render(form.bind(Map("value" -> "")), Some(vehicleDetails)))
+
+      document.select(".govuk-error-summary ~ .govuk-inset-text").isEmpty mustEqual false
     }
 
     "must render a back link" in {

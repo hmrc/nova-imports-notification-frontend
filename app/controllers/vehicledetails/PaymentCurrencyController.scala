@@ -30,6 +30,8 @@ import pages.sections.vehicledetails.PaymentCurrencyPage
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents, Result}
 import repositories.SessionRepository
 import services.{ImportService, SupplierService, VehicleService}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.insettext.InsetText
+import viewmodels.VehicleDetailsInset
 import views.html.PaymentCurrencyView
 
 import javax.inject.Inject
@@ -54,6 +56,7 @@ class PaymentCurrencyController @Inject() (
       implicit request =>
         handlePageLoad(
           vehicleNumber,
+          None,
           appConfig.supplierCurrencies,
           SupplierHeadingKey,
           routes.PaymentCurrencyController.supplierOnSubmit(supplierNumber, vehicleNumber, mode)
@@ -64,6 +67,7 @@ class PaymentCurrencyController @Inject() (
     actions.authAndGetDataWithUserTypeGuard(importGuardPredicate(importService, vehicleService, importNumber, vehicleNumber)) { implicit request =>
       handlePageLoad(
         vehicleNumber,
+        VehicleDetailsInset(request.userAnswers, vehicleNumber),
         appConfig.currencies,
         ImportHeadingKey,
         routes.PaymentCurrencyController.importOnSubmit(importNumber, vehicleNumber, mode)
@@ -75,6 +79,7 @@ class PaymentCurrencyController @Inject() (
       implicit request =>
         handleSubmit(
           vehicleNumber,
+          None,
           appConfig.supplierCurrencies,
           SupplierHeadingKey,
           routes.PaymentCurrencyController.supplierOnSubmit(supplierNumber, vehicleNumber, mode),
@@ -87,6 +92,7 @@ class PaymentCurrencyController @Inject() (
       implicit request =>
         handleSubmit(
           vehicleNumber,
+          VehicleDetailsInset(request.userAnswers, vehicleNumber),
           appConfig.currencies,
           ImportHeadingKey,
           routes.PaymentCurrencyController.importOnSubmit(importNumber, vehicleNumber, mode),
@@ -94,19 +100,40 @@ class PaymentCurrencyController @Inject() (
         )
     }
 
-  private def handlePageLoad(vehicleNumber: VehicleNumber, currencies: List[Currency], headingKey: String, submitCall: Call)(implicit
+  private def handlePageLoad(
+    vehicleNumber: VehicleNumber,
+    vehicleDetails: Option[InsetText],
+    currencies: List[Currency],
+    headingKey: String,
+    submitCall: Call
+  )(implicit
     request: DataRequest[AnyContent]
   ): Result =
-    Ok(view(currencies, formProvider(currencies).withDefault(request.userAnswers.get(PaymentCurrencyPage(vehicleNumber))), headingKey, submitCall))
+    Ok(
+      view(
+        currencies,
+        formProvider(currencies).withDefault(request.userAnswers.get(PaymentCurrencyPage(vehicleNumber))),
+        vehicleDetails,
+        headingKey,
+        submitCall
+      )
+    )
 
-  private def handleSubmit(vehicleNumber: VehicleNumber, currencies: List[Currency], headingKey: String, submitCall: Call, mode: Mode)(implicit
+  private def handleSubmit(
+    vehicleNumber: VehicleNumber,
+    vehicleDetails: Option[InsetText],
+    currencies: List[Currency],
+    headingKey: String,
+    submitCall: Call,
+    mode: Mode
+  )(implicit
     request: DataRequest[AnyContent]
   ): Future[Result] = {
     val page = PaymentCurrencyPage(vehicleNumber)
     formProvider(currencies)
       .bindFromRequest()
       .fold(
-        formWithErrors => Future.successful(BadRequest(view(currencies, formWithErrors, headingKey, submitCall))),
+        formWithErrors => Future.successful(BadRequest(view(currencies, formWithErrors, vehicleDetails, headingKey, submitCall))),
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(page, value))
