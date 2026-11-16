@@ -275,7 +275,9 @@ class DateOfArrivalControllerSpec extends SpecBase with MockitoSugar {
           val content = contentAsString(route(application, FakeRequest(GET, supplierRoute)).value)
 
           content must include("""href="https://www.gov.uk/vehicle-registration-schemes-for-the-motor-trade/secure-registration-scheme"""")
-          content must include("""href="https://register-vehicle.service.gov.uk/"""")
+          content must include(
+            """href="https://www.gov.uk/guidance/register-a-vehicle-if-you-work-for-a-vehicle-manufacturer-or-retailer""""
+          )
         }
       }
 
@@ -422,9 +424,15 @@ class DateOfArrivalControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must return a Bad Request when the vehicle was first registered in the UK and arrived on the same date" in {
-        assertBadRequestWithError(supplierWithFirstRegistration("GB"), supplierRoute, dateFields("10", "03", "2026"))(
-          "The date the vehicle arrived in the UK must be after the date the vehicle was first registered"
+      "must save the date when the vehicle was first registered in the UK and arrived on the same date" in {
+        assertRedirectsAndSaves(supplierWithFirstRegistration("GB"), supplierRoute, dateFields("10", "03", "2026")) { saved =>
+          saved.get(DateOfArrivalPage(vehicleNumber)) mustEqual Some(firstRegistrationDate)
+        }
+      }
+
+      "must return a Bad Request when the vehicle was first registered in the UK and arrived the day before" in {
+        assertBadRequestWithError(supplierWithFirstRegistration("GB"), supplierRoute, dateFields("09", "03", "2026"))(
+          "The date the vehicle arrived in the UK must be the same as or after the date the vehicle was first registered"
         )
       }
 
@@ -545,7 +553,7 @@ class DateOfArrivalControllerSpec extends SpecBase with MockitoSugar {
           status(result) mustEqual OK
           contentAsString(result) mustEqual expectedView(
             application,
-            formFor(application, isRequired = false),
+            formFor(application, isRequired = true),
             importJourneyAnswers,
             importSubmitCall(NormalMode)
           )
@@ -565,7 +573,7 @@ class DateOfArrivalControllerSpec extends SpecBase with MockitoSugar {
           status(result) mustEqual OK
           contentAsString(result) mustEqual expectedView(
             application,
-            formFor(application, isRequired = false),
+            formFor(application, isRequired = true),
             importJourneyAnswers,
             importSubmitCall(CheckMode)
           )
@@ -586,7 +594,7 @@ class DateOfArrivalControllerSpec extends SpecBase with MockitoSugar {
           status(result) mustEqual OK
           contentAsString(result) mustEqual expectedView(
             application,
-            formFor(application, isRequired = false).fill(Some(answer)),
+            formFor(application, isRequired = true).fill(Some(answer)),
             userAnswers,
             importSubmitCall(NormalMode)
           )
@@ -599,19 +607,15 @@ class DateOfArrivalControllerSpec extends SpecBase with MockitoSugar {
         }
       }
 
-      "must redirect to the next page without saving a date when no date is entered" in {
-        assertRedirectsAndSaves(importJourneyAnswers, importRoute, dateFields("", "", "")) { saved =>
-          saved.get(DateOfArrivalPage(vehicleNumber)) mustEqual None
-        }
+      "must return a Bad Request and the empty date error when no date is entered" in {
+        assertBadRequestWithError(importJourneyAnswers, importRoute, dateFields("", "", ""))("Enter the date the vehicle arrived in the UK")
       }
 
-      "must remove a previously saved date when no date is entered" in {
+      "must return a Bad Request and the empty date error when a previously saved date is cleared" in {
 
         val userAnswers = importJourneyAnswers.unsafeSet(DateOfArrivalPage(vehicleNumber), answer)
 
-        assertRedirectsAndSaves(userAnswers, importRoute, dateFields("", "", "")) { saved =>
-          saved.get(DateOfArrivalPage(vehicleNumber)) mustEqual None
-        }
+        assertBadRequestWithError(userAnswers, importRoute, dateFields("", "", ""))("Enter the date the vehicle arrived in the UK")
       }
 
       "must return a Bad Request and the missing year error when only the year is missing" in {

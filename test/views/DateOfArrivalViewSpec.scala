@@ -244,7 +244,7 @@ class DateOfArrivalViewSpec extends SpecBase with Matchers with BeforeAndAfterAl
     }
 
     "must highlight the whole date and show the after first registration error" in {
-      val firstRegistrationForm = formProvider(isRequired = true, Some(FirstRegistration(LocalDate.of(2026, 3, 10), countryIsEuOrUk = true)))
+      val firstRegistrationForm = formProvider(isRequired = true, Some(FirstRegistration(LocalDate.of(2026, 3, 10), countryIsEu = true)))
       val document              = doc(bind(firstRegistrationForm, "10", "03", "2026"))
 
       document.select(".govuk-error-message").text must include(
@@ -254,7 +254,7 @@ class DateOfArrivalViewSpec extends SpecBase with Matchers with BeforeAndAfterAl
     }
 
     "must show the same as or after first registration error" in {
-      val firstRegistrationForm = formProvider(isRequired = true, Some(FirstRegistration(LocalDate.of(2026, 3, 10), countryIsEuOrUk = false)))
+      val firstRegistrationForm = formProvider(isRequired = true, Some(FirstRegistration(LocalDate.of(2026, 3, 10), countryIsEu = false)))
 
       doc(bind(firstRegistrationForm, "09", "03", "2026")).select(".govuk-error-message").text must include(
         "The date the vehicle arrived in the UK must be the same as or after the date the vehicle was first registered"

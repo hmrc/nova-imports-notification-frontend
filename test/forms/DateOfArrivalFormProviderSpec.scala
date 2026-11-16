@@ -179,9 +179,9 @@ class DateOfArrivalFormProviderSpec extends DateBehaviours {
     }
   }
 
-  "when the vehicle was first registered in an EU country or the UK" - {
+  "when the vehicle was first registered in an EU country" - {
 
-    val form = formProvider(isRequired = true, Some(FirstRegistration(firstRegistrationDate, countryIsEuOrUk = true)))
+    val form = formProvider(isRequired = true, Some(FirstRegistration(firstRegistrationDate, countryIsEu = true)))
 
     "must fail to bind an arrival on the first registration date" in {
       bind(form, "10", "03", "2026").errors must contain only FormError("value", "dateOfArrival.error.afterFirstRegistration")
@@ -197,15 +197,15 @@ class DateOfArrivalFormProviderSpec extends DateBehaviours {
 
     "must report only the future error when the date is in the future and before the first registration date" in {
 
-      val laterRegistrationForm = formProvider(isRequired = true, Some(FirstRegistration(LocalDate.of(2026, 12, 1), countryIsEuOrUk = true)))
+      val laterRegistrationForm = formProvider(isRequired = true, Some(FirstRegistration(LocalDate.of(2026, 12, 1), countryIsEu = true)))
 
       bind(laterRegistrationForm, "19", "09", "2026").errors must contain only FormError("value", "dateOfArrival.error.future")
     }
   }
 
-  "when the vehicle was first registered outside the EU and the UK" - {
+  "when the vehicle was first registered outside the EU (including the UK)" - {
 
-    val form = formProvider(isRequired = true, Some(FirstRegistration(firstRegistrationDate, countryIsEuOrUk = false)))
+    val form = formProvider(isRequired = true, Some(FirstRegistration(firstRegistrationDate, countryIsEu = false)))
 
     "must bind an arrival on the first registration date" in {
       bind(form, "10", "03", "2026").value.value mustEqual Some(firstRegistrationDate)

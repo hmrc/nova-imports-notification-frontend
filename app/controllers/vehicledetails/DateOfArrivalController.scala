@@ -73,7 +73,7 @@ class DateOfArrivalController @Inject() (
     actions.authAndGetDataWithUserTypeGuard(importGuardPredicate(importService, vehicleService, importNumber, vehicleNumber)) { implicit request =>
       handlePageLoad(
         vehicleNumber,
-        formProvider(isRequired = false),
+        formProvider(isRequired = true),
         vehicledetails.routes.DateOfArrivalController.importOnSubmit(importNumber, vehicleNumber, mode)
       )
     }
@@ -103,7 +103,7 @@ class DateOfArrivalController @Inject() (
       implicit request =>
         handleSubmit(
           vehicleNumber,
-          formProvider(isRequired = false),
+          formProvider(isRequired = true),
           vehicledetails.routes.DateOfArrivalController.importOnSubmit(importNumber, vehicleNumber, mode),
           mode
         )
@@ -152,7 +152,7 @@ class DateOfArrivalController @Inject() (
       case Some((date, countryCode)) =>
         backendConnector.getEuMemberStates().map {
           _.map { euMemberStates =>
-            Some(FirstRegistration(date, countryCode == UnitedKingdomCode || euMemberStates.countries.exists(_.code == countryCode)))
+            Some(FirstRegistration(date, euMemberStates.countries.exists(_.code == countryCode)))
           }
         }
       case None => Future.successful(Right(None))
@@ -161,8 +161,6 @@ class DateOfArrivalController @Inject() (
 }
 
 object DateOfArrivalController {
-
-  private val UnitedKingdomCode = "GB"
 
   def supplierGuardPredicate(
     supplierService: SupplierService,
