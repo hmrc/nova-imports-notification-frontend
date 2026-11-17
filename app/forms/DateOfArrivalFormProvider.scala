@@ -45,11 +45,11 @@ class DateOfArrivalFormProvider @Inject() (clock: Clock) extends Mappings {
   private def todayInUk: LocalDate = LocalDate.now(clock.withZone(ZoneId.of("Europe/London")))
 
   private def afterFirstRegistration(firstRegistration: FirstRegistration): Constraint[LocalDate] =
-    if (firstRegistration.countryIsEuOrUk) minDate(firstRegistration.date.plusDays(1), "dateOfArrival.error.afterFirstRegistration")
+    if (firstRegistration.countryIsEu) minDate(firstRegistration.date.plusDays(1), "dateOfArrival.error.afterFirstRegistration")
     else minDate(firstRegistration.date, "dateOfArrival.error.sameAsOrAfterFirstRegistration")
 }
 
 object DateOfArrivalFormProvider {
 
-  final case class FirstRegistration(date: LocalDate, countryIsEuOrUk: Boolean)
+  final case class FirstRegistration(date: LocalDate, countryIsEu: Boolean)
 }
