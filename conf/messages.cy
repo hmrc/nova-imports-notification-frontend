@@ -880,21 +880,20 @@ purchaserDetailsCheckYourAnswers.heading = Gwiriwch eich atebion
 #####################################################################
 # AVD3.0 - Add vehicle details 3.0: Which vehicle dates do you have #
 #####################################################################
-# TODO: Welsh translations to be supplied by content team.
 
-vehicleDates.title = Which dates do you have for the vehicle?
-vehicleDates.heading = Which dates do you have for the vehicle?
-vehicleDates.caption = Add vehicle details
-vehicleDates.hint = Select all that apply
-vehicleDates.error.required = Select the dates you have for the vehicle
-vehicleDates.error.oneMoreDate = You must select one more date
-vehicleDates.checkbox.firstRegistration = Date the vehicle was first registered
-vehicleDates.checkbox.firstRegistration.hint = You must also provide the country where the vehicle was first registered
-vehicleDates.checkbox.madeAvailable = Date the vehicle was made available
-vehicleDates.checkbox.purchaseInvoiceDate = Purchase invoice date
-vehicleDates.checkbox.purchaseInvoiceDate.hint = Select this only if you have a purchase invoice. You must also provide the purchase invoice number
-vehicleDates.or = or
-vehicleDates.checkbox.noDates = I do not have any of these dates
+vehicleDates.title = Pa ddyddiadau sydd gennych ar gyfer y cerbyd?
+vehicleDates.heading = Pa ddyddiadau sydd gennych ar gyfer y cerbyd?
+vehicleDates.caption = Ychwanegu manylion y cerbyd
+vehicleDates.hint = Dewiswch bob un sy’n berthnasol
+vehicleDates.error.required = Dewiswch y dyddiadau sydd gennych ar gyfer y cerbyd
+vehicleDates.error.oneMoreDate = Mae’n rhaid i chi ddewis un dyddiad yn ychwanegol
+vehicleDates.checkbox.firstRegistration = Y dyddiad y cafodd y cerbyd ei gofrestru am y tro cyntaf
+vehicleDates.checkbox.firstRegistration.hint = Mae’n rhaid i chi hefyd nodi enw’r wlad lle cafodd y cerbyd ei gofrestru am y tro cyntaf
+vehicleDates.checkbox.madeAvailable = Y dyddiad yr oedd y cerbyd ar gael am y tro cyntaf
+vehicleDates.checkbox.purchaseInvoiceDate = Dyddiad yr anfoneb brynu
+vehicleDates.checkbox.purchaseInvoiceDate.hint = Dewiswch hwn yn unig os oes gennych anfoneb brynu. Mae’n rhaid i chi hefyd gynnwys rhif yr anfoneb brynu
+vehicleDates.or = neu
+vehicleDates.checkbox.noDates = Nid oes gen i unrhyw un o’r dyddiadau hyn
 
 ##############################################################
 # AVD4.0 - Add vehicle details 4.0: Purchase invoice date    #
@@ -1292,42 +1291,41 @@ confirmVehicleTypeDetails.notProvided = Not provided
 #######################################################
 # AVD8.1 - Add vehicle details 8.1 - Car               #
 #######################################################
-# TODO: Welsh translations to be supplied by content team.
 
-addVehicleDetailsCar.title = Enter the car details
-addVehicleDetailsCar.caption = Add vehicle details
-addVehicleDetailsCar.heading = Enter the car details
-addVehicleDetailsCar.paragraph.1 = You can usually find these details on the purchase invoice or in the vehicle manual.
+addVehicleDetailsCar.title = Nodwch fanylion y car
+addVehicleDetailsCar.caption = Ychwanegu manylion y cerbyd
+addVehicleDetailsCar.heading = Nodwch fanylion y car
+addVehicleDetailsCar.paragraph.1 = Fel arfer, cewch hyd i’r manylion hyn yn llawlyfr y cerbyd neu ar yr anfoneb brynu.
 
-addVehicleDetailsCar.make.label = Make
-addVehicleDetailsCar.make.hint = For example, Land Rover
-addVehicleDetailsCar.make.error.required = Enter the make
-addVehicleDetailsCar.make.error.format = The make must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
-addVehicleDetailsCar.make.error.length = The make must be 50 characters or less
+addVehicleDetailsCar.make.label = Gwneuthuriad
+addVehicleDetailsCar.make.hint = Er enghraifft, Land Rover
+addVehicleDetailsCar.make.error.required = Nodwch y gwneuthuriad
+addVehicleDetailsCar.make.error.format = Ni all y gwneuthuriad gynnwys cymeriadau arbennig fel #, $, ^, `, {, |, }, ~, na unrhyw lythrennau acennog fel è
+addVehicleDetailsCar.make.error.length = Mae’n rhaid i’r gwneuthuriad fod yn 50 o gymeriadau neu lai
 
 addVehicleDetailsCar.model.label = Model
-addVehicleDetailsCar.model.hint = For example, Discovery 4
-addVehicleDetailsCar.model.error.required = Enter the model
-addVehicleDetailsCar.model.error.format = The model must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
-addVehicleDetailsCar.model.error.length = The model must be 50 characters or less
+addVehicleDetailsCar.model.hint = Er enghraifft, Discovery 4
+addVehicleDetailsCar.model.error.required = Nodwch y model
+addVehicleDetailsCar.model.error.format = Ni all y model gynnwys cymeriadau arbennig fel #, $, ^, `, {, |, }, ~, na unrhyw lythrennau acennog fel è
+addVehicleDetailsCar.model.error.length = Mae’n rhaid i’r model fod yn 50 o gymeriadau neu lai
 
-addVehicleDetailsCar.derivative.label = Derivative
-addVehicleDetailsCar.derivative.hint = For example, 3.0TD
-addVehicleDetailsCar.derivative.error.required = Enter the derivative
-addVehicleDetailsCar.derivative.error.format = The derivative must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
-addVehicleDetailsCar.derivative.error.length = The derivative must be 50 characters or less
+addVehicleDetailsCar.derivative.label = Deilliad
+addVehicleDetailsCar.derivative.hint = Er enghraifft, 3.0TD
+addVehicleDetailsCar.derivative.error.required = Nodwch y deilliad
+addVehicleDetailsCar.derivative.error.format = Ni all y deilliad gynnwys cymeriadau arbennig fel #, $, ^, `, {, |, }, ~, na unrhyw lythrennau acennog fel è
+addVehicleDetailsCar.derivative.error.length = Mae’n rhaid i’r deilliad fod yn 50 o gymeriadau neu lai
 
-addVehicleDetailsCar.trim.label = Trim
-addVehicleDetailsCar.trim.hint = For example, XS
-addVehicleDetailsCar.trim.error.required = Enter the trim
-addVehicleDetailsCar.trim.error.format = The trim must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
-addVehicleDetailsCar.trim.error.length = The trim must be 50 characters or less
+addVehicleDetailsCar.trim.label = Addurn
+addVehicleDetailsCar.trim.hint = Er enghraifft, XS
+addVehicleDetailsCar.trim.error.required = Nodwch yr addurn
+addVehicleDetailsCar.trim.error.format = Ni all yr addurn gynnwys cymeriadau arbennig fel #, $, ^, `, {, |, }, ~, na unrhyw lythrennau acennog fel è
+addVehicleDetailsCar.trim.error.length = Mae’n rhaid i’r addurn fod yn 50 o gymeriadau neu lai
 
-addVehicleDetailsCar.bodyType.label = Body type
-addVehicleDetailsCar.bodyType.hint = For example, a station wagon
-addVehicleDetailsCar.bodyType.error.required = Enter the body type
-addVehicleDetailsCar.bodyType.error.format = The body type must not include special characters such as #, $, ^, `, '{', |, '}', ~, or accented letters such as è
-addVehicleDetailsCar.bodyType.error.length = The body type must be 20 characters or less
+addVehicleDetailsCar.bodyType.label = Math o gorff
+addVehicleDetailsCar.bodyType.hint = Er enghraifft, wagen orsaf
+addVehicleDetailsCar.bodyType.error.required = Nodwch y math o gorff
+addVehicleDetailsCar.bodyType.error.format = Ni all y math o gorff gynnwys cymeriadau arbennig fel #, $, ^, `, {, |, }, ~, na unrhyw lythrennau acennog fel è
+addVehicleDetailsCar.bodyType.error.length = Mae’n rhaid i’r math o gorff fod yn 20 o gymeriadau neu lai
 
 ################################################################
 # AVD8.2 - Add vehicle details 8.0:Light commercial vehicle    #
