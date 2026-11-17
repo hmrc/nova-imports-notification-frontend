@@ -53,7 +53,7 @@
         @govukRadios(
             RadiosViewModel.yesNo(
                 field  = form("value"),
-                legend = LegendViewModel(messages("vatRelief.heading.2")).asPageHeading(LegendSize.Medium)
+                legend = LegendViewModel(messages("vatRelief.heading.2")).withCssClass(LegendSize.Medium.toString)
             )
         )
 
