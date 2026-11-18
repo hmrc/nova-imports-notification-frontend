@@ -939,7 +939,7 @@ noPurchaseInvoiceReason.hint.exceeded.end.many = characters too many
 noPurchaseInvoiceReason.caption = Ychwanegu manylion y cerbyd
 noPurchaseInvoiceReason.error.required = Nodwch reswm pam nad yw anfoneb y pryniant ar gael
 noPurchaseInvoiceReason.error.length = Mae’n rhaid i’r rheswm fod yn 160 o gymeriadau neu lai
-noPurchaseInvoiceReason.error.invalid = Ni all y rheswm hwn gynnwys cymeriadau arbennig megis #, $, ^, `, {, |, }, ~, neu unrhyw lythrennau acennog megis ô
+noPurchaseInvoiceReason.error.invalid = Ni all y rheswm hwn gynnwys cymeriadau arbennig megis #, $, ^, `, '{', |, '}', ~, neu unrhyw lythrennau acennog megis ô
 
 ##############################################################
 # AVD7.0 - Add vehicle details 7.0: Total amount paid        #
@@ -1300,31 +1300,31 @@ addVehicleDetailsCar.paragraph.1 = Fel arfer, cewch hyd i’r manylion hyn yn ll
 addVehicleDetailsCar.make.label = Gwneuthuriad
 addVehicleDetailsCar.make.hint = Er enghraifft, Land Rover
 addVehicleDetailsCar.make.error.required = Nodwch y gwneuthuriad
-addVehicleDetailsCar.make.error.format = Ni all y gwneuthuriad gynnwys cymeriadau arbennig fel #, $, ^, `, {, |, }, ~, na unrhyw lythrennau acennog fel è
+addVehicleDetailsCar.make.error.format = Ni all y gwneuthuriad gynnwys cymeriadau arbennig fel #, $, ^, `, '{', |, '}', ~, na unrhyw lythrennau acennog fel è
 addVehicleDetailsCar.make.error.length = Mae’n rhaid i’r gwneuthuriad fod yn 50 o gymeriadau neu lai
 
 addVehicleDetailsCar.model.label = Model
 addVehicleDetailsCar.model.hint = Er enghraifft, Discovery 4
 addVehicleDetailsCar.model.error.required = Nodwch y model
-addVehicleDetailsCar.model.error.format = Ni all y model gynnwys cymeriadau arbennig fel #, $, ^, `, {, |, }, ~, na unrhyw lythrennau acennog fel è
+addVehicleDetailsCar.model.error.format = Ni all y model gynnwys cymeriadau arbennig fel #, $, ^, `, '{', |, '}', ~, na unrhyw lythrennau acennog fel è
 addVehicleDetailsCar.model.error.length = Mae’n rhaid i’r model fod yn 50 o gymeriadau neu lai
 
 addVehicleDetailsCar.derivative.label = Deilliad
 addVehicleDetailsCar.derivative.hint = Er enghraifft, 3.0TD
 addVehicleDetailsCar.derivative.error.required = Nodwch y deilliad
-addVehicleDetailsCar.derivative.error.format = Ni all y deilliad gynnwys cymeriadau arbennig fel #, $, ^, `, {, |, }, ~, na unrhyw lythrennau acennog fel è
+addVehicleDetailsCar.derivative.error.format = Ni all y deilliad gynnwys cymeriadau arbennig fel #, $, ^, `, '{', |, '}', ~, na unrhyw lythrennau acennog fel è
 addVehicleDetailsCar.derivative.error.length = Mae’n rhaid i’r deilliad fod yn 50 o gymeriadau neu lai
 
 addVehicleDetailsCar.trim.label = Addurn
 addVehicleDetailsCar.trim.hint = Er enghraifft, XS
 addVehicleDetailsCar.trim.error.required = Nodwch yr addurn
-addVehicleDetailsCar.trim.error.format = Ni all yr addurn gynnwys cymeriadau arbennig fel #, $, ^, `, {, |, }, ~, na unrhyw lythrennau acennog fel è
+addVehicleDetailsCar.trim.error.format = Ni all yr addurn gynnwys cymeriadau arbennig fel #, $, ^, `, '{', |, '}', ~, na unrhyw lythrennau acennog fel è
 addVehicleDetailsCar.trim.error.length = Mae’n rhaid i’r addurn fod yn 50 o gymeriadau neu lai
 
 addVehicleDetailsCar.bodyType.label = Math o gorff
 addVehicleDetailsCar.bodyType.hint = Er enghraifft, wagen orsaf
 addVehicleDetailsCar.bodyType.error.required = Nodwch y math o gorff
-addVehicleDetailsCar.bodyType.error.format = Ni all y math o gorff gynnwys cymeriadau arbennig fel #, $, ^, `, {, |, }, ~, na unrhyw lythrennau acennog fel è
+addVehicleDetailsCar.bodyType.error.format = Ni all y math o gorff gynnwys cymeriadau arbennig fel #, $, ^, `, '{', |, '}', ~, na unrhyw lythrennau acennog fel è
 addVehicleDetailsCar.bodyType.error.length = Mae’n rhaid i’r math o gorff fod yn 20 o gymeriadau neu lai
 
 ################################################################
