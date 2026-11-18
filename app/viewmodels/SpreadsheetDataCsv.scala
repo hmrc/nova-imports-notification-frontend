@@ -16,9 +16,8 @@
 
 package viewmodels
 
-import models.responses.{SpreadsheetEuVehicle, UploadResultResponse}
+import models.responses.{SpreadsheetAgriculturalTractorEuVehicle, SpreadsheetAgriculturalTractorNonEuVehicle, SpreadsheetConstructionVehiclesEuVehicle, SpreadsheetConstructionVehiclesNonEuVehicle, SpreadsheetEuVehicle, SpreadsheetHeavyCommercialEuVehicle, SpreadsheetHeavyCommercialNonEuVehicle, SpreadsheetMotorCaravansEuVehicle, SpreadsheetMotorCaravansNonEuVehicle, SpreadsheetMotorcyclesEuVehicle, SpreadsheetMotorcyclesNonEuVehicle, SpreadsheetNonEuVehicle, UploadResultResponse}
 import play.api.i18n.Messages
-
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -26,69 +25,501 @@ object SpreadsheetDataCsv {
 
   def apply(result: UploadResultResponse)(implicit messages: Messages): Option[String] =
     result.validationType match {
-      case Some("CarsEu") => Some(csv(supplierCarColumns, result.euVehicles))
-      case _              => None
+      case Some("CarsEu") | Some("LightCommercialVehiclesEu") =>
+        Some(buildVehicleHeadingsAndRows(supplierCarAndLcvHeadingsAndValues, result.euVehicles))
+      case Some("CarsNonEu")                    => Some(buildVehicleHeadingsAndRows(importCarHeadingsAndValues, result.nonEuVehicles))
+      case Some("LightCommercialVehiclesNonEu") => Some(buildVehicleHeadingsAndRows(importLcvHeadingsAndValues, result.nonEuVehicles))
+      case Some("AgriculturalTractorsEu")       =>
+        Some(buildVehicleHeadingsAndRows(supplierAgriculturalTractorHeadingsAndValues, result.agriculturalTractorEuVehicles))
+      case Some("AgriculturalTractorsNonEu") =>
+        Some(buildVehicleHeadingsAndRows(importAgriculturalTractorHeadingsAndValues, result.agriculturalTractorNonEuVehicles))
+      case Some("ConstructionVehiclesEu") =>
+        Some(buildVehicleHeadingsAndRows(supplierConstructionVehicleHeadingsAndValues, result.constructionVehiclesEuVehicles))
+      case Some("ConstructionVehiclesNonEu") =>
+        Some(buildVehicleHeadingsAndRows(importConstructionVehicleHeadingsAndValues, result.constructionVehiclesNonEuVehicles))
+      case Some("HeavyCommercialVehiclesEu") =>
+        Some(buildVehicleHeadingsAndRows(supplierHeavyCommercialVehicleHeadingsAndValues, result.heavyCommercialEuVehicles))
+      case Some("HeavyCommercialVehiclesNonEu") =>
+        Some(buildVehicleHeadingsAndRows(importHeavyCommercialVehicleHeadingsAndValues, result.heavyCommercialNonEuVehicles))
+      case Some("MotorCaravansEu") =>
+        Some(buildVehicleHeadingsAndRows(supplierMotorCaravanHeadingsAndValues, result.motorCaravansEuVehicles))
+      case Some("MotorCaravansNonEu") =>
+        Some(buildVehicleHeadingsAndRows(importMotorCaravanHeadingsAndValues, result.motorCaravansNonEuVehicles))
+      case Some("MotorcyclesEu") =>
+        Some(buildVehicleHeadingsAndRows(supplierMotorcycleHeadingsAndValues, result.motorcyclesEuVehicles))
+      case Some("MotorcyclesNonEu") =>
+        Some(buildVehicleHeadingsAndRows(importMotorcycleHeadingsAndValues, result.motorcyclesNonEuVehicles))
+      case _ => None
     }
 
-  private type Column[A] = (String, A => String)
+  private type HeadingAndValue[A] = (String, A => String)
 
-  private def csv[A](columns: Seq[Column[A]], vehicles: Seq[A])(implicit messages: Messages): String = {
-    val headings = record(columns.map((key, _) => messages(key)))
-    val rows     = vehicles.map(vehicle => record(columns.map((_, value) => value(vehicle))))
+  private def buildVehicleHeadingsAndRows[A](headingsAndValues: Seq[HeadingAndValue[A]], vehicles: Seq[A])(implicit messages: Messages): String = {
+    val headings = record(headingsAndValues.map((key, _) => messages(key)))
+    val rows     = vehicles.map(vehicle => record(headingsAndValues.map((_, value) => value(vehicle))))
     (headings +: rows).mkString
   }
 
-  private def supplier(field: String): String = s"checkVehicleSpreadsheetDetails.download.csv.supplier.$field"
+  private def headingKey(field: String): String = s"checkVehicleSpreadsheetDetails.download.csv.$field"
 
-  private val supplierCarColumns: Seq[Column[SpreadsheetEuVehicle]] = Seq(
-    supplier("itemNumber")                     -> (v => number(v.itemNumber)),
-    supplier("supplierBusinessPrivate")        -> (v => text(v.supplierBusinessPrivate)),
-    supplier("supplierBusinessName")           -> (v => text(v.supplierBusinessName)),
-    supplier("supplierTitle")                  -> (v => text(v.supplierTitle)),
-    supplier("supplierFirstName")              -> (v => text(v.supplierFirstName)),
-    supplier("supplierLastName")               -> (v => text(v.supplierLastName)),
-    supplier("addressLine1")                   -> (v => text(v.addressLine1)),
-    supplier("addressLine2")                   -> (v => text(v.addressLine2)),
-    supplier("addressLine3")                   -> (v => text(v.addressLine3)),
-    supplier("addressLine4")                   -> (v => text(v.addressLine4)),
-    supplier("addressLine5")                   -> (v => text(v.addressLine5)),
-    supplier("postcode")                       -> (v => text(v.postcode)),
-    supplier("country")                        -> (v => text(v.country)),
-    supplier("supplierVatRegistered")          -> (v => yesNo(v.supplierVatRegistered)),
-    supplier("euMemberState")                  -> (v => text(v.euMemberState)),
-    supplier("supplierVatNumber")              -> (v => text(v.supplierVatNumber)),
-    supplier("knownDateFirstRegistered")       -> (v => yesNo(v.knownDateFirstRegistered)),
-    supplier("countryOfFirstRegistration")     -> (v => text(v.countryOfFirstRegistration)),
-    supplier("dateOfFirstRegistration")        -> (v => date(v.dateOfFirstRegistration)),
-    supplier("dateMadeAvailable")              -> (v => date(v.dateMadeAvailable)),
-    supplier("purchaseInvoice")                -> (v => yesNo(v.purchaseInvoice)),
-    supplier("noPurchaseInvoiceReason")        -> (v => text(v.noPurchaseInvoiceReason)),
-    supplier("purchaseInvoiceDate")            -> (v => date(v.purchaseInvoiceDate)),
-    supplier("purchaseInvoiceNumber")          -> (v => text(v.purchaseInvoiceNumber)),
-    supplier("pricePaid")                      -> (v => amount(v.pricePaid)),
-    supplier("currency")                       -> (v => text(v.currency)),
-    supplier("make")                           -> (v => text(v.make)),
-    supplier("model")                          -> (v => text(v.model)),
-    supplier("derivative")                     -> (v => text(v.derivative)),
-    supplier("trim")                           -> (v => text(v.trim)),
-    supplier("bodyType")                       -> (v => text(v.bodyType)),
-    supplier("notificationReference")          -> (v => text(v.notificationReference)),
-    supplier("vin")                            -> (v => text(v.vin)),
-    supplier("currentRegistrationNumber")      -> (v => text(v.currentRegistrationNumber)),
-    supplier("dateArrivedInUk")                -> (v => date(v.dateArrivedInUk)),
-    supplier("mileage")                        -> (v => text(v.mileage)),
-    supplier("mileageUnits")                   -> (v => text(v.mileageUnits)),
-    supplier("leftOrRightHandDrive")           -> (v => text(v.leftOrRightHandDrive)),
-    supplier("totalValueOfOptions")            -> (v => amount(v.totalValueOfOptions)),
-    supplier("obtainedFromUnableToReclaimVat") -> (v => yesNo(v.obtainedFromUnableToReclaimVat)),
-    supplier("soldUnderMarginScheme")          -> (v => yesNo(v.soldUnderMarginScheme)),
-    supplier("claimingVatRelief")              -> (v => yesNo(v.claimingVatRelief)),
-    supplier("reasonForClaimingRelief")        -> (v => text(v.reasonForClaimingRelief))
+  private val supplierCarAndLcvHeadingsAndValues: Seq[HeadingAndValue[SpreadsheetEuVehicle]] = Seq(
+    headingKey("itemNumber")                   -> (v => number(v.itemNumber)),
+    headingKey("supplierBusinessIndividual")   -> (v => text(v.supplierBusinessPrivate)),
+    headingKey("supplierBusinessName")         -> (v => text(v.supplierBusinessName)),
+    headingKey("supplierTitle")                -> (v => text(v.supplierTitle)),
+    headingKey("supplierFirstName")            -> (v => text(v.supplierFirstName)),
+    headingKey("supplierLastName")             -> (v => text(v.supplierLastName)),
+    headingKey("addressLine1")                 -> (v => text(v.addressLine1)),
+    headingKey("addressLine2")                 -> (v => text(v.addressLine2)),
+    headingKey("addressLine3")                 -> (v => text(v.addressLine3)),
+    headingKey("addressLine4")                 -> (v => text(v.addressLine4)),
+    headingKey("addressLine5")                 -> (v => text(v.addressLine5)),
+    headingKey("postcode")                     -> (v => text(v.postcode)),
+    headingKey("country")                      -> (v => text(v.country)),
+    headingKey("isSupplierVatReg")             -> (v => yesNo(v.supplierVatRegistered)),
+    headingKey("euStateVatReg")                -> (v => text(v.euMemberState)),
+    headingKey("vatRegistrationNumber")        -> (v => text(v.supplierVatNumber)),
+    headingKey("dateRoadUseKnown")             -> (v => yesNo(v.knownDateFirstRegistered)),
+    headingKey("countryOfFirstRegistration")   -> (v => text(v.countryOfFirstRegistration)),
+    headingKey("dateOfFirstRegistration")      -> (v => date(v.dateOfFirstRegistration)),
+    headingKey("dateMadeAvailableYou")         -> (v => date(v.dateMadeAvailable)),
+    headingKey("doYouHaveAPurchaseInvoice")    -> (v => yesNo(v.purchaseInvoice)),
+    headingKey("noPurchaseInvoiceReason")      -> (v => text(v.noPurchaseInvoiceReason)),
+    headingKey("purchaseInvoiceDate")          -> (v => date(v.purchaseInvoiceDate)),
+    headingKey("purchaseInvoiceNumber")        -> (v => text(v.purchaseInvoiceNumber)),
+    headingKey("pricePaidForVehicle")          -> (v => amount(v.pricePaid)),
+    headingKey("currencyUsed")                 -> (v => text(v.currency)),
+    headingKey("make")                         -> (v => text(v.make)),
+    headingKey("model")                        -> (v => text(v.model)),
+    headingKey("derivative")                   -> (v => text(v.derivative)),
+    headingKey("trim")                         -> (v => text(v.trim)),
+    headingKey("bodyType")                     -> (v => text(v.bodyType)),
+    headingKey("notificationReference")        -> (v => text(v.notificationReference)),
+    headingKey("vehicleIdNumber")              -> (v => text(v.vin)),
+    headingKey("currentRegistrationNumber")    -> (v => text(v.currentRegistrationNumber)),
+    headingKey("dateArrivedInUk")              -> (v => date(v.dateArrivedInUk)),
+    headingKey("mileage")                      -> (v => text(v.mileage)),
+    headingKey("mileageUnits")                 -> (v => lowerCase(v.mileageUnits)),
+    headingKey("leftOrRightHand")              -> (v => text(v.leftOrRightHandDrive)),
+    headingKey("totalValueOfOptions")          -> (v => amount(v.totalValueOfOptions)),
+    headingKey("businessUnableToReclaimVat")   -> (v => yesNo(v.obtainedFromUnableToReclaimVat)),
+    headingKey("vehicleSoldUnderMarginScheme") -> (v => yesNo(v.soldUnderMarginScheme)),
+    headingKey("areYouClaimingRelief")         -> (v => yesNo(v.claimingVatRelief)),
+    headingKey("reasonForClaimingRelief")      -> (v => text(v.reasonForClaimingRelief))
+  )
+
+  private val supplierHeavyCommercialVehicleHeadingsAndValues: Seq[HeadingAndValue[SpreadsheetHeavyCommercialEuVehicle]] = Seq(
+    headingKey("itemNumber")                   -> (v => number(v.itemNumber)),
+    headingKey("supplierBusinessIndividual")   -> (v => text(v.supplierBusinessPrivate)),
+    headingKey("supplierBusinessName")         -> (v => text(v.supplierBusinessName)),
+    headingKey("supplierTitle")                -> (v => text(v.supplierTitle)),
+    headingKey("supplierFirstName")            -> (v => text(v.supplierFirstName)),
+    headingKey("supplierLastName")             -> (v => text(v.supplierLastName)),
+    headingKey("addressLine1")                 -> (v => text(v.addressLine1)),
+    headingKey("addressLine2")                 -> (v => text(v.addressLine2)),
+    headingKey("addressLine3")                 -> (v => text(v.addressLine3)),
+    headingKey("addressLine4")                 -> (v => text(v.addressLine4)),
+    headingKey("addressLine5")                 -> (v => text(v.addressLine5)),
+    headingKey("postcode")                     -> (v => text(v.postcode)),
+    headingKey("country")                      -> (v => text(v.country)),
+    headingKey("isSupplierVatReg")             -> (v => yesNo(v.supplierVatRegistered)),
+    headingKey("euStateVatReg")                -> (v => text(v.euMemberState)),
+    headingKey("vatRegistrationNumber")        -> (v => text(v.supplierVatNumber)),
+    headingKey("dateRoadUseKnown")             -> (v => yesNo(v.knownDateFirstRegistered)),
+    headingKey("countryOfFirstRegistration")   -> (v => text(v.countryOfFirstRegistration)),
+    headingKey("dateOfFirstRegistration")      -> (v => date(v.dateOfFirstRegistration)),
+    headingKey("dateMadeAvailableYou")         -> (v => date(v.dateMadeAvailable)),
+    headingKey("doYouHaveAPurchaseInvoice")    -> (v => yesNo(v.purchaseInvoice)),
+    headingKey("noPurchaseInvoiceReason")      -> (v => text(v.noPurchaseInvoiceReason)),
+    headingKey("purchaseInvoiceDate")          -> (v => date(v.purchaseInvoiceDate)),
+    headingKey("purchaseInvoiceNumber")        -> (v => text(v.purchaseInvoiceNumber)),
+    headingKey("pricePaidForVehicle")          -> (v => amount(v.pricePaid)),
+    headingKey("currencyUsed")                 -> (v => text(v.currency)),
+    headingKey("make")                         -> (v => text(v.make)),
+    headingKey("model")                        -> (v => text(v.model)),
+    headingKey("hcvType")                      -> (v => text(v.heavyCommercialVehicleType)),
+    headingKey("cabType")                      -> (v => text(v.cabType)),
+    headingKey("notificationReference")        -> (v => text(v.notificationReference)),
+    headingKey("vehicleIdNumber")              -> (v => text(v.vin)),
+    headingKey("currentRegistrationNumber")    -> (v => text(v.currentRegistrationNumber)),
+    headingKey("dateArrivedInUk")              -> (v => date(v.dateArrivedInUk)),
+    headingKey("mileage")                      -> (v => text(v.mileage)),
+    headingKey("mileageUnits")                 -> (v => lowerCase(v.mileageUnits)),
+    headingKey("leftOrRightHand")              -> (v => text(v.leftOrRightHandDrive)),
+    headingKey("totalValueOfOptions")          -> (v => amount(v.totalValueOfOptions)),
+    headingKey("businessUnableToReclaimVat")   -> (v => yesNo(v.obtainedFromUnableToReclaimVat)),
+    headingKey("vehicleSoldUnderMarginScheme") -> (v => yesNo(v.soldUnderMarginScheme)),
+    headingKey("areYouClaimingRelief")         -> (v => yesNo(v.claimingVatRelief)),
+    headingKey("reasonForClaimingRelief")      -> (v => text(v.reasonForClaimingRelief))
+  )
+
+  private val supplierMotorCaravanHeadingsAndValues: Seq[HeadingAndValue[SpreadsheetMotorCaravansEuVehicle]] = Seq(
+    headingKey("itemNumber")                   -> (v => number(v.itemNumber)),
+    headingKey("supplierBusinessIndividual")   -> (v => text(v.supplierBusinessPrivate)),
+    headingKey("supplierBusinessName")         -> (v => text(v.supplierBusinessName)),
+    headingKey("supplierTitle")                -> (v => text(v.supplierTitle)),
+    headingKey("supplierFirstName")            -> (v => text(v.supplierFirstName)),
+    headingKey("supplierLastName")             -> (v => text(v.supplierLastName)),
+    headingKey("addressLine1")                 -> (v => text(v.addressLine1)),
+    headingKey("addressLine2")                 -> (v => text(v.addressLine2)),
+    headingKey("addressLine3")                 -> (v => text(v.addressLine3)),
+    headingKey("addressLine4")                 -> (v => text(v.addressLine4)),
+    headingKey("addressLine5")                 -> (v => text(v.addressLine5)),
+    headingKey("postcode")                     -> (v => text(v.postcode)),
+    headingKey("country")                      -> (v => text(v.country)),
+    headingKey("isSupplierVatReg")             -> (v => yesNo(v.supplierVatRegistered)),
+    headingKey("euStateVatReg")                -> (v => text(v.euMemberState)),
+    headingKey("vatRegistrationNumber")        -> (v => text(v.supplierVatNumber)),
+    headingKey("dateRoadUseKnown")             -> (v => yesNo(v.knownDateFirstRegistered)),
+    headingKey("countryOfFirstRegistration")   -> (v => text(v.countryOfFirstRegistration)),
+    headingKey("dateOfFirstRegistration")      -> (v => date(v.dateOfFirstRegistration)),
+    headingKey("dateMadeAvailableYou")         -> (v => date(v.dateMadeAvailable)),
+    headingKey("doYouHaveAPurchaseInvoice")    -> (v => yesNo(v.purchaseInvoice)),
+    headingKey("noPurchaseInvoiceReason")      -> (v => text(v.noPurchaseInvoiceReason)),
+    headingKey("purchaseInvoiceDate")          -> (v => date(v.purchaseInvoiceDate)),
+    headingKey("purchaseInvoiceNumber")        -> (v => text(v.purchaseInvoiceNumber)),
+    headingKey("pricePaidForVehicle")          -> (v => amount(v.pricePaid)),
+    headingKey("currencyUsed")                 -> (v => text(v.currency)),
+    headingKey("caravanMake")                  -> (v => text(v.caravanMake)),
+    headingKey("modelNameNumber")              -> (v => text(v.modelNameNumber)), // writes Motor caravan body value, mapped by validation
+    headingKey("caravanVersion")               -> (v => text(v.caravanVersion)), // writes the Model name/number value, mapped by validation
+    headingKey("caravanBody")                  -> (v => text(v.caravanBody)), // writes the Motor caravan version value, mapped by validation
+    headingKey("makeOfBaseVehicle")            -> (v => text(v.makeOfBaseVehicle)),
+    headingKey("derivative")                   -> (v => text(v.derivative)),
+    headingKey("notificationReference")        -> (v => text(v.notificationReference)),
+    headingKey("vehicleIdNumber")              -> (v => text(v.vin)),
+    headingKey("currentRegistrationNumber")    -> (v => text(v.currentRegistrationNumber)),
+    headingKey("dateArrivedInUk")              -> (v => date(v.dateArrivedInUk)),
+    headingKey("mileage")                      -> (v => text(v.mileage)),
+    headingKey("mileageUnits")                 -> (v => lowerCase(v.mileageUnits)),
+    headingKey("leftOrRightHand")              -> (v => text(v.leftOrRightHandDrive)),
+    headingKey("totalValueOfOptions")          -> (v => amount(v.totalValueOfOptions)),
+    headingKey("businessUnableToReclaimVat")   -> (v => yesNo(v.obtainedFromUnableToReclaimVat)),
+    headingKey("vehicleSoldUnderMarginScheme") -> (v => yesNo(v.soldUnderMarginScheme)),
+    headingKey("areYouClaimingRelief")         -> (v => yesNo(v.claimingVatRelief)),
+    headingKey("reasonForClaimingRelief")      -> (v => text(v.reasonForClaimingRelief))
+  )
+
+  private val supplierMotorcycleHeadingsAndValues: Seq[HeadingAndValue[SpreadsheetMotorcyclesEuVehicle]] = Seq(
+    headingKey("itemNumber")                   -> (v => number(v.itemNumber)),
+    headingKey("supplierBusinessIndividual")   -> (v => text(v.supplierBusinessPrivate)),
+    headingKey("supplierBusinessName")         -> (v => text(v.supplierBusinessName)),
+    headingKey("supplierTitle")                -> (v => text(v.supplierTitle)),
+    headingKey("supplierFirstName")            -> (v => text(v.supplierFirstName)),
+    headingKey("supplierLastName")             -> (v => text(v.supplierLastName)),
+    headingKey("addressLine1")                 -> (v => text(v.addressLine1)),
+    headingKey("addressLine2")                 -> (v => text(v.addressLine2)),
+    headingKey("addressLine3")                 -> (v => text(v.addressLine3)),
+    headingKey("addressLine4")                 -> (v => text(v.addressLine4)),
+    headingKey("addressLine5")                 -> (v => text(v.addressLine5)),
+    headingKey("postcode")                     -> (v => text(v.postcode)),
+    headingKey("country")                      -> (v => text(v.country)),
+    headingKey("isSupplierVatReg")             -> (v => yesNo(v.supplierVatRegistered)),
+    headingKey("euStateVatReg")                -> (v => text(v.euMemberState)),
+    headingKey("vatRegistrationNumber")        -> (v => text(v.supplierVatNumber)),
+    headingKey("dateRoadUseKnown")             -> (v => yesNo(v.knownDateFirstRegistered)),
+    headingKey("countryOfFirstRegistration")   -> (v => text(v.countryOfFirstRegistration)),
+    headingKey("dateOfFirstRegistration")      -> (v => date(v.dateOfFirstRegistration)),
+    headingKey("dateMadeAvailableYou")         -> (v => date(v.dateMadeAvailable)),
+    headingKey("doYouHaveAPurchaseInvoice")    -> (v => yesNo(v.purchaseInvoice)),
+    headingKey("noPurchaseInvoiceReason")      -> (v => text(v.noPurchaseInvoiceReason)),
+    headingKey("purchaseInvoiceDate")          -> (v => date(v.purchaseInvoiceDate)),
+    headingKey("purchaseInvoiceNumber")        -> (v => text(v.purchaseInvoiceNumber)),
+    headingKey("pricePaidForVehicle")          -> (v => amount(v.pricePaid)),
+    headingKey("currencyUsed")                 -> (v => text(v.currency)),
+    headingKey("make")                         -> (v => text(v.make)),
+    headingKey("model")                        -> (v => text(v.model)),
+    headingKey("derivative")                   -> (v => text(v.derivative)),
+    headingKey("motorcycleVersion")            -> (v => text(v.version)),
+    headingKey("motorcycleType")               -> (v => text(v.motorcycleType)),
+    headingKey("motorcycleStyle")              -> (v => text(v.style)),
+    headingKey("transmission")                 -> (v => text(v.transmissionType)),
+    headingKey("fuelType")                     -> (v => text(v.fuelType)),
+    headingKey("engineSize")                   -> (v => text(v.engineSize)),
+    headingKey("notificationReference")        -> (v => text(v.notificationReference)),
+    headingKey("vehicleIdNumber")              -> (v => text(v.vin)),
+    headingKey("currentRegistrationNumber")    -> (v => text(v.currentRegistrationNumber)),
+    headingKey("dateArrivedInUk")              -> (v => date(v.dateArrivedInUk)),
+    headingKey("mileage")                      -> (v => text(v.mileage)),
+    headingKey("mileageUnits")                 -> (v => lowerCase(v.mileageUnits)),
+    headingKey("leftOrRightHand")              -> (v => text(v.leftOrRightHandDrive)),
+    headingKey("totalValueOfOptions")          -> (v => amount(v.totalValueOfOptions)),
+    headingKey("businessUnableToReclaimVat")   -> (v => yesNo(v.obtainedFromUnableToReclaimVat)),
+    headingKey("vehicleSoldUnderMarginScheme") -> (v => yesNo(v.soldUnderMarginScheme)),
+    headingKey("areYouClaimingRelief")         -> (v => yesNo(v.claimingVatRelief)),
+    headingKey("reasonForClaimingRelief")      -> (v => text(v.reasonForClaimingRelief))
+  )
+
+  private val supplierAgriculturalTractorHeadingsAndValues: Seq[HeadingAndValue[SpreadsheetAgriculturalTractorEuVehicle]] = Seq(
+    headingKey("itemNumber")                   -> (v => number(v.itemNumber)),
+    headingKey("supplierBusinessIndividual")   -> (v => text(v.supplierBusinessPrivate)),
+    headingKey("supplierBusinessName")         -> (v => text(v.supplierBusinessName)),
+    headingKey("supplierTitle")                -> (v => text(v.supplierTitle)),
+    headingKey("supplierFirstName")            -> (v => text(v.supplierFirstName)),
+    headingKey("supplierLastName")             -> (v => text(v.supplierLastName)),
+    headingKey("addressLine1")                 -> (v => text(v.addressLine1)),
+    headingKey("addressLine2")                 -> (v => text(v.addressLine2)),
+    headingKey("addressLine3")                 -> (v => text(v.addressLine3)),
+    headingKey("addressLine4")                 -> (v => text(v.addressLine4)),
+    headingKey("addressLine5")                 -> (v => text(v.addressLine5)),
+    headingKey("postcode")                     -> (v => text(v.postcode)),
+    headingKey("country")                      -> (v => text(v.country)),
+    headingKey("isSupplierVatReg")             -> (v => yesNo(v.supplierVatRegistered)),
+    headingKey("euStateVatReg")                -> (v => text(v.euMemberState)),
+    headingKey("vatRegistrationNumber")        -> (v => text(v.supplierVatNumber)),
+    headingKey("dateRoadUseKnown")             -> (v => yesNo(v.knownDateFirstRegistered)),
+    headingKey("countryOfFirstRegistration")   -> (v => text(v.countryOfFirstRegistration)),
+    headingKey("dateOfFirstRegistration")      -> (v => date(v.dateOfFirstRegistration)),
+    headingKey("dateMadeAvailableYou")         -> (v => date(v.dateMadeAvailable)),
+    headingKey("doYouHaveAPurchaseInvoice")    -> (v => yesNo(v.purchaseInvoice)),
+    headingKey("noPurchaseInvoiceReason")      -> (v => text(v.noPurchaseInvoiceReason)),
+    headingKey("purchaseInvoiceDate")          -> (v => date(v.purchaseInvoiceDate)),
+    headingKey("purchaseInvoiceNumber")        -> (v => text(v.purchaseInvoiceNumber)),
+    headingKey("pricePaidForVehicle")          -> (v => amount(v.pricePaid)),
+    headingKey("currencyUsed")                 -> (v => text(v.currency)),
+    headingKey("make")                         -> (v => text(v.make)),
+    headingKey("seriesModel")                  -> (v => text(v.seriesModel)),
+    headingKey("versionDerivative")            -> (v => text(v.versionDerivative)),
+    headingKey("brakeHorsePower")              -> (v => text(v.brakeHorsepower)),
+    headingKey("notificationReference")        -> (v => text(v.notificationReference)),
+    headingKey("vehicleIdNumber")              -> (v => text(v.vin)),
+    headingKey("currentRegistrationNumber")    -> (v => text(v.currentRegistrationNumber)),
+    headingKey("dateArrivedInUk")              -> (v => date(v.dateArrivedInUk)),
+    headingKey("mileage")                      -> (v => text(v.mileage)),
+    headingKey("mileageUnits")                 -> (v => lowerCase(v.mileageUnits)),
+    headingKey("leftOrRightHand")              -> (v => text(v.leftOrRightHandDrive)),
+    headingKey("totalValueOfOptions")          -> (v => amount(v.totalValueOfOptions)),
+    headingKey("businessUnableToReclaimVat")   -> (v => yesNo(v.obtainedFromUnableToReclaimVat)),
+    headingKey("vehicleSoldUnderMarginScheme") -> (v => yesNo(v.soldUnderMarginScheme)),
+    headingKey("areYouClaimingRelief")         -> (v => yesNo(v.claimingVatRelief)),
+    headingKey("reasonForClaimingRelief")      -> (v => text(v.reasonForClaimingRelief))
+  )
+
+  private val supplierConstructionVehicleHeadingsAndValues: Seq[HeadingAndValue[SpreadsheetConstructionVehiclesEuVehicle]] = Seq(
+    headingKey("itemNumber")                   -> (v => number(v.itemNumber)),
+    headingKey("supplierBusinessIndividual")   -> (v => text(v.supplierBusinessPrivate)),
+    headingKey("supplierBusinessName")         -> (v => text(v.supplierBusinessName)),
+    headingKey("supplierTitle")                -> (v => text(v.supplierTitle)),
+    headingKey("supplierFirstName")            -> (v => text(v.supplierFirstName)),
+    headingKey("supplierLastName")             -> (v => text(v.supplierLastName)),
+    headingKey("addressLine1")                 -> (v => text(v.addressLine1)),
+    headingKey("addressLine2")                 -> (v => text(v.addressLine2)),
+    headingKey("addressLine3")                 -> (v => text(v.addressLine3)),
+    headingKey("addressLine4")                 -> (v => text(v.addressLine4)),
+    headingKey("addressLine5")                 -> (v => text(v.addressLine5)),
+    headingKey("postcode")                     -> (v => text(v.postcode)),
+    headingKey("country")                      -> (v => text(v.country)),
+    headingKey("isSupplierVatReg")             -> (v => yesNo(v.supplierVatRegistered)),
+    headingKey("euStateVatReg")                -> (v => text(v.euMemberState)),
+    headingKey("vatRegistrationNumber")        -> (v => text(v.supplierVatNumber)),
+    headingKey("dateRoadUseKnown")             -> (v => yesNo(v.knownDateFirstRegistered)),
+    headingKey("countryOfFirstRegistration")   -> (v => text(v.countryOfFirstRegistration)),
+    headingKey("dateOfFirstRegistration")      -> (v => date(v.dateOfFirstRegistration)),
+    headingKey("dateMadeAvailableYou")         -> (v => date(v.dateMadeAvailable)),
+    headingKey("doYouHaveAPurchaseInvoice")    -> (v => yesNo(v.purchaseInvoice)),
+    headingKey("noPurchaseInvoiceReason")      -> (v => text(v.noPurchaseInvoiceReason)),
+    headingKey("purchaseInvoiceDate")          -> (v => date(v.purchaseInvoiceDate)),
+    headingKey("purchaseInvoiceNumber")        -> (v => text(v.purchaseInvoiceNumber)),
+    headingKey("pricePaidForVehicle")          -> (v => amount(v.pricePaid)),
+    headingKey("currencyUsed")                 -> (v => text(v.currency)),
+    headingKey("make")                         -> (v => text(v.make)),
+    headingKey("seriesModel")                  -> (v => text(v.seriesModel)),
+    headingKey("versionDerivative")            -> (v => text(v.versionDerivative)),
+    headingKey("notificationReference")        -> (v => text(v.notificationReference)),
+    headingKey("vehicleIdNumber")              -> (v => text(v.vin)),
+    headingKey("currentRegistrationNumber")    -> (v => text(v.currentRegistrationNumber)),
+    headingKey("dateArrivedInUk")              -> (v => date(v.dateArrivedInUk)),
+    headingKey("mileage")                      -> (v => text(v.mileage)),
+    headingKey("mileageUnits")                 -> (v => lowerCase(v.mileageUnits)),
+    headingKey("leftOrRightHand")              -> (v => text(v.leftOrRightHandDrive)),
+    headingKey("totalValueOfOptions")          -> (v => amount(v.totalValueOfOptions)),
+    headingKey("businessUnableToReclaimVat")   -> (v => yesNo(v.obtainedFromUnableToReclaimVat)),
+    headingKey("vehicleSoldUnderMarginScheme") -> (v => yesNo(v.soldUnderMarginScheme)),
+    headingKey("areYouClaimingRelief")         -> (v => yesNo(v.claimingVatRelief)),
+    headingKey("reasonForClaimingRelief")      -> (v => text(v.reasonForClaimingRelief))
+  )
+
+  private val importCarHeadingsAndValues: Seq[HeadingAndValue[SpreadsheetNonEuVehicle]] = Seq(
+    headingKey("itemNumber")                 -> (v => number(v.itemNumber)),
+    headingKey("importEntryNumber")          -> (v => text(v.importEntryNumber)),
+    headingKey("importEntryDate")            -> (v => date(v.importEntryDate)),
+    headingKey("dateRoadUseKnown")           -> (v => yesNo(v.knownDateFirstRegistered)),
+    headingKey("countryOfFirstRegistration") -> (v => text(v.countryOfFirstRegistration)),
+    headingKey("dateOfFirstRegistration")    -> (v => date(v.dateOfFirstRegistration)),
+    headingKey("make")                       -> (v => text(v.make)),
+    headingKey("model")                      -> (v => text(v.model)),
+    headingKey("derivative")                 -> (v => text(v.derivative)),
+    headingKey("trim")                       -> (v => text(v.trim)),
+    headingKey("bodyType")                   -> (v => text(v.bodyType)),
+    headingKey("notificationReference")      -> (v => text(v.notificationReference)),
+    headingKey("vehicleIdNumber")            -> (v => text(v.vin)),
+    headingKey("dateArrivedInUk")            -> (v => date(v.dateArrivedInUk)),
+    headingKey("commodityCode")              -> (v => text(v.commodityCode)),
+    headingKey("mileage")                    -> (v => text(v.mileage)),
+    headingKey("mileageUnits")               -> (v => lowerCase(v.mileageUnits)),
+    headingKey("leftOrRightHand")            -> (v => text(v.leftOrRightHandDrive)),
+    headingKey("pricePaidForVehicle")        -> (v => amount(v.pricePaid)),
+    headingKey("importCurrencyUsed")         -> (v => text(v.currency)),
+    headingKey("areYouClaimingRelief")       -> (v => yesNo(v.claimingVatRelief)),
+    headingKey("reasonForClaimingRelief")    -> (v => text(v.reasonForClaimingRelief))
+  )
+
+  private val importLcvHeadingsAndValues: Seq[HeadingAndValue[SpreadsheetNonEuVehicle]] = Seq(
+    headingKey("itemNumber")                 -> (v => number(v.itemNumber)),
+    headingKey("importEntryNumber")          -> (v => text(v.importEntryNumber)),
+    headingKey("importEntryDate")            -> (v => date(v.importEntryDate)),
+    headingKey("dateRoadUseKnown")           -> (v => yesNo(v.knownDateFirstRegistered)),
+    headingKey("countryOfFirstRegistration") -> (v => text(v.countryOfFirstRegistration)),
+    headingKey("dateOfFirstRegistration")    -> (v => date(v.dateOfFirstRegistration)),
+    headingKey("make")                       -> (v => text(v.make)),
+    headingKey("model")                      -> (v => text(v.model)),
+    headingKey("derivative")                 -> (v => text(v.derivative)),
+    headingKey("trim")                       -> (v => text(v.trim)),
+    headingKey("lcvBodyType")                -> (v => text(v.bodyType)),
+    headingKey("notificationReference")      -> (v => text(v.notificationReference)),
+    headingKey("vehicleIdNumber")            -> (v => text(v.vin)),
+    headingKey("dateArrivedInUk")            -> (v => date(v.dateArrivedInUk)),
+    headingKey("commodityCode")              -> (v => text(v.commodityCode)),
+    headingKey("mileage")                    -> (v => text(v.mileage)),
+    headingKey("mileageUnits")               -> (v => lowerCase(v.mileageUnits)),
+    headingKey("leftOrRightHand")            -> (v => text(v.leftOrRightHandDrive)),
+    headingKey("pricePaidForVehicle")        -> (v => amount(v.pricePaid)),
+    headingKey("importCurrencyUsed")         -> (v => text(v.currency)),
+    headingKey("areYouClaimingRelief")       -> (v => yesNo(v.claimingVatRelief)),
+    headingKey("reasonForClaimingRelief")    -> (v => text(v.reasonForClaimingRelief))
+  )
+
+  private val importHeavyCommercialVehicleHeadingsAndValues: Seq[HeadingAndValue[SpreadsheetHeavyCommercialNonEuVehicle]] = Seq(
+    headingKey("itemNumber")                 -> (v => number(v.itemNumber)),
+    headingKey("importEntryNumber")          -> (v => text(v.importEntryNumber)),
+    headingKey("importEntryDate")            -> (v => date(v.importEntryDate)),
+    headingKey("dateRoadUseKnown")           -> (v => yesNo(v.knownDateFirstRegistered)),
+    headingKey("countryOfFirstRegistration") -> (v => text(v.countryOfFirstRegistration)),
+    headingKey("dateOfFirstRegistration")    -> (v => date(v.dateOfFirstRegistration)),
+    headingKey("make")                       -> (v => text(v.make)),
+    headingKey("model")                      -> (v => text(v.model)),
+    headingKey("hcvType")                    -> (v => text(v.heavyCommercialVehicleType)),
+    headingKey("cabType")                    -> (v => text(v.cabType)),
+    headingKey("notificationReference")      -> (v => text(v.notificationReference)),
+    headingKey("vehicleIdNumber")            -> (v => text(v.vin)),
+    headingKey("dateArrivedInUk")            -> (v => date(v.dateArrivedInUk)),
+    headingKey("commodityCode")              -> (v => text(v.commodityCode)),
+    headingKey("mileage")                    -> (v => text(v.mileage)),
+    headingKey("mileageUnits")               -> (v => lowerCase(v.mileageUnits)),
+    headingKey("leftOrRightHand")            -> (v => text(v.leftOrRightHandDrive)),
+    headingKey("pricePaidForVehicle")        -> (v => amount(v.pricePaid)),
+    headingKey("importCurrencyUsed")         -> (v => text(v.currency)),
+    headingKey("areYouClaimingRelief")       -> (v => yesNo(v.claimingVatRelief)),
+    headingKey("reasonForClaimingRelief")    -> (v => text(v.reasonForClaimingRelief))
+  )
+
+  private val importMotorCaravanHeadingsAndValues: Seq[HeadingAndValue[SpreadsheetMotorCaravansNonEuVehicle]] = Seq(
+    headingKey("itemNumber")                 -> (v => number(v.itemNumber)),
+    headingKey("importEntryNumber")          -> (v => text(v.importEntryNumber)),
+    headingKey("importEntryDate")            -> (v => date(v.importEntryDate)),
+    headingKey("dateRoadUseKnown")           -> (v => yesNo(v.knownDateFirstRegistered)),
+    headingKey("countryOfFirstRegistration") -> (v => text(v.countryOfFirstRegistration)),
+    headingKey("dateOfFirstRegistration")    -> (v => date(v.dateOfFirstRegistration)),
+    headingKey("caravanMake")                -> (v => text(v.caravanMake)),
+    headingKey("caravanVersion")             -> (v => text(v.caravanVersion)), // writes the Model name / number value, mapped by validation
+    headingKey("caravanBody")                -> (v => text(v.caravanBody)), // writes the Motor caravan version value, mapped by validation
+    headingKey("modelNameNumber")            -> (v => text(v.modelNameNumber)), // writes the Motor caravan body value, mapped by validation
+    headingKey("makeOfBaseVehicle")          -> (v => text(v.makeOfBaseVehicle)),
+    headingKey("derivative")                 -> (v => text(v.derivative)),
+    headingKey("notificationReference")      -> (v => text(v.notificationReference)),
+    headingKey("vehicleIdNumber")            -> (v => text(v.vin)),
+    headingKey("dateArrivedInUk")            -> (v => date(v.dateArrivedInUk)),
+    headingKey("commodityCode")              -> (v => text(v.commodityCode)),
+    headingKey("mileage")                    -> (v => text(v.mileage)),
+    headingKey("mileageUnits")               -> (v => lowerCase(v.mileageUnits)),
+    headingKey("leftOrRightHand")            -> (v => text(v.leftOrRightHandDrive)),
+    headingKey("pricePaidForVehicle")        -> (v => amount(v.pricePaid)),
+    headingKey("importCurrencyUsed")         -> (v => text(v.currency)),
+    headingKey("areYouClaimingRelief")       -> (v => yesNo(v.claimingVatRelief)),
+    headingKey("reasonForClaimingRelief")    -> (v => text(v.reasonForClaimingRelief))
+  )
+
+  private val importMotorcycleHeadingsAndValues: Seq[HeadingAndValue[SpreadsheetMotorcyclesNonEuVehicle]] = Seq(
+    headingKey("itemNumber")                 -> (v => number(v.itemNumber)),
+    headingKey("importEntryNumber")          -> (v => text(v.importEntryNumber)),
+    headingKey("importEntryDate")            -> (v => date(v.importEntryDate)),
+    headingKey("dateRoadUseKnown")           -> (v => yesNo(v.knownDateFirstRegistered)),
+    headingKey("countryOfFirstRegistration") -> (v => text(v.countryOfFirstRegistration)),
+    headingKey("dateOfFirstRegistration")    -> (v => date(v.dateOfFirstRegistration)),
+    headingKey("make")                       -> (v => text(v.make)),
+    headingKey("model")                      -> (v => text(v.model)),
+    headingKey("derivative")                 -> (v => text(v.derivative)),
+    headingKey("motorcycleVersion")          -> (v => text(v.version)),
+    headingKey("motorcycleType")             -> (v => text(v.motorcycleType)),
+    headingKey("motorcycleStyle")            -> (v => text(v.style)),
+    headingKey("transmission")               -> (v => text(v.transmissionType)),
+    headingKey("fuelType")                   -> (v => text(v.fuelType)),
+    headingKey("engineSize")                 -> (v => text(v.engineSize)),
+    headingKey("notificationReference")      -> (v => text(v.notificationReference)),
+    headingKey("vehicleIdNumber")            -> (v => text(v.vin)),
+    headingKey("dateArrivedInUk")            -> (v => date(v.dateArrivedInUk)),
+    headingKey("commodityCode")              -> (v => text(v.commodityCode)),
+    headingKey("mileage")                    -> (v => text(v.mileage)),
+    headingKey("mileageUnits")               -> (v => lowerCase(v.mileageUnits)),
+    headingKey("leftOrRightHand")            -> (v => text(v.leftOrRightHandDrive)),
+    headingKey("pricePaidForVehicle")        -> (v => amount(v.pricePaid)),
+    headingKey("importCurrencyUsed")         -> (v => text(v.currency)),
+    headingKey("areYouClaimingRelief")       -> (v => yesNo(v.claimingVatRelief)),
+    headingKey("reasonForClaimingRelief")    -> (v => text(v.reasonForClaimingRelief))
+  )
+
+  private val importAgriculturalTractorHeadingsAndValues: Seq[HeadingAndValue[SpreadsheetAgriculturalTractorNonEuVehicle]] = Seq(
+    headingKey("itemNumber")                 -> (v => number(v.itemNumber)),
+    headingKey("importEntryNumber")          -> (v => text(v.importEntryNumber)),
+    headingKey("importEntryDate")            -> (v => date(v.importEntryDate)),
+    headingKey("dateRoadUseKnown")           -> (v => yesNo(v.knownDateFirstRegistered)),
+    headingKey("countryOfFirstRegistration") -> (v => text(v.countryOfFirstRegistration)),
+    headingKey("dateOfFirstRegistration")    -> (v => date(v.dateOfFirstRegistration)),
+    headingKey("make")                       -> (v => text(v.make)),
+    headingKey("seriesModel")                -> (v => text(v.seriesModel)),
+    headingKey("versionDerivative")          -> (v => text(v.versionDerivative)),
+    headingKey("brakeHorsePower")            -> (v => text(v.brakeHorsepower)),
+    headingKey("notificationReference")      -> (v => text(v.notificationReference)),
+    headingKey("vehicleIdNumber")            -> (v => text(v.vin)),
+    headingKey("dateArrivedInUk")            -> (v => date(v.dateArrivedInUk)),
+    headingKey("commodityCode")              -> (v => text(v.commodityCode)),
+    headingKey("mileage")                    -> (v => text(v.mileage)),
+    headingKey("mileageUnits")               -> (v => lowerCase(v.mileageUnits)),
+    headingKey("leftOrRightHand")            -> (v => text(v.leftOrRightHandDrive)),
+    headingKey("pricePaidForVehicle")        -> (v => amount(v.pricePaid)),
+    headingKey("importCurrencyUsed")         -> (v => text(v.currency)),
+    headingKey("areYouClaimingRelief")       -> (v => yesNo(v.claimingVatRelief)),
+    headingKey("reasonForClaimingRelief")    -> (v => text(v.reasonForClaimingRelief))
+  )
+
+  private val importConstructionVehicleHeadingsAndValues: Seq[HeadingAndValue[SpreadsheetConstructionVehiclesNonEuVehicle]] = Seq(
+    headingKey("itemNumber")                 -> (v => number(v.itemNumber)),
+    headingKey("importEntryNumber")          -> (v => text(v.importEntryNumber)),
+    headingKey("importEntryDate")            -> (v => date(v.importEntryDate)),
+    headingKey("dateRoadUseKnown")           -> (v => yesNo(v.knownDateFirstRegistered)),
+    headingKey("countryOfFirstRegistration") -> (v => text(v.countryOfFirstRegistration)),
+    headingKey("dateOfFirstRegistration")    -> (v => date(v.dateOfFirstRegistration)),
+    headingKey("make")                       -> (v => text(v.make)),
+    headingKey("seriesModel")                -> (v => text(v.seriesModel)),
+    headingKey("versionDerivative")          -> (v => text(v.versionDerivative)),
+    headingKey("notificationReference")      -> (v => text(v.notificationReference)),
+    headingKey("vehicleIdNumber")            -> (v => text(v.vin)),
+    headingKey("dateArrivedInUk")            -> (v => date(v.dateArrivedInUk)),
+    headingKey("commodityCode")              -> (v => text(v.commodityCode)),
+    headingKey("mileage")                    -> (v => text(v.mileage)),
+    headingKey("mileageUnits")               -> (v => lowerCase(v.mileageUnits)),
+    headingKey("leftOrRightHand")            -> (v => text(v.leftOrRightHandDrive)),
+    headingKey("pricePaidForVehicle")        -> (v => amount(v.pricePaid)),
+    headingKey("importCurrencyUsed")         -> (v => text(v.currency)),
+    headingKey("areYouClaimingRelief")       -> (v => yesNo(v.claimingVatRelief)),
+    headingKey("reasonForClaimingRelief")    -> (v => text(v.reasonForClaimingRelief))
   )
 
   private val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
 
   private def text(value: Option[String]): String = value.getOrElse("")
+
+  private def lowerCase(value: Option[String]): String = value.fold("")(_.toLowerCase)
 
   private def number(value: Option[Int]): String = value.fold("")(_.toString)
 
