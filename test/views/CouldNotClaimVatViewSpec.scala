@@ -76,8 +76,7 @@ class CouldNotClaimVatViewSpec extends SpecBase with Matchers with BeforeAndAfte
     }
 
     "must render the caption and heading" in {
-      val document   = Jsoup.parse(render())
-      val paragraphs = document.select("h1 ~ p.govuk-body")
+      val document = Jsoup.parse(render())
 
       document.select(".govuk-caption-l").text mustEqual msgs("couldNotClaimVat.caption")
       document.select("h1").text mustEqual msgs("couldNotClaimVat.heading.1")
