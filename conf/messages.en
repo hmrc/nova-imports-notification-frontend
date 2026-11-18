@@ -1304,6 +1304,7 @@ checkVehicleSpreadsheetDetails.table.caption = Showing {0} to {1} of {2} records
 checkVehicleSpreadsheetDetails.downloadLink = Download notification summary
 checkVehicleSpreadsheetDetails.saveAndContinue = Save and continue
 checkVehicleSpreadsheetDetails.updateSpreadsheetLink = Update spreadsheet
+
 checkVehicleSpreadsheetDetails.download.csv.itemNumber = Item
 checkVehicleSpreadsheetDetails.download.csv.supplierBusinessIndividual = Is the supplier a business or private individual? (business/private)
 checkVehicleSpreadsheetDetails.download.csv.supplierBusinessName = Supplier business name

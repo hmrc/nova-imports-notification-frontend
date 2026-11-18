@@ -1215,6 +1215,7 @@ checkVehicleSpreadsheetDetails.table.caption = Showing {0} to {1} of {2} records
 checkVehicleSpreadsheetDetails.downloadLink = Download notification summary
 checkVehicleSpreadsheetDetails.saveAndContinue = Save and continue
 checkVehicleSpreadsheetDetails.updateSpreadsheetLink = Update spreadsheet
+
 checkVehicleSpreadsheetDetails.download.csv.itemNumber = Item
 checkVehicleSpreadsheetDetails.download.csv.supplierBusinessIndividual = Is the supplier a business or private individual? (business/private)
 checkVehicleSpreadsheetDetails.download.csv.supplierBusinessName = Supplier business name
@@ -1996,51 +1997,3 @@ vatReliefReason.radio.returnedGoods = Returned goods
 vatReliefReason.radio.transferOfResidence = Transfer of residence
 vatReliefReason.supplier.error.required = Select if you are claiming VAT relief for a vehicle adapted for a disabled person or a vehicle sold to a charity
 vatReliefReason.import.error.required = Select why you are claiming VAT relief for the vehicle
-
-###################################################################
-# UVS5.0 - Download notification summary CSV                      #
-###################################################################
-# TODO: Welsh translations to be supplied by content team.
-checkVehicleSpreadsheetDetails.download.csv.supplier.itemNumber = Item
-checkVehicleSpreadsheetDetails.download.csv.supplier.supplierBusinessPrivate = Is the supplier a business or private individual ? (Enter business or private)
-checkVehicleSpreadsheetDetails.download.csv.supplier.supplierBusinessName = Supplier business name
-checkVehicleSpreadsheetDetails.download.csv.supplier.supplierTitle = Supplier title (e.g. Mr, Mrs)
-checkVehicleSpreadsheetDetails.download.csv.supplier.supplierFirstName = Supplier first name
-checkVehicleSpreadsheetDetails.download.csv.supplier.supplierLastName = Supplier last name
-checkVehicleSpreadsheetDetails.download.csv.supplier.addressLine1 = Supplier address line 1
-checkVehicleSpreadsheetDetails.download.csv.supplier.addressLine2 = Address line 2
-checkVehicleSpreadsheetDetails.download.csv.supplier.addressLine3 = Address line 3
-checkVehicleSpreadsheetDetails.download.csv.supplier.addressLine4 = Address line 4
-checkVehicleSpreadsheetDetails.download.csv.supplier.addressLine5 = Address line 5
-checkVehicleSpreadsheetDetails.download.csv.supplier.postcode = Postcode
-checkVehicleSpreadsheetDetails.download.csv.supplier.country = Country
-checkVehicleSpreadsheetDetails.download.csv.supplier.supplierVatRegistered = Is the supplier VAT registered ? (Enter Y or N)
-checkVehicleSpreadsheetDetails.download.csv.supplier.euMemberState = EU Member State in which the supplier is VAT registered
-checkVehicleSpreadsheetDetails.download.csv.supplier.supplierVatNumber = Supplier VAT Registration Number
-checkVehicleSpreadsheetDetails.download.csv.supplier.knownDateFirstRegistered = Do you know the date the vehicle was first registered for road use? (Enter Y or N)
-checkVehicleSpreadsheetDetails.download.csv.supplier.countryOfFirstRegistration = Country of first registration
-checkVehicleSpreadsheetDetails.download.csv.supplier.dateOfFirstRegistration = Date of first registration (dd/mm/yyyy)
-checkVehicleSpreadsheetDetails.download.csv.supplier.dateMadeAvailable = Date the vehicle was made available to you (dd/mm/yyyy)
-checkVehicleSpreadsheetDetails.download.csv.supplier.purchaseInvoice = Do you have a purchase invoice for this vehicle? (Enter Y or N)
-checkVehicleSpreadsheetDetails.download.csv.supplier.noPurchaseInvoiceReason = If you do not have a purchase invoice, please give a reason (a maximum of 160 characters is allowed)
-checkVehicleSpreadsheetDetails.download.csv.supplier.purchaseInvoiceDate = Purchase invoice date (dd/mm/yyyy)
-checkVehicleSpreadsheetDetails.download.csv.supplier.purchaseInvoiceNumber = Purchase invoice number
-checkVehicleSpreadsheetDetails.download.csv.supplier.pricePaid = Price paid for vehicle (including options) (Enter whole pounds only)
-checkVehicleSpreadsheetDetails.download.csv.supplier.currency = Currency used
-checkVehicleSpreadsheetDetails.download.csv.supplier.make = Make
-checkVehicleSpreadsheetDetails.download.csv.supplier.model = Model
-checkVehicleSpreadsheetDetails.download.csv.supplier.derivative = Derivative
-checkVehicleSpreadsheetDetails.download.csv.supplier.trim = Trim
-checkVehicleSpreadsheetDetails.download.csv.supplier.bodyType = Body type
-checkVehicleSpreadsheetDetails.download.csv.supplier.notificationReference = Notification reference
-checkVehicleSpreadsheetDetails.download.csv.supplier.vin = Vehicle Identification Number
-checkVehicleSpreadsheetDetails.download.csv.supplier.currentRegistrationNumber = Current vehicle registration number
-checkVehicleSpreadsheetDetails.download.csv.supplier.dateArrivedInUk = Date arrived In UK (dd/mm/yyyy)
-checkVehicleSpreadsheetDetails.download.csv.supplier.mileage = Mileage
-checkVehicleSpreadsheetDetails.download.csv.supplier.mileageUnits = Mileage units (Enter miles or km)
-checkVehicleSpreadsheetDetails.download.csv.supplier.leftOrRightHandDrive = Is the vehicle left or right hand drive? (Enter LHD or RHD)
-checkVehicleSpreadsheetDetails.download.csv.supplier.totalValueOfOptions = Total value of options (Enter whole pounds only)
-checkVehicleSpreadsheetDetails.download.csv.supplier.obtainedFromUnableToReclaimVat = Was the vehicle obtained from a business that was unable to reclaim the input VAT on purchase? (Enter Y or N)
-checkVehicleSpreadsheetDetails.download.csv.supplier.soldUnderMarginScheme = Was the vehicle sold to you/your client by a VAT registered dealer under the Margin Scheme? (Enter Y or N)
-checkVehicleSpreadsheetDetails.download.csv.supplier.claimingVatRelief = Are you claiming VAT relief ? (Enter Y or N)
-checkVehicleSpreadsheetDetails.download.csv.supplier.reasonForClaimingRelief = Reason for claiming relief
