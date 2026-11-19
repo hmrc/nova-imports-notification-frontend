@@ -21,7 +21,7 @@ import models.{AddVehicleDetailsCar, AddVehicleType, DraftId, NumberOfVehicles, 
 import pages.DraftIdPage
 import pages.sections.initialquestions.VehicleFromEuPage
 import pages.sections.vehicledetails.{AddVehicleDetailsCarPage, AddVehicleTypePage, NumberOfVehiclesPage}
-import queries.{AllImportsQuery, AllSuppliersQuery, AllVehiclesQuery}
+import queries.{AllSuppliersQuery, AllVehiclesQuery}
 import org.jsoup.Jsoup
 import play.api.libs.json.Json
 import org.scalatest.BeforeAndAfterAll
