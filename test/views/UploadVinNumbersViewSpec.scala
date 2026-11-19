@@ -17,8 +17,13 @@
 package views
 
 import base.SpecBase
-import models.VinUploadError
+import models.{AddVehicleDetailsCar, AddVehicleType, DraftId, NumberOfVehicles, OneMultiVehicle, UserAnswers, VehicleNumber, VinUploadError}
+import pages.DraftIdPage
+import pages.sections.initialquestions.VehicleFromEuPage
+import pages.sections.vehicledetails.{AddVehicleDetailsCarPage, AddVehicleTypePage, NumberOfVehiclesPage}
+import queries.{AllImportsQuery, AllSuppliersQuery, AllVehiclesQuery}
 import org.jsoup.Jsoup
+import play.api.libs.json.Json
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.must.Matchers
 import play.api.Application
@@ -46,8 +51,20 @@ class UploadVinNumbersViewSpec extends SpecBase with Matchers with BeforeAndAfte
   private val uploadUrl = "https://bucketName.s3.eu-west-2.amazonaws.com"
   private val fields    = Map("key" -> "11370e18-6e24-453e-b45a-76d3e32ea33d", "policy" -> "xxxxxxxx==")
 
+  private val draftId              = DraftId("DRAFT-001")
+  private val carDetails           = AddVehicleDetailsCar("Land Rover", "Discovery 4", "3.0TD", "XS", "station wagon")
+  private val v                    = VehicleNumber(1)
+  private val answers: UserAnswers = emptyUserAnswers
+    .unsafeSet(DraftIdPage, draftId)
+    .unsafeSet(VehicleFromEuPage, true)
+    .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
+    .unsafeSet(AllVehiclesQuery, Map("1" -> Json.obj("supplierNumber" -> 1)))
+    .unsafeSet(AddVehicleTypePage(v), AddVehicleType.Car)
+    .unsafeSet(AddVehicleDetailsCarPage(v), carDetails)
+    .unsafeSet(NumberOfVehiclesPage(v), NumberOfVehicles(OneMultiVehicle.More, Some(5)))
+
   private def render(uploadError: Option[VinUploadError] = None): String =
-    view(uploadUrl, fields, uploadError).toString
+    view(uploadUrl, fields, uploadError, viewmodels.VehicleDetailsInset(answers, v)).toString
 
   "UploadVinNumbersView" - {
 
