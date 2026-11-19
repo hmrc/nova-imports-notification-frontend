@@ -195,6 +195,20 @@ deleteCurrentNotification.heading = Are you sure you want to delete this notific
 deleteCurrentNotification.paragraph = You’ll lose all the details for this notification.
 deleteCurrentNotification.error.required = Select yes if you want to delete this notification
 
+#######################################
+# DV1.0 - Delete vehicle confirmation #
+#######################################
+
+deleteVehicle.title = Delete vehicle
+deleteVehicle.caption = Ychwanegwch fanylion cerbyd
+deleteVehicle.heading = Delete vehicle
+deleteVehicle.paragraph = You’ll lose all the details for this vehicle.
+deleteVehicle.vin = Vehicle identification number:
+deleteVehicle.make = Make:
+deleteVehicle.model = Model:
+deleteVehicle.legend = Are you sure you want to delete this vehicle?
+deleteVehicle.error.required = Select yes if you want to delete this vehicle
+
 ######################################################
 # AYA1.0 - Add Your Address: Is your address in the UK #
 ######################################################
