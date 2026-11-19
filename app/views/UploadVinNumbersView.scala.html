@@ -19,11 +19,12 @@
 @this(
     layout: templates.Layout,
     govukErrorSummary: GovukErrorSummary,
+    govukInsetText: GovukInsetText,
     govukFileUpload: GovukFileUpload,
     govukButton: GovukButton
 )
 
-@(uploadUrl: String, fields: Map[String, String], uploadError: Option[VinUploadError])(implicit request: Request[?], messages: Messages)
+@(uploadUrl: String, fields: Map[String, String], uploadError: Option[VinUploadError], vehicleDetails: Option[InsetText])(implicit request: Request[?], messages: Messages)
 
 @pageTitle = @{
     uploadError.fold(messages("uploadVinNumbers.title")) { _ =>
@@ -39,6 +40,8 @@
             title = Text(messages("error.summary.title"))
         ))
     }
+
+    @vehicleDetails.map(inset => govukInsetText(inset.copy(classes = "govuk-!-margin-top-0")))
 
     <span class="govuk-caption-l">@messages("uploadVinNumbers.caption")</span>
 

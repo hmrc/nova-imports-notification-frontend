@@ -45,13 +45,13 @@
     pageTitle = titleNoForm(if (hasErrors) s"""${messages("error.title.prefix")} ${title}""" else title)
 ) {
 
-    @formHelper(action = postAction) {
+    @formHelper(action = postAction, Symbol("autoComplete") -> "off") {
 
         @if(hasErrors) {
             @govukErrorSummary(ErrorSummary(errorList = errorList, title = Text(messages("error.summary.title"))))
         }
 
-        @vehicleDetails.map(govukInsetText(_))
+        @vehicleDetails.map(inset => govukInsetText(inset.copy(classes = "govuk-!-margin-top-0")))
 
         <span class="govuk-caption-l">@messages("enterVinNumbers.caption")</span>
 
