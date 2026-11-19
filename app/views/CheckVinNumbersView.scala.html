@@ -48,7 +48,7 @@
         </div>
     <div class="govuk-grid-column-full">
 
-            <p class="govuk-body">@Html(messages("checkVinNumbers.table.caption", s"<strong>${vins.from}</strong>", s"<strong>${vins.to}</strong>", s"<strong>${vins.total}</strong>"))
+        <p class="govuk-body">@Html(messages("checkVinNumbers.table.caption", s"<strong>${vins.from}</strong>", s"<strong>${vins.to}</strong>", s"<strong>${vins.total}</strong>"))</p>
             @govukTable(Table(
                 rows = vins.items.zipWithIndex.map { case (vin, index) =>
                     Seq(
@@ -59,7 +59,8 @@
                 head = Some(Seq(
                     HeadCell(content = Text(messages("checkVinNumbers.table.item"))),
                     HeadCell(content = Text(messages("checkVinNumbers.table.vin")))
-                ))
+                )),
+                classes = "govuk-table--small-text-until-tablet"
             ))
 
             @Pager.paginationFor(vins, urlForPage).map { pagination =>
