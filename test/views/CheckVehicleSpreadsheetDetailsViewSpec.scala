@@ -112,7 +112,9 @@ class CheckVehicleSpreadsheetDetailsViewSpec extends SpecBase with Matchers with
     }
 
     "must render the download notification summary link" in {
-      html must include(msgs("checkVehicleSpreadsheetDetails.downloadLink"))
+      html must include(
+        govukLink(vehicledetails.routes.DownloadSpreadsheetDataController.download().url, msgs("checkVehicleSpreadsheetDetails.downloadLink"))
+      )
     }
 
     "must render the save and continue button" in {

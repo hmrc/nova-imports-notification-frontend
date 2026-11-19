@@ -64,9 +64,8 @@
                 @govukPagination(pagination)
             }
 
-            @* TODO: link to the notification summary download when built *@
             <p class="govuk-body">
-                <a class="govuk-link" href="@controllers.routes.LandingPageController.onPageLoad().url">@messages("checkVehicleSpreadsheetDetails.downloadLink")</a>
+                <a class="govuk-link" href="@controllers.vehicledetails.routes.DownloadSpreadsheetDataController.download().url">@messages("checkVehicleSpreadsheetDetails.downloadLink")</a>
             </p>
 
         <br>

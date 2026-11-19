@@ -21,7 +21,7 @@ import play.api.libs.json.{Json, Reads}
 import java.time.LocalDate
 
 // One row from a validated CarsEu or LightCommercialEu spreadsheet - the two share an identical field set at this layer
-// Used only when saving the notification's vehicle/supplier sections to FormP
+// Used when saving the notification's vehicle/supplier sections to FormP and when building the CSV download
 final case class SpreadsheetEuVehicle(
   itemNumber: Option[Int],
   supplierBusinessPrivate: Option[String],
@@ -44,6 +44,7 @@ final case class SpreadsheetEuVehicle(
   dateOfFirstRegistration: Option[LocalDate],
   dateMadeAvailable: Option[LocalDate],
   purchaseInvoice: Option[Boolean],
+  noPurchaseInvoiceReason: Option[String],
   purchaseInvoiceDate: Option[LocalDate],
   purchaseInvoiceNumber: Option[String],
   pricePaid: Option[BigDecimal],
@@ -53,6 +54,7 @@ final case class SpreadsheetEuVehicle(
   derivative: Option[String],
   trim: Option[String],
   bodyType: Option[String],
+  notificationReference: Option[String],
   vin: Option[String],
   currentRegistrationNumber: Option[String],
   dateArrivedInUk: Option[LocalDate],
