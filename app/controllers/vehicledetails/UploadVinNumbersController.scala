@@ -30,7 +30,7 @@ import play.api.Logging
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents, Result}
 import services.{ImportService, SupplierService, VehicleService}
 import views.html.UploadVinNumbersView
-
+import viewmodels.VehicleDetailsInset
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -54,7 +54,8 @@ class UploadVinNumbersController @Inject() (
         handlePageLoad(
           restart,
           statusPage = routes.VinUploadStatusController.supplierOnPageLoad(supplierNumber, vehicleNumber),
-          selfPage = routes.UploadVinNumbersController.supplierOnPageLoad(supplierNumber, vehicleNumber, restart = false)
+          selfPage = routes.UploadVinNumbersController.supplierOnPageLoad(supplierNumber, vehicleNumber, restart = false),
+          vehicleNumber
         )
     }
 
@@ -64,11 +65,14 @@ class UploadVinNumbersController @Inject() (
         handlePageLoad(
           restart,
           statusPage = routes.VinUploadStatusController.importOnPageLoad(importNumber, vehicleNumber),
-          selfPage = routes.UploadVinNumbersController.importOnPageLoad(importNumber, vehicleNumber, restart = false)
+          selfPage = routes.UploadVinNumbersController.importOnPageLoad(importNumber, vehicleNumber, restart = false),
+          vehicleNumber
         )
     }
 
-  private def handlePageLoad(restart: Boolean, statusPage: Call, selfPage: Call)(implicit request: DataRequest[AnyContent]): Future[Result] = {
+  private def handlePageLoad(restart: Boolean, statusPage: Call, selfPage: Call, vehicleNumber: VehicleNumber)(implicit
+    request: DataRequest[AnyContent]
+  ): Future[Result] = {
     val draftId = request.userAnswers.get(DraftIdPage).get
 
     val discardExisting =
@@ -82,13 +86,13 @@ class UploadVinNumbersController @Inject() (
     discardExisting.flatMap { _ =>
       connector.getFileUploadSummary(draftId).flatMap {
         case Right(summary) if summary.kind != "VIN" =>
-          renderUploadForm(draftId, statusPage, selfPage)
+          renderUploadForm(draftId, statusPage, selfPage, vehicleNumber)
         case Right(summary) if summary.fileStatus != "AWAITING_UPLOAD" =>
           Future.successful(Redirect(statusPage))
         case Right(_) =>
-          renderUploadForm(draftId, statusPage, selfPage)
+          renderUploadForm(draftId, statusPage, selfPage, vehicleNumber)
         case Left(GetFileUploadSummaryError.NotFound) =>
-          renderUploadForm(draftId, statusPage, selfPage)
+          renderUploadForm(draftId, statusPage, selfPage, vehicleNumber)
         case Left(GetFileUploadSummaryError.Forbidden) =>
           Future.successful(Redirect(controllers.routes.UnauthorisedController.onPageLoad()))
         case Left(error) =>
@@ -98,7 +102,9 @@ class UploadVinNumbersController @Inject() (
     }
   }
 
-  private def renderUploadForm(draftId: DraftId, statusPage: Call, selfPage: Call)(implicit request: DataRequest[AnyContent]): Future[Result] = {
+  private def renderUploadForm(draftId: DraftId, statusPage: Call, selfPage: Call, vehicleNumber: VehicleNumber)(implicit
+    request: DataRequest[AnyContent]
+  ): Future[Result] = {
     val uploadError = request.getQueryString("errorCode").map(VinUploadError.fromUpscanErrorCode)
 
     connector
@@ -110,7 +116,7 @@ class UploadVinNumbersController @Inject() (
       )
       .map {
         case Right(uploadTracking) =>
-          Ok(view(uploadTracking.uploadUrl, uploadTracking.fields, uploadError))
+          Ok(view(uploadTracking.uploadUrl, uploadTracking.fields, uploadError, VehicleDetailsInset(request.userAnswers, vehicleNumber)))
         case Left(error) =>
           logger.warn(s"Could not start a VIN upload: $error")
           Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())

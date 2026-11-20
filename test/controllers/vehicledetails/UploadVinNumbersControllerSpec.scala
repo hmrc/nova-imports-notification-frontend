@@ -22,14 +22,15 @@ import connectors.{CreateVinUploadTrackingError, DeleteVinUploadError, GetFileUp
 import controllers.actions.*
 import controllers.{routes, vehicledetails}
 import models.responses.{CreateUploadTrackingResponse, DeleteFileUploadResponse, GetFileUploadSummaryResponse}
-import models.{DraftId, ImportNumber, NumberOfVehicles, OneMultiVehicle, SupplierNumber, UserAnswers, VehicleNumber}
+import models.{AddVehicleDetailsCar, AddVehicleType, DraftId, ImportNumber, NumberOfVehicles, OneMultiVehicle, SupplierNumber, UserAnswers, VehicleNumber}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{never, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import pages.sections.initialquestions.VehicleFromEuPage
-import pages.sections.vehicledetails.NumberOfVehiclesPage
+import pages.sections.vehicledetails.{AddVehicleDetailsCarPage, AddVehicleTypePage, NumberOfVehiclesPage}
 import pages.DraftIdPage
 import play.api.Application
+import play.api.i18n.Messages
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
@@ -51,7 +52,8 @@ class UploadVinNumbersControllerSpec extends SpecBase with MockitoSugar {
   private lazy val supplierRestartRoute = vehicledetails.routes.UploadVinNumbersController.supplierOnPageLoad(s, v, restart = true).url
   private lazy val importRoute          = vehicledetails.routes.UploadVinNumbersController.importOnPageLoad(i, v, restart = false).url
 
-  private val draftId = DraftId("DRAFT-001")
+  private val draftId    = DraftId("DRAFT-001")
+  private val carDetails = AddVehicleDetailsCar("Land Rover", "Discovery 4", "3.0TD", "XS", "station wagon")
 
   private val uploadTracking = CreateUploadTrackingResponse(
     reference = "11370e18-6e24-453e-b45a-76d3e32ea33d",
@@ -64,6 +66,8 @@ class UploadVinNumbersControllerSpec extends SpecBase with MockitoSugar {
     .unsafeSet(VehicleFromEuPage, true)
     .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
     .unsafeSet(AllVehiclesQuery, Map("1" -> Json.obj("supplierNumber" -> 1)))
+    .unsafeSet(AddVehicleTypePage(v), AddVehicleType.Car)
+    .unsafeSet(AddVehicleDetailsCarPage(v), carDetails)
     .unsafeSet(NumberOfVehiclesPage(v), NumberOfVehicles(OneMultiVehicle.More, Some(5)))
 
   private val importAnswers: UserAnswers = emptyUserAnswers
@@ -71,6 +75,8 @@ class UploadVinNumbersControllerSpec extends SpecBase with MockitoSugar {
     .unsafeSet(VehicleFromEuPage, false)
     .unsafeSet(AllImportsQuery, Map("1" -> Json.obj("importEntryNumber" -> "123456789A")))
     .unsafeSet(AllVehiclesQuery, Map("1" -> Json.obj("importNumber" -> 1)))
+    .unsafeSet(AddVehicleTypePage(v), AddVehicleType.Car)
+    .unsafeSet(AddVehicleDetailsCarPage(v), carDetails)
     .unsafeSet(NumberOfVehiclesPage(v), NumberOfVehicles(OneMultiVehicle.More, Some(5)))
 
   private def connectorReturning(
@@ -108,17 +114,24 @@ class UploadVinNumbersControllerSpec extends SpecBase with MockitoSugar {
 
   "UploadVinNumbersController.supplierOnPageLoad" - {
 
-    "must return OK and render the upload form from the upscan details when no upload exists yet" in {
+    "must return OK and render the upload form from the upscan details when no upload exists yet and display the vehicle inset" in {
       val connector   = connectorReturning()
       val application = applicationFor(classOf[FakeVatTraderIdentifierAction], Some(supplierAnswers), connector)
 
       running(application) {
+        implicit val msgs: Messages = messages(application)
+
         val request = FakeRequest(GET, supplierRoute)
         val result  = route(application, request).value
         val view    = application.injector.instanceOf[UploadVinNumbersView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(uploadTracking.uploadUrl, uploadTracking.fields, None)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(
+          uploadTracking.uploadUrl,
+          uploadTracking.fields,
+          None,
+          viewmodels.VehicleDetailsInset(supplierAnswers, v)
+        )(request, msgs).toString
         verify(connector).createVinUploadTracking(eqTo(draftId), eqTo(None), any[String], any[String])(using any[HeaderCarrier])
       }
     }
