@@ -31,8 +31,6 @@ import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents, Result}
 import repositories.SessionRepository
 import services.{ImportService, SupplierService, VehicleService}
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import views.html.DeleteVehicleView
 
 import javax.inject.Inject
@@ -108,8 +106,6 @@ class DeleteVehicleController @Inject() (
   private def deleteVehicle(vehicleNumber: VehicleNumber, sectionPrefix: String, vehiclesList: Call)(implicit
     request: DataRequest[AnyContent]
   ): Future[Result] = {
-    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-
     val failure    = Redirect(controllers.routes.JourneyRecoveryController.onPageLoad())
     val sectionIds = Seq("type", "details", "additional-information").map(section => s"$sectionPrefix/$section")
 
