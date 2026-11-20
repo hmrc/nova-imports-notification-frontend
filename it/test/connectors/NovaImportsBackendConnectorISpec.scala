@@ -303,6 +303,41 @@ class NovaImportsBackendConnectorISpec
     }
   }
 
+  "deleteDraftSections" - {
+
+    val draftId    = DraftId("12345")
+    val url        = s"/nova-imports/draft-notifications/${draftId.value}/sections"
+    val sectionIds = Seq("supplier/1/vehicle/2/type", "supplier/1/vehicle/2/details", "supplier/1/vehicle/2/additional-information")
+
+    "returns the new versionId on 200" in {
+      wireMockServer.stubFor(
+        delete(urlEqualTo(url))
+          .withRequestBody(equalToJson(Json.obj("versionId" -> 6, "sectionIds" -> sectionIds).toString))
+          .willReturn(aResponse().withStatus(200).withBody("""{"draftId":"12345","versionId":7,"lastUpdatedDate":"2026-11-19"}"""))
+      )
+
+      connector.deleteDraftSections(draftId, sectionIds, 6L).futureValue mustEqual Right(7L)
+    }
+
+    "returns Forbidden on 403" in {
+      wireMockServer.stubFor(delete(urlEqualTo(url)).willReturn(aResponse().withStatus(403)))
+
+      connector.deleteDraftSections(draftId, sectionIds, 6L).futureValue mustEqual Left(UpdateSectionError.Forbidden)
+    }
+
+    "returns NotFound on 404" in {
+      wireMockServer.stubFor(delete(urlEqualTo(url)).willReturn(aResponse().withStatus(404)))
+
+      connector.deleteDraftSections(draftId, sectionIds, 6L).futureValue mustEqual Left(UpdateSectionError.NotFound)
+    }
+
+    "returns UpstreamError on a 5xx response" in {
+      wireMockServer.stubFor(delete(urlEqualTo(url)).willReturn(aResponse().withStatus(502).withBody("upstream error")))
+
+      connector.deleteDraftSections(draftId, sectionIds, 6L).futureValue mustEqual Left(UpdateSectionError.UpstreamError(502, "upstream error"))
+    }
+  }
+
   "getTraderInformation" - {
 
     val url = "/nova-imports/trader-information"

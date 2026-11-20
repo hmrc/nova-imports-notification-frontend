@@ -161,6 +161,10 @@ trait NovaImportsBackendConnector {
     hc: HeaderCarrier
   ): Future[Either[UpdateSectionError, Long]]
 
+  def deleteDraftSections(draftId: DraftId, sectionIds: Seq[String], versionId: Long)(implicit
+    hc: HeaderCarrier
+  ): Future[Either[UpdateSectionError, Long]]
+
   def getDraftNotification(draftId: DraftId)(implicit hc: HeaderCarrier): Future[Either[GetDraftNotificationError, DraftNotification]]
 
   def deleteDraftNotification(draftId: DraftId, clientVrn: Option[String])(implicit
@@ -292,6 +296,25 @@ class NovaImportsBackendConnectorImpl @Inject() (
     httpClient
       .put(url"${serviceUrl(s"/draft-notifications/${draftId.value}/vehicle-sections")}")
       .withBody(Json.obj("versionId" -> versionId, "sections" -> sections))
+      .execute[HttpResponse]
+      .map { response =>
+        response.status match {
+          case 200 => Right((response.json \ "versionId").as[Long])
+          case 403 => Left(Forbidden)
+          case 404 => Left(NotFound)
+          case s   => Left(UpstreamError(s, response.body))
+        }
+      }
+  }
+
+  override def deleteDraftSections(draftId: DraftId, sectionIds: Seq[String], versionId: Long)(implicit
+    hc: HeaderCarrier
+  ): Future[Either[UpdateSectionError, Long]] = {
+    import UpdateSectionError.*
+
+    httpClient
+      .delete(url"${serviceUrl(s"/draft-notifications/${draftId.value}/sections")}")
+      .withBody(Json.obj("versionId" -> versionId, "sectionIds" -> sectionIds))
       .execute[HttpResponse]
       .map { response =>
         response.status match {
