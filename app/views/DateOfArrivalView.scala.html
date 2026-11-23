@@ -32,7 +32,7 @@
     pageTitle = title(form, messages("dateOfArrival.title"))
 ) {
 
-    @formHelper(action = submitCall, Symbol("class") -> "govuk-!-margin-bottom-8") {
+    @formHelper(action = submitCall) {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map("value" -> "value.day")))
