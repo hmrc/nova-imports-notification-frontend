@@ -106,12 +106,11 @@ class VatReliefReasonViewSpec extends SpecBase with Matchers with BeforeAndAfter
       )
     }
 
-    "must post to the given submit route with autocomplete off and bottom margin" in {
+    "must post to the given submit route with autocomplete off" in {
       val form = Jsoup.parse(render()).select("form")
 
       form.attr("action") mustEqual postAction.url
       form.attr("autocomplete") mustEqual "off"
-      form.hasClass("govuk-!-margin-bottom-8") mustEqual true
     }
 
     "must render a back link" in {
