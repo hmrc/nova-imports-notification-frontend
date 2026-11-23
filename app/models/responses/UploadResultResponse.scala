@@ -206,9 +206,9 @@ object UploadResultResponse {
         case Some("AgriculturalTractorsNonEu") =>
           agriculturalTractorNonEuVehicles.map(v => VehicleSummary(v.itemNumber, v.vin, v.make, v.seriesModel))
         case Some("MotorCaravansEu") =>
-          motorCaravansEuVehicles.map(v => VehicleSummary(v.itemNumber, v.vin, v.caravanMake, v.caravanVersion))
+          motorCaravansEuVehicles.map(v => VehicleSummary(v.itemNumber, v.vin, v.caravanMake, v.modelNameNumber))
         case Some("MotorCaravansNonEu") =>
-          motorCaravansNonEuVehicles.map(v => VehicleSummary(v.itemNumber, v.vin, v.caravanMake, v.caravanVersion))
+          motorCaravansNonEuVehicles.map(v => VehicleSummary(v.itemNumber, v.vin, v.caravanMake, v.modelNameNumber))
         case Some("HeavyCommercialVehiclesEu") =>
           heavyCommercialEuVehicles.map(v => VehicleSummary(v.itemNumber, v.vin, v.make, v.model))
         case Some("HeavyCommercialVehiclesNonEu") =>
