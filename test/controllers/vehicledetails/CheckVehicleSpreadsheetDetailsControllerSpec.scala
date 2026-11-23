@@ -350,9 +350,9 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
     pricePaid = Some(BigDecimal("100")),
     currency = Some("USD"),
     caravanMake = Some("Make of motor caravan"),
-    modelNameNumber = Some("Motor caravan body"),
-    caravanVersion = Some("Model name/number"),
-    caravanBody = Some("Motor caravan version"),
+    caravanBody = Some("Motor caravan body"),
+    modelNameNumber = Some("Model name/number"),
+    caravanVersion = Some("Motor caravan version"),
     makeOfBaseVehicle = Some("Make of base vehicle"),
     derivative = Some("Derivative"),
     notificationReference = None,
@@ -377,9 +377,9 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
     countryOfFirstRegistration = None,
     dateOfFirstRegistration = Some(LocalDate.of(2010, 1, 1)),
     caravanMake = Some("Make of motor caravan"),
-    modelNameNumber = Some("Motor caravan body"),
-    caravanVersion = Some("Model name / number"),
-    caravanBody = Some("Motor caravan version"),
+    caravanBody = Some("Motor caravan body"),
+    modelNameNumber = Some("Model name / number"),
+    caravanVersion = Some("Motor caravan version"),
     makeOfBaseVehicle = Some("Make of base vehicle"),
     derivative = Some("Derivative"),
     notificationReference = None,
@@ -1232,9 +1232,9 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
 
         val vehicleDetails = sections("supplier/1/vehicle/1/details")
         (vehicleDetails \ "caravanMake").as[String] mustEqual "Make of motor caravan"
-        (vehicleDetails \ "modelNameNumber").as[String] mustEqual "Motor caravan body"
-        (vehicleDetails \ "caravanVersion").as[String] mustEqual "Model name/number"
-        (vehicleDetails \ "caravanBody").as[String] mustEqual "Motor caravan version"
+        (vehicleDetails \ "caravanBody").as[String] mustEqual "Motor caravan body"
+        (vehicleDetails \ "modelNameNumber").as[String] mustEqual "Model name/number"
+        (vehicleDetails \ "caravanVersion").as[String] mustEqual "Motor caravan version"
         (vehicleDetails \ "makeOfBaseVehicle").as[String] mustEqual "Make of base vehicle"
         (vehicleDetails \ "derivative").as[String] mustEqual "Derivative"
       }
@@ -1262,9 +1262,9 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
 
         val vehicleDetails = sections("import/1/vehicle/1/details")
         (vehicleDetails \ "caravanMake").as[String] mustEqual "Make of motor caravan"
-        (vehicleDetails \ "modelNameNumber").as[String] mustEqual "Motor caravan body"
-        (vehicleDetails \ "caravanVersion").as[String] mustEqual "Model name / number"
-        (vehicleDetails \ "caravanBody").as[String] mustEqual "Motor caravan version"
+        (vehicleDetails \ "caravanBody").as[String] mustEqual "Motor caravan body"
+        (vehicleDetails \ "modelNameNumber").as[String] mustEqual "Model name / number"
+        (vehicleDetails \ "caravanVersion").as[String] mustEqual "Motor caravan version"
         (vehicleDetails \ "makeOfBaseVehicle").as[String] mustEqual "Make of base vehicle"
         (vehicleDetails \ "derivative").as[String] mustEqual "Derivative"
       }
