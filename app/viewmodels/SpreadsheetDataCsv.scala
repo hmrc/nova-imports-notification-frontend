@@ -181,9 +181,9 @@ object SpreadsheetDataCsv {
     headingKey("pricePaidForVehicle")          -> (v => amount(v.pricePaid)),
     headingKey("currencyUsed")                 -> (v => text(v.currency)),
     headingKey("caravanMake")                  -> (v => text(v.caravanMake)),
-    headingKey("modelNameNumber")              -> (v => text(v.modelNameNumber)), // writes Motor caravan body value, mapped by validation
-    headingKey("caravanVersion")               -> (v => text(v.caravanVersion)), // writes the Model name/number value, mapped by validation
-    headingKey("caravanBody")                  -> (v => text(v.caravanBody)), // writes the Motor caravan version value, mapped by validation
+    headingKey("caravanBody")                  -> (v => text(v.caravanBody)),
+    headingKey("modelNameNumber")              -> (v => text(v.modelNameNumber)),
+    headingKey("caravanVersion")               -> (v => text(v.caravanVersion)),
     headingKey("makeOfBaseVehicle")            -> (v => text(v.makeOfBaseVehicle)),
     headingKey("derivative")                   -> (v => text(v.derivative)),
     headingKey("notificationReference")        -> (v => text(v.notificationReference)),
@@ -421,9 +421,9 @@ object SpreadsheetDataCsv {
     headingKey("countryOfFirstRegistration") -> (v => text(v.countryOfFirstRegistration)),
     headingKey("dateOfFirstRegistration")    -> (v => date(v.dateOfFirstRegistration)),
     headingKey("caravanMake")                -> (v => text(v.caravanMake)),
-    headingKey("caravanVersion")             -> (v => text(v.caravanVersion)), // writes the Model name / number value, mapped by validation
-    headingKey("caravanBody")                -> (v => text(v.caravanBody)), // writes the Motor caravan version value, mapped by validation
-    headingKey("modelNameNumber")            -> (v => text(v.modelNameNumber)), // writes the Motor caravan body value, mapped by validation
+    headingKey("modelNameNumber")            -> (v => text(v.modelNameNumber)),
+    headingKey("caravanVersion")             -> (v => text(v.caravanVersion)),
+    headingKey("caravanBody")                -> (v => text(v.caravanBody)),
     headingKey("makeOfBaseVehicle")          -> (v => text(v.makeOfBaseVehicle)),
     headingKey("derivative")                 -> (v => text(v.derivative)),
     headingKey("notificationReference")      -> (v => text(v.notificationReference)),
