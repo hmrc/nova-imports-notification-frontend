@@ -28,7 +28,9 @@ final case class ImportVehicleAdditionalInformation(
   vehicleIdNumber: String,
   mileage: String,
   mileageUnits: String,
-  areYouClaimingRelief: Boolean
+  areYouClaimingRelief: Boolean,
+  reasonForClaimingRelief: Option[String] = None,
+  notificationReference: Option[String] = None
 )
 
 object ImportVehicleAdditionalInformation {
