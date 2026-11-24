@@ -15,43 +15,123 @@
  *@
 
 @import controllers.vehicledetails.routes
-@import models.SupplierNumber
+@import models.VehicleVinSummary
+@import models.{SupplierNumber, VehicleNumber}
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.table.{HeadCell, Table, TableRow}
+@import viewmodels.{Pager, PageOf}
+@import viewmodels.LegendSize
 
 @this(
     layout: templates.Layout,
     formHelper: FormWithCSRF,
+    govukErrorSummary: GovukErrorSummary,
     govukButton: GovukButton,
     govukDetails: GovukDetails,
+    govukPagination: GovukPagination,
+    govukRadios: GovukRadios,
+    govukTable: GovukTable,
     hmrcNewTabLinkHelper: HmrcNewTabLinkHelper
 )
 
-@(supplierName: Option[String], supplierNumber: SupplierNumber, personalTransportUnitUrl: String)(implicit request: Request[?], messages: Messages)
+@(form: Form[_], vehicles: PageOf[VehicleVinSummary], urlForPage: Int => String, supplierName: Option[String], supplierNumber: SupplierNumber, personalTransportUnitUrl: String)(implicit request: Request[?], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("vehiclesBoughtFromSupplier.title"))) {
+@actions(vehicle: VehicleVinSummary) = {
+    
+    @* TODO: link to the C-AVD4.0 page when built for edit *@
 
-    <span class="govuk-caption-l">@messages("vehiclesBoughtFromSupplier.caption")</span>
+    <a class="govuk-link" href="@controllers.routes.LandingPageController.onPageLoad().url">@messages("vehiclesBoughtFromSupplier.action.edit")
+        <span class="govuk-visually-hidden"> messages("vehiclesBoughtFromSupplier.action.edit.hidden", vehicle.vin.getOrElse(""))</span></a>
+    <span class="table-link-separator" aria-hidden="true"> | </span>
+    <a class="govuk-link" href="@routes.DeleteVehicleController.supplierOnPageLoad(supplierNumber, vehicle.vehicleNumber).url">@messages("vehiclesBoughtFromSupplier.action.delete")
+        <span class="govuk-visually-hidden"> messages("vehiclesBoughtFromSupplier.action.delete.hidden", vehicle.vin.getOrElse(""))</span></a>
+}
 
-    <h1 class="govuk-heading-l">@supplierName.fold(messages("vehiclesBoughtFromSupplier.heading.noSupplierName"))(name => messages("vehiclesBoughtFromSupplier.heading", name))</h1>
+@table(vehicles: PageOf[VehicleVinSummary]) = {
+    <h1 class="govuk-heading-m">@messages("vehiclesBoughtFromSupplier.heading.2")</h1>
 
-    <p class="govuk-body">@messages("vehiclesBoughtFromSupplier.paragraph.1")</p>
-
-    <ul class="govuk-list govuk-list--bullet">
-        <li>@messages("vehiclesBoughtFromSupplier.bullet.1")</li>
-        <li>@messages("vehiclesBoughtFromSupplier.bullet.2")</li>
-    </ul>
-
-    <p class="govuk-body">@Html(messages("vehiclesBoughtFromSupplier.inset.paragraph.1",
-        hmrcNewTabLinkHelper(LinkViewModel(messages("vehiclesBoughtFromSupplier.inset.contactPersonalTransportUnit.linkText"), personalTransportUnitUrl))))</p>
-
-
-    @govukDetails(Details(
-        summary = Text(messages("vehiclesBoughtFromSupplier.whereToFindDates.heading")),
-        content = Text(messages("vehiclesBoughtFromSupplier.whereToFindDates.paragraph.1"))
+    @govukTable(Table(
+        rows = vehicles.items.map { vehicle =>
+            Seq(
+                TableRow(content = Text(vehicle.vin)),
+                TableRow(content = Text(vehicle.make + " " + vehicle.model + " " + vehicle.bodyType)),
+                TableRow(content = HtmlContent(actions(vehicle)))
+            )
+        },
+        head = Some(Seq(
+            HeadCell(content = Text(messages("vehiclesBoughtFromSupplier.table.vin"))),
+            HeadCell(content = Text(messages("vehiclesBoughtFromSupplier.table.description"))),
+            HeadCell(content = Text(messages("vehiclesBoughtFromSupplier.table.actions")))
+        )),
+        caption = Some(messages("checkVehicleSpreadsheetDetails.table.caption", vehicles.from, vehicles.to, vehicles.total)),
+        captionClasses = "govuk-table__caption--m",
+        classes = "govuk-table--small-text-until-tablet"
     ))
 
-    @formHelper(action = routes.VehiclesBoughtFromSupplierController.onSubmit(supplierNumber)) {
-        @govukButton(
-            ButtonViewModel(messages("vehiclesBoughtFromSupplier.addVehicle"))
-        )
+    @Pager.paginationFor(vehicles, urlForPage).map { pagination =>
+        @govukPagination(pagination)
     }
+}
+
+@layout(pageTitle = titleNoForm(messages("vehiclesBoughtFromSupplier.title")), fullWidth = true) {
+
+    @if(form.errors.nonEmpty) {
+        @govukErrorSummary(ErrorSummaryViewModel(form))
+    }
+
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+
+            <span class="govuk-caption-l">@messages("vehiclesBoughtFromSupplier.caption")</span>
+
+            <h1 class="govuk-heading-l">@supplierName.fold(messages("vehiclesBoughtFromSupplier.heading.noSupplierName"))(name => messages("vehiclesBoughtFromSupplier.heading", name))</h1>
+
+            <p class="govuk-body">@messages("vehiclesBoughtFromSupplier.paragraph.1")</p>
+
+            <ul class="govuk-list govuk-list--bullet">
+                <li>@messages("vehiclesBoughtFromSupplier.bullet.1")</li>
+                <li>@messages("vehiclesBoughtFromSupplier.bullet.2")</li>
+            </ul>
+
+            <p class="govuk-body">@Html(messages("vehiclesBoughtFromSupplier.inset.paragraph.1",
+                hmrcNewTabLinkHelper(LinkViewModel(messages("vehiclesBoughtFromSupplier.inset.contactPersonalTransportUnit.linkText"), personalTransportUnitUrl))))</p>
+
+            @govukDetails(Details(
+                summary = Text(messages("vehiclesBoughtFromSupplier.whereToFindDates.heading")),
+                content = Text(messages("vehiclesBoughtFromSupplier.whereToFindDates.paragraph.1"))
+            ))
+
+        </div>
+
+        @if(vehicles.total == 0) {
+            <div class="govuk-grid-column-two-thirds">
+                @formHelper(action = routes.VehiclesBoughtFromSupplierController.onSubmit(supplierNumber)) {
+                    @govukButton(
+                        ButtonViewModel(messages("vehiclesBoughtFromSupplier.addVehicle"))
+                    )
+                }
+            </div>
+        } else {
+
+            <div class="govuk-grid-column-full">
+                @table(vehicles)
+            </div>
+
+            <div class="govuk-grid-column-two-thirds">
+                @formHelper(action = routes.VehiclesBoughtFromSupplierController.onSubmit(supplierNumber), Symbol("autoComplete") -> "off") {
+                    @govukRadios(
+                        RadiosViewModel.yesNo(
+                            field  = form("value"),
+                            legend = LegendViewModel(messages("vehiclesBoughtFromSupplier.heading.3")).asPageHeading(LegendSize.Medium)
+                        )
+                    )
+                
+                    @govukButton(
+                        ButtonViewModel(messages("site.continue"))
+                    )
+                }
+            </div>
+        </div>
+
+    }
+
 }

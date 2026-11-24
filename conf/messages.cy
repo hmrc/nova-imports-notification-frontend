@@ -1041,6 +1041,19 @@ vehiclesBoughtFromSupplier.whereToFindDates.heading = Ble i ddod o hyd i’r dyd
 vehiclesBoughtFromSupplier.whereToFindDates.paragraph.1 = Fel arfer, gallwch ddod o hyd i ddyddiad y cofrestriad cyntaf yn llyfr log y cerbyd. Gallwch ddod o hyd i ddyddiad yr anfoneb ar yr anfoneb brynu.
 vehiclesBoughtFromSupplier.addVehicle = Ychwanegu cerbyd
 
+vehiclesBoughtFromSupplier.heading.2 = List of vehicles added
+vehiclesBoughtFromSupplier.table.vin = Vehicle identification number
+vehiclesBoughtFromSupplier.table.description = Description
+vehiclesBoughtFromSupplier.table.actions = Actions
+vehiclesBoughtFromSupplier.action.edit = Edit
+vehiclesBoughtFromSupplier.action.edit.hidden = vehicle {0}
+vehiclesBoughtFromSupplier.action.delete = Delete
+vehiclesBoughtFromSupplier.action.delete.hidden = vehicle {0}
+vehiclesBoughtFromSupplier.heading.3 = Do you need to add another vehicle?
+vehiclesBoughtFromSupplier.error.required = Select yes if you need to add another vehicle
+vehiclesBoughtFromSupplier.inset.limit = You have added the maximum of 100 vehicles in one submission.
+vehiclesBoughtFromSupplier.inset.limit2 = To add another vehicle, you must submit these notifications and then return to the home page to start a new one.
+
 #########################################################################################
 # AVD3.1 - Add vehicle details 3.1: If you do not have any of the dates for the vehicle #
 #########################################################################################
