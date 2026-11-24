@@ -14,8 +14,6 @@
  * limitations under the License.
  *@
 
-@import viewmodels.LegendSize
-
 @this(
     layout: templates.Layout,
     formHelper: FormWithCSRF,
@@ -47,10 +45,12 @@
 
     @formHelper(action = action, Symbol("autoComplete") -> "off") {
 
+        <h3 class="govuk-heading-m">@messages("deleteVehicle.legend")</h3>
+
         @govukRadios(
             RadiosViewModel.yesNo(
                 field  = form("value"),
-                legend = LegendViewModel(messages("deleteVehicle.legend")).withCssClass(LegendSize.Medium.toString)
+                legend = LegendViewModel(messages("deleteVehicle.legend")).withCssClass("govuk-visually-hidden")
             )
         )
 

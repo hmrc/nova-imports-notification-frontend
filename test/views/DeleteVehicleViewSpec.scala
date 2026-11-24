@@ -78,10 +78,11 @@ class DeleteVehicleViewSpec extends SpecBase with Matchers with BeforeAndAfterAl
       render(Seq.empty).select(".govuk-inset-text").isEmpty mustBe true
     }
 
-    "must render the question as the legend with yes and no options" in {
+    "must render the question as a h3 above the yes and no options, with a hidden legend for screen readers" in {
       val doc = render()
 
-      doc.select("legend").text mustEqual "Are you sure you want to delete this vehicle?"
+      doc.select("h3.govuk-heading-m").text mustEqual "Are you sure you want to delete this vehicle?"
+      doc.select("legend.govuk-visually-hidden").text mustEqual "Are you sure you want to delete this vehicle?"
       doc.select("input[type=radio]").eachAttr("value") must contain theSameElementsInOrderAs Seq("true", "false")
     }
 
