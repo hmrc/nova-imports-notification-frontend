@@ -132,7 +132,12 @@ class UploadVinNumbersControllerSpec extends SpecBase with MockitoSugar {
           None,
           viewmodels.VehicleDetailsInset(supplierAnswers, v)
         )(request, msgs).toString
-        verify(connector).createVinUploadTracking(eqTo(draftId), eqTo(None), any[String], any[String])(using any[HeaderCarrier])
+        verify(connector).createVinUploadTracking(
+          eqTo(draftId),
+          eqTo(None),
+          eqTo(s"http://localhost:10300${vehicledetails.routes.VinUploadStatusController.supplierOnPageLoad(s, v).url}"),
+          eqTo(s"http://localhost:10300${vehicledetails.routes.UploadVinNumbersController.supplierOnPageLoad(s, v, restart = false).url}")
+        )(using any[HeaderCarrier])
       }
     }
 

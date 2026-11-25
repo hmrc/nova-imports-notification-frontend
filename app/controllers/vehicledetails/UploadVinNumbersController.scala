@@ -16,6 +16,7 @@
 
 package controllers.vehicledetails
 
+import config.FrontendAppConfig
 import connectors.{GetFileUploadSummaryError, NovaImportsBackendConnector}
 import controllers.BaseController
 import controllers.actions.Actions
@@ -41,7 +42,8 @@ class UploadVinNumbersController @Inject() (
   connector: NovaImportsBackendConnector,
   supplierService: SupplierService,
   importService: ImportService,
-  vehicleService: VehicleService
+  vehicleService: VehicleService,
+  appConfig: FrontendAppConfig
 )(implicit ec: ExecutionContext)
     extends BaseController
     with Logging {
@@ -111,8 +113,8 @@ class UploadVinNumbersController @Inject() (
       .createVinUploadTracking(
         draftId,
         request.userAnswers.get(AmendSubmittedNotificationPage),
-        successRedirect = statusPage.absoluteURL(),
-        errorRedirect = selfPage.absoluteURL()
+        successRedirect = s"${appConfig.host}${statusPage.url}",
+        errorRedirect = s"${appConfig.host}${selfPage.url}"
       )
       .map {
         case Right(uploadTracking) =>
