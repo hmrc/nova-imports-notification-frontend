@@ -43,8 +43,7 @@ class AddingMultipleVehiclesErrorController @Inject() (
   def supplierOnPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber): Action[AnyContent] =
     actions.authAndGetDataWithUserTypeGuard(supplierGuardPredicate(supplierService, vehicleService, supplierNumber, vehicleNumber)) {
       implicit request =>
-        // TODO: navigate to AVD12.0 when built
-        Ok(view(routes.VehiclesBoughtFromSupplierAvd12PlaceholderController.onPageLoad(supplierNumber)))
+        Ok(view(routes.VehiclesBoughtFromSupplierController.onPageLoad(supplierNumber)))
     }
 
   def importOnPageLoad(importNumber: ImportNumber, vehicleNumber: VehicleNumber): Action[AnyContent] =

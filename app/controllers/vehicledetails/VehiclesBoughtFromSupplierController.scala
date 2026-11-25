@@ -125,8 +125,7 @@ class VehiclesBoughtFromSupplierController @Inject() (
       view(
         formWithErrors,
         Pager.page(vehicleVinSummarySeq, page = 1),
-        pageNumber =>
-          routes.VehiclesBoughtFromSupplierController.onPageLoad(supplierNumber).url, // TODO: Update the pageURL to include a page number optionally
+        pageNumber => routes.VehiclesBoughtFromSupplierController.onPageLoad(supplierNumber).url,
         name,
         supplierNumber,
         appConfig.personalTransportUnitUrl
@@ -148,31 +147,31 @@ object VehiclesBoughtFromSupplierController {
     answers.get(AddVehicleTypePage(vehicleNumber)) match {
       case Some(AddVehicleType.Car) =>
         answers.get(AddVehicleDetailsCarPage(vehicleNumber)).map { d =>
-          VehicleVinSummary(vehicleNumber, vin, d.make, d.model, d.bodyType)
+          VehicleVinSummary(vehicleNumber, vin, d.model, d.make, d.bodyType)
         }
       case Some(AddVehicleType.Lcv) =>
         answers.get(AddVehicleDetailsLightCommercialPage(vehicleNumber)).map { d =>
-          VehicleVinSummary(vehicleNumber, vin, d.make, d.model, d.bodyType)
+          VehicleVinSummary(vehicleNumber, vin, d.model, d.make, d.bodyType)
         }
       case Some(AddVehicleType.Hcv) =>
         answers.get(AddVehicleDetailsHeavyCommercialPage(vehicleNumber)).map { d =>
-          VehicleVinSummary(vehicleNumber, vin, d.make, d.model, "")
+          VehicleVinSummary(vehicleNumber, vin, d.model, d.make, "")
         }
       case Some(AddVehicleType.Motorcycle) =>
         answers.get(AddVehicleDetailsMotorcyclePage(vehicleNumber)).map { d =>
-          VehicleVinSummary(vehicleNumber, vin, d.make, d.model, "")
+          VehicleVinSummary(vehicleNumber, vin, d.model, d.make, "")
         }
       case Some(AddVehicleType.MotorCaravan) =>
         answers.get(AddVehicleDetailsMotorCaravanPage(vehicleNumber)).map { d =>
-          VehicleVinSummary(vehicleNumber, vin, d.make, d.model, d.bodyType)
+          VehicleVinSummary(vehicleNumber, vin, d.model, d.make, d.bodyType)
         }
       case Some(AddVehicleType.AgriculturalTractor) =>
         answers.get(AddVehicleDetailsAgriculturalTractorPage(vehicleNumber)).map { d =>
-          VehicleVinSummary(vehicleNumber, vin, d.make, d.model, "")
+          VehicleVinSummary(vehicleNumber, vin, d.model, d.make, "")
         }
       case Some(AddVehicleType.ContractorsPlant) =>
         answers.get(AddVehicleDetailsContractorsPlantPage(vehicleNumber)).map { d =>
-          VehicleVinSummary(vehicleNumber, vin, d.make, d.model, "")
+          VehicleVinSummary(vehicleNumber, vin, d.model, d.make, "")
         }
       case None => None
     }

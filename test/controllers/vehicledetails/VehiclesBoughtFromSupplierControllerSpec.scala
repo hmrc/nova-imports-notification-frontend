@@ -19,6 +19,7 @@ package controllers.vehicledetails
 import base.SpecBase
 import config.FrontendAppConfig
 import controllers.{routes, vehicledetails}
+import forms.AdditionalVehicleFormProvider
 import models.{BusinessOrPrivateIndividual, DraftId, NormalMode, SupplierNumber, UserAnswers, VehicleNumber}
 import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{verify, when}
@@ -27,11 +28,12 @@ import pages.DraftIdPage
 import pages.sections.initialquestions.VehicleFromEuPage
 import pages.sections.supplierdetails.{SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, UsePersonalDetailsAsSupplierPage}
 import play.api.inject.bind
-import play.api.libs.json.Json
-import queries.{AllSuppliersQuery, AllVehiclesQuery}
+import play.api.libs.json.{JsObject, Json}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import queries.{AllSuppliersQuery, AllVehiclesQuery}
 import repositories.SessionRepository
+import viewmodels.Pager
 import views.html.VehiclesBoughtFromSupplierView
 
 import scala.concurrent.Future
@@ -40,6 +42,11 @@ class VehiclesBoughtFromSupplierControllerSpec extends SpecBase with MockitoSuga
 
   val supplierNumber: SupplierNumber = SupplierNumber(1)
 
+  val formProvider = new AdditionalVehicleFormProvider()
+  val form         = formProvider()
+
+  val pageUrl = (pageNumber: Int) => controllers.vehicledetails.routes.VehiclesBoughtFromSupplierController.onPageLoad(supplierNumber).url
+
   val userAnswersWithGuardData: UserAnswers = emptyUserAnswers
     .unsafeSet(DraftIdPage, DraftId("DRAFT-001"))
     .unsafeSet(VehicleFromEuPage, true)
@@ -47,6 +54,12 @@ class VehiclesBoughtFromSupplierControllerSpec extends SpecBase with MockitoSuga
 
   lazy val vehiclesBoughtFromSupplierRoute: String =
     vehicledetails.routes.VehiclesBoughtFromSupplierController.onPageLoad(supplierNumber).url
+
+  private def vehicleFor(supplier: Int, invoiceNumber: String): JsObject =
+    Json.obj("supplierNumber" -> supplier, "details" -> Json.obj("purchaseInvoiceNumber" -> invoiceNumber))
+
+  private def vehiclesForSupplierOne(total: Int): Map[String, JsObject] =
+    (1 to total).map(number => number.toString -> vehicleFor(1, "INV-001")).toMap
 
   private def mockSessionRepository(userAnswers: UserAnswers): SessionRepository = {
     val repo = mock[SessionRepository]
@@ -78,7 +91,10 @@ class VehiclesBoughtFromSupplierControllerSpec extends SpecBase with MockitoSuga
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual
-          view(None, supplierNumber, appConfig.personalTransportUnitUrl)(request, messages(application)).toString
+          view(form, Pager.page(Seq.empty, 1), pageUrl, None, supplierNumber, appConfig.personalTransportUnitUrl)(
+            request,
+            messages(application)
+          ).toString
       }
     }
 
@@ -92,21 +108,6 @@ class VehiclesBoughtFromSupplierControllerSpec extends SpecBase with MockitoSuga
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual
           vehicledetails.routes.VehicleDatesController.onPageLoad(supplierNumber, VehicleNumber(1), NormalMode).url
-      }
-    }
-
-    "must add the next vehicle when the notification already has one with an answer" in {
-
-      val vehicleOne  = Json.obj("supplierNumber" -> 1, "details" -> Json.obj("purchaseInvoiceNumber" -> "INV-2026-001"))
-      val answers     = userAnswersWithGuardData.unsafeSet(AllVehiclesQuery, Map("1" -> vehicleOne))
-      val application = applicationWithMockRepository(answers)
-
-      running(application) {
-        val result = route(application, FakeRequest(POST, vehiclesBoughtFromSupplierRoute)).value
-
-        status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual
-          vehicledetails.routes.VehicleDatesController.onPageLoad(supplierNumber, VehicleNumber(2), NormalMode).url
       }
     }
 
@@ -222,4 +223,68 @@ class VehiclesBoughtFromSupplierControllerSpec extends SpecBase with MockitoSuga
       }
     }
   }
+
+  "VehiclesBoughtFromSupplierController - with list of vehicles" - {
+
+    "must add the next vehicle and redirect to AVD3.0 when the notification already has vehicle with an answer and the user selected Yes" in {
+
+      val vehicleOne  = Json.obj("supplierNumber" -> 1, "details" -> Json.obj("purchaseInvoiceNumber" -> "INV-2026-001"))
+      val answers     = userAnswersWithGuardData.unsafeSet(AllVehiclesQuery, Map("1" -> vehicleOne))
+      val application = applicationWithMockRepository(answers)
+
+      running(application) {
+        val result = route(application, FakeRequest(POST, vehiclesBoughtFromSupplierRoute).withFormUrlEncodedBody("value" -> "true")).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual
+          vehicledetails.routes.VehicleDatesController.onPageLoad(supplierNumber, VehicleNumber(2), NormalMode).url
+      }
+    }
+
+    "must redirect to LandingPage when the notification already has vehicle with an answer and the user selected No" in {
+
+      val vehicleOne  = Json.obj("supplierNumber" -> 1, "details" -> Json.obj("purchaseInvoiceNumber" -> "INV-2026-001"))
+      val answers     = userAnswersWithGuardData.unsafeSet(AllVehiclesQuery, Map("1" -> vehicleOne))
+      val application = applicationWithMockRepository(answers)
+
+      running(application) {
+        val result = route(application, FakeRequest(POST, vehiclesBoughtFromSupplierRoute).withFormUrlEncodedBody("value" -> "false")).value
+
+        // TODO: Redirect to AVD13.0 when built
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.LandingPageController.onPageLoad().url
+      }
+    }
+
+    "must return a BadRequest if there is an existing vehicle with an answer and no option is selected" in {
+
+      val vehicleOne  = Json.obj("supplierNumber" -> 1, "details" -> Json.obj("purchaseInvoiceNumber" -> "INV-2026-001"))
+      val answers     = userAnswersWithGuardData.unsafeSet(AllVehiclesQuery, Map("1" -> vehicleOne))
+      val application = applicationWithMockRepository(answers)
+
+      running(application) {
+        val result = route(application, FakeRequest(POST, vehiclesBoughtFromSupplierRoute)).value
+
+        status(result) mustEqual BAD_REQUEST
+      }
+    }
+
+    "must add vehicle 3 for supplier 1 and send the user to AVD3.0 for vehicle 3 when supplier already has existing vehicles" in {
+
+      val answers = userAnswersWithGuardData
+        .unsafeSet(AllVehiclesQuery, Map("1" -> vehicleFor(1, "INV-2026-001"), "2" -> vehicleFor(1, "INV-2026-002")))
+
+      val application = applicationWith(answers, mockSessionRepository(answers))
+
+      running(application) {
+        val result = route(application, FakeRequest(POST, vehiclesBoughtFromSupplierRoute).withFormUrlEncodedBody("value" -> "true")).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual
+          vehicledetails.routes.VehicleDatesController.onPageLoad(supplierNumber, VehicleNumber(3), NormalMode).url
+      }
+    }
+
+  }
+
 }

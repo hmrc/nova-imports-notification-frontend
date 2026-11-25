@@ -233,11 +233,6 @@ GET         /vehicles-brought-from-eu-avd13-placeholder                         
 POST        /vehicles-brought-from-eu-avd13-placeholder                                                                         controllers.vehicledetails.VehiclesBroughtFromEuAvd13PlaceholderController.onSubmit()
 POST        /vehicles-brought-from-eu-avd13-placeholder/:supplierNumber/delete                                                  controllers.vehicledetails.VehiclesBroughtFromEuAvd13PlaceholderController.onDelete(supplierNumber: SupplierNumber)
 
-# TODO: DELETE these AVD12.0 placeholder routes when AVD12.0 is built into the AVD2.0 screen
-GET         /supplier/:supplierNumber/vehicles-bought-from-supplier-avd12-placeholder                                           controllers.vehicledetails.VehiclesBoughtFromSupplierAvd12PlaceholderController.onPageLoad(supplierNumber: SupplierNumber)
-POST        /supplier/:supplierNumber/vehicles-bought-from-supplier-avd12-placeholder                                           controllers.vehicledetails.VehiclesBoughtFromSupplierAvd12PlaceholderController.onSubmit(supplierNumber: SupplierNumber)
-POST        /supplier/:supplierNumber/vehicles-bought-from-supplier-avd12-placeholder/vehicle/:vehicleNumber/delete             controllers.vehicledetails.VehiclesBoughtFromSupplierAvd12PlaceholderController.onDelete(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber)
-
 GET         /import/:importNumber/import-entry-number                                                                           controllers.vehicledetails.ImportEntryNumberController.onPageLoad(importNumber: ImportNumber, mode: Mode = NormalMode)
 POST        /import/:importNumber/import-entry-number                                                                           controllers.vehicledetails.ImportEntryNumberController.onSubmit(importNumber: ImportNumber, mode: Mode = NormalMode)
 GET         /import/:importNumber/import-entry-number/change                                                                    controllers.vehicledetails.ImportEntryNumberController.onPageLoad(importNumber: ImportNumber, mode: Mode = CheckMode)

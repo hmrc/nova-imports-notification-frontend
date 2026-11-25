@@ -40,10 +40,10 @@
     @* TODO: link to the C-AVD4.0 page when built for edit *@
 
     <a class="govuk-link" href="@controllers.routes.LandingPageController.onPageLoad().url">@messages("vehiclesBoughtFromSupplier.action.edit")
-        <span class="govuk-visually-hidden"> messages("vehiclesBoughtFromSupplier.action.edit.hidden", vehicle.vin.getOrElse(""))</span></a>
+        <span class="govuk-visually-hidden"> @messages("vehiclesBoughtFromSupplier.action.edit.hidden", vehicle.vin)</span></a>
     <span class="table-link-separator" aria-hidden="true"> | </span>
     <a class="govuk-link" href="@routes.DeleteVehicleController.supplierOnPageLoad(supplierNumber, vehicle.vehicleNumber).url">@messages("vehiclesBoughtFromSupplier.action.delete")
-        <span class="govuk-visually-hidden"> messages("vehiclesBoughtFromSupplier.action.delete.hidden", vehicle.vin.getOrElse(""))</span></a>
+        <span class="govuk-visually-hidden"> @messages("vehiclesBoughtFromSupplier.action.delete.hidden", vehicle.vin)</span></a>
 }
 
 @table(vehicles: PageOf[VehicleVinSummary]) = {
@@ -130,8 +130,8 @@
                     )
                 }
             </div>
-        </div>
 
-    }
+        }
+    </div>
 
 }

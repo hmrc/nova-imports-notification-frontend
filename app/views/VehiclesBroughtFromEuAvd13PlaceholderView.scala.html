@@ -60,7 +60,7 @@
                         <td class="govuk-table__cell">@supplierNumber.value</td>
                         <td class="govuk-table__cell">@supplierName.getOrElse(messages("vehiclesBroughtFromEuAvd13Placeholder.notProvided"))</td>
                         <td class="govuk-table__cell">
-                            <a href="@routes.VehiclesBoughtFromSupplierAvd12PlaceholderController.onPageLoad(supplierNumber)" class="govuk-link">@messages("vehiclesBroughtFromEuAvd13Placeholder.vehicles")</a>
+                            <a href="@routes.VehiclesBroughtFromEuAvd13PlaceholderController.onPageLoad()" class="govuk-link">@messages("vehiclesBroughtFromEuAvd13Placeholder.vehicles")</a>
                         </td>
                         <td class="govuk-table__cell">
                             @formHelper(action = routes.VehiclesBroughtFromEuAvd13PlaceholderController.onDelete(supplierNumber)) {

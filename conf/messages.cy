@@ -1041,6 +1041,10 @@ vehiclesBoughtFromSupplier.whereToFindDates.heading = Ble i ddod o hyd i’r dyd
 vehiclesBoughtFromSupplier.whereToFindDates.paragraph.1 = Fel arfer, gallwch ddod o hyd i ddyddiad y cofrestriad cyntaf yn llyfr log y cerbyd. Gallwch ddod o hyd i ddyddiad yr anfoneb ar yr anfoneb brynu.
 vehiclesBoughtFromSupplier.addVehicle = Ychwanegu cerbyd
 
+###############################################################################
+# AVD12.0 - Add vehicle details 12.0: Vehicles bought from with vehicle list  #
+###############################################################################
+
 vehiclesBoughtFromSupplier.heading.2 = List of vehicles added
 vehiclesBoughtFromSupplier.table.vin = Vehicle identification number
 vehiclesBoughtFromSupplier.table.description = Description
