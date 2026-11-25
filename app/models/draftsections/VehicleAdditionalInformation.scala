@@ -27,12 +27,13 @@ final case class VehicleAdditionalInformation(
   isAmendment: Boolean,
   vehicleIdNumber: String,
   totalValueOfOptions: String,
-  isSupplierVatReg: Boolean,
+  isSupplierVatRegistered: Boolean,
   mileage: String,
   mileageUnits: String,
   areYouClaimingRelief: Boolean,
   reasonForClaimingRelief: Option[String] = None,
-  currentRegistrationNumber: Option[String] = None
+  currentRegistrationNumber: Option[String] = None,
+  notificationReference: Option[String] = None
 )
 
 object VehicleAdditionalInformation {

@@ -474,27 +474,35 @@ object CheckVehicleSpreadsheetDetailsController {
       key -> raw.replaceAll("\\s", "").toLowerCase
     }.toMap
 
+  private def withSupplierName(details: SupplierDetails): SupplierDetails =
+    details.supplierBusinessIndividual match {
+      case BusinessOrPrivateIndividual.Business          => details.copy(supplierTitle = None, supplierFirstName = None, supplierLastName = None)
+      case BusinessOrPrivateIndividual.PrivateIndividual => details.copy(supplierBusinessName = None)
+    }
+
   private def supplierDetailsSection(vehicle: SpreadsheetEuVehicle): JsObject =
     Json
       .toJson(
-        SupplierDetails(
-          supplierBusinessIndividual =
-            if (vehicle.supplierBusinessPrivate.exists(_.equalsIgnoreCase("business"))) BusinessOrPrivateIndividual.Business
-            else BusinessOrPrivateIndividual.PrivateIndividual,
-          supplierBusinessName = vehicle.supplierBusinessName,
-          supplierTitle = vehicle.supplierTitle,
-          supplierFirstName = vehicle.supplierFirstName,
-          supplierLastName = vehicle.supplierLastName,
-          addressLine1 = vehicle.addressLine1.getOrElse(""),
-          addressLine2 = vehicle.addressLine2.getOrElse(""),
-          addressLine3 = vehicle.addressLine3,
-          addressLine4 = vehicle.addressLine4,
-          addressLine5 = vehicle.addressLine5,
-          postcode = vehicle.postcode.getOrElse(""),
-          country = vehicle.country.getOrElse(""),
-          isSupplierVatReg = vehicle.supplierVatRegistered.getOrElse(false),
-          euStateVatReg = vehicle.euMemberState.getOrElse(""),
-          vatRegistrationNumber = vehicle.supplierVatNumber.getOrElse("")
+        withSupplierName(
+          SupplierDetails(
+            supplierBusinessIndividual =
+              if (vehicle.supplierBusinessPrivate.exists(_.equalsIgnoreCase("business"))) BusinessOrPrivateIndividual.Business
+              else BusinessOrPrivateIndividual.PrivateIndividual,
+            supplierBusinessName = vehicle.supplierBusinessName,
+            supplierTitle = vehicle.supplierTitle,
+            supplierFirstName = vehicle.supplierFirstName,
+            supplierLastName = vehicle.supplierLastName,
+            addressLine1 = vehicle.addressLine1.getOrElse(""),
+            addressLine2 = vehicle.addressLine2.getOrElse(""),
+            addressLine3 = vehicle.addressLine3,
+            addressLine4 = vehicle.addressLine4,
+            addressLine5 = vehicle.addressLine5,
+            postcode = vehicle.postcode.getOrElse(""),
+            country = vehicle.country.getOrElse(""),
+            isSupplierVatReg = vehicle.supplierVatRegistered.getOrElse(false),
+            euStateVatReg = vehicle.euMemberState.getOrElse(""),
+            vatRegistrationNumber = vehicle.supplierVatNumber.getOrElse("")
+          )
         )
       )
       .as[JsObject]
@@ -511,8 +519,10 @@ object CheckVehicleSpreadsheetDetailsController {
           purchaseInvoiceDate = vehicle.purchaseInvoiceDate.map(formPDateFormat.format),
           pricePaidForVehicle = vehicle.pricePaid.map(_.toString),
           dateMadeAvailableYou = vehicle.dateMadeAvailable.map(formPDateFormat.format),
-          dateOfFirstRegistration = vehicle.dateOfFirstRegistration.map(formPDateFormat.format),
-          countryOfFirstRegistration = vehicle.countryOfFirstRegistration
+          dateOfFirstRegistration =
+            Option.when(vehicle.knownDateFirstRegistered.contains(true))(vehicle.dateOfFirstRegistration.map(formPDateFormat.format).getOrElse("")),
+          countryOfFirstRegistration = Option.when(vehicle.knownDateFirstRegistered.contains(true))(vehicle.countryOfFirstRegistration.getOrElse("")),
+          noPurchaseInvoiceReasonMax = Option.when(!vehicle.purchaseInvoice.contains(true))(vehicle.noPurchaseInvoiceReason.getOrElse(""))
         )
       )
       .as[JsObject]
@@ -542,12 +552,13 @@ object CheckVehicleSpreadsheetDetailsController {
           isAmendment,
           vehicleIdNumber = vehicle.vin.getOrElse(""),
           totalValueOfOptions = vehicle.totalValueOfOptions.map(_.toString).getOrElse(""),
-          isSupplierVatReg = vehicle.supplierVatRegistered.getOrElse(false),
+          isSupplierVatRegistered = vehicle.supplierVatRegistered.getOrElse(false),
           mileage = vehicle.mileage.getOrElse(""),
           mileageUnits = vehicle.mileageUnits.getOrElse(""),
           areYouClaimingRelief = vehicle.claimingVatRelief.getOrElse(false),
-          reasonForClaimingRelief = vehicle.reasonForClaimingRelief,
-          currentRegistrationNumber = vehicle.currentRegistrationNumber
+          reasonForClaimingRelief = vehicle.reasonForClaimingRelief.filter(_ => vehicle.claimingVatRelief.contains(true)),
+          currentRegistrationNumber = vehicle.currentRegistrationNumber,
+          notificationReference = vehicle.notificationReference.filter(_ => isAmendment).map(_.toUpperCase)
         )
       )
       .as[JsObject]
@@ -568,7 +579,8 @@ object CheckVehicleSpreadsheetDetailsController {
         ImportVehicleType(
           vehicleType = if (validationType == "LightCommercialVehiclesNonEu") "LCV" else "CAR",
           dateRoadUseKnown = vehicle.knownDateFirstRegistered.getOrElse(false),
-          dateOfFirstRegistration = vehicle.dateOfFirstRegistration.map(formPDateFormat.format)
+          dateOfFirstRegistration = vehicle.dateOfFirstRegistration.map(formPDateFormat.format),
+          countryOfFirstRegistration = vehicle.countryOfFirstRegistration
         )
       )
       .as[JsObject]
@@ -597,7 +609,9 @@ object CheckVehicleSpreadsheetDetailsController {
           vehicleIdNumber = vehicle.vin.getOrElse(""),
           mileage = vehicle.mileage.getOrElse(""),
           mileageUnits = vehicle.mileageUnits.getOrElse(""),
-          areYouClaimingRelief = vehicle.claimingVatRelief.getOrElse(false)
+          areYouClaimingRelief = vehicle.claimingVatRelief.getOrElse(false),
+          reasonForClaimingRelief = vehicle.reasonForClaimingRelief.filter(_ => vehicle.claimingVatRelief.contains(true)),
+          notificationReference = vehicle.notificationReference.filter(_ => isAmendment).map(_.toUpperCase)
         )
       )
       .as[JsObject]
@@ -605,24 +619,26 @@ object CheckVehicleSpreadsheetDetailsController {
   private def agriculturalTractorSupplierDetailsSection(vehicle: SpreadsheetAgriculturalTractorEuVehicle): JsObject =
     Json
       .toJson(
-        SupplierDetails(
-          supplierBusinessIndividual =
-            if (vehicle.supplierBusinessPrivate.exists(_.equalsIgnoreCase("business"))) BusinessOrPrivateIndividual.Business
-            else BusinessOrPrivateIndividual.PrivateIndividual,
-          supplierBusinessName = vehicle.supplierBusinessName,
-          supplierTitle = vehicle.supplierTitle,
-          supplierFirstName = vehicle.supplierFirstName,
-          supplierLastName = vehicle.supplierLastName,
-          addressLine1 = vehicle.addressLine1.getOrElse(""),
-          addressLine2 = vehicle.addressLine2.getOrElse(""),
-          addressLine3 = vehicle.addressLine3,
-          addressLine4 = vehicle.addressLine4,
-          addressLine5 = vehicle.addressLine5,
-          postcode = vehicle.postcode.getOrElse(""),
-          country = vehicle.country.getOrElse(""),
-          isSupplierVatReg = vehicle.supplierVatRegistered.getOrElse(false),
-          euStateVatReg = vehicle.euMemberState.getOrElse(""),
-          vatRegistrationNumber = vehicle.supplierVatNumber.getOrElse("")
+        withSupplierName(
+          SupplierDetails(
+            supplierBusinessIndividual =
+              if (vehicle.supplierBusinessPrivate.exists(_.equalsIgnoreCase("business"))) BusinessOrPrivateIndividual.Business
+              else BusinessOrPrivateIndividual.PrivateIndividual,
+            supplierBusinessName = vehicle.supplierBusinessName,
+            supplierTitle = vehicle.supplierTitle,
+            supplierFirstName = vehicle.supplierFirstName,
+            supplierLastName = vehicle.supplierLastName,
+            addressLine1 = vehicle.addressLine1.getOrElse(""),
+            addressLine2 = vehicle.addressLine2.getOrElse(""),
+            addressLine3 = vehicle.addressLine3,
+            addressLine4 = vehicle.addressLine4,
+            addressLine5 = vehicle.addressLine5,
+            postcode = vehicle.postcode.getOrElse(""),
+            country = vehicle.country.getOrElse(""),
+            isSupplierVatReg = vehicle.supplierVatRegistered.getOrElse(false),
+            euStateVatReg = vehicle.euMemberState.getOrElse(""),
+            vatRegistrationNumber = vehicle.supplierVatNumber.getOrElse("")
+          )
         )
       )
       .as[JsObject]
@@ -639,8 +655,10 @@ object CheckVehicleSpreadsheetDetailsController {
           purchaseInvoiceDate = vehicle.purchaseInvoiceDate.map(formPDateFormat.format),
           pricePaidForVehicle = vehicle.pricePaid.map(_.toString),
           dateMadeAvailableYou = vehicle.dateMadeAvailable.map(formPDateFormat.format),
-          dateOfFirstRegistration = vehicle.dateOfFirstRegistration.map(formPDateFormat.format),
-          countryOfFirstRegistration = vehicle.countryOfFirstRegistration
+          dateOfFirstRegistration =
+            Option.when(vehicle.knownDateFirstRegistered.contains(true))(vehicle.dateOfFirstRegistration.map(formPDateFormat.format).getOrElse("")),
+          countryOfFirstRegistration = Option.when(vehicle.knownDateFirstRegistered.contains(true))(vehicle.countryOfFirstRegistration.getOrElse("")),
+          noPurchaseInvoiceReasonMax = Option.when(!vehicle.purchaseInvoice.contains(true))(vehicle.noPurchaseInvoiceReason.getOrElse(""))
         )
       )
       .as[JsObject]
@@ -668,12 +686,13 @@ object CheckVehicleSpreadsheetDetailsController {
           isAmendment,
           vehicleIdNumber = vehicle.vin.getOrElse(""),
           totalValueOfOptions = vehicle.totalValueOfOptions.map(_.toString).getOrElse(""),
-          isSupplierVatReg = vehicle.supplierVatRegistered.getOrElse(false),
+          isSupplierVatRegistered = vehicle.supplierVatRegistered.getOrElse(false),
           mileage = vehicle.mileage.getOrElse(""),
           mileageUnits = vehicle.mileageUnits.getOrElse(""),
           areYouClaimingRelief = vehicle.claimingVatRelief.getOrElse(false),
-          reasonForClaimingRelief = vehicle.reasonForClaimingRelief,
-          currentRegistrationNumber = vehicle.currentRegistrationNumber
+          reasonForClaimingRelief = vehicle.reasonForClaimingRelief.filter(_ => vehicle.claimingVatRelief.contains(true)),
+          currentRegistrationNumber = vehicle.currentRegistrationNumber,
+          notificationReference = vehicle.notificationReference.filter(_ => isAmendment).map(_.toUpperCase)
         )
       )
       .as[JsObject]
@@ -694,7 +713,8 @@ object CheckVehicleSpreadsheetDetailsController {
         ImportVehicleType(
           vehicleType = agriculturalTractorVehicleType,
           dateRoadUseKnown = vehicle.knownDateFirstRegistered.getOrElse(false),
-          dateOfFirstRegistration = vehicle.dateOfFirstRegistration.map(formPDateFormat.format)
+          dateOfFirstRegistration = vehicle.dateOfFirstRegistration.map(formPDateFormat.format),
+          countryOfFirstRegistration = vehicle.countryOfFirstRegistration
         )
       )
       .as[JsObject]
@@ -723,7 +743,9 @@ object CheckVehicleSpreadsheetDetailsController {
           vehicleIdNumber = vehicle.vin.getOrElse(""),
           mileage = vehicle.mileage.getOrElse(""),
           mileageUnits = vehicle.mileageUnits.getOrElse(""),
-          areYouClaimingRelief = vehicle.claimingVatRelief.getOrElse(false)
+          areYouClaimingRelief = vehicle.claimingVatRelief.getOrElse(false),
+          reasonForClaimingRelief = vehicle.reasonForClaimingRelief.filter(_ => vehicle.claimingVatRelief.contains(true)),
+          notificationReference = vehicle.notificationReference.filter(_ => isAmendment).map(_.toUpperCase)
         )
       )
       .as[JsObject]
@@ -731,24 +753,26 @@ object CheckVehicleSpreadsheetDetailsController {
   private def motorCaravansSupplierDetailsSection(vehicle: SpreadsheetMotorCaravansEuVehicle): JsObject =
     Json
       .toJson(
-        SupplierDetails(
-          supplierBusinessIndividual =
-            if (vehicle.supplierBusinessPrivate.exists(_.equalsIgnoreCase("business"))) BusinessOrPrivateIndividual.Business
-            else BusinessOrPrivateIndividual.PrivateIndividual,
-          supplierBusinessName = vehicle.supplierBusinessName,
-          supplierTitle = vehicle.supplierTitle,
-          supplierFirstName = vehicle.supplierFirstName,
-          supplierLastName = vehicle.supplierLastName,
-          addressLine1 = vehicle.addressLine1.getOrElse(""),
-          addressLine2 = vehicle.addressLine2.getOrElse(""),
-          addressLine3 = vehicle.addressLine3,
-          addressLine4 = vehicle.addressLine4,
-          addressLine5 = vehicle.addressLine5,
-          postcode = vehicle.postcode.getOrElse(""),
-          country = vehicle.country.getOrElse(""),
-          isSupplierVatReg = vehicle.supplierVatRegistered.getOrElse(false),
-          euStateVatReg = vehicle.euMemberState.getOrElse(""),
-          vatRegistrationNumber = vehicle.supplierVatNumber.getOrElse("")
+        withSupplierName(
+          SupplierDetails(
+            supplierBusinessIndividual =
+              if (vehicle.supplierBusinessPrivate.exists(_.equalsIgnoreCase("business"))) BusinessOrPrivateIndividual.Business
+              else BusinessOrPrivateIndividual.PrivateIndividual,
+            supplierBusinessName = vehicle.supplierBusinessName,
+            supplierTitle = vehicle.supplierTitle,
+            supplierFirstName = vehicle.supplierFirstName,
+            supplierLastName = vehicle.supplierLastName,
+            addressLine1 = vehicle.addressLine1.getOrElse(""),
+            addressLine2 = vehicle.addressLine2.getOrElse(""),
+            addressLine3 = vehicle.addressLine3,
+            addressLine4 = vehicle.addressLine4,
+            addressLine5 = vehicle.addressLine5,
+            postcode = vehicle.postcode.getOrElse(""),
+            country = vehicle.country.getOrElse(""),
+            isSupplierVatReg = vehicle.supplierVatRegistered.getOrElse(false),
+            euStateVatReg = vehicle.euMemberState.getOrElse(""),
+            vatRegistrationNumber = vehicle.supplierVatNumber.getOrElse("")
+          )
         )
       )
       .as[JsObject]
@@ -765,8 +789,10 @@ object CheckVehicleSpreadsheetDetailsController {
           purchaseInvoiceDate = vehicle.purchaseInvoiceDate.map(formPDateFormat.format),
           pricePaidForVehicle = vehicle.pricePaid.map(_.toString),
           dateMadeAvailableYou = vehicle.dateMadeAvailable.map(formPDateFormat.format),
-          dateOfFirstRegistration = vehicle.dateOfFirstRegistration.map(formPDateFormat.format),
-          countryOfFirstRegistration = vehicle.countryOfFirstRegistration
+          dateOfFirstRegistration =
+            Option.when(vehicle.knownDateFirstRegistered.contains(true))(vehicle.dateOfFirstRegistration.map(formPDateFormat.format).getOrElse("")),
+          countryOfFirstRegistration = Option.when(vehicle.knownDateFirstRegistered.contains(true))(vehicle.countryOfFirstRegistration.getOrElse("")),
+          noPurchaseInvoiceReasonMax = Option.when(!vehicle.purchaseInvoice.contains(true))(vehicle.noPurchaseInvoiceReason.getOrElse(""))
         )
       )
       .as[JsObject]
@@ -796,12 +822,13 @@ object CheckVehicleSpreadsheetDetailsController {
           isAmendment,
           vehicleIdNumber = vehicle.vin.getOrElse(""),
           totalValueOfOptions = vehicle.totalValueOfOptions.map(_.toString).getOrElse(""),
-          isSupplierVatReg = vehicle.supplierVatRegistered.getOrElse(false),
+          isSupplierVatRegistered = vehicle.supplierVatRegistered.getOrElse(false),
           mileage = vehicle.mileage.getOrElse(""),
           mileageUnits = vehicle.mileageUnits.getOrElse(""),
           areYouClaimingRelief = vehicle.claimingVatRelief.getOrElse(false),
-          reasonForClaimingRelief = vehicle.reasonForClaimingRelief,
-          currentRegistrationNumber = vehicle.currentRegistrationNumber
+          reasonForClaimingRelief = vehicle.reasonForClaimingRelief.filter(_ => vehicle.claimingVatRelief.contains(true)),
+          currentRegistrationNumber = vehicle.currentRegistrationNumber,
+          notificationReference = vehicle.notificationReference.filter(_ => isAmendment).map(_.toUpperCase)
         )
       )
       .as[JsObject]
@@ -822,7 +849,8 @@ object CheckVehicleSpreadsheetDetailsController {
         ImportVehicleType(
           vehicleType = motorCaravansVehicleType,
           dateRoadUseKnown = vehicle.knownDateFirstRegistered.getOrElse(false),
-          dateOfFirstRegistration = vehicle.dateOfFirstRegistration.map(formPDateFormat.format)
+          dateOfFirstRegistration = vehicle.dateOfFirstRegistration.map(formPDateFormat.format),
+          countryOfFirstRegistration = vehicle.countryOfFirstRegistration
         )
       )
       .as[JsObject]
@@ -853,7 +881,9 @@ object CheckVehicleSpreadsheetDetailsController {
           vehicleIdNumber = vehicle.vin.getOrElse(""),
           mileage = vehicle.mileage.getOrElse(""),
           mileageUnits = vehicle.mileageUnits.getOrElse(""),
-          areYouClaimingRelief = vehicle.claimingVatRelief.getOrElse(false)
+          areYouClaimingRelief = vehicle.claimingVatRelief.getOrElse(false),
+          reasonForClaimingRelief = vehicle.reasonForClaimingRelief.filter(_ => vehicle.claimingVatRelief.contains(true)),
+          notificationReference = vehicle.notificationReference.filter(_ => isAmendment).map(_.toUpperCase)
         )
       )
       .as[JsObject]
@@ -861,24 +891,26 @@ object CheckVehicleSpreadsheetDetailsController {
   private def heavyCommercialSupplierDetailsSection(vehicle: SpreadsheetHeavyCommercialEuVehicle): JsObject =
     Json
       .toJson(
-        SupplierDetails(
-          supplierBusinessIndividual =
-            if (vehicle.supplierBusinessPrivate.exists(_.equalsIgnoreCase("business"))) BusinessOrPrivateIndividual.Business
-            else BusinessOrPrivateIndividual.PrivateIndividual,
-          supplierBusinessName = vehicle.supplierBusinessName,
-          supplierTitle = vehicle.supplierTitle,
-          supplierFirstName = vehicle.supplierFirstName,
-          supplierLastName = vehicle.supplierLastName,
-          addressLine1 = vehicle.addressLine1.getOrElse(""),
-          addressLine2 = vehicle.addressLine2.getOrElse(""),
-          addressLine3 = vehicle.addressLine3,
-          addressLine4 = vehicle.addressLine4,
-          addressLine5 = vehicle.addressLine5,
-          postcode = vehicle.postcode.getOrElse(""),
-          country = vehicle.country.getOrElse(""),
-          isSupplierVatReg = vehicle.supplierVatRegistered.getOrElse(false),
-          euStateVatReg = vehicle.euMemberState.getOrElse(""),
-          vatRegistrationNumber = vehicle.supplierVatNumber.getOrElse("")
+        withSupplierName(
+          SupplierDetails(
+            supplierBusinessIndividual =
+              if (vehicle.supplierBusinessPrivate.exists(_.equalsIgnoreCase("business"))) BusinessOrPrivateIndividual.Business
+              else BusinessOrPrivateIndividual.PrivateIndividual,
+            supplierBusinessName = vehicle.supplierBusinessName,
+            supplierTitle = vehicle.supplierTitle,
+            supplierFirstName = vehicle.supplierFirstName,
+            supplierLastName = vehicle.supplierLastName,
+            addressLine1 = vehicle.addressLine1.getOrElse(""),
+            addressLine2 = vehicle.addressLine2.getOrElse(""),
+            addressLine3 = vehicle.addressLine3,
+            addressLine4 = vehicle.addressLine4,
+            addressLine5 = vehicle.addressLine5,
+            postcode = vehicle.postcode.getOrElse(""),
+            country = vehicle.country.getOrElse(""),
+            isSupplierVatReg = vehicle.supplierVatRegistered.getOrElse(false),
+            euStateVatReg = vehicle.euMemberState.getOrElse(""),
+            vatRegistrationNumber = vehicle.supplierVatNumber.getOrElse("")
+          )
         )
       )
       .as[JsObject]
@@ -895,8 +927,10 @@ object CheckVehicleSpreadsheetDetailsController {
           purchaseInvoiceDate = vehicle.purchaseInvoiceDate.map(formPDateFormat.format),
           pricePaidForVehicle = vehicle.pricePaid.map(_.toString),
           dateMadeAvailableYou = vehicle.dateMadeAvailable.map(formPDateFormat.format),
-          dateOfFirstRegistration = vehicle.dateOfFirstRegistration.map(formPDateFormat.format),
-          countryOfFirstRegistration = vehicle.countryOfFirstRegistration
+          dateOfFirstRegistration =
+            Option.when(vehicle.knownDateFirstRegistered.contains(true))(vehicle.dateOfFirstRegistration.map(formPDateFormat.format).getOrElse("")),
+          countryOfFirstRegistration = Option.when(vehicle.knownDateFirstRegistered.contains(true))(vehicle.countryOfFirstRegistration.getOrElse("")),
+          noPurchaseInvoiceReasonMax = Option.when(!vehicle.purchaseInvoice.contains(true))(vehicle.noPurchaseInvoiceReason.getOrElse(""))
         )
       )
       .as[JsObject]
@@ -924,12 +958,13 @@ object CheckVehicleSpreadsheetDetailsController {
           isAmendment,
           vehicleIdNumber = vehicle.vin.getOrElse(""),
           totalValueOfOptions = vehicle.totalValueOfOptions.map(_.toString).getOrElse(""),
-          isSupplierVatReg = vehicle.supplierVatRegistered.getOrElse(false),
+          isSupplierVatRegistered = vehicle.supplierVatRegistered.getOrElse(false),
           mileage = vehicle.mileage.getOrElse(""),
           mileageUnits = vehicle.mileageUnits.getOrElse(""),
           areYouClaimingRelief = vehicle.claimingVatRelief.getOrElse(false),
-          reasonForClaimingRelief = vehicle.reasonForClaimingRelief,
-          currentRegistrationNumber = vehicle.currentRegistrationNumber
+          reasonForClaimingRelief = vehicle.reasonForClaimingRelief.filter(_ => vehicle.claimingVatRelief.contains(true)),
+          currentRegistrationNumber = vehicle.currentRegistrationNumber,
+          notificationReference = vehicle.notificationReference.filter(_ => isAmendment).map(_.toUpperCase)
         )
       )
       .as[JsObject]
@@ -950,7 +985,8 @@ object CheckVehicleSpreadsheetDetailsController {
         ImportVehicleType(
           vehicleType = hcvVehicleType,
           dateRoadUseKnown = vehicle.knownDateFirstRegistered.getOrElse(false),
-          dateOfFirstRegistration = vehicle.dateOfFirstRegistration.map(formPDateFormat.format)
+          dateOfFirstRegistration = vehicle.dateOfFirstRegistration.map(formPDateFormat.format),
+          countryOfFirstRegistration = vehicle.countryOfFirstRegistration
         )
       )
       .as[JsObject]
@@ -979,7 +1015,9 @@ object CheckVehicleSpreadsheetDetailsController {
           vehicleIdNumber = vehicle.vin.getOrElse(""),
           mileage = vehicle.mileage.getOrElse(""),
           mileageUnits = vehicle.mileageUnits.getOrElse(""),
-          areYouClaimingRelief = vehicle.claimingVatRelief.getOrElse(false)
+          areYouClaimingRelief = vehicle.claimingVatRelief.getOrElse(false),
+          reasonForClaimingRelief = vehicle.reasonForClaimingRelief.filter(_ => vehicle.claimingVatRelief.contains(true)),
+          notificationReference = vehicle.notificationReference.filter(_ => isAmendment).map(_.toUpperCase)
         )
       )
       .as[JsObject]
@@ -987,24 +1025,26 @@ object CheckVehicleSpreadsheetDetailsController {
   private def motorcyclesSupplierDetailsSection(vehicle: SpreadsheetMotorcyclesEuVehicle): JsObject =
     Json
       .toJson(
-        SupplierDetails(
-          supplierBusinessIndividual =
-            if (vehicle.supplierBusinessPrivate.exists(_.equalsIgnoreCase("business"))) BusinessOrPrivateIndividual.Business
-            else BusinessOrPrivateIndividual.PrivateIndividual,
-          supplierBusinessName = vehicle.supplierBusinessName,
-          supplierTitle = vehicle.supplierTitle,
-          supplierFirstName = vehicle.supplierFirstName,
-          supplierLastName = vehicle.supplierLastName,
-          addressLine1 = vehicle.addressLine1.getOrElse(""),
-          addressLine2 = vehicle.addressLine2.getOrElse(""),
-          addressLine3 = vehicle.addressLine3,
-          addressLine4 = vehicle.addressLine4,
-          addressLine5 = vehicle.addressLine5,
-          postcode = vehicle.postcode.getOrElse(""),
-          country = vehicle.country.getOrElse(""),
-          isSupplierVatReg = vehicle.supplierVatRegistered.getOrElse(false),
-          euStateVatReg = vehicle.euMemberState.getOrElse(""),
-          vatRegistrationNumber = vehicle.supplierVatNumber.getOrElse("")
+        withSupplierName(
+          SupplierDetails(
+            supplierBusinessIndividual =
+              if (vehicle.supplierBusinessPrivate.exists(_.equalsIgnoreCase("business"))) BusinessOrPrivateIndividual.Business
+              else BusinessOrPrivateIndividual.PrivateIndividual,
+            supplierBusinessName = vehicle.supplierBusinessName,
+            supplierTitle = vehicle.supplierTitle,
+            supplierFirstName = vehicle.supplierFirstName,
+            supplierLastName = vehicle.supplierLastName,
+            addressLine1 = vehicle.addressLine1.getOrElse(""),
+            addressLine2 = vehicle.addressLine2.getOrElse(""),
+            addressLine3 = vehicle.addressLine3,
+            addressLine4 = vehicle.addressLine4,
+            addressLine5 = vehicle.addressLine5,
+            postcode = vehicle.postcode.getOrElse(""),
+            country = vehicle.country.getOrElse(""),
+            isSupplierVatReg = vehicle.supplierVatRegistered.getOrElse(false),
+            euStateVatReg = vehicle.euMemberState.getOrElse(""),
+            vatRegistrationNumber = vehicle.supplierVatNumber.getOrElse("")
+          )
         )
       )
       .as[JsObject]
@@ -1021,8 +1061,10 @@ object CheckVehicleSpreadsheetDetailsController {
           purchaseInvoiceDate = vehicle.purchaseInvoiceDate.map(formPDateFormat.format),
           pricePaidForVehicle = vehicle.pricePaid.map(_.toString),
           dateMadeAvailableYou = vehicle.dateMadeAvailable.map(formPDateFormat.format),
-          dateOfFirstRegistration = vehicle.dateOfFirstRegistration.map(formPDateFormat.format),
-          countryOfFirstRegistration = vehicle.countryOfFirstRegistration
+          dateOfFirstRegistration =
+            Option.when(vehicle.knownDateFirstRegistered.contains(true))(vehicle.dateOfFirstRegistration.map(formPDateFormat.format).getOrElse("")),
+          countryOfFirstRegistration = Option.when(vehicle.knownDateFirstRegistered.contains(true))(vehicle.countryOfFirstRegistration.getOrElse("")),
+          noPurchaseInvoiceReasonMax = Option.when(!vehicle.purchaseInvoice.contains(true))(vehicle.noPurchaseInvoiceReason.getOrElse(""))
         )
       )
       .as[JsObject]
@@ -1055,12 +1097,13 @@ object CheckVehicleSpreadsheetDetailsController {
           isAmendment,
           vehicleIdNumber = vehicle.vin.getOrElse(""),
           totalValueOfOptions = vehicle.totalValueOfOptions.map(_.toString).getOrElse(""),
-          isSupplierVatReg = vehicle.supplierVatRegistered.getOrElse(false),
+          isSupplierVatRegistered = vehicle.supplierVatRegistered.getOrElse(false),
           mileage = vehicle.mileage.getOrElse(""),
           mileageUnits = vehicle.mileageUnits.getOrElse(""),
           areYouClaimingRelief = vehicle.claimingVatRelief.getOrElse(false),
-          reasonForClaimingRelief = vehicle.reasonForClaimingRelief,
-          currentRegistrationNumber = vehicle.currentRegistrationNumber
+          reasonForClaimingRelief = vehicle.reasonForClaimingRelief.filter(_ => vehicle.claimingVatRelief.contains(true)),
+          currentRegistrationNumber = vehicle.currentRegistrationNumber,
+          notificationReference = vehicle.notificationReference.filter(_ => isAmendment).map(_.toUpperCase)
         )
       )
       .as[JsObject]
@@ -1081,7 +1124,8 @@ object CheckVehicleSpreadsheetDetailsController {
         ImportVehicleType(
           vehicleType = motorcycleVehicleType,
           dateRoadUseKnown = vehicle.knownDateFirstRegistered.getOrElse(false),
-          dateOfFirstRegistration = vehicle.dateOfFirstRegistration.map(formPDateFormat.format)
+          dateOfFirstRegistration = vehicle.dateOfFirstRegistration.map(formPDateFormat.format),
+          countryOfFirstRegistration = vehicle.countryOfFirstRegistration
         )
       )
       .as[JsObject]
@@ -1115,7 +1159,9 @@ object CheckVehicleSpreadsheetDetailsController {
           vehicleIdNumber = vehicle.vin.getOrElse(""),
           mileage = vehicle.mileage.getOrElse(""),
           mileageUnits = vehicle.mileageUnits.getOrElse(""),
-          areYouClaimingRelief = vehicle.claimingVatRelief.getOrElse(false)
+          areYouClaimingRelief = vehicle.claimingVatRelief.getOrElse(false),
+          reasonForClaimingRelief = vehicle.reasonForClaimingRelief.filter(_ => vehicle.claimingVatRelief.contains(true)),
+          notificationReference = vehicle.notificationReference.filter(_ => isAmendment).map(_.toUpperCase)
         )
       )
       .as[JsObject]
@@ -1123,24 +1169,26 @@ object CheckVehicleSpreadsheetDetailsController {
   private def constructionVehicleSupplierDetailsSection(vehicle: SpreadsheetConstructionVehiclesEuVehicle): JsObject =
     Json
       .toJson(
-        SupplierDetails(
-          supplierBusinessIndividual =
-            if (vehicle.supplierBusinessPrivate.exists(_.equalsIgnoreCase("business"))) BusinessOrPrivateIndividual.Business
-            else BusinessOrPrivateIndividual.PrivateIndividual,
-          supplierBusinessName = vehicle.supplierBusinessName,
-          supplierTitle = vehicle.supplierTitle,
-          supplierFirstName = vehicle.supplierFirstName,
-          supplierLastName = vehicle.supplierLastName,
-          addressLine1 = vehicle.addressLine1.getOrElse(""),
-          addressLine2 = vehicle.addressLine2.getOrElse(""),
-          addressLine3 = vehicle.addressLine3,
-          addressLine4 = vehicle.addressLine4,
-          addressLine5 = vehicle.addressLine5,
-          postcode = vehicle.postcode.getOrElse(""),
-          country = vehicle.country.getOrElse(""),
-          isSupplierVatReg = vehicle.supplierVatRegistered.getOrElse(false),
-          euStateVatReg = vehicle.euMemberState.getOrElse(""),
-          vatRegistrationNumber = vehicle.supplierVatNumber.getOrElse("")
+        withSupplierName(
+          SupplierDetails(
+            supplierBusinessIndividual =
+              if (vehicle.supplierBusinessPrivate.exists(_.equalsIgnoreCase("business"))) BusinessOrPrivateIndividual.Business
+              else BusinessOrPrivateIndividual.PrivateIndividual,
+            supplierBusinessName = vehicle.supplierBusinessName,
+            supplierTitle = vehicle.supplierTitle,
+            supplierFirstName = vehicle.supplierFirstName,
+            supplierLastName = vehicle.supplierLastName,
+            addressLine1 = vehicle.addressLine1.getOrElse(""),
+            addressLine2 = vehicle.addressLine2.getOrElse(""),
+            addressLine3 = vehicle.addressLine3,
+            addressLine4 = vehicle.addressLine4,
+            addressLine5 = vehicle.addressLine5,
+            postcode = vehicle.postcode.getOrElse(""),
+            country = vehicle.country.getOrElse(""),
+            isSupplierVatReg = vehicle.supplierVatRegistered.getOrElse(false),
+            euStateVatReg = vehicle.euMemberState.getOrElse(""),
+            vatRegistrationNumber = vehicle.supplierVatNumber.getOrElse("")
+          )
         )
       )
       .as[JsObject]
@@ -1157,8 +1205,10 @@ object CheckVehicleSpreadsheetDetailsController {
           purchaseInvoiceDate = vehicle.purchaseInvoiceDate.map(formPDateFormat.format),
           pricePaidForVehicle = vehicle.pricePaid.map(_.toString),
           dateMadeAvailableYou = vehicle.dateMadeAvailable.map(formPDateFormat.format),
-          dateOfFirstRegistration = vehicle.dateOfFirstRegistration.map(formPDateFormat.format),
-          countryOfFirstRegistration = vehicle.countryOfFirstRegistration
+          dateOfFirstRegistration =
+            Option.when(vehicle.knownDateFirstRegistered.contains(true))(vehicle.dateOfFirstRegistration.map(formPDateFormat.format).getOrElse("")),
+          countryOfFirstRegistration = Option.when(vehicle.knownDateFirstRegistered.contains(true))(vehicle.countryOfFirstRegistration.getOrElse("")),
+          noPurchaseInvoiceReasonMax = Option.when(!vehicle.purchaseInvoice.contains(true))(vehicle.noPurchaseInvoiceReason.getOrElse(""))
         )
       )
       .as[JsObject]
@@ -1185,12 +1235,13 @@ object CheckVehicleSpreadsheetDetailsController {
           isAmendment,
           vehicleIdNumber = vehicle.vin.getOrElse(""),
           totalValueOfOptions = vehicle.totalValueOfOptions.map(_.toString).getOrElse(""),
-          isSupplierVatReg = vehicle.supplierVatRegistered.getOrElse(false),
+          isSupplierVatRegistered = vehicle.supplierVatRegistered.getOrElse(false),
           mileage = vehicle.mileage.getOrElse(""),
           mileageUnits = vehicle.mileageUnits.getOrElse(""),
           areYouClaimingRelief = vehicle.claimingVatRelief.getOrElse(false),
-          reasonForClaimingRelief = vehicle.reasonForClaimingRelief,
-          currentRegistrationNumber = vehicle.currentRegistrationNumber
+          reasonForClaimingRelief = vehicle.reasonForClaimingRelief.filter(_ => vehicle.claimingVatRelief.contains(true)),
+          currentRegistrationNumber = vehicle.currentRegistrationNumber,
+          notificationReference = vehicle.notificationReference.filter(_ => isAmendment).map(_.toUpperCase)
         )
       )
       .as[JsObject]
@@ -1211,7 +1262,8 @@ object CheckVehicleSpreadsheetDetailsController {
         ImportVehicleType(
           vehicleType = constructionVehicleType,
           dateRoadUseKnown = vehicle.knownDateFirstRegistered.getOrElse(false),
-          dateOfFirstRegistration = vehicle.dateOfFirstRegistration.map(formPDateFormat.format)
+          dateOfFirstRegistration = vehicle.dateOfFirstRegistration.map(formPDateFormat.format),
+          countryOfFirstRegistration = vehicle.countryOfFirstRegistration
         )
       )
       .as[JsObject]
@@ -1239,7 +1291,9 @@ object CheckVehicleSpreadsheetDetailsController {
           vehicleIdNumber = vehicle.vin.getOrElse(""),
           mileage = vehicle.mileage.getOrElse(""),
           mileageUnits = vehicle.mileageUnits.getOrElse(""),
-          areYouClaimingRelief = vehicle.claimingVatRelief.getOrElse(false)
+          areYouClaimingRelief = vehicle.claimingVatRelief.getOrElse(false),
+          reasonForClaimingRelief = vehicle.reasonForClaimingRelief.filter(_ => vehicle.claimingVatRelief.contains(true)),
+          notificationReference = vehicle.notificationReference.filter(_ => isAmendment).map(_.toUpperCase)
         )
       )
       .as[JsObject]

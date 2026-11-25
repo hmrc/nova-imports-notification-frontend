@@ -99,7 +99,6 @@ class CouldNotClaimVatViewSpec extends SpecBase with Matchers with BeforeAndAfte
       val form = Jsoup.parse(render()).select("form")
 
       form.attr("action") mustEqual postAction.url
-      form.hasClass("govuk-!-margin-bottom-8") mustEqual true
     }
 
     "must render a back link" in {

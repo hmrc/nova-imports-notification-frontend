@@ -292,9 +292,9 @@ class UploadResultResponseSpec extends AnyFreeSpec with Matchers {
           |        "itemNumber": 1,
           |        "vin": "1",
           |        "caravanMake": "Make of motor caravan",
-          |        "modelNameNumber": "Motor caravan body",
-          |        "caravanVersion": "Model name/number",
-          |        "caravanBody": "Motor caravan version",
+          |        "caravanBody": "Motor caravan body",
+          |        "modelNameNumber": "Model name/number",
+          |        "caravanVersion": "Motor caravan version",
           |        "makeOfBaseVehicle": "Make of base vehicle",
           |        "derivative": "Derivative",
           |        "supplierBusinessPrivate": "business",
@@ -331,9 +331,9 @@ class UploadResultResponseSpec extends AnyFreeSpec with Matchers {
 
       val vehicle = result.motorCaravansEuVehicles.head
       vehicle.caravanMake mustBe Some("Make of motor caravan")
-      vehicle.modelNameNumber mustBe Some("Motor caravan body")
-      vehicle.caravanVersion mustBe Some("Model name/number")
-      vehicle.caravanBody mustBe Some("Motor caravan version")
+      vehicle.caravanBody mustBe Some("Motor caravan body")
+      vehicle.modelNameNumber mustBe Some("Model name/number")
+      vehicle.caravanVersion mustBe Some("Motor caravan version")
       vehicle.makeOfBaseVehicle mustBe Some("Make of base vehicle")
       vehicle.derivative mustBe Some("Derivative")
       vehicle.pricePaid mustBe Some(BigDecimal("100"))
@@ -350,9 +350,9 @@ class UploadResultResponseSpec extends AnyFreeSpec with Matchers {
           |        "itemNumber": 1,
           |        "vin": "1",
           |        "caravanMake": "Make of motor caravan",
-          |        "modelNameNumber": "Motor caravan body",
-          |        "caravanVersion": "Model name / number",
-          |        "caravanBody": "Motor caravan version",
+          |        "caravanBody": "Motor caravan body",
+          |        "modelNameNumber": "Model name / number",
+          |        "caravanVersion": "Motor caravan version",
           |        "makeOfBaseVehicle": "Make of base vehicle",
           |        "derivative": "Derivative",
           |        "importEntryNumber": "123-123456A",
@@ -386,9 +386,9 @@ class UploadResultResponseSpec extends AnyFreeSpec with Matchers {
 
       val vehicle = result.motorCaravansNonEuVehicles.head
       vehicle.caravanMake mustBe Some("Make of motor caravan")
-      vehicle.modelNameNumber mustBe Some("Motor caravan body")
-      vehicle.caravanVersion mustBe Some("Model name / number")
-      vehicle.caravanBody mustBe Some("Motor caravan version")
+      vehicle.caravanBody mustBe Some("Motor caravan body")
+      vehicle.modelNameNumber mustBe Some("Model name / number")
+      vehicle.caravanVersion mustBe Some("Motor caravan version")
       vehicle.makeOfBaseVehicle mustBe Some("Make of base vehicle")
       vehicle.derivative mustBe Some("Derivative")
       vehicle.importEntryNumber mustBe Some("123-123456A")

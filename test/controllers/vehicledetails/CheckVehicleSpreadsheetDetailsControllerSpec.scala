@@ -350,9 +350,9 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
     pricePaid = Some(BigDecimal("100")),
     currency = Some("USD"),
     caravanMake = Some("Make of motor caravan"),
-    modelNameNumber = Some("Motor caravan body"),
-    caravanVersion = Some("Model name/number"),
-    caravanBody = Some("Motor caravan version"),
+    caravanBody = Some("Motor caravan body"),
+    modelNameNumber = Some("Model name/number"),
+    caravanVersion = Some("Motor caravan version"),
     makeOfBaseVehicle = Some("Make of base vehicle"),
     derivative = Some("Derivative"),
     notificationReference = None,
@@ -377,9 +377,9 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
     countryOfFirstRegistration = None,
     dateOfFirstRegistration = Some(LocalDate.of(2010, 1, 1)),
     caravanMake = Some("Make of motor caravan"),
-    modelNameNumber = Some("Motor caravan body"),
-    caravanVersion = Some("Model name / number"),
-    caravanBody = Some("Motor caravan version"),
+    caravanBody = Some("Motor caravan body"),
+    modelNameNumber = Some("Model name / number"),
+    caravanVersion = Some("Motor caravan version"),
     makeOfBaseVehicle = Some("Make of base vehicle"),
     derivative = Some("Derivative"),
     notificationReference = None,
@@ -764,6 +764,17 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
       )
       .build()
 
+  private def submittedSections(result: UploadResultResponse, userAnswers: UserAnswers = answers): Map[String, JsObject] = {
+    val connector = stubConnector()
+    when(connector.getUploadResult(eqTo(draftId))(using any[HeaderCarrier])).thenReturn(Future.successful(Right(result)))
+    val application = applicationFor(Some(userAnswers), connector)
+
+    running(application) {
+      route(application, FakeRequest(POST, onSubmitRoute)).value.futureValue
+    }
+    captureSections(connector)
+  }
+
   private def captureSections(connector: NovaImportsBackendConnector): Map[String, JsObject] = {
     val captor = ArgumentCaptor.forClass(classOf[Map[String, JsObject]])
     verify(connector).replaceVehicleSections(eqTo(draftId), captor.capture(), eqTo(versionId))(using any[HeaderCarrier])
@@ -908,6 +919,96 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
         (body \ "mileage").as[String] mustEqual "100000"
         (body \ "totalValueOfOptions").as[String] mustEqual "10000"
       }
+    }
+
+    "must keep only the business name in the supplier details for a business supplier" in {
+      val vehicle = fullVehicle.copy(supplierTitle = Some("Mr"), supplierFirstName = Some("John"), supplierLastName = Some("Smith"))
+
+      val details = submittedSections(validatedResult(Seq(vehicle)))("supplier/1/details")
+      (details \ "supplierBusinessIndividual").as[String] mustEqual "business"
+      (details \ "supplierBusinessName").as[String] mustEqual "business name"
+      (details \ "supplierTitle").asOpt[String] mustBe None
+      (details \ "supplierFirstName").asOpt[String] mustBe None
+      (details \ "supplierLastName").asOpt[String] mustBe None
+    }
+
+    "must keep only the title, first name and last name in the supplier details for a private supplier" in {
+      val vehicle = fullVehicle.copy(
+        supplierBusinessPrivate = Some("private"),
+        supplierTitle = Some("Mr"),
+        supplierFirstName = Some("John"),
+        supplierLastName = Some("Smith")
+      )
+
+      val details = submittedSections(validatedResult(Seq(vehicle)))("supplier/1/details")
+      (details \ "supplierBusinessIndividual").as[String] mustEqual "individual"
+      (details \ "supplierBusinessName").asOpt[String] mustBe None
+      (details \ "supplierTitle").as[String] mustEqual "Mr"
+      (details \ "supplierFirstName").as[String] mustEqual "John"
+      (details \ "supplierLastName").as[String] mustEqual "Smith"
+    }
+
+    "must group business suppliers by the details kept for them, ignoring any names entered" in {
+      val first  = fullVehicle.copy(supplierTitle = Some("Mr"))
+      val second = fullVehicle.copy(itemNumber = Some(2), vin = Some("456"), supplierTitle = Some("Mrs"))
+
+      val keys = submittedSections(validatedResult(Seq(first, second))).keySet
+      keys must contain("supplier/1/vehicle/2/type")
+      keys must not contain "supplier/2/details"
+    }
+
+    "must only send the date and country of first registration when the date is known, sending them empty if left blank" in {
+      val known      = fullVehicle.copy(knownDateFirstRegistered = Some(true))
+      val knownBlank = fullVehicle.copy(
+        itemNumber = Some(2),
+        knownDateFirstRegistered = Some(true),
+        countryOfFirstRegistration = None,
+        dateOfFirstRegistration = None
+      )
+      val notKnown = fullVehicle.copy(itemNumber = Some(3))
+
+      val sections = submittedSections(validatedResult(Seq(known, knownBlank, notKnown)))
+
+      (sections("supplier/1/vehicle/1/type") \ "dateOfFirstRegistration").as[String] mustEqual "01/01/2010"
+      (sections("supplier/1/vehicle/1/type") \ "countryOfFirstRegistration").as[String] mustEqual "DE"
+      (sections("supplier/1/vehicle/2/type") \ "dateOfFirstRegistration").as[String] mustEqual ""
+      (sections("supplier/1/vehicle/2/type") \ "countryOfFirstRegistration").as[String] mustEqual ""
+      (sections("supplier/1/vehicle/3/type") \ "dateOfFirstRegistration").asOpt[String] mustBe None
+      (sections("supplier/1/vehicle/3/type") \ "countryOfFirstRegistration").asOpt[String] mustBe None
+    }
+
+    "must only send the reason for not having a purchase invoice when there is no invoice" in {
+      val withoutInvoice = fullVehicle.copy(itemNumber = Some(2), purchaseInvoice = Some(false), noPurchaseInvoiceReason = Some("Bought at auction"))
+
+      val sections = submittedSections(validatedResult(Seq(fullVehicle, withoutInvoice)))
+
+      (sections("supplier/1/vehicle/1/type") \ "noPurchaseInvoiceReasonMax").asOpt[String] mustBe None
+      (sections("supplier/1/vehicle/2/type") \ "noPurchaseInvoiceReasonMax").as[String] mustEqual "Bought at auction"
+    }
+
+    "must send the supplier VAT flag, registration number, relief reason when claiming relief and the notification reference for an amendment" in {
+      val claiming    = fullVehicle.copy(claimingVatRelief = Some(true), notificationReference = Some("nova26e123456"))
+      val notClaiming = fullVehicle.copy(itemNumber = Some(2), notificationReference = Some("NOVA26E654321"))
+
+      val sections = submittedSections(validatedResult(Seq(claiming, notClaiming)), answers.unsafeSet(AmendSubmittedNotificationPage, true))
+
+      val first = sections("supplier/1/vehicle/1/additional-information")
+      (first \ "isSupplierVatRegistered").as[Boolean] mustEqual false
+      (first \ "isSupplierVatReg").asOpt[Boolean] mustBe None
+      (first \ "currentRegistrationNumber").as[String] mustEqual "TEST 53R"
+      (first \ "reasonForClaimingRelief").as[String] mustEqual "MODIFIED_FOR_DISABLED_PASSENGER"
+      (first \ "notificationReference").as[String] mustEqual "NOVA26E123456"
+
+      val second = sections("supplier/1/vehicle/2/additional-information")
+      (second \ "reasonForClaimingRelief").asOpt[String] mustBe None
+      (second \ "notificationReference").as[String] mustEqual "NOVA26E654321"
+    }
+
+    "must not send the notification reference when the notification is not an amendment" in {
+      val vehicle = fullVehicle.copy(notificationReference = Some("NOVA26E123456"))
+
+      val info = submittedSections(validatedResult(Seq(vehicle)))("supplier/1/vehicle/1/additional-information")
+      (info \ "notificationReference").asOpt[String] mustBe None
     }
 
     "must replace vehicle sections in one call for a single-vehicle LightCommercialVehiclesEu upload" in {
@@ -1071,6 +1172,23 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
       }
     }
 
+    "must send the import country of first registration, the relief reason when claiming relief and the notification reference for an amendment" in {
+      val claiming = fullNonEuVehicle.copy(
+        countryOfFirstRegistration = Some("JP"),
+        claimingVatRelief = Some(true),
+        reasonForClaimingRelief = Some("RETURNED_GOODS_RELIEF"),
+        notificationReference = Some("nova26e123456")
+      )
+      val notClaiming = fullNonEuVehicle.copy(itemNumber = Some(2), vin = Some("2"), reasonForClaimingRelief = Some("RETURNED_GOODS_RELIEF"))
+
+      val sections = submittedSections(validatedNonEuResult(Seq(claiming, notClaiming)), answers.unsafeSet(AmendSubmittedNotificationPage, true))
+
+      (sections("import/1/vehicle/1/type") \ "countryOfFirstRegistration").as[String] mustEqual "JP"
+      (sections("import/1/vehicle/1/additional-information") \ "reasonForClaimingRelief").as[String] mustEqual "RETURNED_GOODS_RELIEF"
+      (sections("import/1/vehicle/1/additional-information") \ "notificationReference").as[String] mustEqual "NOVA26E123456"
+      (sections("import/1/vehicle/2/additional-information") \ "reasonForClaimingRelief").asOpt[String] mustBe None
+    }
+
     "must group a second import vehicle under the same import number when the import details are identical, numbering the vehicle by its row position" in {
       val secondVehicle = fullNonEuVehicle.copy(itemNumber = Some(2), make = Some("Make 2"))
       val connector     = stubConnector()
@@ -1232,9 +1350,9 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
 
         val vehicleDetails = sections("supplier/1/vehicle/1/details")
         (vehicleDetails \ "caravanMake").as[String] mustEqual "Make of motor caravan"
-        (vehicleDetails \ "modelNameNumber").as[String] mustEqual "Motor caravan body"
-        (vehicleDetails \ "caravanVersion").as[String] mustEqual "Model name/number"
-        (vehicleDetails \ "caravanBody").as[String] mustEqual "Motor caravan version"
+        (vehicleDetails \ "caravanBody").as[String] mustEqual "Motor caravan body"
+        (vehicleDetails \ "modelNameNumber").as[String] mustEqual "Model name/number"
+        (vehicleDetails \ "caravanVersion").as[String] mustEqual "Motor caravan version"
         (vehicleDetails \ "makeOfBaseVehicle").as[String] mustEqual "Make of base vehicle"
         (vehicleDetails \ "derivative").as[String] mustEqual "Derivative"
       }
@@ -1262,9 +1380,9 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
 
         val vehicleDetails = sections("import/1/vehicle/1/details")
         (vehicleDetails \ "caravanMake").as[String] mustEqual "Make of motor caravan"
-        (vehicleDetails \ "modelNameNumber").as[String] mustEqual "Motor caravan body"
-        (vehicleDetails \ "caravanVersion").as[String] mustEqual "Model name / number"
-        (vehicleDetails \ "caravanBody").as[String] mustEqual "Motor caravan version"
+        (vehicleDetails \ "caravanBody").as[String] mustEqual "Motor caravan body"
+        (vehicleDetails \ "modelNameNumber").as[String] mustEqual "Model name / number"
+        (vehicleDetails \ "caravanVersion").as[String] mustEqual "Motor caravan version"
         (vehicleDetails \ "makeOfBaseVehicle").as[String] mustEqual "Make of base vehicle"
         (vehicleDetails \ "derivative").as[String] mustEqual "Derivative"
       }
@@ -1607,6 +1725,163 @@ class CheckVehicleSpreadsheetDetailsControllerSpec extends SpecBase with Mockito
         keys must contain("import/1/vehicle/1/details")
         keys must contain("import/1/vehicle/2/details")
         keys must not contain "import/2/details"
+      }
+    }
+
+    "must apply the same supplier, vehicle type and additional information rules to every acquisition vehicle type" in {
+      val amendment = answers.unsafeSet(AmendSubmittedNotificationPage, true)
+      val uploads   = Seq(
+        validatedAgriculturalTractorEuResult(
+          Seq(
+            fullAgriculturalTractorEuVehicle.copy(
+              supplierBusinessPrivate = Some("private"),
+              supplierTitle = Some("Mr"),
+              purchaseInvoice = Some(false),
+              noPurchaseInvoiceReason = Some("Bought at auction"),
+              claimingVatRelief = Some(true),
+              notificationReference = Some("nova26e123456")
+            )
+          )
+        ),
+        validatedMotorCaravansEuResult(
+          Seq(
+            fullMotorCaravansEuVehicle.copy(
+              supplierBusinessPrivate = Some("private"),
+              supplierTitle = Some("Mr"),
+              purchaseInvoice = Some(false),
+              noPurchaseInvoiceReason = Some("Bought at auction"),
+              claimingVatRelief = Some(true),
+              notificationReference = Some("nova26e123456")
+            )
+          )
+        ),
+        validatedHeavyCommercialEuResult(
+          List(
+            fullHeavyCommercialEuVehicle.copy(
+              supplierBusinessPrivate = Some("private"),
+              supplierTitle = Some("Mr"),
+              purchaseInvoice = Some(false),
+              noPurchaseInvoiceReason = Some("Bought at auction"),
+              claimingVatRelief = Some(true),
+              notificationReference = Some("nova26e123456")
+            )
+          )
+        ),
+        validatedMotorcyclesEuResult(
+          Seq(
+            fullMotorcyclesEuVehicle.copy(
+              supplierBusinessPrivate = Some("private"),
+              supplierTitle = Some("Mr"),
+              purchaseInvoice = Some(false),
+              noPurchaseInvoiceReason = Some("Bought at auction"),
+              claimingVatRelief = Some(true),
+              notificationReference = Some("nova26e123456")
+            )
+          )
+        ),
+        validatedConstructionVehiclesEuResult(
+          Seq(
+            fullConstructionVehiclesEuVehicle.copy(
+              supplierBusinessPrivate = Some("private"),
+              supplierTitle = Some("Mr"),
+              purchaseInvoice = Some(false),
+              noPurchaseInvoiceReason = Some("Bought at auction"),
+              claimingVatRelief = Some(true),
+              notificationReference = Some("nova26e123456")
+            )
+          )
+        )
+      )
+
+      uploads.foreach { upload =>
+        val sections = submittedSections(upload, amendment)
+        val clue     = upload.validationType.getOrElse("")
+
+        withClue(clue) {
+          (sections("supplier/1/details") \ "supplierBusinessName").asOpt[String] mustBe None
+          (sections("supplier/1/details") \ "supplierTitle").as[String] mustEqual "Mr"
+          (sections("supplier/1/vehicle/1/type") \ "noPurchaseInvoiceReasonMax").as[String] mustEqual "Bought at auction"
+          (sections("supplier/1/vehicle/1/additional-information") \ "isSupplierVatRegistered").asOpt[Boolean] mustBe defined
+          (sections("supplier/1/vehicle/1/additional-information") \ "reasonForClaimingRelief").asOpt[String] mustBe defined
+          (sections("supplier/1/vehicle/1/additional-information") \ "notificationReference").as[String] mustEqual "NOVA26E123456"
+        }
+      }
+    }
+
+    "must apply the same vehicle type and additional information rules to every import vehicle type" in {
+      val amendment = answers.unsafeSet(AmendSubmittedNotificationPage, true)
+      val uploads   = Seq(
+        validatedNonEuResult(
+          Seq(
+            fullNonEuVehicle.copy(
+              countryOfFirstRegistration = Some("JP"),
+              claimingVatRelief = Some(true),
+              reasonForClaimingRelief = Some("RETURNED_GOODS_RELIEF"),
+              notificationReference = Some("nova26e123456")
+            )
+          ),
+          Some("CarsNonEu")
+        ),
+        validatedAgriculturalTractorNonEuResult(
+          Seq(
+            fullAgriculturalTractorNonEuVehicle.copy(
+              countryOfFirstRegistration = Some("JP"),
+              claimingVatRelief = Some(true),
+              reasonForClaimingRelief = Some("RETURNED_GOODS_RELIEF"),
+              notificationReference = Some("nova26e123456")
+            )
+          )
+        ),
+        validatedMotorCaravansNonEuResult(
+          Seq(
+            fullMotorCaravansNonEuVehicle.copy(
+              countryOfFirstRegistration = Some("JP"),
+              claimingVatRelief = Some(true),
+              reasonForClaimingRelief = Some("RETURNED_GOODS_RELIEF"),
+              notificationReference = Some("nova26e123456")
+            )
+          )
+        ),
+        validatedHeavyCommercialNonEuResult(
+          List(
+            fullHeavyCommercialNonEuVehicle.copy(
+              countryOfFirstRegistration = Some("JP"),
+              claimingVatRelief = Some(true),
+              reasonForClaimingRelief = Some("RETURNED_GOODS_RELIEF"),
+              notificationReference = Some("nova26e123456")
+            )
+          )
+        ),
+        validatedMotorcyclesNonEuResult(
+          Seq(
+            fullMotorcyclesNonEuVehicle.copy(
+              countryOfFirstRegistration = Some("JP"),
+              claimingVatRelief = Some(true),
+              reasonForClaimingRelief = Some("RETURNED_GOODS_RELIEF"),
+              notificationReference = Some("nova26e123456")
+            )
+          )
+        ),
+        validatedConstructionVehiclesNonEuResult(
+          Seq(
+            fullConstructionVehiclesNonEuVehicle.copy(
+              countryOfFirstRegistration = Some("JP"),
+              claimingVatRelief = Some(true),
+              reasonForClaimingRelief = Some("RETURNED_GOODS_RELIEF"),
+              notificationReference = Some("nova26e123456")
+            )
+          )
+        )
+      )
+
+      uploads.foreach { upload =>
+        val sections = submittedSections(upload, amendment)
+
+        withClue(upload.validationType.getOrElse("")) {
+          (sections("import/1/vehicle/1/type") \ "countryOfFirstRegistration").as[String] mustEqual "JP"
+          (sections("import/1/vehicle/1/additional-information") \ "reasonForClaimingRelief").as[String] mustEqual "RETURNED_GOODS_RELIEF"
+          (sections("import/1/vehicle/1/additional-information") \ "notificationReference").as[String] mustEqual "NOVA26E123456"
+        }
       }
     }
 
