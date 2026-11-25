@@ -34,6 +34,7 @@ import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl.*
 import uk.gov.hmrc.play.bootstrap.binders.*
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import views.html.VinUploadStatusView
+import viewmodels.VehicleDetailsInset
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -69,7 +70,8 @@ class VinUploadStatusController @Inject() (
             importNumber = None,
             vehicleNumber = vehicleNumber.value
           ),
-          errorUrls = errorUrlsFor(supplierNumber = Some(supplierNumber.value), importNumber = None, vehicleNumber = vehicleNumber.value)
+          errorUrls = errorUrlsFor(supplierNumber = Some(supplierNumber.value), importNumber = None, vehicleNumber = vehicleNumber.value),
+          vehicleNumber = vehicleNumber
         )
       }
 
@@ -89,7 +91,8 @@ class VinUploadStatusController @Inject() (
             importNumber = Some(importNumber.value),
             vehicleNumber = vehicleNumber.value
           ),
-          errorUrls = errorUrlsFor(supplierNumber = None, importNumber = Some(importNumber.value), vehicleNumber = vehicleNumber.value)
+          errorUrls = errorUrlsFor(supplierNumber = None, importNumber = Some(importNumber.value), vehicleNumber = vehicleNumber.value),
+          vehicleNumber = vehicleNumber
         )
       }
 
@@ -139,7 +142,8 @@ class VinUploadStatusController @Inject() (
     continueUrl: Call,
     removeDestination: Call,
     statusUrl: Call,
-    errorUrls: ErrorUrls
+    errorUrls: ErrorUrls,
+    vehicleNumber: VehicleNumber
   )(implicit request: DataRequest[AnyContent]): Future[Result] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
@@ -171,7 +175,8 @@ class VinUploadStatusController @Inject() (
               refreshIntervalSeconds = appConfig.uploadStatusRefreshIntervalSeconds,
               maxPollSeconds = appConfig.uploadStatusMaxPollSeconds,
               timeoutUrl = errorUrls.unknown,
-              continueUrl = if (isFinal(summary.fileStatus)) Some(continueUrl) else None
+              continueUrl = if (isFinal(summary.fileStatus)) Some(continueUrl) else None,
+              vehicleDetails = VehicleDetailsInset(request.userAnswers, vehicleNumber)
             )
           )
         case Left(error) =>

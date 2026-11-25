@@ -18,7 +18,12 @@ package views
 
 import base.SpecBase
 import controllers.vehicledetails.routes
-import models.{NormalMode, SupplierNumber, VehicleNumber}
+import models.{AddVehicleDetailsCar, AddVehicleType, DraftId, NormalMode, NumberOfVehicles, OneMultiVehicle, SupplierNumber, UserAnswers, VehicleNumber}
+import pages.sections.vehicledetails.{AddVehicleDetailsCarPage, AddVehicleTypePage, NumberOfVehiclesPage}
+import pages.DraftIdPage
+import pages.sections.initialquestions.VehicleFromEuPage
+import queries.{AllSuppliersQuery, AllVehiclesQuery}
+import play.api.libs.json.Json
 import org.jsoup.Jsoup
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.must.Matchers
@@ -58,8 +63,30 @@ class VinUploadStatusViewSpec extends SpecBase with Matchers with BeforeAndAfter
 
   private def continueUrl: Call = routes.EnterVinNumbersController.supplierOnPageLoad(s, v, NormalMode)
 
+  private val draftId                      = DraftId("DRAFT-001")
+  private val carDetails                   = AddVehicleDetailsCar("Land Rover", "Discovery 4", "3.0TD", "XS", "station wagon")
+  private val supplierAnswers: UserAnswers = emptyUserAnswers
+    .unsafeSet(DraftIdPage, draftId)
+    .unsafeSet(VehicleFromEuPage, true)
+    .unsafeSet(AllSuppliersQuery, Map("1" -> Json.obj("usePersonalDetailsAsSupplier" -> false)))
+    .unsafeSet(AllVehiclesQuery, Map("1" -> Json.obj("supplierNumber" -> 1)))
+    .unsafeSet(AddVehicleTypePage(v), AddVehicleType.Car)
+    .unsafeSet(AddVehicleDetailsCarPage(v), carDetails)
+    .unsafeSet(NumberOfVehiclesPage(v), NumberOfVehicles(OneMultiVehicle.More, Some(3)))
+
   private def htmlFor(isFinal: Boolean, fileName: Option[String] = None, continueUrl: Option[Call] = None): String =
-    view(isFinal, fileName, cancelUrl, removeUrl, statusUrl, refreshIntervalSeconds, maxPollSeconds, timeoutUrl, continueUrl).toString
+    view(
+      isFinal,
+      fileName,
+      cancelUrl,
+      removeUrl,
+      statusUrl,
+      refreshIntervalSeconds,
+      maxPollSeconds,
+      timeoutUrl,
+      continueUrl,
+      viewmodels.VehicleDetailsInset(supplierAnswers, v)
+    ).toString
 
   "VinUploadStatusView" - {
 

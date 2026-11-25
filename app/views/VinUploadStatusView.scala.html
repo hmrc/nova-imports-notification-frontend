@@ -21,10 +21,13 @@
     layout: templates.Layout,
     govukButton: GovukButton,
     govukSummaryList: GovukSummaryList,
-    govukTag: GovukTag
+    govukTag: GovukTag,
+    govukInsetText: GovukInsetText
 )
 
-@(isFinal: Boolean, fileName: Option[String], cancelUrl: Call, removeUrl: Call, statusUrl: String, refreshIntervalSeconds: Int, maxPollSeconds: Int, timeoutUrl: Call, continueUrl: Option[Call] = None)(implicit request: Request[?], messages: Messages)
+@(isFinal: Boolean, fileName: Option[String], cancelUrl: Call, removeUrl: Call, statusUrl: String,
+refreshIntervalSeconds: Int, maxPollSeconds: Int, timeoutUrl: Call, continueUrl: Option[Call] = None,
+vehicleDetails: Option[InsetText])(implicit request: Request[?], messages: Messages)
 
 @statusTag = @{
     val base = TagViewModel(Text(messages(if (isFinal) "vinUploadStatus.status.uploaded" else "vinUploadStatus.status.uploading")))
@@ -48,6 +51,8 @@
 }
 
 @layout(pageTitle = titleNoForm(messages("vinUploadStatus.heading"))) {
+
+    @vehicleDetails.map(inset => govukInsetText(inset.copy(classes = "govuk-!-margin-top-0")))
 
     <span class="govuk-caption-l">@messages("vinUploadStatus.caption")</span>
     <h1 class="govuk-heading-l">@messages("vinUploadStatus.heading")</h1>
