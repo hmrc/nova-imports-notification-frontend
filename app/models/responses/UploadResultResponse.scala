@@ -27,6 +27,7 @@ object ValidationError {
 
   private val labels: Map[String, String] = Map(
     "item"                           -> "Item number",
+    "spreadsheetType"                -> "Spreadsheet type",
     "knownDateFirstRegistered"       -> "Do you know the date the vehicle was first registered for road use?",
     "countryOfFirstRegistration"     -> "Country of first registration",
     "dateOfFirstRegistration"        -> "Date of first registration",
