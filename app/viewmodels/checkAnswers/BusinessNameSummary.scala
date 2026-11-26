@@ -20,7 +20,7 @@ import controllers.notifierdetails.routes
 import models.{CheckMode, UserAnswers}
 import pages.sections.notifierdetails.BusinessNamePage
 import play.api.i18n.Messages
-import play.twirl.api.HtmlFormat
+import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
@@ -31,7 +31,7 @@ object BusinessNameSummary {
     answers.get(BusinessNamePage).map { businessName =>
       SummaryListRowViewModel(
         key = "businessName.checkYourAnswersLabel",
-        value = ValueViewModel(HtmlFormat.escape(businessName).toString),
+        value = ValueViewModel(Text(businessName)),
         actions = Seq(
           ActionItemViewModel("site.change", routes.BusinessNameController.onPageLoad(CheckMode).url)
             .withVisuallyHiddenText(messages("businessName.change.hidden"))

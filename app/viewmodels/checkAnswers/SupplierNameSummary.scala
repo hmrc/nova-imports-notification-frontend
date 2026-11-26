@@ -87,7 +87,7 @@ object SupplierNameSummary {
     implicit messages: Messages
   ) = {
     if (traderDetails.isDefined) {
-      traderDetails.flatMap(_.name).getOrElse("")
+      traderDetails.flatMap(_.name).map(HtmlFormat.escape(_).body).getOrElse("")
     } else {
       answers.get(nameDetailsPage) match {
         case Some(name) =>
@@ -95,7 +95,7 @@ object SupplierNameSummary {
             .map(part => HtmlFormat.escape(part).body)
             .mkString("<br>")
         case None =>
-          messages("supplierDetailsCheckYourAnswers.notProvided")
+          HtmlFormat.escape(messages("supplierDetailsCheckYourAnswers.notProvided")).body
       }
     }
   }

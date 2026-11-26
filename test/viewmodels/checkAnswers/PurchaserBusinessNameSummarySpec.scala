@@ -40,6 +40,14 @@ class PurchaserBusinessNameSummarySpec extends SpecBase {
       result.actions.value.items.head.href mustBe routes.PurchaserBusinessNameController.onPageLoad(CheckMode).url
     }
 
+    "must escape special characters in the business name only once" in {
+      val userAnswers = UserAnswers(userAnswersId).set(PurchaserBusinessNamePage, "ASE Infotech&ltd O'Brien").success.value
+
+      val result = PurchaserBusinessNameSummary.row(userAnswers).value
+
+      result.value.content.asHtml.toString mustBe "ASE Infotech&amp;ltd O&#x27;Brien"
+    }
+
     "must return None when the answer is not present" in {
       PurchaserBusinessNameSummary.row(UserAnswers(userAnswersId)) mustBe None
     }

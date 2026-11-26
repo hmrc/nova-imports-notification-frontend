@@ -148,5 +148,21 @@ class SupplierNameSummarySpec extends SpecBase {
       result.actions.value.items.head.href mustBe routes.UsePersonalDetailsAsSupplierController.onPageLoad(SupplierNumber(1), NormalMode).url
     }
 
+    "must escape special characters in the trader information name" in {
+      val traderInfo = TraderInformation(
+        traderName = Some("Smith & <Sons>"),
+        tradingName = None,
+        addressLine1 = Some("55 Low Street"),
+        addressLine2 = Some("Derby"),
+        addressLine3 = None,
+        addressLine4 = None,
+        postcode = Some("DE21 9GC")
+      )
+
+      val result = SupplierNameSummary.rowFromPersonalDetails(UserAnswers(userAnswersId), SupplierNumber(1), Some(traderInfo)).value
+
+      result.value.content.asHtml.toString mustBe "Smith &amp; &lt;Sons&gt;"
+    }
+
   }
 }

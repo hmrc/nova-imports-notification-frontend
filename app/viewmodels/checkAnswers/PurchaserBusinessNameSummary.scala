@@ -20,7 +20,7 @@ import controllers.purchaserdetails.routes
 import models.{CheckMode, UserAnswers}
 import pages.sections.purchaserdetails.PurchaserBusinessNamePage
 import play.api.i18n.Messages
-import play.twirl.api.HtmlFormat
+import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
@@ -31,7 +31,7 @@ object PurchaserBusinessNameSummary {
     answers.get(PurchaserBusinessNamePage).map { businessName =>
       SummaryListRowViewModel(
         key = "purchaserBusinessName.checkYourAnswersLabel",
-        value = ValueViewModel(HtmlFormat.escape(businessName).toString),
+        value = ValueViewModel(Text(businessName)),
         actions = Seq(
           ActionItemViewModel("site.change", routes.PurchaserBusinessNameController.onPageLoad(CheckMode).url)
             .withVisuallyHiddenText(messages("purchaserBusinessName.change.hidden"))

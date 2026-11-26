@@ -40,6 +40,14 @@ class ImportEntryNumberSummarySpec extends SpecBase {
       result.actions.value.items.head.href mustBe routes.ImportEntryNumberController.onPageLoad(ImportNumber(1), CheckMode).url
     }
 
+    "must escape the import entry number only once" in {
+      val userAnswers = UserAnswers(userAnswersId).set(ImportEntryNumberPage(ImportNumber(1)), "123&456").success.value
+
+      val result = ImportEntryNumberSummary.row(userAnswers, ImportNumber(1)).value
+
+      result.value.content.asHtml.toString mustBe "123&amp;456"
+    }
+
     "must return None when import 1 has no import entry number" in {
       ImportEntryNumberSummary.row(UserAnswers(userAnswersId), ImportNumber(1)) mustBe None
     }
