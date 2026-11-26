@@ -1113,6 +1113,23 @@ vehiclesBoughtFromSupplier.whereToFindDates.paragraph.1 = You can usually find t
 vehiclesBoughtFromSupplier.addVehicle = Add vehicle
 
 ###############################################################################
+# AVD12.0 - Add vehicle details 12.0: Vehicles bought from with vehicle list  #
+###############################################################################
+
+vehiclesBoughtFromSupplier.heading.2 = List of vehicles added
+vehiclesBoughtFromSupplier.table.vin = Vehicle identification number
+vehiclesBoughtFromSupplier.table.description = Description
+vehiclesBoughtFromSupplier.table.actions = Actions
+vehiclesBoughtFromSupplier.action.edit = Edit
+vehiclesBoughtFromSupplier.action.edit.hidden = vehicle {0}
+vehiclesBoughtFromSupplier.action.delete = Delete
+vehiclesBoughtFromSupplier.action.delete.hidden = vehicle {0}
+vehiclesBoughtFromSupplier.heading.3 = Do you need to add another vehicle?
+vehiclesBoughtFromSupplier.error.required = Select yes if you need to add another vehicle
+vehiclesBoughtFromSupplier.inset.limit = You have added the maximum of 100 vehicles in one submission.
+vehiclesBoughtFromSupplier.inset.limit2 = To add another vehicle, you must submit these notifications and then return to the home page to start a new one.
+
+###############################################################################
 # PLACEHOLDER for AVD13.0, for testing supplier and vehicle numbers.          #
 # TODO: DELETE this block when AVD13.0 is built into the AVD1.0 screen        #
 ###############################################################################
@@ -1127,22 +1144,6 @@ vehiclesBroughtFromEuAvd13Placeholder.delete = Delete
 vehiclesBroughtFromEuAvd13Placeholder.addSupplier = Add supplier
 vehiclesBroughtFromEuAvd13Placeholder.noSuppliers = There are no suppliers yet
 vehiclesBroughtFromEuAvd13Placeholder.error.limitReached = You cannot add another supplier, maximum 100 vehicles reached
-
-###############################################################################
-# PLACEHOLDER for AVD12.0, for testing vehicle and supplier numbers.          #
-# TODO: DELETE this whole block when AVD12.0 is built into the AVD2.0 screen  #
-###############################################################################
-
-vehiclesBoughtFromSupplierAvd12Placeholder.title = Vehicles from this supplier (AVD12.0 placeholder)
-vehiclesBoughtFromSupplierAvd12Placeholder.heading = Vehicles from {0} (AVD12.0 placeholder)
-vehiclesBoughtFromSupplierAvd12Placeholder.notProvided = Not provided
-vehiclesBoughtFromSupplierAvd12Placeholder.backToSuppliers = Back to suppliers
-vehiclesBoughtFromSupplierAvd12Placeholder.vehicleNumber = Vehicle number
-vehiclesBoughtFromSupplierAvd12Placeholder.edit = Edit
-vehiclesBoughtFromSupplierAvd12Placeholder.delete = Delete
-vehiclesBoughtFromSupplierAvd12Placeholder.addVehicle = Add vehicle
-vehiclesBoughtFromSupplierAvd12Placeholder.noVehicles = There are no vehicles for this supplier yet
-vehiclesBoughtFromSupplierAvd12Placeholder.error.limitReached = You cannot add another vehicle, maximum 100 vehicles reached
 
 #########################################################################################
 # AVD3.1 - Add vehicle details 3.1: If you do not have any of the dates for the vehicle #

@@ -44,8 +44,7 @@ class AddingMultipleVehiclesErrorViewSpec extends SpecBase with Matchers with Be
     super.afterAll()
   }
 
-  // TODO: Update route to AVD12.0 when built
-  val reviewVehiclesUrl: Call = controllers.vehicledetails.routes.VehiclesBoughtFromSupplierAvd12PlaceholderController.onPageLoad(SupplierNumber(1))
+  val reviewVehiclesUrl: Call = controllers.vehicledetails.routes.VehiclesBoughtFromSupplierController.onPageLoad(SupplierNumber(1))
 
   lazy val document: Document = Jsoup.parse(view(reviewVehiclesUrl)(request, msgs).toString)
 

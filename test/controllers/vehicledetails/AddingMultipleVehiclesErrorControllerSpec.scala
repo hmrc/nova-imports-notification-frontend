@@ -106,7 +106,6 @@ class AddingMultipleVehiclesErrorControllerSpec extends SpecBase {
   "AddingMultipleVehiclesErrorController" - {
 
     "supplier journey" - {
-      // TODO: update route to AVD12.0 when built
       "must return OK and the correct view with the link to the AVD12.0 for a GET" in {
         val application = applicationFor(classOf[FakeVatTraderIdentifierAction], Some(supplierAnswers))
 
@@ -117,7 +116,7 @@ class AddingMultipleVehiclesErrorControllerSpec extends SpecBase {
 
           status(result) mustEqual OK
           contentAsString(result) mustEqual view(
-            vehicledetails.routes.VehiclesBoughtFromSupplierAvd12PlaceholderController.onPageLoad(supplierNumber)
+            vehicledetails.routes.VehiclesBoughtFromSupplierController.onPageLoad(supplierNumber)
           )(request, messages(application)).toString
         }
       }
