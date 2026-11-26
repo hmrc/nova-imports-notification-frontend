@@ -57,7 +57,6 @@ class VehiclesBoughtFromSupplierController @Inject() (
       renderPage(supplierNumber, form).map(Ok(_))
     }
 
-  // When adding new vehicle it sets up a new vehicle collection in session, it carries the supplierNumber it was bought from in the current URL
   def onSubmit(supplierNumber: SupplierNumber): Action[AnyContent] = {
     actions.authAndGetDataWithUserTypeGuard(guardPredicate(supplierService, supplierNumber)).async { implicit request =>
 
