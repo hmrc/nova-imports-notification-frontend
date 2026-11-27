@@ -72,13 +72,12 @@ class ConfirmAdditionalVehicleDetailsControllerSpec extends SpecBase with Mockit
     .unsafeSet(VehicleIdentificationNumberPage(v), "1ABCD2E03FG456789")
     .unsafeSet(VehicleRegistrationNumberKnownPage(v), false)
     .unsafeSet(MileagePage(v), Mileage(MileageUnit.MILES, "25000"))
+    .unsafeSet(VatReliefPage(v), false)
 
   private val supplierMultipleVehicles: UserAnswers = supplierOneVehicle
     .unsafeSet(NumberOfVehiclesPage(v), NumberOfVehicles(OneMultiVehicle.More, Some(2)))
     .unsafeSet(ValidatedVinListPage, Seq("VIN00000000000001", "VIN00000000000002"))
 
-  // amend journeys go straight from the notification reference page to the VIN page and never answer AVD10.0
-  // (how many vehicles), so NumberOfVehiclesPage is never set for them - see IsOneVehicleOrAmend
   private val supplierAmendNoNumberOfVehicles: UserAnswers = supplierOneVehicle
     .remove(NumberOfVehiclesPage(v))
     .success
@@ -98,6 +97,7 @@ class ConfirmAdditionalVehicleDetailsControllerSpec extends SpecBase with Mockit
     .unsafeSet(MileagePage(v), Mileage(MileageUnit.KM, "1200"))
     .unsafeSet(TotalAmountPaidPage(v), "15000")
     .unsafeSet(PaymentCurrencyPage(v), "EUR")
+    .unsafeSet(VatReliefPage(v), false)
 
   private val supplierAllAnswers: UserAnswers = supplierOneVehicle
     .unsafeSet(VehicleRegistrationNumberKnownPage(v), true)
@@ -200,7 +200,8 @@ class ConfirmAdditionalVehicleDetailsControllerSpec extends SpecBase with Mockit
           "How many vehicles is this notification for?"          -> "One vehicle",
           "Vehicle identification number"                        -> "1ABCD2E03FG456789",
           "Do you know the current vehicle registration number?" -> "No",
-          "Mileage"                                              -> "25000 Miles (mi)"
+          "Mileage"                                              -> "25000 Miles (mi)",
+          "Are you claiming relief from VAT for the vehicle?"    -> "No"
         )
 
         changeLinks(doc) mustEqual Seq(
@@ -208,7 +209,8 @@ class ConfirmAdditionalVehicleDetailsControllerSpec extends SpecBase with Mockit
           "vehicle identification number" -> vehicledetails.routes.VehicleIdentificationNumberController.supplierOnPageLoad(s, v, CheckMode).url,
           "whether you know the current vehicle registration number" ->
             vehicledetails.routes.VehicleRegistrationNumberKnownController.onPageLoad(s, v, CheckMode).url,
-          "mileage" -> vehicledetails.routes.MileageController.supplierOnPageLoad(s, v, CheckMode).url
+          "mileage"                                             -> vehicledetails.routes.MileageController.supplierOnPageLoad(s, v, CheckMode).url,
+          "whether you are claiming VAT relief for the vehicle" -> vehicledetails.routes.VatReliefController.supplierOnPageLoad(s, v, CheckMode).url
         )
       }
 
@@ -235,7 +237,8 @@ class ConfirmAdditionalVehicleDetailsControllerSpec extends SpecBase with Mockit
           "Notification reference"                               -> "NOVA26E123456",
           "Vehicle identification number"                        -> "1ABCD2E03FG456789",
           "Do you know the current vehicle registration number?" -> "No",
-          "Mileage"                                              -> "25000 Miles (mi)"
+          "Mileage"                                              -> "25000 Miles (mi)",
+          "Are you claiming relief from VAT for the vehicle?"    -> "No"
         )
 
         changeLinks(doc) mustEqual Seq(
@@ -243,7 +246,8 @@ class ConfirmAdditionalVehicleDetailsControllerSpec extends SpecBase with Mockit
           "vehicle identification number" -> vehicledetails.routes.VehicleIdentificationNumberController.supplierOnPageLoad(s, v, CheckMode).url,
           "whether you know the current vehicle registration number" ->
             vehicledetails.routes.VehicleRegistrationNumberKnownController.onPageLoad(s, v, CheckMode).url,
-          "mileage" -> vehicledetails.routes.MileageController.supplierOnPageLoad(s, v, CheckMode).url
+          "mileage"                                             -> vehicledetails.routes.MileageController.supplierOnPageLoad(s, v, CheckMode).url,
+          "whether you are claiming VAT relief for the vehicle" -> vehicledetails.routes.VatReliefController.supplierOnPageLoad(s, v, CheckMode).url
         )
       }
 
@@ -251,9 +255,10 @@ class ConfirmAdditionalVehicleDetailsControllerSpec extends SpecBase with Mockit
         val doc = page(application(Some(supplierMultipleVehicles)), supplierRoute)
 
         rows(doc) mustEqual Seq(
-          "How many vehicles is this notification for?" -> "More than one vehicle",
-          "Vehicle identification numbers"              -> "VIN00000000000001 VIN00000000000002",
-          "Mileage"                                     -> "25000 Miles (mi)"
+          "How many vehicles is this notification for?"       -> "More than one vehicle",
+          "Vehicle identification numbers"                    -> "VIN00000000000001 VIN00000000000002",
+          "Mileage"                                           -> "25000 Miles (mi)",
+          "Are you claiming relief from VAT for the vehicle?" -> "No"
         )
         doc.select(".govuk-summary-list__row").get(1).select(".govuk-summary-list__value br").size mustEqual 1
         changeLinks(doc) mustBe empty
@@ -272,7 +277,8 @@ class ConfirmAdditionalVehicleDetailsControllerSpec extends SpecBase with Mockit
           "Is the vehicle left-hand drive or right-hand drive?"                -> "Left-hand drive",
           "Total value of options"                                             -> "1200",
           "Was the vehicle supplied by a business that could not reclaim VAT?" -> "Yes",
-          "Was the vehicle sold to you under the VAT margin scheme?"           -> "No"
+          "Was the vehicle sold to you under the VAT margin scheme?"           -> "No",
+          "Are you claiming relief from VAT for the vehicle?"                  -> "No"
         )
 
         changeLinks(doc).drop(3) mustEqual Seq(
@@ -285,7 +291,8 @@ class ConfirmAdditionalVehicleDetailsControllerSpec extends SpecBase with Mockit
           "whether the vehicle was supplied by a business that could not reclaim VAT" ->
             vehicledetails.routes.CouldNotClaimVatController.onPageLoad(s, v, CheckMode).url,
           "whether the vehicle was sold to you under the VAT margin scheme" ->
-            vehicledetails.routes.VatMarginSchemeController.onPageLoad(s, v, CheckMode).url
+            vehicledetails.routes.VatMarginSchemeController.onPageLoad(s, v, CheckMode).url,
+          "whether you are claiming VAT relief for the vehicle" -> vehicledetails.routes.VatReliefController.supplierOnPageLoad(s, v, CheckMode).url
         )
       }
 
@@ -300,11 +307,6 @@ class ConfirmAdditionalVehicleDetailsControllerSpec extends SpecBase with Mockit
           "Was the vehicle supplied by a business that could not reclaim VAT?",
           "Was the vehicle sold to you under the VAT margin scheme?"
         )
-      }
-
-      "must not show the total value of options when the vehicle was not brought from the EU" in {
-        val answers = supplierAllAnswers.unsafeSet(VehicleFromEuPage, false)
-        rows(page(application(Some(answers)), supplierRoute)).map(_._1) must not contain "Total value of options"
       }
 
       "must not show the total amount paid or currency when the vehicle was brought from the EU" in {
@@ -335,12 +337,6 @@ class ConfirmAdditionalVehicleDetailsControllerSpec extends SpecBase with Mockit
         rows(doc).map(_._1) must not contain "Why are you claiming relief from VAT for the vehicle?"
       }
 
-      "must not show the VAT relief question or reason when AVD11.0 has not been answered" in {
-        rows(page(application(Some(supplierAllAnswers)), supplierRoute)).map(_._1) must contain noneOf (
-          "Are you claiming relief from VAT for the vehicle?",
-          "Why are you claiming relief from VAT for the vehicle?"
-        )
-      }
     }
 
     "importOnPageLoad" - {
@@ -353,12 +349,13 @@ class ConfirmAdditionalVehicleDetailsControllerSpec extends SpecBase with Mockit
 
         doc.select("form").attr("action") mustEqual importSubmitRoute
         rows(doc) mustEqual Seq(
-          "How many vehicles is this notification for?" -> "One vehicle",
-          "Vehicle identification number"               -> "1ABCD2E03FG456789",
-          "When did the vehicle arrive in the UK?"      -> "Not provided",
-          "Mileage"                                     -> "1200 Kilometres (km)",
-          "Total amount paid"                           -> "15000",
-          "Currency"                                    -> euro
+          "How many vehicles is this notification for?"       -> "One vehicle",
+          "Vehicle identification number"                     -> "1ABCD2E03FG456789",
+          "When did the vehicle arrive in the UK?"            -> "Not provided",
+          "Mileage"                                           -> "1200 Kilometres (km)",
+          "Total amount paid"                                 -> "15000",
+          "Currency"                                          -> euro,
+          "Are you claiming relief from VAT for the vehicle?" -> "No"
         )
         changeLinks(doc).map(_._2) mustEqual Seq(
           vehicledetails.routes.NumberOfVehiclesController.importOnPageLoad(i, v, CheckMode).url,
@@ -366,7 +363,8 @@ class ConfirmAdditionalVehicleDetailsControllerSpec extends SpecBase with Mockit
           vehicledetails.routes.DateOfArrivalController.importOnPageLoad(i, v, CheckMode).url,
           vehicledetails.routes.MileageController.importOnPageLoad(i, v, CheckMode).url,
           vehicledetails.routes.TotalAmountPaidController.onPageLoadImport(i, v, CheckMode).url,
-          vehicledetails.routes.PaymentCurrencyController.importOnPageLoad(i, v, CheckMode).url
+          vehicledetails.routes.PaymentCurrencyController.importOnPageLoad(i, v, CheckMode).url,
+          vehicledetails.routes.VatReliefController.importOnPageLoad(i, v, CheckMode).url
         )
       }
 
@@ -383,7 +381,8 @@ class ConfirmAdditionalVehicleDetailsControllerSpec extends SpecBase with Mockit
           "Mileage"                                             -> "1200 Kilometres (km)",
           "Is the vehicle left-hand drive or right-hand drive?" -> "Right-hand drive",
           "Total amount paid"                                   -> "15000",
-          "Currency"                                            -> euro
+          "Currency"                                            -> euro,
+          "Are you claiming relief from VAT for the vehicle?"   -> "No"
         )
 
         changeLinks(doc).map(_._2).slice(2, 5) mustEqual Seq(
@@ -411,12 +410,6 @@ class ConfirmAdditionalVehicleDetailsControllerSpec extends SpecBase with Mockit
         )
       }
 
-      "must not show the VAT relief question or reason when AVD11.0 has not been answered" in {
-        rows(page(application(Some(importAllAnswers)), importRoute)).map(_._1) must contain noneOf (
-          "Are you claiming relief from VAT for the vehicle?",
-          "Why are you claiming relief from VAT for the vehicle?"
-        )
-      }
     }
 
     "data guard" - {
@@ -466,6 +459,32 @@ class ConfirmAdditionalVehicleDetailsControllerSpec extends SpecBase with Mockit
           .select("h1")
           .text() mustEqual "Check the additional vehicle details before you continue"
       }
+
+      "must redirect to ERR1.0 when the supplier/import URL does not match the vehicle's EU/import journey" in {
+        val importVehicleOnSupplierUrl = importOneVehicle.unsafeSet(AllVehiclesQuery, Map("1" -> Json.obj("supplierNumber" -> 1)))
+        val supplierVehicleOnImportUrl = supplierOneVehicle.unsafeSet(AllVehiclesQuery, Map("1" -> Json.obj("importNumber" -> 1)))
+        Seq(importVehicleOnSupplierUrl -> supplierRoute, supplierVehicleOnImportUrl -> importRoute).foreach { case (answers, url) =>
+          val app = application(Some(answers))
+          running(app) {
+            val result = route(app, FakeRequest(GET, url)).value
+            status(result) mustEqual SEE_OTHER
+            redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+          }
+        }
+      }
+
+      "must redirect to ERR1.0 when AVD11.0 (claiming VAT relief) has not been answered, even with every other AVD question answered" in {
+        val supplierNotYetAnsweredRelief = supplierAllAnswers.remove(VatReliefPage(v)).success.value
+        val importNotYetAnsweredRelief   = importAllAnswers.remove(VatReliefPage(v)).success.value
+        Seq(supplierNotYetAnsweredRelief -> supplierRoute, importNotYetAnsweredRelief -> importRoute).foreach { case (answers, url) =>
+          val app = application(Some(answers))
+          running(app) {
+            val result = route(app, FakeRequest(GET, url)).value
+            status(result) mustEqual SEE_OTHER
+            redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+          }
+        }
+      }
     }
 
     "supplierOnSubmit" - {
@@ -496,6 +515,7 @@ class ConfirmAdditionalVehicleDetailsControllerSpec extends SpecBase with Mockit
               "confirmVehicleIdNumber"  -> "1ABCD2E03FG456789",
               "mileage"                 -> "25000",
               "mileageUnits"            -> "MILES",
+              "areYouClaimingRelief"    -> false,
               "isSupplierVatRegistered" -> true,
               "versionId"               -> 3L
             )
@@ -523,6 +543,7 @@ class ConfirmAdditionalVehicleDetailsControllerSpec extends SpecBase with Mockit
               "mileageUnits"                 -> "MILES",
               "leftOrRightHand"              -> "LHD",
               "totalValueOfOptions"          -> "1200",
+              "areYouClaimingRelief"         -> false,
               "isSupplierVatRegistered"      -> true,
               "businessUnableToReclaimVat"   -> true,
               "vehicleSoldUnderMarginScheme" -> false,
@@ -752,6 +773,7 @@ class ConfirmAdditionalVehicleDetailsControllerSpec extends SpecBase with Mockit
               "confirmVehicleIdNumber"   -> "1ABCD2E03FG456789",
               "mileage"                  -> "1200",
               "mileageUnits"             -> "KM",
+              "areYouClaimingRelief"     -> false,
               "pricePaidForVehicleEntry" -> "15000",
               "currencyUsed"             -> "EUR",
               "versionId"                -> 3L

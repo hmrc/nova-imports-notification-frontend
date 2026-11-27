@@ -103,10 +103,7 @@ class ConfirmAdditionalVehicleDetailsController @Inject() (
   private def handleSubmit(journey: String, groupNumber: Int, vehicleNumber: VehicleNumber, fields: JsObject)(implicit
     request: DataRequest[AnyContent]
   ): Future[Result] = {
-    val failure = Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
-
-    // amend sessions skip AVD10.0 entirely (see IsOneVehicleOrAmend), so NumberOfVehiclesPage is never answered for
-    // them and an amendment must still be treated as one vehicle
+    val failure                                  = Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
     val oneMultiVehicle: Option[OneMultiVehicle] =
       if (IsOneVehicleOrAmend(request.userAnswers, vehicleNumber)) Some(OneMultiVehicle.One)
       else request.userAnswers.get(NumberOfVehiclesPage(vehicleNumber)).map(_.oneMultiVehicle)
@@ -213,9 +210,11 @@ object ConfirmAdditionalVehicleDetailsController {
     vehicleNumber: VehicleNumber
   )(request: DataRequest[?]): Boolean =
     IsDraftIdDefined(request.userAnswers) &&
+      request.userAnswers.get(VehicleFromEuPage).contains(true) &&
       supplierService.numberHasValues(request.userAnswers, supplierNumber) &&
       vehicleService.belongsToSupplier(request.userAnswers, vehicleNumber, supplierNumber) &&
-      vehicleService.numberHasValues(request.userAnswers, vehicleNumber)
+      vehicleService.numberHasValues(request.userAnswers, vehicleNumber) &&
+      request.userAnswers.get(VatReliefPage(vehicleNumber)).isDefined
 
   def importGuardPredicate(
     importService: ImportService,
@@ -224,9 +223,11 @@ object ConfirmAdditionalVehicleDetailsController {
     vehicleNumber: VehicleNumber
   )(request: DataRequest[?]): Boolean =
     IsDraftIdDefined(request.userAnswers) &&
+      request.userAnswers.get(VehicleFromEuPage).contains(false) &&
       importService.numberHasValues(request.userAnswers, importNumber) &&
       vehicleService.belongsToImport(request.userAnswers, vehicleNumber, importNumber) &&
-      vehicleService.numberHasValues(request.userAnswers, vehicleNumber)
+      vehicleService.numberHasValues(request.userAnswers, vehicleNumber) &&
+      request.userAnswers.get(VatReliefPage(vehicleNumber)).isDefined
 
   def supplierFields(answers: UserAnswers, supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber): JsObject = {
     val supplierVatRegistered = answers.get(IsSupplierVatRegisteredPage(supplierNumber))
@@ -249,10 +250,8 @@ object ConfirmAdditionalVehicleDetailsController {
       optional("currencyUsed", answers.get(PaymentCurrencyPage(vehicleNumber)))
 
   private def commonFields(answers: UserAnswers, vehicleNumber: VehicleNumber): JsObject = {
-    val isAmendment = answers.get(AmendSubmittedNotificationPage)
-    val mileage     = answers.get(MileagePage(vehicleNumber))
-    // amend sessions skip AVD10.0 entirely (see IsOneVehicleOrAmend), so NumberOfVehiclesPage is never answered for
-    // them and an amendment must still be treated as one vehicle
+    val isAmendment                               = answers.get(AmendSubmittedNotificationPage)
+    val mileage                                   = answers.get(MileagePage(vehicleNumber))
     val numberOfVehicles: Option[OneMultiVehicle] =
       if (IsOneVehicleOrAmend(answers, vehicleNumber)) Some(OneMultiVehicle.One)
       else answers.get(NumberOfVehiclesPage(vehicleNumber)).map(_.oneMultiVehicle)
