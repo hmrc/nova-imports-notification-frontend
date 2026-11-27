@@ -433,9 +433,38 @@ class ConfirmAdditionalVehicleDetailsControllerSpec extends SpecBase with Mockit
         }
       }
 
-      "must allow access with only a draftId defined" in {
+      "must redirect to ERR1.0 when only a draftId is defined, with no vehicle details answered (stops URL-hopping straight to the CYA screen)" in {
         val answers = emptyUserAnswers.unsafeSet(DraftIdPage, draft)
-        page(application(Some(answers)), supplierRoute).select("h1").text() mustEqual "Check the additional vehicle details before you continue"
+        Seq(GET -> supplierRoute, POST -> supplierSubmitRoute, GET -> importRoute, POST -> importSubmitRoute).foreach { case (method, url) =>
+          val app = application(Some(answers))
+          running(app) {
+            val result = route(app, FakeRequest(method, url)).value
+            status(result) mustEqual SEE_OTHER
+            redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+          }
+        }
+      }
+
+      "must redirect to ERR1.0 when the vehicle does not belong to the supplier/import group in the URL" in {
+        val wrongSupplier = supplierOneVehicle.unsafeSet(AllVehiclesQuery, Map("1" -> Json.obj("supplierNumber" -> 2)))
+        val wrongImport   = importOneVehicle.unsafeSet(AllVehiclesQuery, Map("1" -> Json.obj("importNumber" -> 2)))
+        Seq(wrongSupplier -> supplierRoute, wrongImport -> importRoute).foreach { case (answers, url) =>
+          val app = application(Some(answers))
+          running(app) {
+            val result = route(app, FakeRequest(GET, url)).value
+            status(result) mustEqual SEE_OTHER
+            redirectLocation(result).value mustEqual routes.UnauthorisedController.onPageLoad().url
+          }
+        }
+      }
+
+      "must allow access once the vehicle belongs to the group and has at least one AVD question answered" in {
+        page(application(Some(supplierOneVehicle)), supplierRoute)
+          .select("h1")
+          .text() mustEqual "Check the additional vehicle details before you continue"
+        page(application(Some(importOneVehicle)), importRoute)
+          .select("h1")
+          .text() mustEqual "Check the additional vehicle details before you continue"
       }
     }
 

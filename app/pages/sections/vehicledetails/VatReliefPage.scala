@@ -16,13 +16,21 @@
 
 package pages.sections.vehicledetails
 
-import models.VehicleNumber
+import models.{UserAnswers, VehicleNumber}
 import pages.QuestionPage
 import play.api.libs.json.JsPath
+
+import scala.util.Try
 
 final case class VatReliefPage(vehicleNumber: VehicleNumber) extends QuestionPage[Boolean] {
 
   override def path: JsPath = JsPath \ "vehicles" \ vehicleNumber.value.toString \ "details" \ toString
 
   override def toString: String = "areYouClaimingRelief"
+
+  override def cleanup(value: Option[Boolean], userAnswers: UserAnswers): Try[UserAnswers] =
+    value match {
+      case Some(false) => userAnswers.remove(VatReliefReasonPage(vehicleNumber))
+      case _           => super.cleanup(value, userAnswers)
+    }
 }

@@ -121,7 +121,9 @@ object ConfirmAdditionalVehicleDetailsHelper {
     supplierVatRegistered: Boolean,
     links: ChangeLinks
   )(implicit messages: Messages): SummaryList = {
-    val numberOfVehicles  = answers.get(NumberOfVehiclesPage(vehicleNumber)).map(_.oneMultiVehicle)
+    val numberOfVehicles = answers.get(NumberOfVehiclesPage(vehicleNumber)).map(_.oneMultiVehicle)
+    // amend sessions skip AVD10.0 entirely (see IsOneVehicleOrAmend), so an amendment is always treated as one vehicle
+    // even though NumberOfVehiclesPage was never answered
     val oneVehicle        = IsOneVehicleOrAmend(answers, vehicleNumber)
     val vehicleFromEu     = answers.get(VehicleFromEuPage)
     val registrationKnown = answers.get(VehicleRegistrationNumberKnownPage(vehicleNumber))

@@ -32,6 +32,7 @@ import play.api.Logging
 import play.api.libs.json.{JsObject, JsValue, Json, Writes}
 import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents, Result}
 import repositories.SessionRepository
+import services.{ImportService, SupplierService, VehicleService}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
@@ -47,6 +48,9 @@ class ConfirmAdditionalVehicleDetailsController @Inject() (
   actions: Actions,
   backendConnector: NovaImportsBackendConnector,
   sessionRepository: SessionRepository,
+  supplierService: SupplierService,
+  importService: ImportService,
+  vehicleService: VehicleService,
   appConfig: FrontendAppConfig,
   view: ConfirmAdditionalVehicleDetailsView
 )(implicit ec: ExecutionContext)
@@ -56,15 +60,16 @@ class ConfirmAdditionalVehicleDetailsController @Inject() (
   import ConfirmAdditionalVehicleDetailsController.*
 
   def supplierOnPageLoad(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber): Action[AnyContent] =
-    actions.authAndGetDataWithUserTypeGuard(guardPredicate) { implicit request =>
-      handlePageLoad(
-        ConfirmAdditionalVehicleDetailsHelper.supplierSummaryList(request.userAnswers, supplierNumber, vehicleNumber, appConfig.currencies),
-        routes.ConfirmAdditionalVehicleDetailsController.supplierOnSubmit(supplierNumber, vehicleNumber)
-      )
+    actions.authAndGetDataWithUserTypeGuard(supplierGuardPredicate(supplierService, vehicleService, supplierNumber, vehicleNumber)) {
+      implicit request =>
+        handlePageLoad(
+          ConfirmAdditionalVehicleDetailsHelper.supplierSummaryList(request.userAnswers, supplierNumber, vehicleNumber, appConfig.currencies),
+          routes.ConfirmAdditionalVehicleDetailsController.supplierOnSubmit(supplierNumber, vehicleNumber)
+        )
     }
 
   def importOnPageLoad(importNumber: ImportNumber, vehicleNumber: VehicleNumber): Action[AnyContent] =
-    actions.authAndGetDataWithUserTypeGuard(guardPredicate) { implicit request =>
+    actions.authAndGetDataWithUserTypeGuard(importGuardPredicate(importService, vehicleService, importNumber, vehicleNumber)) { implicit request =>
       handlePageLoad(
         ConfirmAdditionalVehicleDetailsHelper.importSummaryList(request.userAnswers, importNumber, vehicleNumber, appConfig.currencies),
         routes.ConfirmAdditionalVehicleDetailsController.importOnSubmit(importNumber, vehicleNumber)
@@ -72,23 +77,25 @@ class ConfirmAdditionalVehicleDetailsController @Inject() (
     }
 
   def supplierOnSubmit(supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber): Action[AnyContent] =
-    actions.authAndGetDataWithUserTypeGuard(guardPredicate).async { implicit request =>
-      handleSubmit(
-        SupplierJourney,
-        supplierNumber.value,
-        vehicleNumber,
-        supplierFields(request.userAnswers, supplierNumber, vehicleNumber)
-      )
+    actions.authAndGetDataWithUserTypeGuard(supplierGuardPredicate(supplierService, vehicleService, supplierNumber, vehicleNumber)).async {
+      implicit request =>
+        handleSubmit(
+          SupplierJourney,
+          supplierNumber.value,
+          vehicleNumber,
+          supplierFields(request.userAnswers, supplierNumber, vehicleNumber)
+        )
     }
 
   def importOnSubmit(importNumber: ImportNumber, vehicleNumber: VehicleNumber): Action[AnyContent] =
-    actions.authAndGetDataWithUserTypeGuard(guardPredicate).async { implicit request =>
-      handleSubmit(
-        ImportJourney,
-        importNumber.value,
-        vehicleNumber,
-        importFields(request.userAnswers, vehicleNumber)
-      )
+    actions.authAndGetDataWithUserTypeGuard(importGuardPredicate(importService, vehicleService, importNumber, vehicleNumber)).async {
+      implicit request =>
+        handleSubmit(
+          ImportJourney,
+          importNumber.value,
+          vehicleNumber,
+          importFields(request.userAnswers, vehicleNumber)
+        )
     }
 
   private def handlePageLoad(summaryList: SummaryList, submitCall: Call)(implicit request: DataRequest[AnyContent]): Result =
@@ -101,6 +108,8 @@ class ConfirmAdditionalVehicleDetailsController @Inject() (
 
     val failure = Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
 
+    // amend sessions skip AVD10.0 entirely (see IsOneVehicleOrAmend), so NumberOfVehiclesPage is never answered for
+    // them and an amendment must still be treated as one vehicle
     val oneMultiVehicle: Option[OneMultiVehicle] =
       if (IsOneVehicleOrAmend(request.userAnswers, vehicleNumber)) Some(OneMultiVehicle.One)
       else request.userAnswers.get(NumberOfVehiclesPage(vehicleNumber)).map(_.oneMultiVehicle)
@@ -188,8 +197,29 @@ object ConfirmAdditionalVehicleDetailsController {
     "reasonForClaimingRelief"
   )
 
-  def guardPredicate(request: DataRequest[?]): Boolean =
-    IsDraftIdDefined(request.userAnswers)
+  // beyond draftId, requires the vehicle to belong to this supplier/import group and to have at least one
+  // AVD question answered, so the CYA screen can't be reached by URL-hopping before any answers exist
+  def supplierGuardPredicate(
+    supplierService: SupplierService,
+    vehicleService: VehicleService,
+    supplierNumber: SupplierNumber,
+    vehicleNumber: VehicleNumber
+  )(request: DataRequest[?]): Boolean =
+    IsDraftIdDefined(request.userAnswers) &&
+      supplierService.numberHasValues(request.userAnswers, supplierNumber) &&
+      vehicleService.belongsToSupplier(request.userAnswers, vehicleNumber, supplierNumber) &&
+      vehicleService.numberHasValues(request.userAnswers, vehicleNumber)
+
+  def importGuardPredicate(
+    importService: ImportService,
+    vehicleService: VehicleService,
+    importNumber: ImportNumber,
+    vehicleNumber: VehicleNumber
+  )(request: DataRequest[?]): Boolean =
+    IsDraftIdDefined(request.userAnswers) &&
+      importService.numberHasValues(request.userAnswers, importNumber) &&
+      vehicleService.belongsToImport(request.userAnswers, vehicleNumber, importNumber) &&
+      vehicleService.numberHasValues(request.userAnswers, vehicleNumber)
 
   def supplierFields(answers: UserAnswers, supplierNumber: SupplierNumber, vehicleNumber: VehicleNumber): JsObject = {
     val supplierVatRegistered = answers.get(IsSupplierVatRegisteredPage(supplierNumber))
@@ -214,7 +244,8 @@ object ConfirmAdditionalVehicleDetailsController {
   private def commonFields(answers: UserAnswers, vehicleNumber: VehicleNumber): JsObject = {
     val isAmendment = answers.get(AmendSubmittedNotificationPage)
     val mileage     = answers.get(MileagePage(vehicleNumber))
-
+    // amend sessions skip AVD10.0 entirely (see IsOneVehicleOrAmend), so NumberOfVehiclesPage is never answered for
+    // them and an amendment must still be treated as one vehicle
     val numberOfVehicles: Option[OneMultiVehicle] =
       if (IsOneVehicleOrAmend(answers, vehicleNumber)) Some(OneMultiVehicle.One)
       else answers.get(NumberOfVehiclesPage(vehicleNumber)).map(_.oneMultiVehicle)
