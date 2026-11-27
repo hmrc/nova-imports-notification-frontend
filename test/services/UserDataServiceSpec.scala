@@ -19,7 +19,7 @@ package services
 import base.SpecBase
 import connectors.NovaImportsBackendConnector
 import models.DraftNotification.SectionId
-import models.{Address, AgentSelectedClient, BusinessOrPrivateIndividual, ContactNumbers, Country, DraftId, DraftNotification, DraftNotificationSection, NameDetails, NovaUserType, PurchaserOrOnBehalf, SectionStatus, SupplierNumber, UserAnswers, UserContext, VatNumberDetails}
+import models.{Address, AgentSelectedClient, BusinessOrPrivateIndividual, ContactNumbers, Country, DraftId, DraftNotification, DraftNotificationSection, LeftOrRightHandDrive, Mileage, MileageUnit, NameDetails, NovaUserType, NumberOfVehicles, OneMultiVehicle, PurchaserOrOnBehalf, SectionStatus, SupplierNumber, UserAnswers, UserContext, VatNumberDetails, VehicleNumber}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatest.EitherValues
@@ -34,10 +34,12 @@ import pages.sections.purchaserdetails.{PurchaserBusinessNamePage, PurchaserName
 import pages.sections.supplieraddress.SupplierAddressPage
 import pages.sections.supplierdetails.{IsSupplierVatRegisteredPage, SupplierBusinessNamePage, SupplierBusinessOrIndividualPage, SupplierNamePage, SupplierVatRegistrationNumberPage, UseClientDetailsAsSupplierPage, UsePersonalDetailsAsSupplierPage, UsePurchaserDetailsAsSupplierPage}
 import play.api.libs.json.{JsObject, Json, Writes}
-import queries.AllSuppliersQuery
+import queries.{AllSuppliersQuery, AllVehiclesQuery}
+import pages.sections.vehicledetails.*
 import repositories.SessionRepository
 import uk.gov.hmrc.http.HeaderCarrier
 
+import java.time.LocalDate
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -624,6 +626,105 @@ class UserDataServiceSpec extends SpecBase with MockitoSugar with ScalaFutures w
         .futureValue
 
       result.get(VehicleBusinessUsePage) mustBe None
+    }
+  }
+
+  "UserDataService.storeVehicleAdditionalInformationPages" - {
+
+    val v = VehicleNumber(1)
+
+    def repositoryAcceptingSet(): SessionRepository = {
+      val repo = mock[SessionRepository]
+      when(repo.set(any())).thenReturn(Future.successful(true))
+      repo
+    }
+
+    val supplierVehicleAnswers = emptyUserAnswers.unsafeSet(AllVehiclesQuery, Map("1" -> Json.obj("supplierNumber" -> 1)))
+    val importVehicleAnswers   = emptyUserAnswers.unsafeSet(AllVehiclesQuery, Map("1" -> Json.obj("importNumber" -> 1)))
+
+    val oneVehicleSection = Json.obj(
+      "oneOrMultipleVehicls"     -> "One",
+      "vehicleIdNumber"          -> "1ABCD2E03FG456789",
+      "confirmVehicleIdNumber"   -> "1ABCD2E03FG456789",
+      "notificationReference"    -> "NOVA26E123456",
+      "mileage"                  -> "25000",
+      "mileageUnits"             -> "MILES",
+      "pricePaidForVehicleEntry" -> "15000",
+      "currencyUsed"             -> "EUR"
+    )
+
+    "must restore the C-AVD3.0 answers for a supplier vehicle that is in the session" in {
+      val draft  = draftWith(Map("supplier/1/vehicle/1/additional-information" -> DraftNotificationSection(Some(oneVehicleSection))))
+      val result = UserDataService.storeVehicleAdditionalInformationPages(draft, supplierVehicleAnswers, repositoryAcceptingSet()).futureValue
+
+      result.get(NumberOfVehiclesPage(v)) mustBe Some(NumberOfVehicles(OneMultiVehicle.One, None))
+      result.get(VehicleIdentificationNumberPage(v)) mustBe Some("1ABCD2E03FG456789")
+      result.get(NotificationReferencePage(v)) mustBe Some("NOVA26E123456")
+      result.get(MileagePage(v)) mustBe Some(Mileage(MileageUnit.MILES, "25000"))
+      result.get(TotalAmountPaidPage(v)) mustBe Some("15000")
+      result.get(PaymentCurrencyPage(v)) mustBe Some("EUR")
+    }
+
+    "must restore the AVD10.2a, AVD10.3 and AVD10.6 to AVD10.9 answers" in {
+      val section = oneVehicleSection ++ Json.obj(
+        "currentRegistrationNumber"    -> "AB12 CDE",
+        "dateArrivedInUk"              -> "27/03/2026",
+        "leftOrRightHand"              -> "LHD",
+        "totalValueOfOptions"          -> "1200",
+        "businessUnableToReclaimVat"   -> true,
+        "vehicleSoldUnderMarginScheme" -> false
+      )
+      val draft  = draftWith(Map("supplier/1/vehicle/1/additional-information" -> DraftNotificationSection(Some(section))))
+      val result = UserDataService.storeVehicleAdditionalInformationPages(draft, supplierVehicleAnswers, repositoryAcceptingSet()).futureValue
+
+      result.get(VehicleRegistrationNumberKnownPage(v)) mustBe Some(true)
+      result.get(VehicleRegistrationNumberPage(v)) mustBe Some("AB12 CDE")
+      result.get(DateOfArrivalPage(v)) mustBe Some(LocalDate.of(2026, 3, 27))
+      result.get(LeftOrRightHandDrivePage(v)) mustBe Some(LeftOrRightHandDrive.LHD)
+      result.get(TotalValueOfOptionsPage(v)) mustBe Some("1200")
+      result.get(CouldNotClaimVatPage(v)) mustBe Some(true)
+      result.get(VatMarginSchemePage(v)) mustBe Some(false)
+    }
+
+    "must restore the commodity code for an import vehicle and ignore an unreadable arrival date" in {
+      val section = oneVehicleSection ++ Json.obj("commodityCode" -> "8703123456", "dateArrivedInUk" -> "2026-03-27")
+      val draft   = draftWith(Map("import/1/vehicle/1/additional-information" -> DraftNotificationSection(Some(section))))
+      val result  = UserDataService.storeVehicleAdditionalInformationPages(draft, importVehicleAnswers, repositoryAcceptingSet()).futureValue
+
+      result.get(CommodityCodePage(v)) mustBe Some("8703123456")
+      result.get(DateOfArrivalPage(v)) mustBe None
+    }
+
+    "must restore the answers for an import vehicle that is in the session" in {
+      val draft  = draftWith(Map("import/1/vehicle/1/additional-information" -> DraftNotificationSection(Some(oneVehicleSection))))
+      val result = UserDataService.storeVehicleAdditionalInformationPages(draft, importVehicleAnswers, repositoryAcceptingSet()).futureValue
+
+      result.get(MileagePage(v)) mustBe Some(Mileage(MileageUnit.MILES, "25000"))
+    }
+
+    "must not restore the number of vehicles or a single VIN for a multiplied vehicle" in {
+      val section =
+        Json.obj("oneOrMultipleVehicls" -> "Multiple", "vehicleIdNumber" -> "VIN00000000000001", "mileage" -> "10", "mileageUnits" -> "KM")
+      val draft  = draftWith(Map("supplier/1/vehicle/1/additional-information" -> DraftNotificationSection(Some(section))))
+      val result = UserDataService.storeVehicleAdditionalInformationPages(draft, supplierVehicleAnswers, repositoryAcceptingSet()).futureValue
+
+      result.get(NumberOfVehiclesPage(v)) mustBe None
+      result.get(VehicleIdentificationNumberPage(v)) mustBe None
+      result.get(MileagePage(v)) mustBe Some(Mileage(MileageUnit.KM, "10"))
+    }
+
+    "must leave the session untouched when the vehicle is not in the session for that supplier or import" in {
+      val repo  = mock[SessionRepository]
+      val draft = draftWith(
+        Map(
+          "supplier/2/vehicle/1/additional-information" -> DraftNotificationSection(Some(oneVehicleSection)),
+          "import/1/vehicle/1/additional-information"   -> DraftNotificationSection(Some(oneVehicleSection))
+        )
+      )
+      val result = UserDataService.storeVehicleAdditionalInformationPages(draft, supplierVehicleAnswers, repo).futureValue
+
+      result mustBe supplierVehicleAnswers
+      org.mockito.Mockito.verify(repo, org.mockito.Mockito.never()).set(any())
     }
   }
 
