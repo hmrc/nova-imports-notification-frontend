@@ -35,7 +35,6 @@ import repositories.SessionRepository
 import services.{ImportService, SupplierService, VehicleService}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import viewmodels.checkAnswers.ConfirmAdditionalVehicleDetailsHelper
 import views.html.ConfirmAdditionalVehicleDetailsView
 
@@ -104,8 +103,6 @@ class ConfirmAdditionalVehicleDetailsController @Inject() (
   private def handleSubmit(journey: String, groupNumber: Int, vehicleNumber: VehicleNumber, fields: JsObject)(implicit
     request: DataRequest[AnyContent]
   ): Future[Result] = {
-    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-
     val failure = Future.successful(Redirect(controllers.routes.JourneyRecoveryController.onPageLoad()))
 
     // amend sessions skip AVD10.0 entirely (see IsOneVehicleOrAmend), so NumberOfVehiclesPage is never answered for
@@ -131,7 +128,7 @@ class ConfirmAdditionalVehicleDetailsController @Inject() (
                   case Right(newVersionId) =>
                     sessionRepository
                       .setPage(request.userAnswers, DraftVersionIdPage, newVersionId)
-                      .map(_ => Redirect(nextPage(journey, groupNumber, request.userAnswers, numberOfVehicles)))
+                      .map(_ => Redirect(nextPage(journey, groupNumber, vehicleNumber, request.userAnswers, numberOfVehicles)))
                   case Left(error) =>
                     logger.warn(s"Failed to update the additional-information sections for draftId ${draftId.value}: $error")
                     failure
@@ -158,10 +155,22 @@ class ConfirmAdditionalVehicleDetailsController @Inject() (
       }
     }
 
-  private def nextPage(journey: String, groupNumber: Int, answers: UserAnswers, oneMultiVehicle: OneMultiVehicle): Call =
+  private def nextPage(
+    journey: String,
+    groupNumber: Int,
+    vehicleNumber: VehicleNumber,
+    answers: UserAnswers,
+    oneMultiVehicle: OneMultiVehicle
+  ): Call =
     (journey, answers.get(VehicleFromEuPage), oneMultiVehicle) match {
       case (SupplierJourney, Some(true), OneMultiVehicle.One) =>
         routes.VehiclesBoughtFromSupplierController.onPageLoad(SupplierNumber(groupNumber))
+      case (ImportJourney, Some(false), OneMultiVehicle.One) =>
+        controllers.routes.LandingPageController.onPageLoad() // TODO: navigate to AVD-IE5.0 when built
+      case (SupplierJourney, Some(true), OneMultiVehicle.More) =>
+        routes.VehicleIdentificationNumbersController.supplierOnPageLoad(SupplierNumber(groupNumber), vehicleNumber)
+      case (ImportJourney, Some(false), OneMultiVehicle.More) =>
+        routes.VehicleIdentificationNumbersController.importOnPageLoad(ImportNumber(groupNumber), vehicleNumber)
       case _ =>
         controllers.routes.LandingPageController.onPageLoad()
     }

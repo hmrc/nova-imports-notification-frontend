@@ -206,7 +206,7 @@ class ConfirmAdditionalVehicleDetailsControllerSpec extends SpecBase with Mockit
         changeLinks(doc) mustEqual Seq(
           "how many vehicles this notification is for" -> vehicledetails.routes.NumberOfVehiclesController.supplierOnPageLoad(s, v, CheckMode).url,
           "vehicle identification number" -> vehicledetails.routes.VehicleIdentificationNumberController.supplierOnPageLoad(s, v, CheckMode).url,
-          "whether you know the current vehicle identification number" ->
+          "whether you know the current vehicle registration number" ->
             vehicledetails.routes.VehicleRegistrationNumberKnownController.onPageLoad(s, v, CheckMode).url,
           "mileage" -> vehicledetails.routes.MileageController.supplierOnPageLoad(s, v, CheckMode).url
         )
@@ -241,7 +241,7 @@ class ConfirmAdditionalVehicleDetailsControllerSpec extends SpecBase with Mockit
         changeLinks(doc) mustEqual Seq(
           "notification reference"        -> vehicledetails.routes.NotificationReferenceController.supplierOnPageLoad(s, v, CheckMode).url,
           "vehicle identification number" -> vehicledetails.routes.VehicleIdentificationNumberController.supplierOnPageLoad(s, v, CheckMode).url,
-          "whether you know the current vehicle identification number" ->
+          "whether you know the current vehicle registration number" ->
             vehicledetails.routes.VehicleRegistrationNumberKnownController.onPageLoad(s, v, CheckMode).url,
           "mileage" -> vehicledetails.routes.MileageController.supplierOnPageLoad(s, v, CheckMode).url
         )
@@ -276,9 +276,9 @@ class ConfirmAdditionalVehicleDetailsControllerSpec extends SpecBase with Mockit
         )
 
         changeLinks(doc).drop(3) mustEqual Seq(
-          "current vehicle identification number" -> vehicledetails.routes.VehicleRegistrationNumberController.onPageLoad(s, v, CheckMode).url,
-          "when the vehicle arrived in the UK"    -> vehicledetails.routes.DateOfArrivalController.supplierOnPageLoad(s, v, CheckMode).url,
-          "mileage"                               -> vehicledetails.routes.MileageController.supplierOnPageLoad(s, v, CheckMode).url,
+          "current vehicle registration number" -> vehicledetails.routes.VehicleRegistrationNumberController.onPageLoad(s, v, CheckMode).url,
+          "when the vehicle arrived in the UK"  -> vehicledetails.routes.DateOfArrivalController.supplierOnPageLoad(s, v, CheckMode).url,
+          "mileage"                             -> vehicledetails.routes.MileageController.supplierOnPageLoad(s, v, CheckMode).url,
           "whether the vehicle is left-hand drive or right-hand drive" ->
             vehicledetails.routes.LeftOrRightHandDriveController.supplierOnPageLoad(s, v, CheckMode).url,
           "total value of options for the vehicle" -> vehicledetails.routes.TotalValueOfOptionsController.onPageLoad(s, v, CheckMode).url,
