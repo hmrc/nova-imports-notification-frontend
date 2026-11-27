@@ -40,6 +40,14 @@ class BusinessNameSummarySpec extends SpecBase {
       result.actions.value.items.head.href mustBe routes.BusinessNameController.onPageLoad(CheckMode).url
     }
 
+    "must escape special characters in the business name only once" in {
+      val userAnswers = UserAnswers(userAnswersId).set(BusinessNamePage, "Smith & Sons O'Brien").success.value
+
+      val result = BusinessNameSummary.row(userAnswers).value
+
+      result.value.content.asHtml.toString mustBe "Smith &amp; Sons O&#x27;Brien"
+    }
+
     "must return None when the answer is not present" in {
       BusinessNameSummary.row(UserAnswers(userAnswersId)) mustBe None
     }

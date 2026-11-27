@@ -20,7 +20,7 @@ import controllers.vehicledetails.routes
 import models.{CheckMode, ImportNumber, UserAnswers}
 import pages.sections.vehicledetails.ImportEntryNumberPage
 import play.api.i18n.Messages
-import play.twirl.api.HtmlFormat
+import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import viewmodels.govuk.summarylist.*
 import viewmodels.implicits.*
@@ -31,7 +31,7 @@ object ImportEntryNumberSummary {
     answers.get(ImportEntryNumberPage(importNumber)).map { importEntryNumber =>
       SummaryListRowViewModel(
         key = "importEntryNumber.checkYourAnswersLabel",
-        value = ValueViewModel(HtmlFormat.escape(importEntryNumber).toString),
+        value = ValueViewModel(Text(importEntryNumber)),
         actions = Seq(
           ActionItemViewModel("site.change", routes.ImportEntryNumberController.onPageLoad(importNumber, CheckMode).url)
             .withVisuallyHiddenText(messages("importEntryNumber.change.hidden"))
