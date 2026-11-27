@@ -206,8 +206,6 @@ object ConfirmAdditionalVehicleDetailsController {
     "reasonForClaimingRelief"
   )
 
-  // beyond draftId, requires the vehicle to belong to this supplier/import group and to have at least one
-  // AVD question answered, so the CYA screen can't be reached by URL-hopping before any answers exist
   def supplierGuardPredicate(
     supplierService: SupplierService,
     vehicleService: VehicleService,
